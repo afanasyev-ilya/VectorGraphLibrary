@@ -1,0 +1,87 @@
+CXX = g++
+CUDA_COMPILER = nvcc
+CUDA_DIR = /opt/cuda/cuda-8.0/
+
+# Include paths...
+Include_Path = -I $(CUDA_DIR)/include
+
+# Library paths...
+Libraries =  -fopenmp -fpermissive
+Library_Path = -L $(CUDA_DIR)/lib -L $(CUDA_DIR)/lib64
+Libraries +=
+
+# CPU Compiler flags...
+CXXFLAGS = -O2 -fopenmp -fopt-info-vec -fpermissive
+LDFLAGS = -fopenmp
+
+# CUDA Compiler flags
+CUDA_FLAGS = -O2 -w -m64 -std=c++11 -gencode arch=compute_60,code=sm_60  -Xptxas -dlcm=ca
+
+# Paths to gpu algorithms from current sample
+VPATH=./:algorithms/shortest_paths/gpu/
+
+.DEFAULT_GOAL := all
+
+##########
+# binaries
+##########
+
+all: test_operations generate_test_data bfs
+
+pr: create_folders pr.o
+	$(CXX) object_files/pr.o $(Library_Path) $(Libraries) $(LDFLAGS) -o ./bin/pr
+
+cc: create_folders cc.o
+	$(CXX) object_files/cc.o $(Library_Path) $(Libraries) $(LDFLAGS) -o ./bin/cc
+
+sssp: create_folders sssp.o
+	$(CXX) object_files/sssp.o $(Library_Path) $(Libraries) $(LDFLAGS) -o ./bin/sssp
+
+sswp: create_folders sswp.o
+	$(CXX) object_files/sswp.o $(Library_Path) $(Libraries) $(LDFLAGS) -o ./bin/sswp
+
+bfs: create_folders bfs.o
+	$(CXX) object_files/bfs.o $(Library_Path) $(Libraries) $(LDFLAGS) -o ./bin/bfs
+	
+custom_test: create_folders custom_test.o
+	$(CXX) object_files/custom_test.o $(Library_Path) $(Libraries) $(LDFLAGS) -o ./bin/custom_test
+
+generate_test_data: create_folders generate_test_data.o
+	$(CXX) object_files/generate_test_data.o $(Library_Path) $(Libraries) $(LDFLAGS) -o ./bin/generate_test_data
+
+##########
+# CPPs
+##########
+
+pr.o: pr.cpp
+	$(CXX) $(CXXFLAGS) $(Include_Path)  -c pr.cpp -o object_files/pr.o -fopenmp
+
+cc.o: cc.cpp
+	$(CXX) $(CXXFLAGS) $(Include_Path)  -c cc.cpp -o object_files/cc.o -fopenmp
+
+sssp.o: sssp.cpp
+	$(CXX) $(CXXFLAGS) $(Include_Path)  -c sssp.cpp -o object_files/sssp.o -fopenmp
+
+sswp.o: sswp.cpp
+	$(CXX) $(CXXFLAGS) $(Include_Path)  -c sswp.cpp -o object_files/sswp.o -fopenmp
+
+bfs.o: bfs.cpp
+	$(CXX) $(CXXFLAGS) $(Include_Path)  -c bfs.cpp -o object_files/bfs.o -fopenmp
+	
+custom_test.o: custom_test.cpp
+	$(CXX) $(CXXFLAGS) $(Include_Path)  -c custom_test.cpp -o object_files/custom_test.o -fopenmp
+
+generate_test_data.o: generate_test_data.cpp
+	$(CXX) $(CXXFLAGS) $(Include_Path)  -c generate_test_data.cpp -o object_files/generate_test_data.o -fopenmp
+
+create_folders:
+	-mkdir -p ./bin
+	-cp graph_library.sh ./bin
+	-mkdir -p ./object_files
+
+clean:
+	-rm -f object_files/*.o
+
+#################
+# CUDA operations
+#################
