@@ -38,7 +38,7 @@ int main(int argc, const char * argv[])
         
         // compute CC
         int *bfs_result = new int[ext_graph.get_vertices_count()];
-        BFS<int, float>::new_bfs(ext_graph, bfs_result, 0);
+        BFS<int, float>::nec_direction_optimising_BFS(ext_graph, bfs_result, 0);
         
         BFS<int, float>::verifier(ext_graph, 0, bfs_result);
         
