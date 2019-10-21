@@ -27,20 +27,31 @@ int main(int argc, const char * argv[])
         parser.parse_args(argc, argv);
         
         // load graph
-        /*EdgesListGraph<int, float> rand_graph;
-        int vertices_count = pow(2.0, parser.get_scale());
-        long long edges_count = vertices_count * parser.get_avg_degree();
-        GraphGenerationAPI<int, float>::random_uniform(rand_graph, vertices_count, edges_count, UNDIRECTED_GRAPH);*/
-        
-        ExtendedCSRGraph<int, float> ext_graph;
-        ext_graph.load_from_binary_file(parser.get_graph_file_name());
-        //ext_graph.import_graph(rand_graph, VERTICES_SORTED, EDGES_SORTED, 1, PULL_TRAVERSAL);
-        
+        ExtendedCSRGraph<int, float> graph;
+        EdgesListGraph<int, float> rand_graph;
+        if(parser.get_compute_mode() == GENERATE_NEW_GRAPH)
+        {
+            int vertices_count = pow(2.0, parser.get_scale());
+            long long edges_count = vertices_count * parser.get_avg_degree();
+            GraphGenerationAPI<int, float>::random_uniform(rand_graph, vertices_count, edges_count, UNDIRECTED_GRAPH);
+            graph.import_graph(rand_graph, VERTICES_SORTED, EDGES_SORTED, 1, PULL_TRAVERSAL);
+        }
+        else if(parser.get_compute_mode() == LOAD_GRAPH_FROM_FILE)
+        {
+            if(!graph.load_from_binary_file(parser.get_graph_file_name()))
+                throw "ERROR: graph file not found";
+        }
+
         // compute CC
-        int *bfs_result = new int[ext_graph.get_vertices_count()];
-        BFS<int, float>::nec_direction_optimising_BFS(ext_graph, bfs_result, 0);
+        int *bfs_result = new int[graph.get_vertices_count()];
+        BFS<int, float>::nec_direction_optimising_BFS(graph, bfs_result, 0);
+        cout << endl << "-------------------------------------------------" << endl << endl;
+        BFS<int, float>::nec_direction_optimising_BFS(graph, bfs_result, 10);
+        cout << endl << "-------------------------------------------------" << endl << endl;
+        BFS<int, float>::nec_direction_optimising_BFS(graph, bfs_result, 20);
+        cout << endl << "-------------------------------------------------" << endl << endl;
         
-        BFS<int, float>::verifier(ext_graph, 0, bfs_result);
+        BFS<int, float>::verifier(graph, 20, bfs_result);
         
         delete []bfs_result;
     }

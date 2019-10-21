@@ -168,8 +168,6 @@ void ExtendedCSRGraph<_TVertexValue, _TEdgeWeight>::import_graph(EdgesListGraph<
     for(int i = 0; i < tmp_vertices_count; i += supported_vector_length)
     {
         int max_segment_size = tmp_graph[i].size();
-        if((max_segment_size % 2) == 1)
-            max_segment_size++; // TOFIX
         for(int j = 0; j < supported_vector_length; j++)
         {
             while(tmp_graph[i + j].size() < max_segment_size)
