@@ -94,18 +94,21 @@ inline void BFS<_TVertexValue, _TEdgeWeight>::nec_generate_frontier(int *_levels
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template <typename _TVertexValue, typename _TEdgeWeight>
-inline void BFS<_TVertexValue, _TEdgeWeight>::nec_top_down_step(long long *_outgoing_ptrs,
+inline void BFS<_TVertexValue, _TEdgeWeight>::nec_top_down_step(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
+                                                                long long *_outgoing_ptrs,
                                                                 int *_outgoing_ids,
+                                                                float *_outgoing_weights,
                                                                 int _vertices_count,
                                                                 int _active_count,
                                                                 int *_levels,
+                                                                int *_cached_levels,
                                                                 int *_active_ids,
                                                                 int _cur_level,
                                                                 int &_vis,
                                                                 int &_in_lvl)
 {
     int vis = 0, in_lvl = 0;
-    if(_cur_level == 1)
+    if(_cur_level == 1) // process first level vertex
     {
         int src_id = _active_ids[0];
         int src_level = _levels[src_id];
@@ -113,7 +116,7 @@ inline void BFS<_TVertexValue, _TEdgeWeight>::nec_top_down_step(long long *_outg
         int start_pos = _outgoing_ptrs[src_id];
         in_lvl += connections;
         
-        if(connections < 2*VECTOR_LENGTH)
+        if(false /*connections < 2*VECTOR_LENGTH*/) // process first level vertex with low degree
         {
             #ifdef __USE_NEC_SX_AURORA__
             #pragma _NEC ivdep
@@ -131,32 +134,66 @@ inline void BFS<_TVertexValue, _TEdgeWeight>::nec_top_down_step(long long *_outg
                 }
             }
         }
-        else
-        {
-            #pragma omp parallel shared(vis)
+        else // process first level vertex with large degree
+        { 
+            #pragma _NEC retain(_levels)
+
+            #pragma omp parallel
             {
-                int local_vis = 0;
+                int local_vis_reg[VECTOR_LENGTH];
                 
-                #ifdef __USE_NEC_SX_AURORA__
-                #pragma _NEC ivdep
-                #pragma _NEC vovertake
-                #pragma _NEC novob
-                #pragma _NEC vector
-                #endif
+                #pragma _NEC vreg(local_vis_reg)
+                
+                for(int i = 0; i < VECTOR_LENGTH; i++)
+                    local_vis_reg[i] = 0;
+                
+                int *private_levels = _graph.template get_private_data_pointer<int>(_cached_levels);
+                
+                #pragma _NEC novector
                 #pragma omp for schedule(static)
-                for(int edge_pos = 0; edge_pos < connections; edge_pos++)
+                for(int edge_pos = 0; edge_pos < connections - VECTOR_LENGTH; edge_pos += VECTOR_LENGTH)
                 {
-                    int dst_id = _outgoing_ids[start_pos + edge_pos];
-                    int dst_level = 0;
-                    //if(dst_id > 5000)
-                    dst_level = _levels[dst_id];
-                    
-                    if((src_level == _cur_level) && (dst_level == -1))
+                    #pragma _NEC ivdep
+                    #pragma _NEC vovertake
+                    #pragma _NEC novob
+                    #pragma _NEC vector
+                    for(int i = 0; i < VECTOR_LENGTH; i++)
                     {
-                        _levels[dst_id] = _cur_level + 1;
-                        local_vis++;
+                        int dst_id = _outgoing_ids[start_pos + edge_pos + i];
+                        int dst_level = _graph.template load_vertex_data_cached<int>(dst_id, _levels, private_levels);
+                        
+                        if(dst_level == -1)
+                        {
+                            _levels[dst_id] = _cur_level + 1;
+                            local_vis_reg[i]++;
+                        }
                     }
                 }
+                #pragma omp single
+                {
+                    #pragma _NEC ivdep
+                    #pragma _NEC vovertake
+                    #pragma _NEC novob
+                    #pragma _NEC vector
+                    for(int edge_pos = connections - VECTOR_LENGTH; edge_pos < connections; edge_pos++)
+                    {
+                        int i = edge_pos - (connections - VECTOR_LENGTH);
+                        int dst_id = _outgoing_ids[start_pos + edge_pos];
+                        int dst_level = _graph.template load_vertex_data_cached<int>(dst_id, _levels, private_levels);
+                        
+                        if(dst_level == -1)
+                        {
+                            _levels[dst_id] = _cur_level + 1;
+                            local_vis_reg[i]++;
+                        }
+                    }
+                }
+                
+                int local_vis = 0;
+                for(int i = 0; i < VECTOR_LENGTH; i++)
+                    local_vis += local_vis_reg[i];
+                
+                #pragma omp barrier
                 
                 #pragma omp critical
                 {
@@ -165,9 +202,10 @@ inline void BFS<_TVertexValue, _TEdgeWeight>::nec_top_down_step(long long *_outg
             }
         }
     }
-    else
+    else // process full layer of vertices
     {
-        #pragma omp parallel shared(vis, in_lvl)
+        int border_large, border_medium = 0;
+        #pragma omp parallel shared(vis, in_lvl, border_large, border_medium)
         {
             int local_in_lvl = 0, local_vis = 0;
             
@@ -183,6 +221,8 @@ inline void BFS<_TVertexValue, _TEdgeWeight>::nec_top_down_step(long long *_outg
             #pragma _NEC vreg(vis_reg)
             #pragma _NEC vreg(in_lvl_reg)
             
+            int *private_levels = _graph.template get_private_data_pointer<int>(_cached_levels);
+            
             for(int i = 0; i < VECTOR_LENGTH; i++)
             {
                 connections[i] = 0;
@@ -192,16 +232,120 @@ inline void BFS<_TVertexValue, _TEdgeWeight>::nec_top_down_step(long long *_outg
                 vis_reg[i] = 0;
             }
             
-            #pragma omp for schedule(static, 1)
-            for(int vec_start = 0; vec_start < _active_count; vec_start += VECTOR_LENGTH)
+            /*#pragma omp for schedule(static)
+            for(int i = 0; i < (_active_count - 1); i++)
+            {
+                int id1 = _active_ids[i];
+                int id2 = _active_ids[i + 1];
+                int connections1 = _outgoing_ptrs[id1 + 1] - _outgoing_ptrs[id1];
+                int connections2 = _outgoing_ptrs[id2 + 1] - _outgoing_ptrs[id2];
+                if((connections1 > 16*VECTOR_LENGTH) && (connections2 <= 16*VECTOR_LENGTH))
+                {
+                    border_large = i;
+                }
+                
+                if((connections1 > VECTOR_LENGTH) && (connections2 <= VECTOR_LENGTH))
+                {
+                    border_medium = i;
+                }
+            }*/
+            
+            // process group of large vertices
+            for(int idx = 0; idx < 1; idx++)
+            {
+                int src_id = 0; //_active_ids[idx];
+                int connections = _outgoing_ptrs[src_id + 1] - _outgoing_ptrs[src_id];
+                long long start_pos = _outgoing_ptrs[src_id];
+
+                #pragma _NEC novector
+                #pragma omp for schedule(static)
+                for(int edge_pos = 0; edge_pos < connections - VECTOR_LENGTH; edge_pos += VECTOR_LENGTH)
+                {
+                    #pragma _NEC ivdep
+                    #pragma _NEC vovertake
+                    #pragma _NEC novob
+                    #pragma _NEC vector
+                    for(int i = 0; i < VECTOR_LENGTH; i++)
+                    {
+                        int dst_id = _outgoing_ids[start_pos + edge_pos + i];
+                        int dst_level = _graph.template load_vertex_data_cached<int>(dst_id, _levels, private_levels);
+                        
+                        in_lvl_reg[i]++;
+                        
+                        if(dst_level == -1)
+                        {
+                            _levels[dst_id] = _cur_level + 1;
+                            vis_reg[i]++;
+                        }
+                    }
+                }
+                /*#pragma omp single
+                {
+                    #pragma _NEC ivdep
+                    #pragma _NEC vovertake
+                    #pragma _NEC novob
+                    #pragma _NEC vector
+                    for(int edge_pos = connections - VECTOR_LENGTH; edge_pos < connections; edge_pos++)
+                    {
+                        int i = edge_pos - (connections - VECTOR_LENGTH);
+                        int dst_id = _outgoing_ids[start_pos + edge_pos];
+                        int dst_level = _graph.template load_vertex_data_cached<int>(dst_id, _levels, private_levels);
+                        
+                        in_lvl_reg[i]++;
+                        
+                        if(dst_level == -1)
+                        {
+                            _levels[dst_id] = _cur_level + 1;
+                            vis_reg[i]++;
+                        }
+                    }
+                }*/
+            }
+            
+            /*#pragma omp for schedule(static)
+            for(int idx = border_large; idx < border_medium; idx++)
+            {
+                int src_id = _active_ids[idx];
+                int connections = _outgoing_ptrs[src_id + 1] - _outgoing_ptrs[src_id];
+                
+                long long start_pos = _outgoing_ptrs[src_id];
+                    
+                #pragma _NEC ivdep
+                #pragma _NEC vovertake
+                #pragma _NEC novob
+                #pragma _NEC vector
+                for(int edge_pos = 0; edge_pos < connections; edge_pos++)
+                {
+                    int dst_id = _outgoing_ids[start_pos + edge_pos];
+                    int dst_level = _graph.template load_vertex_data_cached<int>(dst_id, _levels, private_levels);
+                    local_in_lvl++;
+                    
+                    if(dst_level == -1)
+                    {
+                        _levels[dst_id] = _cur_level + 1;
+                        local_vis++;
+                    }
+                }
+            }
+            
+            #pragma omp for schedule(static)
+            for(int vec_start = border_medium; vec_start < _active_count; vec_start += VECTOR_LENGTH)
             {
                 for(int i = 0; i < VECTOR_LENGTH; i++)
                 {
-                    active_reg[i] = _active_ids[vec_start + i];
+                    int src_id = _active_ids[vec_start + i];
+                    active_reg[i] = src_id;
                     
-                    int src_id = active_reg[i];
-                    connections[i] = _outgoing_ptrs[src_id + 1] - _outgoing_ptrs[src_id];
-                    start_pos[i] = _outgoing_ptrs[src_id];
+                    if((vec_start + i) < _active_count)
+                    {
+                        connections[i] = _outgoing_ptrs[src_id + 1] - _outgoing_ptrs[src_id];
+                        start_pos[i] = _outgoing_ptrs[src_id];
+                    }
+                    else
+                    {
+                        connections[i] = 0;
+                        start_pos[i] = 0;
+                    }
                 }
                 
                 int max_connections = 0;
@@ -223,17 +367,22 @@ inline void BFS<_TVertexValue, _TEdgeWeight>::nec_top_down_step(long long *_outg
                     {
                         int src_id = active_reg[i];
                         int dst_id = _outgoing_ids[start_pos[i] + edge_pos];
+                        int dst_level = 0;
                         
-                        in_lvl_reg[i]++;
+                        if(((vec_start + i) < _active_count) && (edge_pos < connections[i]))
+                        {
+                            in_lvl_reg[i]++;
+                            dst_level = _graph.template load_vertex_data_cached<int>(dst_id, _levels, private_levels);
+                        }
                         
-                        if((i < _active_count) && (edge_pos < connections[i]) && (_levels[src_id] == _cur_level) && (_levels[dst_id] == -1))
+                        if(((vec_start + i) < _active_count) && (edge_pos < connections[i]) && (dst_level == -1))
                         {
                             _levels[dst_id] = _cur_level + 1;
                             vis_reg[i]++;
                         }
                     }
                 }
-            }
+            }*/
             
             for(int i = 0; i < VECTOR_LENGTH; i++)
             {
@@ -255,20 +404,22 @@ inline void BFS<_TVertexValue, _TEdgeWeight>::nec_top_down_step(long long *_outg
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template <typename _TVertexValue, typename _TEdgeWeight>
-inline void BFS<_TVertexValue, _TEdgeWeight>::nec_bottom_up_step(long long *_outgoing_ptrs,
-                                                                int *_outgoing_ids,
-                                                                int _vertices_count,
-                                                                int _active_count,
-                                                                int *_levels,
-                                                                int *_active_ids,
-                                                                int _cur_level,
-                                                                int &_vis,
-                                                                int &_in_lvl)
+inline void BFS<_TVertexValue, _TEdgeWeight>::nec_bottom_up_step(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
+                                                                 long long *_outgoing_ptrs,
+                                                                 int *_outgoing_ids,
+                                                                 int _vertices_count,
+                                                                 int _active_count,
+                                                                 int *_levels,
+                                                                 int *_cached_levels,
+                                                                 int *_active_ids,
+                                                                 int _cur_level,
+                                                                 int &_vis,
+                                                                 int &_in_lvl)
 {
     int vis = 0;
     long long in_lvl = 0;
     
-    if(false)
+    if(false) // if graph has RU structure ()
     {
         int border = 0;
         #pragma omp parallel shared(vis, in_lvl)
@@ -302,11 +453,19 @@ inline void BFS<_TVertexValue, _TEdgeWeight>::nec_bottom_up_step(long long *_out
             {
                 for(int i = 0; i < VECTOR_LENGTH; i++)
                 {
-                    active_reg[i] = _active_ids[vec_start + i];
+                    int src_id = _active_ids[vec_start + i];
+                    active_reg[i] = src_id;
                     
-                    int src_id = active_reg[i];
-                    connections[i] = _outgoing_ptrs[src_id + 1] - _outgoing_ptrs[src_id];
-                    start_pos[i] = _outgoing_ptrs[src_id];
+                    if((vec_start + i) < _active_count)
+                    {
+                        connections[i] = _outgoing_ptrs[src_id + 1] - _outgoing_ptrs[src_id];
+                        start_pos[i] = _outgoing_ptrs[src_id];
+                    }
+                    else
+                    {
+                        connections[i] = 0;
+                        start_pos[i] = 0;
+                    }
                 }
                 
                 int max_connections = 0;
@@ -355,7 +514,7 @@ inline void BFS<_TVertexValue, _TEdgeWeight>::nec_bottom_up_step(long long *_out
             }
         }
     }
-    else
+    else // if graph has RMAT structure
     {
         #pragma omp parallel shared(vis, in_lvl)
         {
@@ -367,12 +526,14 @@ inline void BFS<_TVertexValue, _TEdgeWeight>::nec_bottom_up_step(long long *_out
             long long start_pos[VECTOR_LENGTH];
             int vis_reg[VECTOR_LENGTH];
             long long in_lvl_reg[VECTOR_LENGTH];
+            int src_levels_reg[VECTOR_LENGTH];
             
             #pragma _NEC vreg(start_pos)
             #pragma _NEC vreg(connections)
             #pragma _NEC vreg(active_reg)
             #pragma _NEC vreg(vis_reg)
             #pragma _NEC vreg(in_lvl_reg)
+            #pragma _NEC vreg(src_levels_reg)
             
             for(int i = 0; i < VECTOR_LENGTH; i++)
             {
@@ -381,18 +542,31 @@ inline void BFS<_TVertexValue, _TEdgeWeight>::nec_bottom_up_step(long long *_out
                 start_pos[i] = 0;
                 in_lvl_reg[i] = 0;
                 vis_reg[i] = 0;
+                src_levels_reg[i] = 0;
             }
             
-            #pragma omp for schedule(static, 1)
+            int *private_levels = _graph.template get_private_data_pointer<int>(_cached_levels);
+            
+            #pragma omp for schedule(static)
             for(int vec_start = 0; vec_start < _active_count; vec_start += VECTOR_LENGTH)
             {
                 for(int i = 0; i < VECTOR_LENGTH; i++)
                 {
-                    active_reg[i] = _active_ids[vec_start + i];
+                    int src_id = _active_ids[vec_start + i];
+                    active_reg[i] = src_id;
                     
-                    int src_id = active_reg[i];
-                    connections[i] = _outgoing_ptrs[src_id + 1] - _outgoing_ptrs[src_id];
-                    start_pos[i] = _outgoing_ptrs[src_id];
+                    if((vec_start + i) < _active_count)
+                    {
+                        connections[i] = _outgoing_ptrs[src_id + 1] - _outgoing_ptrs[src_id];
+                        start_pos[i] = _outgoing_ptrs[src_id];
+                        src_levels_reg[i] = _levels[src_id];
+                    }
+                    else
+                    {
+                        connections[i] = 0;
+                        start_pos[i] = 0;
+                        src_levels_reg[i] = 0;
+                    }
                 }
                 
                 int max_connections = 0;
@@ -402,8 +576,8 @@ inline void BFS<_TVertexValue, _TEdgeWeight>::nec_bottom_up_step(long long *_out
                         max_connections = connections[i];
                 }
                 
-                if(max_connections > 4)
-                    max_connections = 4;
+                if(max_connections > BOTTOM_UP_THRESHOLD)
+                    max_connections = BOTTOM_UP_THRESHOLD;
                 
                 for(int edge_pos = 0; edge_pos < max_connections; edge_pos++)
                 {
@@ -417,12 +591,15 @@ inline void BFS<_TVertexValue, _TEdgeWeight>::nec_bottom_up_step(long long *_out
                     {
                         int src_id = active_reg[i];
                         int dst_id = _outgoing_ids[start_pos[i] + edge_pos];
+                        int dst_level = 0;
                         
                         if(((vec_start + i) < _active_count) && (edge_pos < connections[i]))
+                        {
+                            dst_level = _graph.template load_vertex_data_cached<int>(dst_id, _levels, private_levels);
                             in_lvl_reg[i]++;
-                         
-                        if(((vec_start + i) < _active_count) && (edge_pos < connections[i]) &&
-                           (_levels[src_id] == -1) && (_levels[dst_id] == _cur_level))
+                        }
+
+                        if(((vec_start + i) < _active_count) && (edge_pos < connections[i]) && (dst_level == _cur_level))
                         {
                             _levels[src_id] = _cur_level + 1;
                             vis_reg[i]++;
@@ -431,13 +608,8 @@ inline void BFS<_TVertexValue, _TEdgeWeight>::nec_bottom_up_step(long long *_out
                 }
             }
             
-            for(int i = 0; i < VECTOR_LENGTH; i++)
-            {
-                local_in_lvl += in_lvl_reg[i];
-                local_vis += vis_reg[i];
-            }
-            
-            #pragma omp for schedule(static, 1)
+            /*#pragma _NEC novector
+            #pragma omp for schedule(static)
             for(int idx = 0; idx < _active_count; idx++)
             {
                 int src_id = _active_ids[idx];
@@ -446,23 +618,49 @@ inline void BFS<_TVertexValue, _TEdgeWeight>::nec_bottom_up_step(long long *_out
                     int connections = _outgoing_ptrs[src_id + 1] - _outgoing_ptrs[src_id];
                     long long start_pos = _outgoing_ptrs[src_id];
                     
+                    for(int i = 0; i < VECTOR_LENGTH; i++)
+                    {
+                        src_levels_reg[i] = 0;
+                    }
+                    
+                    int size = VECTOR_LENGTH;
+                    if(size > connections)
+                        size = connections;
+                    
                     #pragma _NEC ivdep
                     #pragma _NEC vovertake
                     #pragma _NEC novob
                     #pragma _NEC vector
-                    for(int edge_pos = 0; edge_pos < connections; edge_pos ++)
+                    for(int i = 0; i < connections; i++)
                     {
-                        int dst_id = _outgoing_ids[start_pos + edge_pos];
-                        
-                        local_in_lvl ++;
-                        if((_levels[src_id] == -1) && (_levels[dst_id] == _cur_level))
+                        int dst_id = _outgoing_ids[start_pos + i];
+                        in_lvl_reg[i]++;
+                            
+                        if(_levels[dst_id] == _cur_level)
                         {
-                            _levels[src_id] = _cur_level + 1;
-                            local_vis++;
+                            src_levels_reg[i] = _cur_level + 1;
+                            vis_reg[i]++;
                         }
                     }
+                    
+                    int changes = 0;
+                    for(int i = 0; i < VECTOR_LENGTH; i++)
+                    {
+                        changes += src_levels_reg[i];
+                    }
+                    
+                    if(changes > 0)
+                        _levels[src_id] = _cur_level + 1;
                 }
+            }*/
+            
+            for(int i = 0; i < VECTOR_LENGTH; i++)
+            {
+                local_in_lvl += in_lvl_reg[i];
+                local_vis += vis_reg[i];
             }
+            
+            #pragma omp barrier
             
             #pragma omp critical
             {
@@ -510,6 +708,30 @@ void mark_zero_nodes(int _vertices_count, int *_levels)
     }
 }
 
+template <typename _T>
+void NEC_indirect_memory_access_read(_T *_data, _T *_result, int _size)
+{
+    double t1 = omp_get_wtime();
+    
+    #pragma omp parallel for schedule(static)
+    #pragma simd
+    #pragma ivdep
+    for (int idx = 0; idx < _size; idx++)
+    {
+        _result[idx] = 2.0*_data[idx];
+    }
+    
+    double t2 = omp_get_wtime();
+    double time = t2 - t1;
+    
+    double gb_total = ((2.0 * sizeof(_T) + sizeof(int)) * ((double)_size)) / 1e9;
+    cout << "NEC_indirect_memory_acces read..." << endl;
+    cout << "Time: " << time * 1000.0 << " ms " << endl;
+    cout << "Bandwidth: " << gb_total / time << " GB/s" << endl;
+    cout << endl;
+}
+
+
 template <typename _TVertexValue, typename _TEdgeWeight>
 void BFS<_TVertexValue, _TEdgeWeight>::nec_direction_optimising_BFS(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
                                                                     int *_levels,
@@ -521,27 +743,19 @@ void BFS<_TVertexValue, _TEdgeWeight>::nec_direction_optimising_BFS(ExtendedCSRG
     long long    *outgoing_ptrs    = _graph.get_outgoing_ptrs   ();
     int          *outgoing_ids     = _graph.get_outgoing_ids    ();
     _TEdgeWeight *outgoing_weights = _graph.get_outgoing_weights();
+    
     int threads_count = omp_get_max_threads();
+    _graph.set_threads_count(threads_count);
+
+    int *active_ids = _graph.template vertex_array_alloc<int>();
     
-    cout << "1!!! " << ((double)(outgoing_ptrs[1] - outgoing_ptrs[0]))/((double)edges_count) << endl << endl;
+    int cur_level = 1, active_count = 1;
+    _graph.template vertex_array_set_to_constant<int>(_levels, -1);
+    _graph.template vertex_array_set_element<int>(_levels, _source_vertex,  cur_level);
+    _graph.template vertex_array_set_to_constant<int>(active_ids, 0);
+    _graph.template vertex_array_set_element<int>(active_ids, 0, _source_vertex);
     
-    int *active_ids = new int[vertices_count];
-    
-    #ifdef __USE_NEC_SX_AURORA__
-    #pragma _NEC retain(_levels)
-    #endif
-    
-    #pragma omp parallel for
-    for(int i = 0; i < vertices_count; i++)
-    {
-        _levels[i] = -1;
-        active_ids[i] = 0;
-    }
-    
-    int cur_level = 1;
-    _levels[_source_vertex] = cur_level;
-    int active_count = 1;
-    active_ids[0] = _source_vertex;
+    int *cached_levels = _graph.template allocate_private_caches<int>(threads_count);
     
     StateOfBFS current_state = TOP_DOWN;
     double total_time = 0;
@@ -551,21 +765,28 @@ void BFS<_TVertexValue, _TEdgeWeight>::nec_direction_optimising_BFS(ExtendedCSRG
     t2 = omp_get_wtime();
     //total_time += t2 - t1;
     
-    while(active_count > 0)
+    while((active_count > 0) && (cur_level < 10))
     {
+        // test
+        #pragma omp parallel num_threads(threads_count)
+        {
+            int *private_levels = _graph.template get_private_data_pointer<int>(cached_levels);
+            _graph.template place_data_into_cache<int>(_levels, private_levels);
+        }
+        
         int vis = 0, in_lvl = 0;
         int current_active_count = active_count;
         
         t3 = omp_get_wtime();
         if(current_state == TOP_DOWN)
         {
-            nec_top_down_step(outgoing_ptrs, outgoing_ids, vertices_count, active_count, _levels, active_ids, cur_level,
-                              vis, in_lvl);
+            nec_top_down_step(_graph, outgoing_ptrs, outgoing_ids, outgoing_weights, vertices_count, active_count, _levels,
+                              cached_levels, active_ids, cur_level, vis, in_lvl);
         }
         else if(current_state == BOTTOM_UP)
         {
-            nec_bottom_up_step(outgoing_ptrs, outgoing_ids, vertices_count, active_count, _levels, active_ids, cur_level,
-                               vis, in_lvl);
+            nec_bottom_up_step(_graph, outgoing_ptrs, outgoing_ids, vertices_count, active_count, _levels, cached_levels,
+                               active_ids, cur_level, vis, in_lvl);
         }
         
         t4 = omp_get_wtime();
@@ -615,7 +836,8 @@ void BFS<_TVertexValue, _TEdgeWeight>::nec_direction_optimising_BFS(ExtendedCSRG
     
     cout << "TOTAL BFS Perf: " << ((double)edges_count)/(total_time*1e6) << " MTEPS" << endl << endl << endl;
     
-    delete []active_ids;
+    _graph.template free_data<int>(active_ids);
+    _graph.template free_data<int>(cached_levels);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

@@ -20,6 +20,8 @@ VectorisedCSRGraph<_TVertexValue, _TEdgeWeight>::VectorisedCSRGraph(int _vertice
     vertices_state          = VERTICES_UNSORTED;
     edges_state             = EDGES_UNSORTED;
     
+    threads_count = 1;
+    
     this->alloc(_vertices_count, _edges_count);
 }
 

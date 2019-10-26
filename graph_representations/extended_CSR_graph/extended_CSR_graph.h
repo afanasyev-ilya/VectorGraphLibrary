@@ -24,7 +24,9 @@
 template <typename _TVertexValue, typename _TEdgeWeight>
 class ExtendedCSRGraph : public BaseGraph<_TVertexValue, _TEdgeWeight>
 {
-private:    
+private:
+    int threads_count;
+    
     VerticesState vertices_state;
     EdgesState edges_state;
     int supported_vector_length;
@@ -67,11 +69,30 @@ public:
     void move_to_device() {throw "not implemented yet";};
     void move_to_host() {throw "not implemented yet";};
     #endif
+    
+    void set_threads_count(int _threads_count);
+    
+    // programing vertices API
+    template <class _T> _T*  vertex_array_alloc          ();
+    template <class _T> void vertex_array_copy           (_T *_dst_array, _T *_src_array);
+    template <class _T> void vertex_array_set_to_constant(_T *_dst_array, _T _value);
+    template <class _T> void vertex_array_set_element    (_T *_dst_array, int _pos, _T _value);
+    
+    // programing edges API
+    template <class _T> _T*  allocate_private_caches     (int _threads_count);
+    template <class _T> void free_data                   (_T *_array);
+    
+    // cached API
+    template <class _T> inline _T load_vertex_data_cached(int _idx, _T *_data, _T *_private_data);
+    template <class _T> inline _T load_vertex_data(int _idx, _T *_data);
+    template <class _T> inline _T place_data_into_cache(_T *_data, _T *_private_data);
+    template <class _T> inline _T* get_private_data_pointer(_T *_cached_data);
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #include "extended_CSR_graph.hpp"
+#include "programming_API.hpp"
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 

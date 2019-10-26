@@ -20,6 +20,8 @@ ExtendedCSRGraph<_TVertexValue, _TEdgeWeight>::ExtendedCSRGraph(int _vertices_co
     vertices_state = VERTICES_UNSORTED;
     edges_state = EDGES_UNSORTED;
     
+    threads_count = 1;
+    
     alloc(_vertices_count, _edges_count);
 }
 
