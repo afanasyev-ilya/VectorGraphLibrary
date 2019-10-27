@@ -25,7 +25,7 @@ void export_to_gapbs_text_unweighted(EdgesListGraph<_TVertexValue, _TEdgeWeight>
     {
         int src_id = src_ids[i];
         int dst_id = dst_ids[i];
-        gapbs_file << src_id << " " << dst_id << endl;
+        gapbs_file << src_id << " " << dst_id << '\n';
     }
     
     gapbs_file.close();

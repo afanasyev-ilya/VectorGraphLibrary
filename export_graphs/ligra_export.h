@@ -37,20 +37,20 @@ void export_to_ligra_text_unweighted(EdgesListGraph<_TVertexValue, _TEdgeWeight>
     
     ofstream ligra_file(_ligra_file_name.c_str());
     
-    ligra_file << "AdjacencyGraph" << endl;
-    ligra_file << vertices_count << endl;
-    ligra_file << edges_count << endl;
+    ligra_file << "AdjacencyGraph" << '\n';
+    ligra_file << vertices_count << '\n';
+    ligra_file << edges_count << '\n';
     
     for(int i = 0; i < vertices_count; i++)
     {
-        ligra_file << offsets[i] << endl;
+        ligra_file << offsets[i] << '\n';
     }
     
     for(int i = 0; i < vertices_count; i++)
     {
         for(int j = 0; j < adj_graph[i].size(); j++)
         {
-            ligra_file << adj_graph[i][j] << endl;
+            ligra_file << adj_graph[i][j] << '\n';
         }
     }
     

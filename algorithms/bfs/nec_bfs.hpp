@@ -431,7 +431,9 @@ inline void BFS<_TVertexValue, _TEdgeWeight>::nec_bottom_up_step(ExtendedCSRGrap
                                                                  int &_vis,
                                                                  int &_in_lvl,
                                                                  int _threads_count,
-                                                                 int *_partial_outgoing_ids)
+                                                                 int *_partial_outgoing_ids,
+                                                                 bool _use_vect_CSR_extension,
+                                                                 int _non_zero_vertices_count)
 {
     int vis = 0;
     long long in_lvl = 0;
@@ -533,125 +535,147 @@ inline void BFS<_TVertexValue, _TEdgeWeight>::nec_bottom_up_step(ExtendedCSRGrap
     }
     else // if graph has RMAT structure
     {
-        //double t1 = omp_get_wtime();
-        /*#pragma omp parallel shared(vis, in_lvl)
+        if(!_use_vect_CSR_extension)
         {
-            long long local_in_lvl = 0;
-            int local_vis = 0;
-            
-            int connections[VECTOR_LENGTH];
-            int active_reg[VECTOR_LENGTH];
-            long long start_pos[VECTOR_LENGTH];
-            int vis_reg[VECTOR_LENGTH];
-            long long in_lvl_reg[VECTOR_LENGTH];
-            int src_levels_reg[VECTOR_LENGTH];
-            
-            #pragma _NEC vreg(start_pos)
-            #pragma _NEC vreg(connections)
-            #pragma _NEC vreg(active_reg)
-            #pragma _NEC vreg(vis_reg)
-            #pragma _NEC vreg(in_lvl_reg)
-            #pragma _NEC vreg(src_levels_reg)
-            
-            for(int i = 0; i < VECTOR_LENGTH; i++)
+            #pragma omp parallel shared(vis, in_lvl)
             {
-                connections[i] = 0;
-                active_reg[i] = 0;
-                start_pos[i] = 0;
-                in_lvl_reg[i] = 0;
-                vis_reg[i] = 0;
-                src_levels_reg[i] = 0;
-            }
-            
-            int *private_levels = _graph.template get_private_data_pointer<int>(_cached_levels);
-            
-            // process first BOTTOM_UP_THRESHOLD edges of each vertex
-            #pragma omp for schedule(static)
-            for(int vec_start = 0; vec_start < _active_count; vec_start += VECTOR_LENGTH)
-            {
+                long long local_in_lvl = 0;
+                int local_vis = 0;
+                
+                int connections[VECTOR_LENGTH];
+                int active_reg[VECTOR_LENGTH];
+                long long start_pos[VECTOR_LENGTH];
+                int vis_reg[VECTOR_LENGTH];
+                long long in_lvl_reg[VECTOR_LENGTH];
+                int src_levels_reg[VECTOR_LENGTH];
+                
+                #pragma _NEC vreg(start_pos)
+                #pragma _NEC vreg(connections)
+                #pragma _NEC vreg(active_reg)
+                #pragma _NEC vreg(vis_reg)
+                #pragma _NEC vreg(in_lvl_reg)
+                #pragma _NEC vreg(src_levels_reg)
+                
                 for(int i = 0; i < VECTOR_LENGTH; i++)
                 {
-                    int src_id = _active_ids[vec_start + i];
-                    active_reg[i] = src_id;
+                    connections[i] = 0;
+                    active_reg[i] = 0;
+                    start_pos[i] = 0;
+                    in_lvl_reg[i] = 0;
+                    vis_reg[i] = 0;
+                    src_levels_reg[i] = 0;
+                }
+                
+                int *private_levels = _graph.template get_private_data_pointer<int>(_cached_levels);
+                
+                // process first BOTTOM_UP_THRESHOLD edges of each vertex
+                #pragma omp for schedule(static)
+                for(int vec_start = 0; vec_start < _active_count; vec_start += VECTOR_LENGTH)
+                {
+                    for(int i = 0; i < VECTOR_LENGTH; i++)
+                    {
+                        int src_id = _active_ids[vec_start + i];
+                        active_reg[i] = src_id;
+                        
+                        if((vec_start + i) < _active_count)
+                        {
+                            connections[i] = _outgoing_ptrs[src_id + 1] - _outgoing_ptrs[src_id];
+                            start_pos[i] = _outgoing_ptrs[src_id];
+                            src_levels_reg[i] = _levels[src_id];
+                        }
+                        else
+                        {
+                            connections[i] = 0;
+                            start_pos[i] = 0;
+                            src_levels_reg[i] = 0;
+                        }
+                    }
                     
-                    if((vec_start + i) < _active_count)
+                    int max_connections = 0;
+                    for(int i = 0; i < VECTOR_LENGTH; i++)
                     {
-                        connections[i] = _outgoing_ptrs[src_id + 1] - _outgoing_ptrs[src_id];
-                        start_pos[i] = _outgoing_ptrs[src_id];
-                        src_levels_reg[i] = _levels[src_id];
+                        if(max_connections < connections[i])
+                            max_connections = connections[i];
                     }
-                    else
+                    
+                    if(max_connections > BOTTOM_UP_THRESHOLD)
+                        max_connections = BOTTOM_UP_THRESHOLD;
+                    
+                    for(int edge_pos = 0; edge_pos < max_connections; edge_pos++)
                     {
-                        connections[i] = 0;
-                        start_pos[i] = 0;
-                        src_levels_reg[i] = 0;
+                        #ifdef __USE_NEC_SX_AURORA__
+                        #pragma _NEC ivdep
+                        #pragma _NEC vovertake
+                        #pragma _NEC novob
+                        #pragma _NEC vector
+                        #endif
+                        for(int i = 0; i < VECTOR_LENGTH; i++)
+                        {
+                            int src_id = active_reg[i];
+                            int dst_id = _outgoing_ids[start_pos[i] + edge_pos];
+                            int dst_level = 0;
+                            
+                            if(((vec_start + i) < _active_count) && (edge_pos < connections[i]))
+                            {
+                                dst_level = _graph.template load_vertex_data_cached<int>(dst_id, _levels, private_levels);
+                                in_lvl_reg[i]++;
+                            }
+
+                            if(((vec_start + i) < _active_count) && (edge_pos < connections[i]) && (dst_level == _cur_level))
+                            {
+                                _levels[src_id] = _cur_level + 1;
+                                vis_reg[i]++;
+                            }
+                        }
                     }
                 }
                 
-                int max_connections = 0;
                 for(int i = 0; i < VECTOR_LENGTH; i++)
                 {
-                    if(max_connections < connections[i])
-                        max_connections = connections[i];
+                    local_in_lvl += in_lvl_reg[i];
+                    local_vis += vis_reg[i];
                 }
                 
-                if(max_connections > BOTTOM_UP_THRESHOLD)
-                    max_connections = BOTTOM_UP_THRESHOLD;
+                #pragma omp barrier
                 
-                for(int edge_pos = 0; edge_pos < max_connections; edge_pos++)
+                #pragma omp critical
                 {
-                    #ifdef __USE_NEC_SX_AURORA__
+                    vis += local_vis;
+                    in_lvl += local_in_lvl;
+                }
+            }
+        }
+        
+        if(_use_vect_CSR_extension)
+        {
+            #pragma omp parallel
+            {
+                int *private_levels = _graph.template get_private_data_pointer<int>(_cached_levels);
+                
+                #pragma _NEC novector
+                #pragma _NEC unroll(BOTTOM_UP_THRESHOLD)
+                for(int step = 0; step < BOTTOM_UP_THRESHOLD; step++)
+                {
                     #pragma _NEC ivdep
                     #pragma _NEC vovertake
                     #pragma _NEC novob
                     #pragma _NEC vector
-                    #endif
-                    for(int i = 0; i < VECTOR_LENGTH; i++)
+                    #pragma omp for schedule(static)
+                    for(int src_id = 0; src_id < _non_zero_vertices_count; src_id++)
                     {
-                        int src_id = active_reg[i];
-                        int dst_id = _outgoing_ids[start_pos[i] + edge_pos];
-                        int dst_level = 0;
+                        int connections = _outgoing_ptrs[src_id + 1] - _outgoing_ptrs[src_id];
                         
-                        if(((vec_start + i) < _active_count) && (edge_pos < connections[i]))
-                        {
-                            dst_level = _graph.template load_vertex_data_cached<int>(dst_id, _levels, private_levels);
-                            in_lvl_reg[i]++;
-                        }
-
-                        if(((vec_start + i) < _active_count) && (edge_pos < connections[i]) && (dst_level == _cur_level))
+                        int dst_id = _partial_outgoing_ids[src_id + _vertices_count * step];
+                        int dst_level = _graph.template load_vertex_data_cached<int>(dst_id, _levels, private_levels);
+                        if((_levels[src_id] == -1) && (dst_level == _cur_level) && (connections > step))
                         {
                             _levels[src_id] = _cur_level + 1;
-                            vis_reg[i]++;
                         }
                     }
                 }
             }
-            
-            for(int i = 0; i < VECTOR_LENGTH; i++)
-            {
-                local_in_lvl += in_lvl_reg[i];
-                local_vis += vis_reg[i];
-            }
-            
-            #pragma omp barrier
-            
-            #pragma omp critical
-            {
-                vis += local_vis;
-                in_lvl += local_in_lvl;
-            }
-        }*/
-        
-        #pragma omp parallel shared(vis, in_lvl)
-        {
-            
+            in_lvl += _non_zero_vertices_count*BOTTOM_UP_THRESHOLD;
         }
-        
-        /*double t2 = omp_get_wtime();
-        long long first_in_lvl = in_lvl;
-        cout << "first time: " << 1000.0 * (t2 - t1) << " ms" << endl;
-        cout << "first perf: " << first_in_lvl / ((t2 - t1)*1e6) << " GFLOP/s" << endl;
-        cout << "first band: " << 2.0 * sizeof(int) * first_in_lvl / ((t2 - t1)*1e9) << " GB/s" << endl << endl;*/
         
         #pragma omp parallel for
         for(int i = 0; i < _vertices_count; i++)
@@ -870,23 +894,19 @@ void BFS<_TVertexValue, _TEdgeWeight>::nec_direction_optimising_BFS(ExtendedCSRG
     
     int *partial_outgoing_ids = new int[vertices_count * BOTTOM_UP_THRESHOLD];
     
-    #pragma omp parallel for schedule(static)
-    for(int src_id = 0; src_id < vertices_count; src_id++)
+    for(int step = 0; step < BOTTOM_UP_THRESHOLD; step++)
     {
-        int connections = outgoing_ptrs[src_id + 1] - outgoing_ptrs[src_id];
-        long long start_pos = outgoing_ptrs[src_id];
-        
-        int max_connections = connections;
-        if(max_connections > BOTTOM_UP_THRESHOLD)
-            max_connections = BOTTOM_UP_THRESHOLD;
-        
-        int write_pos = src_id;
-        for(int edge_pos = 0; edge_pos < max_connections; edge_pos++)
+        #pragma omp parallel for schedule(static)
+        for(int src_id = 0; src_id < vertices_count; src_id++)
         {
-            int dst_id = outgoing_ids[start_pos + edge_pos];
-            
-            partial_outgoing_ids[write_pos] = dst_id;
-            write_pos += VECTOR_LENGTH;
+            int connections = outgoing_ptrs[src_id + 1] - outgoing_ptrs[src_id];
+            long long start_pos = outgoing_ptrs[src_id];
+                
+            if(step < connections)
+            {
+                int dst_id = outgoing_ids[start_pos + step];
+                partial_outgoing_ids[src_id + vertices_count * step] = dst_id;
+            }
         }
     }
         
@@ -939,8 +959,12 @@ void BFS<_TVertexValue, _TEdgeWeight>::nec_direction_optimising_BFS(ExtendedCSRG
         }
         else if(current_state == BOTTOM_UP)
         {
+            bool use_vect_CSR_extension = false;
+            if(cur_level == 2)
+                use_vect_CSR_extension = true;
             nec_bottom_up_step(_graph, outgoing_ptrs, outgoing_ids, vertices_count, active_count, _levels, cached_levels,
-                               active_ids, cur_level, vis, in_lvl, threads_count, partial_outgoing_ids);
+                               active_ids, cur_level, vis, in_lvl, threads_count, partial_outgoing_ids, use_vect_CSR_extension,
+                               non_zero_vertices_count);
         }
         
         t4 = omp_get_wtime();
