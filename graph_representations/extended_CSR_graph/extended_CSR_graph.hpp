@@ -74,8 +74,7 @@ void ExtendedCSRGraph<_TVertexValue, _TEdgeWeight>::resize(int _vertices_count, 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template <typename _TVertexValue, typename _TEdgeWeight>
-void ExtendedCSRGraph<_TVertexValue, _TEdgeWeight>::import_graph(EdgesListGraph<_TVertexValue, _TEdgeWeight>
-                                                                 &_old_graph,
+void ExtendedCSRGraph<_TVertexValue, _TEdgeWeight>::import_graph(EdgesListGraph<_TVertexValue, _TEdgeWeight> &_old_graph,
                                                                  VerticesState _vertices_state,
                                                                  EdgesState _edges_state,
                                                                  int _supported_vector_length,
@@ -163,20 +162,6 @@ void ExtendedCSRGraph<_TVertexValue, _TEdgeWeight>::import_graph(EdgesListGraph<
         else if(edges_state == EDGES_RANDOM_SHUFFLED)
         {
             std::random_shuffle(tmp_graph[src_id].begin(), tmp_graph[src_id].end());
-        }
-    }
-    
-    // vector flatten here
-    for(int i = 0; i < tmp_vertices_count; i += supported_vector_length)
-    {
-        int max_segment_size = tmp_graph[i].size();
-        for(int j = 0; j < supported_vector_length; j++)
-        {
-            while(tmp_graph[i + j].size() < max_segment_size)
-            {
-                tmp_graph[i + j].push_back(TempEdgeData<_TEdgeWeight>(i + j, 0.0));
-                tmp_edges_count++;
-            }
         }
     }
     

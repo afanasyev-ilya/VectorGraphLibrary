@@ -113,6 +113,10 @@ void BFS<_TVertexValue, _TEdgeWeight>::verifier(ExtendedCSRGraph<_TVertexValue, 
         if(_parallel_levels[i] != seq_levels[i])
         {
             error_count++;
+            if(error_count < 20)
+            {
+                cout << "error in pos " << i << ": " << _parallel_levels[i] << "(par) vs " << seq_levels[i] << "(seq)" << endl;
+            }
         }
         else
         {

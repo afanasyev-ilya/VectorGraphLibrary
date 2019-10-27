@@ -45,14 +45,16 @@ int main(int argc, const char * argv[])
 
         // compute CC
         int *bfs_result = new int[graph.get_vertices_count()];
-        BFS<int, float>::nec_direction_optimising_BFS(graph, bfs_result, 0);
+        BFS<int, float>::nec_direction_optimising_BFS(graph, bfs_result, 1);
         cout << endl << "-------------------------------------------------" << endl << endl;
         BFS<int, float>::nec_direction_optimising_BFS(graph, bfs_result, 10);
         cout << endl << "-------------------------------------------------" << endl << endl;
-        BFS<int, float>::nec_direction_optimising_BFS(graph, bfs_result, 20);
+        /*BFS<int, float>::nec_direction_optimising_BFS(graph, bfs_result, 100);
         cout << endl << "-------------------------------------------------" << endl << endl;
+        BFS<int, float>::nec_direction_optimising_BFS(graph, bfs_result, 20);
+        cout << endl << "-------------------------------------------------" << endl << endl;*/
         
-        BFS<int, float>::verifier(graph, 20, bfs_result);
+        BFS<int, float>::verifier(graph, 10, bfs_result);
         
         delete []bfs_result;
     }

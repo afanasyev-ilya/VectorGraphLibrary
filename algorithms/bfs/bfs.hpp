@@ -36,8 +36,6 @@ void BFS<_TVertexValue, _TEdgeWeight>::gpu_direction_optimising_BFS(
 {
     LOAD_VECTORISED_CSR_GRAPH_DATA(_graph)
     
-    cout << "gpu bfs test" << endl;
-    
     int *device_levels;
     SAFE_CALL(cudaMalloc((void**)&device_levels, vertices_count * sizeof(int)));
     

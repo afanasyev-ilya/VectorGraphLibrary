@@ -20,6 +20,7 @@
 #include "change_state.h"
 
 #define BOTTOM_UP_THRESHOLD 5
+#define BOTTOM_UP_REMINDER_VERTEX -3
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -36,11 +37,12 @@ private:
     static inline void nec_top_down_step(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph, long long *_outgoing_ptrs,
                                          int *_outgoing_ids, float *_outgoing_weights, int _vertices_count, int _active_count,
                                          int *_levels, int *_cached_levels, int *_active_ids, int _cur_level, int &_vis,
-                                         int &_in_lvl);
+                                         int &_in_lvl, int _threads_count);
     
     static inline void nec_bottom_up_step(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph, long long *_outgoing_ptrs,
                                           int *_outgoing_ids, int _vertices_count, int _active_count, int *_levels,
-                                          int *_cached_levels, int *_active_ids, int _cur_level, int &_vis, int &_in_lvl);
+                                          int *_cached_levels, int *_active_ids, int _cur_level, int &_vis, int &_in_lvl,
+                                          int _threads_count, int *_partial_outgoing_ids);
 public:
     static void allocate_result_memory(int _vertices_count, int **_levels);
     static void free_result_memory    (int *_levels);
