@@ -490,11 +490,15 @@ inline void BFS<_TVertexValue, _TEdgeWeight>::nec_bottom_up_step(ExtendedCSRGrap
                                                                  int _threads_count,
                                                                  int *_partial_outgoing_ids,
                                                                  bool _use_vect_CSR_extension,
-                                                                 int _non_zero_vertices_count)
+                                                                 int _non_zero_vertices_count,
+                                                                 double &_t_first, double &_t_second, double &_t_third)
 {
     int vis = 0;
     long long in_lvl = 0;
     
+    double t1, t2;
+    
+    t1 = omp_get_wtime();
     if(_use_vect_CSR_extension)
     {
         #pragma omp parallel
@@ -635,7 +639,10 @@ inline void BFS<_TVertexValue, _TEdgeWeight>::nec_bottom_up_step(ExtendedCSRGrap
             }
         }
     }
+    t2 = omp_get_wtime();
+    _t_first = t2 - t1;
         
+    t1 = omp_get_wtime();
     #pragma omp parallel for
     for(int i = 0; i < _vertices_count; i++)
     {
@@ -649,10 +656,13 @@ inline void BFS<_TVertexValue, _TEdgeWeight>::nec_bottom_up_step(ExtendedCSRGrap
         }
     }
         
-    nec_generate_frontier(_levels, _active_ids, _vertices_count, BOTTOM_UP_REMINDER_VERTEX, _threads_count);
-    int active_vertices_left = nec_get_active_count(_levels, _vertices_count, BOTTOM_UP_REMINDER_VERTEX);
+    nec_generate_frontier(_levels, _active_ids, _non_zero_vertices_count, BOTTOM_UP_REMINDER_VERTEX, _threads_count);
+    int active_vertices_left = nec_get_active_count(_levels, _non_zero_vertices_count, BOTTOM_UP_REMINDER_VERTEX);
     
-    //t1 = omp_get_wtime();
+    t2 = omp_get_wtime();
+    _t_second = t2 - t1;
+    
+    t1 = omp_get_wtime();
     #pragma omp parallel shared(vis, in_lvl)
     {
         long long local_in_lvl = 0;
@@ -775,6 +785,9 @@ inline void BFS<_TVertexValue, _TEdgeWeight>::nec_bottom_up_step(ExtendedCSRGrap
             in_lvl += local_in_lvl;
         }
     }
+    t2 = omp_get_wtime();
+    _t_third = t2 - t1;
+    
     _vis = vis;
     _in_lvl = in_lvl;
 }
@@ -889,6 +902,8 @@ double BFS<_TVertexValue, _TEdgeWeight>::nec_direction_optimising_BFS(ExtendedCS
     
     vector<double> each_kernel_time;
     vector<double> each_remider_time;
+    vector<double> each_first_time, each_second_time, each_third_time;
+    
     double total_kernel_time = 0, total_reminder_time = 0;
     
     bool use_vect_CSR_extension = false;
@@ -909,6 +924,8 @@ double BFS<_TVertexValue, _TEdgeWeight>::nec_direction_optimising_BFS(ExtendedCS
         int vis = 0, in_lvl = 0;
         int current_active_count = active_count;
         
+        
+        double t_first, t_second, t_third;
         t3 = omp_get_wtime();
         if(current_state == TOP_DOWN)
         {
@@ -919,7 +936,7 @@ double BFS<_TVertexValue, _TEdgeWeight>::nec_direction_optimising_BFS(ExtendedCS
         {
             nec_bottom_up_step(_graph, outgoing_ptrs, outgoing_ids, vertices_count, active_count, _levels, cached_levels,
                                active_ids, cur_level, vis, in_lvl, threads_count, partial_outgoing_ids, use_vect_CSR_extension,
-                               non_zero_vertices_count);
+                               non_zero_vertices_count, t_first, t_second, t_third);
         }
         
         t4 = omp_get_wtime();
@@ -986,6 +1003,9 @@ double BFS<_TVertexValue, _TEdgeWeight>::nec_direction_optimising_BFS(ExtendedCS
         
         each_kernel_time.push_back(kernel_time);
         each_remider_time.push_back(reminder_time);
+        each_first_time.push_back(t_first);
+        each_second_time.push_back(t_second);
+        each_third_time.push_back(t_third);
         
         current_state = next_state;
         cur_level++;
@@ -1002,11 +1022,17 @@ double BFS<_TVertexValue, _TEdgeWeight>::nec_direction_optimising_BFS(ExtendedCS
     for(int i = 0; i < each_kernel_time.size(); i++)
     {
         cout << "level " << i + 1 << endl;
-        cout << "kernel: " << 100.0 * each_kernel_time[i]/total_time << " % of total time (" << 1000.0*each_kernel_time[i] << "ms)"  << endl;
-        cout << "reminder: " << 100.0 * each_remider_time[i]/total_time << " % of total time (" << 1000.0*each_remider_time[i] << "ms)" << endl << endl;
+        if(i == 1 || i == 2)
+        {
+            cout << "first: " << 100.0 * each_first_time[i]/total_time << " % of total time (" << 1000.0*each_first_time[i] << "ms)"  << endl;
+            cout << "second: " << 100.0 * each_second_time[i]/total_time << " % of total time (" << 1000.0*each_second_time[i] << "ms)"  << endl;
+            cout << "third: " << 100.0 * each_third_time[i]/total_time << " % of total time (" << 1000.0*each_third_time[i] << "ms)"  << endl;
+        }
+        cout << "KERNEL: " << 100.0 * each_kernel_time[i]/total_time << " % of total time (" << 1000.0*each_kernel_time[i] << "ms)"  << endl;
+        cout << "REMINDER: " << 100.0 * each_remider_time[i]/total_time << " % of total time (" << 1000.0*each_remider_time[i] << "ms)" << endl << endl;
     }
     cout << "kernel input: " << 100.0*total_kernel_time/total_time << " %" << endl;
-    cout << "kreminder input: " << 100.0*total_reminder_time/total_time << " %" << endl;
+    cout << "reminder input: " << 100.0*total_reminder_time/total_time << " %" << endl;
     
     _graph.template free_data<int>(active_ids);
     _graph.template free_data<int>(cached_levels);
