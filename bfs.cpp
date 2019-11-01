@@ -51,7 +51,7 @@ int main(int argc, const char * argv[])
         cout << endl << "-------------------------------------------------" << endl << endl;
         /*BFS<int, float>::nec_direction_optimising_BFS(graph, bfs_result, 100);
         cout << endl << "-------------------------------------------------" << endl << endl;
-        BFS<int, float>::nec_direction_optimising_BFS(graph, bfs_result, 20);
+        /*BFS<int, float>::nec_direction_optimising_BFS(graph, bfs_result, 20);
         cout << endl << "-------------------------------------------------" << endl << endl;*/
         
         BFS<int, float>::verifier(graph, 10, bfs_result);

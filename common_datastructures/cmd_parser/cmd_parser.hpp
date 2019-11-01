@@ -18,6 +18,7 @@ AlgorithmCommandOptionsParser::AlgorithmCommandOptionsParser()
     compute_mode = GENERATE_NEW_GRAPH;
     check_flag = false;
     graph_file_name = "test.gbin";
+    number_of_rounds = 1;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -58,6 +59,11 @@ void AlgorithmCommandOptionsParser::parse_args(int _argc, const char * _argv[])
         if ((option.compare("-nocheck") == 0))
         {
             check_flag = false;
+        }
+        
+        if ((option.compare("-rounds") == 0))
+        {
+            number_of_rounds = atoi(_argv[++i]);
         }
     }
 }

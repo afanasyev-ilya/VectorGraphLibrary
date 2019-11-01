@@ -29,6 +29,8 @@ private:
     string graph_file_name;
     
     bool check_flag;
+    
+    bool number_of_rounds;
 public:
     AlgorithmCommandOptionsParser();
     
@@ -37,6 +39,7 @@ public:
     ComputeMode get_compute_mode() { return compute_mode; };
     string get_graph_file_name() { return graph_file_name; };
     bool get_check_flag() { return check_flag; };
+    int get_number_of_rounds() { return number_of_rounds; };
     
     void parse_args(int _argc, const char * _argv[]);
 };

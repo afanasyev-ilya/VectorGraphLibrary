@@ -50,7 +50,7 @@ int main(int argc, const char * argv[])
         float *distances;
         ShortestPaths<int, float>::allocate_result_memory(graph.get_vertices_count(), &distances);
         t1 = omp_get_wtime();
-        for(int i = 0; i < 500; i++)
+        for(int i = 0; i < 3; i++)
         {
             ShortestPaths<int, float>::bellman_ford(graph, i, distances);
         }

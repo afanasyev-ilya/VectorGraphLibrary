@@ -31,7 +31,7 @@ void ShortestPaths<_TVertexValue, _TEdgeWeight>::bellman_ford(VectorisedCSRGraph
     
     _TEdgeWeight *cached_distances = _reversed_graph.template allocate_private_caches<_TEdgeWeight>(threads_count);
     
-    //double t1 = omp_get_wtime();
+    double t1 = omp_get_wtime();
     int changes = 1;
     int iterations_count = 0;
     #pragma omp parallel num_threads(threads_count) shared(changes)
@@ -204,13 +204,13 @@ void ShortestPaths<_TVertexValue, _TEdgeWeight>::bellman_ford(VectorisedCSRGraph
             #pragma omp barrier
         }
     }
-    /*double t2 = omp_get_wtime();
+    double t2 = omp_get_wtime();
     
     cout << "SSSP time: " << t2 - t1 << endl;
     cout << "SSSP Perf: " << ((double)edges_count) / ((t2 - t1) * 1e6) << " MFLOPS" << endl;
     cout << "SSSP iterations count: " << iterations_count << endl;
     cout << "SSSP Perf per iteration: " << iterations_count * ((double)edges_count) / ((t2 - t1) * 1e6) << " MFLOPS" << endl;
-    cout << "SSSP bandwidth: " << ((double)iterations_count)*((double)edges_count * (sizeof(int) + 2*sizeof(_TEdgeWeight))) / ((t2 - t1) * 1e9) << " gb/s" << endl << endl;*/
+    cout << "SSSP bandwidth: " << ((double)iterations_count)*((double)edges_count * (sizeof(int) + 2*sizeof(_TEdgeWeight))) / ((t2 - t1) * 1e9) << " gb/s" << endl << endl;
     
     _reversed_graph.template free_data<_TEdgeWeight>(cached_distances);
 }
