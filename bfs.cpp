@@ -45,16 +45,19 @@ int main(int argc, const char * argv[])
 
         // compute CC
         int *bfs_result = new int[graph.get_vertices_count()];
-        BFS<int, float>::nec_direction_optimising_BFS(graph, bfs_result, 1);
-        cout << endl << "-------------------------------------------------" << endl << endl;
-        BFS<int, float>::nec_direction_optimising_BFS(graph, bfs_result, 10);
-        cout << endl << "-------------------------------------------------" << endl << endl;
-        /*BFS<int, float>::nec_direction_optimising_BFS(graph, bfs_result, 100);
-        cout << endl << "-------------------------------------------------" << endl << endl;
-        /*BFS<int, float>::nec_direction_optimising_BFS(graph, bfs_result, 20);
-        cout << endl << "-------------------------------------------------" << endl << endl;*/
         
-        BFS<int, float>::verifier(graph, 10, bfs_result);
+        vector<int> source_vertices = {1, 2, 10, 20, 100};
+        int last_vertex_to_check = 0;
+        
+        for(int i = 0; i < source_vertices.size(); i++)
+        {
+            last_vertex_to_check = source_vertices[i];
+            cout << "launching BFS from vertex: " << last_vertex_to_check << endl;
+            BFS<int, float>::nec_direction_optimising_BFS(graph, bfs_result, last_vertex_to_check);
+            cout << endl << "-------------------------------------------------" << endl << endl;
+        }
+        
+        BFS<int, float>::verifier(graph, last_vertex_to_check, bfs_result);
         
         delete []bfs_result;
     }

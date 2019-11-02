@@ -19,8 +19,10 @@
 #include "vertex_queue.h"
 #include "change_state.h"
 
-#define BOTTOM_UP_THRESHOLD 4
+#define BOTTOM_UP_THRESHOLD 3
 #define BOTTOM_UP_REMINDER_VERTEX -3
+
+#define PRINT_DETAILED_STATS
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 

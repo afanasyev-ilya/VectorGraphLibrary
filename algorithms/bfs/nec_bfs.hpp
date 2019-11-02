@@ -551,6 +551,7 @@ inline void BFS<_TVertexValue, _TEdgeWeight>::nec_bottom_up_step(ExtendedCSRGrap
     t1 = omp_get_wtime();
     if(_use_vect_CSR_extension)
     {
+        double t3 = omp_get_wtime();
         #pragma omp parallel
         {
             int *private_levels = _graph.template get_private_data_pointer<int>(_cached_levels);
@@ -577,7 +578,9 @@ inline void BFS<_TVertexValue, _TEdgeWeight>::nec_bottom_up_step(ExtendedCSRGrap
                 }
             }
         }
+        double t4 = omp_get_wtime();
         in_lvl += _non_zero_vertices_count*BOTTOM_UP_THRESHOLD;
+        //cout << "BANDIWDTH: " << 2.0 * sizeof(int)*_non_zero_vertices_count / ((t4-t3)*1e9) << " GB/s" << endl;
     }
     else if(!_use_vect_CSR_extension)
     {
@@ -1027,8 +1030,6 @@ double BFS<_TVertexValue, _TEdgeWeight>::nec_direction_optimising_BFS(ExtendedCS
         
         if(next_state == TOP_DOWN)
         {
-            //nec_generate_frontier(_levels, active_ids, non_zero_vertices_count, cur_level + 1, threads_count);
-            //active_count = next_active_count;
             active_count = nec_sparse_generate_frontier(_levels, active_ids, non_zero_vertices_count, cur_level + 1,
                                                         tmp_buffer, threads_count);
         }
@@ -1045,6 +1046,7 @@ double BFS<_TVertexValue, _TEdgeWeight>::nec_direction_optimising_BFS(ExtendedCS
         
         total_reminder_time += reminder_time;
         
+        #ifdef PRINT_DETAILED_STATS
         if(current_state == TOP_DOWN)
             cout << "level " << cur_level << " in TD state" << endl;
         else if(current_state == BOTTOM_UP)
@@ -1059,6 +1061,7 @@ double BFS<_TVertexValue, _TEdgeWeight>::nec_direction_optimising_BFS(ExtendedCS
         cout << "prefetch time: " << prefetch_time*1000.0 << " ms" << endl;
         cout << "currently active: " << (100.0*active_count) / vertices_count << endl;
         cout << endl;
+        #endif
         
         each_kernel_time.push_back(kernel_time);
         each_remider_time.push_back(reminder_time);
@@ -1078,6 +1081,7 @@ double BFS<_TVertexValue, _TEdgeWeight>::nec_direction_optimising_BFS(ExtendedCS
     cout << total_kernel_time << " vs " << total_reminder_time << endl;
     cout << "TOTAL BFS Perf: " << ((double)edges_count)/(total_time*1e6) << " MTEPS" << endl << endl << endl;
     
+    #ifdef PRINT_DETAILED_STATS
     for(int i = 0; i < each_kernel_time.size(); i++)
     {
         cout << "level " << i + 1 << endl;
@@ -1092,6 +1096,7 @@ double BFS<_TVertexValue, _TEdgeWeight>::nec_direction_optimising_BFS(ExtendedCS
     }
     cout << "kernel input: " << 100.0*total_kernel_time/total_time << " %" << endl;
     cout << "reminder input: " << 100.0*total_reminder_time/total_time << " %" << endl;
+    #endif
     
     _graph.template free_data<int>(active_ids);
     _graph.template free_data<int>(cached_levels);
