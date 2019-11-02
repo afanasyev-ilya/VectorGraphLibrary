@@ -551,6 +551,10 @@ inline void BFS<_TVertexValue, _TEdgeWeight>::nec_bottom_up_step(ExtendedCSRGrap
     t1 = omp_get_wtime();
     if(_use_vect_CSR_extension)
     {
+        int *sizes = new int[_non_zero_vertices_count];
+        for(int src_id = 0; src_id < _non_zero_vertices_count; src_id++)
+            sizes[src_id] = _outgoing_ptrs[src_id + 1] - _outgoing_ptrs[src_id];
+        
         double t3 = omp_get_wtime();
         #pragma omp parallel
         {
@@ -567,20 +571,90 @@ inline void BFS<_TVertexValue, _TEdgeWeight>::nec_bottom_up_step(ExtendedCSRGrap
                 #pragma omp for schedule(static)
                 for(int src_id = 0; src_id < _non_zero_vertices_count; src_id++)
                 {
-                    int connections = _outgoing_ptrs[src_id + 1] - _outgoing_ptrs[src_id];
-                        
-                    int dst_id = _partial_outgoing_ids[src_id + _vertices_count * step];
-                    int dst_level = _graph.template load_vertex_data_cached<int>(dst_id, _levels, private_levels);
-                    if((_levels[src_id] == -1) && (dst_level == _cur_level) && (connections > step))
+                    if(_levels[src_id] == -1)
                     {
-                        _levels[src_id] = _cur_level + 1;
+                        int connections = sizes[src_id];
+                            
+                        int dst_id = _partial_outgoing_ids[src_id + _vertices_count * step];
+                        int dst_level = _graph.template load_vertex_data_cached<int>(dst_id, _levels, private_levels);
+                        if((dst_level == _cur_level) && (connections > step))
+                        {
+                            _levels[src_id] = _cur_level + 1;
+                        }
                     }
                 }
             }
         }
+        
+        /*#pragma omp parallel
+        {
+            int *private_levels = _graph.template get_private_data_pointer<int>(_cached_levels);
+                
+            int connections_reg[VECTOR_LENGTH];
+            int src_levels_reg[VECTOR_LENGTH];
+                
+            #pragma _NEC vreg(connections_reg)
+            #pragma _NEC vreg(src_levels_reg)
+                
+            for(int i = 0; i < VECTOR_LENGTH; i++)
+            {
+                connections_reg[i] = 0;
+                src_levels_reg[i] = 0;
+            }
+            
+            #pragma _NEC novector
+            #pragma omp for schedule(static)
+            for(int vec_start = 0; vec_start < _non_zero_vertices_count; vec_start += VECTOR_LENGTH)
+            {
+                #pragma _NEC ivdep
+                #pragma _NEC vovertake
+                #pragma _NEC novob
+                #pragma _NEC vector
+                for(int i = 0; i < VECTOR_LENGTH; i++)
+                {
+                    int src_id = vec_start + i;
+                    connections_reg[i] = _outgoing_ptrs[src_id + 1] - _outgoing_ptrs[src_id];
+                    src_levels_reg[i] = _levels[src_id];
+                }
+                
+                #pragma _NEC novector
+                #pragma _NEC unroll(BOTTOM_UP_THRESHOLD)
+                for(int step = 0; step < BOTTOM_UP_THRESHOLD; step++)
+                {
+                    #pragma _NEC ivdep
+                    #pragma _NEC vovertake
+                    #pragma _NEC novob
+                    #pragma _NEC vector
+                    for(int i = 0; i < VECTOR_LENGTH; i++)
+                    {
+                        //if()
+                        //{
+                            int dst_id = _partial_outgoing_ids[vec_start * BOTTOM_UP_THRESHOLD + step * VECTOR_LENGTH + i];
+                            int dst_level = _graph.template load_vertex_data_cached<int>(dst_id, _levels, private_levels);
+                            if((src_levels_reg[i] == -1) && (step < connections_reg[i]) && (dst_level == _cur_level))
+                            {
+                                src_levels_reg[i] = _cur_level + 1;
+                            }
+                        //}
+                    }
+                }
+                
+                #pragma _NEC ivdep
+                #pragma _NEC vovertake
+                #pragma _NEC novob
+                #pragma _NEC vector
+                for(int i = 0; i < VECTOR_LENGTH; i++)
+                {
+                    int src_id = vec_start + i;
+                    _levels[src_id] = src_levels_reg[i];
+                }
+            }
+        }*/
         double t4 = omp_get_wtime();
         in_lvl += _non_zero_vertices_count*BOTTOM_UP_THRESHOLD;
-        //cout << "BANDIWDTH: " << 2.0 * sizeof(int)*_non_zero_vertices_count / ((t4-t3)*1e9) << " GB/s" << endl;
+        //cout << "BANDIWDTH: " << 4.0 * sizeof(int)*_non_zero_vertices_count * BOTTOM_UP_THRESHOLD / ((t4-t3)*1e9) << " GB/s" << endl;
+        
+        delete []sizes;
     }
     else if(!_use_vect_CSR_extension)
     {
