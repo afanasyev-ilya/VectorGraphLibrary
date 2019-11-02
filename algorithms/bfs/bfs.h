@@ -34,7 +34,8 @@ private:
     static inline void nec_generate_frontier(int *_levels, int *_active_ids, int _vertices_count, int _desired_level,
                                              int _threads_count);
     
-    static inline void nec_calculate_balance(int *_levels, int *_active_ids, int _vertices_count, int _desired_level, int _threads_count);
+    static int nec_sparse_generate_frontier(int *_levels, int *_active_ids, int _vertices_count, int _desired_level,
+                                            int *_tmp_buffer, int _threads_count);
 
     static inline void nec_top_down_step(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph, long long *_outgoing_ptrs,
                                          int *_outgoing_ids, float *_outgoing_weights, int _vertices_count, int _active_count,
@@ -45,7 +46,8 @@ private:
                                           int *_outgoing_ids, int _vertices_count, int _active_count, int *_levels,
                                           int *_cached_levels, int *_active_ids, int _cur_level, int &_vis, int &_in_lvl,
                                           int _threads_count, int *_partial_outgoing_ids, bool _use_vect_CSR_extension,
-                                          int _non_zero_vertices_count, double &_t_first, double &_t_second, double &_t_third);
+                                          int _non_zero_vertices_count, int *_tmp_buffer,
+                                          double &_t_first, double &_t_second, double &_t_third);
 public:
     static void allocate_result_memory(int _vertices_count, int **_levels);
     static void free_result_memory    (int *_levels);

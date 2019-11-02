@@ -33,74 +33,19 @@ inline int BFS<_TVertexValue, _TEdgeWeight>::nec_get_active_count(int *_levels,
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template <typename _TVertexValue, typename _TEdgeWeight>
-inline void BFS<_TVertexValue, _TEdgeWeight>::nec_calculate_balance(int *_levels,
-                                                                    int *_active_ids,
-                                                                    int _vertices_count,
-                                                                    int _desired_level,
-                                                                    int _threads_count)
+inline int BFS<_TVertexValue, _TEdgeWeight>::nec_sparse_generate_frontier(int *_levels,
+                                                                          int *_active_ids,
+                                                                          int _vertices_count,
+                                                                          int _desired_level,
+                                                                          int *_tmp_buffer,
+                                                                          int _threads_count)
 {
-    int buffer_size = _vertices_count;
-    int *tmp_buffer = new int[_vertices_count];
-    int *tmp_active_ids = new int[_vertices_count];
-    int vals_per_thread = _vertices_count / _threads_count;
-    
-    #pragma omp parallel num_threads(_threads_count)
-    {}
-    
-    double t1 = omp_get_wtime();
-    #pragma omp parallel num_threads(_threads_count)
-    {
-        int tid = omp_get_thread_num();
-        int tid_shift = tid * vals_per_thread;
-        int *private_buffer = &tmp_buffer[tid_shift];
-        
-        int data_reg[VECTOR_LENGTH];
-        #pragma _NEC vreg(data_reg)
-        
-        for(int i = 0; i < VECTOR_LENGTH; i++)
-        {
-            data_reg[i] = 0;
-        }
-        
-        int pos = 0;
-        #pragma omp for schedule(static)
-        for(int vec_start = 0; vec_start < _vertices_count; vec_start += VECTOR_LENGTH)
-        {
-            for(int i = 0; i < VECTOR_LENGTH; i++)
-            {
-                int src_id = vec_start + i;
-                data_reg[i] = _levels[src_id];
-            }
-            
-            int present_flag = 0;
-            for(int i = 0; i < VECTOR_LENGTH; i++)
-            {
-                if(data_reg[i] == _desired_level)
-                {
-                    present_flag++;
-                }
-            }
-            
-            if(present_flag > 0)
-            {
-                for(int i = 0; i < VECTOR_LENGTH; i++)
-                {
-                    private_buffer[pos + i] = data_reg[i];
-                }
-                pos += VECTOR_LENGTH;
-            }
-        }
-    }
-    double t2 = omp_get_wtime();
-    cout << "SPARSE INNER band: " << sizeof(int) * _vertices_count / ((t2 - t1) * 1e9) << " GB/s" << endl;
-    cout << "SPARSE INNER time: " << 1000.0 * (t2 - t1) << " ms" << endl;
-    
     int elements_per_thread = _vertices_count/_threads_count;
     int elements_per_vector = elements_per_thread/VECTOR_LENGTH;
     int shifts_array[MAX_SX_AURORA_THREADS];
     
-    t1 = omp_get_wtime();
-    #pragma omp parallel num_threads(_threads_count)
+    int active_count = 0;
+    #pragma omp parallel num_threads(_threads_count) shared(active_count)
     {
         int tid = omp_get_thread_num();
         int start_pointers_reg[VECTOR_LENGTH];
@@ -113,14 +58,10 @@ inline void BFS<_TVertexValue, _TEdgeWeight>::nec_calculate_balance(int *_levels
         
         for(int i = 0; i < VECTOR_LENGTH; i++)
         {
-            start_pointers_reg[i] = elements_per_thread + i * elements_per_vector;
-            current_pointers_reg[i] = elements_per_thread + i * elements_per_vector;
-            last_pointers_reg[i] = elements_per_thread + i * elements_per_vector;
+            start_pointers_reg[i] = tid * elements_per_thread + i * elements_per_vector;
+            current_pointers_reg[i] = tid * elements_per_thread + i * elements_per_vector;
+            last_pointers_reg[i] = tid * elements_per_thread + i * elements_per_vector;
         }
-        
-        #pragma omp for schedule(static)
-        for(int i = 0; i < _vertices_count; i++)
-            tmp_active_ids[i] = 0;
         
         #pragma omp for schedule(static)
         for(int vec_start = 0; vec_start < _vertices_count; vec_start += VECTOR_LENGTH)
@@ -133,7 +74,7 @@ inline void BFS<_TVertexValue, _TEdgeWeight>::nec_calculate_balance(int *_levels
                 int src_id = vec_start + i;
                 if(_levels[src_id] == _desired_level)
                 {
-                    tmp_buffer[current_pointers_reg[i]] = src_id;
+                    _tmp_buffer[current_pointers_reg[i]] = src_id;
                     current_pointers_reg[i]++;
                 }
             }
@@ -159,6 +100,8 @@ inline void BFS<_TVertexValue, _TEdgeWeight>::nec_calculate_balance(int *_levels
             {
                 shifts_array[i] += shifts_array[i - 1];
             }
+            
+            active_count = shifts_array[_threads_count - 1];
 
             for(int i = (_threads_count - 1); i >= 1; i--)
             {
@@ -170,7 +113,7 @@ inline void BFS<_TVertexValue, _TEdgeWeight>::nec_calculate_balance(int *_levels
         #pragma omp barrier
                
         int tid_shift = shifts_array[tid];
-        int *private_ptr = &(tmp_active_ids[tid_shift]);
+        int *private_ptr = &(_active_ids[tid_shift]);
         
         int local_pos = 0;
         #pragma _NEC novector
@@ -184,24 +127,15 @@ inline void BFS<_TVertexValue, _TEdgeWeight>::nec_calculate_balance(int *_levels
                 int size = current_pointers_reg[i] - start_pointers_reg[i];
                 if(pos < size)
                 {
-                    private_ptr[local_pos] = tmp_buffer[last_pointers_reg[i]];
+                    private_ptr[local_pos] = _tmp_buffer[last_pointers_reg[i]];
                     last_pointers_reg[i]++;
                     local_pos++;
                 }
             }
         }
     }
-    t2 = omp_get_wtime();
-    cout << "SPARSE2 INNER band: " << sizeof(int) * _vertices_count / ((t2 - t1) * 1e9) << " GB/s" << endl;
-    cout << "SPARSE2 INNER time: " << 1000.0 * (t2 - t1) << " ms" << endl;
     
-    for(int i = 0; i < 30; i++)
-    {
-        cout << _active_ids[i] << " vs " << tmp_active_ids[i] << endl;
-    }
-    
-    delete []tmp_buffer;
-    delete []tmp_active_ids;
+    return active_count;
 }
 
 template <typename _TVertexValue, typename _TEdgeWeight>
@@ -606,6 +540,7 @@ inline void BFS<_TVertexValue, _TEdgeWeight>::nec_bottom_up_step(ExtendedCSRGrap
                                                                  int *_partial_outgoing_ids,
                                                                  bool _use_vect_CSR_extension,
                                                                  int _non_zero_vertices_count,
+                                                                 int *_tmp_buffer,
                                                                  double &_t_first, double &_t_second, double &_t_third)
 {
     int vis = 0;
@@ -771,8 +706,8 @@ inline void BFS<_TVertexValue, _TEdgeWeight>::nec_bottom_up_step(ExtendedCSRGrap
         }
     }
         
-    nec_generate_frontier(_levels, _active_ids, _non_zero_vertices_count, BOTTOM_UP_REMINDER_VERTEX, _threads_count);
-    int active_vertices_left = nec_get_active_count(_levels, _non_zero_vertices_count, BOTTOM_UP_REMINDER_VERTEX);
+    int active_vertices_left = nec_sparse_generate_frontier(_levels, _active_ids, _non_zero_vertices_count, BOTTOM_UP_REMINDER_VERTEX,
+                                                            _tmp_buffer, _threads_count);
     
     t2 = omp_get_wtime();
     _t_second = t2 - t1;
@@ -1002,6 +937,8 @@ double BFS<_TVertexValue, _TEdgeWeight>::nec_direction_optimising_BFS(ExtendedCS
     _graph.set_threads_count(threads_count);
 
     int *active_ids = _graph.template vertex_array_alloc<int>();
+    int *tmp_active_ids = _graph.template vertex_array_alloc<int>();
+    int *tmp_buffer = _graph.template vertex_array_alloc<int>();
     
     int cur_level = 1, active_count = 1;
     _graph.template vertex_array_set_to_constant<int>(_levels, -1);
@@ -1055,7 +992,7 @@ double BFS<_TVertexValue, _TEdgeWeight>::nec_direction_optimising_BFS(ExtendedCS
         {
             nec_bottom_up_step(_graph, outgoing_ptrs, outgoing_ids, vertices_count, active_count, _levels, cached_levels,
                                active_ids, cur_level, vis, in_lvl, threads_count, partial_outgoing_ids, use_vect_CSR_extension,
-                               non_zero_vertices_count, t_first, t_second, t_third);
+                               non_zero_vertices_count, tmp_buffer, t_first, t_second, t_third);
         }
         
         t4 = omp_get_wtime();
@@ -1090,17 +1027,17 @@ double BFS<_TVertexValue, _TEdgeWeight>::nec_direction_optimising_BFS(ExtendedCS
         
         if(next_state == TOP_DOWN)
         {
-            nec_generate_frontier(_levels, active_ids, non_zero_vertices_count, cur_level + 1, threads_count);
-            active_count = next_active_count;
-            if(cur_level == 5)
-                nec_calculate_balance(_levels, active_ids, non_zero_vertices_count, cur_level + 1, threads_count);
+            //nec_generate_frontier(_levels, active_ids, non_zero_vertices_count, cur_level + 1, threads_count);
+            //active_count = next_active_count;
+            active_count = nec_sparse_generate_frontier(_levels, active_ids, non_zero_vertices_count, cur_level + 1,
+                                                        tmp_buffer, threads_count);
         }
         else if(next_state == BOTTOM_UP)
         {
             if(!use_vect_CSR_extension)
-                nec_generate_frontier(_levels, active_ids, non_zero_vertices_count, -1, threads_count);
-            active_count = nec_get_active_count(_levels, non_zero_vertices_count, -1);
-            //nec_calculate_balance(_levels, active_ids, non_zero_vertices_count, -1, threads_count);
+                active_count = nec_sparse_generate_frontier(_levels, active_ids, non_zero_vertices_count, -1, tmp_buffer, threads_count);
+            else
+                active_count = nec_get_active_count(_levels, non_zero_vertices_count, -1);
         }
         t4 = omp_get_wtime();
         double reminder_time = t4 - t3;
@@ -1158,6 +1095,8 @@ double BFS<_TVertexValue, _TEdgeWeight>::nec_direction_optimising_BFS(ExtendedCS
     
     _graph.template free_data<int>(active_ids);
     _graph.template free_data<int>(cached_levels);
+    _graph.template free_data<int>(tmp_buffer);
+    _graph.template free_data<int>(tmp_active_ids);
     delete []partial_outgoing_ids;
     
     return total_time;
