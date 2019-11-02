@@ -39,36 +39,92 @@ inline void BFS<_TVertexValue, _TEdgeWeight>::nec_calculate_balance(int *_levels
                                                                     int _desired_level,
                                                                     int _threads_count)
 {
-    int buffer_size = 3 * _vertices_count;
+    int buffer_size = _vertices_count;
     int *tmp_buffer = new int[_vertices_count];
+    int *tmp_active_ids = new int[_vertices_count];
+    int vals_per_thread = _vertices_count / _threads_count;
     
     #pragma omp parallel num_threads(_threads_count)
     {}
-    
-    int vals_per_thread = (buffer_size / _threads_count) / 3;
-    int vals_per_elem = vals_per_thread / VECTOR_LENGTH;
-    cout << "vals_per_thread: " << vals_per_thread << endl;
-    cout << "vals_per_elem: " << vals_per_elem << endl;
     
     double t1 = omp_get_wtime();
     #pragma omp parallel num_threads(_threads_count)
     {
         int tid = omp_get_thread_num();
         int tid_shift = tid * vals_per_thread;
+        int *private_buffer = &tmp_buffer[tid_shift];
         
-        int pointer_reg[VECTOR_LENGTH];
-        int starts_reg[VECTOR_LENGTH];
-        #pragma _NEC vreg(pointer_reg)
+        int data_reg[VECTOR_LENGTH];
+        #pragma _NEC vreg(data_reg)
+        
         for(int i = 0; i < VECTOR_LENGTH; i++)
         {
-            pointer_reg[i] = i * vals_per_elem + tid * vals_per_thread;
-            starts_reg[i] = i * vals_per_elem + tid * vals_per_thread;
+            data_reg[i] = 0;
         }
         
-        #pragma omp for schedule(static, 4)
+        int pos = 0;
+        #pragma omp for schedule(static)
         for(int vec_start = 0; vec_start < _vertices_count; vec_start += VECTOR_LENGTH)
         {
-            #pragma _NEC ivdep
+            for(int i = 0; i < VECTOR_LENGTH; i++)
+            {
+                int src_id = vec_start + i;
+                data_reg[i] = _levels[src_id];
+            }
+            
+            int present_flag = 0;
+            for(int i = 0; i < VECTOR_LENGTH; i++)
+            {
+                if(data_reg[i] == _desired_level)
+                {
+                    present_flag++;
+                }
+            }
+            
+            if(present_flag > 0)
+            {
+                for(int i = 0; i < VECTOR_LENGTH; i++)
+                {
+                    private_buffer[pos + i] = data_reg[i];
+                }
+                pos += VECTOR_LENGTH;
+            }
+        }
+    }
+    double t2 = omp_get_wtime();
+    cout << "SPARSE INNER band: " << sizeof(int) * _vertices_count / ((t2 - t1) * 1e9) << " GB/s" << endl;
+    cout << "SPARSE INNER time: " << 1000.0 * (t2 - t1) << " ms" << endl;
+    
+    int elements_per_thread = _vertices_count/_threads_count;
+    int elements_per_vector = elements_per_thread/VECTOR_LENGTH;
+    int shifts_array[MAX_SX_AURORA_THREADS];
+    
+    t1 = omp_get_wtime();
+    #pragma omp parallel num_threads(_threads_count)
+    {
+        int tid = omp_get_thread_num();
+        int start_pointers_reg[VECTOR_LENGTH];
+        int current_pointers_reg[VECTOR_LENGTH];
+        int last_pointers_reg[VECTOR_LENGTH];
+        
+        #pragma _NEC vreg(start_pointers_reg)
+        #pragma _NEC vreg(current_pointers_reg)
+        #pragma _NEC vreg(last_pointers_reg)
+        
+        for(int i = 0; i < VECTOR_LENGTH; i++)
+        {
+            start_pointers_reg[i] = elements_per_thread + i * elements_per_vector;
+            current_pointers_reg[i] = elements_per_thread + i * elements_per_vector;
+            last_pointers_reg[i] = elements_per_thread + i * elements_per_vector;
+        }
+        
+        #pragma omp for schedule(static)
+        for(int i = 0; i < _vertices_count; i++)
+            tmp_active_ids[i] = 0;
+        
+        #pragma omp for schedule(static)
+        for(int vec_start = 0; vec_start < _vertices_count; vec_start += VECTOR_LENGTH)
+        {
             #pragma _NEC vovertake
             #pragma _NEC novob
             #pragma _NEC vector
@@ -77,16 +133,75 @@ inline void BFS<_TVertexValue, _TEdgeWeight>::nec_calculate_balance(int *_levels
                 int src_id = vec_start + i;
                 if(_levels[src_id] == _desired_level)
                 {
-                    tmp_buffer[pointer_reg[i]] = src_id;
-                    pointer_reg[i]++;
+                    tmp_buffer[current_pointers_reg[i]] = src_id;
+                    current_pointers_reg[i]++;
+                }
+            }
+        }
+        
+        int max_difference = 0;
+        int save_values_per_thread = 0;
+        for(int i = 0; i < VECTOR_LENGTH; i++)
+        {
+            int difference = current_pointers_reg[i] - start_pointers_reg[i];
+            save_values_per_thread += difference;
+            if(difference > max_difference)
+                max_difference = difference;
+        }
+        
+        shifts_array[tid] = save_values_per_thread;
+        #pragma omp barrier
+            
+        #pragma omp master
+        {
+            int cur_shift = 0;
+            for(int i = 1; i < _threads_count; i++)
+            {
+                shifts_array[i] += shifts_array[i - 1];
+            }
+
+            for(int i = (_threads_count - 1); i >= 1; i--)
+            {
+                shifts_array[i] = shifts_array[i - 1];
+            }
+            shifts_array[0] = 0;
+        }
+               
+        #pragma omp barrier
+               
+        int tid_shift = shifts_array[tid];
+        int *private_ptr = &(tmp_active_ids[tid_shift]);
+        
+        int local_pos = 0;
+        #pragma _NEC novector
+        for(int pos = 0; pos < max_difference; pos++)
+        {
+            #pragma _NEC vovertake
+            #pragma _NEC novob
+            #pragma _NEC vector
+            for(int i = 0; i < VECTOR_LENGTH; i++)
+            {
+                int size = current_pointers_reg[i] - start_pointers_reg[i];
+                if(pos < size)
+                {
+                    private_ptr[local_pos] = tmp_buffer[last_pointers_reg[i]];
+                    last_pointers_reg[i]++;
+                    local_pos++;
                 }
             }
         }
     }
-    double t2 = omp_get_wtime();
-    cout << "INNER band: " << sizeof(int) * _vertices_count / ((t2 - t1) * 1e9) << " GB/s" << endl;
+    t2 = omp_get_wtime();
+    cout << "SPARSE2 INNER band: " << sizeof(int) * _vertices_count / ((t2 - t1) * 1e9) << " GB/s" << endl;
+    cout << "SPARSE2 INNER time: " << 1000.0 * (t2 - t1) << " ms" << endl;
+    
+    for(int i = 0; i < 30; i++)
+    {
+        cout << _active_ids[i] << " vs " << tmp_active_ids[i] << endl;
+    }
     
     delete []tmp_buffer;
+    delete []tmp_active_ids;
 }
 
 template <typename _TVertexValue, typename _TEdgeWeight>
@@ -811,6 +926,8 @@ int remove_zero_nodes(long long *_outgoing_ptrs, int _vertices_count, int *_leve
     return _vertices_count - zero_nodes_count;
 }
 
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 void mark_zero_nodes(int _vertices_count, int *_levels)
 {
     #pragma _NEC vector
@@ -823,6 +940,8 @@ void mark_zero_nodes(int _vertices_count, int *_levels)
         }
     }
 }
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template <typename _T>
 void NEC_indirect_memory_access_read(_T *_data, _T *_result, int _size)
@@ -847,6 +966,7 @@ void NEC_indirect_memory_access_read(_T *_data, _T *_result, int _size)
     cout << endl;
 }
 
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template <typename _TVertexValue, typename _TEdgeWeight>
 double BFS<_TVertexValue, _TEdgeWeight>::nec_direction_optimising_BFS(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
@@ -877,7 +997,6 @@ double BFS<_TVertexValue, _TEdgeWeight>::nec_direction_optimising_BFS(ExtendedCS
             }
         }
     }
-        
     
     int threads_count = omp_get_max_threads();
     _graph.set_threads_count(threads_count);
@@ -973,12 +1092,15 @@ double BFS<_TVertexValue, _TEdgeWeight>::nec_direction_optimising_BFS(ExtendedCS
         {
             nec_generate_frontier(_levels, active_ids, non_zero_vertices_count, cur_level + 1, threads_count);
             active_count = next_active_count;
+            if(cur_level == 5)
+                nec_calculate_balance(_levels, active_ids, non_zero_vertices_count, cur_level + 1, threads_count);
         }
         else if(next_state == BOTTOM_UP)
         {
             if(!use_vect_CSR_extension)
                 nec_generate_frontier(_levels, active_ids, non_zero_vertices_count, -1, threads_count);
             active_count = nec_get_active_count(_levels, non_zero_vertices_count, -1);
+            //nec_calculate_balance(_levels, active_ids, non_zero_vertices_count, -1, threads_count);
         }
         t4 = omp_get_wtime();
         double reminder_time = t4 - t3;
