@@ -861,23 +861,17 @@ void BFS<_TVertexValue, _TEdgeWeight>::nec_direction_optimising_BFS(ExtendedCSRG
     
     while(active_count > 0)
     {
-        double prefetch_time = 0;
+        double t_first, t_second, t_third;
         t3 = omp_get_wtime();
         #pragma omp parallel num_threads(threads_count)
         {
             int *private_levels = _graph.template get_private_data_pointer<int>(cached_levels);
             _graph.template place_data_into_cache<int>(_levels, private_levels);
         }
-        t4 = omp_get_wtime();
-        prefetch_time = t4 - t3;
-        total_time += prefetch_time;
         
         int vis = 0, in_lvl = 0;
         int current_active_count = active_count;
         
-        
-        double t_first, t_second, t_third;
-        t3 = omp_get_wtime();
         if(current_state == TOP_DOWN)
         {
             nec_top_down_step(_graph, outgoing_ptrs, outgoing_ids, outgoing_weights, vertices_count, active_count, _levels,
@@ -938,23 +932,6 @@ void BFS<_TVertexValue, _TEdgeWeight>::nec_direction_optimising_BFS(ExtendedCSRG
         
         total_reminder_time += reminder_time;
         
-        #ifdef PRINT_DETAILED_STATS
-        if(current_state == TOP_DOWN)
-            cout << "level " << cur_level << " in TD state" << endl;
-        else if(current_state == BOTTOM_UP)
-            cout << "level " << cur_level << " in BU state" << endl;
-        cout << "ALL GRAPH PERF: " << ((double)edges_count)/(kernel_time*1e6) << " MTEPS" << endl;
-        cout << "kernel perf: " << ((double)in_lvl)/(kernel_time*1e6) << " MTEPS" << endl;
-        cout << "kernel band: " << (3.0 * sizeof(int))*((double)in_lvl)/(kernel_time*1e9) << " GB/s" << endl;
-        cout << "kernel time: " << kernel_time*1000.0 << " ms" << endl;
-        cout << "reminder perf: " << ((double)edges_count)/(reminder_time*1e6) << " MTEPS" << endl;
-        cout << "reminder band: " << (2.0 * sizeof(int))*((double)vertices_count)/(reminder_time*1e9) << " GB/s" << endl;
-        cout << "reminder time: " << reminder_time*1000.0 << " ms" << endl;
-        cout << "prefetch time: " << prefetch_time*1000.0 << " ms" << endl;
-        cout << "currently active: " << (100.0*active_count) / vertices_count << endl;
-        cout << endl;
-        #endif
-        
         each_kernel_time.push_back(kernel_time);
         each_remider_time.push_back(reminder_time);
         each_first_time.push_back(t_first);
@@ -970,9 +947,6 @@ void BFS<_TVertexValue, _TEdgeWeight>::nec_direction_optimising_BFS(ExtendedCSRG
     t2 = omp_get_wtime();
     total_time += t2 - t1;
     
-    //cout << total_kernel_time << " vs " << total_reminder_time << endl;
-    //cout << "TOTAL BFS Perf: " << ((double)edges_count)/(total_time*1e6) << " MTEPS" << endl << endl << endl;
-    
     #ifdef PRINT_DETAILED_STATS
     for(int i = 0; i < each_kernel_time.size(); i++)
     {
@@ -987,7 +961,9 @@ void BFS<_TVertexValue, _TEdgeWeight>::nec_direction_optimising_BFS(ExtendedCSRG
         cout << "REMINDER: " << 100.0 * each_remider_time[i]/total_time << " % of total time (" << 1000.0*each_remider_time[i] << "ms)" << endl << endl;
     }
     cout << "kernel input: " << 100.0*total_kernel_time/total_time << " %" << endl;
-    cout << "reminder input: " << 100.0*total_reminder_time/total_time << " %" << endl;
+    cout << "reminder input: " << 100.0*total_reminder_time/total_time << " %" << endl << endl;
+    cout << total_kernel_time << " vs " << total_reminder_time << endl;
+    cout << "TOTAL BFS Perf: " << ((double)edges_count)/(total_time*1e6) << " MTEPS" << endl << endl << endl;
     #endif
     
     _graph.template free_data<int>(cached_levels);

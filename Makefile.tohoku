@@ -1,4 +1,4 @@
-CXX = nc++
+CXX = /opt/nec/ve/bin/nc++
 
 # Include paths...
 
