@@ -12,6 +12,69 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template <typename _TVertexValue, typename _TEdgeWeight>
+BFS<_TVertexValue, _TEdgeWeight>::BFS()
+{
+    active_vertices_buffer = NULL;
+    vectorised_outgoing_ids = NULL;
+    active_ids = NULL;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+template <typename _TVertexValue, typename _TEdgeWeight>
+BFS<_TVertexValue, _TEdgeWeight>::~BFS()
+{
+    if(active_vertices_buffer != NULL)
+    {
+        delete []active_vertices_buffer;
+    }
+    if(vectorised_outgoing_ids != NULL)
+    {
+        delete []vectorised_outgoing_ids;
+    }
+    if(active_ids != NULL)
+    {
+        delete []active_ids;
+    }
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+template <typename _TVertexValue, typename _TEdgeWeight>
+void BFS<_TVertexValue, _TEdgeWeight>::init_temporary_datastructures(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph)
+{
+    active_vertices_buffer = _graph.template vertex_array_alloc<int>();
+    
+    int vertices_count       = _graph.get_vertices_count();
+    int *outgoing_ids        = _graph.get_outgoing_ids    ();
+    long long *outgoing_ptrs = _graph.get_outgoing_ptrs   ();
+    vectorised_outgoing_ids = new int[vertices_count * BOTTOM_UP_THRESHOLD];
+    
+    for(int step = 0; step < BOTTOM_UP_THRESHOLD; step++)
+    {
+        #pragma omp parallel for schedule(static)
+        for(int src_id = 0; src_id < vertices_count; src_id++)
+        {
+            int connections = outgoing_ptrs[src_id + 1] - outgoing_ptrs[src_id];
+            long long start_pos = outgoing_ptrs[src_id];
+                
+            if(step < connections)
+            {
+                int dst_id = outgoing_ids[start_pos + step];
+                vectorised_outgoing_ids[src_id + vertices_count * step] = dst_id;
+            }
+        }
+    }
+    
+    active_ids = _graph.template vertex_array_alloc<int>();
+    
+    #pragma omp parallel
+    {}
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+template <typename _TVertexValue, typename _TEdgeWeight>
 void BFS<_TVertexValue, _TEdgeWeight>::allocate_result_memory(int _vertices_count, int **_levels)
 {
     *_levels = new int[_vertices_count];

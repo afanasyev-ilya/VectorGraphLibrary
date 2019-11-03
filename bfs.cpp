@@ -43,23 +43,31 @@ int main(int argc, const char * argv[])
                 throw "ERROR: graph file not found";
         }
 
+        BFS<int, float> bfs_operation;
+        
         // compute CC
-        int *bfs_result = new int[graph.get_vertices_count()];
+        int *bfs_result;
+        bfs_operation.allocate_result_memory(graph.get_vertices_count(), &bfs_result);
+        bfs_operation.init_temporary_datastructures(graph);
         
         vector<int> source_vertices = {1, 2, 10, 20, 100};
-        int last_vertex_to_check = 0;
+        int vertex_to_check = 0;
         
         for(int i = 0; i < source_vertices.size(); i++)
         {
-            last_vertex_to_check = source_vertices[i];
-            cout << "launching BFS from vertex: " << last_vertex_to_check << endl;
-            BFS<int, float>::nec_direction_optimising_BFS(graph, bfs_result, last_vertex_to_check);
+            vertex_to_check = source_vertices[i];
+            cout << "launching BFS from vertex: " << vertex_to_check << endl;
+            
+            double t1 = omp_get_wtime();
+            bfs_operation.nec_direction_optimising_BFS(graph, bfs_result, vertex_to_check);
+            double t2 = omp_get_wtime();
+            
+            cout << "OUTER BFS Perf: " << ((double)graph.get_edges_count())/((t2-t1)*1e6) << " MTEPS" << endl;
             cout << endl << "-------------------------------------------------" << endl << endl;
         }
         
-        BFS<int, float>::verifier(graph, last_vertex_to_check, bfs_result);
-        
-        delete []bfs_result;
+        bfs_operation.verifier(graph, vertex_to_check, bfs_result);
+        bfs_operation.free_result_memory(bfs_result);
     }
     catch (string error)
     {
