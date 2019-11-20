@@ -27,6 +27,8 @@ using namespace std;
 #include "common_datastructures/vector_sorter/vector_sorter.h"
 #include "common_datastructures/verify_results/verify_results.h"
 #include "common_datastructures/cmd_parser/cmd_parser.h"
+#include "common_datastructures/parallel_primitives/copy_if.h"
+#include "common_datastructures/parallel_primitives/get_elements_count.h"
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 

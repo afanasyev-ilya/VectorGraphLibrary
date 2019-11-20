@@ -457,6 +457,15 @@ void GraphGenerationAPI<_TVertexValue, _TEdgeWeight>::init_from_txt_file(EdgesLi
         cout << "bip unweighted" << endl;
         directed = false;
     }
+    else if(line == string("% sym unweighted"))
+    {
+        cout << "sym unweighted" << endl;
+        directed = false;
+        getline(infile, line); // get edges and vertices count line
+        istringstream vert_iss(line);
+        vert_iss >> edges_count >> vertices_count;
+        cout << "edges: " << edges_count << " and vertices: " << vertices_count << endl;
+    }
     else
     {
         getline(infile, line); // skip second line

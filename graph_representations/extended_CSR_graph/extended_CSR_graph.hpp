@@ -148,6 +148,7 @@ void ExtendedCSRGraph<_TVertexValue, _TEdgeWeight>::import_graph(EdgesListGraph<
     delete []old_indexes;
     
     // sort adjacent ids locally for each vertex
+    long long no_loops_edges_count = 0;
     for(int cur_vertex = 0; cur_vertex < tmp_vertices_count; cur_vertex++)
     {
         int src_id = cur_vertex;
@@ -158,6 +159,24 @@ void ExtendedCSRGraph<_TVertexValue, _TEdgeWeight>::import_graph(EdgesListGraph<
         if(edges_state == EDGES_SORTED)
         {
             std::sort(tmp_graph[src_id].begin(), tmp_graph[src_id].end(), edge_cmp<_TEdgeWeight>);
+            
+            /*if(tmp_graph[src_id].size() > 0)
+            {
+                vector<TempEdgeData<_TEdgeWeight> > no_loops_list;
+                
+                no_loops_list.push_back(tmp_graph[src_id][0]);
+                for(int i = 1; i < tmp_graph[src_id].size(); i++)
+                {
+                    if(tmp_graph[src_id][i].dst_id != tmp_graph[src_id][i - 1].dst_id)
+                    {
+                        no_loops_list.push_back(tmp_graph[src_id][i]);
+                    }
+                }
+                
+                tmp_graph[src_id] = no_loops_list;
+                no_loops_edges_count += no_loops_list.size();
+                tmp_edges_count = no_loops_edges_count;
+            }*/
         }
         else if(edges_state == EDGES_RANDOM_SHUFFLED)
         {

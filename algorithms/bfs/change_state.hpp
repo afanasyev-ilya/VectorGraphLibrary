@@ -14,10 +14,45 @@
 #define ALPHA 15
 #define BETA 18
 
+#define POWER_LAW_EDGES_THRESHOLD 30
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+template <typename _TVertexValue, typename _TEdgeWeight>
+GraphStructure check_graph_structure(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph)
+{
+    int vertices_count    = _graph.get_vertices_count();
+    long long edges_count = _graph.get_edges_count   ();
+    long long    *outgoing_ptrs    = _graph.get_outgoing_ptrs   ();
+    int          *outgoing_ids     = _graph.get_outgoing_ids    ();
+    
+    int portion_of_first_vertices = 0.01 * vertices_count + 1;
+    long long number_of_edges_in_first_portion = outgoing_ptrs[portion_of_first_vertices];
+    
+    if((100.0 * number_of_edges_in_first_portion) / edges_count > POWER_LAW_EDGES_THRESHOLD)
+        return POWER_LAW_GRAPH;
+    else
+        return UNIFORM_GRAPH;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+bool check_if_vector_extension_should_be_used(int _non_zero_vertices_count, int _not_visited_count, StateOfBFS _current_state)
+{
+    if(_current_state == BOTTOM_UP)
+    {
+        //cout << (100.0 * _not_visited_count) / _non_zero_vertices_count << " %" << endl;
+        //if((100.0 * _not_visited_count) / _non_zero_vertices_count > )
+        return true;
+    }
+    return false;
+}
+
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 StateOfBFS change_state(int _current_queue_size, int _next_queue_size, int _vertices_count, long long _edges_count,
-                        StateOfBFS _old_state, int _vis, int _in_lvl)
+                        StateOfBFS _old_state, int _vis, int _in_lvl, bool &_use_vect_CSR_extension, int _cur_level,
+                        GraphStructure _graph_structure)
 {
     StateOfBFS new_state = _old_state;
     int factor = (_edges_count / _vertices_count) / 2;
@@ -49,6 +84,20 @@ StateOfBFS change_state(int _current_queue_size, int _next_queue_size, int _vert
                 new_state = BOTTOM_UP;
             }
         }
+    }
+    
+    if((_old_state == TOP_DOWN) && (_graph_structure == POWER_LAW_GRAPH) && (_cur_level == 1))
+    {
+        new_state = BOTTOM_UP;  // in the case of RMAT graph better switch to bottom up early
+    }
+    
+    if((_graph_structure == POWER_LAW_GRAPH) && (_cur_level == 1) || (_cur_level == 2)) // tofix
+    {
+        _use_vect_CSR_extension = true;
+    }
+    else
+    {
+        _use_vect_CSR_extension = false;
     }
     
     return new_state;
