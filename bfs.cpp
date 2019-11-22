@@ -42,6 +42,7 @@ int main(int argc, const char * argv[])
             if(!graph.load_from_binary_file(parser.get_graph_file_name()))
                 throw "ERROR: graph file not found";
         }
+    
 
         BFS<int, float> bfs_operation;
         
@@ -50,7 +51,7 @@ int main(int argc, const char * argv[])
         bfs_operation.allocate_result_memory(graph.get_vertices_count(), &bfs_result);
         bfs_operation.init_temporary_datastructures(graph);
         
-        vector<int> source_vertices = {0, 1, 2, 10, 20, 100, 200, 2048};
+        vector<int> source_vertices = {1};
         int vertex_to_check = 0;
         
         cout << "Graph size: " << graph.get_edges_count()/graph.get_vertices_count() << endl;

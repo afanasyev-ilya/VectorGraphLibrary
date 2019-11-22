@@ -48,12 +48,26 @@ void BFS<_TVertexValue, _TEdgeWeight>::init_temporary_datastructures(ExtendedCSR
     int vertices_count       = _graph.get_vertices_count();
     int *outgoing_ids        = _graph.get_outgoing_ids    ();
     long long *outgoing_ptrs = _graph.get_outgoing_ptrs   ();
-    vectorised_outgoing_ids = new int[vertices_count * BOTTOM_UP_THRESHOLD];
+    
+    int zero_nodes_count = 0;
+    #pragma _NEC vector
+    #pragma omp parallel for schedule(static) reduction(+: zero_nodes_count)
+    for(int src_id = 0; src_id < vertices_count; src_id++)
+    {
+        int connections = outgoing_ptrs[src_id + 1] - outgoing_ptrs[src_id];
+        if(connections == 0)
+        {
+            zero_nodes_count++;
+        }
+    }
+    int non_zero_vertices_count = vertices_count - zero_nodes_count;
+    
+    vectorised_outgoing_ids = new int[non_zero_vertices_count * BOTTOM_UP_THRESHOLD];
     
     for(int step = 0; step < BOTTOM_UP_THRESHOLD; step++)
     {
-        //#pragma omp parallel for schedule(static)
-        for(int src_id = 0; src_id < vertices_count; src_id++)
+        #pragma omp parallel for schedule(static)
+        for(int src_id = 0; src_id < non_zero_vertices_count; src_id++)
         {
             int connections = outgoing_ptrs[src_id + 1] - outgoing_ptrs[src_id];
             long long start_pos = outgoing_ptrs[src_id];
@@ -62,7 +76,7 @@ void BFS<_TVertexValue, _TEdgeWeight>::init_temporary_datastructures(ExtendedCSR
             {
                 int shift = step;
                 int dst_id = outgoing_ids[start_pos + shift];
-                vectorised_outgoing_ids[src_id + vertices_count * step] = dst_id;
+                vectorised_outgoing_ids[src_id + non_zero_vertices_count * step] = dst_id;
             }
         }
     }

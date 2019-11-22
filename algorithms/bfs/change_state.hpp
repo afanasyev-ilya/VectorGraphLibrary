@@ -140,7 +140,7 @@ StateOfBFS gpu_change_state(int _current_queue_size, int _next_queue_size, int _
         }
     }
     
-    //if(_current_level == 2)
+    //if(_current_level == 1 || _current_level == 2)
     //    new_state = BOTTOM_UP;
     
     return new_state;
