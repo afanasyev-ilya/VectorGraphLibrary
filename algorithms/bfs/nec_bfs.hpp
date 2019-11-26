@@ -445,7 +445,8 @@ inline void BFS<_TVertexValue, _TEdgeWeight>::nec_bottom_up_step(ExtendedCSRGrap
     _t_second = t2 - t1;
     
     t1 = omp_get_wtime();
-    #pragma omp parallel shared(vis, in_lvl)
+    int border_large = 0;
+    #pragma omp parallel shared(vis, in_lvl, border_large)
     {
         long long local_in_lvl = 0;
         int local_vis = 0;
@@ -456,6 +457,7 @@ inline void BFS<_TVertexValue, _TEdgeWeight>::nec_bottom_up_step(ExtendedCSRGrap
         int vis_reg[VECTOR_LENGTH];
         long long in_lvl_reg[VECTOR_LENGTH];
         int src_levels_reg[VECTOR_LENGTH];
+        int processing_reg[VECTOR_LENGTH];
             
         #pragma _NEC vreg(start_pos)
         #pragma _NEC vreg(connections)
@@ -463,6 +465,7 @@ inline void BFS<_TVertexValue, _TEdgeWeight>::nec_bottom_up_step(ExtendedCSRGrap
         #pragma _NEC vreg(vis_reg)
         #pragma _NEC vreg(in_lvl_reg)
         #pragma _NEC vreg(src_levels_reg)
+        #pragma _NEC vreg(processing_reg)
             
         for(int i = 0; i < VECTOR_LENGTH; i++)
         {
@@ -472,13 +475,27 @@ inline void BFS<_TVertexValue, _TEdgeWeight>::nec_bottom_up_step(ExtendedCSRGrap
             in_lvl_reg[i] = 0;
             vis_reg[i] = 0;
             src_levels_reg[i] = 0;
+            processing_reg[i] = 0;
         }
             
         int *private_levels = _graph.template get_private_data_pointer<int>(_cached_levels);
+        
+        /*#pragma omp for schedule(static)
+        for(int i = 0; i < active_vertices_left; i++)
+        {
+            int id1 = active_ids[i];
+            int id2 = active_ids[i + 1];
+            int connections1 = _outgoing_ptrs[id1 + 1] - _outgoing_ptrs[id1];
+            int connections2 = _outgoing_ptrs[id2 + 1] - _outgoing_ptrs[id2];
+            if((connections2 > VECTOR_LENGTH) && (connections1 <= VECTOR_LENGTH))
+            {
+                border_large = i;
+            }
+        }*/
             
         #pragma _NEC novector
         #pragma omp for schedule(static, 1)
-        for(int vec_start = 0; vec_start < active_vertices_left; vec_start += VECTOR_LENGTH)
+        for(int vec_start = 0; vec_start < active_vertices_left; vec_start += VECTOR_LENGTH) // process "small" vertices
         {
             for(int i = 0; i < VECTOR_LENGTH; i++)
             {
@@ -502,6 +519,7 @@ inline void BFS<_TVertexValue, _TEdgeWeight>::nec_bottom_up_step(ExtendedCSRGrap
             int max_connections = 0;
             for(int i = 0; i < VECTOR_LENGTH; i++)
             {
+                processing_reg[i] = 0;
                 if(max_connections < connections[i])
                     max_connections = connections[i];
             }
@@ -672,7 +690,6 @@ void BFS<_TVertexValue, _TEdgeWeight>::nec_direction_optimising_BFS(ExtendedCSRG
         }
         else if(current_state == BOTTOM_UP)
         {
-            //use_vect_CSR_extension = true;
             nec_bottom_up_step(_graph, outgoing_ptrs, outgoing_ids, vertices_count, active_count, _levels, cached_levels,
                                cur_level, vis, in_lvl, threads_count, use_vect_CSR_extension,
                                non_zero_vertices_count, t_first, t_second, t_third);
@@ -707,7 +724,6 @@ void BFS<_TVertexValue, _TEdgeWeight>::nec_direction_optimising_BFS(ExtendedCSRG
         double reminder_time = t4 - t3;
         total_time += reminder_time;
         
-        #ifdef PRINT_DETAILED_STATS
         total_reminder_time += reminder_time;
         each_kernel_time.push_back(kernel_time);
         each_remider_time.push_back(reminder_time);
@@ -715,7 +731,6 @@ void BFS<_TVertexValue, _TEdgeWeight>::nec_direction_optimising_BFS(ExtendedCSRG
         each_second_time.push_back(t_second);
         each_third_time.push_back(t_third);
         each_step_type.push_back(current_state);
-        #endif
         
         current_state = next_state;
         cur_level++;
@@ -745,8 +760,9 @@ void BFS<_TVertexValue, _TEdgeWeight>::nec_direction_optimising_BFS(ExtendedCSRG
     cout << "kernel input: " << 100.0*total_kernel_time/total_time << " %" << endl;
     cout << "reminder input: " << 100.0*total_reminder_time/total_time << " %" << endl << endl;
     cout << total_kernel_time << " vs " << total_reminder_time << endl;
-    cout << "TOTAL BFS Perf: " << ((double)edges_count)/(total_time*1e6) << " MTEPS" << endl << endl << endl;
+    //cout << "TOTAL BFS Perf: " << ((double)edges_count)/(total_time*1e6) << " MTEPS" << endl << endl << endl;
     #endif
+    cout << "TOTAL BFS Perf: " << ((double)edges_count)/(total_time*1e6) << " MTEPS" << endl << endl << endl;
     
     _graph.template free_data<int>(cached_levels);
 }

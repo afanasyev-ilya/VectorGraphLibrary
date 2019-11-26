@@ -20,6 +20,13 @@ int main(int argc, const char * argv[])
 {
     try
     {
+        long matrix_size = 4096;
+        double time_multiply = 0.01;
+        std::cout << "GPU PERFORMANCE: " << (matrix_size * matrix_size * matrix_size * 1000) / ((double) time_multiply) << "FLOPS\n";
+        
+        double d_matrix_size = matrix_size;
+        std::cout << "GPU PERFORMANCE: " << (d_matrix_size * d_matrix_size * d_matrix_size * 1000.0) / ((double) time_multiply) << "FLOPS\n";
+        
         cout << "BFS (Breadth-First Search) test..." << endl;
         
         // parse args
@@ -41,8 +48,9 @@ int main(int argc, const char * argv[])
         {
             if(!graph.load_from_binary_file(parser.get_graph_file_name()))
                 throw "ERROR: graph file not found";
+            
+            cout << "Loaded graph with name: " << parser.get_graph_file_name() << endl;
         }
-    
 
         BFS<int, float> bfs_operation;
         
@@ -51,27 +59,23 @@ int main(int argc, const char * argv[])
         bfs_operation.allocate_result_memory(graph.get_vertices_count(), &bfs_result);
         bfs_operation.init_temporary_datastructures(graph);
         
-        vector<int> source_vertices = {1};
+        vector<int> source_vertices = {1, 5, 10, 20, 50, 80, 70, 100, 1000, 2000, 5000};
         int vertex_to_check = 0;
         
-        cout << "Graph size: " << graph.get_edges_count()/graph.get_vertices_count() << endl;
         double avg_perf = 0;
         for(int i = 0; i < source_vertices.size(); i++)
         {
             vertex_to_check = source_vertices[i];
-            //cout << "launching BFS from vertex: " << vertex_to_check << endl;
+            cout << "launching BFS from vertex: " << vertex_to_check << endl;
             
             double t1 = omp_get_wtime();
             bfs_operation.nec_direction_optimising_BFS(graph, bfs_result, vertex_to_check);
             double t2 = omp_get_wtime();
             
-            //cout << "OUTER BFS Perf: " << ((double)graph.get_edges_count())/((t2-t1)*1e6) << " MTEPS" << endl;
-            avg_perf += ((double)graph.get_edges_count())/((t2-t1)*1e6) / source_vertices.size();
-            //cout << endl << "-------------------------------------------------" << endl << endl;
+            bfs_operation.verifier(graph, vertex_to_check, bfs_result);
         }
         cout << "AVG Performance: " << avg_perf << " MTEPS" << endl << endl;
         
-        bfs_operation.verifier(graph, vertex_to_check, bfs_result);
         bfs_operation.free_result_memory(bfs_result);
     }
     catch (string error)
