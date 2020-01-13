@@ -6,8 +6,7 @@
 //  Copyright © 2019 MSU. All rights reserved.
 //
 
-#ifndef vector_dictionary_hpp
-#define vector_dictionary_hpp
+#pragma once
 
 #include <iostream>
 
@@ -175,5 +174,3 @@ VectorDictionary::~VectorDictionary()
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-#endif /* vector_dictionary_hpp */

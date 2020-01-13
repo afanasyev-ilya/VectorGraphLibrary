@@ -48,6 +48,9 @@ custom_test: create_folders custom_test.o
 
 generate_test_data: create_folders generate_test_data.o
 	$(CXX) object_files/generate_test_data.o $(Library_Path) $(Libraries) $(LDFLAGS) -o ./bin/generate_test_data
+	
+generate_memory_traces: create_folders generate_memory_traces.o
+	$(CXX) object_files/generate_memory_traces.o $(Library_Path) $(Libraries) $(LDFLAGS) -o ./bin/generate_memory_traces
 
 ##########
 # CPPs
@@ -73,6 +76,9 @@ custom_test.o: custom_test.cpp
 
 generate_test_data.o: generate_test_data.cpp
 	$(CXX) $(CXXFLAGS) $(Include_Path)  -c generate_test_data.cpp -o object_files/generate_test_data.o -fopenmp
+	
+generate_memory_traces.o: generate_memory_traces.cpp
+	$(CXX) $(CXXFLAGS) $(Include_Path)  -c generate_memory_traces.cpp -o object_files/generate_memory_traces.o -fopenmp
 
 create_folders:
 	-mkdir -p ./bin

@@ -136,7 +136,6 @@ inline void BFS<_TVertexValue, _TEdgeWeight>::nec_top_down_step(ExtendedCSRGraph
             #pragma _NEC vreg(connections_reg)
             #pragma _NEC vreg(active_reg)
             #pragma _NEC vreg(vis_reg)
-            #pragma _NEC vreg(in_lvl_reg)
             
             int *private_levels = _graph.template get_private_data_pointer<int>(_cached_levels);
             
@@ -145,7 +144,6 @@ inline void BFS<_TVertexValue, _TEdgeWeight>::nec_top_down_step(ExtendedCSRGraph
                 connections_reg[i] = 0;
                 active_reg[i] = 0;
                 start_pos_reg[i] = 0;
-                in_lvl_reg[i] = 0;
                 vis_reg[i] = 0;
             }
             
@@ -275,11 +273,13 @@ inline void BFS<_TVertexValue, _TEdgeWeight>::nec_top_down_step(ExtendedCSRGraph
                     }
                 }
                 
+                int total_connections = 0;
                 int max_connections = 0;
                 for(int i = 0; i < VECTOR_LENGTH; i++)
                 {
                     if(max_connections < connections_reg[i])
                         max_connections = connections_reg[i];
+                    local_in_lvl += connections_reg[i];
                 }
                 
                 for(int edge_pos = 0; edge_pos < max_connections; edge_pos++)
@@ -298,7 +298,6 @@ inline void BFS<_TVertexValue, _TEdgeWeight>::nec_top_down_step(ExtendedCSRGraph
                         
                         if(((vec_start + i) < _active_count) && (edge_pos < connections_reg[i]))
                         {
-                            in_lvl_reg[i]++;
                             dst_level = _graph.template load_vertex_data_cached<int>(dst_id, _levels, private_levels);
                         }
                         
@@ -315,7 +314,6 @@ inline void BFS<_TVertexValue, _TEdgeWeight>::nec_top_down_step(ExtendedCSRGraph
             for(int i = 0; i < VECTOR_LENGTH; i++)
             {
                 local_vis += vis_reg[i];
-                local_in_lvl += in_lvl_reg[i];
             }
             
             #pragma omp barrier
@@ -762,7 +760,6 @@ void BFS<_TVertexValue, _TEdgeWeight>::nec_direction_optimising_BFS(ExtendedCSRG
     cout << total_kernel_time << " vs " << total_reminder_time << endl;
     //cout << "TOTAL BFS Perf: " << ((double)edges_count)/(total_time*1e6) << " MTEPS" << endl << endl << endl;
     #endif
-    cout << "TOTAL BFS Perf: " << ((double)edges_count)/(total_time*1e6) << " MTEPS" << endl << endl << endl;
     
     _graph.template free_data<int>(cached_levels);
 }

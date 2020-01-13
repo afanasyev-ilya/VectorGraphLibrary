@@ -61,6 +61,12 @@ private:
     void alloc(int _vertices_count, long long _edges_count, int _vertices_in_first_part = 0);
     void free();
     
+    #ifdef __USE_GPU__
+    int gpu_grid_threshold_vertex;
+    int gpu_block_threshold_vertex;
+    int gpu_warp_threshold_vertex;
+    #endif
+    
     // helper functions of init graph function
     void construct_tmp_graph_from_edges_list(EdgesListGraph<_TVertexValue, _TEdgeWeight> &_old_graph,
                                              vector<vector<TempEdgeData<_TEdgeWeight> > > &_tmp_graph,
@@ -75,7 +81,7 @@ private:
     void sort_edges(vector<vector<TempEdgeData<_TEdgeWeight> > > &_tmp_graph, int _tmp_vertices_count);
     
     int calculate_and_find_threshold_vertex(vector<vector<TempEdgeData<_TEdgeWeight> > > &_tmp_graph,
-                                            int _tmp_vertices_count);
+                                            int _tmp_vertices_count, long long _tmp_edges_count);
     
     void flatten_graph(vector<vector<TempEdgeData<_TEdgeWeight> > > &_tmp_graph, int &_tmp_vertices_count,
                        long long int &_tmp_edges_count, long long int _old_edges_count, int _last_part_start);
@@ -105,6 +111,12 @@ public:
     
     inline int get_number_of_vertices_in_first_part() {return number_of_vertices_in_first_part;};
     inline int get_vector_segments_count() {return vector_segments_count;};
+    
+    #ifdef __USE_GPU__
+    inline int get_gpu_grid_threshold_vertex(){return gpu_grid_threshold_vertex;};
+    inline int get_gpu_block_threshold_vertex(){return gpu_block_threshold_vertex;};
+    inline int get_gpu_warp_threshold_vertex(){return gpu_warp_threshold_vertex;};
+    #endif
     
     inline int           *get_reordered_vertex_ids     () {return reordered_vertex_ids;};
     inline long long     *get_first_part_ptrs          () {return first_part_ptrs;};
@@ -153,6 +165,7 @@ public:
 #include "vectorised_CSR_graph.hpp"
 #include "init_graph_helpers.hpp"
 #include "programming_API.hpp"
+#include "load_data.h"
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 

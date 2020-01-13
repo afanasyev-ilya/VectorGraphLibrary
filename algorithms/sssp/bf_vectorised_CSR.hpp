@@ -232,8 +232,7 @@ void ShortestPaths<_TVertexValue, _TEdgeWeight>::gpu_bellman_ford(
     
     int iterations_count = 0;
     double t1 = omp_get_wtime();
-    gpu_bellman_ford_wrapper<_TEdgeWeight>(vector_group_ptrs, vector_group_sizes, incoming_ids, incoming_weights,
-                                           device_distances, vertices_count, edges_count, _source_vertex, iterations_count);
+    gpu_bellman_ford_wrapper<_TVertexValue, _TEdgeWeight>(_reversed_graph, device_distances, _source_vertex, iterations_count);
     double t2 = omp_get_wtime();
     
     cout << "GPU time: " << t2 - t1 << endl;

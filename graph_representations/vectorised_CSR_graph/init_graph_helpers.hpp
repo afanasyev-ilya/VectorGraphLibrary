@@ -137,16 +137,40 @@ void VectorisedCSRGraph<_TVertexValue, _TEdgeWeight>::sort_edges(vector<vector<T
 template <typename _TVertexValue, typename _TEdgeWeight>
 int VectorisedCSRGraph<_TVertexValue, _TEdgeWeight>::calculate_and_find_threshold_vertex(
                                                     vector<vector<TempEdgeData<_TEdgeWeight> > > &_tmp_graph,
-                                                    int _tmp_vertices_count)
+                                                    int _tmp_vertices_count, long long _tmp_edges_count)
 {
     int threshold_vertex = 0;
     int typical_threads_count = 8;
-    int threshold_value = VECTOR_LENGTH * typical_threads_count * 16;
+    int threshold_value = 32;
+    #ifdef __USE_NEC_SX_AURORA__
+    threshold_value = supported_vector_length * typical_threads_count * 16;
+    #endif
+    
+    #ifdef __USE_GPU__
+    int gpu_grid_threshold_value = TYPICAL_SM_COUNT * BLOCK_SIZE;
+    int gpu_block_threshold_value = BLOCK_SIZE;
+    int gpu_warp_threshold_value = 2*WARP_SIZE;
+    threshold_value = gpu_warp_threshold_value;
+    #endif
     
     int large_vertices = 0;
     int small_vertices = 0;
     for(int i = 0; i < (_tmp_vertices_count - 1); i++)
     {
+        #ifdef __USE_GPU__
+        if((_tmp_graph[i].size() > gpu_grid_threshold_value) && (_tmp_graph[i + 1].size() <= gpu_grid_threshold_value))
+        {
+            gpu_grid_threshold_vertex = i + 1;
+        }
+        if((_tmp_graph[i].size() > gpu_block_threshold_value) && (_tmp_graph[i + 1].size() <= gpu_block_threshold_value))
+        {
+            gpu_block_threshold_vertex = i + 1;
+        }
+        if((_tmp_graph[i].size() > gpu_warp_threshold_value) && (_tmp_graph[i + 1].size() <= gpu_warp_threshold_value))
+        {
+            gpu_warp_threshold_vertex = i + 1;
+        }
+        #endif
         if((_tmp_graph[i].size() > threshold_value) && (_tmp_graph[i + 1].size() <= threshold_value))
         {
             threshold_vertex = i + 1;
@@ -158,7 +182,14 @@ int VectorisedCSRGraph<_TVertexValue, _TEdgeWeight>::calculate_and_find_threshol
     
     cout << "largest vertex degree: " << _tmp_graph[0].size() << endl;
     cout << "smallest vertex degree: " << _tmp_graph[threshold_vertex].size() << endl << endl;
-    return (int)min(_tmp_vertices_count * 0.1, (double)threshold_vertex);
+    
+    #ifdef __USE_GPU__
+    cout << "GPU grid threashold vertex id: " << gpu_grid_threshold_vertex << endl;
+    cout << "GPU block threashold vertex id: " << gpu_block_threshold_vertex << endl;
+    cout << "GPU warp threashold vertex id: " << gpu_warp_threshold_vertex << endl;
+    #endif
+    
+    return threshold_vertex;//TOFIX
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -354,7 +385,7 @@ void VectorisedCSRGraph<_TVertexValue, _TEdgeWeight>::import_graph(EdgesListGrap
     sort_edges(tmp_graph, tmp_vertices_count);
     
     // need to do something here....
-    int threshold_vertex = calculate_and_find_threshold_vertex(tmp_graph, tmp_vertices_count);
+    int threshold_vertex = calculate_and_find_threshold_vertex(tmp_graph, tmp_vertices_count, tmp_edges_count);
     
     // flatten graph for vectorisation
     flatten_graph(tmp_graph, tmp_vertices_count, tmp_edges_count, old_edges_count, threshold_vertex);

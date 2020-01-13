@@ -98,84 +98,6 @@ void parse_cmd_params(int _argc, char **_argv, int &_scale, int &_avg_degree, st
     }
 }
 
-
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-void save_to_file(vector<int> vals, string file_name)
-{
-    ofstream myfile;
-    myfile.open(file_name.c_str());
-    
-    for(int i = 0; i < vals.size(); i++)
-        myfile << vals[i] << "\n";
-    
-    myfile.close();
-}
-
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-/*void generate_memory_profile(EdgesListGraph<int, float> &rand_graph)
-{
-    int vect_size = 1000;
-    
-    int *whole_array = new int[3*vect_size];
-    int *a = &whole_array[0];
-    int *b = &whole_array[vect_size];
-    int *c = &whole_array[2*vect_size];
-    
-    vector<int> saxpy_accesses;
-    
-    for(int i = 0; i < vect_size; i++)
-    {
-        a[i] = b[i] + c[i];
-        saxpy_accesses.push_back(&c[i] - whole_array);
-        saxpy_accesses.push_back(&b[i] - whole_array);
-        saxpy_accesses.push_back(&a[i] - whole_array);
-    }
-    
-    save_to_file(saxpy_accesses, "saxpy.txt");
-    
-    int edges_count = vect_size;
-    int vertices_count = vect_size;
-    int *distances = &whole_array[0];
-    int *dst_ids = &whole_array[vertices_count];
-    for(int i = 0; i < edges_count; i++)
-    {
-        dst_ids[i] = rand() % vertices_count;
-    }
-    
-    vector<int> random_accesses;
-    for(int i = 0; i < edges_count; i++)
-    {
-        int dst_id = dst_ids[i];
-        random_accesses.push_back(&dst_ids[i] - whole_array);
-        
-        int val = distances[dst_id];
-        random_accesses.push_back(&distances[dst_id] - whole_array);
-    }
-    
-    save_to_file(random_accesses, "rmat.txt");
-    
-    for(int i = 0; i < edges_count; i++)
-    {
-        dst_ids[i] = rand_graph.get_dst_ids();
-    }
-    
-    vector<int> rmat_accesses;
-    for(int i = 0; i < edges_count; i++)
-    {
-        int dst_id = dst_ids[i];
-        random_accesses.push_back(&dst_ids[i] - whole_array);
-        
-        int val = distances[dst_id];
-        random_accesses.push_back(&distances[dst_id] - whole_array);
-    }
-    
-    save_to_file(random_accesses, "random.txt");
-    
-    delete []whole_array;
-}*/
-
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 int main(int argc, char ** argv)
@@ -277,13 +199,19 @@ int main(int argc, char ** argv)
         else if(output_format.find("gapbs") != string::npos)
         {
             t1 = omp_get_wtime();
-            export_to_gapbs_text_unweighted(rand_graph, file_name + "_gapbs.el");
+            export_to_edges_list_unweighted(rand_graph, file_name + "_gapbs.el", false);
             t1 = omp_get_wtime();
             cout << "save time: " << (t2 - t1) * 1000.0 << " ms" << endl;
             cout << "saved into GAPBS format!" << endl;
         }
-        
-        //generate_memory_profile();
+        else if(output_format.find("mtx") != string::npos)
+        {
+            t1 = omp_get_wtime();
+            export_to_edges_list_unweighted(rand_graph, file_name + "_mtx.el", true);
+            t1 = omp_get_wtime();
+            cout << "save time: " << (t2 - t1) * 1000.0 << " ms" << endl;
+            cout << "saved into MTX format!" << endl;
+        }
     }
     catch (const char * error)
     {

@@ -26,9 +26,10 @@ void GraphGenerationAPI<_TVertexValue, _TEdgeWeight>::random_uniform(EdgesListGr
     _graph.resize(vertices_count, edges_count);
     
     RandomGenerationAPI rng_api;
+    int max_id_val = vertices_count;
     rng_api.generate_array_of_random_values<_TVertexValue>(_graph.get_vertex_values(), vertices_count, 1000);
-    rng_api.generate_array_of_random_values<int>(_graph.get_src_ids(), directed_edges_count, vertices_count);
-    rng_api.generate_array_of_random_values<int>(_graph.get_dst_ids(), directed_edges_count, vertices_count);
+    rng_api.generate_array_of_random_values<int>(_graph.get_src_ids(), directed_edges_count, max_id_val);
+    rng_api.generate_array_of_random_values<int>(_graph.get_dst_ids(), directed_edges_count, max_id_val);
     rng_api.generate_array_of_random_values<_TEdgeWeight>(_graph.get_weights(), directed_edges_count, 1.0);
     
     if(!_direction_type)

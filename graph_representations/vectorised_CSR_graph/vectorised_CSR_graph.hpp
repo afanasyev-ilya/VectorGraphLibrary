@@ -45,13 +45,13 @@ void VectorisedCSRGraph<_TVertexValue, _TEdgeWeight>::alloc(int _vertices_count,
     number_of_vertices_in_first_part      = _number_of_vertices_in_first_part;
     vertices_in_vector_segments = this->vertices_count - _number_of_vertices_in_first_part;
     
-    if(vertices_in_vector_segments % VECTOR_LENGTH != 0)
+    if(vertices_in_vector_segments % this->supported_vector_length != 0)
         throw "ERROR: vertices_count or fisrt_part_border values are incorrect for VectorisedCSRGraph";
     
     this->vertex_values  = new _TVertexValue[this->vertices_count];
     reordered_vertex_ids = new int[this->vertices_count];
     
-    vector_segments_count = vertices_in_vector_segments / VECTOR_LENGTH;
+    vector_segments_count = vertices_in_vector_segments / this->supported_vector_length;
     
     first_part_ptrs = new long long[number_of_vertices_in_first_part];
     first_part_sizes = new int[number_of_vertices_in_first_part];
@@ -170,7 +170,7 @@ void VectorisedCSRGraph<_TVertexValue, _TEdgeWeight>::save_to_graphviz_file(stri
         
         int multiplier = 1;
         if(src_id >= number_of_vertices_in_first_part)
-            multiplier = VECTOR_LENGTH;
+            multiplier = this->supported_vector_length;
         
         for(int i = 0; i < connections_count; i++)
         {
@@ -283,6 +283,9 @@ void VectorisedCSRGraph<_TVertexValue, _TEdgeWeight>::move_to_device()
     move_array_to_device<_TVertexValue>(&(this->vertex_values), this->vertices_count);
     move_array_to_device<int>(&reordered_vertex_ids, this->vertices_count);
     
+    move_array_to_device<long long>(&first_part_ptrs, number_of_vertices_in_first_part);
+    move_array_to_device<int>(&first_part_sizes, number_of_vertices_in_first_part);
+    
     move_array_to_device<long long>(&vector_group_ptrs, vector_segments_count);
     move_array_to_device<int>(&vector_group_sizes, vector_segments_count);
     
@@ -306,6 +309,9 @@ void VectorisedCSRGraph<_TVertexValue, _TEdgeWeight>::move_to_host()
     
     move_array_to_host<_TVertexValue>(&(this->vertex_values), this->vertices_count);
     move_array_to_host<int>(&reordered_vertex_ids, this->vertices_count);
+    
+    move_array_to_host<long long>(&first_part_ptrs, number_of_vertices_in_first_part);
+    move_array_to_host<int>(&first_part_sizes, number_of_vertices_in_first_part);
 
     move_array_to_host<long long>(&vector_group_ptrs, vector_segments_count);
     move_array_to_host<int>(&vector_group_sizes, vector_segments_count);

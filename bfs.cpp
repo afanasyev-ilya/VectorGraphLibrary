@@ -20,15 +20,6 @@ int main(int argc, const char * argv[])
 {
     try
     {
-        long matrix_size = 4096;
-        double time_multiply = 0.01;
-        std::cout << "GPU PERFORMANCE: " << (matrix_size * matrix_size * matrix_size * 1000) / ((double) time_multiply) << "FLOPS\n";
-        
-        double d_matrix_size = matrix_size;
-        std::cout << "GPU PERFORMANCE: " << (d_matrix_size * d_matrix_size * d_matrix_size * 1000.0) / ((double) time_multiply) << "FLOPS\n";
-        
-        cout << "BFS (Breadth-First Search) test..." << endl;
-        
         // parse args
         AlgorithmCommandOptionsParser parser;
         parser.parse_args(argc, argv);
@@ -40,8 +31,8 @@ int main(int argc, const char * argv[])
         {
             int vertices_count = pow(2.0, parser.get_scale());
             long long edges_count = vertices_count * parser.get_avg_degree();
-            //GraphGenerationAPI<int, float>::random_uniform(rand_graph, vertices_count, edges_count, UNDIRECTED_GRAPH);
-            GraphGenerationAPI<int, float>::R_MAT(rand_graph, vertices_count, edges_count, 57, 19, 19, 5, UNDIRECTED_GRAPH);
+            GraphGenerationAPI<int, float>::random_uniform(rand_graph, vertices_count, edges_count, UNDIRECTED_GRAPH);
+            //GraphGenerationAPI<int, float>::R_MAT(rand_graph, vertices_count, edges_count, 57, 19, 19, 5, UNDIRECTED_GRAPH);
             graph.import_graph(rand_graph, VERTICES_SORTED, EDGES_SORTED, 1, PUSH_TRAVERSAL);
         }
         else if(parser.get_compute_mode() == LOAD_GRAPH_FROM_FILE)
@@ -59,22 +50,26 @@ int main(int argc, const char * argv[])
         bfs_operation.allocate_result_memory(graph.get_vertices_count(), &bfs_result);
         bfs_operation.init_temporary_datastructures(graph);
         
-        vector<int> source_vertices = {1, 5, 10, 20, 50, 80, 70, 100, 1000, 2000, 5000};
-        int vertex_to_check = 0;
+        vector<int> source_vertices = {1, 2};
         
         double avg_perf = 0;
+        double total_time = 0;
         for(int i = 0; i < source_vertices.size(); i++)
         {
-            vertex_to_check = source_vertices[i];
-            cout << "launching BFS from vertex: " << vertex_to_check << endl;
+            int vertex_to_check = source_vertices[i];
+            //cout << "launching BFS from vertex: " << vertex_to_check << endl;
             
             double t1 = omp_get_wtime();
             bfs_operation.nec_direction_optimising_BFS(graph, bfs_result, vertex_to_check);
             double t2 = omp_get_wtime();
+            total_time += t2 - t1;
             
-            bfs_operation.verifier(graph, vertex_to_check, bfs_result);
+            avg_perf += graph.get_edges_count() / ((t2 - t1)*1e6);
+            
+            //bfs_operation.verifier(graph, vertex_to_check, bfs_result);
         }
-        cout << "AVG Performance: " << avg_perf << " MTEPS" << endl << endl;
+        cout << "total time: " << total_time << " sec" << endl;
+        cout << "AVG Performance: " << avg_perf/source_vertices.size() << " MTEPS" << endl << endl;
         
         bfs_operation.free_result_memory(bfs_result);
     }
