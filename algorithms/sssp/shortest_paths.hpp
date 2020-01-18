@@ -78,22 +78,15 @@ void ShortestPaths<_TVertexValue, _TEdgeWeight>::reorder_result(ExtendedCSRGraph
 template <typename _TVertexValue, typename _TEdgeWeight>
 void ShortestPaths<_TVertexValue, _TEdgeWeight>::print_performance_stats(long long _edges_count,
                                                                          int _iterations_count,
-                                                                         double _total_time,
-                                                                         double _gather_time,
-                                                                         double _first_part_time,
-                                                                         double _last_part_time,
-                                                                         int _bytes_per_edge)
+                                                                         double _wall_time)
 {
-    cout << "BF total time: " << _total_time * 1000.0 << " ms" << endl;
-    cout << "BF Wall perf: " << ((double)_edges_count) / (_total_time * 1e6) << " MFLOPS" << endl;
-    cout << "BF gather Perf: " << _iterations_count * ((double)_edges_count) / (_gather_time * 1e6) << " MFLOPS" << endl;
-    cout << "BF process data Perf: " << _iterations_count * ((double)_edges_count) / ((_first_part_time + _last_part_time) * 1e6) << " MFLOPS" << endl;
-    cout << "BF iterations count: " << _iterations_count << endl;
-    cout << "BF Perf per iteration: " << _iterations_count * ((double)_edges_count) / (_total_time * 1e6) << " MFLOPS" << endl;
-    
-    int bytes_in_gather = sizeof(int) + 2.0*sizeof(_TEdgeWeight);
-    cout << "BF bandwidth: " << ((double)_iterations_count)*((double)_edges_count * _bytes_per_edge) / (_total_time * 1e9) << " gb/s" << endl;
-    cout << "BF gather bandwidth: " << ((double)_iterations_count)*((double)_edges_count * bytes_in_gather) / (_gather_time * 1e9) << " gb/s" << endl << endl << endl;
+    int bytes_per_edge = sizeof(int) + 2*sizeof(_TEdgeWeight);
+    cout << "Time               : " << _wall_time << endl;
+    cout << "Performance        : " << ((double)_edges_count) / (_wall_time * 1e6) << " MFLOPS" << endl;
+    cout << "Iteration    count : " << _iterations_count << endl;
+    cout << "Perf. per iteration: " << _iterations_count * ((double)_edges_count) / (_wall_time * 1e6) << " MFLOPS" << endl;
+    cout << "Bandwidth          : " << _iterations_count*((double)_edges_count * (bytes_per_edge)) / (_wall_time * 1e9) << " GB/s" << endl;
+    cout << endl;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

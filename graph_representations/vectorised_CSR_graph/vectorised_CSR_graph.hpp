@@ -53,7 +53,7 @@ void VectorisedCSRGraph<_TVertexValue, _TEdgeWeight>::alloc(int _vertices_count,
     
     vector_segments_count = vertices_in_vector_segments / this->supported_vector_length;
     
-    first_part_ptrs = new long long[number_of_vertices_in_first_part];
+    first_part_ptrs = new long long[number_of_vertices_in_first_part+1];
     first_part_sizes = new int[number_of_vertices_in_first_part];
     
     vector_group_ptrs  = new long long[vector_segments_count];
@@ -187,6 +187,36 @@ void VectorisedCSRGraph<_TVertexValue, _TEdgeWeight>::save_to_graphviz_file(stri
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+#ifdef __USE_GPU__
+template <typename _TVertexValue, typename _TEdgeWeight>
+void VectorisedCSRGraph<_TVertexValue, _TEdgeWeight>::estimate_gpu_thresholds()
+{
+    gpu_grid_threshold_vertex = 0;
+    gpu_block_threshold_vertex = 0;
+    gpu_warp_threshold_vertex = 0;
+    gpu_warp_threshold_vertex = 0;
+    
+    for(int i = 0; i < (number_of_vertices_in_first_part - 1); i++)
+    {
+        if((first_part_sizes[i] > GPU_GRID_THREASHOLD_VALUE) && (first_part_sizes[i+1] <= GPU_GRID_THREASHOLD_VALUE))
+        {
+            gpu_grid_threshold_vertex = i + 1;
+        }
+        if((first_part_sizes[i] > GPU_BLOCK_THREASHOLD_VALUE) && (first_part_sizes[i+1] <= GPU_BLOCK_THREASHOLD_VALUE))
+        {
+            gpu_block_threshold_vertex = i + 1;
+        }
+        if((first_part_sizes[i] > GPU_WARP_THREASHOLD_VALUE) && (first_part_sizes[i+1] <= GPU_WARP_THREASHOLD_VALUE))
+        {
+            gpu_warp_threshold_vertex = i + 1;
+        }
+    }
+    gpu_warp_threshold_vertex = number_of_vertices_in_first_part;
+}
+#endif
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 template <typename _TVertexValue, typename _TEdgeWeight>
 bool VectorisedCSRGraph<_TVertexValue, _TEdgeWeight>::save_to_binary_file(string _file_name)
 {
@@ -210,7 +240,7 @@ bool VectorisedCSRGraph<_TVertexValue, _TEdgeWeight>::save_to_binary_file(string
     fwrite(reinterpret_cast<const void*>(this->vertex_values), sizeof(_TVertexValue), vertices_count, graph_file);
     fwrite(reinterpret_cast<const void*>(reordered_vertex_ids), sizeof(int), vertices_count, graph_file);
     
-    fwrite(reinterpret_cast<const void*>(first_part_ptrs), sizeof(long long), number_of_vertices_in_first_part, graph_file);
+    fwrite(reinterpret_cast<const void*>(first_part_ptrs), sizeof(long long), number_of_vertices_in_first_part + 1, graph_file);
     fwrite(reinterpret_cast<const void*>(first_part_sizes), sizeof(int), number_of_vertices_in_first_part, graph_file);
     
     fwrite(reinterpret_cast<const void*>(vector_group_ptrs), sizeof(long long), vector_segments_count, graph_file);
@@ -252,7 +282,7 @@ bool VectorisedCSRGraph<_TVertexValue, _TEdgeWeight>::load_from_binary_file(stri
     fread(reinterpret_cast<void*>(this->vertex_values), sizeof(_TVertexValue), this->vertices_count, graph_file);
     fread(reinterpret_cast<void*>(reordered_vertex_ids), sizeof(int), this->vertices_count, graph_file);
     
-    fread(reinterpret_cast<void*>(first_part_ptrs), sizeof(long long), number_of_vertices_in_first_part, graph_file);
+    fread(reinterpret_cast<void*>(first_part_ptrs), sizeof(long long), number_of_vertices_in_first_part + 1, graph_file);
     fread(reinterpret_cast<void*>(first_part_sizes), sizeof(int), number_of_vertices_in_first_part, graph_file);
     
     fread(reinterpret_cast<void*>(vector_group_ptrs), sizeof(long long), vector_segments_count, graph_file);
@@ -262,6 +292,10 @@ bool VectorisedCSRGraph<_TVertexValue, _TEdgeWeight>::load_from_binary_file(stri
     fread(reinterpret_cast<void*>(outgoing_weights), sizeof(_TEdgeWeight), this->edges_count, graph_file);
     
     fread(reinterpret_cast<void*>(incoming_sizes_per_vertex), sizeof(int), this->vertices_count, graph_file);
+    
+    #ifdef __USE_GPU__
+    estimate_gpu_thresholds();
+    #endif
     
     fclose(graph_file);
     return true;
@@ -283,7 +317,7 @@ void VectorisedCSRGraph<_TVertexValue, _TEdgeWeight>::move_to_device()
     move_array_to_device<_TVertexValue>(&(this->vertex_values), this->vertices_count);
     move_array_to_device<int>(&reordered_vertex_ids, this->vertices_count);
     
-    move_array_to_device<long long>(&first_part_ptrs, number_of_vertices_in_first_part);
+    move_array_to_device<long long>(&first_part_ptrs, number_of_vertices_in_first_part + 1);
     move_array_to_device<int>(&first_part_sizes, number_of_vertices_in_first_part);
     
     move_array_to_device<long long>(&vector_group_ptrs, vector_segments_count);
@@ -310,7 +344,7 @@ void VectorisedCSRGraph<_TVertexValue, _TEdgeWeight>::move_to_host()
     move_array_to_host<_TVertexValue>(&(this->vertex_values), this->vertices_count);
     move_array_to_host<int>(&reordered_vertex_ids, this->vertices_count);
     
-    move_array_to_host<long long>(&first_part_ptrs, number_of_vertices_in_first_part);
+    move_array_to_host<long long>(&first_part_ptrs, number_of_vertices_in_first_part + 1);
     move_array_to_host<int>(&first_part_sizes, number_of_vertices_in_first_part);
 
     move_array_to_host<long long>(&vector_group_ptrs, vector_segments_count);

@@ -9,6 +9,10 @@
 #ifndef bellman_ford_gpu_cu
 #define bellman_ford_gpu_cu
 
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+#define __USE_PUSH_TRAVERSAL__
+
 #include <iostream>
 #include "../../../common_datastructures/gpu_API/cuda_error_handling.h"
 #include "../../../architectures.h"
@@ -22,11 +26,6 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 using namespace std;
-
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-template <typename _TVertexValue, typename _TEdgeWeight>
-class VectorisedCSRGraph;
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -73,13 +72,22 @@ void __global__ bellman_ford_kernel_child(const long long *_first_part_ptrs,
     {
         register const int dst_id = _outgoing_ids[edge_start + edge_pos];
         register const _T weight = _outgoing_weights[edge_start + edge_pos];
-        register _T new_distance = weight + _distances[dst_id];
+        _T dst_weight = __ldg(&_distances[dst_id]);
         
-        if(_distances[src_id] > __ldg(&_distances[dst_id]) + weight)
+        #ifdef __USE_PULL_TRAVERSAL__
+        if(_distances[src_id] > dst_weight + weight)
         {
-            _distances[src_id] = __ldg(&_distances[dst_id]) + weight;
+            _distances[src_id] = dst_weight + weight;
             _changes[0] = 1;
         }
+        
+        #else __USE_PUSH_TRAVERSAL__
+        if(dst_weight > _distances[src_id] + weight)
+        {
+            _distances[dst_id] = _distances[src_id] + weight;
+            _changes[0] = 1;
+        }
+        #endif
     }
 }
 
@@ -87,7 +95,6 @@ void __global__ bellman_ford_kernel_child(const long long *_first_part_ptrs,
 
 template <typename _T>
 void __global__ bellman_ford_grid_per_vertex_kernel(const long long *_first_part_ptrs,
-                                                    const int *_first_part_sizes,
                                                     const int *_outgoing_ids,
                                                     const _T *_outgoing_weights,
                                                     const int _vertices_count,
@@ -99,10 +106,12 @@ void __global__ bellman_ford_grid_per_vertex_kernel(const long long *_first_part
     const int src_id = blockIdx.x * blockDim.x + threadIdx.x + _vertex_part_start;
     if(src_id < _vertex_part_end)
     {
+        const int connections_count = _first_part_ptrs[src_id + 1] - _first_part_ptrs[src_id];
+        
         dim3 child_threads(BLOCK_SIZE);
-        dim3 child_blocks((_first_part_sizes[src_id] - 1) / BLOCK_SIZE + 1);
+        dim3 child_blocks((connections_count - 1) / BLOCK_SIZE + 1);
         bellman_ford_kernel_child <<< child_blocks, child_threads >>>
-             (_first_part_ptrs, _outgoing_ids, _outgoing_weights, _vertices_count, _distances, src_id, _first_part_sizes[src_id], _changes);
+             (_first_part_ptrs, _outgoing_ids, _outgoing_weights, _vertices_count, _distances, src_id, connections_count, _changes);
     }
 }
 
@@ -110,7 +119,6 @@ void __global__ bellman_ford_grid_per_vertex_kernel(const long long *_first_part
 
 template <typename _T>
 void __global__ bellman_ford_block_per_vertex_kernel(const long long *_first_part_ptrs,
-                                                     const int *_first_part_sizes,
                                                      const int *_outgoing_ids,
                                                      const _T *_outgoing_weights,
                                                      const int _vertices_count,
@@ -124,7 +132,7 @@ void __global__ bellman_ford_block_per_vertex_kernel(const long long *_first_par
     if(src_id < _vertex_part_end)
     {
         register const long long edge_start = _first_part_ptrs[src_id];
-        register const int connections_count = _first_part_sizes[src_id];
+        register const int connections_count = _first_part_ptrs[src_id + 1] - _first_part_ptrs[src_id];
         
         for(register int edge_pos = threadIdx.x; edge_pos < connections_count; edge_pos += BLOCK_SIZE)
         {
@@ -132,12 +140,22 @@ void __global__ bellman_ford_block_per_vertex_kernel(const long long *_first_par
             {
                 register int dst_id = _outgoing_ids[edge_start + edge_pos];
                 register _T weight = _outgoing_weights[edge_start + edge_pos];
+                _T dst_weight = __ldg(&_distances[dst_id]);
                 
-                if(_distances[src_id] > __ldg(&_distances[dst_id]) + weight)
+                #ifdef __USE_PULL_TRAVERSAL__
+                if(_distances[src_id] > dst_weight + weight)
                 {
-                    _distances[src_id] = __ldg(&_distances[dst_id]) + weight;
+                    _distances[src_id] = dst_weight + weight;
                     _changes[0] = 1;
                 }
+                
+                #else __USE_PUSH_TRAVERSAL__
+                if(dst_weight > _distances[src_id] + weight)
+                {
+                    _distances[dst_id] = _distances[src_id] + weight;
+                    _changes[0] = 1;
+                }
+                #endif
             }
         }
     }
@@ -147,7 +165,6 @@ void __global__ bellman_ford_block_per_vertex_kernel(const long long *_first_par
 
 template <typename _T>
 void __global__ bellman_ford_warp_per_vertex_kernel(const long long *_first_part_ptrs,
-                                                    const int *_first_part_sizes,
                                                     const int *_outgoing_ids,
                                                     const _T *_outgoing_weights,
                                                     const int _vertices_count,
@@ -164,20 +181,30 @@ void __global__ bellman_ford_warp_per_vertex_kernel(const long long *_first_part
     if(src_id < _vertex_part_end)
     {
         register const long long edge_start = _first_part_ptrs[src_id];
-        register const int connections_count = _first_part_sizes[src_id];
+        register const int connections_count = _first_part_ptrs[src_id + 1] - _first_part_ptrs[src_id];
         
-        for(register int edge_pos = lane_id; edge_pos < connections_count - WARP_SIZE; edge_pos += WARP_SIZE)
+        for(register int edge_pos = lane_id; edge_pos < connections_count; edge_pos += WARP_SIZE)
         {
             if(edge_pos < connections_count)
             {
                 register int dst_id = _outgoing_ids[edge_start + edge_pos];
                 register _T weight = _outgoing_weights[edge_start + edge_pos];
+                _T dst_weight = __ldg(&_distances[dst_id]);
                 
-                if(_distances[src_id] > __ldg(&_distances[dst_id]) + weight)
+                #ifdef __USE_PULL_TRAVERSAL__
+                if(_distances[src_id] > dst_weight + weight)
                 {
-                    _distances[src_id] = __ldg(&_distances[dst_id]) + weight;
+                    _distances[src_id] = dst_weight + weight;
                     _changes[0] = 1;
                 }
+                
+                #else __USE_PUSH_TRAVERSAL__
+                if(dst_weight > _distances[src_id] + weight)
+                {
+                    _distances[dst_id] = _distances[src_id] + weight;
+                    _changes[0] = 1;
+                }
+                #endif
             }
         }
     }
@@ -209,12 +236,22 @@ void __global__ bellman_ford_remaining_vertices_kernel(const long long *_vector_
             {
                 register int dst_id = _outgoing_ids[segement_edges_start + edge_pos * blockDim.x + threadIdx.x];
                 register _T weight = _outgoing_weights[segement_edges_start + edge_pos * blockDim.x + threadIdx.x];
+                _T dst_weight = __ldg(&_distances[dst_id]);
                 
-                if(_distances[src_id] > __ldg(&_distances[dst_id]) + weight)
+                #ifdef __USE_PULL_TRAVERSAL__
+                if(_distances[src_id] > dst_weight + weight)
                 {
-                    _distances[src_id] = __ldg(&_distances[dst_id]) + weight;
+                    _distances[src_id] = dst_weight + weight;
                     _changes[0] = 1;
                 }
+                
+                #else __USE_PUSH_TRAVERSAL__
+                if(dst_weight > _distances[src_id] + weight)
+                {
+                    _distances[dst_id] = _distances[src_id] + weight;
+                    _changes[0] = 1;
+                }
+                #endif
             }
         }
     }
@@ -238,7 +275,6 @@ void gpu_bellman_ford_wrapper(VectorisedCSRGraph<_TVertexValue, _TEdgeWeight> &_
     
     init_distances_kernel <<< (vertices_count - 1)/BLOCK_SIZE, BLOCK_SIZE >>> (_distances, vertices_count, _source_vertex);
     
-    // device variable to stop iterations, for each source vertex
     int *device_modif;
     int host_modif;
     SAFE_CALL(cudaMalloc((void**)&device_modif, sizeof(int)));
@@ -258,15 +294,15 @@ void gpu_bellman_ford_wrapper(VectorisedCSRGraph<_TVertexValue, _TEdgeWeight> &_
         if(grid_vertices_count > 0)
         {
             bellman_ford_grid_per_vertex_kernel <<< grid_vertices_count, 1, 0, grid_processing_stream >>>
-            (first_part_ptrs, first_part_sizes, outgoing_ids, outgoing_weights, vertices_count,
-             _distances, device_modif, grid_threshold_start, grid_threshold_end);
+                (first_part_ptrs, outgoing_ids, outgoing_weights, vertices_count,
+                 _distances, device_modif, grid_threshold_start, grid_threshold_end);
         }
         
         int block_vertices_count = block_threshold_end - block_threshold_start;
         if(block_vertices_count > 0)
         {
             bellman_ford_block_per_vertex_kernel <<< block_vertices_count, BLOCK_SIZE, 0, block_processing_stream >>>
-                (first_part_ptrs, first_part_sizes, outgoing_ids, outgoing_weights, vertices_count,
+                (first_part_ptrs, outgoing_ids, outgoing_weights, vertices_count,
                  _distances, device_modif, block_threshold_start, block_threshold_end);
         }
         
@@ -274,7 +310,7 @@ void gpu_bellman_ford_wrapper(VectorisedCSRGraph<_TVertexValue, _TEdgeWeight> &_
         if(warp_vertices_count > 0)
         {
             bellman_ford_warp_per_vertex_kernel<<<warp_vertices_count,WARP_SIZE,0,warp_processing_stream>>>
-                (first_part_ptrs, first_part_sizes, outgoing_ids, outgoing_weights, vertices_count,
+                (first_part_ptrs, outgoing_ids, outgoing_weights, vertices_count,
                  _distances, device_modif, warp_threshold_start, warp_threshold_end);
         }
         

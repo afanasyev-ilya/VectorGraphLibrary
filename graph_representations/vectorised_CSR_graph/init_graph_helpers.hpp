@@ -147,10 +147,7 @@ int VectorisedCSRGraph<_TVertexValue, _TEdgeWeight>::calculate_and_find_threshol
     #endif
     
     #ifdef __USE_GPU__
-    int gpu_grid_threshold_value = TYPICAL_SM_COUNT * BLOCK_SIZE;
-    int gpu_block_threshold_value = BLOCK_SIZE;
-    int gpu_warp_threshold_value = 2*WARP_SIZE;
-    threshold_value = gpu_warp_threshold_value;
+    threshold_value = GPU_WARP_THREASHOLD_VALUE;
     #endif
     
     int large_vertices = 0;
@@ -158,15 +155,15 @@ int VectorisedCSRGraph<_TVertexValue, _TEdgeWeight>::calculate_and_find_threshol
     for(int i = 0; i < (_tmp_vertices_count - 1); i++)
     {
         #ifdef __USE_GPU__
-        if((_tmp_graph[i].size() > gpu_grid_threshold_value) && (_tmp_graph[i + 1].size() <= gpu_grid_threshold_value))
+        if((_tmp_graph[i].size() > GPU_GRID_THREASHOLD_VALUE) && (_tmp_graph[i + 1].size() <= GPU_GRID_THREASHOLD_VALUE))
         {
             gpu_grid_threshold_vertex = i + 1;
         }
-        if((_tmp_graph[i].size() > gpu_block_threshold_value) && (_tmp_graph[i + 1].size() <= gpu_block_threshold_value))
+        if((_tmp_graph[i].size() > GPU_BLOCK_THREASHOLD_VALUE) && (_tmp_graph[i + 1].size() <= GPU_BLOCK_THREASHOLD_VALUE))
         {
             gpu_block_threshold_vertex = i + 1;
         }
-        if((_tmp_graph[i].size() > gpu_warp_threshold_value) && (_tmp_graph[i + 1].size() <= gpu_warp_threshold_value))
+        if((_tmp_graph[i].size() > GPU_WARP_THREASHOLD_VALUE) && (_tmp_graph[i + 1].size() <= GPU_WARP_THREASHOLD_VALUE))
         {
             gpu_warp_threshold_vertex = i + 1;
         }
@@ -209,11 +206,13 @@ void VectorisedCSRGraph<_TVertexValue, _TEdgeWeight>::flatten_graph(
     number_of_vertices_in_first_part = _last_part_start;
     for(int i = 0; i < _last_part_start; i++)
     {
+        #ifdef __USE_NEC_SX_AURORA_TSUBASA__
         while(_tmp_graph[i].size() % supported_vector_length != 0)
         {
             _tmp_graph[i].push_back(TempEdgeData<_TEdgeWeight>(i, 0.0));
             _tmp_edges_count++;
         }
+        #endif
     }
     
     // add vertices to have size of remonder % VECTOR_LENGTH = 0
@@ -269,6 +268,7 @@ void VectorisedCSRGraph<_TVertexValue, _TEdgeWeight>::convert_tmp_graph_into_vec
             current_edge++;
         }
     }
+    first_part_ptrs[number_of_vertices_in_first_part] = current_edge;
     
     for(int i = 0; i < old_vertices_count; i++)
     {

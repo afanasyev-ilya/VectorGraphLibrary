@@ -150,10 +150,10 @@ void ShortestPaths<_TVertexValue, _TEdgeWeight>::bellman_ford(ExtendedCSRGraph<_
         }
     }
     double t2 = omp_get_wtime();
-    cout << "time: " << t2 - t1 << endl;
-    cout << "Perf: " << ((double)edges_count) / ((t2 - t1) * 1e6) << " MFLOPS" << endl;
-    cout << "iterations count: " << iterations_count << endl;
-    cout << "Perf per iteration: " << iterations_count * ((double)edges_count) / ((t2 - t1) * 1e6) << " MFLOPS" << endl;
+    
+    #ifdef __PRINT_DETAILED_STATS__
+    print_performance_stats(edges_count, iterations_count, t2 - t1);
+    #endif
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

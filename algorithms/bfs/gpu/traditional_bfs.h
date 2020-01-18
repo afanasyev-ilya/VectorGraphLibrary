@@ -11,19 +11,9 @@
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void gpu_direction_optimising_bfs_wrapper(long long *_first_part_ptrs,
-                                          int *_first_part_sizes,
-                                          int _vector_segments_count,
-                                          long long *_vector_group_ptrs,
-                                          int *_vector_group_sizes,
-                                          int *_outgoing_ids,
-                                          int _number_of_vertices_in_first_part,
-                                          int *_levels,
-                                          int _vertices_count,
-                                          long long _edges_count,
-                                          int _source_vertex);
-
-void gpu_scan_test();
+template <typename _TVertexValue, typename _TEdgeWeight>
+void gpu_direction_optimising_bfs_wrapper(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph, int *_levels,
+                                          int _source_vertex, int &_iterations_count, int *_active_ids, int *_active_vertices_buffer);
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 

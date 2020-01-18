@@ -12,10 +12,10 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template <typename _TVertexValue, typename _TEdgeWeight>
-void ShortestPaths<_TVertexValue, _TEdgeWeight>::bellman_ford(VectorisedCSRGraph<_TVertexValue, _TEdgeWeight>
-                                                              &_reversed_graph,
-                                                              int _source_vertex,
-                                                              _TEdgeWeight *_distances)
+void ShortestPaths<_TVertexValue, _TEdgeWeight>::nec_bellman_ford(VectorisedCSRGraph<_TVertexValue, _TEdgeWeight>
+                                                                  &_reversed_graph,
+                                                                  int _source_vertex,
+                                                                  _TEdgeWeight *_distances)
 {
     LOAD_VECTORISED_CSR_GRAPH_REVERSE_DATA(_reversed_graph)
     
@@ -206,11 +206,9 @@ void ShortestPaths<_TVertexValue, _TEdgeWeight>::bellman_ford(VectorisedCSRGraph
     }
     double t2 = omp_get_wtime();
     
-    cout << "SSSP time: " << t2 - t1 << endl;
-    cout << "SSSP Perf: " << ((double)edges_count) / ((t2 - t1) * 1e6) << " MFLOPS" << endl;
-    cout << "SSSP iterations count: " << iterations_count << endl;
-    cout << "SSSP Perf per iteration: " << iterations_count * ((double)edges_count) / ((t2 - t1) * 1e6) << " MFLOPS" << endl;
-    cout << "SSSP bandwidth: " << ((double)iterations_count)*((double)edges_count * (sizeof(int) + 2*sizeof(_TEdgeWeight))) / ((t2 - t1) * 1e9) << " gb/s" << endl << endl;
+    #ifdef __PRINT_DETAILED_STATS__
+    print_performance_stats(edges_count, iterations_count, t2 - t1);
+    #endif
     
     _reversed_graph.template free_data<_TEdgeWeight>(cached_distances);
 }
@@ -222,28 +220,29 @@ void ShortestPaths<_TVertexValue, _TEdgeWeight>::bellman_ford(VectorisedCSRGraph
 #ifdef __USE_GPU__
 template <typename _TVertexValue, typename _TEdgeWeight>
 void ShortestPaths<_TVertexValue, _TEdgeWeight>::gpu_bellman_ford(
-                                                VectorisedCSRGraph<_TVertexValue, _TEdgeWeight> &_reversed_graph,
+                                                VectorisedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
                                                 int _source_vertex, _TEdgeWeight *_distances)
 {
-    LOAD_VECTORISED_CSR_GRAPH_REVERSE_DATA(_reversed_graph)
+    //_graph.move_to_device();
+    
+    LOAD_VECTORISED_CSR_GRAPH_REVERSE_DATA(_graph)
     
     _TEdgeWeight *device_distances;
     SAFE_CALL(cudaMalloc((void**)&device_distances, vertices_count * sizeof(_TEdgeWeight)));
     
     int iterations_count = 0;
     double t1 = omp_get_wtime();
-    gpu_bellman_ford_wrapper<_TVertexValue, _TEdgeWeight>(_reversed_graph, device_distances, _source_vertex, iterations_count);
+    gpu_bellman_ford_wrapper<_TVertexValue, _TEdgeWeight>(_graph, device_distances, _source_vertex, iterations_count);
     double t2 = omp_get_wtime();
     
-    cout << "GPU time: " << t2 - t1 << endl;
-    cout << "GPU Perf: " << ((double)edges_count) / ((t2 - t1) * 1e6) << " MFLOPS" << endl;
-    cout << "GPU iterations count: " << iterations_count << endl;
-    cout << "GPU Perf per iteration: " << iterations_count * ((double)edges_count) / ((t2 - t1) * 1e6) << " MFLOPS" << endl;
-    cout << "GPU bandwidth: " << ((double)iterations_count)*((double)edges_count * (sizeof(int) + 2*sizeof(_TEdgeWeight))) / ((t2 - t1) * 1e9) << " gb/s" << endl << endl;
+    #ifdef __PRINT_DETAILED_STATS__
+    print_performance_stats(edges_count, iterations_count, t2 - t1);
+    #endif
     
     SAFE_CALL(cudaMemcpy(_distances, device_distances, vertices_count * sizeof(_TEdgeWeight), cudaMemcpyDeviceToHost));
-    
     SAFE_CALL(cudaFree(device_distances));
+    
+    //_graph.move_to_host();
 }
 #endif
 

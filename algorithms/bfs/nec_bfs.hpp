@@ -739,7 +739,7 @@ void BFS<_TVertexValue, _TEdgeWeight>::nec_direction_optimising_BFS(ExtendedCSRG
     t2 = omp_get_wtime();
     total_time += t2 - t1;
     
-    #ifdef PRINT_DETAILED_STATS
+    #ifdef __PRINT_DETAILED_STATS__
     for(int i = 0; i < each_kernel_time.size(); i++)
     {
         string state = "top_down";

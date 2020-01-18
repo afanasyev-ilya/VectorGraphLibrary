@@ -19,6 +19,8 @@
 
 #include "../common/vectorise_CSR.h"
 
+#define VECTOR_EXTENSION_SIZE 7
+
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template <typename _TVertexValue, typename _TEdgeWeight>
@@ -36,12 +38,31 @@ private:
     int           *outgoing_ids;
     _TEdgeWeight  *outgoing_weights;
     
+    // int *incoming_ptrs;
+    // int *incoming_ids;
+    // int *incoming_weights;
+    
+    int *vectorised_outgoing_ids;
+    // int *vectorised_incoming_ids;
+    
+    #ifdef __USE_GPU__
+    int gpu_grid_threshold_vertex;
+    int gpu_block_threshold_vertex;
+    int gpu_warp_threshold_vertex;
+    #endif
+    
     int *incoming_degrees;
     
     void alloc(int _vertices_count, long long _edges_count);
     void free();
     
     void calculate_incoming_degrees();
+    
+    void construct_vector_extension();
+    
+    #ifdef __USE_GPU__
+    void estimate_gpu_thresholds();
+    #endif
 public:
     ExtendedCSRGraph(int _vertices_count = 1, long long _edges_count = 1);
     ~ExtendedCSRGraph();
@@ -64,10 +85,17 @@ public:
     inline int           *get_outgoing_ids()         {return outgoing_ids;};
     inline _TEdgeWeight  *get_outgoing_weights()     {return outgoing_weights;};
     inline int           *get_incoming_degrees()     {return incoming_degrees;};
+    inline int           *get_vectorised_outgoing_ids() {return vectorised_outgoing_ids;};
     
     #ifdef __USE_GPU__
-    void move_to_device() {throw "not implemented yet";};
-    void move_to_host() {throw "not implemented yet";};
+    void move_to_device();
+    void move_to_host();
+    #endif
+    
+    #ifdef __USE_GPU__
+    inline int get_gpu_grid_threshold_vertex(){return gpu_grid_threshold_vertex;};
+    inline int get_gpu_block_threshold_vertex(){return gpu_block_threshold_vertex;};
+    inline int get_gpu_warp_threshold_vertex(){return gpu_warp_threshold_vertex;};
     #endif
     
     void set_threads_count(int _threads_count);
@@ -91,8 +119,21 @@ public:
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+#define LOAD_EXTENDED_CSR_GRAPH_DATA(input_graph)                        \
+int vertices_count                   = input_graph.get_vertices_count(); \
+long long int edges_count            = input_graph.get_edges_count   (); \
+\
+long long    *outgoing_ptrs           = _graph.get_outgoing_ptrs   ();\
+int          *outgoing_ids            = _graph.get_outgoing_ids    ();\
+_TEdgeWeight *outgoing_weights        = _graph.get_outgoing_weights();\
+int          *vectorised_outgoing_ids = _graph.get_vectorised_outgoing_ids();\
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 #include "extended_CSR_graph.hpp"
 #include "programming_API.hpp"
+#include "init_graph_helpers.hpp"
+#include "gpu_api.hpp"
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 

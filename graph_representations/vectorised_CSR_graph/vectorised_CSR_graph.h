@@ -91,6 +91,10 @@ private:
                                          int _tmp_vertices_count);
     
     void calculate_incoming_sizes();
+    
+    #ifdef __USE_GPU__
+    void estimate_gpu_thresholds();
+    #endif
 public:
     VectorisedCSRGraph(int _vertices_count = VECTOR_LENGTH, long long _edges_count = 1);
     ~VectorisedCSRGraph();
@@ -165,7 +169,6 @@ public:
 #include "vectorised_CSR_graph.hpp"
 #include "init_graph_helpers.hpp"
 #include "programming_API.hpp"
-#include "load_data.h"
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 

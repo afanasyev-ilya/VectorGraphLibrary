@@ -236,11 +236,9 @@ void ShortestPaths<_TVertexValue, _TEdgeWeight>::bellman_ford(ShardedGraph<_TVer
     }
     
     double t2 = omp_get_wtime();
-    cout << "sharded BF total time: " << t2 - t1 << " s" << endl;
-    cout << "shard compute time: " << shard_compute_time << " s" << endl;
-    cout << "sharded BF Wall perf: " << ((double)_graph.get_edges_count()) / ((t2 - t1) * 1e6) << " MFLOPS" << endl;
-    cout << "Perf per iteration: " << iterations_count * ((double)_graph.get_edges_count()) / (shard_compute_time * 1e6) << " MFLOPS" << endl;
-    cout << "iterations count: " << iterations_count << endl << endl;
+    /*#ifdef __PRINT_DETAILED_STATS__
+    print_performance_stats(edges_count, iterations_count, t2 - t1);
+    #endif*/
     
     delete []local_distances;
 }
@@ -300,11 +298,9 @@ void ShortestPaths<_TVertexValue, _TEdgeWeight>::gpu_bellman_ford(ShardedGraph<_
         SAFE_CALL(cudaFree(device_shrads_data));
     }
     
-    cout << "sharded GPU time: " << t2 - t1 << endl;
-    cout << "sharded GPU Perf: " << ((double)edges_count) / ((t2 - t1) * 1e6) << " MFLOPS" << endl;
-    cout << "sharded GPU iterations count: " << iterations_count << endl;
-    cout << "sharded GPU Perf per iteration: " << iterations_count * ((double)edges_count) / ((t2 - t1) * 1e6) << " MFLOPS" << endl;
-    cout << "sharded GPU bandwidth: " << ((double)iterations_count)*((double)edges_count * (sizeof(int) + 2*sizeof(_TEdgeWeight))) / ((t2 - t1) * 1e9) << " gb/s" << endl << endl;
+    /*#ifdef __PRINT_DETAILED_STATS__
+    print_performance_stats(edges_count, iterations_count, t2 - t1);
+    #endif*/
     
     SAFE_CALL(cudaMemcpy(_distances, device_distances, vertices_count * sizeof(_TEdgeWeight), cudaMemcpyDeviceToHost));
 

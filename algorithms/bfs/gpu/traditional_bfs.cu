@@ -12,256 +12,13 @@
 #include <iostream>
 #include <vector>
 #include "../../../common_datastructures/gpu_API/cuda_error_handling.h"
+#include "../../../architectures.h"
 #include <cfloat>
+#include "../../../graph_representations/base_graph.h"
+#include "../../../common_datastructures/gpu_API/gpu_arrays.h"
+#include "../../../graph_representations/edges_list_graph/edges_list_graph.h"
+#include "../../../graph_representations/extended_CSR_graph/extended_CSR_graph.h"
 #include "../change_state.h"
-
-#define VECTOR_LENGTH 256
-#define BLOCK_SIZE 1024
-#define SEGMENTS_IN_BLOCK 4
-
-using namespace std;
-
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-void __global__ init_distances_kernel(int *_device_levels, int _vertices_count, int _source_vertex)
-{
-    register const int idx = blockIdx.x * blockDim.x + threadIdx.x;
-    
-    if (idx < _vertices_count)
-        _device_levels[idx] = -1;
-    
-    _device_levels[_source_vertex] = 1;
-}
-
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-void __global__ top_down_kernel_child(const long long *_first_part_ptrs,
-                                      const int *_outgoing_ids,
-                                      int _vertices_count,
-                                      int *_levels,
-                                      int _current_level,
-                                      int *_global_in_lvl,
-                                      int *_global_vis,
-                                      int _src_id,
-                                      int _connections_count)
-{
-    int src_id = _src_id;
-    
-    register int local_vis = 0;
-    
-    register const long long edge_start = _first_part_ptrs[src_id];
-    register const long long edge_pos = blockIdx.x * blockDim.x + threadIdx.x;
-    
-    if(edge_pos < _connections_count)
-    {
-        register const int dst_id = _outgoing_ids[edge_start + edge_pos];
-        
-        if(_levels[dst_id] == -1)
-        {
-            local_vis++;
-            _levels[dst_id] = _current_level;
-        }
-        
-        if(threadIdx.x == 0)
-            atomicAdd(_global_in_lvl, _connections_count);
-        atomicAdd(_global_vis, local_vis);
-    }
-}
-
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-void __global__ top_down_kernel(const long long *_first_part_ptrs,
-                                int *_first_part_sizes,
-                                int _number_of_vertices_in_first_part,
-                                int _vector_segments_count,
-                                const long long *_vector_group_ptrs,
-                                const int *_vector_group_sizes,
-                                const int *_outgoing_ids,
-                                int _vertices_count,
-                                int *_levels,
-                                int _current_level,
-                                int *_global_in_lvl,
-                                int *_global_vis,
-                                int *_vertex_queue,
-                                int _vertex_queue_size)
-{
-    const int idx = blockIdx.x * blockDim.x + threadIdx.x;
-    if(idx < _vertex_queue_size)
-    {
-        int src_id = _vertex_queue[idx];
-        if(src_id < _number_of_vertices_in_first_part)
-        {
-            dim3 child_threads(BLOCK_SIZE);
-            dim3 child_blocks((_first_part_sizes[src_id] - 1) / BLOCK_SIZE + 1);
-            top_down_kernel_child <<< child_blocks, child_threads >>> (_first_part_ptrs, _outgoing_ids, _vertices_count,
-                                                                       _levels, _current_level, _global_in_lvl, _global_vis,
-                                                                       src_id, _first_part_sizes[src_id]);
-        }
-        else
-        {
-            register int local_vis = 0;
-            
-            register int cur_vector_segment = (src_id - _number_of_vertices_in_first_part) / VECTOR_LENGTH;
-            register int segment_connections_count  = _vector_group_sizes[cur_vector_segment];
-            register long long edge_pos = _vector_group_ptrs[cur_vector_segment] + (src_id - _number_of_vertices_in_first_part) % VECTOR_LENGTH;
-            
-            for(int i = 0; i < segment_connections_count; i++)
-            {
-                register const int dst_id = _outgoing_ids[edge_pos];
-                if(_levels[dst_id] == -1)
-                {
-                    local_vis++;
-                    _levels[dst_id] = _current_level;
-                }
-                edge_pos += VECTOR_LENGTH;
-            }
-            
-            atomicAdd(_global_vis, local_vis);
-            atomicAdd(_global_in_lvl, segment_connections_count);
-        }
-    }
-}
-
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-void __global__ bottom_up_kernel_first_vertices(long long *_first_part_ptrs,
-                                                int *_first_part_sizes,
-                                                int _number_of_vertices_in_first_part,
-                                                int *_outgoing_ids,
-                                                int _vertices_count,
-                                                int *_levels,
-                                                int _current_level,
-                                                int *_global_in_lvl,
-                                                int *_global_vis)
-{
-    register const int src_id = blockIdx.x;
-    register const int idx = threadIdx.x;
-    
-    register int local_in_lvl = 0;
-    register int local_vis = 0;
-    
-    if(_levels[src_id] == -1)
-    {
-        local_in_lvl++;
-        register const long long edges_start = _first_part_ptrs[src_id];
-        register const int connections_count  = _first_part_sizes[src_id];
-        
-        for(register int edge_pos = idx; edge_pos < connections_count; edge_pos += VECTOR_LENGTH)
-        {
-            local_in_lvl++;
-            int dst_id = _outgoing_ids[edges_start + edge_pos];
-            int dst_level = _levels[dst_id];
-            
-            if(dst_level == (_current_level - 1))
-            {
-                _levels[src_id] = _current_level;
-                local_vis++;
-                break;
-            }
-        }
-        
-        atomicAdd(_global_vis, local_vis);
-        atomicAdd(_global_in_lvl, local_in_lvl);
-    }
-}
-
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-void __global__ bottom_up_kernel_last_vertices(int _vector_segments_count,
-                                               const long long *_vector_group_ptrs,
-                                               const int *_vector_group_sizes,
-                                               const int *_outgoing_ids,
-                                               int _number_of_vertices_in_first_part,
-                                               int _vertices_count,
-                                               int *_levels,
-                                               const int * __restrict__ _read_only_levels,
-                                               int _current_level,
-                                               int *_global_in_lvl,
-                                               int *_global_vis)
-{
-    /*const int global_index = blockIdx.x * blockDim.x + threadIdx.x;
-    register const int idx = global_index % VECTOR_LENGTH;
-    register const int cur_vector_segment = global_index / VECTOR_LENGTH;
-    
-    //__shared__ int cached_levels[BLOCK_SIZE];
-    //cached_levels[threadIdx.x] = _read_only_levels[threadIdx.x];
-    //__syncthreads();
-    
-    register int local_in_lvl = 0;
-    register int local_vis = 0;
-    
-    register const int segment_first_vertex = cur_vector_segment * VECTOR_LENGTH + _number_of_vertices_in_first_part;
-    register const int src_id = segment_first_vertex + idx;
-    
-    //if((_levels[src_id] == -1) && (src_id < _vertices_count))
-    if(src_id < _vertices_count)
-    {
-        long long segement_edges_start = _vector_group_ptrs[cur_vector_segment];
-        int segment_connections_count  = _vector_group_sizes[cur_vector_segment];
-        
-        for(int edge_pos = 0; edge_pos < segment_connections_count; edge_pos++)
-        {
-            local_in_lvl++;
-            int dst_id = _outgoing_ids[segement_edges_start + edge_pos * VECTOR_LENGTH + idx];
-            //int dst_level = 0;
-            //if(dst_id < BLOCK_SIZE)
-            //    dst_level = cached_levels[dst_id];
-            //else
-            //    dst_level = __ldg(&_read_only_levels[dst_id]);
-            
-            if((_levels[dst_id] == (_current_level - 1)) && (_levels[src_id] == -1))
-            {
-                _levels[src_id] = _current_level;
-                local_vis++;
-                //break;
-            }
-        }
-        atomicAdd(_global_vis, local_vis);
-        atomicAdd(_global_in_lvl, local_in_lvl);
-    }*/
-    
-    register const int idx = threadIdx.x;
-    register const int cur_vector_segment = blockIdx.x;
-    
-    register int local_in_lvl = 0;
-    register int local_vis = 0;
-    
-    register const int segment_first_vertex = cur_vector_segment * blockDim.x + _number_of_vertices_in_first_part;
-    register const int src_id = segment_first_vertex + idx;
-    
-    register const int src_level = _levels[src_id];
-    if(src_level == -1)
-    {
-        int segment_connections_count  = _vector_group_sizes[cur_vector_segment];
-        
-        if(segment_connections_count > 0)
-        {
-            long long segement_edges_start = _vector_group_ptrs[cur_vector_segment];
-            long long edge_pos = segement_edges_start + idx;
-            
-            #pragma unroll 32
-            for(int i = 0; i < segment_connections_count; i++)
-            {
-                local_in_lvl++;
-                int dst_id = _outgoing_ids[edge_pos];
-                int dst_level = _levels[dst_id];
-                
-                if(dst_level == (_current_level - 1))
-                {
-                    _levels[src_id] = _current_level;
-                    local_vis++;
-                    break;
-                }
-                
-                edge_pos += VECTOR_LENGTH;
-            }
-            atomicAdd(_global_vis, local_vis);
-            atomicAdd(_global_in_lvl, local_in_lvl);
-        }
-    }
-}
-
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #include <thrust/device_vector.h>
 #include <thrust/sequence.h>
@@ -270,201 +27,848 @@ void __global__ bottom_up_kernel_last_vertices(int _vector_segments_count,
 #include <thrust/remove.h>
 #include <thrust/execution_policy.h>
 
-template <typename T>
-struct is_active : public thrust::unary_function<T,bool>
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+using namespace std;
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+template <typename _TVertexValue, typename _TEdgeWeight>
+GraphStructure gpu_check_graph_structure(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph)
+{
+    int vertices_count    = _graph.get_vertices_count();
+    long long edges_count = _graph.get_edges_count   ();
+    long long    *outgoing_ptrs    = _graph.get_outgoing_ptrs   ();
+    
+    int portion_of_first_vertices = 0.01 * vertices_count + 1;
+    long long number_of_edges_in_first_portion = 0;
+    cudaMemcpy(&number_of_edges_in_first_portion, &outgoing_ptrs[portion_of_first_vertices], sizeof(int), cudaMemcpyDeviceToHost);
+    
+    if((100.0 * number_of_edges_in_first_portion) / edges_count > POWER_LAW_EDGES_THRESHOLD)
+        return POWER_LAW_GRAPH;
+    else
+        return UNIFORM_GRAPH;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+__inline__ __device__ int warp_reduce_sum(int val)
+{
+    for (int i = WARP_SIZE/2; i >= 1; i /= 2)
+        val += __shfl_xor_sync(0xffffffff, val, i, WARP_SIZE);
+    return val;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+__inline__ __device__ int block_reduce_sum(int val)
+{
+    static __shared__ int shared[32]; // Shared mem for 32 partial sums
+    int lane = threadIdx.x % warpSize;
+    int wid = threadIdx.x / warpSize;
+
+    val = warp_reduce_sum(val);     // Each warp performs partial reduction
+
+    if (lane==0)
+        shared[wid]=val; // Write reduced value to shared memory
+
+    __syncthreads();              // Wait for all partial reductions
+
+    //read from shared memory only if that warp existed
+    val = (threadIdx.x < blockDim.x / warpSize) ? shared[lane] : 0;
+
+    if (wid == 0)
+        val = warp_reduce_sum(val); //Final reduce within first warp
+
+    return val;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+void __global__ init_levels_kernel(int *_device_levels, int _vertices_count, int _source_vertex)
+{
+    register const int idx = blockIdx.x * blockDim.x + threadIdx.x;
+    
+    if(idx < _vertices_count)
+        _device_levels[idx] = UNVISITED_VERTEX;
+    
+    if(idx == _source_vertex)
+        _device_levels[_source_vertex] = 1;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+struct degree_non_zero
 {
     __host__ __device__
-    bool operator()(T x)
+    bool operator()(const int x)
     {
         return x > 0;
     }
 };
 
-void __global__ copy_active_vertices_ids(int *_status_array,
-                                         int _current_level,
-                                         int _vertices_count,
-                                         int *_output_array)
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+void __global__ fill_connection_counts_kernel(const long long *_outgoing_ptrs,
+                                              int *_sizes_buffer,
+                                              int _vertices_count)
+{
+    register const int idx = blockIdx.x * blockDim.x + threadIdx.x;
+    
+    if (idx < _vertices_count)
+    {
+        _sizes_buffer[idx] = _outgoing_ptrs[idx + 1] - _outgoing_ptrs[idx];
+    }
+}
+
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+int calculate_non_zero_vertices_number(const long long *_outgoing_ptrs,
+                                       int *_sizes_buffer,
+                                       const int _vertices_count)
+{
+    fill_connection_counts_kernel<<<(_vertices_count - 1)/BLOCK_SIZE + 1, BLOCK_SIZE>>>(_outgoing_ptrs, _sizes_buffer, _vertices_count);
+    
+    return count_if(thrust::device, _sizes_buffer, _sizes_buffer + _vertices_count, degree_non_zero());
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+void __global__ top_down_kernel_child(const long long *_outgoing_ptrs,
+                                      const int *_outgoing_ids,
+                                      int *_levels,
+                                      int _src_id,
+                                      const int _connections_count,
+                                      const int _current_level,
+                                      int *_in_lvl,
+                                      int *_vis)
+{
+    register const long long edge_start = _outgoing_ptrs[_src_id];
+    register const long long edge_pos = blockIdx.x * blockDim.x + threadIdx.x;
+    
+    register int local_vis = 0;
+    register int local_in_lvl = _connections_count;
+    
+    if(edge_pos < _connections_count)
+    {
+        register int dst_id = _outgoing_ids[edge_start + edge_pos];
+        
+        int dst_level = __ldg(&_levels[dst_id]);
+        if(dst_level == UNVISITED_VERTEX)
+        {
+            local_vis++;
+            _levels[dst_id] = _current_level + 1;
+        }
+    }
+    
+    local_vis = block_reduce_sum(local_vis);
+    if(threadIdx.x == 0)
+    {
+        atomicAdd(_vis, local_vis);
+    }
+    
+    if(edge_pos == 0)
+    {
+        atomicAdd(_in_lvl, local_in_lvl);
+    }
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+void __global__ top_down_grid_per_vertex_kernel(const long long *_outgoing_ptrs,
+                                                const int *_outgoing_ids,
+                                                const int _vertices_count,
+                                                int *_levels,
+                                                const int *_frontier_ids,
+                                                const int _vertex_part_start,
+                                                const int _vertex_part_end,
+                                                const int _current_level,
+                                                int *_in_lvl,
+                                                int *_vis)
+{
+    register const int frontier_pos = blockIdx.x + _vertex_part_start;
+    register const int src_id = _frontier_ids[frontier_pos];
+    
+    if(src_id < _vertex_part_end)
+    {
+        const int connections_count = _outgoing_ptrs[src_id + 1] - _outgoing_ptrs[src_id];
+        
+        dim3 child_threads(BLOCK_SIZE);
+        dim3 child_blocks((connections_count - 1) / BLOCK_SIZE + 1);
+        top_down_kernel_child <<< child_blocks, child_threads >>>
+             (_outgoing_ptrs, _outgoing_ids, _levels, src_id, connections_count, _current_level, _in_lvl, _vis);
+    }
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+void __global__ top_down_block_per_vertex_kernel(const long long *_outgoing_ptrs,
+                                                 const int *_outgoing_ids,
+                                                 const int _vertices_count,
+                                                 int *_levels,
+                                                 const int *_frontier_ids,
+                                                 const int _vertex_part_start,
+                                                 const int _vertex_part_end,
+                                                 const int _current_level,
+                                                 int *_in_lvl,
+                                                 int *_vis)
+{
+    register const int frontier_pos = blockIdx.x + _vertex_part_start;
+    register int idx = threadIdx.x;
+    
+    if(frontier_pos < _vertex_part_end)
+    {
+        register const int src_id = _frontier_ids[frontier_pos];
+        register const long long edge_start = _outgoing_ptrs[src_id];
+        register const int connections_count = _outgoing_ptrs[src_id + 1] - _outgoing_ptrs[src_id];
+        
+        register int local_vis = 0;
+        register int local_in_lvl = connections_count;
+        
+        for(register int edge_pos = idx; edge_pos < connections_count; edge_pos += BLOCK_SIZE)
+        {
+            if(edge_pos < connections_count)
+            {
+                register int dst_id = _outgoing_ids[edge_start + edge_pos];
+                
+                int dst_level = __ldg(&_levels[dst_id]);
+                if(dst_level == UNVISITED_VERTEX)
+                {
+                    local_vis++;
+                    _levels[dst_id] = _current_level + 1;
+                }
+            }
+        }
+        
+        local_vis = block_reduce_sum(local_vis);
+        
+        if(idx == 0)
+        {
+            atomicAdd(_vis, local_vis);
+            atomicAdd(_in_lvl, local_in_lvl);
+        }
+    }
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+void __global__ top_down_warp_per_vertex_kernel(const long long *_outgoing_ptrs,
+                                                const int *_outgoing_ids,
+                                                const int _vertices_count,
+                                                int *_levels,
+                                                const int *_frontier_ids,
+                                                const int _vertex_part_start,
+                                                const int _vertex_part_end,
+                                                const int _current_level,
+                                                int *_in_lvl,
+                                                int *_vis)
+{
+    register const int warp_id = threadIdx.x / WARP_SIZE;
+    register const int lane_id = threadIdx.x % WARP_SIZE;
+    
+    register const int frontier_pos = blockIdx.x * (blockDim.x/ WARP_SIZE) + warp_id + _vertex_part_start;
+    
+    if(frontier_pos < _vertex_part_end)
+    {
+        register const int src_id = _frontier_ids[frontier_pos];
+        register const long long edge_start = _outgoing_ptrs[src_id];
+        register const int connections_count = _outgoing_ptrs[src_id + 1] - _outgoing_ptrs[src_id];
+        
+        register int local_vis = 0;
+        register int local_in_lvl = connections_count;
+        
+        for(register int edge_pos = lane_id; edge_pos < connections_count; edge_pos += WARP_SIZE)
+        {
+            if(edge_pos < connections_count)
+            {
+                register int dst_id = _outgoing_ids[edge_start + edge_pos];
+                
+                int dst_level = __ldg(&_levels[dst_id]);
+                if(dst_level == UNVISITED_VERTEX)
+                {
+                    local_vis++;
+                    _levels[dst_id] = _current_level + 1;
+                }
+            }
+        }
+        
+        local_vis = warp_reduce_sum(local_vis);
+        
+        if(lane_id == 0)
+        {
+            atomicAdd(_vis, local_vis);
+            atomicAdd(_in_lvl, local_in_lvl);
+        }
+    }
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+void __global__ top_down_thread_per_vertex_kernel(const long long *_outgoing_ptrs,
+                                                  const int *_outgoing_ids,
+                                                  const int _vertices_count,
+                                                  int *_levels,
+                                                  const int *_frontier_ids,
+                                                  const int _vertex_part_start,
+                                                  const int _vertex_part_end,
+                                                  const int _current_level,
+                                                  int *_in_lvl,
+                                                  int *_vis)
+{
+    register const int frontier_pos = blockIdx.x * blockDim.x + threadIdx.x + _vertex_part_start;
+    
+    if(frontier_pos < _vertex_part_end)
+    {
+        int src_id = _frontier_ids[frontier_pos];
+        
+        register const long long edge_start = _outgoing_ptrs[src_id];
+        register const int connections_count = _outgoing_ptrs[src_id + 1] - _outgoing_ptrs[src_id];
+        
+        register int local_vis = 0;
+        register int local_in_lvl = connections_count;
+        
+        for(register int edge_pos = 0; edge_pos < connections_count; edge_pos++)
+        {
+            if(edge_pos < connections_count)
+            {
+                register int dst_id = _outgoing_ids[edge_start + edge_pos];
+                
+                int dst_level = __ldg(&_levels[dst_id]);
+                if(dst_level == UNVISITED_VERTEX)
+                {
+                    local_vis++;
+                    _levels[dst_id] = _current_level + 1;
+                }
+            }
+        }
+        
+        atomicAdd(_vis, local_vis);
+        atomicAdd(_in_lvl, local_in_lvl);
+    }
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+void __global__ bottom_up_vector_extension_kernel(const long long *_outgoing_ptrs,
+                                                  const int *_vectorised_outgoing_ids,
+                                                  const int _vertices_count,
+                                                  int *_levels,
+                                                  const int _current_level,
+                                                  int *_in_lvl,
+                                                  int *_vis)
+{
+    register const int src_id = blockIdx.x * blockDim.x + threadIdx.x;
+    
+    if(src_id < _vertices_count)
+    {
+        register int local_vis = 0;
+        register int local_in_lvl = 0;
+            
+        if(_levels[src_id] == UNVISITED_VERTEX)
+        {
+            register const int connections_count = _outgoing_ptrs[src_id + 1] - _outgoing_ptrs[src_id];
+            #pragma unroll(4)
+            for(register int edge_pos = 0; edge_pos < min(VECTOR_EXTENSION_SIZE,connections_count); edge_pos++)
+            {
+                register int dst_id = _vectorised_outgoing_ids[src_id + _vertices_count * edge_pos];
+                    
+                local_in_lvl++;
+                int dst_level = __ldg(&_levels[dst_id]);
+                if(dst_level == _current_level)
+                {
+                    _levels[src_id] = _current_level + 1;
+                    local_vis++;
+                    break;
+                }
+            }
+        }
+        
+        atomicAdd(_vis, local_vis);
+        atomicAdd(_in_lvl, local_in_lvl);
+    }
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+void __global__ bottom_up_reminder_warp_per_wertex_kernel(const long long *_outgoing_ptrs,
+                                                          const int *_outgoing_ids,
+                                                          const int *_frontier_ids,
+                                                          const int _frontier_size,
+                                                          int *_levels,
+                                                          const int _current_level,
+                                                          int _vector_extension_edge_start,
+                                                          const int _vertex_part_start,
+                                                          const int _vertex_part_end,
+                                                          int *_in_lvl,
+                                                          int *_vis)
+{
+    register const int warp_id = threadIdx.x / WARP_SIZE;
+    register const int lane_id = threadIdx.x % WARP_SIZE;
+    
+    register const int frontier_pos = blockIdx.x * (blockDim.x/ WARP_SIZE) + warp_id + _vertex_part_start;
+    
+    if(frontier_pos < _vertex_part_end)
+    {
+        register const int src_id = _frontier_ids[frontier_pos];
+        
+        if(_levels[src_id] == UNVISITED_VERTEX)
+        {
+            register int local_vis = 0;
+            register int local_in_lvl = 0;
+            
+            register const long long edge_start = _outgoing_ptrs[src_id];
+            register const int connections_count = _outgoing_ptrs[src_id + 1] - _outgoing_ptrs[src_id];
+            
+            for(register int edge_pos = _vector_extension_edge_start + lane_id; edge_pos < connections_count; edge_pos += WARP_SIZE)
+            {
+                if(edge_pos < connections_count)
+                {
+                    register int dst_id = _outgoing_ids[edge_start + edge_pos];
+                    
+                    local_in_lvl++;
+                    int dst_level = __ldg(&_levels[dst_id]);
+                    if(dst_level == _current_level)
+                    {
+                        _levels[src_id] = _current_level + 1;
+                        local_vis++;
+                        break;
+                    }
+                }
+            }
+            
+            atomicAdd(_vis, local_vis);
+            atomicAdd(_in_lvl, local_in_lvl);
+        }
+    }
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+void __global__ bottom_up_reminder_thread_per_wertex_kernel(const long long *_outgoing_ptrs,
+                                                            const int *_outgoing_ids,
+                                                            const int *_frontier_ids,
+                                                            const int _frontier_size,
+                                                            int *_levels,
+                                                            const int _current_level,
+                                                            int _vector_extension_edge_start,
+                                                            const int _vertex_part_start,
+                                                            const int _vertex_part_end,
+                                                            int *_in_lvl,
+                                                            int *_vis)
+{
+
+    register const int frontier_pos = blockIdx.x * blockDim.x + threadIdx.x + _vertex_part_start;
+    
+    if(frontier_pos < _vertex_part_end)
+    {
+        register const int src_id = _frontier_ids[frontier_pos];
+        
+        if(_levels[src_id] == UNVISITED_VERTEX)
+        {
+            register int local_vis = 0;
+            register int local_in_lvl = 0;
+            
+            register const long long edge_start = _outgoing_ptrs[src_id];
+            register const int connections_count = _outgoing_ptrs[src_id + 1] - _outgoing_ptrs[src_id];
+            
+            for(register int edge_pos = _vector_extension_edge_start; edge_pos < connections_count; edge_pos++)
+            {
+                if(edge_pos < connections_count)
+                {
+                    register int dst_id = _outgoing_ids[edge_start + edge_pos];
+                    
+                    local_in_lvl++;
+                    int dst_level = __ldg(&_levels[dst_id]);
+                    if(dst_level == _current_level)
+                    {
+                        _levels[src_id] = _current_level + 1;
+                        local_vis++;
+                        break;
+                    }
+                }
+            }
+            
+            atomicAdd(_vis, local_vis);
+            atomicAdd(_in_lvl, local_in_lvl);
+        }
+    }
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+struct not_zero
+{
+    __host__ __device__
+    bool operator()(const int x)
+    {
+        return x != UNVISITED_VERTEX;
+    }
+};
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+void __global__ copy_vertex_ids_kernel(const int *_levels,
+                                       const int _current_level,
+                                       const int _vertices_count,
+                                       int *_frontier_ids)
 {
     register const int idx = blockIdx.x * blockDim.x + threadIdx.x;
     if(idx < _vertices_count)
     {
-        if(_status_array[idx] == _current_level)
-            _output_array[idx] = idx;
+        if(_levels[idx] == _current_level)
+            _frontier_ids[idx] = idx;
         else
-            _output_array[idx] = -1;
+            _frontier_ids[idx] = UNVISITED_VERTEX;
     }
 }
 
-int convert_status_array_to_vertex_queue(int *_status_array, int _current_level, int _vertices_count, int *_vertex_queue,
-                                         int *_tmp_array)
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+struct level_is_equal
 {
-    dim3 threads(BLOCK_SIZE);
-    dim3 blocks(_vertices_count / BLOCK_SIZE);
+    int desired_val;
+    level_is_equal(int _desired_val)
+    {
+        desired_val = _desired_val;
+    }
     
-    copy_active_vertices_ids <<< blocks, threads >>> (_status_array, _current_level, _vertices_count, _tmp_array);
+    __host__ __device__
+    bool operator()(const int x)
+    {
+        return x == desired_val;
+    }
+};
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+int calculate_frontier_size(const int *_levels,
+                            const int _vertices_count,
+                            const int _desired_level)
+{
+    int frontier_size = count_if(thrust::device, _levels, _levels + _vertices_count, level_is_equal(_desired_level));
     
-    thrust::device_ptr<int> thrust_tmp_array = thrust::device_pointer_cast(_tmp_array);
-    thrust::device_ptr<int> thrust_vertex_queue = thrust::device_pointer_cast(_vertex_queue);
-    
-    thrust::device_ptr<int> indices_end = thrust::copy_if(thrust::device, _tmp_array, _tmp_array + _vertices_count, thrust_vertex_queue, is_active<int>());
-    
-    int frontier_size = indices_end - thrust_vertex_queue;
     return frontier_size;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void gpu_direction_optimising_bfs_wrapper(long long *_first_part_ptrs,
-                                          int *_first_part_sizes,
-                                          int _vector_segments_count,
-                                          long long *_vector_group_ptrs,
-                                          int *_vector_group_sizes,
-                                          int *_outgoing_ids,
-                                          int _number_of_vertices_in_first_part,
-                                          int *_levels,
-                                          int _vertices_count,
-                                          long long _edges_count,
-                                          int _source_vertex)
+int generate_next_frontier(const int *_levels,
+                           int *_frontier_ids,
+                           int *_frontier_vertices_buffer,
+                           const int _vertices_count,
+                           const int _current_level)
 {
-    dim3 init_threads(VECTOR_LENGTH);
-    dim3 init_blocks((_vertices_count - 1) / init_threads.x + 1);
+    copy_vertex_ids_kernel<<<(_vertices_count-1)/BLOCK_SIZE+1, BLOCK_SIZE>>>(_levels, _current_level, _vertices_count,
+                                                                             _frontier_vertices_buffer);
     
-    SAFE_KERNEL_CALL(( init_distances_kernel <<< init_blocks, init_threads >>> (_levels, _vertices_count, _source_vertex) ));
+    int frontier_size = thrust::count_if(thrust::device, _frontier_vertices_buffer, _frontier_vertices_buffer + _vertices_count, not_zero());
+
+    thrust::copy_if(thrust::device, _frontier_vertices_buffer, _frontier_vertices_buffer + _vertices_count, _frontier_ids, not_zero());
+    
+    return frontier_size;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+void __global__ split_frontier_kernel(const long long *_outgoing_ptrs,
+                                      const int *_frontier_ids,
+                                      const int _frontier_size,
+                                      int *_grid_threshold_vertex,
+                                      int *_block_threshold_vertex,
+                                      int *_warp_threshold_vertex)
+{
+    register const int idx = blockIdx.x * blockDim.x + threadIdx.x;
+    if(idx < _frontier_size)
+    {
+        const int current_id = _frontier_ids[idx];
+        const int next_id = _frontier_ids[idx+1];
+        
+        int current_size = current_size = _outgoing_ptrs[current_id + 1] - _outgoing_ptrs[current_id];;
+        int next_size = 0;
+        if(idx < (_frontier_size - 1))
+        {
+            next_size = _outgoing_ptrs[next_id + 1] - _outgoing_ptrs[next_id];
+        }
+        
+        if((current_size > GPU_GRID_THREASHOLD_VALUE) && (next_size <= GPU_GRID_THREASHOLD_VALUE))
+        {
+            *_grid_threshold_vertex = idx + 1;
+        }
+        if((current_size > GPU_BLOCK_THREASHOLD_VALUE) && (next_size <= GPU_BLOCK_THREASHOLD_VALUE))
+        {
+            *_block_threshold_vertex = idx + 1;
+        }
+        if((current_size > GPU_WARP_THREASHOLD_VALUE) && (next_size <= GPU_WARP_THREASHOLD_VALUE))
+        {
+            *_warp_threshold_vertex = idx + 1;
+        }
+    }
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+void split_frontier(const long long *_outgoing_ptrs,
+                    const int *_frontier_ids,
+                    const int _frontier_size,
+                    int &_grid_threshold_start,
+                    int &_grid_threshold_end,
+                    int &_block_threshold_start,
+                    int &_block_threshold_end,
+                    int &_warp_threshold_start,
+                    int &_warp_threshold_end,
+                    int &_thread_threshold_start,
+                    int &_thread_threshold_end)
+{
+    int *dev_grid_threshold_vertex;
+    int *dev_block_threshold_vertex;
+    int *dev_warp_threshold_vertex;
+    cudaMalloc((void**)&dev_grid_threshold_vertex, sizeof(int));
+    cudaMalloc((void**)&dev_block_threshold_vertex, sizeof(int));
+    cudaMalloc((void**)&dev_warp_threshold_vertex, sizeof(int));
+    
+    cudaMemset(dev_grid_threshold_vertex, 0, sizeof(int));
+    cudaMemset(dev_block_threshold_vertex, 0, sizeof(int));
+    cudaMemset(dev_warp_threshold_vertex, 0, sizeof(int));
+    
+    split_frontier_kernel<<<(_frontier_size - 1)/BLOCK_SIZE+1, BLOCK_SIZE>>>(_outgoing_ptrs, _frontier_ids,
+              _frontier_size, dev_grid_threshold_vertex, dev_block_threshold_vertex, dev_warp_threshold_vertex);
+    
+    int host_grid_threshold_vertex;
+    int host_block_threshold_vertex;
+    int host_warp_threshold_vertex;
+    cudaMemcpy(&host_grid_threshold_vertex, dev_grid_threshold_vertex, sizeof(int), cudaMemcpyDeviceToHost);
+    cudaMemcpy(&host_block_threshold_vertex, dev_block_threshold_vertex, sizeof(int), cudaMemcpyDeviceToHost);
+    cudaMemcpy(&host_warp_threshold_vertex, dev_warp_threshold_vertex, sizeof(int), cudaMemcpyDeviceToHost);
+    
+    _grid_threshold_start   = 0;
+    _grid_threshold_end     = host_grid_threshold_vertex;
+    _block_threshold_start  = _grid_threshold_end;
+    _block_threshold_end    = host_block_threshold_vertex;
+    _warp_threshold_start   = _block_threshold_end;
+    _warp_threshold_end     = host_warp_threshold_vertex;
+    _thread_threshold_start = _warp_threshold_end;
+    _thread_threshold_end   = _frontier_size;
+    
+    cudaFree(dev_grid_threshold_vertex);
+    cudaFree(dev_block_threshold_vertex);
+    cudaFree(dev_warp_threshold_vertex);
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+void top_down_wrapper(const long long *_outgoing_ptrs,
+                      const int *_outgoing_ids,
+                      const int _vertices_count,
+                      int *_levels,
+                      int *_frontier_ids,
+                      int *_frontier_vertices_buffer,
+                      int _frontier_size,
+                      const int _current_level,
+                      int *_in_lvl,
+                      int *_vis,
+                      cudaStream_t &_grid_processing_stream,
+                      cudaStream_t &_block_processing_stream,
+                      cudaStream_t &_warp_processing_stream,
+                      cudaStream_t &_thread_processing_stream)
+{
+    int grid_threshold_start, grid_threshold_end;
+    int block_threshold_start, block_threshold_end;
+    int warp_threshold_start, warp_threshold_end;
+    int thread_threshold_start, thread_threshold_end;
+    
+    split_frontier(_outgoing_ptrs, _frontier_ids, _frontier_size,
+                   grid_threshold_start, grid_threshold_end, block_threshold_start, block_threshold_end,
+                   warp_threshold_start, warp_threshold_end, thread_threshold_start, thread_threshold_end);
+    
+    int grid_vertices_count = grid_threshold_end - grid_threshold_start;
+    if(grid_vertices_count > 0)
+    {
+        top_down_grid_per_vertex_kernel <<< grid_vertices_count, 1, 0, _grid_processing_stream >>>
+            (_outgoing_ptrs, _outgoing_ids, _vertices_count, _levels, _frontier_ids, grid_threshold_start,
+            grid_threshold_end, _current_level, _in_lvl, _vis);
+    }
+    
+    int block_vertices_count = block_threshold_end - block_threshold_start;
+    if(block_vertices_count > 0)
+    {
+        top_down_block_per_vertex_kernel <<< block_vertices_count, BLOCK_SIZE, 0, _block_processing_stream >>>
+             (_outgoing_ptrs, _outgoing_ids, _vertices_count, _levels, _frontier_ids, block_threshold_start,
+              block_threshold_end, _current_level, _in_lvl, _vis);
+    }
+    
+    int warp_vertices_count = warp_threshold_end - warp_threshold_start;
+    if(warp_vertices_count > 0)
+    {
+        top_down_warp_per_vertex_kernel <<< WARP_SIZE*(warp_vertices_count - 1)/BLOCK_SIZE + 1, BLOCK_SIZE, 0, _warp_processing_stream >>>
+             (_outgoing_ptrs, _outgoing_ids, _vertices_count, _levels, _frontier_ids, warp_threshold_start,
+              warp_threshold_end, _current_level, _in_lvl, _vis);
+    }
+    
+    int thread_vertices_count = thread_threshold_end - thread_threshold_start;
+    if(thread_vertices_count > 0)
+    {
+        top_down_thread_per_vertex_kernel <<< (thread_vertices_count - 1)/BLOCK_SIZE + 1, BLOCK_SIZE, 0, _thread_processing_stream >>>
+             (_outgoing_ptrs, _outgoing_ids, _vertices_count, _levels, _frontier_ids, thread_threshold_start,
+              thread_threshold_end, _current_level, _in_lvl, _vis);
+    }
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+void bottom_up_wrapper(const long long *_outgoing_ptrs,
+                       const int *_outgoing_ids,
+                       const int *_vectorised_outgoing_ids,
+                       const int _vertices_count,
+                       const int _non_zero_vertices_count,
+                       int *_levels,
+                       int *_frontier_ids,
+                       int *_frontier_vertices_buffer,
+                       int _frontier_size,
+                       const int _current_level,
+                       int *_in_lvl,
+                       int *_vis)
+{
+    bool use_vect_CSR_extension = false;
+    double non_propcessed_vertices = calculate_frontier_size(_levels, _non_zero_vertices_count, -1);
+    
+    int second_part_start = 0;
+    if(non_propcessed_vertices/_non_zero_vertices_count > ENABLE_VECTOR_EXTENSION_THRESHOLD)
+    {
+        second_part_start = VECTOR_EXTENSION_SIZE;
+        bottom_up_vector_extension_kernel<<< (_non_zero_vertices_count - 1)/BLOCK_SIZE + 1, BLOCK_SIZE >>> (_outgoing_ptrs, _vectorised_outgoing_ids, _vertices_count, _levels, _current_level, _in_lvl, _vis);
+    }
+    
+    int reminder_count = generate_next_frontier(_levels, _frontier_ids, _frontier_vertices_buffer, _non_zero_vertices_count, -1);
+    
+    int grid_threshold_start, grid_threshold_end;
+    int block_threshold_start, block_threshold_end;
+    int warp_threshold_start, warp_threshold_end;
+    int thread_threshold_start, thread_threshold_end;
+    split_frontier(_outgoing_ptrs, _frontier_ids,  reminder_count,
+                   grid_threshold_start, grid_threshold_end, block_threshold_start, block_threshold_end,
+                   warp_threshold_start, warp_threshold_end, thread_threshold_start, thread_threshold_end);
+    /*cout << "grid: " << grid_threshold_end - grid_threshold_start << endl;
+    cout << "block: " << block_threshold_end - block_threshold_start << endl;
+    cout << "warp: " << warp_threshold_end - warp_threshold_start << endl;
+    cout << "thread: " << thread_threshold_end - thread_threshold_start << endl;*/
+    
+    int warp_vertices_count = warp_threshold_end - grid_threshold_start;
+    if(warp_vertices_count > 0)
+    {
+        bottom_up_reminder_warp_per_wertex_kernel<<< WARP_SIZE*(reminder_count - 1)/BLOCK_SIZE + 1, BLOCK_SIZE >>> (_outgoing_ptrs, _outgoing_ids, _frontier_ids, reminder_count, _levels, _current_level, second_part_start, warp_threshold_start, warp_threshold_end, _in_lvl, _vis);
+    }
+    
+    int thread_vertices_count = thread_threshold_end - thread_threshold_start;
+    if(thread_vertices_count > 0)
+    {
+        bottom_up_reminder_thread_per_wertex_kernel<<< (reminder_count - 1)/BLOCK_SIZE + 1, BLOCK_SIZE >>> (_outgoing_ptrs, _outgoing_ids, _frontier_ids, reminder_count, _levels, _current_level, second_part_start, thread_threshold_start, thread_threshold_end, _in_lvl, _vis);
+    }
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+template <typename _TVertexValue, typename _TEdgeWeight>
+void gpu_direction_optimising_bfs_wrapper(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph, int *_levels,
+                                          int _source_vertex, int &_iterations_count, int *_frontier_ids, int *_frontier_vertices_buffer)
+{
+    double wall_time = 0;
+    cudaEvent_t start, stop;
+    cudaEventCreate(&start);
+    cudaEventCreate(&stop);
+    cudaEventRecord(start);
+    
+    LOAD_EXTENDED_CSR_GRAPH_DATA(_graph);
+    
+    GraphStructure _graph_structure = gpu_check_graph_structure(_graph);
+    
+    cudaStream_t grid_processing_stream,block_processing_stream, warp_processing_stream, thread_processing_stream;
+    cudaStreamCreate(&grid_processing_stream);
+    cudaStreamCreate(&block_processing_stream);
+    cudaStreamCreate(&warp_processing_stream);
+    cudaStreamCreate(&thread_processing_stream);
+    
+    int current_frontier_size = 1;
     
     int *device_in_lvl, *device_vis;
-    SAFE_CALL(cudaMalloc((void**)&device_in_lvl, sizeof(int)));
-    SAFE_CALL(cudaMalloc((void**)&device_vis, sizeof(int)));
+    cudaMalloc((void**)&device_in_lvl, sizeof(int));
+    cudaMalloc((void**)&device_vis, sizeof(int));
+
+    int non_zero_vertices_count = calculate_non_zero_vertices_number(outgoing_ptrs, _frontier_ids, vertices_count);
     
-    vector<int> level_num;
-    vector<double> level_perf;
-    vector<string> level_state;
-    vector<long long> level_edges_checked;
+    // init source vertex and initial data
+    init_levels_kernel<<<(vertices_count - 1)/BLOCK_SIZE + 1, BLOCK_SIZE>>>(_levels, vertices_count, _source_vertex);
+    cudaMemcpy(_frontier_ids, &_source_vertex, sizeof(int), cudaMemcpyHostToDevice);
     
-    int *vertex_queue;
-    int *tmp_array;
-    SAFE_CALL(cudaMalloc((void**)&vertex_queue, _vertices_count*sizeof(int)));
-    SAFE_CALL(cudaMalloc((void**)&tmp_array, _vertices_count*sizeof(int)));
-    
-    int vertex_queue_size = convert_status_array_to_vertex_queue(_levels, 1, _vertices_count, vertex_queue, tmp_array);
-    
+    // run main algorithm
+    int current_level = 1;
     StateOfBFS current_state = TOP_DOWN;
-    double total_time = 0;
-    int current_level = 2;
-    int old_vertex_queue_size = 1;
-    int old_vis = 1;
-    while(true)
+    while(current_level <= vertices_count)
     {
         StateOfBFS old_state = current_state;
         
-        cudaEvent_t start, stop;
-        cudaEventCreate(&start);
-        cudaEventCreate(&stop);
-        cudaEventRecord(start);
-        
-        //int current_queue_size = global_queue.get_size();
         SAFE_CALL(cudaMemset(device_in_lvl, 0, sizeof(int)));
         SAFE_CALL(cudaMemset(device_vis, 0, sizeof(int)));
         
         if(current_state == TOP_DOWN)
         {
-            SAFE_KERNEL_CALL(( top_down_kernel <<< (vertex_queue_size - 1)/BLOCK_SIZE + 1, BLOCK_SIZE >>> (_first_part_ptrs,
-                             _first_part_sizes, _number_of_vertices_in_first_part,
-                             _vector_segments_count, _vector_group_ptrs, _vector_group_sizes, _outgoing_ids, _vertices_count,
-                             _levels, current_level, device_in_lvl, device_vis, vertex_queue, vertex_queue_size) ));
+            top_down_wrapper(outgoing_ptrs, outgoing_ids, non_zero_vertices_count, _levels, _frontier_ids, _frontier_vertices_buffer,
+                             current_frontier_size, current_level, device_in_lvl, device_vis, grid_processing_stream,
+                             block_processing_stream, warp_processing_stream, thread_processing_stream);
         }
-        else
+        else if(current_state == BOTTOM_UP)
         {
-            if(_number_of_vertices_in_first_part > 0)
-            {
-                bottom_up_kernel_first_vertices <<< _number_of_vertices_in_first_part, VECTOR_LENGTH >>> (_first_part_ptrs, _first_part_sizes, _number_of_vertices_in_first_part, _outgoing_ids, _vertices_count, _levels, current_level, device_in_lvl, device_vis);
-            }
-        
-            //dim3 bu_threads(BLOCK_SIZE);
-            //dim3 bu_blocks(_vertices_count / BLOCK_SIZE);
-            
-            dim3 bu_threads(VECTOR_LENGTH);
-            dim3 bu_blocks(_vector_segments_count);
-            
-            SAFE_KERNEL_CALL(( bottom_up_kernel_last_vertices<<< bu_blocks, bu_threads >>> (_vector_segments_count,
-                                                                         _vector_group_ptrs, _vector_group_sizes,
-                                                                         _outgoing_ids, _number_of_vertices_in_first_part,
-                                                                         _vertices_count, _levels, _levels, current_level,
-                                                                         device_in_lvl, device_vis) ));
+            bottom_up_wrapper(outgoing_ptrs, outgoing_ids, vectorised_outgoing_ids, vertices_count, non_zero_vertices_count,
+                              _levels, _frontier_ids, _frontier_vertices_buffer, current_frontier_size, current_level, device_in_lvl,
+                              device_vis);
         }
         
-        int in_lvl = 0, vis = 0;
-        SAFE_CALL(cudaMemcpy(&in_lvl, device_in_lvl, sizeof(int), cudaMemcpyDeviceToHost));
-        SAFE_CALL(cudaMemcpy(&vis, device_vis, sizeof(int), cudaMemcpyDeviceToHost));
-        current_state = gpu_change_state(old_vis, vis, _vertices_count, _edges_count, current_state, vis, in_lvl,
-                                         current_level);
-        
-        if((current_state == TOP_DOWN) && (vis != 0))
+        int next_frontier_size = calculate_frontier_size(_levels, non_zero_vertices_count, current_level + 1);
+        if(next_frontier_size == 0)
+            break;
+
+        int in_lvl = 0;
+        int vis = 0;
+        cudaMemcpy(&in_lvl, device_in_lvl, sizeof(int), cudaMemcpyDeviceToHost);
+        cudaMemcpy(&vis, device_vis, sizeof(int), cudaMemcpyDeviceToHost);
+        current_state = gpu_change_state(current_frontier_size, next_frontier_size, vertices_count, edges_count, current_state,
+                                         vis, in_lvl, current_level, _graph_structure);
+
+        if(current_state == TOP_DOWN)
         {
-            vertex_queue_size = convert_status_array_to_vertex_queue(_levels, current_level, _vertices_count, vertex_queue,
-                                                                     tmp_array);
+             generate_next_frontier(_levels, _frontier_ids, _frontier_vertices_buffer, non_zero_vertices_count, current_level + 1);
         }
-        old_vis = vis;
-        
-        cudaEventRecord(stop);
-        cudaEventSynchronize(stop);
-        float milliseconds = 0;
-        cudaEventElapsedTime(&milliseconds, start, stop);
-        total_time += milliseconds;
-        
-        cout << "cur level: " << current_level << endl;
-        //cout << "number of active vertices: " << active_vertices_num << ", " << 100.0*(double)active_vertices_num/((double)_vertices_count) << " %" << endl;
-        cout << "in_lvl: "<< in_lvl << " vs " << _edges_count << endl;
-        cout << "time: " << milliseconds << " ms" << endl;
-        cout << "global bandwidth: " << (2.0 * sizeof(int) * _edges_count) / (milliseconds * 1e6) << " GB/s" << endl;
-        cout << "real bandwidth: " << (2.0 * sizeof(int) * in_lvl) / (milliseconds * 1e6) << " GB/s" << endl << endl;
         
         current_level++;
-        
-        level_num.push_back(current_level - 1);
-        level_perf.push_back(milliseconds);
-        level_edges_checked.push_back(in_lvl);
-        if(old_state == TOP_DOWN)
-            level_state.push_back("TD");
-        else
-            level_state.push_back("BU");
-        
-        if(vis == 0)
-            break;
+        current_frontier_size = next_frontier_size;
     }
     
-    double edges_sum = 0.0;
-    cout << "GPU BFS perf: " << ((double)_edges_count) / (total_time * 1e3) << " MFLOPS" " ms" << endl;
-    for(int i = 0; i < level_perf.size(); i++)
-    {
-        cout << "level " << level_num[i] << " in " << level_state[i] <<  " | perf: " << ((double)_edges_count) / (level_perf[i] * 1e6) << " GFLOPS " << level_perf[i] << " ms  | " << level_edges_checked[i] << endl;
-        edges_sum += level_edges_checked[i];
-    }
-    cout << "total edges: " << _edges_count << endl;
-    cout << "BFS checked: " << (edges_sum / ((double)_edges_count)) * 100.0 << " % of graph edges" << endl;
+    cudaFree(device_in_lvl);
+    cudaFree(device_vis);
     
-    SAFE_CALL(cudaFree(device_in_lvl));
-    SAFE_CALL(cudaFree(device_vis));
-    SAFE_CALL(cudaFree(vertex_queue));
-    SAFE_CALL(cudaFree(tmp_array));
-}
-
-void gpu_scan_test()
-{
-    int size = 100000;
-    thrust::device_vector<float> vector(size);
+    cudaStreamDestroy(block_processing_stream);
+    cudaStreamDestroy(warp_processing_stream);
+    cudaStreamDestroy(thread_processing_stream);
+    cudaStreamDestroy(grid_processing_stream);
     
-    cudaEvent_t start, stop;
-    cudaEventCreate(&start);
-    cudaEventCreate(&stop);
-    cudaEventRecord(start);
-    thrust::inclusive_scan(vector.begin(), vector.end(), vector.begin());
     cudaEventRecord(stop);
     cudaEventSynchronize(stop);
     float milliseconds = 0;
     cudaEventElapsedTime(&milliseconds, start, stop);
-    float time = milliseconds / 1000.0;
-    cout << "gpu band: " << (((double)size) * ((double)sizeof(float)) * 2.0) / ((milliseconds) * 1e9) << " GB/s" << endl;
+    wall_time += milliseconds / 1000;
+    
+    cout << "Time               : " << wall_time << endl;
+    cout << "Performance        : " << ((double)edges_count) / (wall_time * 1e6) << " MFLOPS" << endl << endl;
 }
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+template void gpu_direction_optimising_bfs_wrapper<int, float>(ExtendedCSRGraph<int, float> &_graph, int *_levels,
+                                                               int _source_vertex, int &_iterations_count,
+                                                               int *_frontier_ids, int *_frontier_vertices_buffer);
+template void gpu_direction_optimising_bfs_wrapper<int, double>(ExtendedCSRGraph<int, double> &_graph, int *_levels,
+                                                                int _source_vertex, int &_iterations_count,
+                                                                int *_frontier_ids, int *_frontier_vertices_buffer);
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 

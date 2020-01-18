@@ -148,7 +148,7 @@ int main(int argc, char ** argv)
                 cout << "Unknown graph type" << endl;
             }
             t2 = omp_get_wtime();
-            cout << "Generate time: " << (t2 - t1) * 1000.0 << " ms" << endl;
+            cout << "Generate time: " << t2 - t1 << " sec" << endl;
         }
         
         double old_edges_count = rand_graph.get_edges_count();
@@ -166,9 +166,15 @@ int main(int argc, char ** argv)
         else if(output_format.find("extended_CSR") != string::npos)
         {
             ExtendedCSRGraph<int, float> result_graph;
+            t1 = omp_get_wtime();
             result_graph.import_graph(rand_graph, VERTICES_SORTED, edges_state, VECTOR_LENGTH, traversal_type);
+            t2 = omp_get_wtime();
+            cout << "format conversion time: " << t2 - t1 << " sec" << endl;
+            
+            t1 = omp_get_wtime();
             result_graph.save_to_binary_file(file_name + "_ext_CSR.gbin");
-            cout << "saved into ExtendedCSRGraph!" << endl;
+            t2 = omp_get_wtime();
+            cout << "saved into ExtendedCSRGraph in " << t2 - t1 << " sec"  << endl;
         }
         else if(output_format.find("vectorised_CSR") != string::npos)
         {

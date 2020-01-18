@@ -19,14 +19,6 @@
 #include "vertex_queue.h"
 #include "change_state.h"
 
-#define BOTTOM_UP_THRESHOLD 5
-#define BOTTOM_UP_REMINDER_VERTEX -3
-
-#define UNVISITED_VERTEX -1
-#define ISOLATED_VERTEX -2
-
-#define PRINT_DETAILED_STATS
-
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template <typename _TVertexValue, typename _TEdgeWeight>
@@ -53,18 +45,23 @@ private:
                             int _threads_count, bool _use_vect_CSR_extension, int _non_zero_vertices_count,
                             double &_t_first, double &_t_second, double &_t_third);
 public:
-    BFS();
+    BFS(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph);
     ~BFS();
-    
-    void init_temporary_datastructures(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph);
     
     void allocate_result_memory(int _vertices_count, int **_levels);
     void free_result_memory    (int *_levels);
     
+    #ifdef __USE_GPU__
+    void allocate_device_result_memory(int _vertices_count, int **_device_levels);
+    void free_device_result_memory    (int *_device_levels);
+    
+    void copy_result_to_host(int *_host_levels, int *_device_levels, int _vertices_count);
+    #endif
+    
     void nec_direction_optimising_BFS(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph, int *_levels, int _source_vertex);
     
     #ifdef __USE_GPU__
-    void gpu_direction_optimising_BFS(VectorisedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph, int *_levels, int _source_vertex);
+    void gpu_direction_optimising_BFS(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph, int *_levels, int _source_vertex);
     #endif
     
     void verifier(VectorisedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph, int _source_vertex, int *_parallel_levels);

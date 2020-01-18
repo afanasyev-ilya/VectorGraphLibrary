@@ -40,9 +40,7 @@ private:
     static void bellman_ford_kernel(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph, int _source_vertex,
                                     _TEdgeWeight *_distances, int &_changes, int &_iterations_count);
     
-    static void print_performance_stats(long long _edges_count, int _iterations_count, double _total_time,
-                                        double _gather_time, double _first_part_time,
-                                        double _last_part_time, int _bytes_per_edge);
+    static void print_performance_stats(long long _edges_count, int _iterations_count, double _wall_time);
 public:
     static void allocate_result_memory(int _vertices_count, _TEdgeWeight **_distances);
     static void free_result_memory    (_TEdgeWeight *_distances);
@@ -50,8 +48,8 @@ public:
     static void reorder_result(VectorisedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph, _TEdgeWeight *_distances);
     static void reorder_result(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph, _TEdgeWeight *_distances);
 
-    static void bellman_ford(VectorisedCSRGraph<_TVertexValue, _TEdgeWeight> &_reversed_graph, int _source_vertex,
-                             _TEdgeWeight *_distances);
+    static void nec_bellman_ford(VectorisedCSRGraph<_TVertexValue, _TEdgeWeight> &_reversed_graph, int _source_vertex,
+                                 _TEdgeWeight *_distances);
     
     static void bellman_ford(EdgesListGraph<_TVertexValue, _TEdgeWeight> &_reversed_graph, int _source_vertex,
                              _TEdgeWeight *_distances);
@@ -63,7 +61,7 @@ public:
                              _TEdgeWeight *_distances);
     
     #ifdef __USE_GPU__
-    static void gpu_bellman_ford(VectorisedCSRGraph<_TVertexValue, _TEdgeWeight> &_reversed_graph, int _source_vertex,
+    static void gpu_bellman_ford(VectorisedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph, int _source_vertex,
                                  _TEdgeWeight *_distances);
     static void gpu_bellman_ford(ShardedGraph<_TVertexValue, _TEdgeWeight> &_reversed_graph, int _source_vertex,
                                  _TEdgeWeight *_distances);

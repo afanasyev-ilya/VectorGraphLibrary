@@ -15,7 +15,7 @@ using namespace std;
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#define SRC_NUM_VERTICES 5
+#define SRC_NUM_VERTICES 15
 
 int main(int argc, const char * argv[])
 {
@@ -36,7 +36,7 @@ int main(int argc, const char * argv[])
             int vertices_count = pow(2.0, parser.get_scale());
             long long edges_count = vertices_count * parser.get_avg_degree();
             //GraphGenerationAPI<int, float>::random_uniform(rand_graph, vertices_count, edges_count, UNDIRECTED_GRAPH);
-            GraphGenerationAPI<int, float>::R_MAT(rand_graph, vertices_count, edges_count, 57, 19, 19, 5, DIRECTED_GRAPH);
+            GraphGenerationAPI<int, float>::R_MAT(rand_graph, vertices_count, edges_count, 57, 19, 19, 5, UNDIRECTED_GRAPH);
             graph.import_graph(rand_graph, VERTICES_SORTED, EDGES_SORTED, VECTOR_LENGTH, PULL_TRAVERSAL);
         }
         else if(parser.get_compute_mode() == LOAD_GRAPH_FROM_FILE)
@@ -62,7 +62,7 @@ int main(int argc, const char * argv[])
         {
             last_src_vertex = rand() % (graph.get_vertices_count()/4);
             #ifdef __USE_NEC_SX_AURORA__
-            ShortestPaths<int, float>::bellman_ford(graph, last_src_vertex, distances);
+            ShortestPaths<int, float>::nec_bellman_ford(graph, last_src_vertex, distances);
             #endif
             
             #ifdef __USE_GPU__
@@ -76,7 +76,7 @@ int main(int argc, const char * argv[])
         #endif
         
         cout << "SSSP wall time: " << t2 - t1 << " sec" << endl;
-        cout << "SSSP Perf: " << SRC_NUM_VERTICES * (((double)graph.get_edges_count()) / ((t2 - t1) * 1e6)) << " MFLOPS" << endl;
+        cout << "SSSP average performance: " << SRC_NUM_VERTICES * (((double)graph.get_edges_count()) / ((t2 - t1) * 1e6)) << " MFLOPS" << endl << endl;
         
         // check if required
         if(parser.get_check_flag() && (parser.get_compute_mode() == GENERATE_NEW_GRAPH))
