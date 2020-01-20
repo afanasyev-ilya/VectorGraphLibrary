@@ -802,6 +802,7 @@ void gpu_direction_optimising_bfs_wrapper(ExtendedCSRGraph<_TVertexValue, _TEdge
     
     // run main algorithm
     int current_level = 1;
+    int total_visited = 1;
     StateOfBFS current_state = TOP_DOWN;
     while(current_level <= vertices_count)
     {
@@ -824,6 +825,7 @@ void gpu_direction_optimising_bfs_wrapper(ExtendedCSRGraph<_TVertexValue, _TEdge
         }
         
         int next_frontier_size = calculate_frontier_size(_levels, non_zero_vertices_count, current_level + 1);
+        total_visited += next_frontier_size;
         if(next_frontier_size == 0)
             break;
 
@@ -832,7 +834,7 @@ void gpu_direction_optimising_bfs_wrapper(ExtendedCSRGraph<_TVertexValue, _TEdge
         cudaMemcpy(&in_lvl, device_in_lvl, sizeof(int), cudaMemcpyDeviceToHost);
         cudaMemcpy(&vis, device_vis, sizeof(int), cudaMemcpyDeviceToHost);
         current_state = gpu_change_state(current_frontier_size, next_frontier_size, vertices_count, edges_count, current_state,
-                                         vis, in_lvl, current_level, _graph_structure);
+                                         vis, in_lvl, current_level, _graph_structure, total_visited);
 
         if(current_state == TOP_DOWN)
         {
@@ -857,8 +859,8 @@ void gpu_direction_optimising_bfs_wrapper(ExtendedCSRGraph<_TVertexValue, _TEdge
     cudaEventElapsedTime(&milliseconds, start, stop);
     wall_time += milliseconds / 1000;
     
-    cout << "Time               : " << wall_time << endl;
-    cout << "Performance        : " << ((double)edges_count) / (wall_time * 1e6) << " MFLOPS" << endl << endl;
+    //cout << "Time               : " << wall_time << endl;
+    //cout << "Performance        : " << ((double)edges_count) / (wall_time * 1e6) << " MFLOPS" << endl << endl;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

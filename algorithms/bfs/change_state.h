@@ -35,6 +35,8 @@ enum GraphStructure
 
 #define POWER_LAW_EDGES_THRESHOLD 30
 
+#define BOTTOM_UP_FORCE_SWITCH_THRESHOLD_POWER_LOW_GRAPHS 200
+
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template <typename _TVertexValue, typename _TEdgeWeight>
@@ -45,7 +47,8 @@ StateOfBFS change_state(int _current_queue_size, int _next_queue_size, int _vert
                         GraphStructure _graph_structure);
 
 StateOfBFS gpu_change_state(int _current_queue_size, int _next_queue_size, int _vertices_count, long long _edges_count,
-                            StateOfBFS _old_state, int _vis, int _in_lvl, int _current_level, GraphStructure _graph_structure);
+                            StateOfBFS _old_state, int _vis, int _in_lvl, int _current_level, GraphStructure _graph_structure,
+                            int _total_visited);
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 

@@ -28,7 +28,6 @@ private:
     // temporary buffers
     int *active_ids;
     int *active_vertices_buffer;
-    int *vectorised_outgoing_ids;
     
     // nec functions
     int nec_remove_zero_nodes(long long *_outgoing_ptrs, int _vertices_count, int *_levels);
@@ -42,7 +41,7 @@ private:
     void nec_bottom_up_step(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph, long long *_outgoing_ptrs,
                             int *_outgoing_ids, int _vertices_count, int _active_count, int *_levels,
                             int *_cached_levels, int _cur_level, int &_vis, int &_in_lvl,
-                            int _threads_count, bool _use_vect_CSR_extension, int _non_zero_vertices_count,
+                            int _threads_count, int *_vectorised_outgoing_ids, bool _use_vect_CSR_extension, int _non_zero_vertices_count,
                             double &_t_first, double &_t_second, double &_t_third);
 public:
     BFS(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph);

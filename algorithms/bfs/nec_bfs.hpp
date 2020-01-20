@@ -344,6 +344,7 @@ inline void BFS<_TVertexValue, _TEdgeWeight>::nec_bottom_up_step(ExtendedCSRGrap
                                                                  int &_vis,
                                                                  int &_in_lvl,
                                                                  int _threads_count,
+                                                                 int *_vectorised_outgoing_ids,
                                                                  bool _use_vect_CSR_extension,
                                                                  int _non_zero_vertices_count,
                                                                  double &_t_first, double &_t_second, double &_t_third)
@@ -389,7 +390,7 @@ inline void BFS<_TVertexValue, _TEdgeWeight>::nec_bottom_up_step(ExtendedCSRGrap
                         if(_levels[src_id] == UNVISITED_VERTEX)
                         {
                             int connections = _outgoing_ptrs[src_id + 1] - _outgoing_ptrs[src_id];
-                            int dst_id = vectorised_outgoing_ids[src_id + step * _non_zero_vertices_count];
+                            int dst_id = _vectorised_outgoing_ids[src_id + step * _vertices_count];
                             int dst_level = _graph.template load_vertex_data_cached<int>(dst_id, _levels, private_levels);
                             if((dst_level == _cur_level) && (connections > step))
                             {
@@ -634,11 +635,7 @@ void BFS<_TVertexValue, _TEdgeWeight>::nec_direction_optimising_BFS(ExtendedCSRG
                                                                     int _source_vertex)
 {
     double t1, t2, t3, t4;
-    int vertices_count    = _graph.get_vertices_count();
-    long long edges_count = _graph.get_edges_count   ();
-    long long    *outgoing_ptrs    = _graph.get_outgoing_ptrs   ();
-    int          *outgoing_ids     = _graph.get_outgoing_ids    ();
-     
+    LOAD_EXTENDED_CSR_GRAPH_DATA(_graph);
     GraphStructure graph_structure = check_graph_structure(_graph);
     
     int threads_count = omp_get_max_threads();
@@ -689,7 +686,7 @@ void BFS<_TVertexValue, _TEdgeWeight>::nec_direction_optimising_BFS(ExtendedCSRG
         else if(current_state == BOTTOM_UP)
         {
             nec_bottom_up_step(_graph, outgoing_ptrs, outgoing_ids, vertices_count, active_count, _levels, cached_levels,
-                               cur_level, vis, in_lvl, threads_count, use_vect_CSR_extension,
+                               cur_level, vis, in_lvl, threads_count, vectorised_outgoing_ids, use_vect_CSR_extension,
                                non_zero_vertices_count, t_first, t_second, t_third);
         }
         
@@ -758,7 +755,7 @@ void BFS<_TVertexValue, _TEdgeWeight>::nec_direction_optimising_BFS(ExtendedCSRG
     cout << "kernel input: " << 100.0*total_kernel_time/total_time << " %" << endl;
     cout << "reminder input: " << 100.0*total_reminder_time/total_time << " %" << endl << endl;
     cout << total_kernel_time << " vs " << total_reminder_time << endl;
-    //cout << "TOTAL BFS Perf: " << ((double)edges_count)/(total_time*1e6) << " MTEPS" << endl << endl << endl;
+    cout << "TOTAL BFS Perf: " << ((double)edges_count)/(total_time*1e6) << " MTEPS" << endl << endl << endl;
     #endif
     
     _graph.template free_data<int>(cached_levels);

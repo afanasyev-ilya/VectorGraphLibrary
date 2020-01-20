@@ -16,7 +16,7 @@ BFS<_TVertexValue, _TEdgeWeight>::BFS(ExtendedCSRGraph<_TVertexValue, _TEdgeWeig
 {
     int vertices_count = _graph.get_vertices_count();
     
-    #ifdef __USE_NEC_SX_AURORA_TSUBASA__
+    #ifdef __USE_NEC_SX_AURORA__
     active_vertices_buffer = _graph.template vertex_array_alloc<int>();
     active_ids = _graph.template vertex_array_alloc<int>();
     
@@ -35,7 +35,7 @@ BFS<_TVertexValue, _TEdgeWeight>::BFS(ExtendedCSRGraph<_TVertexValue, _TEdgeWeig
 template <typename _TVertexValue, typename _TEdgeWeight>
 BFS<_TVertexValue, _TEdgeWeight>::~BFS()
 {
-    #ifdef __USE_NEC_SX_AURORA_TSUBASA__
+    #ifdef __USE_NEC_SX_AURORA__
     if(active_vertices_buffer != NULL)
     {
         delete []active_vertices_buffer;

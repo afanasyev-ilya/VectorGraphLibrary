@@ -237,7 +237,9 @@ bool ExtendedCSRGraph<_TVertexValue, _TEdgeWeight>::load_from_binary_file(string
     #endif
     
     calculate_incoming_degrees();
+    #ifdef __USE_GPU__
     estimate_gpu_thresholds();
+    #endif
     construct_vector_extension();
     
     fclose(graph_file);

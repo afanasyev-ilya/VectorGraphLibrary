@@ -1,0 +1,74 @@
+CXX = g++
+CUDA_DIR = /usr/local/cuda-9.1/
+CUDA_COMPILER = $(CUDA_DIR)/bin/nvcc
+
+# Include paths...
+Include_Path = -I $(CUDA_DIR)/include
+
+# Library paths...
+Libraries =  -fopenmp -fpermissive
+Library_Path = -L $(CUDA_DIR)/lib -L $(CUDA_DIR)/lib64
+Libraries += -lcudart -lcudadevrt -lnvgraph -lcublas -lcudadevrt
+
+# CPU Compiler flags...
+CXXFLAGS = -O2 -fopenmp -fopt-info-vec -fpermissive
+LDFLAGS = -fopenmp
+
+# CUDA Compiler flags
+CUDA_FLAGS = -O2 -w -m64 -std=c++11 -Xptxas -dlcm=ca --expt-extended-lambda -gencode arch=compute_52,code=sm_52 -gencode arch=compute_60,code=sm_60 -gencode arch=compute_70,code=sm_70
+
+# Paths to gpu algorithms from current sample
+VPATH=./:algorithms/sssp/gpu/:algorithms/bfs/gpu/
+
+.DEFAULT_GOAL := all
+
+##########
+# binaries
+##########
+
+all: bfs sssp
+
+sssp: create_folders sssp.o bellman_ford_gpu.o
+	$(CUDA_COMPILER) $(CUDA_FLAGS) $(Include_Path) -dlink  object_files/bellman_ford_gpu.o -o object_files/cuda_files_link.o -lcudadevrt -lcudart
+	$(CXX) object_files/sssp.o object_files/bellman_ford_gpu.o object_files/cuda_files_link.o $(Library_Path) $(Libraries) $(LDFLAGS) -o ./bin/sssp
+	
+bfs: create_folders bfs.o traditional_bfs_gpu.o
+	$(CUDA_COMPILER) $(CUDA_FLAGS) $(Include_Path) -dlink  object_files/traditional_bfs_gpu.o -o object_files/cuda_files_link.o -lcudadevrt -lcudart
+	$(CXX) object_files/bfs.o object_files/traditional_bfs_gpu.o object_files/cuda_files_link.o $(Library_Path) $(Libraries) $(LDFLAGS) -o ./bin/bfs
+ 
+generate_test_data: create_folders generate_test_data.o
+	$(CXX) object_files/generate_test_data.o $(Library_Path) $(Libraries) $(LDFLAGS) -o ./bin/generate_test_data
+
+##########
+# CPPs
+##########
+
+sssp.o: sssp.cpp
+	$(CXX) $(CXXFLAGS) $(Include_Path)  -c sssp.cpp -o object_files/sssp.o -fopenmp
+	
+bfs.o: bfs.cpp
+	$(CXX) $(CXXFLAGS) $(Include_Path)  -c bfs.cpp -o object_files/bfs.o -fopenmp
+
+generate_test_data.o: generate_test_data.cpp
+	$(CXX) $(CXXFLAGS) $(Include_Path)  -c generate_test_data.cpp -o object_files/generate_test_data.o -fopenmp
+
+nvgraph_comparison.o: nvgraph_comparison.cpp
+	$(CXX) $(CXXFLAGS) $(Include_Path)  -c nvgraph_comparison.cpp -o object_files/nvgraph_comparison.o -fopenmp
+
+create_folders:
+	-mkdir -p ./bin
+	-cp graph_library.sh ./bin
+	-mkdir -p ./object_files
+
+clean:
+	-rm -f object_files/*.o
+
+#################
+# CUDA operations
+#################
+
+bellman_ford_gpu.o: bellman_ford_gpu.cu
+	$(CUDA_COMPILER) $(CUDA_FLAGS) $(Include_Path) -rdc=true -c algorithms/sssp/gpu/bellman_ford_gpu.cu -o object_files/bellman_ford_gpu.o
+
+traditional_bfs_gpu.o: traditional_bfs.cu
+	$(CUDA_COMPILER) $(CUDA_FLAGS) $(Include_Path) -rdc=true -c algorithms/bfs/gpu/traditional_bfs.cu -o object_files/traditional_bfs_gpu.o

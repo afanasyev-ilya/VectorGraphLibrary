@@ -1,4 +1,4 @@
-CXX = g++
+CXX = /opt/local/bin/g++
 CUDA_COMPILER = nvcc
 CUDA_DIR = /opt/cuda/cuda-8.0/
 
@@ -26,7 +26,7 @@ VPATH=./:algorithms/shortest_paths/gpu/
 # binaries
 ##########
 
-all: test_operations generate_test_data bfs
+all: bfs
 
 pr: create_folders pr.o
 	$(CXX) object_files/pr.o $(Library_Path) $(Libraries) $(LDFLAGS) -o ./bin/pr

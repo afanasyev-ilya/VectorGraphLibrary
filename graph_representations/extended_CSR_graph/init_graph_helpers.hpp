@@ -145,7 +145,11 @@ void ExtendedCSRGraph<_TVertexValue, _TEdgeWeight>::import_graph(EdgesListGraph<
     delete []tmp_reordered_vertex_ids;
     
     calculate_incoming_degrees();
+    
+    #ifdef __USE_GPU__
     estimate_gpu_thresholds();
+    #endif
+    
     construct_vector_extension();
     t2 = omp_get_wtime();
     cout << "final time: " << t2 - t1 << " sec" << endl << endl;
