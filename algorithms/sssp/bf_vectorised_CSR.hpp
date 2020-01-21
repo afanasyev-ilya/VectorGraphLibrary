@@ -19,7 +19,7 @@ void ShortestPaths<_TVertexValue, _TEdgeWeight>::nec_bellman_ford(VectorisedCSRG
 {
     LOAD_VECTORISED_CSR_GRAPH_REVERSE_DATA(_reversed_graph)
     
-    int threads_count = omp_get_max_threads();
+    /*int threads_count = omp_get_max_threads();
     _reversed_graph.set_threads_count(threads_count);
     
     #ifdef __USE_NEC_SX_AURORA__
@@ -210,7 +210,7 @@ void ShortestPaths<_TVertexValue, _TEdgeWeight>::nec_bellman_ford(VectorisedCSRG
     print_performance_stats(edges_count, iterations_count, t2 - t1);
     #endif
     
-    _reversed_graph.template free_data<_TEdgeWeight>(cached_distances);
+    _reversed_graph.template free_data<_TEdgeWeight>(cached_distances);*/
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

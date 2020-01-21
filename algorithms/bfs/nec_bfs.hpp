@@ -755,8 +755,9 @@ void BFS<_TVertexValue, _TEdgeWeight>::nec_direction_optimising_BFS(ExtendedCSRG
     cout << "kernel input: " << 100.0*total_kernel_time/total_time << " %" << endl;
     cout << "reminder input: " << 100.0*total_reminder_time/total_time << " %" << endl << endl;
     cout << total_kernel_time << " vs " << total_reminder_time << endl;
-    cout << "TOTAL BFS Perf: " << ((double)edges_count)/(total_time*1e6) << " MTEPS" << endl << endl << endl;
+    //cout << "TOTAL BFS Perf: " << ((double)edges_count)/(total_time*1e6) << " MTEPS" << endl << endl << endl;
     #endif
+    cout << "TOTAL BFS Perf: " << ((double)edges_count)/(total_time*1e6) << " MTEPS" << endl << endl;
     
     _graph.template free_data<int>(cached_levels);
 }

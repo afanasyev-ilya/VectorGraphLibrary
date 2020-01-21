@@ -100,7 +100,6 @@ void ExtendedCSRGraph<_TVertexValue, _TEdgeWeight>::import_graph(EdgesListGraph<
     // sort adjacent ids locally for each vertex
     long long no_loops_edges_count = 0;
     t1 = omp_get_wtime();
-    #pragma omp parallel for schedule(dynamic)
     for(int cur_vertex = 0; cur_vertex < tmp_vertices_count; cur_vertex++)
     {
         int src_id = cur_vertex;

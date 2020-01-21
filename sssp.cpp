@@ -15,7 +15,7 @@ using namespace std;
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#define SRC_NUM_VERTICES 15
+#define SRC_NUM_VERTICES 2
 
 int main(int argc, const char * argv[])
 {
@@ -30,7 +30,9 @@ int main(int argc, const char * argv[])
         // load graph
         double t1 = omp_get_wtime();
         VectorisedCSRGraph<int, float> graph;
+        ExtendedCSRGraph<int, float> ext_graph;
         EdgesListGraph<int, float> rand_graph;
+
         if(parser.get_compute_mode() == GENERATE_NEW_GRAPH)
         {
             int vertices_count = pow(2.0, parser.get_scale());
@@ -38,6 +40,8 @@ int main(int argc, const char * argv[])
             //GraphGenerationAPI<int, float>::random_uniform(rand_graph, vertices_count, edges_count, UNDIRECTED_GRAPH);
             GraphGenerationAPI<int, float>::R_MAT(rand_graph, vertices_count, edges_count, 57, 19, 19, 5, UNDIRECTED_GRAPH);
             graph.import_graph(rand_graph, VERTICES_SORTED, EDGES_SORTED, VECTOR_LENGTH, PULL_TRAVERSAL);
+
+            //ext_graph.import_graph(rand_graph, VERTICES_SORTED, EDGES_SORTED, 1, PULL_TRAVERSAL);
         }
         else if(parser.get_compute_mode() == LOAD_GRAPH_FROM_FILE)
         {
@@ -68,6 +72,8 @@ int main(int argc, const char * argv[])
             #ifdef __USE_GPU__
             ShortestPaths<int, float>::gpu_bellman_ford(graph, last_src_vertex, distances);
             #endif
+
+            //ShortestPaths<int, float>::bellman_ford(ext_graph, last_src_vertex, distances);
         }
         t2 = omp_get_wtime();
         
@@ -81,7 +87,7 @@ int main(int argc, const char * argv[])
         // check if required
         if(parser.get_check_flag() && (parser.get_compute_mode() == GENERATE_NEW_GRAPH))
         {
-            ExtendedCSRGraph<int, float> ext_graph;
+            //ExtendedCSRGraph<int, float> ext_graph;
             ext_graph.import_graph(rand_graph, VERTICES_SORTED, EDGES_SORTED, 1, PULL_TRAVERSAL);
             
             float *ext_distances;
