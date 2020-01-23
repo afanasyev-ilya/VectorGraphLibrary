@@ -51,9 +51,8 @@ void gpu_bellman_ford_wrapper(VectorisedCSRGraph<_TVertexValue, _TEdgeWeight> &_
 
     GraphPrimitivesGPU operations;
 
-    int *device_modif;
-    int host_modif;
-    cudaMalloc((void**)&device_modif, sizeof(int));
+    int *changes;
+    cudaMallocManaged(&changes, sizeof(int));
 
     auto init_op = [_distances, _source_vertex] __device__ (int src_id) {
         if(src_id == _source_vertex)
@@ -65,7 +64,7 @@ void gpu_bellman_ford_wrapper(VectorisedCSRGraph<_TVertexValue, _TEdgeWeight> &_
     auto vertex_preprocess_op = [] __device__(int src_id, int connections_count){};
     auto vertex_postprocess_op = [] __device__(int src_id, int connections_count){};
 
-    auto edge_op = [outgoing_weights, _distances, device_modif] __device__(int src_id, int dst_id, int local_edge_pos, long long int global_edge_pos, int connections_count){
+    auto edge_op = [outgoing_weights, _distances, changes] __device__(int src_id, int dst_id, int local_edge_pos, long long int global_edge_pos, int connections_count){
         _TEdgeWeight weight = outgoing_weights[global_edge_pos];
         _TEdgeWeight dst_weight = __ldg(&_distances[dst_id]);
         _TEdgeWeight src_weight = __ldg(&_distances[src_id]);
@@ -73,41 +72,26 @@ void gpu_bellman_ford_wrapper(VectorisedCSRGraph<_TVertexValue, _TEdgeWeight> &_
         if(dst_weight > src_weight + weight)
         {
             _distances[dst_id] = src_weight + weight;
-            device_modif[0] = 1;
+            changes[0] = 1;
         }
     };
-
-    /*auto edge_op = [outgoing_weights, _distances, device_modif] __device__(int src_id, int dst_id, int local_edge_pos, long long int global_edge_pos, int connections_count){
-        _TEdgeWeight weight = outgoing_weights[global_edge_pos];
-        _TEdgeWeight dst_weight = __ldg(&_distances[dst_id]);
-        _TEdgeWeight src_weight = __ldg(&_distances[src_id]);
-
-        if(src_weight > dst_weight + weight)
-        {
-            _distances[src_id] = dst_weight + weight;
-            device_modif[0] = 1;
-        }
-    };*/
 
     operations.init(_graph.get_vertices_count(), init_op);
     
     for (int cur_iteration = 0; cur_iteration < vertices_count; cur_iteration++) // do o(|v|) iterations in worst case
     {
-        cudaMemset(device_modif, 0, sizeof(int));
+        changes[0] = 0;
 
         operations.advance(_graph, edge_op, vertex_preprocess_op, vertex_postprocess_op);
-        
-        cudaMemcpy(&host_modif, device_modif, sizeof(int), cudaMemcpyDeviceToHost);
-        
-        if (host_modif == 0)
+
+        if (changes[0] == 0)
         {
             _iterations_count = cur_iteration + 1;
-            SAFE_CALL(cudaDeviceSynchronize());
             break;
         }
     }
 
-    cudaFree(device_modif);
+    cudaFree(changes);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
