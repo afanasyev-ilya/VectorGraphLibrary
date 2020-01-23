@@ -59,7 +59,13 @@ public:
     
     static void bellman_ford(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_reversed_graph, int _source_vertex,
                              _TEdgeWeight *_distances);
-    
+
+
+    #ifdef __USE_NEC_SX_AURORA__
+    static void lib_bellman_ford(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_reversed_graph, int _source_vertex,
+                                 _TEdgeWeight *_distances);
+    #endif
+
     #ifdef __USE_GPU__
     static void gpu_bellman_ford(VectorisedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph, int _source_vertex,
                                  _TEdgeWeight *_distances);

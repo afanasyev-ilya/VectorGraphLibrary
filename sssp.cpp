@@ -15,7 +15,7 @@ using namespace std;
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#define SRC_NUM_VERTICES 2
+#define SRC_NUM_VERTICES 20
 
 int main(int argc, const char * argv[])
 {
@@ -30,7 +30,7 @@ int main(int argc, const char * argv[])
         // load graph
         double t1 = omp_get_wtime();
         VectorisedCSRGraph<int, float> graph;
-        ExtendedCSRGraph<int, float> ext_graph;
+        //ExtendedCSRGraph<int, float> graph;
         EdgesListGraph<int, float> rand_graph;
 
         if(parser.get_compute_mode() == GENERATE_NEW_GRAPH)
@@ -40,8 +40,6 @@ int main(int argc, const char * argv[])
             //GraphGenerationAPI<int, float>::random_uniform(rand_graph, vertices_count, edges_count, UNDIRECTED_GRAPH);
             GraphGenerationAPI<int, float>::R_MAT(rand_graph, vertices_count, edges_count, 57, 19, 19, 5, UNDIRECTED_GRAPH);
             graph.import_graph(rand_graph, VERTICES_SORTED, EDGES_SORTED, VECTOR_LENGTH, PULL_TRAVERSAL);
-
-            //ext_graph.import_graph(rand_graph, VERTICES_SORTED, EDGES_SORTED, 1, PULL_TRAVERSAL);
         }
         else if(parser.get_compute_mode() == LOAD_GRAPH_FROM_FILE)
         {
@@ -66,7 +64,8 @@ int main(int argc, const char * argv[])
         {
             last_src_vertex = rand() % (graph.get_vertices_count()/4);
             #ifdef __USE_NEC_SX_AURORA__
-            ShortestPaths<int, float>::nec_bellman_ford(graph, last_src_vertex, distances);
+            //ShortestPaths<int, float>::nec_bellman_ford(graph, last_src_vertex, distances);
+            ShortestPaths<int, float>::lib_bellman_ford(graph, last_src_vertex, distances);
             #endif
             
             #ifdef __USE_GPU__
@@ -87,14 +86,14 @@ int main(int argc, const char * argv[])
         // check if required
         if(parser.get_check_flag() && (parser.get_compute_mode() == GENERATE_NEW_GRAPH))
         {
-            //ExtendedCSRGraph<int, float> ext_graph;
+            ExtendedCSRGraph<int, float> ext_graph;
             ext_graph.import_graph(rand_graph, VERTICES_SORTED, EDGES_SORTED, 1, PULL_TRAVERSAL);
             
             float *ext_distances;
-            ShortestPaths<int, float>::allocate_result_memory(ext_graph.get_vertices_count(), &ext_distances);
+            ShortestPaths<int, float>::allocate_result_memory(graph.get_vertices_count(), &ext_distances);
             ShortestPaths<int, float>::bellman_ford(ext_graph, last_src_vertex, ext_distances);
             
-            verify_results(distances, ext_distances, min(graph.get_vertices_count(), ext_graph.get_vertices_count()));
+            verify_results(distances, ext_distances, min(ext_graph.get_vertices_count(), graph.get_vertices_count()));
             
             ShortestPaths<int, float>::free_result_memory(ext_distances);
         }
