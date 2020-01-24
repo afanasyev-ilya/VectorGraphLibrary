@@ -67,7 +67,7 @@ public:
     #endif
 
     #ifdef __USE_GPU__
-    static void gpu_bellman_ford(VectorisedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph, int _source_vertex,
+    static void gpu_bellman_ford(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph, int _source_vertex,
                                  _TEdgeWeight *_distances);
     static void gpu_bellman_ford(ShardedGraph<_TVertexValue, _TEdgeWeight> &_reversed_graph, int _source_vertex,
                                  _TEdgeWeight *_distances);

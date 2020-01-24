@@ -29,8 +29,8 @@ int main(int argc, const char * argv[])
         
         // load graph
         double t1 = omp_get_wtime();
-        VectorisedCSRGraph<int, float> graph;
-        //ExtendedCSRGraph<int, float> graph;
+        //VectorisedCSRGraph<int, float> graph;
+        ExtendedCSRGraph<int, float> graph;
         EdgesListGraph<int, float> rand_graph;
 
         if(parser.get_compute_mode() == GENERATE_NEW_GRAPH)
@@ -93,7 +93,7 @@ int main(int argc, const char * argv[])
             ShortestPaths<int, float>::allocate_result_memory(graph.get_vertices_count(), &ext_distances);
             ShortestPaths<int, float>::bellman_ford(ext_graph, last_src_vertex, ext_distances);
             
-            verify_results(distances, ext_distances, min(ext_graph.get_vertices_count(), graph.get_vertices_count()));
+            verify_results(distances, ext_distances, min(graph.get_vertices_count(), graph.get_vertices_count()));
             
             ShortestPaths<int, float>::free_result_memory(ext_distances);
         }

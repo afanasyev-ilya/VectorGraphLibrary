@@ -26,6 +26,7 @@ void __global__ grid_per_vertex_kernel_child(const long long *_vertex_pointers,
 template <class EdgeOperation, class VertexPreprocessOperation, class VertexPostprocessOperation>
 void __global__ grid_per_vertex_kernel(const long long *_vertex_pointers,
                                        const int *_adjacent_ids,
+                                       const int *_frontier_ids,
                                        const int _vertices_count,
                                        const int _vertex_part_start,
                                        const int _vertex_part_end,
@@ -33,9 +34,10 @@ void __global__ grid_per_vertex_kernel(const long long *_vertex_pointers,
                                        VertexPreprocessOperation vertex_preprocess_op,
                                        VertexPostprocessOperation vertex_postprocess_op)
 {
-    const int src_id = blockIdx.x * blockDim.x + threadIdx.x + _vertex_part_start;
-    if(src_id < _vertex_part_end)
+    const int frontier_pos = blockIdx.x * blockDim.x + threadIdx.x + _vertex_part_start;
+    if(frontier_pos < _vertex_part_end)
     {
+        const int src_id = _frontier_ids[frontier_pos];
         const int connections_count = _vertex_pointers[src_id + 1] - _vertex_pointers[src_id];
 
         vertex_preprocess_op(src_id, connections_count);
@@ -54,6 +56,7 @@ void __global__ grid_per_vertex_kernel(const long long *_vertex_pointers,
 template <class EdgeOperation, class VertexPreprocessOperation, class VertexPostprocessOperation>
 void __global__ block_per_vertex_kernel(const long long *_vertex_pointers,
                                         const int *_adjacent_ids,
+                                        const int *_frontier_ids,
                                         const int _vertices_count,
                                         const int _vertex_part_start,
                                         const int _vertex_part_end,
@@ -61,9 +64,10 @@ void __global__ block_per_vertex_kernel(const long long *_vertex_pointers,
                                         VertexPreprocessOperation vertex_preprocess_op,
                                         VertexPostprocessOperation vertex_postprocess_op)
 {
-    const int src_id = blockIdx.x + _vertex_part_start;
-    if(src_id < _vertex_part_end)
+    const int frontier_pos = blockIdx.x + _vertex_part_start;
+    if(frontier_pos < _vertex_part_end)
     {
+        const int src_id = _frontier_ids[frontier_pos];
         const long long edge_start = _vertex_pointers[src_id];
         const int connections_count =  _vertex_pointers[src_id + 1] - _vertex_pointers[src_id];
         vertex_preprocess_op(src_id, connections_count);
@@ -88,6 +92,7 @@ void __global__ block_per_vertex_kernel(const long long *_vertex_pointers,
 template <class EdgeOperation, class VertexPreprocessOperation, class VertexPostprocessOperation>
 void __global__ warp_per_vertex_kernel(const long long *_vertex_pointers,
                                        const int *_adjacent_ids,
+                                       const int *_frontier_ids,
                                        const int _vertices_count,
                                        const int _vertex_part_start,
                                        const int _vertex_part_end,
@@ -97,10 +102,11 @@ void __global__ warp_per_vertex_kernel(const long long *_vertex_pointers,
 {
     const int warp_id = threadIdx.x / WARP_SIZE;
     const int lane_id = threadIdx.x % WARP_SIZE;
-    const int src_id = blockIdx.x * (blockDim.x/ WARP_SIZE) + warp_id + _vertex_part_start;
+    const int frontier_pos = blockIdx.x * (blockDim.x/ WARP_SIZE) + warp_id + _vertex_part_start;
 
-    if(src_id < _vertex_part_end)
+    if(frontier_pos < _vertex_part_end)
     {
+        const int src_id = _frontier_ids[frontier_pos];
         const long long edge_start = _vertex_pointers[src_id];
         const int connections_count = _vertex_pointers[src_id + 1] - _vertex_pointers[src_id];
         vertex_preprocess_op(src_id, connections_count);
@@ -123,10 +129,50 @@ void __global__ warp_per_vertex_kernel(const long long *_vertex_pointers,
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template <typename EdgeOperation, typename VertexPreprocessOperation, typename VertexPostprocessOperation>
+void __global__ thread_per_vertex_kernel(const long long *_vertex_pointers,
+                                         const int *_adjacent_ids,
+                                         const int *_frontier_ids,
+                                         const int _vertices_count,
+                                         const int _vertex_part_start,
+                                         const int _vertex_part_end,
+                                         EdgeOperation edge_op,
+                                         VertexPreprocessOperation vertex_preprocess_op,
+                                         VertexPostprocessOperation vertex_postprocess_op)
+{
+    const int frontier_pos = blockIdx.x * blockDim.x + threadIdx.x + _vertex_part_start;
+
+    if(frontier_pos < _vertex_part_end)
+    {
+        const int src_id = _frontier_ids[frontier_pos];
+
+        const long long edge_start = _vertex_pointers[src_id];
+        const int connections_count = _vertex_pointers[src_id + 1] - _vertex_pointers[src_id];
+
+        vertex_preprocess_op(src_id, connections_count);
+
+        for(register int edge_pos = 0; edge_pos < connections_count; edge_pos++)
+        {
+            if(edge_pos < connections_count)
+            {
+                const long long int global_edge_pos = edge_start + edge_pos;
+                const int dst_id = _adjacent_ids[global_edge_pos];
+                const int local_edge_pos = edge_pos;
+                edge_op(src_id, dst_id, local_edge_pos, global_edge_pos, connections_count);
+            }
+        }
+
+        vertex_postprocess_op(src_id, connections_count);
+    }
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+template <typename EdgeOperation, typename VertexPreprocessOperation, typename VertexPostprocessOperation>
 void __global__ remaining_vertices_kernel(const long long *_vector_group_pointers,
                                           const int *_vector_group_sizes,
                                           const int _number_of_vertices_in_first_part,
                                           const int *_adjacent_ids,
+                                          const char *_frontier_flags,
                                           const int _vertices_count,
                                           EdgeOperation edge_op,
                                           VertexPreprocessOperation vertex_preprocess_op,
@@ -139,19 +185,22 @@ void __global__ remaining_vertices_kernel(const long long *_vector_group_pointer
         const int segment_connections_count  = _vector_group_sizes[blockIdx.x];
         if(segment_connections_count > 0)
         {
-            vertex_preprocess_op(src_id, segment_connections_count);
-
-            const long long int segment_edges_start = _vector_group_pointers[blockIdx.x];
-            for(register int edge_pos = 0; edge_pos < segment_connections_count; edge_pos++)
+            if(_frontier_flags[src_id] == GPU_IN_FRONTIER_FLAG)
             {
-                const long long int global_edge_pos = segment_edges_start + edge_pos * blockDim.x + threadIdx.x;
-                const int dst_id = _adjacent_ids[global_edge_pos];
-                const int local_edge_pos = edge_pos;
+                vertex_preprocess_op(src_id, segment_connections_count);
 
-                edge_op(src_id, dst_id, local_edge_pos, global_edge_pos, segment_connections_count);
+                const long long int segment_edges_start = _vector_group_pointers[blockIdx.x];
+                for(register int edge_pos = 0; edge_pos < segment_connections_count; edge_pos++)
+                {
+                    const long long int global_edge_pos = segment_edges_start + edge_pos * blockDim.x + threadIdx.x;
+                    const int dst_id = _adjacent_ids[global_edge_pos];
+                    const int local_edge_pos = edge_pos;
+
+                    edge_op(src_id, dst_id, local_edge_pos, global_edge_pos, segment_connections_count);
+                }
+
+                vertex_postprocess_op(src_id, segment_connections_count);
             }
-
-            vertex_postprocess_op(src_id, segment_connections_count);
         }
     }
 }

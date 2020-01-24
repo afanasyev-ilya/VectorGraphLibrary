@@ -220,12 +220,13 @@ void ShortestPaths<_TVertexValue, _TEdgeWeight>::nec_bellman_ford(VectorisedCSRG
 #ifdef __USE_GPU__
 template <typename _TVertexValue, typename _TEdgeWeight>
 void ShortestPaths<_TVertexValue, _TEdgeWeight>::gpu_bellman_ford(
-                                                VectorisedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
-                                                int _source_vertex, _TEdgeWeight *_distances)
+                                                ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
+                                                int _source_vertex,
+                                                _TEdgeWeight *_distances)
 {
     //_graph.move_to_device();
     
-    LOAD_VECTORISED_CSR_GRAPH_REVERSE_DATA(_graph)
+    LOAD_EXTENDED_CSR_GRAPH_DATA(_graph);
     
     _TEdgeWeight *device_distances;
     SAFE_CALL(cudaMalloc((void**)&device_distances, vertices_count * sizeof(_TEdgeWeight)));
