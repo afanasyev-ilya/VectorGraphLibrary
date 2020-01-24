@@ -15,8 +15,6 @@ using namespace std;
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#define SRC_NUM_VERTICES 20
-
 int main(int argc, const char * argv[])
 {
     try
@@ -58,21 +56,20 @@ int main(int argc, const char * argv[])
         #ifdef __USE_GPU__
         graph.move_to_device();
         #endif
-        
+
+        cout << "Doing " << parser.get_steps_count() << " SSSP iterations" << endl;
         t1 = omp_get_wtime();
-        for(int i = 0; i < SRC_NUM_VERTICES; i++)
+        for(int i = 0; i < parser.get_steps_count(); i++)
         {
             last_src_vertex = rand() % (graph.get_vertices_count()/4);
             #ifdef __USE_NEC_SX_AURORA__
-            //ShortestPaths<int, float>::nec_bellman_ford(graph, last_src_vertex, distances);
-            ShortestPaths<int, float>::lib_bellman_ford(graph, last_src_vertex, distances);
+            //ShortestPaths<int, float>::nec_dijkstra(graph, last_src_vertex, distances);
+            ShortestPaths<int, float>::lib_dijkstra(graph, last_src_vertex, distances);
             #endif
             
             #ifdef __USE_GPU__
-            ShortestPaths<int, float>::gpu_bellman_ford(graph, last_src_vertex, distances);
+            ShortestPaths<int, float>::gpu_dijkstra(graph, last_src_vertex, distances);
             #endif
-
-            //ShortestPaths<int, float>::bellman_ford(ext_graph, last_src_vertex, distances);
         }
         t2 = omp_get_wtime();
         
@@ -81,19 +78,16 @@ int main(int argc, const char * argv[])
         #endif
         
         cout << "SSSP wall time: " << t2 - t1 << " sec" << endl;
-        cout << "SSSP average performance: " << SRC_NUM_VERTICES * (((double)graph.get_edges_count()) / ((t2 - t1) * 1e6)) << " MFLOPS" << endl << endl;
+        cout << "SSSP average performance: " << parser.get_steps_count() * (((double)graph.get_edges_count()) / ((t2 - t1) * 1e6)) << " MFLOPS" << endl << endl;
         
         // check if required
         if(parser.get_check_flag() && (parser.get_compute_mode() == GENERATE_NEW_GRAPH))
         {
-            ExtendedCSRGraph<int, float> ext_graph;
-            ext_graph.import_graph(rand_graph, VERTICES_SORTED, EDGES_SORTED, 1, PULL_TRAVERSAL);
-            
             float *ext_distances;
             ShortestPaths<int, float>::allocate_result_memory(graph.get_vertices_count(), &ext_distances);
-            ShortestPaths<int, float>::bellman_ford(ext_graph, last_src_vertex, ext_distances);
+            ShortestPaths<int, float>::seq_dijkstra(graph, last_src_vertex, ext_distances);
             
-            verify_results(distances, ext_distances, min(graph.get_vertices_count(), graph.get_vertices_count()));
+            verify_results(distances, ext_distances, graph.get_vertices_count());
             
             ShortestPaths<int, float>::free_result_memory(ext_distances);
         }

@@ -19,6 +19,7 @@ AlgorithmCommandOptionsParser::AlgorithmCommandOptionsParser()
     check_flag = false;
     graph_file_name = "test.gbin";
     number_of_rounds = 1;
+    steps_count = 1;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -49,6 +50,12 @@ void AlgorithmCommandOptionsParser::parse_args(int _argc, const char * _argv[])
         if ((option.compare("-edges") == 0) || (option.compare("-e") == 0))
         {
             avg_degree = atoi(_argv[++i]);
+        }
+
+        if ((option.compare("-steps") == 0) || (option.compare("-steps-count") == 0) ||
+            (option.compare("-source-num") == 0))
+        {
+            steps_count = atoi(_argv[++i]);
         }
         
         if ((option.compare("-check") == 0))

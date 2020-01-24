@@ -1,13 +1,4 @@
-//
-//  bf_gpu.cu
-//  ParallelGraphLibrary
-//
-//  Created by Elijah Afanasiev on 01/05/2019.
-//  Copyright © 2019 MSU. All rights reserved.
-//
-
-#ifndef bellman_ford_gpu_cu
-#define bellman_ford_gpu_cu
+#pragma once
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -30,17 +21,17 @@ using namespace std;
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template <typename _TVertexValue, typename _TEdgeWeight>
-void gpu_bellman_ford_wrapper(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
-                              _TEdgeWeight *_distances,
-                              int _source_vertex,
-                              int &_iterations_count)
+void gpu_dijkstra_wrapper(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
+                          _TEdgeWeight *_distances,
+                          int _source_vertex,
+                          int &_iterations_count)
 {
     LOAD_EXTENDED_CSR_GRAPH_DATA(_graph);
 
     GraphPrimitivesGPU operations;
 
-    int *was_updated;
-    cudaMalloc((void**)&was_updated, vertices_count*sizeof(int));
+    char *was_updated;
+    cudaMalloc((void**)&was_updated, vertices_count*sizeof(char));
 
     FrontierGPU frontier(_graph.get_vertices_count());
 
@@ -56,10 +47,12 @@ void gpu_bellman_ford_wrapper(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_gr
 
     auto edge_op = [outgoing_weights, _distances, was_updated] __device__(int src_id, int dst_id, int local_edge_pos, long long int global_edge_pos, int connections_count){
         _TEdgeWeight weight = outgoing_weights[global_edge_pos];
+        _TEdgeWeight src_weight = __ldg(&_distances[src_id]);
+        _TEdgeWeight dst_weight = __ldg(&_distances[dst_id]);
 
-        if(_distances[dst_id] > _distances[src_id] + weight)
+        if(dst_weight > src_weight + weight)
         {
-            _distances[dst_id] = _distances[src_id] + weight;
+            _distances[dst_id] = src_weight + weight;
             was_updated[dst_id] = 1;
             was_updated[src_id] = 1;
         }
@@ -82,18 +75,12 @@ void gpu_bellman_ford_wrapper(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_gr
     operations.init(_graph.get_vertices_count(), init_op);
     frontier.generate_frontier(_graph, initial_frontier_condition);
 
-    for (int cur_iteration = 0; cur_iteration < vertices_count; cur_iteration++) // do o(|v|) iterations in worst case
+    while(frontier.size() > 0)
     {
-        cudaMemset(was_updated, 0, sizeof(int) * vertices_count);
+        cudaMemset(was_updated, 0, sizeof(char) * vertices_count);
         operations.advance(_graph, frontier, edge_op, vertex_preprocess_op, vertex_postprocess_op);
-
         frontier.generate_frontier(_graph, frontier_condition);
-
-        if (frontier.size() == 0)
-        {
-            _iterations_count = cur_iteration + 1;
-            break;
-        }
+        _iterations_count++;
     }
 
     cudaFree(was_updated);
@@ -101,9 +88,7 @@ void gpu_bellman_ford_wrapper(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_gr
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-template void gpu_bellman_ford_wrapper<int, float>(ExtendedCSRGraph<int, float> &_graph, float *_distances, int _source_vertex,
-                                                   int &_iterations_count);
+template void gpu_dijkstra_wrapper<int, float>(ExtendedCSRGraph<int, float> &_graph, float *_distances, int _source_vertex,
+                                               int &_iterations_count);
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-#endif /* bellman_ford_gpu_cu */

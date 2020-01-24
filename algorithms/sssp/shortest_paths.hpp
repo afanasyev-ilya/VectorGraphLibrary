@@ -1,13 +1,4 @@
-//
-//  shortest_paths.hpp
-//  ParallelGraphLibrary
-//
-//  Created by Elijah Afanasiev on 18/04/2019.
-//  Copyright © 2019 MSU. All rights reserved.
-//
-
-#ifndef shortest_paths_hpp
-#define shortest_paths_hpp
+#pragma once
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -152,10 +143,9 @@ public:
 };
 
 template <typename _TVertexValue, typename _TEdgeWeight>
-void ShortestPaths<_TVertexValue, _TEdgeWeight>::lib_bellman_ford(
-        ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
-        int _source_vertex,
-        _TEdgeWeight *_distances)
+void ShortestPaths<_TVertexValue, _TEdgeWeight>::lib_dijkstra(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
+                                                              int _source_vertex,
+                                                              _TEdgeWeight *_distances)
 {
     LOAD_EXTENDED_CSR_GRAPH_DATA(_graph);
 
@@ -436,5 +426,3 @@ void ShortestPaths<_TVertexValue, _TEdgeWeight>::lib_bellman_ford(
 #endif
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-#endif /* shortest_paths_hpp */

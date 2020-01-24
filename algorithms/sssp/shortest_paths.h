@@ -1,13 +1,4 @@
-//
-//  shortest_paths.h
-//  ParallelGraphLibrary
-//
-//  Created by Elijah Afanasiev on 18/04/2019.
-//  Copyright © 2019 MSU. All rights reserved.
-//
-
-#ifndef shortest_paths_h
-#define shortest_paths_h
+#pragma once
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -21,7 +12,7 @@
 #endif
 
 #ifdef __USE_GPU__
-#include "gpu/bellman_ford_gpu.h"
+#include "gpu/dijkstra_gpu.cuh"
 #endif
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -48,40 +39,29 @@ public:
     static void reorder_result(VectorisedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph, _TEdgeWeight *_distances);
     static void reorder_result(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph, _TEdgeWeight *_distances);
 
-    static void nec_bellman_ford(VectorisedCSRGraph<_TVertexValue, _TEdgeWeight> &_reversed_graph, int _source_vertex,
-                                 _TEdgeWeight *_distances);
-    
-    static void bellman_ford(EdgesListGraph<_TVertexValue, _TEdgeWeight> &_reversed_graph, int _source_vertex,
+    static void nec_dijkstra(VectorisedCSRGraph<_TVertexValue, _TEdgeWeight> &_reversed_graph, int _source_vertex,
                              _TEdgeWeight *_distances);
     
-    static void bellman_ford(ShardedGraph<_TVertexValue, _TEdgeWeight> &_reversed_graph, int _source_vertex,
-                             _TEdgeWeight *_distances);
-    
-    static void bellman_ford(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_reversed_graph, int _source_vertex,
+    static void seq_dijkstra(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_reversed_graph, int _source_vertex,
                              _TEdgeWeight *_distances);
 
 
     #ifdef __USE_NEC_SX_AURORA__
-    static void lib_bellman_ford(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_reversed_graph, int _source_vertex,
-                                 _TEdgeWeight *_distances);
+    static void lib_dijkstra(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_reversed_graph, int _source_vertex,
+                             _TEdgeWeight *_distances);
     #endif
 
     #ifdef __USE_GPU__
-    static void gpu_bellman_ford(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph, int _source_vertex,
-                                 _TEdgeWeight *_distances);
-    static void gpu_bellman_ford(ShardedGraph<_TVertexValue, _TEdgeWeight> &_reversed_graph, int _source_vertex,
-                                 _TEdgeWeight *_distances);
+    static void gpu_dijkstra(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph, int _source_vertex,
+                             _TEdgeWeight *_distances);
     #endif
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #include "shortest_paths.hpp"
-#include "bf_vectorised_CSR.hpp"
-#include "bf_edges_list.hpp"
-#include "bf_sharded_CSR.hpp"
-#include "bf_ext_CSR.hpp"
+#include "gpu_shortest_paths.hpp"
+#include "seq_shortest_paths.hpp"
+#include "nec_shortest_paths.hpp"
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-#endif /* shortest_paths_h */
