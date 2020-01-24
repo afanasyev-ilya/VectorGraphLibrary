@@ -35,10 +35,10 @@ void ExtendedCSRGraph<_TVertexValue, _TEdgeWeight>::move_to_device()
     
     #ifdef __USE_WEIGHTED_GRAPHS__
     double device_memory_size = this->vertices_count*sizeof(int) + this->vertices_count* sizeof(int) + (this->vertices_count + 1)*sizeof(long long) + sizeof(int)*this->edges_count + sizeof(_TEdgeWeight)*this->edges_count + sizeof(int)*this->vertices_count*VECTOR_EXTENSION_SIZE;
-    cout << "allocated: " << device_memory_size/1e9 << " GB on device" << endl;
+    //cout << "allocated: " << device_memory_size/1e9 << " GB on device" << endl;
     #else
     double device_memory_size_no_weight = this->vertices_count*sizeof(int) + this->vertices_count* sizeof(int) + (this->vertices_count + 1)*sizeof(long long) + sizeof(int)*this->edges_count + sizeof(int)*this->vertices_count*5;
-    cout << "allocated without weights: " << device_memory_size_no_weight/1e9 << " GB on device" << endl;
+    //cout << "allocated without weights: " << device_memory_size_no_weight/1e9 << " GB on device" << endl;
     #endif
 }
 #endif

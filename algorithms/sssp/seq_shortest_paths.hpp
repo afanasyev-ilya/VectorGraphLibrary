@@ -1,150 +1,68 @@
 #pragma once
 
+#include<bits/stdc++.h>
+
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+typedef pair<float, int> iPair;
 
 template <typename _TVertexValue, typename _TEdgeWeight>
 void ShortestPaths<_TVertexValue, _TEdgeWeight>::seq_dijkstra(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
                                                               int _source_vertex,
                                                               _TEdgeWeight *_distances)
 {
-    int vertices_count    = _graph.get_vertices_count();
-    long long edges_count = _graph.get_edges_count   ();
-
-    long long    *outgoing_ptrs    = _graph.get_outgoing_ptrs   ();
-    int          *outgoing_ids     = _graph.get_outgoing_ids    ();
-    _TEdgeWeight *outgoing_weights = _graph.get_outgoing_weights();
-
-    const int threads_count = omp_get_max_threads();
-#pragma omp parallel for num_threads(threads_count)
-    for(int i = 0; i < vertices_count; i++)
-    {
-        _distances[i] = FLT_MAX;
-    }
-    _distances[_source_vertex] = 0;
+    LOAD_EXTENDED_CSR_GRAPH_DATA(_graph);
 
     double t1 = omp_get_wtime();
-    int changes = 1;
-    int iterations_count = 0;
-#pragma omp parallel num_threads(threads_count) shared(changes)
+
+    // Create a priority queue to store vertices that
+    // are being preprocessed. This is weird syntax in C++.
+    priority_queue< iPair, vector <iPair> , greater<iPair> > pq;
+
+    // Create a vector for distances and initialize all
+    // distances as infinite (INF)
+    for(int i = 0; i < vertices_count; i++)
+        _distances[i] = FLT_MAX;
+
+    // Insert source itself in priority queue and initialize
+    // its distance as 0.
+    pq.push(make_pair(0, _source_vertex));
+    _distances[_source_vertex] = 0;
+
+    /* Looping till priority queue becomes empty (or all
+      distances are not finalized) */
+    while (!pq.empty())
     {
-        long long reg_edge_pos[VECTOR_LENGTH];
-        int reg_connections_count[VECTOR_LENGTH];
-        int reg_changes[VECTOR_LENGTH];
-        _TEdgeWeight reg_distances[VECTOR_LENGTH];
+        // The first vertex in pair is the minimum distance
+        // vertex, extract it from priority queue.
+        // vertex label is stored in second of pair (it
+        // has to be done this way to keep the vertices
+        // sorted distance (distance must be first item
+        // in pair)
+        int u = pq.top().second;
+        pq.pop();
 
-#ifdef __USE_NEC_SX_AURORA__
-        #pragma _NEC vector
-        #pragma vreg(reg_edge_pos)
-        #pragma vreg(reg_connections_count)
-        #pragma vreg(reg_changes)
-        #pragma vreg(reg_distances)
-#endif
+        const long long edge_start = outgoing_ptrs[u];
+        const int connections_count = outgoing_ptrs[u + 1] - outgoing_ptrs[u];
 
-        while(changes)
+        for(register int edge_pos = 0; edge_pos < connections_count; edge_pos++)
         {
-#pragma omp barrier
+            long long int global_edge_pos = edge_start + edge_pos;
+            int v = outgoing_ids[global_edge_pos];
+            _TEdgeWeight weight = outgoing_weights[global_edge_pos];
 
-            changes = 0;
-
-#ifdef __USE_NEC_SX_AURORA__
-#pragma _NEC vector
-#endif
-            for(int i = 0; i < VECTOR_LENGTH; i++)
+            if (_distances[v] > _distances[u] + weight)
             {
-                reg_changes[i] = 0;
+                // Updating distance of v
+                _distances[v] = _distances[u] + weight;
+                pq.push(make_pair(_distances[v], v));
             }
-
-#pragma omp for schedule(static)
-            for(int starting_vertex = 0; starting_vertex < vertices_count; starting_vertex += VECTOR_LENGTH)
-            {
-#ifdef __USE_NEC_SX_AURORA__
-#pragma _NEC vector
-#endif
-                for(int i = 0; i < VECTOR_LENGTH; i++)
-                {
-                    int src_id = starting_vertex + i;
-                    reg_distances[i] = _distances[src_id];
-                    reg_connections_count[i] = outgoing_ptrs[src_id + 1] - outgoing_ptrs[src_id];
-                    reg_edge_pos[i] = outgoing_ptrs[src_id];
-                }
-
-                int max_connections_count = 0;
-#ifdef __USE_NEC_SX_AURORA__
-#pragma _NEC vector
-#endif
-                for(int i = 0; i < VECTOR_LENGTH; i++)
-                {
-                    if(reg_connections_count[i] > max_connections_count)
-                        max_connections_count = reg_connections_count[i];
-                }
-
-                for(int edge_pos = 0; edge_pos < max_connections_count; edge_pos++)
-                {
-#ifdef __USE_NEC_SX_AURORA__
-                    #pragma _NEC vector
-                    #pragma simd
-                    #pragma ivdep
-                    #pragma vovertake
-                    #pragma novob
-                    #pragma unroll
-                    #pragma vector
-#endif
-                    for(int i = 0; i < VECTOR_LENGTH; i++)
-                    {
-                        if(edge_pos < reg_connections_count[i])
-                        {
-                            int dst_id = outgoing_ids[reg_edge_pos[i]];
-                            _TEdgeWeight weight = outgoing_weights[reg_edge_pos[i]];
-                            _TEdgeWeight dst_weight = weight + _distances[dst_id];
-
-                            if(reg_distances[i] > dst_weight)
-                            {
-                                reg_distances[i] = dst_weight;
-                                reg_changes[i] = 1;
-                            }
-
-                            reg_edge_pos[i]++;
-                        }
-                    }
-                }
-
-#ifdef __USE_NEC_SX_AURORA__
-#pragma _NEC vector
-#endif
-                for(int i = 0; i < VECTOR_LENGTH; i++)
-                {
-                    int src_id = starting_vertex + i;
-                    _distances[src_id] = reg_distances[i];
-                }
-            }
-
-            int private_changes = 0;
-#ifdef __USE_NEC_SX_AURORA__
-#pragma _NEC vector
-#endif
-            for(int i = 0; i < VECTOR_LENGTH; i++)
-            {
-                private_changes += reg_changes[i];
-            }
-
-#pragma omp barrier
-
-#pragma omp atomic
-            changes += private_changes;
-
-#pragma omp master
-            {
-                iterations_count++;
-            }
-
-#pragma omp barrier
         }
     }
+
     double t2 = omp_get_wtime();
 
-    #ifdef __PRINT_DETAILED_STATS__
-    print_performance_stats(edges_count, iterations_count, t2 - t1);
-    #endif
+    print_performance_stats(edges_count, 1, t2 - t1);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
