@@ -83,13 +83,13 @@ void ShortestPaths<_TVertexValue, _TEdgeWeight>::print_performance_stats(long lo
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #ifdef __USE_NEC_SX_AURORA__
-class IndirectlyAccessedData
+struct IndirectlyAccessedData
 {
-private:
+public:
     float *private_data;
     float *data;
     int size;
-public:
+
     IndirectlyAccessedData(int _size)
     {
         size = _size;
@@ -106,22 +106,22 @@ public:
         delete []private_data;
     }
 
-    inline float get(int index)
+    inline float get(int index, int tid)
     {
         float result = 0;
         if(index < CACHED_VERTICES)
-            result = private_data[index * CACHE_STEP];
+            result = private_data[/*tid * CACHED_VERTICES * CACHE_STEP + */index * CACHE_STEP];
         else
             result = data[index];
         return result;
     }
 
-    inline void set(int index, float val)
+    inline void set(int index, float val, int tid)
     {
         if(index < CACHED_VERTICES)
-            private_data[index * CACHE_STEP] = val;
+            this->private_data[/*tid * CACHED_VERTICES * CACHE_STEP + */index * CACHE_STEP] = val;
         else
-            data[index] = val;
+            this->data[index] = val;
     }
 
     inline float &operator[] (int index)
@@ -150,6 +150,9 @@ void ShortestPaths<_TVertexValue, _TEdgeWeight>::lib_dijkstra(ExtendedCSRGraph<_
     LOAD_EXTENDED_CSR_GRAPH_DATA(_graph);
 
     _TEdgeWeight *cached_distances = _graph.template allocate_private_caches<_TEdgeWeight>(8);
+    cout << "alloc" << endl;
+    int *result = new int[edges_count];
+    cout << "alloc done" << endl;
 
     int large_threshold_size = 256*256;
     int medium_threshold_size = 256;
@@ -195,9 +198,11 @@ void ShortestPaths<_TVertexValue, _TEdgeWeight>::lib_dijkstra(ExtendedCSRGraph<_
         _distances[i] = FLT_MAX;
     _distances[_source_vertex] = 0;
 
+    IndirectlyAccessedData *distances_ptr = &opt_distances;
     cout << "hey!" << endl;
     int iterations_count = 0;
     int changes = 1;
+    double wall_time = 0;
     while(changes > 0)
     {
         #pragma omp parallel num_threads(8)
@@ -208,7 +213,7 @@ void ShortestPaths<_TVertexValue, _TEdgeWeight>::lib_dijkstra(ExtendedCSRGraph<_
 
         changes = 0;
 
-        double t1 = omp_get_wtime();
+        /*double t1 = omp_get_wtime();
         for (int src_id = 0; src_id < large_threshold_vertex; src_id++)
         {
             long long int start = outgoing_ptrs[src_id];
@@ -216,6 +221,8 @@ void ShortestPaths<_TVertexValue, _TEdgeWeight>::lib_dijkstra(ExtendedCSRGraph<_
 
             #pragma omp parallel
             {
+                int tid = omp_get_thread_num();
+
                 int reg_changes[VECTOR_LENGTH];
                 #pragma _NEC vreg(reg_changes)
                 for (int i = 0; i < VECTOR_LENGTH; i++)
@@ -233,18 +240,17 @@ void ShortestPaths<_TVertexValue, _TEdgeWeight>::lib_dijkstra(ExtendedCSRGraph<_
                     #pragma _NEC vovertake
                     #pragma _NEC novob
                     #pragma _NEC vector
-                    #pragma _NEC cncall
                     for (int j = 0; j < VECTOR_LENGTH; j++)
                     {
                         int dst_id = outgoing_ids[i + j];
 
-                        //sssp_edge_op(src_id, dst_id, i+j, i+j);
                         _TEdgeWeight weight = outgoing_weights[i+j];
-                        _TEdgeWeight dst_weight = opt_distances.get(dst_id);//_graph.template load_vertex_data_cached<_TEdgeWeight>(dst_id, _distances, private_distances);
+                        _TEdgeWeight dst_weight = opt_distances.get(dst_id, tid);
+                        _TEdgeWeight src_weight = opt_distances.get(src_id, tid);
 
-                        if (dst_weight > opt_distances.get(src_id) + weight)
+                        if (dst_weight > src_weight + weight)
                         {
-                            opt_distances.set(dst_id, opt_distances.get(src_id) + weight);
+                            distances_ptr->set(dst_id, src_weight + weight, tid);
                             reg_changes[j] = 1;
                         }
                     }
@@ -265,11 +271,13 @@ void ShortestPaths<_TVertexValue, _TEdgeWeight>::lib_dijkstra(ExtendedCSRGraph<_
         double work = outgoing_ptrs[large_threshold_vertex];
         cout << "part 1 changes: " << changes << endl;
         cout << "time: " << (t2 - t1) * 1000 << " ms" << endl;
-        cout << "part 1(large) BW " << " : " << ((sizeof(int) * 4.0) * work) / ((t2 - t1) * 1e9) << " GB/s" << endl << endl;
+        cout << "part 1(large) BW " << " : " << ((sizeof(int) * 4.0) * work) / ((t2 - t1) * 1e9) << " GB/s" << endl << endl;*/
 
-        t1 = omp_get_wtime();
+        double t1 = omp_get_wtime();
         #pragma omp parallel
         {
+            int tid = omp_get_thread_num();
+
             int reg_changes[VECTOR_LENGTH];
             #pragma _NEC vreg(reg_changes)
             for (int i = 0; i < VECTOR_LENGTH; i++)
@@ -277,7 +285,7 @@ void ShortestPaths<_TVertexValue, _TEdgeWeight>::lib_dijkstra(ExtendedCSRGraph<_
                 reg_changes[i] = 0;
             }
 
-            _TEdgeWeight *private_distances = _graph.template get_private_data_pointer<_TEdgeWeight>(cached_distances);
+            //_TEdgeWeight *private_distances = _graph.template get_private_data_pointer<_TEdgeWeight>(cached_distances);
 
             #pragma omp for schedule(static, 4)
             for (int front_pos = large_threshold_vertex; front_pos < medium_threshold_size; front_pos++)
@@ -290,19 +298,23 @@ void ShortestPaths<_TVertexValue, _TEdgeWeight>::lib_dijkstra(ExtendedCSRGraph<_
                 #pragma _NEC vovertake
                 #pragma _NEC novob
                 #pragma _NEC vector
-                #pragma _NEC cncall
                 for (int i = start; i < end; i++)
                 {
                     int dst_id = outgoing_ids[i];
 
                     _TEdgeWeight weight = outgoing_weights[i];
-                    _TEdgeWeight dst_weight = opt_distances.get(dst_id);//_graph.template load_vertex_data_cached<_TEdgeWeight>(dst_id, _distances, private_distances);
+                    //_TEdgeWeight dst_weight = opt_distances.get(dst_id, tid);
+                    //_TEdgeWeight src_weight = opt_distances.get(src_id, tid);
+                    /*_TEdgeWeight dst_weight = _distances[dst_id];
+                    _TEdgeWeight src_weight = _distances[src_id];
 
-                    if (dst_weight > opt_distances.get(src_id) + weight)
+                    if (dst_weight > src_weight + weight)
                     {
-                        opt_distances.set(dst_id, opt_distances.get(src_id) + weight);
-                        reg_changes[i % VECTOR_LENGTH] = 1;
-                    }
+                        //distances_ptr->set(dst_id, src_weight + weight, tid);
+                        _distances[dst_id] = src_weight + weight;
+                        reg_changes[i%VECTOR_LENGTH] = 1;
+                    }*/
+                    result[i] = dst_id + weight;
                 }
             }
 
@@ -315,16 +327,18 @@ void ShortestPaths<_TVertexValue, _TEdgeWeight>::lib_dijkstra(ExtendedCSRGraph<_
             #pragma omp atomic
             changes += local_changes;
         }
-        t2 = omp_get_wtime();
+        double t2 = omp_get_wtime();
         wall_time += t2 - t1;
-        work = outgoing_ptrs[medium_threshold_size] - outgoing_ptrs[large_threshold_vertex];
+        double work = outgoing_ptrs[medium_threshold_size] - outgoing_ptrs[large_threshold_vertex];
         cout << "part 2 changes: " << changes << endl;
         cout << "time: " << (t2 - t1) * 1000 << " ms" << endl;
         cout << "part 2(medium) BW " << " : " << ((sizeof(int) * 3.0) * work) / ((t2 - t1) * 1e9) << " GB/s" << endl << endl;
 
-        t1 = omp_get_wtime();
+        /*t1 = omp_get_wtime();
         #pragma omp parallel
         {
+            int tid = omp_get_thread_num();
+
             _TEdgeWeight *private_distances = _graph.template get_private_data_pointer<_TEdgeWeight>(cached_distances);
 
             int reg_changes[VECTOR_LENGTH];
@@ -335,7 +349,7 @@ void ShortestPaths<_TVertexValue, _TEdgeWeight>::lib_dijkstra(ExtendedCSRGraph<_
             }
 
             #pragma omp for schedule(static)
-            for (int src_id = medium_threshold_size; src_id < vertices_count; src_id += VECTOR_LENGTH)
+            for (int vec_start = medium_threshold_size; vec_start < vertices_count; vec_start += VECTOR_LENGTH)
             {
                 long long starts[VECTOR_LENGTH];
                 int connections[VECTOR_LENGTH];
@@ -343,10 +357,11 @@ void ShortestPaths<_TVertexValue, _TEdgeWeight>::lib_dijkstra(ExtendedCSRGraph<_
                 int max_size = 0;
                 for (int i = 0; i < VECTOR_LENGTH; i++)
                 {
-                    if((src_id + i) < vertices_count)
+                    int src_id = vec_start + i;
+                    if(src_id < vertices_count)
                     {
-                        starts[i] = outgoing_ptrs[src_id + i];
-                        connections[i] = outgoing_ptrs[src_id + i + 1] - outgoing_ptrs[src_id + i];
+                        starts[i] = outgoing_ptrs[src_id];
+                        connections[i] = outgoing_ptrs[src_id + 1] - outgoing_ptrs[src_id];
                     }
                     else
                     {
@@ -370,15 +385,17 @@ void ShortestPaths<_TVertexValue, _TEdgeWeight>::lib_dijkstra(ExtendedCSRGraph<_
                     #pragma _NEC cncall
                     for (int i = 0; i < VECTOR_LENGTH; i++)
                     {
-                        if ((edge_pos < connections[i]) && ((src_id + i) < vertices_count))
+                        if ((edge_pos < connections[i]) && ((vec_start + i) < vertices_count))
                         {
+                            int src_id = vec_start + i;
                             int dst_id = outgoing_ids[starts[i] + edge_pos];
                             _TEdgeWeight weight = outgoing_weights[starts[i] + edge_pos];
-                            _TEdgeWeight dst_weight = opt_distances.get(dst_id);//_graph.template load_vertex_data_cached<_TEdgeWeight>(dst_id, _distances, private_distances);
+                            _TEdgeWeight dst_weight = opt_distances.get(dst_id, tid);
+                            _TEdgeWeight src_weight = opt_distances.get(src_id, tid);
 
-                            if (dst_weight > opt_distances.get(src_id+i) + weight)
+                            if (dst_weight > src_weight + weight)
                             {
-                                opt_distances.set(dst_id, opt_distances.get(src_id+i) + weight);
+                                distances_ptr->set(dst_id, src_weight + weight, tid);
                                 reg_changes[i] = 1;
                             }
                         }
@@ -403,11 +420,11 @@ void ShortestPaths<_TVertexValue, _TEdgeWeight>::lib_dijkstra(ExtendedCSRGraph<_
         cout << "time: " << (t2 - t1) * 1000 << " ms" << endl;
         cout << "part 3(small) BW " << " : " << ((sizeof(int) * 3.0) * work) / ((t2 - t1) * 1e9) << " GB/s" << endl
              << endl;
-        /*cout << "wall BW: " << ((sizeof(int) * 3.0) * edges_count) / (wall_time * 1e9) << " GB/s" << endl;
+        cout << "wall BW: " << ((sizeof(int) * 3.0) * edges_count) / (wall_time * 1e9) << " GB/s" << endl;
         cout << "no reminder BW: "
              << ((sizeof(int) * 3.0) * outgoing_ptrs[medium_threshold_size]) / (first_part_time * 1e9) << " GB/s"
-             << endl;*/
-        cout << endl;
+             << endl;
+        cout << endl;*/
 
         iterations_count++;
     }
@@ -418,10 +435,11 @@ void ShortestPaths<_TVertexValue, _TEdgeWeight>::lib_dijkstra(ExtendedCSRGraph<_
     cout << "small count: " << vertices_count - medium_threshold_size << " | " << 100.0*(vertices_count - medium_threshold_size)/vertices_count << endl;
     cout << "VERSION : SMALL CHACHE V3 with step and core conflicts" << endl;
 
-    for(int i = 0; i < vertices_count; i++)
+    /*for(int i = 0; i < vertices_count; i++)
     {
         _distances[i] = opt_distances[i];
-    }
+    }*/
+    delete []result;
 }
 #endif
 

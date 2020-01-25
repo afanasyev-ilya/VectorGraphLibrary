@@ -81,7 +81,7 @@ int main(int argc, const char * argv[])
         cout << "SSSP average performance: " << parser.get_steps_count() * (((double)graph.get_edges_count()) / ((t2 - t1) * 1e6)) << " MFLOPS" << endl << endl;
         
         // check if required
-        if(parser.get_check_flag() && (parser.get_compute_mode() == GENERATE_NEW_GRAPH))
+        if(parser.get_check_flag())
         {
             float *ext_distances;
             ShortestPaths<int, float>::allocate_result_memory(graph.get_vertices_count(), &ext_distances);

@@ -76,7 +76,7 @@ void GraphPrimitivesGPU::advance(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &
     int warp_vertices_count = warp_threshold_end - warp_threshold_start;
     if (warp_vertices_count > 0)
     {
-        warp_per_vertex_kernel <<< warp_vertices_count, WARP_SIZE, 0, warp_processing_stream >>>
+        warp_per_vertex_kernel <<< WARP_SIZE*(warp_vertices_count - 1)/BLOCK_SIZE + 1, BLOCK_SIZE, 0, warp_processing_stream >>>
               (outgoing_ptrs, outgoing_ids, _frontier.frontier_ids, vertices_count, warp_threshold_start,
                warp_threshold_end, edge_op, vertex_preprocess_op, vertex_postprocess_op);
     }

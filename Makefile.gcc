@@ -1,4 +1,4 @@
-CXX = /opt/local/bin/g++
+CXX = g++
 CUDA_COMPILER = nvcc
 CUDA_DIR = /opt/cuda/cuda-8.0/
 

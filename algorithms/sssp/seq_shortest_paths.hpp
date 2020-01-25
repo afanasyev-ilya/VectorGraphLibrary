@@ -1,6 +1,7 @@
 #pragma once
 
-#include<bits/stdc++.h>
+#include <functional>
+#include <queue>
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -17,7 +18,7 @@ void ShortestPaths<_TVertexValue, _TEdgeWeight>::seq_dijkstra(ExtendedCSRGraph<_
 
     // Create a priority queue to store vertices that
     // are being preprocessed. This is weird syntax in C++.
-    priority_queue< iPair, vector <iPair> , greater<iPair> > pq;
+    std::priority_queue< iPair, vector <iPair> , greater<iPair> > pq;
 
     // Create a vector for distances and initialize all
     // distances as infinite (INF)
