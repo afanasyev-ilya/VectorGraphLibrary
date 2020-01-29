@@ -50,6 +50,14 @@ using namespace std;
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+#include "graph_processing_API/nec/graph_primitives_nec.h"
+
+#ifdef __USE_GPU__
+#include "graph_processing_API/gpu/graph_primitives_gpu.cuh"
+#endif
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 #include "algorithms/label_propagation/label_propagation.h"
 #include "algorithms/sssp/shortest_paths.h"
 #include "algorithms/sswp/widest_paths.h"
