@@ -149,8 +149,6 @@ void ShortestPaths<_TVertexValue, _TEdgeWeight>::lib_dijkstra(ExtendedCSRGraph<_
 {
     LOAD_EXTENDED_CSR_GRAPH_DATA(_graph);
 
-    cout << "alloc" << endl;
-
     #pragma omp parallel
     {};
 
@@ -200,9 +198,16 @@ void ShortestPaths<_TVertexValue, _TEdgeWeight>::lib_dijkstra(ExtendedCSRGraph<_
         double wall_time = 0;
         double t1, t2, work;
 
+        int changes = 0;
+
         t1 = omp_get_wtime();
         #pragma omp parallel
         {
+            int reg_changes[VECTOR_LENGTH];
+            #pragma _NEC vreg(changes)
+            for(int i = 0; i < VECTOR_LENGTH; i++)
+                reg_changes[i] = 0;
+
             for (int front_pos = 0; front_pos < large_threshold_vertex; front_pos++)
             {
                 int src_id = front_pos;
@@ -214,8 +219,9 @@ void ShortestPaths<_TVertexValue, _TEdgeWeight>::lib_dijkstra(ExtendedCSRGraph<_
                 #pragma _NEC novob
                 #pragma _NEC vector
                 #pragma omp for schedule(static)
-                for(int i = start; i < end; i++)
+                for(int i = start; i < end; i ++)
                 {
+                    int vec_pos = i % VECTOR_LENGTH;
                     int global_idx = i;
                     int dst_id = outgoing_ids[global_idx];
                     _TEdgeWeight weight = outgoing_weights[global_idx];
@@ -224,14 +230,25 @@ void ShortestPaths<_TVertexValue, _TEdgeWeight>::lib_dijkstra(ExtendedCSRGraph<_
                     _TEdgeWeight src_weight = _distances[src_id];
 
                     if(dst_weight > src_weight + weight)
+                    {
                         _distances[dst_id] = src_weight + weight;
+                        reg_changes[vec_pos] = 1;
+                    }
                 }
             }
+
+            int local_changes = 0;
+            for(int i = 0; i < VECTOR_LENGTH; i++)
+                local_changes += reg_changes[i];
+
+            #pragma omp atomic
+            changes += local_changes;
         }
         #ifdef __PRINT_DETAILED_STATS__
         t2 = omp_get_wtime();
         wall_time += t2 - t1;
         work = outgoing_ptrs[large_threshold_vertex];
+        cout << "changes: " << changes << endl;
         cout << "time: " << (t2 - t1) * 1000 << " ms" << endl;
         cout << 100.0 * work / edges_count << " % of edges at large region" << endl;
         cout << "part 1(large) BW " << " : " << ((sizeof(int) * 5.0) * work) / ((t2 - t1) * 1e9) << " GB/s" << endl << endl;
