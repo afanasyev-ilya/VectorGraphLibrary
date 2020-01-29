@@ -192,19 +192,26 @@ void ShortestPaths<_TVertexValue, _TEdgeWeight>::lib_dijkstra(ExtendedCSRGraph<_
         }
     };
 
-    IndirectlyAccessedData opt_distances(vertices_count);
-    for(int i = 0; i < vertices_count; i++)
-        opt_distances[i] = FLT_MAX;
-    opt_distances[_source_vertex] = 0;
-
-    for(int i = 0; i < vertices_count; i++)
-        _distances[i] = FLT_MAX;
-    _distances[_source_vertex] = 0;
-
-    IndirectlyAccessedData *distances_ptr = &opt_distances;
-    cout << "hey!" << endl;
     double wall_time = 0;
     double t1, t2, work;
+
+    int warp_id[256];
+    int lane_id[256];
+    for(unsigned int i = 0; i < 256; i++)
+    {
+        int global_idx = i >> 1;
+        warp_id[i] = i % 128;
+        cout << warp_id[i] << " ";
+    }
+    cout << endl << endl;
+
+    for(unsigned int i = 0; i < 256; i++)
+    {
+        int global_idx = i & (2 - 1);
+        lane_id[i] = i / 128;
+        cout << lane_id[i] << " ";
+    }
+    cout << endl << endl;
 
     t1 = omp_get_wtime();
     #pragma omp parallel
@@ -250,19 +257,19 @@ void ShortestPaths<_TVertexValue, _TEdgeWeight>::lib_dijkstra(ExtendedCSRGraph<_
             reg_result[i] = 0;
 
         #pragma omp for schedule(static, 8)
-        for (int front_pos = large_threshold_vertex; front_pos < medium_threshold_vertex; front_pos++)
+        for (int front_pos = large_threshold_vertex; front_pos < medium_threshold_vertex; front_pos += 2)
         {
             int src_id = front_pos;
-            long long int start = outgoing_ptrs[src_id];
+            /*long long int start = outgoing_ptrs[src_id];
             long long int end = outgoing_ptrs[src_id + 1];
-            int connections_count = end - start;
+            int connections_count = end - start;*/
 
-            int *ids_ptr = &outgoing_ids[start];
+            /*int *ids_ptr = &outgoing_ids[start];
             _TEdgeWeight *weights_ptr = &outgoing_weights[start];
-            _TEdgeWeight *result_ptr = &result[start];
+            _TEdgeWeight *result_ptr = &result[start];*/
 
-            //#pragma unroll()
-            for(int edge_vec_pos = 0; edge_vec_pos < connections_count - VECTOR_LENGTH; edge_vec_pos += VECTOR_LENGTH)
+
+            /*for(int edge_vec_pos = 0; edge_vec_pos < connections_count - VECTOR_LENGTH; edge_vec_pos += VECTOR_LENGTH)
             {
                 #pragma _NEC ivdep
                 #pragma _NEC vovertake
@@ -296,44 +303,93 @@ void ShortestPaths<_TVertexValue, _TEdgeWeight>::lib_dijkstra(ExtendedCSRGraph<_
                 _TEdgeWeight src_weight = _distances[src_id];
                 if(src_weight > dst_weight + weight)
                     reg_result[i - (connections_count - 256)] = dst_weight + weight;
-            }
+            }*/
 
-            _TEdgeWeight shortest_distance = FLT_MAX;
-            #pragma _NEC ivdep
+            /*#pragma _NEC ivdep
             #pragma _NEC vector
-            for(int i = 0; i < VECTOR_LENGTH; i++)
+            for(int i = 0; i < 256; i++)
             {
-               if(shortest_distance > reg_result[i])
-                   shortest_distance = reg_result[i];
-            }
+                int global_idx = outgoing_ptrs[src_id] + i;
+                int dst_id = outgoing_ids[global_idx];
+                int weight = outgoing_weights[global_idx];
+                result[global_idx] = dst_id + weight;
+            }*/
 
-            if(_distances[src_id] > shortest_distance)
+            /*#pragma _NEC ivdep
+            #pragma _NEC vector
+            for(unsigned int i = 0; i < 256; i++)
             {
-                _distances[src_id] = shortest_distance;
+                int global_idx = outgoing_ptrs[src_id + i >> 1] + i & (2 - 1);
+                int dst_id = outgoing_ids[global_idx];
+                int weight = outgoing_weights[global_idx];
+                result[global_idx] = dst_id + weight;
+            }*/
+
+            /*#pragma _NEC ivdep
+            #pragma _NEC vector
+            for(unsigned int i = 0; i < 256; i++)
+            {
+                int global_idx = outgoing_ptrs[src_id + i % 128] + i / 128;
+                int dst_id = outgoing_ids[global_idx];
+                int weight = outgoing_weights[global_idx];
+                result[global_idx] = dst_id + weight;
+            }*/
+
+            /*#pragma _NEC ivdep
+            #pragma _NEC vector
+            for(unsigned int i = 0; i < 256; i++)
+            {
+                int global_idx = outgoing_ptrs[src_id + i >> 7] + i & (128 - 1);
+                int dst_id = outgoing_ids[global_idx];
+                int weight = outgoing_weights[global_idx];
+                result[global_idx] = dst_id + weight;
+            }*/
+
+            /*#pragma _NEC ivdep
+            #pragma _NEC vector
+            for(unsigned int i = 0; i < 256; i++)
+            {
+                int global_idx = outgoing_ptrs[src_id + warp_id[i]] + lane_id[i];
+                int dst_id = outgoing_ids[global_idx];
+                int weight = outgoing_weights[global_idx];
+                result[global_idx] = dst_id + weight;
+            }*/
+
+            #pragma unroll(8)
+            for(int j = 0; j < 2; j++)
+            {
+                #pragma _NEC ivdep
+                #pragma _NEC vector
+                for(int i = 0; i < 128; i++)
+                {
+                    int global_idx = outgoing_ptrs[src_id + j] + i;
+                    int dst_id = outgoing_ids[global_idx];
+                    int weight = outgoing_weights[global_idx];
+                    result[global_idx] = dst_id + weight;
+                }
             }
-
-            //result_ptr[i] = shortest_distance;
-
-            // попробовать с разными массивами на чтения и запись, регистром
         }
     }
     t2 = omp_get_wtime();
     wall_time += t2 - t1;
-    work = outgoing_ptrs[medium_threshold_vertex] - outgoing_ptrs[large_threshold_vertex];
+    //work = outgoing_ptrs[medium_threshold_vertex] - outgoing_ptrs[large_threshold_vertex];
+    work = 128 * (medium_threshold_vertex - large_threshold_vertex);
     cout << "time: " << (t2 - t1) * 1000 << " ms" << endl;
-    cout << 100.0 * work / edges_count << " % of edges at medium region" << endl;
-    cout << "part 2(medium) BW " << " : " << ((sizeof(int) * 5.0) * work) / ((t2 - t1) * 1e9) << " GB/s" << endl << endl;
+    //cout << 100.0 * work / edges_count << " % of edges at medium region" << endl;
+    cout << "part 2(medium) BW " << " : " << ((sizeof(int) * 4.0) * work) / ((t2 - t1) * 1e9) << " GB/s" << endl << endl;
 
     cout << "large count: " << large_threshold_vertex << " | " << 100.0*(large_threshold_vertex)/vertices_count << endl;
     cout << "medium_count: " << medium_threshold_vertex - large_threshold_vertex << " | " << 100.0*(medium_threshold_vertex - large_threshold_vertex)/vertices_count << endl;
     cout << "small count: " << vertices_count - medium_threshold_vertex << " | " << 100.0*(vertices_count - medium_threshold_vertex)/vertices_count << endl;
     cout << "simple %, division, etc" << endl;
 
-    for(int i = 0; i < 20; i++)
+    float max = 0;
+    for(int i = 0; i < edges_count; i++)
     {
-        cout << result[i] << " ";
+        if(result[i] > max)
+            max = result[i];
     }
-    cout << endl;
+    cout << max << endl;
     /*for(int i = 0; i < vertices_count; i++)
     {
         _distances[i] = opt_distances[i];
