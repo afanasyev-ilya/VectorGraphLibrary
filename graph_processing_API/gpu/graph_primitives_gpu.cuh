@@ -12,7 +12,7 @@
 #include "../../graph_processing_API/gpu/graph_primitives_gpu.cuh"
 #include <nvfunctional>
 
-#include "frontier.cuh"
+#include "frontier_gpu.cuh"
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 

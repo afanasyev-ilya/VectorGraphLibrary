@@ -1,7 +1,24 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+template <typename InitOperation>
+void GraphPrimitivesNEC::init(int _size, InitOperation init_op)
+{
+    #pragma _NEC ivdep
+    #pragma _NEC vovertake
+    #pragma _NEC novob
+    #pragma _NEC vector
+    #pragma omp for schedule(static)
+    for(int src_id = 0; src_id < _size; src_id++)
+    {
+        init_op(src_id);
+    }
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 template <typename _TVertexValue, typename _TEdgeWeight, typename EdgeOperation>
 void GraphPrimitivesNEC::advance(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
+                                 FrontierNEC &_frontier,
                                  int large_threshold_vertex,
                                  int medium_threshold_vertex,
                                  EdgeOperation edge_op)

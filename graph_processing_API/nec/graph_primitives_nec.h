@@ -11,11 +11,12 @@ public:
 
     ~GraphPrimitivesNEC() {};
 
-    //template <typename InitOperation>
-    //void init(int size, InitOperation init_op);
+    template <typename InitOperation>
+    void init(int size, InitOperation init_op);
 
     template <typename _TVertexValue, typename _TEdgeWeight, typename EdgeOperation>
     void advance(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
+                 FrontierNEC &_frontier,
                  int large_threshold_vertex,
                  int medium_threshold_vertex,
                  EdgeOperation edge_op);
@@ -24,5 +25,7 @@ public:
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #include "graph_primitives_nec.hpp"
+#include "vector_registers.h"
+#include "frontier_nec.h"
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
