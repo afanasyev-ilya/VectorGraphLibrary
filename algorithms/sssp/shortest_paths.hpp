@@ -87,42 +87,25 @@ void ShortestPaths<_TVertexValue, _TEdgeWeight>::lib_dijkstra(ExtendedCSRGraph<_
                                                               int _source_vertex,
                                                               _TEdgeWeight *_distances)
 {
+    double t1, t2;
+    t1 = omp_get_wtime();
     LOAD_EXTENDED_CSR_GRAPH_DATA(_graph);
-
     GraphPrimitivesNEC operations;
+    FrontierNEC frontier(vertices_count);
+    t2 = omp_get_wtime();
+    cout << "alloc time: " << (t2 - t1)*1000 << " ms" << endl;
 
-    int large_threshold_size = VECTOR_LENGTH*MAX_SX_AURORA_THREADS*16;
-    int medium_threshold_size = VECTOR_LENGTH;
-
-    // split graphs into parts
-    int large_threshold_vertex = 0;
-    int medium_threshold_vertex = 0;
-
-    double t1 = omp_get_wtime();
+    int *was_changes = new int[vertices_count];
+    int *new_was_changes = new int[vertices_count];
     #pragma omp parallel for
-    for(int src_id = 0; src_id < vertices_count - 1; src_id++)
+    for(int i = 0; i < vertices_count; i++)
     {
-        int cur_size = outgoing_ptrs[src_id + 1] -  outgoing_ptrs[src_id];
-        int next_size = 0;
-        if(src_id < (vertices_count - 2))
-        {
-            next_size = outgoing_ptrs[src_id + 2] -  outgoing_ptrs[src_id + 1];
-        }
-        if((cur_size >= large_threshold_size) && (next_size < large_threshold_size))
-        {
-            large_threshold_vertex = src_id;
-        }
-
-        if((cur_size >= medium_threshold_size) && (next_size < medium_threshold_size))
-        {
-            medium_threshold_vertex = src_id;
-        }
+        was_changes[i] = 0;
     }
-    double t2 = omp_get_wtime();
-    cout << "split time: " << t2 - t1 << endl;
+    was_changes[_source_vertex] = 1;
 
-    FrontierNEC frontier(_graph.get_vertices_count());
-    frontier.set_all_active();
+    t1 = omp_get_wtime();
+    //frontier.set_all_active();
 
     auto init_op = [_distances, _source_vertex] (int src_id)
     {
@@ -132,21 +115,42 @@ void ShortestPaths<_TVertexValue, _TEdgeWeight>::lib_dijkstra(ExtendedCSRGraph<_
             _distances[src_id] = FLT_MAX;
     };
 
+    auto frontier_condition = [&was_changes] (int idx)->bool{
+        if(was_changes[idx] > 0)
+            return true;
+        else
+            return false;
+    };
+
     #pragma omp parallel
     {
-        operations.init(_graph.get_vertices_count(), init_op);
+        operations.init(vertices_count, init_op);
     }
+    //frontier.generate_frontier(_graph, frontier_condition);
+    frontier.set_all_active();
+    //frontier.set_frontier_flags(frontier_condition);
 
+    t2 = omp_get_wtime();
+    cout << "init time: " << (t2 - t1)*1000 << " ms" << endl;
+
+    t1 = omp_get_wtime();
     int changes = 1;
+    double compute_time = 0;
     while(changes)
     {
+        #pragma omp parallel for
+        for(int i = 0; i < vertices_count; i++)
+        {
+            new_was_changes[i] = 0;
+        }
+
         changes = 0;
+        double t_st = omp_get_wtime();
         #pragma omp parallel
         {
             NEC_REGISTER_INT(changes, 0);
-            NEC_REGISTER_FLT(distances, 0);
 
-            auto edge_op = [&outgoing_weights, &_distances, &reg_changes](int src_id, int dst_id, int local_edge_pos,
+            auto edge_op = [&outgoing_weights, &_distances, &reg_changes, &new_was_changes](int src_id, int dst_id, int local_edge_pos,
                     long long int global_edge_pos, int vector_index)
             {
                 float weight = outgoing_weights[global_edge_pos];
@@ -155,24 +159,13 @@ void ShortestPaths<_TVertexValue, _TEdgeWeight>::lib_dijkstra(ExtendedCSRGraph<_
                 if(dst_weight > src_weight + weight)
                 {
                     _distances[dst_id] = src_weight + weight;
+                    //new_was_changes[dst_id] = 1;
+                    //new_was_changes[src_id] = 1;
                     reg_changes[vector_index] = 1;
                 }
             };
 
-            /*auto edge_op = [&outgoing_weights, &_distances, &reg_changes, &reg_distances](int src_id, int dst_id, int local_edge_pos,
-                                                                                          long long int global_edge_pos, int vector_index)
-            {
-                float weight = outgoing_weights[global_edge_pos];
-                float dst_weight = _distances[dst_id];
-                float src_weight = _distances[src_id];
-                if(src_weight > dst_weight + weight)
-                {
-                    reg_distances[vector_index] = dst_weight + weight;
-                    //reg_changes[vector_index] = 1;
-                }
-            };*/
-
-            operations.advance(_graph, frontier, large_threshold_vertex, medium_threshold_vertex, edge_op);
+            operations.advance(_graph, frontier, edge_op);
 
             int local_changes = 0;
             for(int i = 0; i < VECTOR_LENGTH; i++)
@@ -181,10 +174,38 @@ void ShortestPaths<_TVertexValue, _TEdgeWeight>::lib_dijkstra(ExtendedCSRGraph<_
             #pragma omp atomic
             changes += local_changes;
         }
+        double t_end = omp_get_wtime();
+        compute_time += t_end - t_st;
+
+        /*#pragma omp parallel for
+        for(int i = 0; i < vertices_count; i++)
+        {
+            was_changes[i] = new_was_changes[i];
+        }*/
+
+        //frontier.set_frontier_flags(frontier_condition);
+
+        /*cout << "advance perf: " << edges_count / ((t_end - t_st) * 1e6) << " MTEPS" << endl;
+        cout << "advance time: " << 1000.0 * (t_end - t_st) << " ms" << endl;
+
+        t_st = omp_get_wtime();
+        //frontier.generate_frontier(_graph, frontier_condition);
+        frontier.set_all_active();
+        t_end = omp_get_wtime();
+
+        cout << "generate front BW: " << (2.0 * sizeof(int))*vertices_count / ((t_end - t_st) * 1e9) << " GB/s" << endl;
+        cout << "generate perf: " << edges_count / ((t_end - t_st) * 1e6) << " MTEPS" << endl;
+        cout << "generate time: " << 1000.0 * (t_end - t_st) << " ms" << endl;*/
 
         if(changes == 0)
             break;
     }
+    t2 = omp_get_wtime();
+    cout << "compute time: " << compute_time*1000 << " ms" << endl;
+    cout << "inner perf: " << edges_count / (compute_time * 1e6) << " MTEPS" << endl;
+
+    delete []was_changes;
+    delete []new_was_changes;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
