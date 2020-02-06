@@ -27,6 +27,9 @@
 #define CACHED_VERTICES 3500 //4608 //4500
 #define CACHE_STEP 7
 
+#define NEC_ALL_CORES_THRESHOLD_VALUE     VECTOR_LENGTH * MAX_SX_AURORA_THREADS
+#define NEC_SINGLE_CORE_THRESHOLD_VALUE   VECTOR_LENGTH
+
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // GPU properties
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -35,9 +38,9 @@
 #define WARP_SIZE 32
 #define TYPICAL_SM_COUNT 128
 
-#define GPU_GRID_THREASHOLD_VALUE     TYPICAL_SM_COUNT * BLOCK_SIZE
-#define GPU_BLOCK_THREASHOLD_VALUE    BLOCK_SIZE
-#define GPU_WARP_THREASHOLD_VALUE     2*WARP_SIZE
+#define GPU_GRID_THRESHOLD_VALUE     TYPICAL_SM_COUNT * BLOCK_SIZE
+#define GPU_BLOCK_THRESHOLD_VALUE    BLOCK_SIZE
+#define GPU_WARP_THRESHOLD_VALUE     2*WARP_SIZE
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Common properties

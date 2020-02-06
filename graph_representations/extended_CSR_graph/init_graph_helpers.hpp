@@ -148,8 +148,12 @@ void ExtendedCSRGraph<_TVertexValue, _TEdgeWeight>::import_graph(EdgesListGraph<
     #ifdef __USE_GPU__
     estimate_gpu_thresholds();
     #endif
-    
-    construct_vector_extension();
+
+    #ifdef __USE_NEC_SX_AURORA__
+    estimate_nec_thresholds();
+    last_vertices_ve.init_from_graph(tmp_graph, nec_single_core_threshold_vertex, this->vertices_count);
+    #endif
+
     t2 = omp_get_wtime();
     cout << "final time: " << t2 - t1 << " sec" << endl << endl;
 }

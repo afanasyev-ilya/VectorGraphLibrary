@@ -18,6 +18,7 @@
 #include <stdio.h>
 
 #include "../common/vectorise_CSR.h"
+#include "vector_extension.h"
 
 #define VECTOR_EXTENSION_SIZE 7
 
@@ -37,7 +38,9 @@ private:
     long long     *outgoing_ptrs;
     int           *outgoing_ids;
     _TEdgeWeight  *outgoing_weights;
-    
+
+    VectorExtension<_TVertexValue, _TEdgeWeight> last_vertices_ve;
+
     // int *incoming_ptrs;
     // int *incoming_ids;
     // int *incoming_weights;
@@ -49,6 +52,11 @@ private:
     int gpu_grid_threshold_vertex;
     int gpu_block_threshold_vertex;
     int gpu_warp_threshold_vertex;
+    #endif
+
+    #ifdef __USE_NEC_SX_AURORA__
+    int nec_all_cores_threshold_vertex;
+    int nec_single_core_threshold_vertex;
     #endif
     
     int *incoming_degrees;
@@ -62,6 +70,10 @@ private:
     
     #ifdef __USE_GPU__
     void estimate_gpu_thresholds();
+    #endif
+
+    #ifdef __USE_NEC_SX_AURORA__
+    void estimate_nec_thresholds();
     #endif
 public:
     ExtendedCSRGraph(int _vertices_count = 1, long long _edges_count = 1);
@@ -97,24 +109,8 @@ public:
     inline int get_gpu_block_threshold_vertex(){return gpu_block_threshold_vertex;};
     inline int get_gpu_warp_threshold_vertex(){return gpu_warp_threshold_vertex;};
     #endif
-    
-    void set_threads_count(int _threads_count);
-    
-    // programing vertices API
-    template <class _T> _T*  vertex_array_alloc          ();
-    template <class _T> void vertex_array_copy           (_T *_dst_array, _T *_src_array);
-    template <class _T> void vertex_array_set_to_constant(_T *_dst_array, _T _value);
-    template <class _T> void vertex_array_set_element    (_T *_dst_array, int _pos, _T _value);
-    
-    // programing edges API
-    template <class _T> _T*  allocate_private_caches     (int _threads_count);
-    template <class _T> void free_data                   (_T *_array);
-    
-    // cached API
-    template <class _T> inline _T load_vertex_data_cached(int _idx, _T *_data, _T *_private_data);
-    template <class _T> inline _T load_vertex_data(int _idx, _T *_data);
-    template <class _T> inline _T place_data_into_cache(_T *_data, _T *_private_data);
-    template <class _T> inline _T* get_private_data_pointer(_T *_cached_data);
+
+    VectorExtension<_TVertexValue, _TEdgeWeight> *get_last_vertices_ve_ptr(){return &last_vertices_ve;}
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -127,13 +123,22 @@ long long    *outgoing_ptrs           = _graph.get_outgoing_ptrs   ();\
 int          *outgoing_ids            = _graph.get_outgoing_ids    ();\
 _TEdgeWeight *outgoing_weights        = _graph.get_outgoing_weights();\
 int          *vectorised_outgoing_ids = _graph.get_vectorised_outgoing_ids();\
+\
+int ve_vertices_count = (_graph.get_last_vertices_ve_ptr())->get_vertices_count();\
+int ve_starting_vertex = (_graph.get_last_vertices_ve_ptr())->get_starting_vertex();\
+int ve_vector_segments_count = (_graph.get_last_vertices_ve_ptr())->get_vector_segments_count();\
+\
+long long *ve_vector_group_ptrs = (_graph.get_last_vertices_ve_ptr())->get_vector_group_ptrs();\
+int *ve_vector_group_sizes = (_graph.get_last_vertices_ve_ptr())->get_vector_group_sizes();\
+int *ve_outgoing_ids = (_graph.get_last_vertices_ve_ptr())->get_adjacent_ids();\
+_TEdgeWeight *ve_outgoing_weights = (_graph.get_last_vertices_ve_ptr())->get_adjacent_weights();\
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #include "extended_CSR_graph.hpp"
-#include "programming_API.hpp"
 #include "init_graph_helpers.hpp"
 #include "gpu_api.hpp"
+#include "nec_api.hpp"
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 

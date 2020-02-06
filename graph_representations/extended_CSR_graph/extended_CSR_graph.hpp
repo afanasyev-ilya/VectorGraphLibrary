@@ -16,7 +16,7 @@ ExtendedCSRGraph<_TVertexValue, _TEdgeWeight>::ExtendedCSRGraph(int _vertices_co
 {
     this->graph_type = GraphTypeExtendedCSR;
     
-    supported_vector_length = 1;
+    supported_vector_length = VECTOR_LENGTH;
     vertices_state = VERTICES_UNSORTED;
     edges_state = EDGES_UNSORTED;
     
@@ -240,7 +240,11 @@ bool ExtendedCSRGraph<_TVertexValue, _TEdgeWeight>::load_from_binary_file(string
     #ifdef __USE_GPU__
     estimate_gpu_thresholds();
     #endif
-    construct_vector_extension();
+
+    #ifdef __USE_NEC_SX_AURORA__
+    estimate_nec_thresholds();
+    //last_vertices_ve.init_from_graph(nec_single_core_threshold_vertex, this->vertices_count);
+    #endif
     
     fclose(graph_file);
     return true;

@@ -83,15 +83,15 @@ void ExtendedCSRGraph<_TVertexValue, _TEdgeWeight>::estimate_gpu_thresholds()
     {
         int current_size = outgoing_ptrs[i+1] - outgoing_ptrs[i];
         int next_size = outgoing_ptrs[i+2] - outgoing_ptrs[i+1];
-        if((current_size > GPU_GRID_THREASHOLD_VALUE) && (next_size <= GPU_GRID_THREASHOLD_VALUE))
+        if((current_size > GPU_GRID_THRESHOLD_VALUE) && (next_size <= GPU_GRID_THRESHOLD_VALUE))
         {
             gpu_grid_threshold_vertex = i + 1;
         }
-        if((current_size > GPU_BLOCK_THREASHOLD_VALUE) && (next_size <= GPU_BLOCK_THREASHOLD_VALUE))
+        if((current_size > GPU_BLOCK_THRESHOLD_VALUE) && (next_size <= GPU_BLOCK_THRESHOLD_VALUE))
         {
             gpu_block_threshold_vertex = i + 1;
         }
-        if((current_size > GPU_WARP_THREASHOLD_VALUE) && (next_size <= GPU_WARP_THREASHOLD_VALUE))
+        if((current_size > GPU_WARP_THRESHOLD_VALUE) && (next_size <= GPU_WARP_THRESHOLD_VALUE))
         {
             gpu_warp_threshold_vertex = i + 1;
         }

@@ -24,6 +24,7 @@ void GraphPrimitivesNEC::advance(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &
     #pragma omp barrier
 
     LOAD_EXTENDED_CSR_GRAPH_DATA(_graph);
+
     const long long int *vertex_pointers = outgoing_ptrs;
     const int *adjacent_ids = outgoing_ids;
     const _TEdgeWeight *adjacent_weights = outgoing_weights;
@@ -35,12 +36,6 @@ void GraphPrimitivesNEC::advance(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &
                                     medium_threshold_start, medium_threshold_end,
                                     small_threshold_start, small_threshold_end);
 
-    /*#pragma omp single
-    {
-        cout << large_threshold_start << " " <<  large_threshold_end << endl;
-        cout << medium_threshold_start << " " <<  medium_threshold_end << endl;
-        cout << small_threshold_start << " " <<  small_threshold_end << endl;
-    }*/
 
     #pragma omp barrier
 
