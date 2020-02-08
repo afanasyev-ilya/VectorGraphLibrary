@@ -61,7 +61,7 @@ int main(int argc, const char * argv[])
         t1 = omp_get_wtime();
         for(int i = 0; i < parser.get_steps_count(); i++)
         {
-            last_src_vertex = i + 2; //rand() % (graph.get_vertices_count()/4);
+            last_src_vertex = i; //rand() % (graph.get_vertices_count()/4);
             #ifdef __USE_NEC_SX_AURORA__
             //ShortestPaths<int, float>::nec_dijkstra(graph, last_src_vertex, distances);
             ShortestPaths<int, float>::lib_dijkstra(graph, last_src_vertex, distances);

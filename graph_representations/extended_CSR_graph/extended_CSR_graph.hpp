@@ -243,7 +243,6 @@ bool ExtendedCSRGraph<_TVertexValue, _TEdgeWeight>::load_from_binary_file(string
 
     #ifdef __USE_NEC_SX_AURORA__
     estimate_nec_thresholds();
-    //last_vertices_ve.init_from_graph(nec_single_core_threshold_vertex, this->vertices_count);
     #endif
     
     fclose(graph_file);

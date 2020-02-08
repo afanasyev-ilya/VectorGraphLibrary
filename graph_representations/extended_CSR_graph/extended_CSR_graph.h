@@ -55,8 +55,8 @@ private:
     #endif
 
     #ifdef __USE_NEC_SX_AURORA__
-    int nec_all_cores_threshold_vertex;
-    int nec_single_core_threshold_vertex;
+    int nec_vector_engine_threshold_vertex;
+    int nec_vector_core_threshold_vertex;
     #endif
     
     int *incoming_degrees;
@@ -108,6 +108,11 @@ public:
     inline int get_gpu_grid_threshold_vertex(){return gpu_grid_threshold_vertex;};
     inline int get_gpu_block_threshold_vertex(){return gpu_block_threshold_vertex;};
     inline int get_gpu_warp_threshold_vertex(){return gpu_warp_threshold_vertex;};
+    #endif
+
+    #ifdef __USE_NEC_SX_AURORA__
+    inline int get_nec_vector_engine_threshold_vertex(){return nec_vector_engine_threshold_vertex;};
+    inline int get_nec_vector_core_threshold_vertex(){return nec_vector_core_threshold_vertex;};
     #endif
 
     VectorExtension<_TVertexValue, _TEdgeWeight> *get_last_vertices_ve_ptr(){return &last_vertices_ve;}

@@ -4,23 +4,39 @@
 template <typename _TVertexValue, typename _TEdgeWeight>
 void ExtendedCSRGraph<_TVertexValue, _TEdgeWeight>::estimate_nec_thresholds()
 {
-    nec_all_cores_threshold_vertex = 0;
-    nec_single_core_threshold_vertex = 0;
+    nec_vector_engine_threshold_vertex = -1;
+    nec_vector_core_threshold_vertex = -1;
 
-    for(int i = 0; i < this->vertices_count - 1; i++)
+    #pragma _NEC ivdep
+    #pragma _NEC vovertake
+    #pragma _NEC novob
+    #pragma _NEC vector
+    #pragma omp parallel for schedule(static)
+    for(int idx = 0; idx < this->vertices_count; idx++)
     {
-        if(i < 10)
-            cout << outgoing_ptrs[i+1] - outgoing_ptrs[i] << endl;
+        const int current_id = idx;
+        const int current_size = outgoing_ptrs[current_id + 1] - outgoing_ptrs[current_id];
 
-        int current_size = outgoing_ptrs[i+1] - outgoing_ptrs[i];
-        int next_size = outgoing_ptrs[i+2] - outgoing_ptrs[i+1];
-        if((current_size > NEC_ALL_CORES_THRESHOLD_VALUE) && (next_size <= NEC_ALL_CORES_THRESHOLD_VALUE))
+        int next_id = 0;
+        int next_size = 0;
+        if(idx == (this->vertices_count - 1))
         {
-            nec_all_cores_threshold_vertex = i + 1;
+            next_id = -1;
+            next_size = 0;
         }
-        if((current_size > NEC_SINGLE_CORE_THRESHOLD_VALUE) && (next_size <= NEC_SINGLE_CORE_THRESHOLD_VALUE))
+        else
         {
-            nec_single_core_threshold_vertex = i + 1;
+            next_id = idx + 1;
+            next_size = outgoing_ptrs[next_id + 1] - outgoing_ptrs[next_id];
+        }
+
+        if((current_size >= NEC_VECTOR_ENGINE_THRESHOLD_VALUE) && (next_size < NEC_VECTOR_ENGINE_THRESHOLD_VALUE))
+        {
+            nec_vector_engine_threshold_vertex = idx + 1;
+        }
+        else if((current_size >= NEC_VECTOR_CORE_THRESHOLD_VALUE) && (next_size < NEC_VECTOR_CORE_THRESHOLD_VALUE))
+        {
+            nec_vector_core_threshold_vertex = idx + 1;
         }
     }
 }

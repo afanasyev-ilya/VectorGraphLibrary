@@ -27,8 +27,8 @@
 #define CACHED_VERTICES 3500 //4608 //4500
 #define CACHE_STEP 7
 
-#define NEC_ALL_CORES_THRESHOLD_VALUE     VECTOR_LENGTH * MAX_SX_AURORA_THREADS
-#define NEC_SINGLE_CORE_THRESHOLD_VALUE   VECTOR_LENGTH
+#define NEC_VECTOR_ENGINE_THRESHOLD_VALUE  VECTOR_LENGTH * MAX_SX_AURORA_THREADS * 16
+#define NEC_VECTOR_CORE_THRESHOLD_VALUE    VECTOR_LENGTH
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // GPU properties
