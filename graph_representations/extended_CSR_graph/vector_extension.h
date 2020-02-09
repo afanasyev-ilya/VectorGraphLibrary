@@ -30,7 +30,8 @@ public:
     int *get_adjacent_ids() {return adjacent_ids;};
     _TEdgeWeight *get_adjacent_weights() {return adjacent_weights;};
 
-    void init_from_graph(vector<vector<TempEdgeData<_TEdgeWeight> > >&_tmp_graph, int _first_vertex, int _last_vertex);
+    void init_from_graph(long long *_csr_adjacent_ptrs, int *_csr_adjacent_ids, _TEdgeWeight *_csr_adjacent_weights,
+                         int _first_vertex, int _last_vertex);
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -64,7 +65,9 @@ VectorExtension<_TVertexValue, _TEdgeWeight>::~VectorExtension()
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template <typename _TVertexValue, typename _TEdgeWeight>
-void VectorExtension<_TVertexValue, _TEdgeWeight>::init_from_graph(vector<vector<TempEdgeData<_TEdgeWeight> > >&_tmp_graph,
+void VectorExtension<_TVertexValue, _TEdgeWeight>::init_from_graph(long long *_csr_adjacent_ptrs,
+                                                                   int *_csr_adjacent_ids,
+                                                                   _TEdgeWeight *_csr_adjacent_weights,
                                                                    int _first_vertex,
                                                                    int _last_vertex)
 {
@@ -76,8 +79,8 @@ void VectorExtension<_TVertexValue, _TEdgeWeight>::init_from_graph(vector<vector
     for(int cur_vector_segment = 0; cur_vector_segment < vector_segments_count; cur_vector_segment++)
     {
         int vec_start = cur_vector_segment * VECTOR_LENGTH + starting_vertex;
-        int cur_max_connections_count = _tmp_graph[vec_start].size();
-        edges_count += cur_max_connections_count *VECTOR_LENGTH;
+        int cur_max_connections_count = _csr_adjacent_ptrs[vec_start + 1] - _csr_adjacent_ptrs[vec_start];
+        edges_count += cur_max_connections_count * VECTOR_LENGTH;
     }
 
     delete[] vector_group_ptrs;
@@ -93,7 +96,7 @@ void VectorExtension<_TVertexValue, _TEdgeWeight>::init_from_graph(vector<vector
     for(int cur_vector_segment = 0; cur_vector_segment < vector_segments_count; cur_vector_segment++)
     {
         int vec_start = cur_vector_segment * VECTOR_LENGTH + starting_vertex;
-        int cur_max_connections_count = _tmp_graph[vec_start].size();
+        int cur_max_connections_count = _csr_adjacent_ptrs[vec_start + 1] - _csr_adjacent_ptrs[vec_start];
 
         vector_group_ptrs[cur_vector_segment] = current_edge;
         vector_group_sizes[cur_vector_segment] = cur_max_connections_count;
@@ -104,10 +107,12 @@ void VectorExtension<_TVertexValue, _TEdgeWeight>::init_from_graph(vector<vector
             for(int i = 0; i < VECTOR_LENGTH; i++)
             {
                 int src_id = vec_start + i;
-                if((src_id < _last_vertex) && (edge_pos < _tmp_graph[src_id].size()))
+                int connections_count = _csr_adjacent_ptrs[src_id + 1] - _csr_adjacent_ptrs[src_id];
+                long long global_edge_pos = _csr_adjacent_ptrs[src_id] + edge_pos;
+                if((src_id < _last_vertex) && (edge_pos < connections_count))
                 {
-                    adjacent_ids[current_edge + i] = _tmp_graph[src_id][edge_pos].dst_id;
-                    adjacent_weights[current_edge + i] = _tmp_graph[src_id][edge_pos].weight;
+                    adjacent_ids[current_edge + i] = _csr_adjacent_ids[global_edge_pos];
+                    adjacent_weights[current_edge + i] = _csr_adjacent_weights[global_edge_pos];
                 }
                 else
                 {

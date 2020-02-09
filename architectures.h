@@ -28,7 +28,7 @@
 #define CACHE_STEP 7
 
 #define NEC_VECTOR_ENGINE_THRESHOLD_VALUE  VECTOR_LENGTH * MAX_SX_AURORA_THREADS * 16
-#define NEC_VECTOR_CORE_THRESHOLD_VALUE    VECTOR_LENGTH
+#define NEC_VECTOR_CORE_THRESHOLD_VALUE    2*VECTOR_LENGTH
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // GPU properties

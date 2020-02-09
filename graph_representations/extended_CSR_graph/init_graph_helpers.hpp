@@ -151,7 +151,8 @@ void ExtendedCSRGraph<_TVertexValue, _TEdgeWeight>::import_graph(EdgesListGraph<
 
     #ifdef __USE_NEC_SX_AURORA__
     estimate_nec_thresholds();
-    last_vertices_ve.init_from_graph(tmp_graph, nec_vector_core_threshold_vertex, this->vertices_count);
+    last_vertices_ve.init_from_graph(this->outgoing_ptrs, this->outgoing_ids, this->outgoing_weights,
+                                     nec_vector_core_threshold_vertex, this->vertices_count);
     #endif
 
     t2 = omp_get_wtime();

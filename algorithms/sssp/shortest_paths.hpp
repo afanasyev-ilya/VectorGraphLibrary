@@ -151,7 +151,7 @@ void ShortestPaths<_TVertexValue, _TEdgeWeight>::lib_dijkstra(ExtendedCSRGraph<_
         {
             NEC_REGISTER_INT(changes, 0);
 
-            auto edge_op = [&outgoing_weights, &_distances, &reg_changes, &was_changes](int src_id, int dst_id, int local_edge_pos,
+            auto edge_op_push = [&outgoing_weights, &_distances, &reg_changes](int src_id, int dst_id, int local_edge_pos,
                     long long int global_edge_pos, int vector_index)
             {
                 float weight = outgoing_weights[global_edge_pos];
@@ -160,7 +160,33 @@ void ShortestPaths<_TVertexValue, _TEdgeWeight>::lib_dijkstra(ExtendedCSRGraph<_
                 if(dst_weight > src_weight + weight)
                 {
                     _distances[dst_id] = src_weight + weight;
-                    was_changes[dst_id] = 1;
+                    reg_changes[vector_index] = 1;
+                }
+            };
+
+            auto edge_op_collective_push = [&ve_outgoing_weights, &_distances, &reg_changes](int src_id, int dst_id, int local_edge_pos,
+                                                                                             long long int global_edge_pos, int vector_index)
+            {
+                float weight = ve_outgoing_weights[global_edge_pos];
+                float dst_weight = _distances[dst_id];
+                float src_weight = _distances[src_id];
+                if(dst_weight > src_weight + weight)
+                {
+                    _distances[dst_id] = src_weight + weight;
+                    reg_changes[vector_index] = 1;
+                }
+            };
+
+            auto edge_op_pull = [&outgoing_weights, &_distances, &reg_changes, &was_changes](int src_id, int dst_id, int local_edge_pos,
+                                                                                        long long int global_edge_pos, int vector_index)
+            {
+                float weight = outgoing_weights[global_edge_pos];
+                float dst_weight = _distances[dst_id];
+                float src_weight = _distances[src_id];
+                if(src_weight > dst_weight + weight)
+                {
+                    _distances[src_id] = dst_weight + weight;
+                    was_changes[src_id] = 1;
                     //was_changes[src_id] = 1;
                     //tmp_vec_reg[vector_index] = 1;
                     reg_changes[vector_index] = 1;
@@ -170,29 +196,7 @@ void ShortestPaths<_TVertexValue, _TEdgeWeight>::lib_dijkstra(ExtendedCSRGraph<_
             auto vertex_preprocess_op = [] (int src_id, int connections_count){};
             auto vertex_postprocess_op = [] (int src_id, int connections_count){};
 
-            int test_reg[256];
-            #pragma _NEC vreg(test_reg)
-
-            struct Functor {
-                int* const& rca;
-
-                Functor(int* const& a):
-                rca(a)
-                {}
-
-                inline bool operator()(int i1, int i2) const {
-                    int sum = 0;
-                    #pragma _NEC ivdep
-                    #pragma _NEC vovertake
-                    #pragma _NEC novob
-                    #pragma _NEC vector
-                    for(int i = 0; i < 256; i++)
-                        sum += rca[i];
-                }
-            };
-            Functor compare(test_reg);
-
-            operations.advance(_graph, frontier, edge_op, EMPTY_OP, compare);
+            operations.advance(_graph, frontier, edge_op_push, EMPTY_OP, EMPTY_OP, edge_op_collective_push, true);
 
             int local_changes = 0;
             for(int i = 0; i < VECTOR_LENGTH; i++)
