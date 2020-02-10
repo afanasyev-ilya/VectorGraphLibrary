@@ -147,13 +147,13 @@ void ShortestPaths<_TVertexValue, _TEdgeWeight>::lib_dijkstra(ExtendedCSRGraph<_
 
         changes = 0;
         double t_st = omp_get_wtime();
-        #pragma omp parallel
+        #pragma omp parallel num_threads(8)
         {
             NEC_REGISTER_INT(changes, 0);
+            NEC_REGISTER_FLT(distances, 0);
 
             auto edge_op_push = [&outgoing_weights, &_distances, &reg_changes](int src_id, int dst_id, int local_edge_pos,
-                    long long int global_edge_pos, int vector_index)
-            {
+                    long long int global_edge_pos, int vector_index) {
                 float weight = outgoing_weights[global_edge_pos];
                 float dst_weight = _distances[dst_id];
                 float src_weight = _distances[src_id];
@@ -165,8 +165,7 @@ void ShortestPaths<_TVertexValue, _TEdgeWeight>::lib_dijkstra(ExtendedCSRGraph<_
             };
 
             auto edge_op_collective_push = [&ve_outgoing_weights, &_distances, &reg_changes](int src_id, int dst_id, int local_edge_pos,
-                                                                                             long long int global_edge_pos, int vector_index)
-            {
+                                                                                             long long int global_edge_pos, int vector_index){
                 float weight = ve_outgoing_weights[global_edge_pos];
                 float dst_weight = _distances[dst_id];
                 float src_weight = _distances[src_id];
@@ -177,26 +176,20 @@ void ShortestPaths<_TVertexValue, _TEdgeWeight>::lib_dijkstra(ExtendedCSRGraph<_
                 }
             };
 
-            auto edge_op_pull = [&outgoing_weights, &_distances, &reg_changes, &was_changes](int src_id, int dst_id, int local_edge_pos,
-                                                                                        long long int global_edge_pos, int vector_index)
-            {
-                float weight = outgoing_weights[global_edge_pos];
-                float dst_weight = _distances[dst_id];
-                float src_weight = _distances[src_id];
-                if(src_weight > dst_weight + weight)
-                {
-                    _distances[src_id] = dst_weight + weight;
-                    was_changes[src_id] = 1;
-                    //was_changes[src_id] = 1;
-                    //tmp_vec_reg[vector_index] = 1;
-                    reg_changes[vector_index] = 1;
+            /*struct VertexPostprocessFunctor {
+                float * distances;
+                float * const& reg_distances;
+                VertexPostprocessFunctor(float* const& _reg_distances, float *_distances): reg_distances(_reg_distances),distances(_distances) {}
+                inline void operator()(int src_id, int connections_count) const {
+                    float sum = 0;
+                    for(int i = 0; i < VECTOR_LENGTH; i++)
+                        sum += reg_distances[i];
+                    distances[src_id] = sum;
                 }
-            };
+            };*/
 
-            auto vertex_preprocess_op = [] (int src_id, int connections_count){};
-            auto vertex_postprocess_op = [] (int src_id, int connections_count){};
-
-            operations.advance(_graph, frontier, edge_op_push, EMPTY_OP, EMPTY_OP, edge_op_collective_push, true);
+            operations.advance(_graph, frontier, edge_op_push, EMPTY_OP, vertex_preprocess_op, edge_op_collective_push,
+                               USE_VECTOR_EXTENSION);
 
             int local_changes = 0;
             for(int i = 0; i < VECTOR_LENGTH; i++)

@@ -280,15 +280,15 @@ void GraphPrimitivesNEC::ve_collective_vertex_processing_kernel(const long long 
             {
                 const int src_id = segment_first_vertex + i;
 
-                //if(_frontier_flags[src_id] > 0)
-                //{
+                if(_frontier_flags[src_id] > 0)
+                {
                     const int vector_index = i;
                     const long long int global_edge_pos = segment_edges_start + edge_pos * VECTOR_LENGTH + i;
                     const int local_edge_pos = edge_pos;
                     const int dst_id = _ve_adjacent_ids[global_edge_pos];
 
                     edge_op(src_id, dst_id, local_edge_pos, global_edge_pos, vector_index);
-                //}
+                }
             }
         }
     }
@@ -312,11 +312,11 @@ template <typename _TVertexValue, typename _TEdgeWeight, typename EdgeOperation,
         typename VertexPostprocessOperation, typename CollectiveEdgeOperation>
 void GraphPrimitivesNEC::advance(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
                                  FrontierNEC &_frontier,
-                                 EdgeOperation edge_op,
-                                 VertexPreprocessOperation vertex_preprocess_op,
-                                 VertexPostprocessOperation vertex_postprocess_op,
-                                 CollectiveEdgeOperation collective_edge_op,
-                                 bool _use_vector_extension)
+                                 EdgeOperation &&edge_op,
+                                 VertexPreprocessOperation &&vertex_preprocess_op,
+                                 VertexPostprocessOperation &&vertex_postprocess_op,
+                                 CollectiveEdgeOperation &&collective_edge_op,
+                                 PROCESS_LOW_DEGREE_VERTICES_TYPE _low_degree_vertices_processing_type)
 {
     #pragma omp barrier
 
@@ -336,16 +336,16 @@ void GraphPrimitivesNEC::advance(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &
     int *frontier_flags = _frontier.frontier_flags;
 
     vector_engine_per_vertex_kernel(vertex_pointers, adjacent_ids, frontier_flags, vector_engine_threshold_start,
-                                    vector_engine_threshold_end, edge_op, EMPTY_OP, EMPTY_OP);
+                                    vector_engine_threshold_end, edge_op, EMPTY_OP, vertex_postprocess_op);
 
     vector_core_per_vertex_kernel(vertex_pointers, adjacent_ids, frontier_flags, vector_core_threshold_start,
-                                  vector_core_threshold_end, edge_op, EMPTY_OP, vertex_postprocess_op);
+                                  vector_core_threshold_end, edge_op, EMPTY_OP, EMPTY_OP);
 
-    if(_use_vector_extension == false) {
+    if(_low_degree_vertices_processing_type == DONT_USE_VECTOR_EXTENSION) {
         collective_vertex_processing_kernel(vertex_pointers, adjacent_ids, frontier_flags, collective_threshold_start,
                                             collective_threshold_end, collective_edge_op, EMPTY_OP, EMPTY_OP);
     }
-    else {
+    else if(_low_degree_vertices_processing_type == USE_VECTOR_EXTENSION) {
         ve_collective_vertex_processing_kernel(ve_vector_group_ptrs, ve_vector_group_sizes, ve_adjacent_ids,
                                                ve_vertices_count, ve_starting_vertex, ve_vector_segments_count,
                                                frontier_flags, collective_threshold_start, collective_threshold_end,
