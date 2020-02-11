@@ -59,7 +59,10 @@ void GraphPrimitivesNEC::vector_engine_per_vertex_kernel(const long long *_verte
                 edge_op(src_id, dst_id, local_edge_pos, global_edge_pos, vector_index);
             }
 
-            vertex_postprocess_op(src_id, connections_count);
+            #pragma omp critical
+            {
+                vertex_postprocess_op(src_id, connections_count);
+            }
         }
     }
 
@@ -108,6 +111,7 @@ void GraphPrimitivesNEC::vector_core_per_vertex_kernel(const long long *_vertex_
 
             for (int edge_vec_pos = 0; edge_vec_pos < connections_count - VECTOR_LENGTH; edge_vec_pos += VECTOR_LENGTH)
             {
+                #pragma _NEC nofuse
                 #pragma _NEC ivdep
                 #pragma _NEC vovertake
                 #pragma _NEC novob
@@ -123,6 +127,7 @@ void GraphPrimitivesNEC::vector_core_per_vertex_kernel(const long long *_vertex_
                 }
             }
 
+            #pragma _NEC nofuse
             #pragma _NEC ivdep
             #pragma _NEC vovertake
             #pragma _NEC novob
@@ -333,13 +338,18 @@ void GraphPrimitivesNEC::advance(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &
     const int collective_threshold_start = _graph.get_nec_vector_core_threshold_vertex();
     const int collective_threshold_end = _graph.get_vertices_count();
 
+    #pragma omp master
+    {
+        cout << "borders: " << _graph.get_nec_vector_engine_threshold_vertex() << " " << _graph.get_nec_vector_core_threshold_vertex() << endl;
+    };
+
     int *frontier_flags = _frontier.frontier_flags;
 
     vector_engine_per_vertex_kernel(vertex_pointers, adjacent_ids, frontier_flags, vector_engine_threshold_start,
-                                    vector_engine_threshold_end, edge_op, EMPTY_OP, vertex_postprocess_op);
+                                    vector_engine_threshold_end, edge_op, vertex_preprocess_op, vertex_postprocess_op);
 
     vector_core_per_vertex_kernel(vertex_pointers, adjacent_ids, frontier_flags, vector_core_threshold_start,
-                                  vector_core_threshold_end, edge_op, EMPTY_OP, EMPTY_OP);
+                                  vector_core_threshold_end, edge_op, vertex_preprocess_op, vertex_postprocess_op);
 
     if(_low_degree_vertices_processing_type == DONT_USE_VECTOR_EXTENSION) {
         collective_vertex_processing_kernel(vertex_pointers, adjacent_ids, frontier_flags, collective_threshold_start,

@@ -9,7 +9,7 @@ Include_Path =
 Libraries = -fopenmp -report-all #-ftrace
 
 # CPU Compiler flags...
-CXXFLAGS = -O2 -fopenmp -report-all -proginf -mparallel -mretain-list-vector -floop-fusion #-ftrace #-mno-vector #-ftrace
+CXXFLAGS = -O2 -fopenmp -report-all -proginf -mparallel -mretain-list-vector #-ftrace #-mno-vector #-ftrace
 LDFLAGS = #-ftrace
 
 #  -floop-normalize -floop-interchange -floop-collapse -mretain-list-vector

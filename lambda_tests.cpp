@@ -66,32 +66,39 @@ void f3()
 
 void f4()
 {
-    cout << "functor" << endl;
+    cout << "if/else return problem" << endl;
     #pragma omp parallel num_threads(8)
     {
-        int test_reg[256];
-        #pragma _NEC vreg(test_reg)
-
-        struct Functor {
-            int* const& rca;
-
-            Functor(int* const& a): rca(a)
-            {}
-
-            inline bool operator()(int i1, int i2) const {
-                int sum = 0;
-                #pragma _NEC ivdep
-                #pragma _NEC vovertake
-                #pragma _NEC novob
-                #pragma _NEC vector
-                for(int i = 0; i < 256; i++)
-                    sum += rca[i];
-                cout << "lambda: " << sum + i1 + i2 << endl;
-            }
+        auto test_lambda = [] (int _a, int _b)->int {
+            if(_a > _b)
+                return 1;
+            else
+                return 0;
         };
-        Functor compare(test_reg);
 
-        compare(10, 12);
+        cout << test_lambda(10, 12) << endl;
+
+        #pragma omp barrier
+        printf("Hello World... from thread = %d\n", omp_get_thread_num());
+    }
+    cout << endl;
+}
+
+void f5()
+{
+    cout << "if/else return NO problem" << endl;
+    #pragma omp parallel num_threads(8)
+    {
+        auto test_lambda = [] (int _a, int _b)->int {
+            int res = 0;
+            if(_a > _b)
+                res = 1;
+            else
+                res = 0;
+            return res;
+        };
+
+        cout << test_lambda(10, 12) << endl;
 
         #pragma omp barrier
         printf("Hello World... from thread = %d\n", omp_get_thread_num());
@@ -108,6 +115,7 @@ int main(int argc, const char * argv[])
     f2();
     f3();
     f4();
+    f5();
 
     return 0;
 }
