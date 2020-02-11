@@ -59,10 +59,7 @@ void GraphPrimitivesNEC::vector_engine_per_vertex_kernel(const long long *_verte
                 edge_op(src_id, dst_id, local_edge_pos, global_edge_pos, vector_index);
             }
 
-            #pragma omp critical
-            {
-                vertex_postprocess_op(src_id, connections_count);
-            }
+            vertex_postprocess_op(src_id, connections_count);
         }
     }
 
@@ -337,11 +334,6 @@ void GraphPrimitivesNEC::advance(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &
     const int vector_core_threshold_end = _graph.get_nec_vector_core_threshold_vertex();
     const int collective_threshold_start = _graph.get_nec_vector_core_threshold_vertex();
     const int collective_threshold_end = _graph.get_vertices_count();
-
-    #pragma omp master
-    {
-        cout << "borders: " << _graph.get_nec_vector_engine_threshold_vertex() << " " << _graph.get_nec_vector_core_threshold_vertex() << endl;
-    };
 
     int *frontier_flags = _frontier.frontier_flags;
 

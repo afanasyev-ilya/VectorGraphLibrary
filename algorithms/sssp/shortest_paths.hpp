@@ -82,38 +82,6 @@ void ShortestPaths<_TVertexValue, _TEdgeWeight>::print_performance_stats(long lo
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-struct VertexPostprocessFunctor {
-    float * distances;
-    const float * reg_distances;
-    VertexPostprocessFunctor(float* _reg_distances, float *_distances): reg_distances(_reg_distances),distances(_distances) {}
-    void operator()(int src_id, int connections_count) {
-        float shortest_distance = FLT_MAX;
-
-        #pragma _NEC shortloop_reduction
-        #pragma _NEC nofuse
-        #pragma _NEC vector
-        #pragma _NEC ivdep
-        for(int i = 0; i < 256; i++)
-        {
-            if(shortest_distance > reg_distances[i])
-            {
-                shortest_distance = reg_distances[i];
-            }
-        }
-
-        if(src_id == 7533)
-        {
-            for(int i = 198; i < 256; i++)
-                cout << "(" << reg_distances[i] << ")" << " ";
-            cout << endl;
-            cout << "min for 7533: " << shortest_distance << " , its connectiosn count: " << connections_count << endl;
-        }
-
-        if (shortest_distance < distances[src_id])
-            distances[src_id] = shortest_distance;
-    }
-};
-
 template <typename _TVertexValue, typename _TEdgeWeight>
 void ShortestPaths<_TVertexValue, _TEdgeWeight>::lib_dijkstra(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
                                                               int _source_vertex,
@@ -183,7 +151,7 @@ void ShortestPaths<_TVertexValue, _TEdgeWeight>::lib_dijkstra(ExtendedCSRGraph<_
         {
             NEC_REGISTER_INT(changes, 0);
             //NEC_REGISTER_FLT(distances, 0);
-            float reg_distances[256];
+            float *reg_distances = new float[5000];
 
             auto edge_op_push = [outgoing_weights, _distances, &reg_changes, &reg_distances]
                     (int src_id, int dst_id, int local_edge_pos, long long int global_edge_pos, int vector_index) {
@@ -192,8 +160,6 @@ void ShortestPaths<_TVertexValue, _TEdgeWeight>::lib_dijkstra(ExtendedCSRGraph<_
                 //float src_weight = _distances[src_id];
                 if(reg_distances[vector_index] > dst_weight + weight)
                 {
-                    //if(src_id == 7533)
-                    //    cout << "update from edge " << dst_id << " , new val is " << dst_weight + weight << " vect pos: " << vector_index << " from edge pos " << local_edge_pos << endl;
                     //_distances[src_id] = dst_weight + weight;
                     reg_changes[vector_index] = 1;
                     reg_distances[vector_index] = dst_weight + weight;
@@ -225,6 +191,26 @@ void ShortestPaths<_TVertexValue, _TEdgeWeight>::lib_dijkstra(ExtendedCSRGraph<_
             };
             VertexPreprocessFunctor vertex_preprocess_op(reg_distances, _distances);
 
+            struct VertexPostprocessFunctor {
+                float *distances;
+                float *reg_distances;
+                VertexPostprocessFunctor(float *_reg_distances, float *_distances): reg_distances(_reg_distances),distances(_distances) {}
+                void operator()(int src_id, int connections_count)
+                {
+                    float shortest_distance = FLT_MAX;
+
+                    #pragma _NEC novector
+                    for(int i = 0; i < VECTOR_LENGTH; i++)
+                    {
+                        if(shortest_distance > reg_distances[i])
+                        {
+                            shortest_distance = reg_distances[i];
+                        }
+                    }
+                    if (shortest_distance < distances[src_id])
+                        distances[src_id] = shortest_distance;
+                }
+            };
 
             VertexPostprocessFunctor vertex_postprocess_op(reg_distances, _distances);
 
@@ -236,15 +222,15 @@ void ShortestPaths<_TVertexValue, _TEdgeWeight>::lib_dijkstra(ExtendedCSRGraph<_
                 local_changes += reg_changes[i];
             #pragma omp atomic
             changes += local_changes;
+
+            delete []reg_distances;
         }
         double t_end = omp_get_wtime();
         compute_time += t_end - t_st;
 
-        cout << "check after iter: " << _distances[7533] << endl;
-
         frontier.filter(all_active);
 
-        if((frontier.size() == 0) || (changes == 0) || (iterations_count > 40))
+        if((frontier.size() == 0) || (changes == 0) || (iterations_count > 400))
             break;
         iterations_count++;
     }
