@@ -57,7 +57,7 @@ void GraphPrimitivesNEC::vector_engine_per_vertex_kernel(const long long *_verte
             #pragma _NEC vovertake
             #pragma _NEC novob
             #pragma _NEC vector
-            #pragma omp for schedule(static)
+            #pragma omp for schedule(static, 256*8)
             for(int edge_pos = 0; edge_pos < connections_count; edge_pos++)
             {
                 const long long int global_edge_pos = start + edge_pos;
@@ -78,7 +78,7 @@ void GraphPrimitivesNEC::vector_engine_per_vertex_kernel(const long long *_verte
     #pragma omp master
     {
         double work = _vertex_pointers[_last_vertex] - _vertex_pointers[_first_vertex];
-        cout << "work 1: " << work << " - " << 100.0 * work/_edges_count << " %" << endl;
+        //cout << "work 1: " << work << " - " << 100.0 * work/_edges_count << " %" << endl;
         cout << "first time: " << (t2 - t1)*1000 << " ms" << endl;
         cout << "first BW: " << sizeof(int)*5.0*work/((t2-t1)*1e9) << " GB/s" << endl;
     };
@@ -169,7 +169,7 @@ void GraphPrimitivesNEC::vector_core_per_vertex_kernel(const long long *_vertex_
     #pragma omp master
     {
         double work = _vertex_pointers[_last_vertex] - _vertex_pointers[_first_vertex];
-        cout << "work 2: " << work << " - " << 100.0 * work/_edges_count << " %" << endl;
+        //cout << "work 2: " << work << " - " << 100.0 * work/_edges_count << " %" << endl;
         cout << "second time: " << (t2 - t1)*1000 << " ms" << endl;
         cout << "second BW: " << sizeof(int)*5.0*work/((t2-t1)*1e9) << " GB/s" << endl;
     };
@@ -276,9 +276,8 @@ void GraphPrimitivesNEC::collective_vertex_processing_kernel(const long long *_v
     double t2 = omp_get_wtime();
     #pragma omp master
     {
-        cout << "inner front size: " << _frontier_size << endl;
         double work = _vertex_pointers[_last_vertex] - _vertex_pointers[_first_vertex];
-        cout << "work 3: " << work << " - " << 100.0 * work/_edges_count << " %" << endl;
+        //cout << "work 3: " << work << " - " << 100.0 * work/_edges_count << " %" << endl;
         cout << "third time: " << (t2 - t1)*1000 << " ms" << endl;
         cout << "third BW: " << sizeof(int)*5.0*work/((t2-t1)*1e9) << " GB/s" << endl << endl;
     };
@@ -347,9 +346,9 @@ void GraphPrimitivesNEC::ve_collective_vertex_processing_kernel(const long long 
     #pragma omp master
     {
         double work = _ve_vector_group_ptrs[_ve_vector_segments_count - 1] - _ve_vector_group_ptrs[0];
-        cout << "work 3: " << work << " - " << 100.0 * work/_edges_count << " %" << endl;
+        //cout << "work 3: " << work << " - " << 100.0 * work/_edges_count << " %" << endl;
         cout << "third time: " << (t2 - t1)*1000 << " ms" << endl;
-        cout << "third BW: " << (sizeof(int)*5.0)*(work)/((t2-t1)*1e9) << " GB/s" << endl;
+        cout << "third BW: " << (sizeof(int)*5.0)*(work)/((t2-t1)*1e9) << " GB/s" << endl << endl;
     };
     #pragma omp barrier
     #endif

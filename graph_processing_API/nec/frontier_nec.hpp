@@ -33,27 +33,37 @@ FrontierNEC::~FrontierNEC()
 template <typename _TVertexValue, typename _TEdgeWeight, typename Condition>
 void FrontierNEC::filter(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph, Condition condition_op)
 {
-    int vertices_in_frontier = 0;
+    // fill flags
+    #pragma omp parallel for schedule(static)
+    for(int vec_start = 0; vec_start < max_frontier_size; vec_start += VECTOR_LENGTH)
+    {
+        #pragma _NEC vovertake
+        #pragma _NEC novob
+        #pragma _NEC vector
+        #pragma _NEC ivdep
+        #pragma _NEC unroll(VECTOR_LENGTH)
+        for(int i = 0; i < VECTOR_LENGTH; i++)
+        {
+            int src_id = vec_start + i;
+            if(src_id < max_frontier_size)
+                frontier_flags[src_id] = condition_op(src_id);
+        }
+    }
 
+    // calculate active count
+    int vertices_in_frontier = 0;
     #pragma _NEC ivdep
-    #pragma _NEC vovertake
-    #pragma _NEC novob
     #pragma _NEC vector
     #pragma omp parallel for schedule(static) reduction(+: vertices_in_frontier)
     for(int i = 0; i < max_frontier_size; i++)
     {
-        if(condition_op(i))
-            frontier_flags[i] = NEC_IN_FRONTIER_FLAG;
-        else
-            frontier_flags[i] = NEC_NOT_IN_FRONTIER_FLAG;
-
         vertices_in_frontier += frontier_flags[i];
     }
 
-    // if not sparse - set all active
+    // verify if frontier is sparse
     if(double(vertices_in_frontier)/max_frontier_size > FRONTIER_TYPE_CHANGE_THRESHOLD)
     {
-        #pragma _NEC ivdep
+        /*#pragma _NEC ivdep
         #pragma _NEC vovertake
         #pragma _NEC novob
         #pragma _NEC vector
@@ -61,7 +71,7 @@ void FrontierNEC::filter(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph, 
         for(int i = 0; i < max_frontier_size; i++)
         {
             frontier_flags[i] = NEC_IN_FRONTIER_FLAG;
-        }
+        }*/
 
         frontier_type = DENSE_FRONTIER;
     }

@@ -52,7 +52,7 @@ inline int sparse_copy_if(int *_out_data,
             for(int i = 0; i < VECTOR_LENGTH; i++)
             {
                 int src_id = vec_start + i;
-                if(/*(src_id < _end) && */condition_op(src_id))
+                if((src_id < _end) && condition_op(src_id))
                 {
                     _tmp_buffer[current_pointers_reg[i]] = src_id;
                     current_pointers_reg[i]++;

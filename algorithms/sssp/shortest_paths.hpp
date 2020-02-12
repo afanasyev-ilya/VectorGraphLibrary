@@ -116,9 +116,9 @@ void ShortestPaths<_TVertexValue, _TEdgeWeight>::lib_dijkstra(ExtendedCSRGraph<_
 
     auto changes_on_prev_step = [&was_changes] (int src_id)->int {
         //return true;
-        int res = 0;
+        int res = NEC_NOT_IN_FRONTIER_FLAG;
         if(was_changes[src_id] > 0)
-            res = 1;
+            res = NEC_IN_FRONTIER_FLAG;
         return res;
     };
 
@@ -133,7 +133,7 @@ void ShortestPaths<_TVertexValue, _TEdgeWeight>::lib_dijkstra(ExtendedCSRGraph<_
 
     t1 = omp_get_wtime();
     int changes = 1;
-    double compute_time = 0;
+    double compute_time = 0, filter_time = 0;
     int iterations_count = 0;
     for(int iter = 0; iter < vertices_count; iter++)
     {
@@ -199,7 +199,10 @@ void ShortestPaths<_TVertexValue, _TEdgeWeight>::lib_dijkstra(ExtendedCSRGraph<_
         double t_end = omp_get_wtime();
         compute_time += t_end - t_st;
 
+        t_st = omp_get_wtime();
         frontier.filter(_graph, changes_on_prev_step);
+        t_end = omp_get_wtime();
+        filter_time += t_end - t_st;
 
         if(frontier.size() == 0)
             break;
@@ -207,7 +210,9 @@ void ShortestPaths<_TVertexValue, _TEdgeWeight>::lib_dijkstra(ExtendedCSRGraph<_
     }
     t2 = omp_get_wtime();
     cout << "compute time: " << compute_time*1000 << " ms" << endl;
+    cout << "filter time: " << filter_time*1000 << " ms" << endl;
     cout << "inner perf: " << edges_count / (compute_time * 1e6) << " MTEPS" << endl;
+    cout << "wall perf: " << edges_count / ((compute_time + filter_time) * 1e6) << " MTEPS" << endl;
     cout << "iterations count: " << iterations_count << endl;
     cout << "perf per iteration: " << iterations_count * (edges_count / (compute_time * 1e6)) << " MTEPS" << endl;
 
