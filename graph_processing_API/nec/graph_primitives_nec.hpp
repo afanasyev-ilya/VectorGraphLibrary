@@ -25,13 +25,22 @@ void GraphPrimitivesNEC::vector_engine_per_vertex_kernel(const long long *_verte
                                                          const int _last_vertex,
                                                          EdgeOperation edge_op,
                                                          VertexPreprocessOperation vertex_preprocess_op,
-                                                         VertexPostprocessOperation vertex_postprocess_op)
+                                                         VertexPostprocessOperation vertex_postprocess_op,
+                                                         long long _edges_count)
 {
     #ifdef __PRINT_DETAILED_STATS__
     #pragma omp barrier
     double t1 = omp_get_wtime();
     #pragma omp barrier
     #endif
+
+    int safe_access_reg[VECTOR_LENGTH];
+    #pragma _NEC vreg(safe_access_reg)
+    #pragma _NEC vector
+    for(int i = 0; i < VECTOR_LENGTH; i++)
+    {
+        safe_access_reg[i] = 0;
+    }
 
     for(int front_pos = _first_vertex; front_pos < _last_vertex; front_pos++)
     {
@@ -56,10 +65,10 @@ void GraphPrimitivesNEC::vector_engine_per_vertex_kernel(const long long *_verte
                 const int vector_index = edge_pos % VECTOR_LENGTH;
                 int dst_id = _adjacent_ids[global_edge_pos];
 
-                edge_op(src_id, dst_id, local_edge_pos, global_edge_pos, vector_index);
+                edge_op(src_id, dst_id, local_edge_pos, global_edge_pos, vector_index, safe_access_reg);
             }
 
-            vertex_postprocess_op(src_id, connections_count);
+            vertex_postprocess_op(src_id, connections_count, safe_access_reg);
         }
     }
 
@@ -68,8 +77,10 @@ void GraphPrimitivesNEC::vector_engine_per_vertex_kernel(const long long *_verte
     double t2 = omp_get_wtime();
     #pragma omp master
     {
+        double work = _vertex_pointers[_last_vertex] - _vertex_pointers[_first_vertex];
+        cout << "work 1: " << work << " - " << 100.0 * work/_edges_count << " %" << endl;
         cout << "first time: " << (t2 - t1)*1000 << " ms" << endl;
-        cout << "first BW: " << (sizeof(int)*5.0)*(_vertex_pointers[_last_vertex] - _vertex_pointers[_first_vertex])/((t2-t1)*1e9) << " GB/s" << endl;
+        cout << "first BW: " << sizeof(int)*5.0*work/((t2-t1)*1e9) << " GB/s" << endl;
     };
     #pragma omp barrier
     #endif
@@ -86,13 +97,22 @@ void GraphPrimitivesNEC::vector_core_per_vertex_kernel(const long long *_vertex_
                                                        const int _last_vertex,
                                                        EdgeOperation edge_op,
                                                        VertexPreprocessOperation vertex_preprocess_op,
-                                                       VertexPostprocessOperation vertex_postprocess_op)
+                                                       VertexPostprocessOperation vertex_postprocess_op,
+                                                       long long _edges_count)
 {
     #ifdef __PRINT_DETAILED_STATS__
     #pragma omp barrier
     double t1 = omp_get_wtime();
     #pragma omp barrier
     #endif
+
+    int safe_access_reg[VECTOR_LENGTH];
+    #pragma _NEC vreg(safe_access_reg)
+    #pragma _NEC vector
+    for(int i = 0; i < VECTOR_LENGTH; i++)
+    {
+        safe_access_reg[i] = 0;
+    }
 
     #pragma omp for schedule(static, 8)
     for (int front_pos = _first_vertex; front_pos < _last_vertex; front_pos++)
@@ -120,7 +140,7 @@ void GraphPrimitivesNEC::vector_core_per_vertex_kernel(const long long *_vertex_
                     const int vector_index = i;
                     const int dst_id = _adjacent_ids[global_edge_pos];
 
-                    edge_op(src_id, dst_id, local_edge_pos, global_edge_pos, vector_index);
+                    edge_op(src_id, dst_id, local_edge_pos, global_edge_pos, vector_index, safe_access_reg);
                 }
             }
 
@@ -136,10 +156,10 @@ void GraphPrimitivesNEC::vector_core_per_vertex_kernel(const long long *_vertex_
                 const int vector_index = i - (connections_count - VECTOR_LENGTH);
                 const int dst_id = _adjacent_ids[global_edge_pos];
 
-                edge_op(src_id, dst_id, local_edge_pos, global_edge_pos, vector_index);
+                edge_op(src_id, dst_id, local_edge_pos, global_edge_pos, vector_index, safe_access_reg);
             }
 
-            vertex_postprocess_op(src_id, connections_count);
+            vertex_postprocess_op(src_id, connections_count, safe_access_reg);
         }
     }
 
@@ -148,8 +168,10 @@ void GraphPrimitivesNEC::vector_core_per_vertex_kernel(const long long *_vertex_
     double t2 = omp_get_wtime();
     #pragma omp master
     {
+        double work = _vertex_pointers[_last_vertex] - _vertex_pointers[_first_vertex];
+        cout << "work 2: " << work << " - " << 100.0 * work/_edges_count << " %" << endl;
         cout << "second time: " << (t2 - t1)*1000 << " ms" << endl;
-        cout << "second BW: " << (sizeof(int)*5.0)*(_vertex_pointers[_last_vertex] - _vertex_pointers[_first_vertex])/((t2-t1)*1e9) << " GB/s" << endl;
+        cout << "second BW: " << sizeof(int)*5.0*work/((t2-t1)*1e9) << " GB/s" << endl;
     };
     #pragma omp barrier
     #endif
@@ -166,7 +188,10 @@ void GraphPrimitivesNEC::collective_vertex_processing_kernel(const long long *_v
                                                              const int _last_vertex,
                                                              EdgeOperation edge_op,
                                                              VertexPreprocessOperation vertex_preprocess_op,
-                                                             VertexPostprocessOperation vertex_postprocess_op)
+                                                             VertexPostprocessOperation vertex_postprocess_op,
+                                                             long long _edges_count,
+                                                             int *_frontier_ids,
+                                                             int _frontier_size)
 {
     #ifdef __PRINT_DETAILED_STATS__
     #pragma omp barrier
@@ -182,14 +207,23 @@ void GraphPrimitivesNEC::collective_vertex_processing_kernel(const long long *_v
     #pragma _NEC vreg(reg_end)
     #pragma _NEC vreg(reg_connections)
 
-    #pragma omp for schedule(static, 1)
-    for(int front_pos = _first_vertex; front_pos < _last_vertex; front_pos += VECTOR_LENGTH)
+    #pragma _NEC vector
+    for(int i = 0; i < VECTOR_LENGTH; i++)
     {
+        reg_start[i] = 0;
+        reg_end[i] = 0;
+        reg_connections[i] = 0;
+    }
+
+    #pragma omp for schedule(static, 1)
+    for(int front_pos = 0; front_pos < _frontier_size; front_pos += VECTOR_LENGTH)
+    {
+        #pragma _NEC vector
         for(int i = 0; i < VECTOR_LENGTH; i++)
         {
-            if((front_pos + i) < _last_vertex)
+            if((front_pos + i) < _frontier_size)
             {
-                int src_id = front_pos + i;//frontier_ids[front_pos + i];
+                int src_id = _frontier_ids[front_pos + i];
                 reg_start[i] = _vertex_pointers[src_id];
                 reg_end[i] = _vertex_pointers[src_id + 1];
                 reg_connections[i] = reg_end[i] - reg_start[i];
@@ -202,7 +236,15 @@ void GraphPrimitivesNEC::collective_vertex_processing_kernel(const long long *_v
             }
         }
 
-        int max_connections = _vertex_pointers[front_pos + 1] - _vertex_pointers[front_pos];
+        int max_connections = 0;
+        #pragma _NEC vector
+        for(int i = 0; i < VECTOR_LENGTH; i++)
+        {
+            if(max_connections < reg_connections[i])
+            {
+                max_connections = reg_connections[i];
+            }
+        }
 
         for(int edge_pos = 0; edge_pos < max_connections; edge_pos++)
         {
@@ -212,18 +254,18 @@ void GraphPrimitivesNEC::collective_vertex_processing_kernel(const long long *_v
             #pragma _NEC vector
             for(int i = 0; i < VECTOR_LENGTH; i++)
             {
-                if(((front_pos + i) < _last_vertex) && (edge_pos < reg_connections[i]))
+                if(((front_pos + i) < _frontier_size) && (edge_pos < reg_connections[i]))
                 {
-                    const int src_id = front_pos + i;//frontier_ids[front_pos + i];
-                    if(_frontier_flags[src_id] > 0)
-                    {
+                    const int src_id = _frontier_ids[front_pos + i];
+                    //if(_frontier_flags[src_id] > 0)
+                    //{
                         const int vector_index = i;
                         const long long int global_edge_pos = reg_start[i] + edge_pos;
                         const int local_edge_pos = edge_pos;
                         const int dst_id = _adjacent_ids[global_edge_pos];
 
-                        edge_op(src_id, dst_id, local_edge_pos, global_edge_pos, vector_index);
-                    }
+                        edge_op(src_id, dst_id, local_edge_pos, global_edge_pos, vector_index, NULL);
+                    //}
                 }
             }
         }
@@ -234,8 +276,11 @@ void GraphPrimitivesNEC::collective_vertex_processing_kernel(const long long *_v
     double t2 = omp_get_wtime();
     #pragma omp master
     {
+        cout << "inner front size: " << _frontier_size << endl;
+        double work = _vertex_pointers[_last_vertex] - _vertex_pointers[_first_vertex];
+        cout << "work 3: " << work << " - " << 100.0 * work/_edges_count << " %" << endl;
         cout << "third time: " << (t2 - t1)*1000 << " ms" << endl;
-        cout << "third BW: " << (sizeof(int)*5.0)*(_vertex_pointers[ _last_vertex] - _vertex_pointers[_first_vertex])/((t2-t1)*1e9) << " GB/s" << endl << endl;
+        cout << "third BW: " << sizeof(int)*5.0*work/((t2-t1)*1e9) << " GB/s" << endl << endl;
     };
     #pragma omp barrier
     #endif
@@ -256,7 +301,8 @@ void GraphPrimitivesNEC::ve_collective_vertex_processing_kernel(const long long 
                                                                 const int _last_vertex,
                                                                 EdgeOperation edge_op,
                                                                 VertexPreprocessOperation vertex_preprocess_op,
-                                                                VertexPostprocessOperation vertex_postprocess_op)
+                                                                VertexPostprocessOperation vertex_postprocess_op,
+                                                                long long _edges_count)
 {
     #ifdef __PRINT_DETAILED_STATS__
     #pragma omp barrier
@@ -289,7 +335,7 @@ void GraphPrimitivesNEC::ve_collective_vertex_processing_kernel(const long long 
                     const int local_edge_pos = edge_pos;
                     const int dst_id = _ve_adjacent_ids[global_edge_pos];
 
-                    edge_op(src_id, dst_id, local_edge_pos, global_edge_pos, vector_index);
+                    edge_op(src_id, dst_id, local_edge_pos, global_edge_pos, vector_index, NULL);
                 }
             }
         }
@@ -301,8 +347,9 @@ void GraphPrimitivesNEC::ve_collective_vertex_processing_kernel(const long long 
     #pragma omp master
     {
         double work = _ve_vector_group_ptrs[_ve_vector_segments_count - 1] - _ve_vector_group_ptrs[0];
+        cout << "work 3: " << work << " - " << 100.0 * work/_edges_count << " %" << endl;
         cout << "third time: " << (t2 - t1)*1000 << " ms" << endl;
-        cout << "third BW: " << (sizeof(int)*5.0)*(work)/((t2-t1)*1e9) << " GB/s" << endl << endl;
+        cout << "third BW: " << (sizeof(int)*5.0)*(work)/((t2-t1)*1e9) << " GB/s" << endl;
     };
     #pragma omp barrier
     #endif
@@ -336,22 +383,24 @@ void GraphPrimitivesNEC::advance(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &
     const int collective_threshold_end = _graph.get_vertices_count();
 
     int *frontier_flags = _frontier.frontier_flags;
+    int *frontier_ids = _frontier.frontier_ids;
 
     vector_engine_per_vertex_kernel(vertex_pointers, adjacent_ids, frontier_flags, vector_engine_threshold_start,
-                                    vector_engine_threshold_end, edge_op, vertex_preprocess_op, vertex_postprocess_op);
+                                    vector_engine_threshold_end, edge_op, vertex_preprocess_op, vertex_postprocess_op, edges_count);
 
     vector_core_per_vertex_kernel(vertex_pointers, adjacent_ids, frontier_flags, vector_core_threshold_start,
-                                  vector_core_threshold_end, edge_op, vertex_preprocess_op, vertex_postprocess_op);
+                                  vector_core_threshold_end, edge_op, vertex_preprocess_op, vertex_postprocess_op, edges_count);
 
-    if(_low_degree_vertices_processing_type == DONT_USE_VECTOR_EXTENSION) {
+    if(_frontier.type() == SPARSE_FRONTIER) {
         collective_vertex_processing_kernel(vertex_pointers, adjacent_ids, frontier_flags, collective_threshold_start,
-                                            collective_threshold_end, collective_edge_op, EMPTY_OP, EMPTY_OP);
+                                            collective_threshold_end, collective_edge_op, EMPTY_OP, EMPTY_OP, edges_count,
+                                            frontier_ids, _frontier.sparse_frontier_size);
     }
-    else if(_low_degree_vertices_processing_type == USE_VECTOR_EXTENSION) {
+    else if(_frontier.type() == DENSE_FRONTIER) {
         ve_collective_vertex_processing_kernel(ve_vector_group_ptrs, ve_vector_group_sizes, ve_adjacent_ids,
                                                ve_vertices_count, ve_starting_vertex, ve_vector_segments_count,
                                                frontier_flags, collective_threshold_start, collective_threshold_end,
-                                               collective_edge_op, EMPTY_OP, EMPTY_OP);
+                                               collective_edge_op, EMPTY_OP, EMPTY_OP, edges_count);
     }
 
     #pragma omp barrier

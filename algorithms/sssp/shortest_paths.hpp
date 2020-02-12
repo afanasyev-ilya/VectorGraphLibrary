@@ -114,21 +114,19 @@ void ShortestPaths<_TVertexValue, _TEdgeWeight>::lib_dijkstra(ExtendedCSRGraph<_
             _distances[src_id] = FLT_MAX;
     };
 
-    auto all_active = [&was_changes] (int src_id)->int {
-        return true;
-        /*int res = 0;
+    auto changes_on_prev_step = [&was_changes] (int src_id)->int {
+        //return true;
+        int res = 0;
         if(was_changes[src_id] > 0)
             res = 1;
-        return res;*/
+        return res;
     };
 
     #pragma omp parallel
     {
         operations.init(vertices_count, init_op);
     }
-    //frontier.generate_frontier(_graph, frontier_condition);
-    frontier.filter(all_active);
-    //frontier.set_frontier_flags(frontier_condition);
+    frontier.filter(_graph, changes_on_prev_step);
 
     t2 = omp_get_wtime();
     cout << "init time: " << (t2 - t1)*1000 << " ms" << endl;
@@ -139,6 +137,10 @@ void ShortestPaths<_TVertexValue, _TEdgeWeight>::lib_dijkstra(ExtendedCSRGraph<_
     int iterations_count = 0;
     for(int iter = 0; iter < vertices_count; iter++)
     {
+        float *weights = outgoing_weights;
+        if(frontier.type() == DENSE_FRONTIER)
+            weights = ve_outgoing_weights;
+
         #pragma omp parallel for
         for(int i = 0; i < vertices_count; i++)
         {
@@ -147,90 +149,59 @@ void ShortestPaths<_TVertexValue, _TEdgeWeight>::lib_dijkstra(ExtendedCSRGraph<_
 
         changes = 0;
         double t_st = omp_get_wtime();
-        #pragma omp parallel num_threads(8)
+        #pragma omp parallel
         {
-            NEC_REGISTER_INT(changes, 0);
-            //NEC_REGISTER_FLT(distances, 0);
-            float *reg_distances = new float[5000];
-
-            auto edge_op_push = [outgoing_weights, _distances, &reg_changes, &reg_distances]
-                    (int src_id, int dst_id, int local_edge_pos, long long int global_edge_pos, int vector_index) {
+            auto edge_op_push = [outgoing_weights, _distances, was_changes]
+                    (int src_id, int dst_id, int local_edge_pos, long long int global_edge_pos, int vector_index, int *safe_reg) {
                 float weight = outgoing_weights[global_edge_pos];
                 float dst_weight = _distances[dst_id];
-                //float src_weight = _distances[src_id];
-                if(reg_distances[vector_index] > dst_weight + weight)
+                float src_weight = _distances[src_id];
+                if(dst_weight > src_weight + weight)
                 {
-                    //_distances[src_id] = dst_weight + weight;
-                    reg_changes[vector_index] = 1;
-                    reg_distances[vector_index] = dst_weight + weight;
+                    _distances[dst_id] = src_weight + weight;
+                    was_changes[dst_id] = 1;
+                    safe_reg[vector_index] = 1;
                 }
             };
 
-            auto edge_op_collective_push = [ve_outgoing_weights, _distances, &reg_changes,&reg_distances]
-                    (int src_id, int dst_id, int local_edge_pos, long long int global_edge_pos, int vector_index){
-                float weight = ve_outgoing_weights[global_edge_pos];
+            auto edge_op_collective_push = [weights, _distances, was_changes]
+                    (int src_id, int dst_id, int local_edge_pos, long long int global_edge_pos, int vector_index, int *safe_reg){
+                float weight = weights[global_edge_pos];
                 float dst_weight = _distances[dst_id];
                 float src_weight = _distances[src_id];
-                if(src_weight > dst_weight + weight)
+                if(dst_weight > src_weight + weight)
                 {
-                    _distances[src_id] = dst_weight + weight;
-                    reg_changes[vector_index] = 1;
+                    _distances[dst_id] = src_weight + weight;
+                    was_changes[dst_id] = 1;
+                    was_changes[src_id] = 1;
                 }
             };
-
-            struct VertexPreprocessFunctor {
-                float * distances;
-                float * const& reg_distances;
-                VertexPreprocessFunctor(float* const& _reg_distances, float *_distances): reg_distances(_reg_distances),distances(_distances) {}
-                inline void operator()(int src_id, int connections_count) const {
-                    for(int i = 0; i < VECTOR_LENGTH; i++)
-                    {
-                        reg_distances[i] = distances[src_id];
-                    }
-                }
-            };
-            VertexPreprocessFunctor vertex_preprocess_op(reg_distances, _distances);
 
             struct VertexPostprocessFunctor {
-                float *distances;
-                float *reg_distances;
-                VertexPostprocessFunctor(float *_reg_distances, float *_distances): reg_distances(_reg_distances),distances(_distances) {}
-                void operator()(int src_id, int connections_count)
+                int *was_changes;
+                VertexPostprocessFunctor(int *_was_changes): was_changes(_was_changes) {}
+                void operator()(int src_id, int connections_count, int *safe_reg)
                 {
-                    float shortest_distance = FLT_MAX;
-
-                    #pragma _NEC novector
+                    int res = 0;
+                    #pragma _NEC vector
                     for(int i = 0; i < VECTOR_LENGTH; i++)
-                    {
-                        if(shortest_distance > reg_distances[i])
-                        {
-                            shortest_distance = reg_distances[i];
-                        }
-                    }
-                    if (shortest_distance < distances[src_id])
-                        distances[src_id] = shortest_distance;
+                        if(safe_reg[i] > 0)
+                            res = 1;
+                    if(res > 0)
+                        was_changes[src_id] = res;
                 }
             };
+            VertexPostprocessFunctor vertex_postprocess_op(was_changes);
 
-            VertexPostprocessFunctor vertex_postprocess_op(reg_distances, _distances);
-
-            operations.advance(_graph, frontier, edge_op_push, vertex_preprocess_op, vertex_postprocess_op, edge_op_collective_push,
+            operations.advance(_graph, frontier, edge_op_push, EMPTY_OP, vertex_postprocess_op, edge_op_collective_push,
                                USE_VECTOR_EXTENSION);
-
-            int local_changes = 0;
-            for(int i = 0; i < VECTOR_LENGTH; i++)
-                local_changes += reg_changes[i];
-            #pragma omp atomic
-            changes += local_changes;
-
-            delete []reg_distances;
         }
         double t_end = omp_get_wtime();
         compute_time += t_end - t_st;
 
-        frontier.filter(all_active);
+        frontier.filter(_graph, changes_on_prev_step);
 
-        if((frontier.size() == 0) || (changes == 0) || (iterations_count > 400))
+        if(frontier.size() == 0)
             break;
         iterations_count++;
     }

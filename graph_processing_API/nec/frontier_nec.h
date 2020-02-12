@@ -7,20 +7,36 @@
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+#define FRONTIER_TYPE_CHANGE_THRESHOLD 0.05
+
+enum FrontierType {
+    SPARSE_FRONTIER = 1,
+    DENSE_FRONTIER = 0
+};
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 class FrontierNEC
 {
 private:
     int *frontier_flags;
+    int *frontier_ids;
+    int *work_buffer;
 
+    FrontierType frontier_type;
+
+    int sparse_frontier_size;
     int max_frontier_size;
 public:
     FrontierNEC(int _vertices_count);
     ~FrontierNEC();
 
-    template <typename Condition>
-    void filter(Condition condition_op);
+    template <typename _TVertexValue, typename _TEdgeWeight, typename Condition>
+    void filter(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph, Condition condition_op);
 
     int size();
+
+    FrontierType type() {return frontier_type;};
 
     friend class GraphPrimitivesNEC;
 };

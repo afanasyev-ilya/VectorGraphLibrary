@@ -27,7 +27,7 @@ private:
                                          const int *_frontier_flags, const int _first_vertex,
                                          const int _last_vertex, EdgeOperation edge_op,
                                          VertexPreprocessOperation vertex_preprocess_op,
-                                         VertexPostprocessOperation vertex_postprocess_op);
+                                         VertexPostprocessOperation vertex_postprocess_op, long long _edges_count);
 
     template <typename EdgeOperation, typename VertexPreprocessOperation,
             typename VertexPostprocessOperation>
@@ -35,7 +35,7 @@ private:
                                        const int *_frontier_flags, const int _first_vertex,
                                        const int _last_vertex, EdgeOperation edge_op,
                                        VertexPreprocessOperation vertex_preprocess_op,
-                                       VertexPostprocessOperation vertex_postprocess_op);
+                                       VertexPostprocessOperation vertex_postprocess_op, long long _edges_count);
 
     template <typename EdgeOperation, typename VertexPreprocessOperation,
             typename VertexPostprocessOperation>
@@ -43,7 +43,9 @@ private:
                                              const int *_frontier_flags, const int _first_vertex,
                                              const int _last_vertex, EdgeOperation edge_op,
                                              VertexPreprocessOperation vertex_preprocess_op,
-                                             VertexPostprocessOperation vertex_postprocess_op);
+                                             VertexPostprocessOperation vertex_postprocess_op, long long _edges_count,
+                                             int *_frontier_ids,
+                                             int _frontier_size);
 
     template <typename EdgeOperation, typename VertexPreprocessOperation,
             typename VertexPostprocessOperation>
@@ -56,7 +58,7 @@ private:
                                                 const int *_frontier_flags, const int _first_vertex,
                                                 const int _last_vertex, EdgeOperation edge_op,
                                                 VertexPreprocessOperation vertex_preprocess_op,
-                                                VertexPostprocessOperation vertex_postprocess_op);
+                                                VertexPostprocessOperation vertex_postprocess_op, long long _edges_count);
 public:
     GraphPrimitivesNEC() {};
 
