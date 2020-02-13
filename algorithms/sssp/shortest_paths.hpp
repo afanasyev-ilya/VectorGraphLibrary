@@ -104,7 +104,6 @@ void ShortestPaths<_TVertexValue, _TEdgeWeight>::lib_dijkstra(ExtendedCSRGraph<_
     was_changes[_source_vertex] = 1;
 
     t1 = omp_get_wtime();
-    //frontier.set_all_active();
 
     auto init_op = [_distances, _source_vertex] (int src_id)
     {
@@ -115,7 +114,6 @@ void ShortestPaths<_TVertexValue, _TEdgeWeight>::lib_dijkstra(ExtendedCSRGraph<_
     };
 
     auto changes_on_prev_step = [&was_changes] (int src_id)->int {
-        //return true;
         int res = NEC_NOT_IN_FRONTIER_FLAG;
         if(was_changes[src_id] > 0)
             res = NEC_IN_FRONTIER_FLAG;
@@ -135,7 +133,7 @@ void ShortestPaths<_TVertexValue, _TEdgeWeight>::lib_dijkstra(ExtendedCSRGraph<_
     int changes = 1;
     double compute_time = 0, filter_time = 0;
     int iterations_count = 0;
-    for(int iter = 0; iter < vertices_count; iter++)
+    while(frontier.size() > 0)
     {
         float *weights = outgoing_weights;
         if(frontier.type() == DENSE_FRONTIER)
@@ -152,7 +150,7 @@ void ShortestPaths<_TVertexValue, _TEdgeWeight>::lib_dijkstra(ExtendedCSRGraph<_
         #pragma omp parallel
         {
             auto edge_op_push = [outgoing_weights, _distances, was_changes]
-                    (int src_id, int dst_id, int local_edge_pos, long long int global_edge_pos, int vector_index, int *safe_reg) {
+                    (int src_id, int dst_id, int local_edge_pos, long long int global_edge_pos, int vector_index, DelayedWriteNEC &delayed_write) {
                 float weight = outgoing_weights[global_edge_pos];
                 float dst_weight = _distances[dst_id];
                 float src_weight = _distances[src_id];
@@ -160,12 +158,12 @@ void ShortestPaths<_TVertexValue, _TEdgeWeight>::lib_dijkstra(ExtendedCSRGraph<_
                 {
                     _distances[dst_id] = src_weight + weight;
                     was_changes[dst_id] = 1;
-                    safe_reg[vector_index] = 1;
+                    delayed_write.start_write(was_changes, 1, vector_index);
                 }
             };
 
             auto edge_op_collective_push = [weights, _distances, was_changes]
-                    (int src_id, int dst_id, int local_edge_pos, long long int global_edge_pos, int vector_index, int *safe_reg){
+                    (int src_id, int dst_id, int local_edge_pos, long long int global_edge_pos, int vector_index, DelayedWriteNEC &delayed_write){
                 float weight = weights[global_edge_pos];
                 float dst_weight = _distances[dst_id];
                 float src_weight = _distances[src_id];
@@ -180,32 +178,27 @@ void ShortestPaths<_TVertexValue, _TEdgeWeight>::lib_dijkstra(ExtendedCSRGraph<_
             struct VertexPostprocessFunctor {
                 int *was_changes;
                 VertexPostprocessFunctor(int *_was_changes): was_changes(_was_changes) {}
-                void operator()(int src_id, int connections_count, int *safe_reg)
+                void operator()(int src_id, int connections_count, DelayedWriteNEC &delayed_write)
                 {
-                    int res = 0;
-                    #pragma _NEC vector
-                    for(int i = 0; i < VECTOR_LENGTH; i++)
-                        if(safe_reg[i] > 0)
-                            res = 1;
-                    if(res > 0)
-                        was_changes[src_id] = res;
+                    delayed_write.finish_write_max(was_changes, src_id);
                 }
             };
             VertexPostprocessFunctor vertex_postprocess_op(was_changes);
 
-            operations.advance(_graph, frontier, edge_op_push, EMPTY_OP, vertex_postprocess_op, edge_op_collective_push,
-                               USE_VECTOR_EXTENSION);
+            operations.advance(_graph, frontier, edge_op_push, EMPTY_VERTEX_OP, vertex_postprocess_op,
+                               edge_op_collective_push, EMPTY_VERTEX_OP, EMPTY_VERTEX_OP);
         }
         double t_end = omp_get_wtime();
         compute_time += t_end - t_st;
+        double iter_time = t_end - t_st;
 
         t_st = omp_get_wtime();
         frontier.filter(_graph, changes_on_prev_step);
         t_end = omp_get_wtime();
         filter_time += t_end - t_st;
+        iter_time += t_end - t_st;
+        cout << endl << "iter " << iterations_count << " perf: " << (edges_count / (iter_time * 1e6)) << " MTEPS" << endl << endl;
 
-        if(frontier.size() == 0)
-            break;
         iterations_count++;
     }
     t2 = omp_get_wtime();

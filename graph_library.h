@@ -50,7 +50,7 @@ using namespace std;
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#include "graph_processing_API/nec/graph_primitives_nec.h"
+#include "graph_processing_API/nec/graph_primitives/graph_primitives_nec.h"
 
 #ifdef __USE_GPU__
 #include "graph_processing_API/gpu/graph_primitives_gpu.cuh"
