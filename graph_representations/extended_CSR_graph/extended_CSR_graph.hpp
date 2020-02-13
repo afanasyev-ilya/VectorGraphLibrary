@@ -1,13 +1,4 @@
-//
-//  vectorised_CSR_graph.hpp
-//  ParallelGraphLibrary
-//
-//  Created by Elijah Afanasiev on 14/04/2019.
-//  Copyright © 2019 MSU. All rights reserved.
-//
-
-#ifndef extended_CSR_graph_hpp
-#define extended_CSR_graph_hpp
+#pragma once
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -19,8 +10,6 @@ ExtendedCSRGraph<_TVertexValue, _TEdgeWeight>::ExtendedCSRGraph(int _vertices_co
     supported_vector_length = VECTOR_LENGTH;
     vertices_state = VERTICES_UNSORTED;
     edges_state = EDGES_UNSORTED;
-    
-    threads_count = 1;
     
     alloc(_vertices_count, _edges_count);
 }
@@ -40,20 +29,18 @@ void ExtendedCSRGraph<_TVertexValue, _TEdgeWeight>::alloc(int _vertices_count, l
 {
     this->vertices_count = _vertices_count;
     this->edges_count = _edges_count;
-    
-    reordered_vertex_ids = new int[this->vertices_count];
-    outgoing_ptrs        = new long long[this->vertices_count + 1];
-    outgoing_ids         = new int[this->edges_count];
-    incoming_degrees     = new int[this->vertices_count];
-    this->vertex_values  = new _TVertexValue[this->vertices_count];
+
+    MemoryAPI::allocate_array(&reordered_vertex_ids, this->vertices_count);
+    MemoryAPI::allocate_array(&outgoing_ptrs, this->vertices_count + 1);
+    MemoryAPI::allocate_array(&outgoing_ids, this->edges_count);
+    MemoryAPI::allocate_array(&incoming_degrees, this->vertices_count);
+    MemoryAPI::allocate_array(&(this->vertex_values), this->vertices_count);
     
     #ifdef __USE_WEIGHTED_GRAPHS__
-    outgoing_weights = new _TEdgeWeight[this->edges_count];
+    MemoryAPI::allocate_array(&outgoing_weights, this->edges_count);
     #else
     outgoing_weights = NULL;
     #endif
-    
-    vectorised_outgoing_ids = new int[this->vertices_count * VECTOR_EXTENSION_SIZE];
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -61,16 +48,15 @@ void ExtendedCSRGraph<_TVertexValue, _TEdgeWeight>::alloc(int _vertices_count, l
 template <typename _TVertexValue, typename _TEdgeWeight>
 void ExtendedCSRGraph<_TVertexValue, _TEdgeWeight>::free()
 {
-    delete []reordered_vertex_ids;
-    delete []outgoing_ptrs;
-    delete []outgoing_ids;
+    MemoryAPI::free_array(reordered_vertex_ids);
+    MemoryAPI::free_array(outgoing_ptrs);
+    MemoryAPI::free_array(outgoing_ids);
+    MemoryAPI::free_array(incoming_degrees);
+    MemoryAPI::free_array(this->vertex_values);
+
     #ifdef __USE_WEIGHTED_GRAPHS__
-    delete []outgoing_weights;
+    MemoryAPI::free_array(outgoing_weights);
     #endif
-    delete []incoming_degrees;
-    delete []this->vertex_values;
-    
-    delete []vectorised_outgoing_ids;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -252,5 +238,3 @@ bool ExtendedCSRGraph<_TVertexValue, _TEdgeWeight>::load_from_binary_file(string
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-#endif /* extended_CSR_graph_hpp */

@@ -38,8 +38,8 @@ void LabelPropagation<_TVertexValue, _TEdgeWeight>::analyse_result(int *_labels,
         sorted_labels[i] = (double)_labels[i];
     }
     
-    SortingAPI sorting_api;
-    sorting_api.sort_array(sorted_labels, _vertices_count);
+    Sorting sorting;
+    sorting.sort_array(sorted_labels, _vertices_count);
     cout << "sorted" << endl;
     
     map<int, int> communities_info;

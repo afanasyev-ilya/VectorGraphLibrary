@@ -1,12 +1,12 @@
 //
-//  sswp.cpp
+//  pr.cpp
 //  ParallelGraphLibrary
 //
-//  Created by Elijah Afanasiev on 08/09/2019.
+//  Created by Elijah Afanasiev on 09/09/2019.
 //  Copyright © 2019 MSU. All rights reserved.
 //
 
-#include "graph_library.h"
+#include "../graph_library.h"
 #include <iostream>
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -19,7 +19,7 @@ int main(int argc, const char * argv[])
 {
     try
     {
-        cout << "SSWP (Single Source Widest Paths) test..." << endl;
+        cout << "PR (Page Rank) test..." << endl;
         
         // parse args
         AlgorithmCommandOptionsParser parser;
@@ -43,26 +43,21 @@ int main(int argc, const char * argv[])
         }
         
         // compute CC
-        cout << "Computations started..." << endl;
-        float *widths;
-        WidestPaths<float, float>::allocate_result_memory(graph.get_vertices_count(), &widths);
-        WidestPaths<float, float>::bellman_ford(graph, 0, widths);
-        WidestPaths<float, float>::free_result_memory(widths);
+        float *page_ranks;
+        PageRank<float, float>::allocate_result_memory(graph.get_vertices_count(), &page_ranks);
+        PageRank<float, float>::page_rank_cached(graph, page_ranks, 8);
+        
         
         // check if required
         if(parser.get_check_flag() && (parser.get_compute_mode() == GENERATE_NEW_GRAPH))
         {
             ExtendedCSRGraph<float, float> ext_graph;
             ext_graph.import_graph(rand_graph, VERTICES_SORTED, EDGES_SORTED, 1, PULL_TRAVERSAL);
-
-            float *ext_widths;
-            WidestPaths<float, float>::allocate_result_memory(ext_graph.get_vertices_count(), &ext_widths);
-            WidestPaths<float, float>::bellman_ford(ext_graph, 0, ext_widths);
             
-            verify_results(widths, ext_widths, min(graph.get_vertices_count(), ext_graph.get_vertices_count()));
-            
-            WidestPaths<float, float>::free_result_memory(ext_widths);
+            // TODO
         }
+        
+        PageRank<float, float>::free_result_memory(page_ranks);
     }
     catch (string error)
     {

@@ -1,4 +1,4 @@
-CXX = icpc
+CXX = g++
 CUDA_COMPILER = nvcc
 CUDA_DIR = /opt/cuda/cuda-8.0/
 
@@ -8,10 +8,10 @@ Include_Path = -I $(CUDA_DIR)/include
 # Library paths...
 Libraries =  -fopenmp -fpermissive
 Library_Path = -L $(CUDA_DIR)/lib -L $(CUDA_DIR)/lib64
-Libraries += -lcudart -lcudadevrt -lnvgraph -lcublas
+Libraries +=
 
 # CPU Compiler flags...
-CXXFLAGS = -O2 -fopenmp -fpermissive
+CXXFLAGS = -O2 -fopenmp -fopt-info-vec -fpermissive
 LDFLAGS = -fopenmp
 
 # CUDA Compiler flags
@@ -26,7 +26,7 @@ VPATH=./:algorithms/shortest_paths/gpu/
 # binaries
 ##########
 
-all: cc sssp sswp pr bfs kcore custom_test
+all: bfs
 
 pr: create_folders pr.o
 	$(CXX) object_files/pr.o $(Library_Path) $(Libraries) $(LDFLAGS) -o ./bin/pr
@@ -43,14 +43,14 @@ sswp: create_folders sswp.o
 bfs: create_folders bfs.o
 	$(CXX) object_files/bfs.o $(Library_Path) $(Libraries) $(LDFLAGS) -o ./bin/bfs
 	
-kcore: create_folders kcore.o
-	$(CXX) object_files/kcore.o $(Library_Path) $(Libraries) $(LDFLAGS) -o ./bin/kcore
-	
 custom_test: create_folders custom_test.o
 	$(CXX) object_files/custom_test.o $(Library_Path) $(Libraries) $(LDFLAGS) -o ./bin/custom_test
 
 generate_test_data: create_folders generate_test_data.o
 	$(CXX) object_files/generate_test_data.o $(Library_Path) $(Libraries) $(LDFLAGS) -o ./bin/generate_test_data
+	
+generate_memory_traces: create_folders generate_memory_traces.o
+	$(CXX) object_files/generate_memory_traces.o $(Library_Path) $(Libraries) $(LDFLAGS) -o ./bin/generate_memory_traces
 
 ##########
 # CPPs
@@ -71,18 +71,18 @@ sswp.o: sswp.cpp
 bfs.o: bfs.cpp
 	$(CXX) $(CXXFLAGS) $(Include_Path)  -c bfs.cpp -o object_files/bfs.o -fopenmp
 	
-kcore.o: kcore.cpp
-	$(CXX) $(CXXFLAGS) $(Include_Path)  -c kcore.cpp -o object_files/kcore.o -fopenmp
-
-custom_test.o: custom_test.cpp
+custom_test.o: ../misc/custom_test.cpp
 	$(CXX) $(CXXFLAGS) $(Include_Path)  -c custom_test.cpp -o object_files/custom_test.o -fopenmp
-	
+
 generate_test_data.o: generate_test_data.cpp
 	$(CXX) $(CXXFLAGS) $(Include_Path)  -c generate_test_data.cpp -o object_files/generate_test_data.o -fopenmp
+	
+generate_memory_traces.o: ../misc/generate_memory_traces.cpp
+	$(CXX) $(CXXFLAGS) $(Include_Path)  -c generate_memory_traces.cpp -o object_files/generate_memory_traces.o -fopenmp
 
 create_folders:
 	-mkdir -p ./bin
-	-cp graph_library.sh run.sh ./bin
+	-cp graph_library.sh ./bin
 	-mkdir -p ./object_files
 
 clean:
@@ -91,6 +91,3 @@ clean:
 #################
 # CUDA operations
 #################
-
-bellman_ford_gpu.o: bellman_ford_gpu.cu
-	$(CUDA_COMPILER) $(CUDA_FLAGS) $(Include_Path) -c algorithms/shortest_paths/gpu/bellman_ford_gpu.cu -o object_files/bellman_ford_gpu.o

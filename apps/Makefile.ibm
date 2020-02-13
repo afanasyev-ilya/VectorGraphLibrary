@@ -49,7 +49,7 @@ test_operations.o: test_operations.cpp
 generate_test_data.o: generate_test_data.cpp
 	$(CXX) $(CXXFLAGS) $(Include_Path)  -c generate_test_data.cpp -o object_files/generate_test_data.o -fopenmp
 
-nvgraph_comparison.o: nvgraph_comparison.cpp
+nvgraph_comparison.o: ../misc/nvgraph_comparison.cpp
 	$(CXX) $(CXXFLAGS) $(Include_Path)  -c nvgraph_comparison.cpp -o object_files/nvgraph_comparison.o -fopenmp
 
 create_folders:

@@ -3,51 +3,13 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template <typename _TVertexValue, typename _TEdgeWeight>
-class VectorExtension
-{
-private:
-    int vertices_count;
-    int starting_vertex;
-    int vector_segments_count;
-
-    // vector segments data
-    long long *vector_group_ptrs;
-    int *vector_group_sizes;
-
-    // outgoing edges data
-    int *adjacent_ids;
-    _TEdgeWeight *adjacent_weights;
-public:
-    VectorExtension();
-    ~VectorExtension();
-
-    int get_vertices_count() {return vertices_count;};
-    int get_starting_vertex() {return starting_vertex;};
-    int get_vector_segments_count() {return vector_segments_count;};
-
-    long long *get_vector_group_ptrs() {return vector_group_ptrs;};
-    int *get_vector_group_sizes() {return vector_group_sizes;};
-    int *get_adjacent_ids() {return adjacent_ids;};
-    _TEdgeWeight *get_adjacent_weights() {return adjacent_weights;};
-
-    void init_from_graph(long long *_csr_adjacent_ptrs, int *_csr_adjacent_ids, _TEdgeWeight *_csr_adjacent_weights,
-                         int _first_vertex, int _last_vertex);
-};
-
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-template <typename _TVertexValue, typename _TEdgeWeight>
 VectorExtension<_TVertexValue, _TEdgeWeight>::VectorExtension()
 {
     vertices_count = VECTOR_LENGTH;
     starting_vertex = 0;
     vector_segments_count = 1;
 
-    vector_group_ptrs = new long long[vector_segments_count];
-    vector_group_sizes = new int[vector_segments_count];
-
-    adjacent_ids = new int[VECTOR_LENGTH];
-    adjacent_weights = new _TEdgeWeight[VECTOR_LENGTH];
+    alloc(VECTOR_LENGTH);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -55,11 +17,31 @@ VectorExtension<_TVertexValue, _TEdgeWeight>::VectorExtension()
 template <typename _TVertexValue, typename _TEdgeWeight>
 VectorExtension<_TVertexValue, _TEdgeWeight>::~VectorExtension()
 {
-    delete []vector_group_ptrs;
-    delete []vector_group_sizes;
+    free();
+}
 
-    delete []adjacent_ids;
-    delete []adjacent_weights;
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+template <typename _TVertexValue, typename _TEdgeWeight>
+void VectorExtension<_TVertexValue, _TEdgeWeight>::alloc(long long _edges_count)
+{
+    MemoryAPI::allocate_array(&vector_group_ptrs, vector_segments_count);
+    MemoryAPI::allocate_array(&vector_group_sizes, vector_segments_count);
+
+    MemoryAPI::allocate_array(&adjacent_ids, _edges_count);
+    MemoryAPI::allocate_array(&adjacent_weights, _edges_count);
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+template <typename _TVertexValue, typename _TEdgeWeight>
+void VectorExtension<_TVertexValue, _TEdgeWeight>::free()
+{
+    MemoryAPI::free_array(vector_group_ptrs);
+    MemoryAPI::free_array(vector_group_sizes);
+
+    MemoryAPI::free_array(adjacent_ids);
+    MemoryAPI::free_array(adjacent_weights);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -83,14 +65,8 @@ void VectorExtension<_TVertexValue, _TEdgeWeight>::init_from_graph(long long *_c
         edges_count += cur_max_connections_count * VECTOR_LENGTH;
     }
 
-    delete[] vector_group_ptrs;
-    vector_group_ptrs  = new long long[vector_segments_count];
-    delete[] vector_group_sizes;
-    vector_group_sizes = new int[vector_segments_count];
-    delete[] adjacent_ids;
-    adjacent_ids = new int[edges_count + VECTOR_LENGTH];
-    delete[] adjacent_weights;
-    adjacent_weights = new _TEdgeWeight[edges_count + VECTOR_LENGTH];
+    free();
+    alloc(edges_count + VECTOR_LENGTH);
 
     long long current_edge = 0;
     for(int cur_vector_segment = 0; cur_vector_segment < vector_segments_count; cur_vector_segment++)

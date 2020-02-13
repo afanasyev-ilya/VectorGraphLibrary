@@ -1,12 +1,12 @@
 //
-//  pr.cpp
+//  cc.cpp
 //  ParallelGraphLibrary
 //
-//  Created by Elijah Afanasiev on 09/09/2019.
+//  Created by Elijah Afanasiev on 07/09/2019.
 //  Copyright © 2019 MSU. All rights reserved.
 //
 
-#include "graph_library.h"
+#include "../graph_library.h"
 #include <iostream>
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -19,45 +19,51 @@ int main(int argc, const char * argv[])
 {
     try
     {
-        cout << "PR (Page Rank) test..." << endl;
+        cout << "CC (connected components) test..." << endl;
         
         // parse args
         AlgorithmCommandOptionsParser parser;
         parser.parse_args(argc, argv);
         
         // load graph
-        VectorisedCSRGraph<float, float> graph;
-        EdgesListGraph<float, float> rand_graph;
+        VectorisedCSRGraph<int, float> graph;
+        EdgesListGraph<int, float> rand_graph;
         if(parser.get_compute_mode() == GENERATE_NEW_GRAPH)
         {
             int vertices_count = pow(2.0, parser.get_scale());
             long long edges_count = vertices_count * parser.get_avg_degree();
-            //GraphGenerationAPI<float, float>::random_uniform(rand_graph, vertices_count, edges_count, UNDIRECTED_GRAPH);
-            GraphGenerationAPI<float, float>::R_MAT(rand_graph, vertices_count, edges_count, 57, 19, 19, 5, DIRECTED_GRAPH);
+            //GraphGenerationAPI<int, float>::random_uniform(rand_graph, vertices_count, edges_count, UNDIRECTED_GRAPH);
+            GraphGenerationAPI<int, float>::R_MAT(rand_graph, vertices_count, edges_count, 57, 19, 19, 5, UNDIRECTED_GRAPH);
             graph.import_graph(rand_graph, VERTICES_SORTED, EDGES_SORTED, VECTOR_LENGTH, PULL_TRAVERSAL);
         }
         else if(parser.get_compute_mode() == LOAD_GRAPH_FROM_FILE)
         {
             if(!graph.load_from_binary_file(parser.get_graph_file_name()))
-            throw "ERROR: graph file not found";
+                throw "ERROR: graph file not found";
         }
         
         // compute CC
-        float *page_ranks;
-        PageRank<float, float>::allocate_result_memory(graph.get_vertices_count(), &page_ranks);
-        PageRank<float, float>::page_rank_cached(graph, page_ranks, 8);
-        
+        cout << "Computations started..." << endl;
+        int *cc_result;
+        ConnectedComponents<int, float>::allocate_result_memory(graph.get_vertices_count(), &cc_result);
+        ConnectedComponents<int, float>::nec_shiloach_vishkin(graph, cc_result);
         
         // check if required
         if(parser.get_check_flag() && (parser.get_compute_mode() == GENERATE_NEW_GRAPH))
         {
-            ExtendedCSRGraph<float, float> ext_graph;
+            ExtendedCSRGraph<int, float> ext_graph;
             ext_graph.import_graph(rand_graph, VERTICES_SORTED, EDGES_SORTED, 1, PULL_TRAVERSAL);
             
-            // TODO
+            int *ext_cc_result;
+            ConnectedComponents<int, float>::allocate_result_memory(ext_graph.get_vertices_count(), &ext_cc_result);
+            ConnectedComponents<int, float>::nec_shiloach_vishkin(ext_graph, ext_cc_result);
+            
+            verify_results(cc_result, ext_cc_result, min(graph.get_vertices_count(), ext_graph.get_vertices_count()));
+            
+            ConnectedComponents<int, float>::free_result_memory(ext_cc_result);
         }
         
-        PageRank<float, float>::free_result_memory(page_ranks);
+        ConnectedComponents<int, float>::free_result_memory(cc_result);
     }
     catch (string error)
     {
@@ -71,3 +77,4 @@ int main(int argc, const char * argv[])
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+

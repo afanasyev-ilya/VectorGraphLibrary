@@ -3,12 +3,12 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #include <iostream>
-#include "../../../common_datastructures/gpu_API/cuda_error_handling.h"
+#include "../../../common_functions/gpu_API/cuda_error_handling.h"
 #include "../../../architectures.h"
 #include <cfloat>
 #include <cuda_fp16.h>
 #include "../../../graph_representations/base_graph.h"
-#include "../../../common_datastructures/gpu_API/gpu_arrays.h"
+#include "../../../common_functions/gpu_API/gpu_arrays.h"
 #include "../../../graph_representations/edges_list_graph/edges_list_graph.h"
 #include "../../../graph_representations/vectorised_CSR_graph/vectorised_CSR_graph.h"
 #include "../../../graph_representations/extended_CSR_graph/extended_CSR_graph.h"

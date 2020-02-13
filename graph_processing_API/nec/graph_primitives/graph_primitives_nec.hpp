@@ -1,16 +1,41 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-template <typename InitOperation>
-void GraphPrimitivesNEC::init(int _size, InitOperation init_op)
+template <typename _TVertexValue, typename _TEdgeWeight>
+_TEdgeWeight* GraphPrimitivesNEC::get_collective_weights(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
+                                                         FrontierNEC &_frontier)
 {
+    if(_frontier.type() == SPARSE_FRONTIER)
+        return _graph.get_outgoing_weights();
+    else
+        return (_graph.get_last_vertices_ve_ptr())->get_adjacent_weights();
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+template <typename ComputeOperation>
+void GraphPrimitivesNEC::compute(ComputeOperation compute_op, int _compute_size)
+{
+    #pragma omp parallel for schedule(static)
+    for(int vec_start = 0; vec_start < _compute_size - VECTOR_LENGTH; vec_start += VECTOR_LENGTH)
+    {
+        #pragma _NEC ivdep
+        #pragma _NEC vovertake
+        #pragma _NEC novob
+        #pragma _NEC vector
+        for(int i = 0; i < VECTOR_LENGTH; i++)
+        {
+            int src_id = vec_start + i;
+            compute_op(src_id);
+        }
+    }
+
     #pragma _NEC ivdep
     #pragma _NEC vovertake
     #pragma _NEC novob
     #pragma _NEC vector
-    #pragma omp for schedule(static)
-    for(int src_id = 0; src_id < _size; src_id++)
+    for(int src_id = _compute_size - VECTOR_LENGTH; src_id < _compute_size; src_id++)
     {
-        init_op(src_id);
+        compute_op(src_id);
     }
 }
 

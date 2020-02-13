@@ -6,7 +6,7 @@
 //  Copyright © 2019 MSU. All rights reserved.
 //
 
-#include "graph_library.h"
+#include "../graph_library.h"
 #include "nvgraph.h"
 #include <iostream>
 

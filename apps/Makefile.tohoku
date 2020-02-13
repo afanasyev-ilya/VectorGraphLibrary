@@ -1,24 +1,18 @@
-CXX = g++
-CUDA_COMPILER = nvcc
-CUDA_DIR = /opt/cuda/cuda-8.0/
+CXX = /opt/nec/ve/bin/nc++
 
 # Include paths...
-Include_Path = -I $(CUDA_DIR)/include
+
+# Include paths...
+Include_Path =
 
 # Library paths...
-Libraries =  -fopenmp -fpermissive
-Library_Path = -L $(CUDA_DIR)/lib -L $(CUDA_DIR)/lib64
-Libraries +=
+Libraries = -fopenmp -report-all #-ftrace
 
 # CPU Compiler flags...
-CXXFLAGS = -O2 -fopenmp -fopt-info-vec -fpermissive
-LDFLAGS = -fopenmp
+CXXFLAGS = -O2 -fopenmp -report-all -proginf -mparallel -mretain-list-vector #-ftrace #-mno-vector #-ftrace
+LDFLAGS = #-ftrace
 
-# CUDA Compiler flags
-CUDA_FLAGS = -O2 -w -m64 -std=c++11 -gencode arch=compute_60,code=sm_60  -Xptxas -dlcm=ca
-
-# Paths to gpu algorithms from current sample
-VPATH=./:algorithms/shortest_paths/gpu/
+#  -floop-normalize -floop-interchange -floop-collapse -mretain-list-vector
 
 .DEFAULT_GOAL := all
 
@@ -26,7 +20,7 @@ VPATH=./:algorithms/shortest_paths/gpu/
 # binaries
 ##########
 
-all: bfs
+all: cc sssp sswp pr bfs
 
 pr: create_folders pr.o
 	$(CXX) object_files/pr.o $(Library_Path) $(Libraries) $(LDFLAGS) -o ./bin/pr
@@ -48,9 +42,6 @@ custom_test: create_folders custom_test.o
 
 generate_test_data: create_folders generate_test_data.o
 	$(CXX) object_files/generate_test_data.o $(Library_Path) $(Libraries) $(LDFLAGS) -o ./bin/generate_test_data
-	
-generate_memory_traces: create_folders generate_memory_traces.o
-	$(CXX) object_files/generate_memory_traces.o $(Library_Path) $(Libraries) $(LDFLAGS) -o ./bin/generate_memory_traces
 
 ##########
 # CPPs
@@ -71,14 +62,11 @@ sswp.o: sswp.cpp
 bfs.o: bfs.cpp
 	$(CXX) $(CXXFLAGS) $(Include_Path)  -c bfs.cpp -o object_files/bfs.o -fopenmp
 	
-custom_test.o: custom_test.cpp
+custom_test.o: ../misc/custom_test.cpp
 	$(CXX) $(CXXFLAGS) $(Include_Path)  -c custom_test.cpp -o object_files/custom_test.o -fopenmp
 
 generate_test_data.o: generate_test_data.cpp
 	$(CXX) $(CXXFLAGS) $(Include_Path)  -c generate_test_data.cpp -o object_files/generate_test_data.o -fopenmp
-	
-generate_memory_traces.o: generate_memory_traces.cpp
-	$(CXX) $(CXXFLAGS) $(Include_Path)  -c generate_memory_traces.cpp -o object_files/generate_memory_traces.o -fopenmp
 
 create_folders:
 	-mkdir -p ./bin
@@ -91,3 +79,4 @@ clean:
 #################
 # CUDA operations
 #################
+

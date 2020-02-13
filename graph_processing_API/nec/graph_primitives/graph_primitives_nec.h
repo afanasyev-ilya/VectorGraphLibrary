@@ -2,7 +2,7 @@
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#include "../vector_registers.h"
+#include "../../vector_register/vector_registers.h"
 #include "../frontier/frontier_nec.h"
 #include "../delayed_write/delayed_write_nec.h"
 #include <functional>
@@ -61,8 +61,12 @@ public:
 
     ~GraphPrimitivesNEC() {};
 
-    template <typename InitOperation>
-    void init(int size, InitOperation init_op);
+    template <typename _TVertexValue, typename _TEdgeWeight>
+    _TEdgeWeight* get_collective_weights(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
+                                         FrontierNEC &_frontier);
+
+    template <typename ComputeOperation>
+    void compute(ComputeOperation compute_op, int _compute_size);
 
     template <typename _TVertexValue, typename _TEdgeWeight, typename EdgeOperation, typename VertexPreprocessOperation,
             typename VertexPostprocessOperation, typename CollectiveEdgeOperation, typename CollectiveVertexPreprocessOperation,

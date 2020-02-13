@@ -5,9 +5,9 @@
 FrontierNEC::FrontierNEC(int _vertices_count)
 {
     max_frontier_size = _vertices_count;
-    frontier_flags = new int[max_frontier_size];
-    frontier_ids = new int[max_frontier_size];
-    work_buffer = new int[max_frontier_size];
+    MemoryAPI::allocate_array(&frontier_flags, max_frontier_size);
+    MemoryAPI::allocate_array(&frontier_ids, max_frontier_size);
+    MemoryAPI::allocate_array(&work_buffer, max_frontier_size);
 
     #pragma omp parallel for schedule(static)
     for(int i = 0; i < max_frontier_size; i++)
@@ -23,9 +23,9 @@ FrontierNEC::FrontierNEC(int _vertices_count)
 
 FrontierNEC::~FrontierNEC()
 {
-    delete []frontier_flags;
-    delete []frontier_ids;
-    delete []work_buffer;
+    MemoryAPI::free_array(frontier_flags);
+    MemoryAPI::free_array(frontier_ids);
+    MemoryAPI::free_array(work_buffer);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

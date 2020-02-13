@@ -8,13 +8,11 @@
 typedef pair<float, int> iPair;
 
 template <typename _TVertexValue, typename _TEdgeWeight>
-void ShortestPaths<_TVertexValue, _TEdgeWeight>::seq_dijkstra(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
-                                                              int _source_vertex,
-                                                              _TEdgeWeight *_distances)
+void SSSP::seq_dijkstra(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
+                        int _source_vertex,
+                        _TEdgeWeight *_distances)
 {
     LOAD_EXTENDED_CSR_GRAPH_DATA(_graph);
-
-    double t1 = omp_get_wtime();
 
     // Create a priority queue to store vertices that
     // are being preprocessed. This is weird syntax in C++.
@@ -60,10 +58,6 @@ void ShortestPaths<_TVertexValue, _TEdgeWeight>::seq_dijkstra(ExtendedCSRGraph<_
             }
         }
     }
-
-    double t2 = omp_get_wtime();
-
-    print_performance_stats(edges_count, 1, t2 - t1);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

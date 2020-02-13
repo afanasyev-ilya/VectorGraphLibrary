@@ -1,17 +1,11 @@
-//
-//  graph_library.h
-//  ParallelGraphLibrary
-//
-//  Created by Elijah Afanasiev on 14/04/2019.
-//  Copyright © 2019 MSU. All rights reserved.
-//
-
-#ifndef graph_library_h
-#define graph_library_h
+#pragma once
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #include <omp.h>
+#include <string>
+#include <iostream>
+#include <vector>
 
 using namespace std;
 
@@ -21,20 +15,13 @@ using namespace std;
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#include "common_datastructures/vector_dictionary/vector_dictionary.h"
-#include "common_datastructures/random_generator/random_generation_API.h"
-#include "common_datastructures/sorting_API/sorting_API.h"
-#include "common_datastructures/vector_sorter/vector_sorter.h"
-#include "common_datastructures/verify_results/verify_results.h"
-#include "common_datastructures/cmd_parser/cmd_parser.h"
-#include "common_datastructures/parallel_primitives/copy_if.h"
-#include "common_datastructures/parallel_primitives/get_elements_count.h"
-
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-#ifdef __USE_GPU__
-#include "common_datastructures/gpu_API/gpu_arrays.h"
-#endif
+#include "common_functions/memory_API/memory_API.h"
+#include "common_functions/random_generator/random_generation_API.h"
+#include "common_functions/sorting/sorting.h"
+#include "common_functions/verify_results/verify_results.h"
+#include "common_functions/cmd_parser/cmd_parser.h"
+#include "common_functions/parallel_primitives/copy_if.h"
+#include "common_functions/parallel_primitives/get_elements_count.h"
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -58,13 +45,14 @@ using namespace std;
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#include "algorithms/label_propagation/label_propagation.h"
 #include "algorithms/sssp/shortest_paths.h"
+
+/*#include "algorithms/label_propagation/label_propagation.h"
 #include "algorithms/sswp/widest_paths.h"
 #include "algorithms/page_rank/page_rank.h"
 #include "algorithms/bfs/bfs.h"
 #include "algorithms/cc/cc.h"
-#include "algorithms/kcore/kcore.h"
+#include "algorithms/kcore/kcore.h"*/
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -79,5 +67,3 @@ using namespace std;
 #include "export_graphs/gapbs_export.h"
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-#endif /* graph_library_h */

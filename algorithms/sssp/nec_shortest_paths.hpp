@@ -2,205 +2,217 @@
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+#ifdef __USE_NEC_SX_AURORA__
 template <typename _TVertexValue, typename _TEdgeWeight>
-void ShortestPaths<_TVertexValue, _TEdgeWeight>::nec_dijkstra(VectorisedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
-                                                              int _source_vertex,
-                                                              _TEdgeWeight *_distances)
+void SSSP::nec_dijkstra_partial_active(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
+                                       int _source_vertex,
+                                       _TEdgeWeight *_distances)
 {
-    LOAD_VECTORISED_CSR_GRAPH_REVERSE_DATA(_graph)
+    LOAD_EXTENDED_CSR_GRAPH_DATA(_graph);
 
-    /*int threads_count = omp_get_max_threads();
-    _reversed_graph.set_threads_count(threads_count);
+    double t4 = omp_get_wtime();
+    int *was_changes;
+    MemoryAPI::allocate_array(&was_changes, vertices_count);
+    double t3 = omp_get_wtime();
+    cout << "was cahnges init time: " << (t3 - t4) * 1000 << " ms" << endl;
 
-    #ifdef __USE_NEC_SX_AURORA__
-    #pragma _NEC retain(_distances)
-    #endif
-
-    _reversed_graph.template vertex_array_set_to_constant<_TEdgeWeight>(_distances, FLT_MAX);
-    _reversed_graph.template vertex_array_set_element<_TEdgeWeight>(_distances, _source_vertex, 0.0);
-
-    _TEdgeWeight *cached_distances = _reversed_graph.template allocate_private_caches<_TEdgeWeight>(threads_count);
-
-    double t1 = omp_get_wtime();
-    int changes = 1;
-    int iterations_count = 0;
-    #pragma omp parallel num_threads(threads_count) shared(changes)
+    auto init_distances = [_distances, _source_vertex] (int src_id)
     {
-        int reg_changes[VECTOR_LENGTH];
-        _TEdgeWeight reg_distances[VECTOR_LENGTH];
+        if(src_id == _source_vertex)
+            _distances[_source_vertex] = 0;
+        else
+            _distances[src_id] = FLT_MAX;
+    };
 
-        #ifdef __USE_NEC_SX_AURORA__
-        #pragma _NEC vreg(reg_changes)
-        #pragma _NEC vreg(reg_distances)
-        #endif
+    auto init_changes = [was_changes, _source_vertex] (int src_id)
+    {
+        if(src_id == _source_vertex)
+            was_changes[_source_vertex] = 1;
+        else
+            was_changes[src_id] = 0;
+    };
 
-        #ifdef __USE_NEC_SX_AURORA__
-        #pragma _NEC vector
-        #endif
-        for(int i = 0; i < VECTOR_LENGTH; i++)
+    auto changes_occurred = [&was_changes] (int src_id)->int
+    {
+        int res = NEC_NOT_IN_FRONTIER_FLAG;
+        if(was_changes[src_id] > 0)
+            res = NEC_IN_FRONTIER_FLAG;
+        return res;
+    };
+
+    graph_API.compute(init_distances, vertices_count);
+    graph_API.compute(init_changes, vertices_count);
+
+    frontier.filter(_graph, changes_occurred);
+
+    double compute_time = 0, filter_time = 0;
+    int iterations_count = 0;
+    while(frontier.size() > 0)
+    {
+        double t_st = omp_get_wtime();
+
+        float *collective_outgoing_weights = graph_API.get_collective_weights(_graph, frontier);
+        auto reset_changes = [was_changes] (int src_id)
         {
-            reg_distances[i] = 0.0;
-            reg_changes[i] = 0;
+            was_changes[src_id] = 0;
+        };
+        graph_API.compute(reset_changes, vertices_count);
+
+        #pragma omp parallel
+        {
+            auto edge_op_push = [outgoing_weights, _distances, was_changes]
+               (int src_id, int dst_id, int local_edge_pos, long long int global_edge_pos,
+                int vector_index, DelayedWriteNEC &delayed_write)
+            {
+                float weight = outgoing_weights[global_edge_pos];
+                float dst_weight = _distances[dst_id];
+                float src_weight = _distances[src_id];
+                if(dst_weight > src_weight + weight)
+                {
+                    _distances[dst_id] = src_weight + weight;
+                    was_changes[dst_id] = 1;
+                    delayed_write.start_write(was_changes, 1, vector_index);
+                }
+            };
+
+            auto edge_op_collective_push = [collective_outgoing_weights, _distances, was_changes]
+                    (int src_id, int dst_id, int local_edge_pos, long long int global_edge_pos,
+                            int vector_index, DelayedWriteNEC &delayed_write)
+            {
+                float weight = collective_outgoing_weights[global_edge_pos];
+                float dst_weight = _distances[dst_id];
+                float src_weight = _distances[src_id];
+                if(dst_weight > src_weight + weight)
+                {
+                    _distances[dst_id] = src_weight + weight;
+                    was_changes[dst_id] = 1;
+                    was_changes[src_id] = 1;
+                }
+            };
+
+            struct VertexPostprocessFunctor
+            {
+                int *was_changes;
+                VertexPostprocessFunctor(int *_was_changes): was_changes(_was_changes) {}
+                void operator()(int src_id, int connections_count, DelayedWriteNEC &delayed_write)
+                {
+                    delayed_write.finish_write_max(was_changes, src_id);
+                }
+            };
+            VertexPostprocessFunctor vertex_postprocess_op(was_changes);
+
+            graph_API.advance(_graph, frontier, edge_op_push, EMPTY_VERTEX_OP, vertex_postprocess_op,
+                               edge_op_collective_push, EMPTY_VERTEX_OP, EMPTY_VERTEX_OP);
         }
+        double t_end = omp_get_wtime();
+        compute_time += t_end - t_st;
+        double iter_time = t_end - t_st;
 
-        int thread_id = omp_get_thread_num();
-        _TEdgeWeight *private_distances = &cached_distances[thread_id * CACHED_VERTICES * CACHE_STEP];
+        t_st = omp_get_wtime();
+        frontier.filter(_graph, changes_occurred);
+        t_end = omp_get_wtime();
+        filter_time += t_end - t_st;
+        iter_time += t_end - t_st;
+        cout << endl << "iter " << iterations_count << " perf: " << (edges_count / (iter_time * 1e6)) << " MTEPS" << endl << endl;
 
-        while(changes > 0)
+        iterations_count++;
+    }
+    cout << "compute time: " << compute_time*1000 << " ms" << endl;
+    cout << "filter time: " << filter_time*1000 << " ms" << endl;
+    cout << "inner perf: " << edges_count / (compute_time * 1e6) << " MTEPS" << endl;
+    cout << "wall perf: " << edges_count / ((compute_time + filter_time) * 1e6) << " MTEPS" << endl;
+    cout << "iterations count: " << iterations_count << endl;
+    cout << "perf per iteration: " << iterations_count * (edges_count / (compute_time * 1e6)) << " MTEPS" << endl;
+
+    MemoryAPI::free_array(was_changes);
+}
+#endif
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+#ifdef __USE_NEC_SX_AURORA__
+template <typename _TVertexValue, typename _TEdgeWeight>
+void SSSP::nec_dijkstra_all_active(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
+                                   int _source_vertex,
+                                   _TEdgeWeight *_distances)
+{
+    LOAD_EXTENDED_CSR_GRAPH_DATA(_graph);
+
+    auto init_distances = [_distances, _source_vertex] (int src_id)
+    {
+        if(src_id == _source_vertex)
+            _distances[_source_vertex] = 0;
+        else
+            _distances[src_id] = FLT_MAX;
+    };
+    graph_API.compute(init_distances, vertices_count);
+
+    auto all_active = [] (int src_id)->int
+    {
+        return NEC_IN_FRONTIER_FLAG;
+    };
+    frontier.filter(_graph, all_active);
+
+    int changes = 1;
+    while(changes > 0)
+    {
+        changes = 0;
+        float *collective_outgoing_weights = graph_API.get_collective_weights(_graph, frontier);
+
+        #pragma omp parallel
         {
-            #pragma omp barrier
+            NEC_REGISTER_INT(changes, 0);
 
-            _reversed_graph.template place_data_into_cache<_TEdgeWeight>(_distances, private_distances);
-
-            #pragma omp barrier
-
-            #ifdef __USE_NEC_SX_AURORA__
-            #pragma _NEC vector
-            #endif
-            for(int i = 0; i < VECTOR_LENGTH; i++)
+            auto edge_op_push = [&outgoing_weights, &_distances, &reg_changes](int src_id, int dst_id, int local_edge_pos,
+                    long long int global_edge_pos, int vector_index, DelayedWriteNEC &delayed_write)
             {
-                reg_changes[i] = 0;
-            }
-
-            #pragma omp master
-            {
-                iterations_count++;
-            }
-            changes = 0;
-
-            if(number_of_vertices_in_first_part > 0)
-            {
-                int local_changes = 0;
-                for(int src_id = 0; src_id < number_of_vertices_in_first_part; src_id++)
+                float weight = outgoing_weights[global_edge_pos];
+                float dst_weight = _distances[dst_id];
+                float src_weight = _distances[src_id];
+                if(dst_weight > src_weight + weight)
                 {
-                    _TEdgeWeight shortest_distance = _distances[src_id];
-                    long long edge_start = first_part_ptrs[src_id];
-                    int connections_count = first_part_sizes[src_id];
-
-                    #ifdef __USE_NEC_SX_AURORA__
-                    #pragma _NEC vector
-                    #endif
-                    for(int i = 0; i < VECTOR_LENGTH; i++)
-                    {
-                        reg_distances[i] = shortest_distance;
-                    }
-
-                    #pragma omp for schedule(static, 1)
-                    for(long long edge_pos = 0; edge_pos < connections_count; edge_pos += VECTOR_LENGTH)
-                    {
-                        #ifdef __USE_NEC_SX_AURORA__
-                        #pragma _NEC ivdep
-                        #pragma _NEC vovertake
-                        #pragma _NEC novob
-                        #pragma _NEC vector
-                        #endif
-                        for(int i = 0; i < VECTOR_LENGTH; i++)
-                        {
-                            int dst_id = incoming_ids[edge_start + edge_pos + i];
-                            _TEdgeWeight weight = incoming_weights[edge_start + edge_pos + i];
-                            _TEdgeWeight new_weight = weight + _reversed_graph.template load_vertex_data_cached<_TEdgeWeight>(dst_id, _distances, private_distances);
-
-                            if(new_weight < reg_distances[i])
-                                reg_distances[i] = new_weight;
-                        }
-                    }
-
-                    shortest_distance = FLT_MAX;
-                    #ifdef __USE_NEC_SX_AURORA__
-                    #pragma _NEC vector
-                    #endif
-                    for(int i = 0; i < VECTOR_LENGTH; i++)
-                    {
-                        if(reg_distances[i] < shortest_distance)
-                            shortest_distance = reg_distances[i];
-                    }
-
-                    #pragma omp critical
-                    {
-                        if(_distances[src_id] > shortest_distance)
-                        {
-                            _distances[src_id] = shortest_distance;
-                            local_changes = 1;
-                        }
-                    }
+                    _distances[dst_id] = src_weight + weight;
+                    reg_changes[vector_index] = 1;
                 }
+            };
 
-                #pragma omp atomic
-                changes += local_changes;
-            }
-
-            #pragma omp for schedule(static, 1)
-            for(int cur_vector_segment = 0; cur_vector_segment < vector_segments_count; cur_vector_segment++)
+            auto edge_op_collective_push = [collective_outgoing_weights, _distances, was_changes]
+                    (int src_id, int dst_id, int local_edge_pos, long long int global_edge_pos,
+                            int vector_index, DelayedWriteNEC &delayed_write)
             {
-                int segment_first_vertex = cur_vector_segment * VECTOR_LENGTH + number_of_vertices_in_first_part;
-
-                long long segement_edges_start = vector_group_ptrs[cur_vector_segment];
-                int segment_connections_count  = vector_group_sizes[cur_vector_segment];
-
-                #ifdef __USE_NEC_SX_AURORA__
-                #pragma _NEC vector
-                #endif
-                for(int i = 0; i < VECTOR_LENGTH; i++)
+                float weight = collective_outgoing_weights[global_edge_pos];
+                float dst_weight = _distances[dst_id];
+                float src_weight = _distances[src_id];
+                if(dst_weight > src_weight + weight)
                 {
-                    int src_id = segment_first_vertex + i;
-                    reg_distances[i] = _distances[src_id];
+                    _distances[dst_id] = src_weight + weight;
+                    reg_changes[vector_index] = 1;
                 }
+            };
 
-                for(long long edge_pos = 0; edge_pos < segment_connections_count; edge_pos++)
-                {
-                    #ifdef __USE_NEC_SX_AURORA__
-                    #pragma _NEC ivdep
-                    #pragma _NEC vovertake
-                    #pragma _NEC novob
-                    #pragma _NEC vector
-                    #endif
-                    for(int i = 0; i < VECTOR_LENGTH; i++)
-                    {
-                        int src_id = segment_first_vertex + i;
-                        int dst_id = incoming_ids[segement_edges_start + edge_pos * VECTOR_LENGTH + i];
+            graph_API.advance((_graph, frontier, edge_op_push, EMPTY_VERTEX_OP, EMPTY_VERTEX_OP,
+                               edge_op_collective_push, EMPTY_VERTEX_OP, EMPTY_VERTEX_OP);
 
-                        _TEdgeWeight weight = incoming_weights[segement_edges_start + edge_pos * VECTOR_LENGTH + i];
-                        _TEdgeWeight new_weight = weight +_reversed_graph.template load_vertex_data_cached<_TEdgeWeight>(dst_id, _distances, private_distances);
-
-                        if(reg_distances[i] > new_weight)
-                        {
-                            reg_distances[i] = new_weight;
-                            reg_changes[i] = 1;
-                        }
-                    }
-                }
-
-                #ifdef __USE_NEC_SX_AURORA__
-                #pragma _NEC vector
-                #endif
-                for(int i = 0; i < VECTOR_LENGTH; i++)
-                {
-                    int src_id = segment_first_vertex + i;
-                    _distances[src_id] = reg_distances[i];
-                }
-            }
-
-            #pragma omp barrier
-
-            int private_changes = 0;
-            for(int i = 0; i < VECTOR_LENGTH; i++)
-            {
-                private_changes += reg_changes[i];
-            }
-
-            #pragma omp atomic
-            changes += private_changes;
-
-            #pragma omp barrier
+            changes = register_sum_reduce(reg_changes);
         }
     }
-    double t2 = omp_get_wtime();
-
-    #ifdef __PRINT_DETAILED_STATS__
-    print_performance_stats(edges_count, iterations_count, t2 - t1);
-    #endif
-
-    _reversed_graph.template free_data<_TEdgeWeight>(cached_distances);*/
 }
+#endif
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+#ifdef __USE_NEC_SX_AURORA__
+template <typename _TVertexValue, typename _TEdgeWeight>
+void SSSP::nec_dijkstra(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
+                        int _source_vertex,
+                        _TEdgeWeight *_distances,
+                        AlgorithmFrontierType _frontier_type)
+{
+    if(_frontier_type == PARTIAL_ACTIVE)
+        nec_dijkstra_partial_active(_graph, _source_vertex, _distances);
+    else if(_frontier_type == PARTIAL_ACTIVE)
+        nec_dijkstra_all_active(_graph, _source_vertex, _distances);
+}
+#endif
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

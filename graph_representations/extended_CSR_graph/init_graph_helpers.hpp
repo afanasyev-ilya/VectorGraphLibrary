@@ -1,13 +1,4 @@
-//
-//  init_graph_helpers.h
-//  ParallelGraphLibrary
-//
-//  Created by Elijah Afanasiev on 17/01/2020.
-//  Copyright © 2020 MSU. All rights reserved.
-//
-
-#ifndef init_graph_helpers_h
-#define init_graph_helpers_h
+#pragma once
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -68,7 +59,8 @@ void ExtendedCSRGraph<_TVertexValue, _TEdgeWeight>::import_graph(EdgesListGraph<
     
     // save old indexes array
     t1 = omp_get_wtime();
-    int *old_indexes = new int[tmp_vertices_count];
+    int *old_indexes;
+    MemoryAPI::allocate_array(&old_indexes, tmp_vertices_count);
     for(int i = 0; i < tmp_vertices_count; i++)
     {
         old_indexes[i] = pairs[i].second;
@@ -87,13 +79,14 @@ void ExtendedCSRGraph<_TVertexValue, _TEdgeWeight>::import_graph(EdgesListGraph<
     }
     
     // get correct reordered array
-    int *tmp_reordered_vertex_ids = new int[tmp_vertices_count];
+    int *tmp_reordered_vertex_ids;
+    MemoryAPI::allocate_array(&tmp_reordered_vertex_ids, tmp_vertices_count);
     for(int i = 0; i < tmp_vertices_count; i++)
     {
         tmp_reordered_vertex_ids[old_indexes[i]] = i;
     }
-    
-    delete []old_indexes;
+
+    MemoryAPI::free_array(old_indexes);
     t2 = omp_get_wtime();
     cout << "index reoedering time: " << t2 - t1 << " sec" << endl;
     
@@ -140,8 +133,8 @@ void ExtendedCSRGraph<_TVertexValue, _TEdgeWeight>::import_graph(EdgesListGraph<
         }
         this->outgoing_ptrs[cur_vertex + 1] = current_edge;
     }
-    
-    delete []tmp_reordered_vertex_ids;
+
+    MemoryAPI::free_array(tmp_reordered_vertex_ids);
     
     calculate_incoming_degrees();
     
@@ -183,28 +176,3 @@ void ExtendedCSRGraph<_TVertexValue, _TEdgeWeight>::calculate_incoming_degrees()
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-template <typename _TVertexValue, typename _TEdgeWeight>
-void ExtendedCSRGraph<_TVertexValue, _TEdgeWeight>::construct_vector_extension()
-{
-    for(int step = 0; step < VECTOR_EXTENSION_SIZE; step++)
-    {
-        #pragma omp parallel for schedule(static)
-        for(int src_id = 0; src_id < this->vertices_count; src_id++)
-        {
-            int connections = outgoing_ptrs[src_id + 1] - outgoing_ptrs[src_id];
-            long long start_pos = outgoing_ptrs[src_id];
-                
-            if(step < connections)
-            {
-                int shift = step;
-                int dst_id = outgoing_ids[start_pos + shift];
-                vectorised_outgoing_ids[src_id + this->vertices_count * step] = dst_id;
-            }
-        }
-    }
-}
-
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-#endif /* init_graph_helpers_h */
