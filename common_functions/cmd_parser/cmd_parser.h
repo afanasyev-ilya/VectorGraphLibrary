@@ -18,10 +18,24 @@ enum ComputeMode {
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+enum AlgorithmFrontierType {
+    ALL_ACTIVE = 1,
+    PARTIAL_ACTIVE = 0
+};
+
+enum TraversalDirection {
+    PUSH_TRAVERSAL = 1,
+    PULL_TRAVERSAL = 0
+};
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 class AlgorithmCommandOptionsParser
 {
 private:
     ComputeMode compute_mode;
+    AlgorithmFrontierType algorithm_frontier_type;
+    TraversalDirection traversal_direction;
     
     int scale;
     int avg_degree;
@@ -43,6 +57,9 @@ public:
     bool get_check_flag() { return check_flag; };
     int get_number_of_rounds() { return number_of_rounds; };
     int get_steps_count() { return steps_count; };
+
+    AlgorithmFrontierType get_algorithm_frontier_type() {return algorithm_frontier_type;};
+    TraversalDirection get_traversal_direction() {return traversal_direction;};
     
     void parse_args(int _argc, const char * _argv[]);
 };

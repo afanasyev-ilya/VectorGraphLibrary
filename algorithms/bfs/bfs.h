@@ -1,13 +1,4 @@
-//
-//  bfs.h
-//  ParallelGraphLibrary
-//
-//  Created by Elijah Afanasiev on 03/06/2019.
-//  Copyright © 2019 MSU. All rights reserved.
-//
-
-#ifndef bfs_h
-#define bfs_h
+#pragma once
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -16,8 +7,7 @@
 #endif
 
 #include <string>
-#include "vertex_queue.h"
-#include "change_state.h"
+#include "change_state/change_state.h"
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -43,6 +33,8 @@ private:
                             int *_cached_levels, int _cur_level, int &_vis, int &_in_lvl,
                             int _threads_count, int *_vectorised_outgoing_ids, bool _use_vect_CSR_extension, int _non_zero_vertices_count,
                             double &_t_first, double &_t_second, double &_t_third);
+
+    void performance_stats(string _name, double _time, long long _edges_count, int _iterations_count);
 public:
     BFS(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph);
     ~BFS();
@@ -62,19 +54,21 @@ public:
     #ifdef __USE_GPU__
     void gpu_direction_optimising_BFS(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph, int *_levels, int _source_vertex);
     #endif
-    
-    void verifier(VectorisedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph, int _source_vertex, int *_parallel_levels);
-    
-    void verifier(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph, int _source_vertex, int *_parallel_levels);
+
+    #ifdef __USE_NEC_SX_AURORA__
+    void nec_top_down(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph, int *_levels, int _source_vertex);
+    #endif
+
+    void seq_top_down(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph, int *_levels, int _source_vertex);
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #include "bfs.hpp"
+#include "seq_bfs.hpp"
+#include "gpu_bfs.hpp"
 #include "nec_bfs.hpp"
-#include "verifier.hpp"
-#include "change_state.hpp"
+#include "change_state/change_state.hpp"
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#endif /* bfs_h */

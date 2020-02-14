@@ -13,7 +13,7 @@
 
 void parse_cmd_params(int _argc, char **_argv, int &_scale, int &_avg_degree, string &_graph_type,
                       string &_output_format, string &_file_name, bool &_convert, string &_input_file_name,
-                      SupportedTraversalType &_traversal_type,
+                      TraversalDirection &_traversal_type,
                       bool &_append_with_reverse_edges, EdgesState &_edges_state,
                       DirectionType &_direction_type)
 {
@@ -110,7 +110,7 @@ int main(int argc, char ** argv)
         string graph_type, output_format, file_name;
         bool convert;
         string input_file_name;
-        SupportedTraversalType traversal_type;
+        TraversalDirection traversal_type;
         bool append_with_reverse_edges;
         DirectionType direction_type;
         EdgesState edges_state;

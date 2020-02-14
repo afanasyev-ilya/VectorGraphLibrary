@@ -5,8 +5,8 @@
 #ifdef __USE_GPU__
 template <typename _TVertexValue, typename _TEdgeWeight>
 void SSSP::gpu_dijkstra(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
-                        int _source_vertex,
-                        _TEdgeWeight *_distances)
+                        _TEdgeWeight *_distances,
+                        int _source_vertex)
 {
     //_graph.move_to_device();
 

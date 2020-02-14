@@ -59,7 +59,7 @@ public:
     bool load_from_binary_file(string file_name);
     
     void import_graph(EdgesListGraph<_TVertexValue, _TEdgeWeight> &_old_graph,
-                      SupportedTraversalType _traversal_type = PULL_TRAVERSAL);
+                      TraversalDirection _traversal_type = PULL_TRAVERSAL);
     
     int get_number_of_shards() { return number_of_shards; };
     ShardBase<_TEdgeWeight> **get_shards_data() { return shards_data; };

@@ -1,13 +1,4 @@
-//
-//  change_state.h
-//  ParallelGraphLibrary
-//
-//  Created by Elijah Afanasiev on 30/06/2019.
-//  Copyright © 2019 MSU. All rights reserved.
-//
-
-#ifndef change_state_h
-#define change_state_h
+#pragma once
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -30,6 +21,7 @@ enum GraphStructure
 
 #define UNVISITED_VERTEX -1
 #define ISOLATED_VERTEX -2
+#define FIRST_LEVEL_VERTEX 1
 
 #define ENABLE_VECTOR_EXTENSION_THRESHOLD 0.1
 
@@ -52,4 +44,3 @@ StateOfBFS gpu_change_state(int _current_queue_size, int _next_queue_size, int _
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#endif /* change_state_h */

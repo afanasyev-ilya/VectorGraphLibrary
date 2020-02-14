@@ -70,7 +70,7 @@ public:
     
     void import_graph(EdgesListGraph<_TVertexValue, _TEdgeWeight> &_copy_graph, VerticesState _vertices_state,
                       EdgesState _edges_state, int _supported_vector_length,
-                      SupportedTraversalType _traversal_type = PULL_TRAVERSAL);
+                      TraversalDirection _traversal_type = PULL_TRAVERSAL);
     
     inline int           *get_reordered_vertex_ids() {return reordered_vertex_ids;};
     inline long long     *get_outgoing_ptrs()        {return outgoing_ptrs;};

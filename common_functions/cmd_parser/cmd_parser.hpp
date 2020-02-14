@@ -16,6 +16,8 @@ AlgorithmCommandOptionsParser::AlgorithmCommandOptionsParser()
     scale = 10;
     avg_degree = 5;
     compute_mode = GENERATE_NEW_GRAPH;
+    algorithm_frontier_type = ALL_ACTIVE;
+    traversal_direction = PUSH_TRAVERSAL;
     check_flag = false;
     graph_file_name = "test.gbin";
     number_of_rounds = 1;
@@ -71,6 +73,26 @@ void AlgorithmCommandOptionsParser::parse_args(int _argc, const char * _argv[])
         if ((option.compare("-rounds") == 0))
         {
             number_of_rounds = atoi(_argv[++i]);
+        }
+
+        if (option.compare("-all-active") == 0)
+        {
+            algorithm_frontier_type = ALL_ACTIVE;
+        }
+
+        if (option.compare("-partial-active") == 0)
+        {
+            algorithm_frontier_type = PARTIAL_ACTIVE;
+        }
+
+        if (option.compare("-push") == 0)
+        {
+            traversal_direction = PUSH_TRAVERSAL;
+        }
+
+        if (option.compare("-pull") == 0)
+        {
+            traversal_direction = PULL_TRAVERSAL;
         }
     }
 }

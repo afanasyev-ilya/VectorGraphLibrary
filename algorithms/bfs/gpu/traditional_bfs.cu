@@ -1,13 +1,4 @@
-//
-//  traditional_bfs.cu
-//  ParallelGraphLibrary
-//
-//  Created by Elijah Afanasiev on 12/06/2019.
-//  Copyright © 2019 MSU. All rights reserved.
-//
-
-#ifndef traditional_bfs_cu
-#define traditional_bfs_cu
+#pragma once
 
 #include <iostream>
 #include <vector>
@@ -18,7 +9,7 @@
 #include "../../../common_functions/gpu_API/gpu_arrays.h"
 #include "../../../graph_representations/edges_list_graph/edges_list_graph.h"
 #include "../../../graph_representations/extended_CSR_graph/extended_CSR_graph.h"
-#include "../change_state.h"
+#include "../change_state/change_state.h"
 
 #include <thrust/device_vector.h>
 #include <thrust/sequence.h>
@@ -874,4 +865,3 @@ template void gpu_direction_optimising_bfs_wrapper<int, double>(ExtendedCSRGraph
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#endif /* traditional_bfs_cu */

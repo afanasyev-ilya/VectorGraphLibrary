@@ -72,7 +72,7 @@ private:
                                              vector<vector<TempEdgeData<_TEdgeWeight> > > &_tmp_graph,
                                              vector<_TVertexValue> &_tmp_vertex_values,
                                              int _tmp_vertices_count,
-                                             SupportedTraversalType _traversal_type);
+                                             TraversalDirection _traversal_type);
     
     void sort_vertices_in_descending_order(vector<vector<TempEdgeData<_TEdgeWeight> > > &_tmp_graph,
                                            int *_tmp_reordered_vertex_ids,
@@ -110,7 +110,7 @@ public:
     
     void import_graph(EdgesListGraph<_TVertexValue, _TEdgeWeight> &_old_graph, VerticesState _vertices_state,
                       EdgesState _edges_state, int _supported_vector_length,
-                      SupportedTraversalType _traversal_type = PULL_TRAVERSAL,
+                      TraversalDirection _traversal_type = PULL_TRAVERSAL,
                       bool _free_initial_graph = false);
     
     inline int get_number_of_vertices_in_first_part() {return number_of_vertices_in_first_part;};

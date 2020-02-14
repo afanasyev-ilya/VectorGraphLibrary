@@ -7,7 +7,7 @@ void ExtendedCSRGraph<_TVertexValue, _TEdgeWeight>::import_graph(EdgesListGraph<
                                                                  VerticesState _vertices_state,
                                                                  EdgesState _edges_state,
                                                                  int _supported_vector_length,
-                                                                 SupportedTraversalType _traversal_type)
+                                                                 TraversalDirection _traversal_type)
 {
     double t1, t2;
     

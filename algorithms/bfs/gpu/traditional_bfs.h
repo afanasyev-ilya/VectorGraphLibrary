@@ -1,13 +1,4 @@
-//
-//  traditional_bfs.h
-//  ParallelGraphLibrary
-//
-//  Created by Elijah Afanasiev on 12/06/2019.
-//  Copyright © 2019 MSU. All rights reserved.
-//
-
-#ifndef traditional_bfs_h
-#define traditional_bfs_h
+#pragma once
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -17,4 +8,3 @@ void gpu_direction_optimising_bfs_wrapper(ExtendedCSRGraph<_TVertexValue, _TEdge
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#endif /* traditional_bfs_h */

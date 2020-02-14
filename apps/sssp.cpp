@@ -45,21 +45,19 @@ int main(int argc, const char * argv[])
         graph.move_to_device();
         #endif
 
-        cout << "Doing " << parser.get_steps_count() << " SSSP iterations" << endl;
+        cout << "Doing " << parser.get_steps_count() << " SSSP iterations..." << endl;
         double t1 = omp_get_wtime();
         for(int i = 0; i < parser.get_steps_count(); i++)
         {
-            last_src_vertex = i; //rand() % (graph.get_vertices_count()/100);
-            #ifdef __USE_NEC_SX_AURORA__
-            sssp_operation.nec_dijkstra(graph, last_src_vertex, distances, ALL_ACTIVE);
-            #endif
+            last_src_vertex = rand() % (graph.get_vertices_count()/100);
 
             #ifdef __USE_NEC_SX_AURORA__
-            sssp_operation.nec_dijkstra(graph, last_src_vertex, distances, PARTIAL_ACTIVE);
+            sssp_operation.nec_dijkstra(graph, distances, last_src_vertex, parser.get_algorithm_frontier_type(),
+                                        parser.get_traversal_direction());
             #endif
             
             #ifdef __USE_GPU__
-            sssp_operation.gpu_dijkstra(graph, last_src_vertex, distances);
+            sssp_operation.gpu_dijkstra(graph, distances, last_src_vertex);
             #endif
         }
         double t2 = omp_get_wtime();
@@ -76,7 +74,7 @@ int main(int argc, const char * argv[])
         {
             float *check_distances;
             sssp_operation.allocate_result_memory(graph.get_vertices_count(), &check_distances);
-            sssp_operation.seq_dijkstra(graph, last_src_vertex, check_distances);
+            sssp_operation.seq_dijkstra(graph, check_distances, last_src_vertex);
             
             verify_results(distances, check_distances, graph.get_vertices_count());
 

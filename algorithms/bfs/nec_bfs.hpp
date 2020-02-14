@@ -1,13 +1,4 @@
-//
-//  nec_bfs.hpp
-//  ParallelGraphLibrary
-//
-//  Created by Elijah Afanasiev on 21/10/2019.
-//  Copyright © 2019 MSU. All rights reserved.
-//
-
-#ifndef nec_bfs_h
-#define nec_bfs_h
+#pragma once
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -764,4 +755,58 @@ void BFS<_TVertexValue, _TEdgeWeight>::nec_direction_optimising_BFS(ExtendedCSRG
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#endif /* nec_bfs_h */
+#ifdef __USE_NEC_SX_AURORA__
+template <typename _TVertexValue, typename _TEdgeWeight>
+void BFS<_TVertexValue, _TEdgeWeight>::nec_top_down(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
+                                                    int *_levels,
+                                                    int _source_vertex)
+{
+    LOAD_EXTENDED_CSR_GRAPH_DATA(_graph);
+
+    GraphPrimitivesNEC graph_API;
+    FrontierNEC frontier;
+
+    auto init_levels = [_levels, _source_vertex] (int src_id)
+    {
+        if(src_id == _source_vertex)
+            _levels[_source_vertex] = FIRST_LEVEL_VERTEX;
+        else
+            _levels[src_id] = UNVISITED_VERTEX;
+    };
+    graph_API.compute(init_levels, vertices_count);
+
+    auto all_active = [] (int src_id)->int
+    {
+        return NEC_IN_FRONTIER_FLAG;
+    };
+    frontier.filter(_graph, all_active);
+
+    double t1 = omp_get_wtime();
+    int current_level = FIRST_LEVEL_VERTEX;
+    while(current_level < 20)
+    {
+        #pragma omp parallel
+        {
+            auto edge_op = [_levels, current_level](int src_id, int dst_id, int local_edge_pos,
+                    long long int global_edge_pos, int vector_index, DelayedWriteNEC &delayed_write)
+            {
+                int src_level = _levels[src_id];
+                int dst_level = _levels[dst_id];
+                if((src_level == current_level) && (dst_level == UNVISITED_VERTEX))
+                {
+                    _levels[dst_id] = current_level + 1;
+                }
+            };
+
+            graph_API.advance(_graph, frontier, edge_op, EMPTY_VERTEX_OP, EMPTY_VERTEX_OP,
+                              edge_op, EMPTY_VERTEX_OP, EMPTY_VERTEX_OP);
+        }
+        current_level++;
+    }
+    double t2 = omp_get_wtime();
+
+    performance_stats("BFS (bottom-up)", t2 - t1, edges_count, current_level);
+}
+#endif
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

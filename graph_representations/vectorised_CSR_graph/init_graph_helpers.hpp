@@ -17,7 +17,7 @@ void VectorisedCSRGraph<_TVertexValue, _TEdgeWeight>::construct_tmp_graph_from_e
                                                     vector<vector<TempEdgeData<_TEdgeWeight> > > &_tmp_graph,
                                                     vector<_TVertexValue> &_tmp_vertex_values,
                                                     int _tmp_vertices_count,
-                                                    SupportedTraversalType _traversal_type)
+                                                    TraversalDirection _traversal_type)
 {
     int *old_src_ids = _old_graph.get_src_ids();
     int *old_dst_ids = _old_graph.get_dst_ids();
@@ -357,7 +357,7 @@ void VectorisedCSRGraph<_TVertexValue, _TEdgeWeight>::import_graph(EdgesListGrap
                                                                    VerticesState _vertices_state,
                                                                    EdgesState _edges_state,
                                                                    int _supported_vector_length,
-                                                                   SupportedTraversalType _traversal_type,
+                                                                   TraversalDirection _traversal_type,
                                                                    bool _free_initial_graph)
 {
     // set optimisation parameters

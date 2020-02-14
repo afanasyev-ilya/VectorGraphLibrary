@@ -9,8 +9,8 @@ typedef pair<float, int> iPair;
 
 template <typename _TVertexValue, typename _TEdgeWeight>
 void SSSP::seq_dijkstra(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
-                        int _source_vertex,
-                        _TEdgeWeight *_distances)
+                        _TEdgeWeight *_distances,
+                        int _source_vertex)
 {
     LOAD_EXTENDED_CSR_GRAPH_DATA(_graph);
 

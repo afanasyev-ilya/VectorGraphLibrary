@@ -16,12 +16,6 @@ using namespace std;
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-enum SupportedTraversalType
-{
-    PUSH_TRAVERSAL = 0, // original
-    PULL_TRAVERSAL = 1 // reversed
-};
-
 enum VisualisationMode
 {
     VISUALISE_AS_DIRECTED = 0,

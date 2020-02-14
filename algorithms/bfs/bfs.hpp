@@ -1,13 +1,4 @@
-//
-//  bfs.hpp
-//  ParallelGraphLibrary
-//
-//  Created by Elijah Afanasiev on 03/06/2019.
-//  Copyright © 2019 MSU. All rights reserved.
-//
-
-#ifndef bfs_hpp
-#define bfs_hpp
+#pragma once
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -17,16 +8,11 @@ BFS<_TVertexValue, _TEdgeWeight>::BFS(ExtendedCSRGraph<_TVertexValue, _TEdgeWeig
     int vertices_count = _graph.get_vertices_count();
     
     #ifdef __USE_NEC_SX_AURORA__
-    active_vertices_buffer = _graph.template vertex_array_alloc<int>();
-    active_ids = _graph.template vertex_array_alloc<int>();
+    MemoryAPI::allocate_array(&active_vertices_buffer, vertices_count);
+    MemoryAPI::allocate_array(&active_ids, vertices_count);
     
     #pragma omp parallel
     {}
-    #endif
-    
-    #ifdef __USE_GPU__
-    cudaMalloc((void**)&active_ids, sizeof(int) * vertices_count);
-    cudaMalloc((void**)&active_vertices_buffer, sizeof(int) * vertices_count);
     #endif
 }
 
@@ -45,11 +31,6 @@ BFS<_TVertexValue, _TEdgeWeight>::~BFS()
         delete []active_ids;
     }
     #endif
-    
-    #ifdef __USE_GPU__
-    cudaFree(active_ids);
-    cudaFree(active_vertices_buffer);
-    #endif
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -57,7 +38,7 @@ BFS<_TVertexValue, _TEdgeWeight>::~BFS()
 template <typename _TVertexValue, typename _TEdgeWeight>
 void BFS<_TVertexValue, _TEdgeWeight>::allocate_result_memory(int _vertices_count, int **_levels)
 {
-    *_levels = new int[_vertices_count];
+    MemoryAPI::allocate_array(_levels, _vertices_count);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -65,64 +46,20 @@ void BFS<_TVertexValue, _TEdgeWeight>::allocate_result_memory(int _vertices_coun
 template <typename _TVertexValue, typename _TEdgeWeight>
 void BFS<_TVertexValue, _TEdgeWeight>::free_result_memory(int *_levels)
 {
-    delete[] _levels;
+    MemoryAPI::free_array(_levels);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#ifdef __USE_GPU__
 template <typename _TVertexValue, typename _TEdgeWeight>
-void BFS<_TVertexValue, _TEdgeWeight>::allocate_device_result_memory(int _vertices_count, int **_device_levels)
+void BFS<_TVertexValue, _TEdgeWeight>::performance_stats(string _name, double _time, long long _edges_count, int _iterations_count)
 {
-    cudaMalloc((void**)_device_levels, _vertices_count * sizeof(int));
+    cout << " ---------------- " << _name << " performance stats -------------------- " << endl;
+    cout << "wall time: " << _time*1000.0 << " ms" << endl;
+    cout << "wall perf: " << _edges_count / (_time * 1e6) << " MTEPS" << endl;
+    cout << "iterations count: " << _iterations_count << endl;
+    cout << "perf per iteration: " << _iterations_count * (_edges_count / (_time * 1e6)) << " MTEPS" << endl << endl;
 }
-#endif
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#ifdef __USE_GPU__
-template <typename _TVertexValue, typename _TEdgeWeight>
-void BFS<_TVertexValue, _TEdgeWeight>::free_device_result_memory(int *_device_levels)
-{
-    cudaFree(_device_levels);
-}
-#endif
-
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-#ifdef __USE_GPU__
-template <typename _TVertexValue, typename _TEdgeWeight>
-void BFS<_TVertexValue, _TEdgeWeight>::copy_result_to_host(int *_host_levels, int *_device_levels, int _vertices_count)
-{
-    cudaMemcpy(_host_levels, _device_levels, _vertices_count * sizeof(int), cudaMemcpyDeviceToHost);
-}
-#endif
-
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-#ifdef __USE_GPU__
-template <typename _TVertexValue, typename _TEdgeWeight>
-void BFS<_TVertexValue, _TEdgeWeight>::gpu_direction_optimising_BFS(
-                                         ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
-                                         int *_device_levels,
-                                         int _source_vertex)
-{
-    LOAD_EXTENDED_CSR_GRAPH_DATA(_graph);
-    
-    _graph.move_to_device();
-    
-    int iterations_count = 0;
-    gpu_direction_optimising_bfs_wrapper<_TVertexValue, _TEdgeWeight>(_graph, _device_levels, _source_vertex, iterations_count,
-                                                                      active_ids, active_vertices_buffer);
-    
-    //cudaMemcpy(_levels, device_levels, vertices_count * sizeof(int), cudaMemcpyDeviceToHost);
-}
-#endif
-
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-// TODO perf stats
-
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-#endif /* bfs_hpp */
