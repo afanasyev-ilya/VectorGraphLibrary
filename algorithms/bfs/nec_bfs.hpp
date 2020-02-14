@@ -764,7 +764,7 @@ void BFS<_TVertexValue, _TEdgeWeight>::nec_top_down(ExtendedCSRGraph<_TVertexVal
     LOAD_EXTENDED_CSR_GRAPH_DATA(_graph);
 
     GraphPrimitivesNEC graph_API;
-    FrontierNEC frontier;
+    FrontierNEC frontier(_graph.get_vertices_count());
 
     auto init_levels = [_levels, _source_vertex] (int src_id)
     {
@@ -775,15 +775,18 @@ void BFS<_TVertexValue, _TEdgeWeight>::nec_top_down(ExtendedCSRGraph<_TVertexVal
     };
     graph_API.compute(init_levels, vertices_count);
 
-    auto all_active = [] (int src_id)->int
+    auto on_first_level = [_levels] (int src_id)->int
     {
-        return NEC_IN_FRONTIER_FLAG;
+        int result = NEC_NOT_IN_FRONTIER_FLAG;
+        if(_levels[src_id] == FIRST_LEVEL_VERTEX)
+            result = NEC_IN_FRONTIER_FLAG;
+        return result;
     };
-    frontier.filter(_graph, all_active);
+    frontier.filter(_graph, on_first_level);
 
     double t1 = omp_get_wtime();
     int current_level = FIRST_LEVEL_VERTEX;
-    while(current_level < 20)
+    while(frontier.size() > 0)
     {
         #pragma omp parallel
         {
@@ -801,6 +804,16 @@ void BFS<_TVertexValue, _TEdgeWeight>::nec_top_down(ExtendedCSRGraph<_TVertexVal
             graph_API.advance(_graph, frontier, edge_op, EMPTY_VERTEX_OP, EMPTY_VERTEX_OP,
                               edge_op, EMPTY_VERTEX_OP, EMPTY_VERTEX_OP);
         }
+
+        auto on_next_level = [_levels, current_level] (int src_id)->int
+        {
+            int result = NEC_NOT_IN_FRONTIER_FLAG;
+            if(_levels[src_id] == (current_level + 1))
+                result = NEC_IN_FRONTIER_FLAG;
+            return result;
+        };
+        frontier.filter(_graph, on_next_level);
+
         current_level++;
     }
     double t2 = omp_get_wtime();
