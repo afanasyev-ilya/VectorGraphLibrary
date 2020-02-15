@@ -3,17 +3,10 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template <typename _TVertexValue, typename _TEdgeWeight>
-BFS<_TVertexValue, _TEdgeWeight>::BFS(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph)
+BFS<_TVertexValue, _TEdgeWeight>::BFS(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph):
+frontier(_graph.get_vertices_count())
 {
-    int vertices_count = _graph.get_vertices_count();
-    
-    #ifdef __USE_NEC_SX_AURORA__
-    MemoryAPI::allocate_array(&active_vertices_buffer, vertices_count);
-    MemoryAPI::allocate_array(&active_ids, vertices_count);
-    
-    #pragma omp parallel
-    {}
-    #endif
+
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -21,16 +14,7 @@ BFS<_TVertexValue, _TEdgeWeight>::BFS(ExtendedCSRGraph<_TVertexValue, _TEdgeWeig
 template <typename _TVertexValue, typename _TEdgeWeight>
 BFS<_TVertexValue, _TEdgeWeight>::~BFS()
 {
-    #ifdef __USE_NEC_SX_AURORA__
-    if(active_vertices_buffer != NULL)
-    {
-        delete []active_vertices_buffer;
-    }
-    if(active_ids != NULL)
-    {
-        delete []active_ids;
-    }
-    #endif
+
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

@@ -49,9 +49,8 @@ int main(int argc, const char * argv[])
         {
             int vertices_count = pow(2.0, parser.get_scale());
             long long edges_count = vertices_count * parser.get_avg_degree();
-            //GraphGenerationAPI<int, float>::random_uniform(rand_graph, vertices_count, edges_count, UNDIRECTED_GRAPH);
             GraphGenerationAPI<int, float>::R_MAT(rand_graph, vertices_count, edges_count, 57, 19, 19, 5, UNDIRECTED_GRAPH);
-            graph.import_graph(rand_graph, VERTICES_SORTED, EDGES_SORTED, 1, PUSH_TRAVERSAL);
+            graph.import_graph(rand_graph);
         }
         else if(parser.get_compute_mode() == LOAD_GRAPH_FROM_FILE)
         {

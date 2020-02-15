@@ -2,7 +2,7 @@
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-template <typename _TVertexValue, typename _TEdgeWeight>
+/*template <typename _TVertexValue, typename _TEdgeWeight>
 inline void BFS<_TVertexValue, _TEdgeWeight>::nec_top_down_step(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
                                                                 long long *_outgoing_ptrs,
                                                                 int *_outgoing_ids,
@@ -319,11 +319,11 @@ inline void BFS<_TVertexValue, _TEdgeWeight>::nec_top_down_step(ExtendedCSRGraph
     }
     _vis = vis;
     _in_lvl = in_lvl;
-}
+}*/
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-template <typename _TVertexValue, typename _TEdgeWeight>
+/*template <typename _TVertexValue, typename _TEdgeWeight>
 inline void BFS<_TVertexValue, _TEdgeWeight>::nec_bottom_up_step(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
                                                                  long long *_outgoing_ptrs,
                                                                  int *_outgoing_ids,
@@ -470,7 +470,7 @@ inline void BFS<_TVertexValue, _TEdgeWeight>::nec_bottom_up_step(ExtendedCSRGrap
             
         int *private_levels = _graph.template get_private_data_pointer<int>(_cached_levels);
         
-        /*#pragma omp for schedule(static)
+        #pragma omp for schedule(static)
         for(int i = 0; i < active_vertices_left; i++)
         {
             int id1 = active_ids[i];
@@ -481,7 +481,7 @@ inline void BFS<_TVertexValue, _TEdgeWeight>::nec_bottom_up_step(ExtendedCSRGrap
             {
                 border_large = i;
             }
-        }*/
+        }
             
         #pragma _NEC novector
         #pragma omp for schedule(static, 1)
@@ -580,11 +580,11 @@ inline void BFS<_TVertexValue, _TEdgeWeight>::nec_bottom_up_step(ExtendedCSRGrap
     
     _vis = vis;
     _in_lvl = in_lvl;
-}
+}*/
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-template <typename _TVertexValue, typename _TEdgeWeight>
+/*template <typename _TVertexValue, typename _TEdgeWeight>
 inline int BFS<_TVertexValue, _TEdgeWeight>::nec_remove_zero_nodes(long long *_outgoing_ptrs, int _vertices_count, int *_levels)
 {
     int zero_nodes_count = 0;
@@ -600,11 +600,11 @@ inline int BFS<_TVertexValue, _TEdgeWeight>::nec_remove_zero_nodes(long long *_o
         }
     }
     return _vertices_count - zero_nodes_count;
-}
+}*/
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-template <typename _TVertexValue, typename _TEdgeWeight>
+/*template <typename _TVertexValue, typename _TEdgeWeight>
 inline int BFS<_TVertexValue, _TEdgeWeight>::nec_mark_zero_nodes(int _vertices_count, int *_levels)
 {
     #pragma _NEC vector
@@ -616,11 +616,11 @@ inline int BFS<_TVertexValue, _TEdgeWeight>::nec_mark_zero_nodes(int _vertices_c
             _levels[src_id] = UNVISITED_VERTEX;
         }
     }
-}
+}*/
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-template <typename _TVertexValue, typename _TEdgeWeight>
+/*template <typename _TVertexValue, typename _TEdgeWeight>
 void BFS<_TVertexValue, _TEdgeWeight>::nec_direction_optimising_BFS(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
                                                                     int *_levels,
                                                                     int _source_vertex)
@@ -751,7 +751,54 @@ void BFS<_TVertexValue, _TEdgeWeight>::nec_direction_optimising_BFS(ExtendedCSRG
     cout << "TOTAL BFS Perf: " << ((double)edges_count)/(total_time*1e6) << " MTEPS" << endl << endl;
     
     _graph.template free_data<int>(cached_levels);
+}*/
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+#ifdef __USE_NEC_SX_AURORA__
+template <typename _TVertexValue, typename _TEdgeWeight>
+void BFS<_TVertexValue, _TEdgeWeight>::nec_top_down_compute_step(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
+                                                                 int *_levels,
+                                                                 int _current_level)
+{
+    #pragma omp parallel
+    {
+        auto edge_op = [_levels, _current_level](int src_id, int dst_id, int local_edge_pos,
+                long long int global_edge_pos, int vector_index, DelayedWriteNEC &delayed_write)
+        {
+            int src_level = _levels[src_id];
+            int dst_level = _levels[dst_id];
+            if((src_level == _current_level) && (dst_level == UNVISITED_VERTEX))
+            {
+                _levels[dst_id] = _current_level + 1;
+            }
+        };
+
+        graph_API.advance(_graph, frontier, edge_op);
+    }
 }
+#endif
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+#ifdef __USE_NEC_SX_AURORA__
+template <typename _TVertexValue, typename _TEdgeWeight>
+void BFS<_TVertexValue, _TEdgeWeight>::nec_bottom_up_compute_step(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
+                                                                  int *_levels,
+                                                                  int _current_level)
+{
+    #pragma omp parallel
+    {
+        auto edge_op = [_levels, _current_level](int src_id, int dst_id, int local_edge_pos,
+                long long int global_edge_pos, int vector_index, DelayedWriteNEC &delayed_write)
+        {
+
+        };
+
+        graph_API.advance(_graph, frontier, edge_op);
+    }
+}
+#endif
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -763,9 +810,6 @@ void BFS<_TVertexValue, _TEdgeWeight>::nec_top_down(ExtendedCSRGraph<_TVertexVal
 {
     LOAD_EXTENDED_CSR_GRAPH_DATA(_graph);
 
-    GraphPrimitivesNEC graph_API;
-    FrontierNEC frontier(_graph.get_vertices_count());
-
     auto init_levels = [_levels, _source_vertex] (int src_id)
     {
         if(src_id == _source_vertex)
@@ -774,6 +818,11 @@ void BFS<_TVertexValue, _TEdgeWeight>::nec_top_down(ExtendedCSRGraph<_TVertexVal
             _levels[src_id] = UNVISITED_VERTEX;
     };
     graph_API.compute(init_levels, vertices_count);
+
+    cout << "first edges" << endl;
+    for(int i = 0; i < 20; i++)
+        cout << outgoing_ids[i] << " ";
+    cout << endl;
 
     auto on_first_level = [_levels] (int src_id)->int
     {
@@ -784,26 +833,14 @@ void BFS<_TVertexValue, _TEdgeWeight>::nec_top_down(ExtendedCSRGraph<_TVertexVal
     };
     frontier.filter(_graph, on_first_level);
 
+    vector<double> step_times;
+
     double t1 = omp_get_wtime();
     int current_level = FIRST_LEVEL_VERTEX;
     while(frontier.size() > 0)
     {
-        #pragma omp parallel
-        {
-            auto edge_op = [_levels, current_level](int src_id, int dst_id, int local_edge_pos,
-                    long long int global_edge_pos, int vector_index, DelayedWriteNEC &delayed_write)
-            {
-                int src_level = _levels[src_id];
-                int dst_level = _levels[dst_id];
-                if((src_level == current_level) && (dst_level == UNVISITED_VERTEX))
-                {
-                    _levels[dst_id] = current_level + 1;
-                }
-            };
-
-            graph_API.advance(_graph, frontier, edge_op, EMPTY_VERTEX_OP, EMPTY_VERTEX_OP,
-                              edge_op, EMPTY_VERTEX_OP, EMPTY_VERTEX_OP);
-        }
+        double t_st = omp_get_wtime();
+        nec_top_down_compute_step(_graph, _levels, current_level);
 
         auto on_next_level = [_levels, current_level] (int src_id)->int
         {
@@ -815,8 +852,15 @@ void BFS<_TVertexValue, _TEdgeWeight>::nec_top_down(ExtendedCSRGraph<_TVertexVal
         frontier.filter(_graph, on_next_level);
 
         current_level++;
+        double t_end = omp_get_wtime();
+        step_times.push_back(t_end - t_st);
     }
     double t2 = omp_get_wtime();
+
+    for(int i = 0; i < step_times.size(); i++)
+    {
+        cout << "step " << i << " time: " << 1000.0 * step_times[i] << " ms, " << 100.0* step_times[i] / (t2 - t1) << " %" << endl;
+    }
 
     performance_stats("BFS (bottom-up)", t2 - t1, edges_count, current_level);
 }

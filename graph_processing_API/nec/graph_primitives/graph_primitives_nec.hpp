@@ -98,9 +98,20 @@ void GraphPrimitivesNEC::vector_engine_per_vertex_kernel(const long long *_verte
     #pragma omp master
     {
         double work = _vertex_pointers[_last_vertex] - _vertex_pointers[_first_vertex];
-        //cout << "work 1: " << work << " - " << 100.0 * work/_edges_count << " %" << endl;
-        cout << "first time: " << (t2 - t1)*1000 << " ms" << endl;
-        cout << "first BW: " << sizeof(int)*5.0*work/((t2-t1)*1e9) << " GB/s" << endl;
+        double real_work = 0;
+        for(int front_pos = _first_vertex; front_pos < _last_vertex; front_pos++)
+        {
+            const int src_id = front_pos;
+            if(_frontier_flags[src_id] > 0)
+            {
+                real_work += _vertex_pointers[src_id + 1] - _vertex_pointers[src_id];
+            }
+        }
+        cout << "1) time: " << (t2 - t1)*1000.0 << " ms" << endl;
+        //cout << "1) all active work: " << work << " - " << 100.0 * work/_edges_count << " %" << endl;
+        cout << "1) all active BW: " << sizeof(int)*INT_ELEMENTS_PER_EDGE*work/((t2-t1)*1e9) << " GB/s" << endl;
+        //cout << "1) real work: " << real_work << " - " << 100.0 * real_work/_edges_count << " %" << endl;
+        cout << "1) real BW: " << sizeof(int)*INT_ELEMENTS_PER_EDGE*real_work/((t2-t1)*1e9) << " GB/s" << endl;
     };
     #pragma omp barrier
     #endif
@@ -184,9 +195,20 @@ void GraphPrimitivesNEC::vector_core_per_vertex_kernel(const long long *_vertex_
     #pragma omp master
     {
         double work = _vertex_pointers[_last_vertex] - _vertex_pointers[_first_vertex];
-        //cout << "work 2: " << work << " - " << 100.0 * work/_edges_count << " %" << endl;
-        cout << "second time: " << (t2 - t1)*1000 << " ms" << endl;
-        cout << "second BW: " << sizeof(int)*5.0*work/((t2-t1)*1e9) << " GB/s" << endl;
+        double real_work = 0;
+        for(int front_pos = _first_vertex; front_pos < _last_vertex; front_pos++)
+        {
+            const int src_id = front_pos;
+            if(_frontier_flags[src_id] > 0)
+            {
+                real_work += _vertex_pointers[src_id + 1] - _vertex_pointers[src_id];
+            }
+        }
+        cout << "2) time: " << (t2 - t1)*1000.0 << " ms" << endl;
+        //cout << "2) all active work: " << work << " - " << 100.0 * work/_edges_count << " %" << endl;
+        cout << "2) all active BW: " << sizeof(int)*INT_ELEMENTS_PER_EDGE*work/((t2-t1)*1e9) << " GB/s" << endl;
+        //cout << "2) real work: " << real_work << " - " << 100.0 * real_work/_edges_count << " %" << endl;
+        cout << "2) real BW: " << sizeof(int)*INT_ELEMENTS_PER_EDGE*real_work/((t2-t1)*1e9) << " GB/s" << endl;
     };
     #pragma omp barrier
     #endif
@@ -309,9 +331,20 @@ void GraphPrimitivesNEC::collective_vertex_processing_kernel(const long long *_v
     #pragma omp master
     {
         double work = _vertex_pointers[_last_vertex] - _vertex_pointers[_first_vertex];
-        //cout << "work 3: " << work << " - " << 100.0 * work/_edges_count << " %" << endl;
-        cout << "third time: " << (t2 - t1)*1000 << " ms" << endl;
-        cout << "third BW: " << sizeof(int)*5.0*work/((t2-t1)*1e9) << " GB/s" << endl << endl;
+        double real_work = 0;
+        for(int front_pos = _first_vertex; front_pos < _last_vertex; front_pos++)
+        {
+            const int src_id = front_pos;
+            if(_frontier_flags[src_id] > 0)
+            {
+                real_work += _vertex_pointers[src_id + 1] - _vertex_pointers[src_id];
+            }
+        }
+        cout << "3) time: " << (t2 - t1)*1000.0 << " ms" << endl;
+        //cout << "3) all active work: " << work << " - " << 100.0 * work/_edges_count << " %" << endl;
+        cout << "3) all active BW: " << sizeof(int)*INT_ELEMENTS_PER_EDGE*work/((t2-t1)*1e9) << " GB/s" << endl;
+        //cout << "3) real work: " << real_work << " - " << 100.0 * real_work/_edges_count << " %" << endl;
+        cout << "3) real BW: " << sizeof(int)*INT_ELEMENTS_PER_EDGE*real_work/((t2-t1)*1e9) << " GB/s" << endl << endl;
     };
     #pragma omp barrier
     #endif
@@ -401,9 +434,26 @@ void GraphPrimitivesNEC::ve_collective_vertex_processing_kernel(const long long 
     #pragma omp master
     {
         double work = _ve_vector_group_ptrs[_ve_vector_segments_count - 1] - _ve_vector_group_ptrs[0];
-        //cout << "work 3: " << work << " - " << 100.0 * work/_edges_count << " %" << endl;
-        cout << "third time: " << (t2 - t1)*1000 << " ms" << endl;
-        cout << "third BW: " << (sizeof(int)*5.0)*(work)/((t2-t1)*1e9) << " GB/s" << endl << endl;
+        double real_work = work;
+
+        /*for(int cur_vector_segment = 0; cur_vector_segment < _ve_vector_segments_count; cur_vector_segment++)
+        {
+            int segment_first_vertex = cur_vector_segment * VECTOR_LENGTH + _ve_starting_vertex;
+            int segment_connections_count = _ve_vector_group_sizes[cur_vector_segment];
+            for (int i = 0; i < VECTOR_LENGTH; i++)
+            {
+                const int src_id = segment_first_vertex + i;
+                if(_frontier_flags[src_id] > 0)
+                {
+                    real_work += segment_connections_count;
+                }
+            }
+        }*/
+        //cout << "3) all active work: " << work << " - " << 100.0 * work/_edges_count << " %" << endl;
+        cout << "3) time: " << (t2 - t1)*1000.0 << " ms" << endl;
+        cout << "3) (ve) all active BW: " << sizeof(int)*INT_ELEMENTS_PER_EDGE*work/((t2-t1)*1e9) << " GB/s" << endl;
+        //cout << "3) real work: " << real_work << " - " << 100.0 * real_work/_edges_count << " %" << endl;
+        cout << "3) (ve) real BW: " << sizeof(int)*INT_ELEMENTS_PER_EDGE*real_work/((t2-t1)*1e9) << " GB/s" << endl << endl;
     };
     #pragma omp barrier
     #endif
@@ -462,6 +512,16 @@ void GraphPrimitivesNEC::advance(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &
     }
 
     #pragma omp barrier
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+template <typename _TVertexValue, typename _TEdgeWeight, typename EdgeOperation>
+void GraphPrimitivesNEC::advance(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
+                                 FrontierNEC &_frontier,
+                                 EdgeOperation &&edge_op)
+{
+    advance(_graph, _frontier, edge_op, EMPTY_VERTEX_OP, EMPTY_VERTEX_OP, edge_op, EMPTY_VERTEX_OP, EMPTY_VERTEX_OP);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

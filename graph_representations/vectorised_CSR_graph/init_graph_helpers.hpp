@@ -123,7 +123,7 @@ void VectorisedCSRGraph<_TVertexValue, _TEdgeWeight>::sort_edges(vector<vector<T
         int src_id = cur_vertex;
         if(edges_state == EDGES_SORTED)
         {
-            std::sort(_tmp_graph[src_id].begin(), _tmp_graph[src_id].end(), edge_cmp<_TEdgeWeight>);
+            std::sort(_tmp_graph[src_id].begin(), _tmp_graph[src_id].end(), edge_less<_TEdgeWeight>);
         }
         else if(edges_state == EDGES_RANDOM_SHUFFLED)
         {

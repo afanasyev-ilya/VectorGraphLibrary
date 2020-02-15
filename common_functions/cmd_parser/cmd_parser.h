@@ -30,6 +30,28 @@ enum TraversalDirection {
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+enum VerticesState
+{
+    VERTICES_SORTED = 1,
+    VERTICES_UNSORTED = 0,
+    VERTICES_RANDOM_SHUFFLED = 2
+};
+
+enum EdgesState
+{
+    EDGES_SORTED = 1,
+    EDGES_UNSORTED = 0,
+    EDGES_RANDOM_SHUFFLED = 2
+};
+
+enum MultipleArcsState
+{
+    MULTIPLE_ARCS_PRESENT = 1,
+    MULTIPLE_ARCS_REMOVED = 0
+};
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 class AlgorithmCommandOptionsParser
 {
 private:

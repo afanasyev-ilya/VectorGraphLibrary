@@ -1,17 +1,8 @@
-//
-//  vectorise_CSR.h
-//  ParallelGraphLibrary
-//
-//  Created by Elijah Afanasiev on 19/04/2019.
-//  Copyright © 2019 MSU. All rights reserved.
-//
-
-#ifndef vectorise_CSR_h
-#define vectorise_CSR_h
+#pragma once
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#include "CSR_params.h"
+#include <limits>
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -31,11 +22,24 @@ struct TempEdgeData
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template <typename _TEdgeWeight>
-bool edge_cmp(TempEdgeData<_TEdgeWeight> lhs, TempEdgeData<_TEdgeWeight> rhs)
+bool edge_less(TempEdgeData<_TEdgeWeight> lhs, TempEdgeData<_TEdgeWeight> rhs)
 {
-    return lhs.dst_id < rhs.dst_id;
+    if(lhs.dst_id < rhs.dst_id)
+        return true;
+    if(lhs.dst_id == rhs.dst_id)
+        return lhs.weight < rhs.weight;
+    return false;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#endif /* vectorise_CSR_h */
+template <typename _TEdgeWeight>
+bool edge_equal(TempEdgeData<_TEdgeWeight> lhs, TempEdgeData<_TEdgeWeight> rhs)
+{
+    if((lhs.dst_id == rhs.dst_id)/* && (std::abs(lhs.weight - rhs.weight) <
+                            std::numeric_limits<_TEdgeWeight>::epsilon()*std::abs(lhs.weight + rhs.weight))*/)
+        return true;
+    return false;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

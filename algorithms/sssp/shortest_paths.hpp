@@ -32,7 +32,8 @@ void SSSP::reorder_result(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
     int vertices_count = _graph.get_vertices_count();
     int *reordered_ids = _graph.get_reordered_vertex_ids();
 
-    MemoryAPI::allocate_array(tmp_distances, vertices_count);
+    int *tmp_distances;
+    MemoryAPI::allocate_array(&tmp_distances, vertices_count);
 
     for(int i = 0; i < vertices_count; i++)
     {

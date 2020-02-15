@@ -21,7 +21,7 @@ void parse_cmd_params(int _argc, char **_argv, int &_scale, int &_avg_degree, st
     _scale = 10;
     _avg_degree = 16;
     _graph_type = "RMAT";
-    _output_format = "vectorised_CSR";
+    _output_format = "extended_CSR";
     _file_name = "rng_graph.gbin";
     _convert = false;
     _input_file_name = "wiki.txt";
@@ -167,7 +167,7 @@ int main(int argc, char ** argv)
         {
             ExtendedCSRGraph<int, float> result_graph;
             t1 = omp_get_wtime();
-            result_graph.import_graph(rand_graph, VERTICES_SORTED, edges_state, VECTOR_LENGTH, traversal_type);
+            result_graph.import_graph(rand_graph, VERTICES_SORTED, edges_state, 1, traversal_type, MULTIPLE_ARCS_REMOVED);
             t2 = omp_get_wtime();
             cout << "format conversion time: " << t2 - t1 << " sec" << endl;
             
@@ -175,16 +175,6 @@ int main(int argc, char ** argv)
             result_graph.save_to_binary_file(file_name + "_ext_CSR.gbin");
             t2 = omp_get_wtime();
             cout << "saved into ExtendedCSRGraph in " << t2 - t1 << " sec"  << endl;
-        }
-        else if(output_format.find("vectorised_CSR") != string::npos)
-        {
-            VectorisedCSRGraph<int, float> result_graph;
-            result_graph.import_graph(rand_graph, VERTICES_SORTED, edges_state, VECTOR_LENGTH, traversal_type, true);
-            result_graph.save_to_binary_file(file_name + "_vect_CSR.gbin");
-            double new_edges_count = result_graph.get_edges_count();
-            cout << "saved into VectorisedCSRGraph!" << endl;
-            cout << "edges count in VectorisedCSRGraph: " << new_edges_count << endl;
-            cout << "added " << (new_edges_count - old_edges_count) * 100.0 / old_edges_count << " % extra edges" << endl << endl;
         }
         else if(output_format.find("sharded") != string::npos)
         {

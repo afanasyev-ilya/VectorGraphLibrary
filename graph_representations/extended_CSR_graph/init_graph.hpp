@@ -7,7 +7,8 @@ void ExtendedCSRGraph<_TVertexValue, _TEdgeWeight>::import_graph(EdgesListGraph<
                                                                  VerticesState _vertices_state,
                                                                  EdgesState _edges_state,
                                                                  int _supported_vector_length,
-                                                                 TraversalDirection _traversal_type)
+                                                                 TraversalDirection _traversal_type,
+                                                                 MultipleArcsState _multiple_arcs_state)
 {
     double t1, t2;
     
@@ -40,7 +41,27 @@ void ExtendedCSRGraph<_TVertexValue, _TEdgeWeight>::import_graph(EdgesListGraph<
             tmp_graph[dst_id].push_back(TempEdgeData<_TEdgeWeight>(src_id, weight));
     }
     t2 = omp_get_wtime();
-    cout << "creating intermediate representaion time: " << t2 - t1 <<" sec" << endl;
+    cout << "creating intermediate representation time: " << t2 - t1 <<" sec" << endl;
+
+    // remove multiple arcs here, since sorting is required to be maintained
+    if(_multiple_arcs_state == MULTIPLE_ARCS_REMOVED)
+    {
+        // remove multiple arcs
+        for(int cur_vertex = 0; cur_vertex < tmp_vertices_count; cur_vertex++)
+        {
+            int src_id = cur_vertex;
+            std::sort(tmp_graph[src_id].begin(), tmp_graph[src_id].end(), edge_less < _TEdgeWeight > );
+            tmp_graph[src_id].erase(unique(tmp_graph[src_id].begin(), tmp_graph[src_id].end(),
+                                    edge_equal < _TEdgeWeight > ), tmp_graph[src_id].end());
+        }
+
+        // compute new edges count (since some edges could be removed)
+        tmp_edges_count = 0;
+        for(int cur_vertex = 0; cur_vertex < tmp_vertices_count; cur_vertex++)
+        {
+            tmp_edges_count += tmp_graph[cur_vertex].size();
+        }
+    }
     
     // sort all vertices now
     t1 = omp_get_wtime();
@@ -88,7 +109,7 @@ void ExtendedCSRGraph<_TVertexValue, _TEdgeWeight>::import_graph(EdgesListGraph<
 
     MemoryAPI::free_array(old_indexes);
     t2 = omp_get_wtime();
-    cout << "index reoedering time: " << t2 - t1 << " sec" << endl;
+    cout << "index reordering time: " << t2 - t1 << " sec" << endl;
     
     // sort adjacent ids locally for each vertex
     long long no_loops_edges_count = 0;
@@ -102,7 +123,7 @@ void ExtendedCSRGraph<_TVertexValue, _TEdgeWeight>::import_graph(EdgesListGraph<
         }
         if(edges_state == EDGES_SORTED)
         {
-            std::sort(tmp_graph[src_id].begin(), tmp_graph[src_id].end(), edge_cmp<_TEdgeWeight>);
+            std::sort(tmp_graph[src_id].begin(), tmp_graph[src_id].end(), edge_less<_TEdgeWeight>);
         }
         else if(edges_state == EDGES_RANDOM_SHUFFLED)
         {

@@ -18,7 +18,7 @@
 #include <stdio.h>
 #include <float.h>
 
-#include "../common/vectorise_CSR.h"
+#include "../common/tmp_edge_data.h"
 
 using namespace std;
 

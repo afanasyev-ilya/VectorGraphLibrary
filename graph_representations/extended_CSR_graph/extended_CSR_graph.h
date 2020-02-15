@@ -8,7 +8,7 @@
 #include <fstream>
 #include <stdio.h>
 
-#include "../common/vectorise_CSR.h"
+#include "../common/tmp_edge_data.h"
 #include "vector_extension/vector_extension.h"
 
 #define VECTOR_EXTENSION_SIZE 7
@@ -68,9 +68,12 @@ public:
     bool save_to_binary_file(string file_name);
     bool load_from_binary_file(string file_name);
     
-    void import_graph(EdgesListGraph<_TVertexValue, _TEdgeWeight> &_copy_graph, VerticesState _vertices_state,
-                      EdgesState _edges_state, int _supported_vector_length,
-                      TraversalDirection _traversal_type = PULL_TRAVERSAL);
+    void import_graph(EdgesListGraph<_TVertexValue, _TEdgeWeight> &_copy_graph,
+                      VerticesState _vertices_state = VERTICES_SORTED,
+                      EdgesState _edges_state = EDGES_SORTED,
+                      int _supported_vector_length = 1,
+                      TraversalDirection _traversal_type = PULL_TRAVERSAL,
+                      MultipleArcsState _multiple_arcs_state = MULTIPLE_ARCS_REMOVED);
     
     inline int           *get_reordered_vertex_ids() {return reordered_vertex_ids;};
     inline long long     *get_outgoing_ptrs()        {return outgoing_ptrs;};
@@ -119,7 +122,7 @@ _TEdgeWeight *ve_outgoing_weights = (_graph.get_last_vertices_ve_ptr())->get_adj
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #include "extended_CSR_graph.hpp"
-#include "init_graph_helpers.hpp"
+#include "init_graph.hpp"
 #include "gpu_api.hpp"
 #include "nec_api.hpp"
 

@@ -7,10 +7,6 @@
 #include <cfloat>
 #endif
 
-#ifdef __USE_NEC_SX_AURORA__
-#include <ftrace.h>
-#endif
-
 #ifdef __USE_GPU__
 #include "gpu/dijkstra_gpu.cuh"
 #endif

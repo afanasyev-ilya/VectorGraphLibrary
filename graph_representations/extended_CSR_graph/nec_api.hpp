@@ -6,8 +6,8 @@
 template <typename _TVertexValue, typename _TEdgeWeight>
 void ExtendedCSRGraph<_TVertexValue, _TEdgeWeight>::estimate_nec_thresholds()
 {
-    nec_vector_engine_threshold_vertex = -1;
-    nec_vector_core_threshold_vertex = -1;
+    nec_vector_engine_threshold_vertex = 0;
+    nec_vector_core_threshold_vertex = 0;
 
     #pragma _NEC ivdep
     #pragma _NEC vovertake
