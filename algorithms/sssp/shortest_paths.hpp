@@ -57,7 +57,8 @@ void SSSP::performance_stats(string _name, double _time, long long _edges_count,
     cout << "wall time: " << _time*1000.0 << " ms" << endl;
     cout << "wall perf: " << _edges_count / (_time * 1e6) << " MTEPS" << endl;
     cout << "iterations count: " << _iterations_count << endl;
-    cout << "perf per iteration: " << _iterations_count * (_edges_count / (_time * 1e6)) << " MTEPS" << endl << endl;
+    cout << "perf per iteration: " << _iterations_count * (_edges_count / (_time * 1e6)) << " MTEPS" << endl;
+    cout << "band per iteration: " << 5.0 * sizeof(int) * _iterations_count * (_edges_count / (_time * 1e9)) << " GB/s" << endl << endl;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

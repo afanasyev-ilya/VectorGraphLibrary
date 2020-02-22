@@ -91,6 +91,10 @@ int main(int argc, const char * argv[])
             bfs_operation.nec_top_down(graph, bfs_levels, vertex_to_check);
             #endif
 
+            #ifdef __USE_NEC_SX_AURORA__
+            bfs_operation.nec_bottom_up(graph, bfs_levels, vertex_to_check);
+            #endif
+
             #ifdef __USE_GPU__
             bfs_operation.gpu_direction_optimising_BFS(graph, device_bfs_levels, vertex_to_check);
             #endif
