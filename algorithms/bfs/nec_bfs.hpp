@@ -796,9 +796,35 @@ void BFS<_TVertexValue, _TEdgeWeight>::nec_bottom_up_compute_step(ExtendedCSRGra
             int dst_level = _levels[dst_id];
             if((_levels[src_id] == UNVISITED_VERTEX) && (dst_level == _current_level))
             {
-                delayed_write.start_write(_levels, _current_level + 1, vector_index);
+                delayed_write.int_vec_reg[vector_index] = _current_level + 1;
             }
         };
+
+        auto edge_collective_op = [_levels, _current_level](int src_id, int dst_id, int local_edge_pos,
+                long long int global_edge_pos, int vector_index, DelayedWriteNEC &delayed_write)
+        {
+            int src_level = _levels[src_id];
+            int dst_level = _levels[dst_id];
+            if((_levels[src_id] == UNVISITED_VERTEX) && (dst_level == _current_level))
+            {
+                _levels[src_id] = _current_level + 1;
+            }
+        };
+
+        struct VertexPreprocessFunctor
+        {
+            int *_levels;
+            VertexPreprocessFunctor(int *levels): _levels(levels) {}
+            void operator()(int src_id, int connections_count, DelayedWriteNEC &delayed_write)
+            {
+                #pragma _NEC vector
+                for(int i = 0; i < VECTOR_LENGTH; i++)
+                {
+                    delayed_write.int_vec_reg[i] = UNVISITED_VERTEX;
+                }
+            }
+        };
+        VertexPreprocessFunctor vertex_preprocess_op(_levels);
 
         struct VertexPostprocessFunctor
         {
@@ -808,6 +834,7 @@ void BFS<_TVertexValue, _TEdgeWeight>::nec_bottom_up_compute_step(ExtendedCSRGra
             void operator()(int src_id, int connections_count, DelayedWriteNEC &delayed_write)
             {
                 int new_level = UNVISITED_VERTEX;
+                #pragma _NEC vector
                 for(int i = 0; i < VECTOR_LENGTH; i++)
                 {
                     if(delayed_write.int_vec_reg[i] == (_current_level + 1))
@@ -815,12 +842,13 @@ void BFS<_TVertexValue, _TEdgeWeight>::nec_bottom_up_compute_step(ExtendedCSRGra
                         new_level = delayed_write.int_vec_reg[i];
                     }
                 }
-                _levels[src_id] = new_level;
+                if(new_level == (_current_level + 1))
+                    _levels[src_id] = _current_level + 1;
             }
         };
         VertexPostprocessFunctor vertex_postprocess_op(_levels, _current_level);
 
-        graph_API.advance(_graph, frontier, edge_op, EMPTY_VERTEX_OP, vertex_postprocess_op, edge_op,
+        graph_API.advance(_graph, frontier, edge_op, vertex_preprocess_op, vertex_postprocess_op, edge_collective_op,
                           EMPTY_VERTEX_OP, EMPTY_VERTEX_OP);
     }
 }
@@ -908,10 +936,11 @@ void BFS<_TVertexValue, _TEdgeWeight>::nec_bottom_up(ExtendedCSRGraph<_TVertexVa
 
     auto vertex_value_is_unset = [_levels] (int src_id)->int
     {
-        int result = NEC_NOT_IN_FRONTIER_FLAG;
+        /*int result = NEC_NOT_IN_FRONTIER_FLAG;
         if(_levels[src_id] == UNVISITED_VERTEX)
             result = NEC_IN_FRONTIER_FLAG;
-        return result;
+        return result;*/
+        return NEC_IN_FRONTIER_FLAG;
     };
     frontier.filter(_graph, vertex_value_is_unset);
 
@@ -920,7 +949,7 @@ void BFS<_TVertexValue, _TEdgeWeight>::nec_bottom_up(ExtendedCSRGraph<_TVertexVa
     double t1 = omp_get_wtime();
     int current_level = FIRST_LEVEL_VERTEX;
     int frontier_previous_size = 0, frontier_current_size = 1;
-    while(frontier_previous_size != frontier_current_size)
+    while(current_level < 7)//(frontier_previous_size != frontier_current_size)
     {
         double t_st = omp_get_wtime();
         frontier_previous_size = frontier.size();
@@ -932,6 +961,8 @@ void BFS<_TVertexValue, _TEdgeWeight>::nec_bottom_up(ExtendedCSRGraph<_TVertexVa
         current_level++;
         double t_end = omp_get_wtime();
         step_times.push_back(t_end - t_st);
+
+        cout << frontier_previous_size << " -> " << frontier_current_size << endl;
     }
     double t2 = omp_get_wtime();
 

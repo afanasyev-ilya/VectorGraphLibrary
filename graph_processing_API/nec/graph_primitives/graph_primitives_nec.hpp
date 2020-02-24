@@ -441,19 +441,6 @@ void GraphPrimitivesNEC::ve_collective_vertex_processing_kernel(const long long 
         double work = _ve_vector_group_ptrs[_ve_vector_segments_count - 1] - _ve_vector_group_ptrs[0];
         double real_work = work;
 
-        /*for(int cur_vector_segment = 0; cur_vector_segment < _ve_vector_segments_count; cur_vector_segment++)
-        {
-            int segment_first_vertex = cur_vector_segment * VECTOR_LENGTH + _ve_starting_vertex;
-            int segment_connections_count = _ve_vector_group_sizes[cur_vector_segment];
-            for (int i = 0; i < VECTOR_LENGTH; i++)
-            {
-                const int src_id = segment_first_vertex + i;
-                if(_frontier_flags[src_id] > 0)
-                {
-                    real_work += segment_connections_count;
-                }
-            }
-        }*/
         //cout << "3) all active work: " << work << " - " << 100.0 * work/_edges_count << " %" << endl;
         cout << "3) time: " << (t2 - t1)*1000.0 << " ms" << endl;
         cout << "3) (ve) all active BW: " << sizeof(int)*INT_ELEMENTS_PER_EDGE*work/((t2-t1)*1e9) << " GB/s" << endl;

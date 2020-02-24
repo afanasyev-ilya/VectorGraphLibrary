@@ -61,6 +61,9 @@ void DelayedWriteNEC::start_write(double *_data, double _val, int _vector_index)
 void DelayedWriteNEC::finish_write_max(int *_data, int _idx)
 {
     int old_val = _data[_idx];
+
+    #pragma _NEC unroll(VECTOR_LENGTH)
+    #pragma _NEC vector
     for(int i = 0; i < VECTOR_LENGTH; i++)
         if(int_vec_reg[i] > old_val)
             old_val = int_vec_reg[i];
@@ -70,6 +73,9 @@ void DelayedWriteNEC::finish_write_max(int *_data, int _idx)
 void DelayedWriteNEC::finish_write_max(float *_data, int _idx)
 {
     float old_val = _data[_idx];
+
+    #pragma _NEC unroll(VECTOR_LENGTH)
+    #pragma _NEC vector
     for(int i = 0; i < VECTOR_LENGTH; i++)
         if(flt_vec_reg[i] > old_val)
             old_val = flt_vec_reg[i];
@@ -79,6 +85,9 @@ void DelayedWriteNEC::finish_write_max(float *_data, int _idx)
 void DelayedWriteNEC::finish_write_max(double *_data, int _idx)
 {
     double old_val = _data[_idx];
+
+    #pragma _NEC unroll(VECTOR_LENGTH)
+    #pragma _NEC vector
     for(int i = 0; i < VECTOR_LENGTH; i++)
         if(dbl_vec_reg[i] > old_val)
             old_val = dbl_vec_reg[i];
@@ -90,6 +99,9 @@ void DelayedWriteNEC::finish_write_max(double *_data, int _idx)
 void DelayedWriteNEC::finish_write_min(int *_data, int _idx)
 {
     int old_val = _data[_idx];
+
+    #pragma _NEC unroll(VECTOR_LENGTH)
+    #pragma _NEC vector
     for(int i = 0; i < VECTOR_LENGTH; i++)
         if(int_vec_reg[i] < old_val)
             old_val = int_vec_reg[i];
@@ -101,6 +113,9 @@ void DelayedWriteNEC::finish_write_min(int *_data, int _idx)
 void DelayedWriteNEC::finish_write_min(float *_data, int _idx)
 {
     float old_val = FLT_MAX;
+
+    #pragma _NEC unroll(VECTOR_LENGTH)
+    #pragma _NEC vector
     for(int i = 0; i < VECTOR_LENGTH; i++)
         if(flt_vec_reg[i] < old_val)
             old_val = flt_vec_reg[i];
@@ -112,6 +127,9 @@ void DelayedWriteNEC::finish_write_min(float *_data, int _idx)
 void DelayedWriteNEC::finish_write_min(double *_data, int _idx)
 {
     double old_val = _data[_idx];
+
+    #pragma _NEC unroll(VECTOR_LENGTH)
+    #pragma _NEC vector
     for(int i = 0; i < VECTOR_LENGTH; i++)
         if(dbl_vec_reg[i] < old_val)
             old_val = dbl_vec_reg[i];
