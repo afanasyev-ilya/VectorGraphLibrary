@@ -21,13 +21,11 @@ private:
     // temporary buffers
     int *active_ids;
     int *active_vertices_buffer;
-    
-    // nec functions
-    //int nec_remove_zero_nodes(long long *_outgoing_ptrs, int _vertices_count, int *_levels);
-    //int nec_mark_zero_nodes(int _vertices_count, int *_levels);
 
-    void nec_top_down_compute_step(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph, int *_levels, int _current_level);
-    void nec_bottom_up_compute_step(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph, int *_levels, int _current_level);
+    void nec_top_down_compute_step(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph, int *_levels,
+                                   int _current_level, int &_vis, int &_in_lvl);
+    void nec_bottom_up_compute_step(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph, int *_levels,
+                                    int _current_level, int &_vis, int &_in_lvl);
 
     void performance_stats(string _name, double _time, long long _edges_count, int _iterations_count);
 public:
@@ -56,6 +54,11 @@ public:
 
     #ifdef __USE_NEC_SX_AURORA__
     void nec_bottom_up(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph, int *_levels, int _source_vertex);
+    #endif
+
+    #ifdef __USE_NEC_SX_AURORA__
+    void nec_direction_optimising(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph, int *_levels,
+                                  int _source_vertex);
     #endif
 
     void seq_top_down(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph, int *_levels, int _source_vertex);

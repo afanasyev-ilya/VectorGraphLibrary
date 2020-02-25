@@ -2,7 +2,7 @@
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#include "../../vector_register/vector_registers.h"
+#include "../vector_register/vector_registers.h"
 #include "../frontier/frontier_nec.h"
 #include "../delayed_write/delayed_write_nec.h"
 #include <functional>
