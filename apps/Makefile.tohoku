@@ -20,7 +20,7 @@ LDFLAGS = -fopenmp -report-all #-ftrace
 # binaries
 ##########
 
-all: sssp bfs generate_test_data
+all: sssp bfs cc generate_test_data
 
 pr: create_folders pr.o
 	$(CXX) object_files/pr.o $(Library_Path) $(Libraries) $(LDFLAGS) -o ./bin/pr

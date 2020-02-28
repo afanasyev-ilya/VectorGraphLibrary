@@ -47,6 +47,7 @@ void ExtendedCSRGraph<_TVertexValue, _TEdgeWeight>::import_graph(EdgesListGraph<
     if(_multiple_arcs_state == MULTIPLE_ARCS_REMOVED)
     {
         // remove multiple arcs
+        #pragma omp parallel for
         for(int cur_vertex = 0; cur_vertex < tmp_vertices_count; cur_vertex++)
         {
             int src_id = cur_vertex;
@@ -89,11 +90,13 @@ void ExtendedCSRGraph<_TVertexValue, _TEdgeWeight>::import_graph(EdgesListGraph<
     
     // need to reoerder all data arrays in 2 steps
     vector<vector<TempEdgeData<_TEdgeWeight> > > new_tmp_graph(tmp_vertices_count);
+    #pragma omp parallel for
     for(int i = 0; i < tmp_vertices_count; i++)
     {
         new_tmp_graph[i] = tmp_graph[old_indexes[i]];
     }
-    
+
+    #pragma omp parallel for
     for(int i = 0; i < tmp_vertices_count; i++)
     {
         tmp_graph[i] = new_tmp_graph[i];
@@ -114,6 +117,7 @@ void ExtendedCSRGraph<_TVertexValue, _TEdgeWeight>::import_graph(EdgesListGraph<
     // sort adjacent ids locally for each vertex
     long long no_loops_edges_count = 0;
     t1 = omp_get_wtime();
+    #pragma omp parallel for
     for(int cur_vertex = 0; cur_vertex < tmp_vertices_count; cur_vertex++)
     {
         int src_id = cur_vertex;

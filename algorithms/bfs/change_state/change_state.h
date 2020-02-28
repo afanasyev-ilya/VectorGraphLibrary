@@ -34,9 +34,9 @@ enum GraphStructure
 template <typename _TVertexValue, typename _TEdgeWeight>
 GraphStructure check_graph_structure(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph);
 
-StateOfBFS change_state(int _current_queue_size, int _next_queue_size, int _vertices_count, long long _edges_count,
-                        StateOfBFS _old_state, int _vis, int _in_lvl, bool &_use_vect_CSR_extension, int _cur_level,
-                        GraphStructure _graph_structure);
+StateOfBFS nec_change_state(int _current_queue_size, int _next_queue_size, int _vertices_count, long long _edges_count,
+                            StateOfBFS _old_state, int _vis, int _in_lvl, bool &_use_vect_CSR_extension, int _cur_level,
+                            GraphStructure _graph_structure, int *_levels);
 
 StateOfBFS gpu_change_state(int _current_queue_size, int _next_queue_size, int _vertices_count, long long _edges_count,
                             StateOfBFS _old_state, int _vis, int _in_lvl, int _current_level, GraphStructure _graph_structure,

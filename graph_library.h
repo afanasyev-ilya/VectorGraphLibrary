@@ -47,6 +47,7 @@ using namespace std;
 
 #include "algorithms/sssp/shortest_paths.h"
 #include "algorithms/bfs/bfs.h"
+#include "algorithms/cc/cc.h"
 
 /*#include "algorithms/label_propagation/label_propagation.h"
 #include "algorithms/sswp/widest_paths.h"

@@ -228,7 +228,8 @@ void GraphPrimitivesNEC::collective_vertex_processing_kernel(const long long *_v
                                                              VertexPostprocessOperation vertex_postprocess_op,
                                                              long long _edges_count,
                                                              int *_frontier_ids,
-                                                             int _frontier_size)
+                                                             int _frontier_size,
+                                                             int _first_edge)
 {
     #ifdef __PRINT_DETAILED_STATS__
     #pragma omp barrier
@@ -291,7 +292,7 @@ void GraphPrimitivesNEC::collective_vertex_processing_kernel(const long long *_v
             }
         }
 
-        for(int edge_pos = 0; edge_pos < max_connections; edge_pos++)
+        for(int edge_pos = _first_edge; edge_pos < max_connections; edge_pos++)
         {
             #pragma _NEC ivdep
             #pragma _NEC vovertake
@@ -368,7 +369,8 @@ void GraphPrimitivesNEC::ve_collective_vertex_processing_kernel(const long long 
                                                                 EdgeOperation edge_op,
                                                                 VertexPreprocessOperation vertex_preprocess_op,
                                                                 VertexPostprocessOperation vertex_postprocess_op,
-                                                                long long _edges_count)
+                                                                long long _edges_count,
+                                                                int _first_edge)
 {
     #ifdef __PRINT_DETAILED_STATS__
     #pragma omp barrier
@@ -398,7 +400,7 @@ void GraphPrimitivesNEC::ve_collective_vertex_processing_kernel(const long long 
             vertex_preprocess_op(src_id, segment_connections_count, delayed_write);
         }
 
-        for(int edge_pos = 0; edge_pos < segment_connections_count; edge_pos++)
+        for(int edge_pos = _first_edge; edge_pos < segment_connections_count; edge_pos++)
         {
             #pragma _NEC ivdep
             #pragma _NEC vovertake
@@ -463,7 +465,8 @@ void GraphPrimitivesNEC::advance(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &
                                  VertexPostprocessOperation &&vertex_postprocess_op,
                                  CollectiveEdgeOperation &&collective_edge_op,
                                  CollectiveVertexPreprocessOperation &&collective_vertex_preprocess_op,
-                                 CollectiveVertexPostprocessOperation &&collective_vertex_postprocess_op)
+                                 CollectiveVertexPostprocessOperation &&collective_vertex_postprocess_op,
+                                 int _first_edge)
 {
     #pragma omp barrier
 
@@ -472,6 +475,8 @@ void GraphPrimitivesNEC::advance(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &
     const long long int *vertex_pointers = outgoing_ptrs;
     const int *adjacent_ids = outgoing_ids;
     const int *ve_adjacent_ids = ve_outgoing_ids;
+    int *frontier_flags = _frontier.frontier_flags;
+    int *frontier_ids = _frontier.frontier_ids;
 
     const int vector_engine_threshold_start = 0;
     const int vector_engine_threshold_end = _graph.get_nec_vector_engine_threshold_vertex();
@@ -479,9 +484,6 @@ void GraphPrimitivesNEC::advance(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &
     const int vector_core_threshold_end = _graph.get_nec_vector_core_threshold_vertex();
     const int collective_threshold_start = _graph.get_nec_vector_core_threshold_vertex();
     const int collective_threshold_end = _graph.get_vertices_count();
-
-    int *frontier_flags = _frontier.frontier_flags;
-    int *frontier_ids = _frontier.frontier_ids;
 
     vector_engine_per_vertex_kernel(vertex_pointers, adjacent_ids, frontier_flags, vector_engine_threshold_start,
                                     vector_engine_threshold_end, edge_op, vertex_preprocess_op, vertex_postprocess_op, edges_count);
@@ -493,14 +495,14 @@ void GraphPrimitivesNEC::advance(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &
         collective_vertex_processing_kernel(vertex_pointers, adjacent_ids, frontier_flags, collective_threshold_start,
                                             collective_threshold_end, collective_edge_op, collective_vertex_preprocess_op,
                                             collective_vertex_postprocess_op, edges_count,
-                                            frontier_ids, _frontier.sparse_frontier_size);
+                                            frontier_ids, _frontier.sparse_frontier_size, _first_edge);
     }
     else if(_frontier.type() == DENSE_FRONTIER) {
         ve_collective_vertex_processing_kernel(ve_vector_group_ptrs, ve_vector_group_sizes, ve_adjacent_ids,
                                                ve_vertices_count, ve_starting_vertex, ve_vector_segments_count,
                                                frontier_flags, collective_threshold_start, collective_threshold_end,
                                                collective_edge_op, collective_vertex_preprocess_op,
-                                               collective_vertex_postprocess_op, edges_count);
+                                               collective_vertex_postprocess_op, edges_count, _first_edge);
     }
 
     #pragma omp barrier

@@ -5,17 +5,13 @@
 template <typename _TVertexValue, typename _TEdgeWeight>
 BFS<_TVertexValue, _TEdgeWeight>::BFS(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph):
 frontier(_graph.get_vertices_count())
-{
-
-}
+{}
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template <typename _TVertexValue, typename _TEdgeWeight>
 BFS<_TVertexValue, _TEdgeWeight>::~BFS()
-{
-
-}
+{}
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 

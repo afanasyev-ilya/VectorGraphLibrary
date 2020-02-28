@@ -20,50 +20,53 @@ int main(int argc, const char * argv[])
     try
     {
         cout << "CC (connected components) test..." << endl;
-        
+
         // parse args
         AlgorithmCommandOptionsParser parser;
         parser.parse_args(argc, argv);
-        
+
         // load graph
-        VectorisedCSRGraph<int, float> graph;
+        ExtendedCSRGraph<int, float> graph;
         EdgesListGraph<int, float> rand_graph;
         if(parser.get_compute_mode() == GENERATE_NEW_GRAPH)
         {
             int vertices_count = pow(2.0, parser.get_scale());
             long long edges_count = vertices_count * parser.get_avg_degree();
-            //GraphGenerationAPI<int, float>::random_uniform(rand_graph, vertices_count, edges_count, UNDIRECTED_GRAPH);
             GraphGenerationAPI<int, float>::R_MAT(rand_graph, vertices_count, edges_count, 57, 19, 19, 5, UNDIRECTED_GRAPH);
-            graph.import_graph(rand_graph, VERTICES_SORTED, EDGES_SORTED, VECTOR_LENGTH, PULL_TRAVERSAL);
+            graph.import_graph(rand_graph);
         }
         else if(parser.get_compute_mode() == LOAD_GRAPH_FROM_FILE)
         {
+            double t1 = omp_get_wtime();
             if(!graph.load_from_binary_file(parser.get_graph_file_name()))
                 throw "ERROR: graph file not found";
+            double t2 = omp_get_wtime();
+            cout << "file " << parser.get_graph_file_name() << " loaded in " << t2 - t1 << " sec" << endl;
         }
-        
-        // compute CC
-        cout << "Computations started..." << endl;
-        int *cc_result;
-        ConnectedComponents<int, float>::allocate_result_memory(graph.get_vertices_count(), &cc_result);
-        ConnectedComponents<int, float>::nec_shiloach_vishkin(graph, cc_result);
-        
-        // check if required
-        if(parser.get_check_flag() && (parser.get_compute_mode() == GENERATE_NEW_GRAPH))
+
+        ConnectedComponents<int, float> cc_operation;
+
+        #if defined(__USE_NEC_SX_AURORA__) || defined( __USE_INTEL__)
+        int *components;
+        cc_operation.allocate_result_memory(graph.get_vertices_count(), &components);
+        #endif
+
+        // TODO prog test
+
+        if(parser.get_check_flag())
         {
-            ExtendedCSRGraph<int, float> ext_graph;
-            ext_graph.import_graph(rand_graph, VERTICES_SORTED, EDGES_SORTED, 1, PULL_TRAVERSAL);
-            
-            int *ext_cc_result;
-            ConnectedComponents<int, float>::allocate_result_memory(ext_graph.get_vertices_count(), &ext_cc_result);
-            ConnectedComponents<int, float>::nec_shiloach_vishkin(ext_graph, ext_cc_result);
-            
-            verify_results(cc_result, ext_cc_result, min(graph.get_vertices_count(), ext_graph.get_vertices_count()));
-            
-            ConnectedComponents<int, float>::free_result_memory(ext_cc_result);
+            int *check_components;
+            cc_operation.allocate_result_memory(graph.get_vertices_count(), &check_components);
+            cc_operation.seq_bfs_based(graph, check_components);
+
+            //verify_results(components, check_components, graph.get_vertices_count());
+
+            cc_operation.free_result_memory(check_components);
         }
-        
-        ConnectedComponents<int, float>::free_result_memory(cc_result);
+
+        #ifdef __USE_NEC_SX_AURORA_TSUBASA__
+        cc_operation.free_result_memory(bfs_result);
+        #endif
     }
     catch (string error)
     {

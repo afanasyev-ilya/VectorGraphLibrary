@@ -60,7 +60,6 @@ void FrontierNEC::filter(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph, 
         vertices_in_frontier += frontier_flags[i];
     }
 
-    // verify if frontier is sparse
     if(double(vertices_in_frontier)/max_frontier_size > FRONTIER_TYPE_CHANGE_THRESHOLD)
     {
         /*#pragma _NEC ivdep

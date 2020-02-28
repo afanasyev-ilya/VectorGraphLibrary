@@ -1,0 +1,12 @@
+#pragma once
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+template <typename _TVertexValue, typename _TEdgeWeight>
+void ConnectedComponents<_TVertexValue,_TEdgeWeight>::seq_bfs_based(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
+                                                                    int *_components)
+{
+    cout << "seq test started" << endl;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

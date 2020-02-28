@@ -54,8 +54,11 @@ int main(int argc, const char * argv[])
         }
         else if(parser.get_compute_mode() == LOAD_GRAPH_FROM_FILE)
         {
+            double t1 = omp_get_wtime();
             if(!graph.load_from_binary_file(parser.get_graph_file_name()))
                 throw "ERROR: graph file not found";
+            double t2 = omp_get_wtime();
+            cout << "file " << parser.get_graph_file_name() << " loaded in " << t2 - t1 << " sec" << endl;
         }
 
         BFS<int, float> bfs_operation(graph);
@@ -83,16 +86,12 @@ int main(int argc, const char * argv[])
         int vertex_to_check = 0;
         for(int i = 0; i < source_vertex_num; i++)
         {
-            vertex_to_check = i;//rand()%(non_zero_vertices - 1);
+            vertex_to_check = rand()%(non_zero_vertices/20 - 1);
             cout << "starting from vertex: " << vertex_to_check << endl;
 
             double t1 = omp_get_wtime();
             #ifdef __USE_NEC_SX_AURORA__
-            bfs_operation.nec_top_down(graph, bfs_levels, vertex_to_check);
-            #endif
-
-            #ifdef __USE_NEC_SX_AURORA__
-            bfs_operation.nec_bottom_up(graph, bfs_levels, vertex_to_check);
+            bfs_operation.nec_direction_optimising(graph, bfs_levels, vertex_to_check);
             #endif
 
             #ifdef __USE_GPU__

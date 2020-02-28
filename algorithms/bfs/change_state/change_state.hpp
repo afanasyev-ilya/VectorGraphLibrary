@@ -47,9 +47,9 @@ bool check_if_vector_extension_should_be_used(int _non_zero_vertices_count, int 
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-StateOfBFS change_state(int _current_queue_size, int _next_queue_size, int _vertices_count, long long _edges_count,
-                        StateOfBFS _old_state, int _vis, int _in_lvl, bool &_use_vect_CSR_extension, int _cur_level,
-                        GraphStructure _graph_structure)
+StateOfBFS nec_change_state(int _current_queue_size, int _next_queue_size, int _vertices_count, long long _edges_count,
+                            StateOfBFS _old_state, int _vis, int _in_lvl, bool &_use_vect_CSR_extension, int _cur_level,
+                            GraphStructure _graph_structure, int *_levels)
 {
     StateOfBFS new_state = _old_state;
     int factor = (_edges_count / _vertices_count) / 2;
@@ -83,12 +83,18 @@ StateOfBFS change_state(int _current_queue_size, int _next_queue_size, int _vert
         }
     }
     
-    if((_old_state == TOP_DOWN) && (_graph_structure == POWER_LAW_GRAPH) && (_cur_level == 1))
+    if((_old_state == TOP_DOWN) && (_graph_structure == POWER_LAW_GRAPH) && (_cur_level <= 3))
     {
-        new_state = BOTTOM_UP;  // in the case of RMAT graph better switch to bottom up early
+        int high_degree_was_visited = 0;
+        for(int i = 0; i < 1; i++)
+            if(_levels[i] != UNVISITED_VERTEX)
+                high_degree_was_visited = 1;
+
+        if(high_degree_was_visited)
+            new_state = BOTTOM_UP;  // in the case of RMAT graph better switch to bottom up early
     }
     
-    if((_graph_structure == POWER_LAW_GRAPH) && (_cur_level == 1) || (_cur_level == 2)) // tofix
+    if((_graph_structure == POWER_LAW_GRAPH) && (_cur_level == 1)/* && (_cur_level == 2)*/) // tofix
     {
         _use_vect_CSR_extension = true;
     }

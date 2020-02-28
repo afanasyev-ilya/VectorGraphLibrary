@@ -1,16 +1,7 @@
-//
-//  shiloach_vishkin.hpp
-//  ParallelGraphLibrary
-//
-//  Created by Elijah Afanasiev on 07/09/2019.
-//  Copyright © 2019 MSU. All rights reserved.
-//
-
-#ifndef shiloach_vishkin_hpp
-#define shiloach_vishkin_hpp
+#pragma once
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
+/*
 template <typename _TVertexValue, typename _TEdgeWeight>
 void ConnectedComponents<_TVertexValue,_TEdgeWeight>::nec_shiloach_vishkin(VectorisedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph, int *_vertices_data)
 {
@@ -296,7 +287,5 @@ void ConnectedComponents<_TVertexValue,_TEdgeWeight>::nec_shiloach_vishkin(Exten
         current_iteration++;
     }
 }
-
+*/
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-#endif /* shiloach_vishkin_hpp */

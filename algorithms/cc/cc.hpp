@@ -1,30 +1,19 @@
-//
-//  cc.hpp
-//  ParallelGraphLibrary
-//
-//  Created by Elijah Afanasiev on 05/09/2019.
-//  Copyright © 2019 MSU. All rights reserved.
-//
-
-#ifndef cc_hpp
-#define cc_hpp
+#pragma once
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template <typename _TVertexValue, typename _TEdgeWeight>
-void ConnectedComponents<_TVertexValue, _TEdgeWeight>::allocate_result_memory(int _vertices_count, int **_cc_result)
+void ConnectedComponents<_TVertexValue, _TEdgeWeight>::allocate_result_memory(int _vertices_count, int **_components)
 {
-    *_cc_result = new int[_vertices_count];
+    MemoryAPI::allocate_array(_components, _vertices_count);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template <typename _TVertexValue, typename _TEdgeWeight>
-void ConnectedComponents<_TVertexValue, _TEdgeWeight>::free_result_memory(int *_cc_result)
+void ConnectedComponents<_TVertexValue, _TEdgeWeight>::free_result_memory(int *_components)
 {
-    delete[] _cc_result;
+    MemoryAPI::free_array(_components);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-#endif /* cc_hpp */

@@ -9,7 +9,7 @@
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#define INT_ELEMENTS_PER_EDGE 5.0
+#define INT_ELEMENTS_PER_EDGE 3.0
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -46,20 +46,40 @@ private:
                                              VertexPreprocessOperation vertex_preprocess_op,
                                              VertexPostprocessOperation vertex_postprocess_op, long long _edges_count,
                                              int *_frontier_ids,
-                                             int _frontier_size);
+                                             int _frontier_size,
+                                             int _first_edge);
 
     template <typename EdgeOperation, typename VertexPreprocessOperation,
             typename VertexPostprocessOperation>
     inline void ve_collective_vertex_processing_kernel(const long long *_ve_vector_group_ptrs,
-                                                const int *_ve_vector_group_sizes,
-                                                const int *_ve_adjacent_ids,
-                                                const int _ve_vertices_count,
-                                                const int _ve_starting_vertex,
-                                                const int _ve_vector_segments_count,
-                                                const int *_frontier_flags, const int _first_vertex,
-                                                const int _last_vertex, EdgeOperation edge_op,
-                                                VertexPreprocessOperation vertex_preprocess_op,
-                                                VertexPostprocessOperation vertex_postprocess_op, long long _edges_count);
+                                                       const int *_ve_vector_group_sizes,
+                                                       const int *_ve_adjacent_ids,
+                                                       const int _ve_vertices_count,
+                                                       const int _ve_starting_vertex,
+                                                       const int _ve_vector_segments_count,
+                                                       const int *_frontier_flags, const int _first_vertex,
+                                                       const int _last_vertex, EdgeOperation edge_op,
+                                                       VertexPreprocessOperation vertex_preprocess_op,
+                                                       VertexPostprocessOperation vertex_postprocess_op,
+                                                       long long _edges_count, int _first_edge);
+
+    template <typename EdgeOperation, typename VertexPreprocessOperation,
+            typename VertexPostprocessOperation>
+    inline void partial_first_groups(const long long *_vertex_pointers, const int *_adjacent_ids,
+                                     const int *_frontier_flags, const int _last_vertex,
+                                     EdgeOperation edge_op, VertexPreprocessOperation vertex_preprocess_op,
+                                     VertexPostprocessOperation vertex_postprocess_op,
+                                     long long _edges_count, int _first_edge, int _last_edge);
+
+    template <typename EdgeOperation, typename VertexPreprocessOperation,
+            typename VertexPostprocessOperation>
+    inline void partial_last_group(const long long *_ve_vector_group_ptrs, const int *_ve_vector_group_sizes,
+                                   const int *_ve_adjacent_ids, const int _ve_vertices_count,
+                                   const int _ve_starting_vertex, const int _ve_vector_segments_count,
+                                   const int *_frontier_flags, const int _first_vertex, const int _last_vertex,
+                                   EdgeOperation edge_op, VertexPreprocessOperation vertex_preprocess_op,
+                                   VertexPostprocessOperation vertex_postprocess_op,
+                                   long long _edges_count, int _first_edge, int _last_edge);
 public:
     GraphPrimitivesNEC() {};
 
@@ -82,16 +102,25 @@ public:
                  VertexPostprocessOperation &&vertex_postprocess_op,
                  CollectiveEdgeOperation &&collective_edge_op,
                  CollectiveVertexPreprocessOperation &&collective_vertex_preprocess_op,
-                 CollectiveVertexPostprocessOperation &&collective_vertex_postprocess_op);
+                 CollectiveVertexPostprocessOperation &&collective_vertex_postprocess_op,
+                 int _first_edge = 0);
 
     template <typename _TVertexValue, typename _TEdgeWeight, typename EdgeOperation>
     void advance(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
                  FrontierNEC &_frontier,
                  EdgeOperation &&edge_op);
+
+    template <typename _TVertexValue, typename _TEdgeWeight, typename EdgeOperation>
+    void partial_advance(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
+                         FrontierNEC &_frontier,
+                         EdgeOperation &&edge_op,
+                         int _first_edge,
+                         int _last_edge);
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #include "graph_primitives_nec.hpp"
+#include "partial_advance.hpp"
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

@@ -15,7 +15,7 @@ void parse_cmd_params(int _argc, char **_argv, int &_scale, int &_avg_degree, st
                       string &_output_format, string &_file_name, bool &_convert, string &_input_file_name,
                       TraversalDirection &_traversal_type,
                       bool &_append_with_reverse_edges, EdgesState &_edges_state,
-                      DirectionType &_direction_type)
+                      DirectionType &_direction_type, MultipleArcsState &_multiple_arcs_state)
 {
     // set deafualt params
     _scale = 10;
@@ -29,6 +29,7 @@ void parse_cmd_params(int _argc, char **_argv, int &_scale, int &_avg_degree, st
     _append_with_reverse_edges = false;
     _edges_state = EDGES_SORTED;
     _direction_type = UNDIRECTED_GRAPH;
+    _multiple_arcs_state = MULTIPLE_ARCS_PRESENT;
     
     // get params from cmd line
     for (int i = 1; i < _argc; i++)
@@ -81,19 +82,24 @@ void parse_cmd_params(int _argc, char **_argv, int &_scale, int &_avg_degree, st
             _direction_type = DIRECTED_GRAPH;
         }
         
-        if(option.compare("-append_with_reverse_edges") == 0)
+        if(option.compare("-append-with-reverse-edges") == 0)
         {
             _append_with_reverse_edges = true;
         }
         
-        if(option.compare("-edges_random_shuffled") == 0)
+        if(option.compare("-edges-random-shuffled") == 0)
         {
             _edges_state = EDGES_RANDOM_SHUFFLED;
         }
         
-        if(option.compare("-edges_unsorted") == 0)
+        if(option.compare("-edges-unsorted") == 0)
         {
             _edges_state = EDGES_UNSORTED;
+        }
+
+        if(option.compare("-multiple-arcs-removed") == 0)
+        {
+            _multiple_arcs_state = MULTIPLE_ARCS_REMOVED;
         }
     }
 }
@@ -114,9 +120,10 @@ int main(int argc, char ** argv)
         bool append_with_reverse_edges;
         DirectionType direction_type;
         EdgesState edges_state;
+        MultipleArcsState multiple_arcs_state;
         
         parse_cmd_params(argc, argv, scale, avg_degree, graph_type, output_format, file_name, convert, input_file_name,
-                         traversal_type, append_with_reverse_edges, edges_state, direction_type);
+                         traversal_type, append_with_reverse_edges, edges_state, direction_type, multiple_arcs_state);
         
         EdgesListGraph<int, float> rand_graph;
         if(convert)
@@ -159,15 +166,11 @@ int main(int argc, char ** argv)
         cout << "estimated EDGES_LIST size: " << edges_list_size / 1e9 << " GB" << endl;
         cout << "estimated TRADITIONAL_CSR size: " << CSR_size / 1e9 << " GB" << endl << endl;
         
-        if(output_format.find("edges_list") != string::npos)
-        {
-            rand_graph.save_to_binary_file(file_name + "_edges_list.gbin");
-        }
-        else if(output_format.find("extended_CSR") != string::npos)
+        if(output_format.find("extended_CSR") != string::npos)
         {
             ExtendedCSRGraph<int, float> result_graph;
             t1 = omp_get_wtime();
-            result_graph.import_graph(rand_graph, VERTICES_SORTED, edges_state, 1, traversal_type, MULTIPLE_ARCS_REMOVED);
+            result_graph.import_graph(rand_graph, VERTICES_SORTED, edges_state, 1, traversal_type, multiple_arcs_state);
             t2 = omp_get_wtime();
             cout << "format conversion time: " << t2 - t1 << " sec" << endl;
             
@@ -175,14 +178,6 @@ int main(int argc, char ** argv)
             result_graph.save_to_binary_file(file_name + "_ext_CSR.gbin");
             t2 = omp_get_wtime();
             cout << "saved into ExtendedCSRGraph in " << t2 - t1 << " sec"  << endl;
-        }
-        else if(output_format.find("sharded") != string::npos)
-        {
-            ShardedGraph<int, float> sharded_graph(SHARD_VECT_CSR_TYPE, LLC_CACHE_SIZE);
-            sharded_graph.import_graph(rand_graph, traversal_type); // need to set edges_direction here
-            sharded_graph.print_stats();
-            
-            sharded_graph.save_to_binary_file(file_name + "_sharded.gbin");
         }
         else if(output_format.find("ligra") != string::npos)
         {
