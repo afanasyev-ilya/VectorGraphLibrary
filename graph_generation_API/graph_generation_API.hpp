@@ -506,10 +506,10 @@ void GraphGenerationAPI<_TVertexValue, _TEdgeWeight>::init_from_txt_file(EdgesLi
         }
         i++;
         
-        if((edges_count != 0) && (i > edges_count))
+        /*if((edges_count != 0) && (i > edges_count))
         {
             throw "ERROR: graph file is larger than expected";
-        }
+        }*/
     }
     
     cout << "loaded " << vertices_count << " vertices_count" << endl;

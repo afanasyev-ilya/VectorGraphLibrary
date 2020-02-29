@@ -51,7 +51,11 @@ int main(int argc, const char * argv[])
         cc_operation.allocate_result_memory(graph.get_vertices_count(), &components);
         #endif
 
-        // TODO prog test
+        #ifdef __USE_NEC_SX_AURORA__
+        cc_operation.nec_shiloach_vishkin(graph, components);
+        #endif
+
+        cc_operation.test_shiloach_vishkin(graph, components);
 
         if(parser.get_check_flag())
         {

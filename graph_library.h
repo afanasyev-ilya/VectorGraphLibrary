@@ -15,13 +15,13 @@ using namespace std;
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#include "common_functions/memory_API/memory_API.h"
-#include "common_functions/random_generator/random_generation_API.h"
-#include "common_functions/sorting/sorting.h"
-#include "common_functions/verify_results/verify_results.h"
-#include "common_functions/cmd_parser/cmd_parser.h"
-#include "common_functions/parallel_primitives/copy_if.h"
-#include "common_functions/parallel_primitives/get_elements_count.h"
+#include "common/memory_API/memory_API.h"
+#include "common/random_generator/random_generation_API.h"
+#include "common/sorting/sorting.h"
+#include "common/verify_results/verify_results.h"
+#include "common/cmd_parser/cmd_parser.h"
+#include "common/parallel_primitives/copy_if.h"
+#include "common/parallel_primitives/get_elements_count.h"
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 

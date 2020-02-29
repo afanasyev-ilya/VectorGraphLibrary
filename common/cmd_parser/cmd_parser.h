@@ -50,6 +50,13 @@ enum MultipleArcsState
     MULTIPLE_ARCS_REMOVED = 0
 };
 
+enum AlgorithmBFS
+{
+    TOP_DOWN_BFS_ALGORITHM = 0,
+    BOTTOM_UP_BFS_ALGORITHM = 1,
+    DIRECTION_OPTIMISING_BFS_ALGORITHM = 2
+};
+
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 class AlgorithmCommandOptionsParser
@@ -69,6 +76,8 @@ private:
     bool check_flag;
     
     bool number_of_rounds;
+
+    AlgorithmBFS algorithm_bfs;
 public:
     AlgorithmCommandOptionsParser();
     
@@ -82,6 +91,8 @@ public:
 
     AlgorithmFrontierType get_algorithm_frontier_type() {return algorithm_frontier_type;};
     TraversalDirection get_traversal_direction() {return traversal_direction;};
+
+    AlgorithmBFS get_algorithm_bfs() {return algorithm_bfs;};
     
     void parse_args(int _argc, const char * _argv[]);
 };

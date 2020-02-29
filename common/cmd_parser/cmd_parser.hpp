@@ -22,6 +22,7 @@ AlgorithmCommandOptionsParser::AlgorithmCommandOptionsParser()
     graph_file_name = "test.gbin";
     number_of_rounds = 1;
     steps_count = 1;
+    algorithm_bfs = DIRECTION_OPTIMISING_BFS_ALGORITHM;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -93,6 +94,19 @@ void AlgorithmCommandOptionsParser::parse_args(int _argc, const char * _argv[])
         if (option.compare("-pull") == 0)
         {
             traversal_direction = PULL_TRAVERSAL;
+        }
+
+        if (option.compare("-top-down") == 0)
+        {
+            algorithm_bfs = TOP_DOWN_BFS_ALGORITHM;
+        }
+        else if (option.compare("-bottom-up") == 0)
+        {
+            algorithm_bfs = BOTTOM_UP_BFS_ALGORITHM;
+        }
+        else if (option.compare("-do") == 0 || option.compare("-direction-optimising") == 0)
+        {
+            algorithm_bfs = DIRECTION_OPTIMISING_BFS_ALGORITHM;
         }
     }
 }

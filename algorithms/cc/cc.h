@@ -7,15 +7,16 @@
 #include <cfloat>
 #endif
 
-#ifdef __USE_NEC_SX_AURORA__
-#include <ftrace.h>
-#endif
+#define COMPONENT_UNSET -1
+#define FIRST_COMPONENT 1
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template <typename _TVertexValue, typename _TEdgeWeight>
 class ConnectedComponents
 {
+private:
+    void print_component_stats(int *_components, int _vertices_count);
 public:
     ConnectedComponents() {};
     ~ConnectedComponents() {};
@@ -26,6 +27,8 @@ public:
     #ifdef __USE_NEC_SX_AURORA__
     void nec_shiloach_vishkin(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph, int *_components);
     #endif
+
+    void test_shiloach_vishkin(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph, int *_vertices_data);
 
     void seq_bfs_based(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph, int *_components);
 };

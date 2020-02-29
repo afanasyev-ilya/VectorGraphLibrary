@@ -1,11 +1,99 @@
 #pragma once
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
+
+#ifdef __USE_NEC_SX_AURORA__
 template <typename _TVertexValue, typename _TEdgeWeight>
-void ConnectedComponents<_TVertexValue,_TEdgeWeight>::nec_shiloach_vishkin(VectorisedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph, int *_vertices_data)
+void ConnectedComponents<_TVertexValue,_TEdgeWeight>::nec_shiloach_vishkin(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
+                                                                           int *_components)
 {
-    LOAD_VECTORISED_CSR_GRAPH_REVERSE_DATA(_graph)
+    LOAD_EXTENDED_CSR_GRAPH_DATA(_graph);
+
+    GraphPrimitivesNEC graph_API;
+    FrontierNEC frontier(_graph.get_vertices_count());
+
+    auto init_components_op = [_components] (int src_id)
+    {
+        _components[src_id] = src_id;
+    };
+    graph_API.compute(init_components_op, vertices_count);
+
+    auto all_active = [] (int src_id)->int
+    {
+        return NEC_IN_FRONTIER_FLAG;
+    };
+    frontier.filter(_graph, all_active);
+
+    int hook_changes = 1, jump_changes = 1;
+
+    while(hook_changes)
+    {
+        double t1 = omp_get_wtime();
+        #pragma omp parallel
+        {
+            hook_changes = 0;
+            NEC_REGISTER_INT(hook_changes, 0);
+
+            auto edge_op = [_components, &reg_hook_changes](int src_id, int dst_id, int local_edge_pos,
+                    long long int global_edge_pos, int vector_index, DelayedWriteNEC &delayed_write)
+            {
+                int src_val = _components[src_id];
+                int dst_val = _components[dst_id];
+                int dst_dst_val = _components[dst_val];
+                if((src_val < dst_val) && (dst_val == dst_dst_val))
+                {
+                    _components[dst_val] = src_val;
+                    reg_hook_changes[vector_index] = 1;
+                }
+            };
+
+            graph_API.advance(_graph, frontier, edge_op);
+
+            #pragma omp atomic
+            hook_changes += register_sum_reduce(reg_hook_changes);
+        }
+        double t2 = omp_get_wtime();
+        cout << "time: " << (t2 - t1)*1000.0 << " ms" << endl;
+        cout << "hook changes perf: " << edges_count / ((t2 - t1)*1e6) << " MTEPS" << endl;
+
+        jump_changes = 1;
+        while(jump_changes)
+        {
+            jump_changes = 0;
+            NEC_REGISTER_INT(jump_changes, 0);
+
+            auto jump_op = [_components, &reg_jump_changes](int src_id)
+            {
+                int src_val = _components[src_id];
+                int src_src_val = _components[src_val];
+                int vector_index = src_id % VECTOR_LENGTH;
+
+                if(src_val != src_src_val)
+                {
+                    _components[src_id] = src_src_val;
+                    reg_jump_changes[vector_index]++;
+                }
+            };
+
+            graph_API.compute(jump_op, vertices_count);
+
+            jump_changes += register_sum_reduce(reg_jump_changes);
+        }
+
+        cout << "iter done " << hook_changes << endl;
+    }
+
+    print_component_stats(_components, vertices_count);
+}
+
+#endif
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+template <typename _TVertexValue, typename _TEdgeWeight>
+void ConnectedComponents<_TVertexValue,_TEdgeWeight>::test_shiloach_vishkin(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph, int *_vertices_data)
+{
+    LOAD_EXTENDED_CSR_GRAPH_DATA(_graph);
     
     int threads_count = omp_get_max_threads();
     _graph.set_threads_count(threads_count);
@@ -58,13 +146,15 @@ void ConnectedComponents<_TVertexValue,_TEdgeWeight>::nec_shiloach_vishkin(Vecto
             {
                 reg_hook_changes[i] = 0;
             }
-            
+
+            const int number_of_vertices_in_first_part = _graph.get_nec_vector_core_threshold_vertex();
+
             if(number_of_vertices_in_first_part > 0)
             {
                 for(int src_id = 0; src_id < number_of_vertices_in_first_part; src_id++)
                 {
-                    long long edge_start = first_part_ptrs[src_id];
-                    int connections_count = first_part_sizes[src_id];
+                    long long edge_start = outgoing_ptrs[src_id];
+                    int connections_count = outgoing_ptrs[src_id + 1] - outgoing_ptrs[src_id];
                     
                     #pragma omp for schedule(static, 1)
                     for(long long edge_pos = 0; edge_pos < connections_count; edge_pos += VECTOR_LENGTH)
@@ -77,7 +167,7 @@ void ConnectedComponents<_TVertexValue,_TEdgeWeight>::nec_shiloach_vishkin(Vecto
                         #endif
                         for(int i = 0; i < VECTOR_LENGTH; i++)
                         {
-                            int dst_id = incoming_ids[edge_start + edge_pos + i];
+                            int dst_id = outgoing_ids[edge_start + edge_pos + i];
                             
                             int src_val = _graph.template load_vertex_data<int>(src_id, _vertices_data);
                             int dst_val = _graph.template load_vertex_data_cached<int>(dst_id, _vertices_data, private_vertices_data);
@@ -97,12 +187,12 @@ void ConnectedComponents<_TVertexValue,_TEdgeWeight>::nec_shiloach_vishkin(Vecto
             }
             
             #pragma omp for schedule(static, 1)
-            for(int cur_vector_segment = 0; cur_vector_segment < vector_segments_count; cur_vector_segment++)
+            for(int cur_vector_segment = 0; cur_vector_segment < ve_vector_segments_count; cur_vector_segment++)
             {
                 int segment_first_vertex = cur_vector_segment * VECTOR_LENGTH + number_of_vertices_in_first_part;
                 
-                long long segement_edges_start = vector_group_ptrs[cur_vector_segment];
-                int segment_connections_count  = vector_group_sizes[cur_vector_segment];
+                long long segement_edges_start = ve_vector_group_ptrs[cur_vector_segment];
+                int segment_connections_count  = ve_vector_group_sizes[cur_vector_segment];
                 
                 for(long long edge_pos = 0; edge_pos < segment_connections_count; edge_pos++)
                 {
@@ -115,7 +205,7 @@ void ConnectedComponents<_TVertexValue,_TEdgeWeight>::nec_shiloach_vishkin(Vecto
                     for(int i = 0; i < VECTOR_LENGTH; i++)
                     {
                         int src_id = segment_first_vertex + i;
-                        int dst_id = incoming_ids[segement_edges_start + edge_pos * VECTOR_LENGTH + i];
+                        int dst_id = ve_adjacent_ids[segement_edges_start + edge_pos * VECTOR_LENGTH + i];
                         
                         int src_val = _graph.template load_vertex_data<int>(src_id, _vertices_data);
                         int dst_val = _graph.template load_vertex_data_cached<int>(dst_id, _vertices_data, private_vertices_data);
@@ -224,68 +314,8 @@ void ConnectedComponents<_TVertexValue,_TEdgeWeight>::nec_shiloach_vishkin(Vecto
     cout << "CC bandwidth: " << ((double)current_iteration)*((double)edges_count * (5*sizeof(int))) / ((t2 - t1) * 1e9) << " GB/s" << endl << endl;
     
     _graph.template free_data<int>(cached_vertices_data);
+
+    print_component_stats(_vertices_data, vertices_count);
 }
 
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-template <typename _TVertexValue, typename _TEdgeWeight>
-void ConnectedComponents<_TVertexValue,_TEdgeWeight>::nec_shiloach_vishkin(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph, int *_cc_result)
-{
-    int vertices_count    = _graph.get_vertices_count();
-    long long edges_count = _graph.get_edges_count   ();
-    long long    *outgoing_ptrs    = _graph.get_outgoing_ptrs   ();
-    int          *outgoing_ids     = _graph.get_outgoing_ids    ();
-    _TEdgeWeight *outgoing_weights = _graph.get_outgoing_weights();
-    int threads_count = omp_get_max_threads();
-    
-    #ifdef __USE_NEC_SX_AURORA__
-    #pragma _NEC retain(_cc_result)
-    #endif
-    
-    #pragma omp parallel for num_threads(threads_count)
-    for(int i = 0; i < vertices_count; i++)
-    {
-        _cc_result[i] = i;
-    }
-    
-    int hook_changes = 1;
-    int current_iteration = 1;
-    while(hook_changes)
-    {
-        // hook
-        hook_changes = 0;
-        #pragma omp parallel for schedule(static) shared(hook_changes)
-        for(int src_id = 0; src_id < vertices_count; src_id++)
-        {
-            long long edge_start = outgoing_ptrs[src_id];
-            int connections_count = outgoing_ptrs[src_id + 1] - outgoing_ptrs[src_id];
-            
-            for(int edge_pos = 0; edge_pos < connections_count; edge_pos++)
-            {
-                int dst_id = outgoing_ids[edge_start + edge_pos];
-                int src_val = _cc_result[src_id];
-                int dst_val = _cc_result[dst_id];
-                
-                if((src_val < dst_val) && (dst_val == _cc_result[dst_val]))
-                {
-                    _cc_result[dst_val] = src_val;
-                    hook_changes = true;
-                }
-            }
-        }
-        
-        // jump
-        #pragma omp parallel for schedule(static)
-        for(int src_id = 0; src_id < vertices_count; src_id++)
-        {
-            while(_cc_result[src_id] != _cc_result[_cc_result[src_id]])
-            {
-                _cc_result[src_id] = _cc_result[_cc_result[src_id]];
-            }
-        }
-        
-        current_iteration++;
-    }
-}
-*/
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

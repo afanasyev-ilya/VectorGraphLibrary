@@ -91,7 +91,10 @@ int main(int argc, const char * argv[])
 
             double t1 = omp_get_wtime();
             #ifdef __USE_NEC_SX_AURORA__
-            bfs_operation.nec_direction_optimising(graph, bfs_levels, vertex_to_check);
+            if(parser.get_algorithm_bfs() == DIRECTION_OPTIMISING_BFS_ALGORITHM)
+                bfs_operation.nec_direction_optimising(graph, bfs_levels, vertex_to_check);
+            else if(parser.get_algorithm_bfs() == TOP_DOWN_BFS_ALGORITHM)
+                bfs_operation.nec_top_down(graph, bfs_levels, vertex_to_check);
             #endif
 
             #ifdef __USE_GPU__
