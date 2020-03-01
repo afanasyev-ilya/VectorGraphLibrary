@@ -19,7 +19,7 @@ void ConnectedComponents<_TVertexValue, _TEdgeWeight>::free_result_memory(int *_
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template <typename _TVertexValue, typename _TEdgeWeight>
-void ConnectedComponents<_TVertexValue, _TEdgeWeight>::print_component_stats(int *_components, int _vertices_count)
+void ConnectedComponents<_TVertexValue, _TEdgeWeight>::component_stats(int *_components, int _vertices_count)
 {
     map<int, int> component_sizes;
     for(int i = 0; i < _vertices_count; i++)
@@ -48,6 +48,19 @@ void ConnectedComponents<_TVertexValue, _TEdgeWeight>::print_component_stats(int
         cout << "there are " << it->second << " components of size " << it->first << endl;
     }
     cout << " ---------------------------------------------------------------------------- " << endl << endl;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+template <typename _TVertexValue, typename _TEdgeWeight>
+void ConnectedComponents<_TVertexValue, _TEdgeWeight>::performance_stats(string _name, double _time, long long _edges_count, int _iterations_count)
+{
+    cout << " ---------------- " << _name << " performance stats -------------------- " << endl;
+    cout << "wall time: " << _time*1000.0 << " ms" << endl;
+    cout << "wall perf: " << _edges_count / (_time * 1e6) << " MTEPS" << endl;
+    cout << "iterations count: " << _iterations_count << endl;
+    cout << "perf per iteration: " << _iterations_count * (_edges_count / (_time * 1e6)) << " MTEPS" << endl;
+    cout << "band per iteration: " << 5.0 * sizeof(int) * _iterations_count * (_edges_count / (_time * 1e9)) << " GB/s" << endl << endl;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

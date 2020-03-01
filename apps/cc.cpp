@@ -55,7 +55,9 @@ int main(int argc, const char * argv[])
         cc_operation.nec_shiloach_vishkin(graph, components);
         #endif
 
-        cc_operation.test_shiloach_vishkin(graph, components);
+        #ifdef __USE_NEC_SX_AURORA__
+        cc_operation.nec_shiloach_vishkin(graph, components);
+        #endif
 
         if(parser.get_check_flag())
         {

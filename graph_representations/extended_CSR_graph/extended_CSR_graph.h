@@ -98,6 +98,13 @@ public:
     #endif
 
     VectorExtension<_TVertexValue, _TEdgeWeight> *get_last_vertices_ve_ptr(){return &last_vertices_ve;}
+
+    // cached API
+    template <class _T> inline _T load_vertex_data_cached(int _idx, _T *_data, _T *_private_data);
+    template <class _T> inline _T load_vertex_data(int _idx, _T *_data);
+    template <class _T> inline _T place_data_into_cache(_T *_data, _T *_private_data);
+
+    template <class _T> _T*  allocate_private_caches     (int _threads_count);
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

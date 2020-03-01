@@ -406,7 +406,7 @@ void GraphPrimitivesNEC::ve_collective_vertex_processing_kernel(const long long 
             #pragma _NEC vovertake
             #pragma _NEC novob
             #pragma _NEC vector
-            #pragma _NEC unroll(VECTOR_LENGTH)
+            //#pragma _NEC unroll(VECTOR_LENGTH)
             for (int i = 0; i < VECTOR_LENGTH; i++)
             {
                 const int src_id = segment_first_vertex + i;
