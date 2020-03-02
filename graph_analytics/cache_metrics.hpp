@@ -1,13 +1,4 @@
-//
-//  cache_metric.h
-//  ParallelGraphLibrary
-//
-//  Created by Elijah Afanasiev on 24/05/2019.
-//  Copyright © 2019 MSU. All rights reserved.
-//
-
-#ifndef cache_metrics_h
-#define cache_metrics_h
+#pragma once
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -28,6 +19,8 @@ double analyse_dst_ptrs_for_cache_metric(vector<int> &_dst_ptrs_data, int _verti
     return cache_metric;
 }
 
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 template <typename _TVertexValue, typename _TEdgeWeight>
 void calculate_cache_metric(VectorisedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph)
 {
@@ -45,5 +38,3 @@ void calculate_cache_metric(VectorisedCSRGraph<_TVertexValue, _TEdgeWeight> &_gr
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-#endif /* cache_metrics_h */

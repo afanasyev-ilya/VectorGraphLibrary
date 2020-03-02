@@ -1,13 +1,4 @@
-//
-//  access_profiling.h
-//  ParallelGraphLibrary
-//
-//  Created by Elijah Afanasiev on 11/05/2019.
-//  Copyright © 2019 MSU. All rights reserved.
-//
-
-#ifndef access_profiling_h
-#define access_profiling_h
+#pragma once
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -118,5 +109,3 @@ void collect_number_of_connections(VectorisedCSRGraph<_TVertexValue, _TEdgeWeigh
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-#endif /* access_profiling_h */

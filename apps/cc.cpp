@@ -44,7 +44,10 @@ int main(int argc, const char * argv[])
             cout << "file " << parser.get_graph_file_name() << " loaded in " << t2 - t1 << " sec" << endl;
         }
 
-        ConnectedComponents<int, float> cc_operation;
+        GraphAnalytics graph_analytics;
+        graph_analytics.analyse_graph_stats(graph, parser.get_graph_file_name());
+
+        ConnectedComponents<int, float> cc_operation(graph);
 
         #if defined(__USE_NEC_SX_AURORA__) || defined( __USE_INTEL__)
         int *components;
@@ -56,7 +59,7 @@ int main(int argc, const char * argv[])
         #endif
 
         #ifdef __USE_NEC_SX_AURORA__
-        cc_operation.nec_shiloach_vishkin(graph, components);
+        cc_operation.nec_bfs_based(graph, components);
         #endif
 
         if(parser.get_check_flag())
@@ -64,8 +67,6 @@ int main(int argc, const char * argv[])
             int *check_components;
             cc_operation.allocate_result_memory(graph.get_vertices_count(), &check_components);
             cc_operation.seq_bfs_based(graph, check_components);
-
-            //verify_results(components, check_components, graph.get_vertices_count());
 
             cc_operation.free_result_memory(check_components);
         }

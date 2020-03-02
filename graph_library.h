@@ -37,6 +37,10 @@ using namespace std;
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+#include "graph_analytics/graph_analytics.h"
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 #include "graph_processing_API/nec/graph_primitives/graph_primitives_nec.h"
 
 #ifdef __USE_GPU__
@@ -48,7 +52,6 @@ using namespace std;
 #include "algorithms/sssp/shortest_paths.h"
 #include "algorithms/bfs/bfs.h"
 #include "algorithms/cc/cc.h"
-
 /*#include "algorithms/label_propagation/label_propagation.h"
 #include "algorithms/sswp/widest_paths.h"
 #include "algorithms/page_rank/page_rank.h"
@@ -62,8 +65,8 @@ using namespace std;
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#include "graph_analytics/access_profiling.h"
-#include "graph_analytics/cache_metrics.h"
+#include "graph_analytics/access_profiling.hpp"
+#include "graph_analytics/cache_metrics.hpp"
 #include "export_graphs/ligra_export.h"
 #include "export_graphs/gapbs_export.h"
 

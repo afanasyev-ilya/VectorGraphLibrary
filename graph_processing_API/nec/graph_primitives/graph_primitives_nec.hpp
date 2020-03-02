@@ -370,6 +370,7 @@ void GraphPrimitivesNEC::ve_collective_vertex_processing_kernel(const long long 
                                                                 VertexPreprocessOperation vertex_preprocess_op,
                                                                 VertexPostprocessOperation vertex_postprocess_op,
                                                                 long long _edges_count,
+                                                                int _vertices_count,
                                                                 int _first_edge)
 {
     #ifdef __PRINT_DETAILED_STATS__
@@ -397,7 +398,9 @@ void GraphPrimitivesNEC::ve_collective_vertex_processing_kernel(const long long 
         for(int i = 0; i < VECTOR_LENGTH; i++)
         {
             int src_id = segment_first_vertex + i;
-            vertex_preprocess_op(src_id, segment_connections_count, delayed_write);
+
+            if(src_id < _vertices_count)
+                vertex_preprocess_op(src_id, segment_connections_count, delayed_write);
         }
 
         for(int edge_pos = _first_edge; edge_pos < segment_connections_count; edge_pos++)
@@ -431,7 +434,9 @@ void GraphPrimitivesNEC::ve_collective_vertex_processing_kernel(const long long 
         for(int i = 0; i < VECTOR_LENGTH; i++)
         {
             int src_id = segment_first_vertex + i;
-            vertex_postprocess_op(src_id, segment_connections_count, delayed_write);
+
+            if(src_id < _vertices_count)
+                vertex_postprocess_op(src_id, segment_connections_count, delayed_write);
         }
     }
 
@@ -502,10 +507,23 @@ void GraphPrimitivesNEC::advance(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &
                                                ve_vertices_count, ve_starting_vertex, ve_vector_segments_count,
                                                frontier_flags, collective_threshold_start, collective_threshold_end,
                                                collective_edge_op, collective_vertex_preprocess_op,
-                                               collective_vertex_postprocess_op, edges_count, _first_edge);
+                                               collective_vertex_postprocess_op, edges_count, vertices_count, _first_edge);
     }
 
     #pragma omp barrier
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+template <typename _TVertexValue, typename _TEdgeWeight, typename EdgeOperation, typename VertexPreprocessOperation,
+        typename VertexPostprocessOperation>
+void GraphPrimitivesNEC::advance(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
+                                 FrontierNEC &_frontier,
+                                 EdgeOperation &&edge_op,
+                                 VertexPreprocessOperation &&vertex_preprocess_op,
+                                 VertexPostprocessOperation &&vertex_postprocess_op)
+{
+    advance(_graph, _frontier, edge_op, vertex_preprocess_op, vertex_postprocess_op, edge_op, vertex_preprocess_op, vertex_postprocess_op);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

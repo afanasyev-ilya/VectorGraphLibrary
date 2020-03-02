@@ -34,6 +34,14 @@ void ExtendedCSRGraph<_TVertexValue, _TEdgeWeight>::import_graph(EdgesListGraph<
         int src_id = old_src_ids[i];
         int dst_id = old_dst_ids[i];
         _TEdgeWeight weight = old_weights[i];
+
+        if(_multiple_arcs_state == MULTIPLE_ARCS_REMOVED)
+        {
+            if(src_id == dst_id) // also remove self loops TODO fix
+            {
+                continue;
+            }
+        }
         
         if(_traversal_type == PUSH_TRAVERSAL)
             tmp_graph[src_id].push_back(TempEdgeData<_TEdgeWeight>(dst_id, weight));

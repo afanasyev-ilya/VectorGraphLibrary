@@ -99,7 +99,7 @@ void BFS<_TVertexValue, _TEdgeWeight>::nec_bottom_up_compute_step(ExtendedCSRGra
                 long long int global_edge_pos, int vector_index, DelayedWriteNEC &delayed_write)
         {
             reg_in_lvl[vector_index]++;
-            if(_levels[dst_id] == _current_level)
+            if((_levels[src_id] == UNVISITED_VERTEX) && (_levels[dst_id] == _current_level))
             {
                 delayed_write.int_vec_reg[vector_index] = _current_level + 1;
                 reg_vis[vector_index]++;
@@ -110,7 +110,7 @@ void BFS<_TVertexValue, _TEdgeWeight>::nec_bottom_up_compute_step(ExtendedCSRGra
                 long long int global_edge_pos, int vector_index, DelayedWriteNEC &delayed_write)
         {
             reg_in_lvl[vector_index]++;
-            if(_levels[dst_id] == _current_level)
+            if((_levels[src_id] == UNVISITED_VERTEX) && (_levels[dst_id] == _current_level))
             {
                 _levels[src_id] = _current_level + 1;
                 reg_vis[vector_index]++;
@@ -140,8 +140,8 @@ void BFS<_TVertexValue, _TEdgeWeight>::nec_bottom_up_compute_step(ExtendedCSRGra
             void operator()(int src_id, int connections_count, DelayedWriteNEC &delayed_write)
             {
                 int new_level = UNVISITED_VERTEX;
-                #pragma _NEC vector
-                #pragma _NEC unroll(VECTOR_LENGTH)
+                #pragma _NEC novector
+                //#pragma _NEC unroll(VECTOR_LENGTH)
                 for(int i = 0; i < VECTOR_LENGTH; i++)
                 {
                     if(delayed_write.int_vec_reg[i] == (_current_level + 1))
@@ -198,14 +198,10 @@ void BFS<_TVertexValue, _TEdgeWeight>::nec_top_down(ExtendedCSRGraph<_TVertexVal
     };
     frontier.filter(_graph, on_first_level);
 
-    vector<double> step_times;
-
     double t1 = omp_get_wtime();
     int current_level = FIRST_LEVEL_VERTEX;
     while(frontier.size() > 0)
     {
-        double t_st = omp_get_wtime();
-
         int vis = 0, in_lvl = 0;
         nec_top_down_compute_step(_graph, _levels, current_level, vis, in_lvl);
 
@@ -219,18 +215,12 @@ void BFS<_TVertexValue, _TEdgeWeight>::nec_top_down(ExtendedCSRGraph<_TVertexVal
         frontier.filter(_graph, on_next_level);
 
         current_level++;
-        double t_end = omp_get_wtime();
-        step_times.push_back(t_end - t_st);
-        cout << "vis: " << vis << " " << in_lvl << endl;
     }
     double t2 = omp_get_wtime();
 
-    for(int i = 0; i < step_times.size(); i++)
-    {
-        cout << "step " << i << " time: " << 1000.0 * step_times[i] << " ms, " << 100.0* step_times[i] / (t2 - t1) << " %" << endl;
-    }
-
+    #ifdef __PRINT_INNER_PERFORMANCE_STATS__
     performance_stats("BFS (top-down)", t2 - t1, edges_count, current_level);
+    #endif
 }
 #endif
 
@@ -262,14 +252,10 @@ void BFS<_TVertexValue, _TEdgeWeight>::nec_bottom_up(ExtendedCSRGraph<_TVertexVa
     };
     frontier.filter(_graph, vertex_value_is_unset);
 
-    vector<double> step_times;
-
-    double t1 = omp_get_wtime();
     int current_level = FIRST_LEVEL_VERTEX;
     int frontier_previous_size = 0, frontier_current_size = 1;
     while(frontier_previous_size != frontier_current_size)
     {
-        double t_st = omp_get_wtime();
         frontier_previous_size = frontier.size();
         int vis = 0, in_lvl = 0;
         nec_bottom_up_compute_step(_graph, _levels, current_level, vis, in_lvl);
@@ -278,19 +264,11 @@ void BFS<_TVertexValue, _TEdgeWeight>::nec_bottom_up(ExtendedCSRGraph<_TVertexVa
         frontier_current_size = frontier.size();
 
         current_level++;
-        double t_end = omp_get_wtime();
-        step_times.push_back(t_end - t_st);
-
-        cout << "vis: " << vis << " " << in_lvl << endl;
-    }
-    double t2 = omp_get_wtime();
-
-    for(int i = 0; i < step_times.size(); i++)
-    {
-        cout << "step " << i << " time: " << 1000.0 * step_times[i] << " ms, " << 100.0* step_times[i] / (t2 - t1) << " %" << endl;
     }
 
+    #ifdef __PRINT_INNER_PERFORMANCE_STATS__
     performance_stats("BFS (bottom-up)", t2 - t1, edges_count, current_level);
+    #endif
 }
 #endif
 

@@ -25,7 +25,7 @@ void ConnectedComponents<_TVertexValue,_TEdgeWeight>::seq_bfs_based(ExtendedCSRG
         {
             int connections_count = outgoing_ptrs[v + 1] - outgoing_ptrs[v];
 
-            if(connections_count > 1)
+            if(connections_count >= 1)
             {
                 bfs_operation.seq_top_down(_graph, bfs_levels, v);
 

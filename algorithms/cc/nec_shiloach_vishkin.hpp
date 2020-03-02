@@ -9,11 +9,7 @@ void ConnectedComponents<_TVertexValue,_TEdgeWeight>::nec_shiloach_vishkin(Exten
 {
     LOAD_EXTENDED_CSR_GRAPH_DATA(_graph);
 
-    GraphPrimitivesNEC graph_API;
-    FrontierNEC frontier(_graph.get_vertices_count());
-
     double t1 = omp_get_wtime();
-
     auto init_components_op = [_components] (int src_id)
     {
         _components[src_id] = src_id;
@@ -58,7 +54,6 @@ void ConnectedComponents<_TVertexValue,_TEdgeWeight>::nec_shiloach_vishkin(Exten
             hook_changes += register_sum_reduce(reg_hook_changes);
         }
 
-        t1 = omp_get_wtime();
         jump_changes = 1;
         while(jump_changes)
         {
@@ -87,8 +82,8 @@ void ConnectedComponents<_TVertexValue,_TEdgeWeight>::nec_shiloach_vishkin(Exten
     }
     double t2 = omp_get_wtime();
 
-    component_stats(_components, vertices_count);
     performance_stats("shiloach vishkin", t2 - t1, edges_count, iteration);
+    component_stats(_components, vertices_count);
 }
 #endif
 

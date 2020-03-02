@@ -61,7 +61,8 @@ private:
                                                        const int _last_vertex, EdgeOperation edge_op,
                                                        VertexPreprocessOperation vertex_preprocess_op,
                                                        VertexPostprocessOperation vertex_postprocess_op,
-                                                       long long _edges_count, int _first_edge);
+                                                       long long _edges_count, int _vertices_count,
+                                                       int _first_edge);
 
     template <typename EdgeOperation, typename VertexPreprocessOperation,
             typename VertexPostprocessOperation>
@@ -104,6 +105,14 @@ public:
                  CollectiveVertexPreprocessOperation &&collective_vertex_preprocess_op,
                  CollectiveVertexPostprocessOperation &&collective_vertex_postprocess_op,
                  int _first_edge = 0);
+
+    template <typename _TVertexValue, typename _TEdgeWeight, typename EdgeOperation, typename VertexPreprocessOperation,
+            typename VertexPostprocessOperation>
+    void advance(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
+                 FrontierNEC &_frontier,
+                 EdgeOperation &&edge_op,
+                 VertexPreprocessOperation &&vertex_preprocess_op = EMPTY_VERTEX_OP,
+                 VertexPostprocessOperation &&vertex_postprocess_op = EMPTY_VERTEX_OP);
 
     template <typename _TVertexValue, typename _TEdgeWeight, typename EdgeOperation>
     void advance(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,

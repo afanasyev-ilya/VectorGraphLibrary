@@ -14,24 +14,6 @@
 
 using namespace std;
 
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-template <typename _TVertexValue, typename _TEdgeWeight>
-int non_zero_vertices_count(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph)
-{
-    LOAD_EXTENDED_CSR_GRAPH_DATA(_graph);
-    int result = vertices_count;
-    for(int i = 0; i < vertices_count; i++)
-    {
-        if((outgoing_ptrs[i+1]-outgoing_ptrs[i]) == 0)
-        {
-            result = i;
-            break;
-        }
-    }
-    return result;
-}
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 int main(int argc, const char * argv[])
@@ -71,22 +53,17 @@ int main(int argc, const char * argv[])
         #ifdef __USE_GPU__
         int *device_bfs_levels;
         bfs_operation.allocate_device_result_memory(graph.get_vertices_count(), &device_bfs_levels);
-        #endif
-
-        const int source_vertex_num = parser.get_steps_count();
-        int non_zero_vertices = non_zero_vertices_count(graph);
-        cout << "non-zero count: " << (double)non_zero_vertices/graph.get_vertices_count() << endl;
-
-        #ifdef __USE_GPU__
         graph.move_to_device();
         #endif
+
+        int source_vertex_num = parser.get_steps_count();
 
         double avg_perf = 0;
         double total_time = 0;
         int vertex_to_check = 0;
         for(int i = 0; i < source_vertex_num; i++)
         {
-            vertex_to_check = rand()%(non_zero_vertices/20 - 1);
+            vertex_to_check = i + 1;
             cout << "starting from vertex: " << vertex_to_check << endl;
 
             double t1 = omp_get_wtime();
