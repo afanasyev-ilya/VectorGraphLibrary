@@ -4,7 +4,7 @@
 
 template <typename _TVertexValue, typename _TEdgeWeight>
 void gpu_direction_optimising_bfs_wrapper(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph, int *_levels,
-                                          int _source_vertex, int &_iterations_count, int *_active_ids, int *_active_vertices_buffer);
+                                          int _source_vertex, int &_iterations_count);
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 

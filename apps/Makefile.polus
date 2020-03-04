@@ -11,14 +11,14 @@ Library_Path = -L $(CUDA_DIR)/lib -L $(CUDA_DIR)/lib64
 Libraries += -lcudart -lcudadevrt -lnvgraph -lcublas -lcudadevrt
 
 # CPU Compiler flags...
-CXXFLAGS = -O2 -fopenmp -fopt-info-vec -fpermissive
+CXXFLAGS = -O2 -fopenmp -std=c++11 -fpermissive
 LDFLAGS = -fopenmp
 
 # CUDA Compiler flags
-CUDA_FLAGS = -O2 -w -m64 -std=c++11 -Xptxas -dlcm=ca --expt-extended-lambda -gencode arch=compute_60,code=sm_60 -gencode arch=compute_70,code=sm_70
+CUDA_FLAGS = -O2 -w -m64 -std=c++11 -Xptxas -dlcm=ca --expt-extended-lambda -gencode arch=compute_60,code=sm_60
 
 # Paths to gpu algorithms from current sample
-VPATH=./:algorithms/sssp/gpu/:algorithms/bfs/gpu/:graph_processing_API/gpu/
+VPATH=./:../algorithms/sssp/gpu/:../algorithms/bfs/gpu/:../algorithms/cc/gpu:../graph_processing_API/gpu/
 
 .DEFAULT_GOAL := all
 
@@ -26,11 +26,15 @@ VPATH=./:algorithms/sssp/gpu/:algorithms/bfs/gpu/:graph_processing_API/gpu/
 # binaries
 ##########
 
-all: bfs sssp
+all: bfs cc sssp
 
 sssp: create_folders sssp.o dijkstra_gpu.o
 	$(CUDA_COMPILER) $(CUDA_FLAGS) $(Include_Path) -dlink  object_files/dijkstra_gpu.o -o object_files/cuda_files_link.o -lcudadevrt -lcudart
 	$(CXX) object_files/sssp.o object_files/dijkstra_gpu.o object_files/cuda_files_link.o $(Library_Path) $(Libraries) $(LDFLAGS) -o ./bin/sssp
+
+cc: create_folders cc.o shiloach_vishkin_gpu.o
+	$(CUDA_COMPILER) $(CUDA_FLAGS) $(Include_Path) -dlink  object_files/shiloach_vishkin_gpu.o -o object_files/cuda_files_link.o -lcudadevrt -lcudart
+	$(CXX) object_files/cc.o object_files/shiloach_vishkin_gpu.o object_files/cuda_files_link.o $(Library_Path) $(Libraries) $(LDFLAGS) -o ./bin/cc
 	
 bfs: create_folders bfs.o traditional_bfs_gpu.o
 	$(CUDA_COMPILER) $(CUDA_FLAGS) $(Include_Path) -dlink  object_files/traditional_bfs_gpu.o -o object_files/cuda_files_link.o -lcudadevrt -lcudart
@@ -45,6 +49,9 @@ generate_test_data: create_folders generate_test_data.o
 
 sssp.o: sssp.cpp
 	$(CXX) $(CXXFLAGS) $(Include_Path)  -c sssp.cpp -o object_files/sssp.o -fopenmp
+
+cc.o: cc.cpp
+	$(CXX) $(CXXFLAGS) $(Include_Path)  -c cc.cpp -o object_files/cc.o -fopenmp
 	
 bfs.o: bfs.cpp
 	$(CXX) $(CXXFLAGS) $(Include_Path)  -c bfs.cpp -o object_files/bfs.o -fopenmp
@@ -68,7 +75,10 @@ clean:
 #################
 
 dijkstra_gpu.o: dijkstra_gpu.cu
-	$(CUDA_COMPILER) $(CUDA_FLAGS) $(Include_Path) -rdc=true -c algorithms/sssp/gpu/dijkstra_gpu.cu -o object_files/dijkstra_gpu.o
+	$(CUDA_COMPILER) $(CUDA_FLAGS) $(Include_Path) -rdc=true -c ../algorithms/sssp/gpu/dijkstra_gpu.cu -o object_files/dijkstra_gpu.o
+
+shiloach_vishkin_gpu.o: shiloach_vishkin_gpu.cu
+	$(CUDA_COMPILER) $(CUDA_FLAGS) $(Include_Path) -rdc=true -c ../algorithms/cc/gpu/shiloach_vishkin_gpu.cu -o object_files/shiloach_vishkin_gpu.o
 
 traditional_bfs_gpu.o: traditional_bfs.cu
-	$(CUDA_COMPILER) $(CUDA_FLAGS) $(Include_Path) -rdc=true -c algorithms/bfs/gpu/traditional_bfs.cu -o object_files/traditional_bfs_gpu.o
+	$(CUDA_COMPILER) $(CUDA_FLAGS) $(Include_Path) -rdc=true -c ../algorithms/bfs/gpu/traditional_bfs.cu -o object_files/traditional_bfs_gpu.o

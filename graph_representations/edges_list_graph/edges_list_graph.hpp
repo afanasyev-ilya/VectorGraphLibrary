@@ -12,7 +12,7 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template <typename _TVertexValue, typename _TEdgeWeight>
-EdgesListGraph<_TVertexValue, _TEdgeWeight>::EdgesListGraph(int _vertices_count = 1, long long _edges_count = 1)
+EdgesListGraph<_TVertexValue, _TEdgeWeight>::EdgesListGraph(int _vertices_count, long long _edges_count)
 {
     this->graph_type = GraphTypeEdgesList;
     
@@ -133,6 +133,7 @@ bool EdgesListGraph<_TVertexValue, _TEdgeWeight>::save_to_binary_file(string _fi
     fwrite(reinterpret_cast<const void*>(weights), sizeof(_TEdgeWeight), this->edges_count, graph_file);
 
     fclose(graph_file);
+    return true;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

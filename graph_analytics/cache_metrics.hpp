@@ -21,7 +21,7 @@ double analyse_dst_ptrs_for_cache_metric(vector<int> &_dst_ptrs_data, int _verti
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-template <typename _TVertexValue, typename _TEdgeWeight>
+/*template <typename _TVertexValue, typename _TEdgeWeight>
 void calculate_cache_metric(VectorisedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph)
 {
     LOAD_VECTORISED_CSR_GRAPH_REVERSE_DATA(_graph)
@@ -35,6 +35,6 @@ void calculate_cache_metric(VectorisedCSRGraph<_TVertexValue, _TEdgeWeight> &_gr
     int max_cached_vertices = 16 * 1e6 / sizeof(int);
     analyse_dst_ptrs_for_cache_metric(dst_ptrs_data, _graph.get_vertices_count(), max_cached_vertices,
                                       _graph.get_edges_count());
-}
+}*/
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

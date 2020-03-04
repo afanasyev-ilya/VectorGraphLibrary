@@ -8,8 +8,10 @@
 #include <fstream>
 #include <stdio.h>
 
+#include "../../common/cmd_parser/parser_options.h"
 #include "../common/tmp_edge_data.h"
 #include "vector_extension/vector_extension.h"
+#include "../../common/memory_API/memory_API.h"
 
 #define VECTOR_EXTENSION_SIZE 7
 
@@ -98,13 +100,6 @@ public:
     #endif
 
     VectorExtension<_TVertexValue, _TEdgeWeight> *get_last_vertices_ve_ptr(){return &last_vertices_ve;}
-
-    // cached API
-    template <class _T> inline _T load_vertex_data_cached(int _idx, _T *_data, _T *_private_data);
-    template <class _T> inline _T load_vertex_data(int _idx, _T *_data);
-    template <class _T> inline _T place_data_into_cache(_T *_data, _T *_private_data);
-
-    template <class _T> _T*  allocate_private_caches     (int _threads_count);
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

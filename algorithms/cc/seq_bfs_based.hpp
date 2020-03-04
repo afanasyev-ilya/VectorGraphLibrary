@@ -49,7 +49,9 @@ void ConnectedComponents<_TVertexValue,_TEdgeWeight>::seq_bfs_based(ExtendedCSRG
 
     MemoryAPI::free_array(bfs_levels);
 
+    #ifdef __PRINT_SAMPLES_PERFORMANCE_STATS__
     component_stats(_components, vertices_count);
+    #endif
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

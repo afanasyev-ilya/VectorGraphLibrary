@@ -42,7 +42,7 @@ void MemoryAPI::allocate_device_array(_T **_ptr, size_t _size)
 template <typename _T>
 void MemoryAPI::free_device_array(_T *_ptr)
 {
-    SAFE_CALL(cudaFree(*_ptr));
+    SAFE_CALL(cudaFree((void*)_ptr));
 }
 #endif
 

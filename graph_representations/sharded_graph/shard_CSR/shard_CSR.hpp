@@ -135,10 +135,10 @@ ShardCSRPointerData<_TEdgeWeight> ShardCSR<_TEdgeWeight>::get_pointers_data()
 template <typename _TEdgeWeight>
 void ShardCSR<_TEdgeWeight>::move_to_device()
 {
-    move_array_to_device<long long>(&vertex_ptrs, this->vertices_in_shard + 1);
-    move_array_to_device<int>(&dst_ids, this->edges_in_shard);
-    move_array_to_device<_TEdgeWeight>(&weights, this->edges_in_shard);
-    move_array_to_device<int>(&(this->global_src_ids), this->vertices_in_shard);
+    MemoryAPI::move_array_to_device<long long>(&vertex_ptrs, this->vertices_in_shard + 1);
+    MemoryAPI::move_array_to_device<int>(&dst_ids, this->edges_in_shard);
+    MemoryAPI::move_array_to_device<_TEdgeWeight>(&weights, this->edges_in_shard);
+    MemoryAPI::move_array_to_device<int>(&(this->global_src_ids), this->vertices_in_shard);
 }
 #endif
 
@@ -148,10 +148,10 @@ void ShardCSR<_TEdgeWeight>::move_to_device()
 template <typename _TEdgeWeight>
 void ShardCSR<_TEdgeWeight>::move_to_host()
 {
-    move_array_to_host<long long>(&vertex_ptrs, this->vertices_in_shard + 1);
-    move_array_to_host<int>(&dst_ids, this->edges_in_shard);
-    move_array_to_host<_TEdgeWeight>(&weights, this->edges_in_shard);
-    move_array_to_host<int>(&(this->global_src_ids), this->vertices_in_shard);
+    MemoryAPI::move_array_to_host<long long>(&vertex_ptrs, this->vertices_in_shard + 1);
+    MemoryAPI::move_array_to_host<int>(&dst_ids, this->edges_in_shard);
+    MemoryAPI::move_array_to_host<_TEdgeWeight>(&weights, this->edges_in_shard);
+    MemoryAPI::move_array_to_host<int>(&(this->global_src_ids), this->vertices_in_shard);
 }
 #endif
 

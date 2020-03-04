@@ -15,14 +15,14 @@
 
 #define SSSP ShortestPaths<_TVertexValue, _TEdgeWeight>
 
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 template <typename _TVertexValue, typename _TEdgeWeight>
 class ShortestPaths
 {
 private:
-    #ifdef __USE_NEC_SX_AURORA__
     GraphPrimitivesNEC graph_API;
     FrontierNEC frontier;
-    #endif
 
     #ifdef __USE_NEC_SX_AURORA__
     void nec_dijkstra_all_active(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,

@@ -5,6 +5,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#ifdef __USE_GPU__
+#include <cuda_runtime.h>
+#include "../gpu_API/cuda_error_handling.h"
+#endif
+
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 class MemoryAPI

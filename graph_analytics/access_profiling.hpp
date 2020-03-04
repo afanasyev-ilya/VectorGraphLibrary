@@ -2,7 +2,7 @@
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-template <typename _TVertexValue, typename _TEdgeWeight>
+/*template <typename _TVertexValue, typename _TEdgeWeight>
 void collect_number_of_accesses_per_vertex(VectorisedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
                                            vector<int> &_dst_ptrs_data)
 {
@@ -41,11 +41,11 @@ void collect_number_of_accesses_per_vertex(VectorisedCSRGraph<_TVertexValue, _TE
             }
         }
     }
-}
+}*/
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-template <typename _TVertexValue, typename _TEdgeWeight>
+/*template <typename _TVertexValue, typename _TEdgeWeight>
 void create_access_profiling_file(VectorisedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
                                   string _output_file_name)
 {
@@ -106,6 +106,6 @@ void collect_number_of_connections(VectorisedCSRGraph<_TVertexValue, _TEdgeWeigh
         output_file << connections_data[i] << " ";
     }
     output_file.close();
-}
+}*/
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

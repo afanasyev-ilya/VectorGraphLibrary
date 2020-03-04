@@ -14,7 +14,6 @@
 enum GraphType
 {
     GraphTypeExtendedCSR = 0,
-    GraphTypeVectorisedCSR = 1,
     GraphTypeEdgesList = 2
 };
 

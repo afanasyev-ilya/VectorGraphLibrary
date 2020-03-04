@@ -24,7 +24,7 @@ private:
     void alloc(int _vertices_count, long long _edges_count);
     void free();
 public:
-    EdgesListGraph(int _vertices_count, long long _edges_count);
+    EdgesListGraph(int _vertices_count = 1, long long _edges_count = 1);
     ~EdgesListGraph();
     
     inline int *get_src_ids() {return src_ids;};

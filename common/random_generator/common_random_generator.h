@@ -1,13 +1,4 @@
-//
-//  common_random_generator.h
-//  ParallelGraphLibrary
-//
-//  Created by Elijah Afanasiev on 16/04/2019.
-//  Copyright © 2019 MSU. All rights reserved.
-//
-
-#ifndef common_random_generator_h
-#define common_random_generator_h
+#pragma once
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -44,4 +35,3 @@ void CommonRandomGenerator::generate_array_of_random_uniform_values<float>(float
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#endif /* common_random_generator_h */

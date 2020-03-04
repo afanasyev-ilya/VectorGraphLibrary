@@ -30,8 +30,11 @@ int main(int argc, const char * argv[])
         }
         else if(parser.get_compute_mode() == LOAD_GRAPH_FROM_FILE)
         {
+            double t1 = omp_get_wtime();
             if(!graph.load_from_binary_file(parser.get_graph_file_name()))
                 throw "ERROR: graph file not found";
+            double t2 = omp_get_wtime();
+            cout << "file " << parser.get_graph_file_name() << " loaded in " << t2 - t1 << " sec" << endl;
         }
         
         // compute SSSP
@@ -49,7 +52,7 @@ int main(int argc, const char * argv[])
         double t1 = omp_get_wtime();
         for(int i = 0; i < parser.get_steps_count(); i++)
         {
-            last_src_vertex = rand() % (graph.get_vertices_count()/100);
+            last_src_vertex = i * 100 + 1;
 
             #ifdef __USE_NEC_SX_AURORA__
             sssp_operation.nec_dijkstra(graph, distances, last_src_vertex, parser.get_algorithm_frontier_type(),

@@ -42,8 +42,11 @@ void BFS<_TVertexValue, _TEdgeWeight>::gpu_direction_optimising_BFS(
     _graph.move_to_device();
 
     int iterations_count = 0;
-    gpu_direction_optimising_bfs_wrapper<_TVertexValue, _TEdgeWeight>(_graph, _device_levels, _source_vertex, iterations_count,
-                                                                      active_ids, active_vertices_buffer);
+    gpu_direction_optimising_bfs_wrapper<_TVertexValue, _TEdgeWeight>(_graph, _device_levels, _source_vertex, iterations_count);
+
+    #ifdef __PRINT_SAMPLES_PERFORMANCE_STATS__
+    performance_stats("BFS (direction-optimising)", t2 - t1, edges_count, iterations_count);
+    #endif
 }
 #endif
 

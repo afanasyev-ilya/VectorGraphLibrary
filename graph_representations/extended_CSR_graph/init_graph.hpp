@@ -28,7 +28,7 @@ void ExtendedCSRGraph<_TVertexValue, _TEdgeWeight>::import_graph(EdgesListGraph<
     int *old_dst_ids = _old_graph.get_dst_ids();
     _TEdgeWeight *old_weights = _old_graph.get_weights();
     
-    t1 = omp_get_wtime();
+    //t1 = omp_get_wtime();
     for(long long int i = 0; i < tmp_edges_count; i++)
     {
         int src_id = old_src_ids[i];
@@ -48,8 +48,8 @@ void ExtendedCSRGraph<_TVertexValue, _TEdgeWeight>::import_graph(EdgesListGraph<
         else if(_traversal_type == PULL_TRAVERSAL)
             tmp_graph[dst_id].push_back(TempEdgeData<_TEdgeWeight>(src_id, weight));
     }
-    t2 = omp_get_wtime();
-    cout << "creating intermediate representation time: " << t2 - t1 <<" sec" << endl;
+    //t2 = omp_get_wtime();
+    //cout << "creating intermediate representation time: " << t2 - t1 <<" sec" << endl;
 
     // remove multiple arcs here, since sorting is required to be maintained
     if(_multiple_arcs_state == MULTIPLE_ARCS_REMOVED)
@@ -73,7 +73,7 @@ void ExtendedCSRGraph<_TVertexValue, _TEdgeWeight>::import_graph(EdgesListGraph<
     }
     
     // sort all vertices now
-    t1 = omp_get_wtime();
+    //t1 = omp_get_wtime();
     vector<pair<int, int> > pairs(tmp_vertices_count);
     for(int i = 0; i < tmp_vertices_count; i++)
         pairs[i] = make_pair(tmp_graph[i].size(), i);
@@ -84,11 +84,11 @@ void ExtendedCSRGraph<_TVertexValue, _TEdgeWeight>::import_graph(EdgesListGraph<
         reverse(pairs.begin(), pairs.end());
     }
     
-    t2 = omp_get_wtime();
-    cout << "sort time: " << t2 - t1 << " sec" << endl;
+    //t2 = omp_get_wtime();
+    //cout << "sort time: " << t2 - t1 << " sec" << endl;
     
     // save old indexes array
-    t1 = omp_get_wtime();
+    //t1 = omp_get_wtime();
     int *old_indexes;
     MemoryAPI::allocate_array(&old_indexes, tmp_vertices_count);
     for(int i = 0; i < tmp_vertices_count; i++)
@@ -119,12 +119,12 @@ void ExtendedCSRGraph<_TVertexValue, _TEdgeWeight>::import_graph(EdgesListGraph<
     }
 
     MemoryAPI::free_array(old_indexes);
-    t2 = omp_get_wtime();
-    cout << "index reordering time: " << t2 - t1 << " sec" << endl;
+    //t2 = omp_get_wtime();
+    //cout << "index reordering time: " << t2 - t1 << " sec" << endl;
     
     // sort adjacent ids locally for each vertex
     long long no_loops_edges_count = 0;
-    t1 = omp_get_wtime();
+    //t1 = omp_get_wtime();
     #pragma omp parallel for
     for(int cur_vertex = 0; cur_vertex < tmp_vertices_count; cur_vertex++)
     {
@@ -142,11 +142,11 @@ void ExtendedCSRGraph<_TVertexValue, _TEdgeWeight>::import_graph(EdgesListGraph<
             std::random_shuffle(tmp_graph[src_id].begin(), tmp_graph[src_id].end());
         }
     }
-    t2 = omp_get_wtime();
-    cout << "edges sort time: " << t2 - t1 << " sec" << endl;
+    //t2 = omp_get_wtime();
+    //cout << "edges sort time: " << t2 - t1 << " sec" << endl;
     
     // get new pointers
-    t1 = omp_get_wtime();
+    //t1 = omp_get_wtime();
     this->resize(tmp_vertices_count, tmp_edges_count);
     
     // save optimised graph
@@ -181,8 +181,8 @@ void ExtendedCSRGraph<_TVertexValue, _TEdgeWeight>::import_graph(EdgesListGraph<
                                      nec_vector_core_threshold_vertex, this->vertices_count);
     #endif
 
-    t2 = omp_get_wtime();
-    cout << "final time: " << t2 - t1 << " sec" << endl << endl;
+    //t2 = omp_get_wtime();
+    //cout << "final time: " << t2 - t1 << " sec" << endl << endl;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

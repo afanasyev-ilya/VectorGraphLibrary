@@ -53,7 +53,7 @@ void GraphPrimitivesNEC::vector_engine_per_vertex_kernel(const long long *_verte
                                                          VertexPostprocessOperation vertex_postprocess_op,
                                                          long long _edges_count)
 {
-    #ifdef __PRINT_DETAILED_STATS__
+    #ifdef __PRINT_API_PERFORMANCE_STATS__
     #pragma omp barrier
     double t1 = omp_get_wtime();
     #pragma omp barrier
@@ -92,7 +92,7 @@ void GraphPrimitivesNEC::vector_engine_per_vertex_kernel(const long long *_verte
         }
     }
 
-    #ifdef __PRINT_DETAILED_STATS__
+    #ifdef __PRINT_API_PERFORMANCE_STATS__
     #pragma omp barrier
     double t2 = omp_get_wtime();
     #pragma omp master
@@ -131,7 +131,7 @@ void GraphPrimitivesNEC::vector_core_per_vertex_kernel(const long long *_vertex_
                                                        VertexPostprocessOperation vertex_postprocess_op,
                                                        long long _edges_count)
 {
-    #ifdef __PRINT_DETAILED_STATS__
+    #ifdef __PRINT_API_PERFORMANCE_STATS__
     #pragma omp barrier
     double t1 = omp_get_wtime();
     #pragma omp barrier
@@ -189,7 +189,7 @@ void GraphPrimitivesNEC::vector_core_per_vertex_kernel(const long long *_vertex_
         }
     }
 
-    #ifdef __PRINT_DETAILED_STATS__
+    #ifdef __PRINT_API_PERFORMANCE_STATS__
     #pragma omp barrier
     double t2 = omp_get_wtime();
     #pragma omp master
@@ -231,7 +231,7 @@ void GraphPrimitivesNEC::collective_vertex_processing_kernel(const long long *_v
                                                              int _frontier_size,
                                                              int _first_edge)
 {
-    #ifdef __PRINT_DETAILED_STATS__
+    #ifdef __PRINT_API_PERFORMANCE_STATS__
     #pragma omp barrier
     double t1 = omp_get_wtime();
     #pragma omp barrier
@@ -328,7 +328,7 @@ void GraphPrimitivesNEC::collective_vertex_processing_kernel(const long long *_v
         }
     }
 
-    #ifdef __PRINT_DETAILED_STATS__
+    #ifdef __PRINT_API_PERFORMANCE_STATS__
     #pragma omp barrier
     double t2 = omp_get_wtime();
     #pragma omp master
@@ -373,7 +373,7 @@ void GraphPrimitivesNEC::ve_collective_vertex_processing_kernel(const long long 
                                                                 int _vertices_count,
                                                                 int _first_edge)
 {
-    #ifdef __PRINT_DETAILED_STATS__
+    #ifdef __PRINT_API_PERFORMANCE_STATS__
     #pragma omp barrier
     double t1 = omp_get_wtime();
     #pragma omp barrier
@@ -440,7 +440,7 @@ void GraphPrimitivesNEC::ve_collective_vertex_processing_kernel(const long long 
         }
     }
 
-    #ifdef __PRINT_DETAILED_STATS__
+    #ifdef __PRINT_API_PERFORMANCE_STATS__
     #pragma omp barrier
     double t2 = omp_get_wtime();
     #pragma omp master

@@ -39,12 +39,17 @@ public:
     void nec_bfs_based(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph, int *_components);
     #endif
 
+    #ifdef __USE_NEC_SX_AURORA__
+    void nec_random_mate(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph, int *_components);
+    #endif
+
     void seq_bfs_based(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph, int *_components);
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #include "cc.hpp"
+#include "nec_random_mate.hpp"
 #include "nec_shiloach_vishkin.hpp"
 #include "nec_bfs_based.hpp"
 #include "seq_bfs_based.hpp"

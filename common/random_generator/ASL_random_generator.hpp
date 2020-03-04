@@ -1,13 +1,4 @@
-//
-//  ASL_random_generator.hpp
-//  ParallelGraphLibrary
-//
-//  Created by Elijah Afanasiev on 14/04/2019.
-//  Copyright © 2019 MSU. All rights reserved.
-//
-
-#ifndef ASL_random_generator_hpp
-#define ASL_random_generator_hpp
+#pragma once
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -78,5 +69,3 @@ void ASLRandomGenerator::generate_array_of_random_uniform_values<int>(int *_arra
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-#endif /* ASL_random_generator_h */

@@ -34,7 +34,7 @@ void BFS<_TVertexValue, _TEdgeWeight>::seq_top_down(ExtendedCSRGraph<_TVertexVal
         const long long edge_start = outgoing_ptrs[s];
         const int connections_count = outgoing_ptrs[s + 1] - outgoing_ptrs[s];
 
-        for(register int edge_pos = 0; edge_pos < connections_count; edge_pos++)
+        for(int edge_pos = 0; edge_pos < connections_count; edge_pos++)
         {
             long long int global_edge_pos = edge_start + edge_pos;
             int v = outgoing_ids[global_edge_pos];

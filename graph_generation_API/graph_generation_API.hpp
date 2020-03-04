@@ -436,6 +436,8 @@ void GraphGenerationAPI<_TVertexValue, _TEdgeWeight>::init_from_txt_file(EdgesLi
                                                                          bool _append_with_reverse_edges)
 {
     ifstream infile(_txt_file_name.c_str());
+    if (!infile.is_open())
+        throw "can't open file during convert";
     
     int vertices_count = 0;
     long long edges_count = 0;

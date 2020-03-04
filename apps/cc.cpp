@@ -62,6 +62,10 @@ int main(int argc, const char * argv[])
         cc_operation.nec_bfs_based(graph, components);
         #endif
 
+        #ifdef __USE_NEC_SX_AURORA__
+        cc_operation.nec_random_mate(graph, components);
+        #endif
+
         if(parser.get_check_flag())
         {
             int *check_components;

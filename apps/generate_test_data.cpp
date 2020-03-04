@@ -124,14 +124,16 @@ int main(int argc, char ** argv)
         
         parse_cmd_params(argc, argv, scale, avg_degree, graph_type, output_format, file_name, convert, input_file_name,
                          traversal_type, append_with_reverse_edges, edges_state, direction_type, multiple_arcs_state);
-        
+
         EdgesListGraph<int, float> rand_graph;
         if(convert)
         {
+            cout << " --------------------------- " << "converting " << file_name << "--------------------------- " << endl;
             GraphGenerationAPI<int, float>::init_from_txt_file(rand_graph, input_file_name, append_with_reverse_edges);
         }
         else
         {
+            cout << " --------------------------- " << "generating " << file_name << "--------------------------- " << endl;
             t1 = omp_get_wtime();
             int vertices_count = pow(2.0, scale);
             long long edges_count = (long long)vertices_count * (long long)avg_degree;
@@ -203,6 +205,7 @@ int main(int argc, char ** argv)
             cout << "save time: " << (t2 - t1) * 1000.0 << " ms" << endl;
             cout << "saved into MTX format!" << endl;
         }
+        cout << " ----------------------------------------------------------------------------------------- " << endl << endl;
     }
     catch (const char * error)
     {

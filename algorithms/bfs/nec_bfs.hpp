@@ -56,7 +56,13 @@ void BFS<_TVertexValue, _TEdgeWeight>::nec_bottom_up_compute_step(ExtendedCSRGra
     int first_edge = 0;
     if(_use_vector_extension)
     {
-        first_edge = 3;
+        auto all_active = [_levels] (int src_id)->int
+        {
+            return NEC_IN_FRONTIER_FLAG;
+        };
+        frontier.filter(_graph, all_active);
+
+        first_edge = 4;
         #pragma omp parallel
         {
             NEC_REGISTER_INT(vis, 0);
@@ -123,7 +129,8 @@ void BFS<_TVertexValue, _TEdgeWeight>::nec_bottom_up_compute_step(ExtendedCSRGra
             VertexPreprocessFunctor(int *levels): _levels(levels) {}
             void operator()(int src_id, int connections_count, DelayedWriteNEC &delayed_write)
             {
-                #pragma _NEC vector
+                #pragma _NEC novector
+                #pragma _NEC unroll(VECTOR_LENGTH)
                 for(int i = 0; i < VECTOR_LENGTH; i++)
                 {
                     delayed_write.int_vec_reg[i] = UNVISITED_VERTEX;
@@ -141,7 +148,7 @@ void BFS<_TVertexValue, _TEdgeWeight>::nec_bottom_up_compute_step(ExtendedCSRGra
             {
                 int new_level = UNVISITED_VERTEX;
                 #pragma _NEC novector
-                //#pragma _NEC unroll(VECTOR_LENGTH)
+                #pragma _NEC unroll(VECTOR_LENGTH)
                 for(int i = 0; i < VECTOR_LENGTH; i++)
                 {
                     if(delayed_write.int_vec_reg[i] == (_current_level + 1))
@@ -218,7 +225,7 @@ void BFS<_TVertexValue, _TEdgeWeight>::nec_top_down(ExtendedCSRGraph<_TVertexVal
     }
     double t2 = omp_get_wtime();
 
-    #ifdef __PRINT_INNER_PERFORMANCE_STATS__
+    #ifdef __PRINT_SAMPLES_PERFORMANCE_STATS__
     performance_stats("BFS (top-down)", t2 - t1, edges_count, current_level);
     #endif
 }
@@ -266,7 +273,7 @@ void BFS<_TVertexValue, _TEdgeWeight>::nec_bottom_up(ExtendedCSRGraph<_TVertexVa
         current_level++;
     }
 
-    #ifdef __PRINT_INNER_PERFORMANCE_STATS__
+    #ifdef __PRINT_SAMPLES_PERFORMANCE_STATS__
     performance_stats("BFS (bottom-up)", t2 - t1, edges_count, current_level);
     #endif
 }
@@ -310,7 +317,7 @@ void BFS<_TVertexValue, _TEdgeWeight>::nec_direction_optimising(ExtendedCSRGraph
     };
     graph_API.compute(init_levels, vertices_count);
 
-    #ifdef __PRINT_INNER_PERFORMANCE_STATS__
+    #ifdef __PRINT_SAMPLES_PERFORMANCE_STATS__
     vector<double> step_times;
     vector<StateOfBFS> step_states;
     #endif
@@ -322,7 +329,7 @@ void BFS<_TVertexValue, _TEdgeWeight>::nec_direction_optimising(ExtendedCSRGraph
     int current_frontier_size = 1, prev_frontier_size = 0;
     while(vis > 0)
     {
-        #ifdef __PRINT_INNER_PERFORMANCE_STATS__
+        #ifdef __PRINT_SAMPLES_PERFORMANCE_STATS__
         step_states.push_back(current_state);
         #endif
 
@@ -339,26 +346,26 @@ void BFS<_TVertexValue, _TEdgeWeight>::nec_direction_optimising(ExtendedCSRGraph
                 return result;
             };
 
-            #ifdef __PRINT_INNER_PERFORMANCE_STATS__
+            #ifdef __PRINT_SAMPLES_PERFORMANCE_STATS__
             t_st = omp_get_wtime();
             #endif
 
             frontier.filter(_graph, on_current_level);
             nec_top_down_compute_step(_graph, _levels, current_level, vis, in_lvl);
 
-            #ifdef __PRINT_INNER_PERFORMANCE_STATS__
+            #ifdef __PRINT_SAMPLES_PERFORMANCE_STATS__
             t_end = omp_get_wtime();
             #endif
         }
         else if(current_state == BOTTOM_UP)
         {
-            #ifdef __PRINT_INNER_PERFORMANCE_STATS__
+            #ifdef __PRINT_SAMPLES_PERFORMANCE_STATS__
             t_st = omp_get_wtime();
             #endif
 
             nec_bottom_up_compute_step(_graph, _levels, current_level, vis, in_lvl, _use_vect_CSR_extension);
 
-            #ifdef __PRINT_INNER_PERFORMANCE_STATS__
+            #ifdef __PRINT_SAMPLES_PERFORMANCE_STATS__
             t_end = omp_get_wtime();
             #endif
         }
@@ -370,13 +377,13 @@ void BFS<_TVertexValue, _TEdgeWeight>::nec_direction_optimising(ExtendedCSRGraph
                                          vis, in_lvl, _use_vect_CSR_extension, current_level, graph_structure, _levels);
         current_level++;
 
-        #ifdef __PRINT_INNER_PERFORMANCE_STATS__
+        #ifdef __PRINT_SAMPLES_PERFORMANCE_STATS__
         step_times.push_back(t_end - t_st);
         #endif
     }
     double t2 = omp_get_wtime();
 
-    #ifdef __PRINT_INNER_PERFORMANCE_STATS__
+    #ifdef __PRINT_SAMPLES_PERFORMANCE_STATS__
     double compute_time = 0;
     for(int i = 0; i < step_times.size(); i++)
     {

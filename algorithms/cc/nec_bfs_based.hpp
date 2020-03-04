@@ -53,6 +53,11 @@ void ConnectedComponents<_TVertexValue,_TEdgeWeight>::nec_bfs_based(ExtendedCSRG
             graph_API.compute(copy_levels_to_components_op, vertices_count);
             current_component++;
             iterations_count++;
+            if(v == 1)
+            {
+                v = -1;
+                continue;
+            }
         }
         else if(_components[v] == SINGLE_VERTEX_COMPONENT)
         {
@@ -71,7 +76,10 @@ void ConnectedComponents<_TVertexValue,_TEdgeWeight>::nec_bfs_based(ExtendedCSRG
     bfs_operation.free_result_memory(bfs_levels);
 
     performance_stats("nec bfs based", t2 - t1, edges_count, iterations_count);
+
+    #ifdef __PRINT_SAMPLES_PERFORMANCE_STATS__
     component_stats(_components, vertices_count);
+    #endif
 }
 #endif
 
