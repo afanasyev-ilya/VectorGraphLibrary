@@ -17,12 +17,13 @@ void CC::gpu_shiloach_vishkin(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_gr
     shiloach_vishkin_wrapper<_TVertexValue, _TEdgeWeight>(_graph, device_components, iterations_count);
     double t2 = omp_get_wtime();
 
-    #ifdef __PRINT_DETAILED_STATS__
-    print_performance_stats(edges_count, iterations_count, t2 - t1);
-    #endif
-
     MemoryAPI::copy_array_to_host(_components, device_components, vertices_count);
     MemoryAPI::free_device_array(device_components);
+
+    //#ifdef __PRINT_DETAILED_STATS__
+    performance_stats("shiloach vishkin", t2 - t1, edges_count, iterations_count);
+    component_stats(_components, vertices_count);
+    //#endif
 }
 #endif
 

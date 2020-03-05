@@ -32,8 +32,7 @@ void gpu_dijkstra_wrapper(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
             _distances[src_id] = FLT_MAX;
     };
 
-    auto vertex_preprocess_op = [] __device__(int src_id, int connections_count){};
-    auto vertex_postprocess_op = [] __device__(int src_id, int connections_count){};
+    auto EMPTY_VERTEX_OP = [] __device__(int src_id, int connections_count){};
 
     auto edge_op = [outgoing_weights, _distances, was_updated] __device__(int src_id, int dst_id, int local_edge_pos, long long int global_edge_pos, int connections_count){
         _TEdgeWeight weight = outgoing_weights[global_edge_pos];
@@ -68,7 +67,7 @@ void gpu_dijkstra_wrapper(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
     while(frontier.size() > 0)
     {
         cudaMemset(was_updated, 0, sizeof(char) * vertices_count);
-        graph_API.advance(_graph, frontier, edge_op, vertex_preprocess_op, vertex_postprocess_op);
+        graph_API.advance(_graph, frontier, edge_op, EMPTY_VERTEX_OP, EMPTY_VERTEX_OP);
         frontier.filter(_graph, frontier_condition);
         _iterations_count++;
     }

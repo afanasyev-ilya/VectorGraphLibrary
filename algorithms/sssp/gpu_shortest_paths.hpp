@@ -20,12 +20,12 @@ void SSSP::gpu_dijkstra(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
     gpu_dijkstra_wrapper<_TVertexValue, _TEdgeWeight>(_graph, device_distances, _source_vertex, iterations_count);
     double t2 = omp_get_wtime();
 
-    #ifdef __PRINT_DETAILED_STATS__
-    print_performance_stats(edges_count, iterations_count, t2 - t1);
-    #endif
-
     MemoryAPI::copy_array_to_host(_distances, device_distances, vertices_count);
     MemoryAPI::free_device_array(device_distances);
+
+    #ifdef __PRINT_DETAILED_STATS__
+    performance_stats(edges_count, iterations_count, t2 - t1);
+    #endif
 }
 #endif
 

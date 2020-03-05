@@ -36,7 +36,8 @@ void GraphPrimitivesGPU::advance(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &
                                  FrontierGPU &_frontier,
                                  EdgeOperation edge_op,
                                  VertexPreprocessOperation vertex_preprocess_op,
-                                 VertexPostprocessOperation vertex_postprocess_op) {
+                                 VertexPostprocessOperation vertex_postprocess_op)
+{
     LOAD_EXTENDED_CSR_GRAPH_DATA(_graph);
 
     int grid_threshold_start = 0;
