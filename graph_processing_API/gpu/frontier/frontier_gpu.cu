@@ -102,8 +102,8 @@ struct is_not_active
 };
 
 template <typename _TVertexValue, typename _TEdgeWeight, typename Condition>
-void FrontierGPU::generate_frontier(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
-                                    Condition condition_op)
+void FrontierGPU::filter(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
+                         Condition condition_op)
 {
     int vertices_count = _graph.get_vertices_count();
 

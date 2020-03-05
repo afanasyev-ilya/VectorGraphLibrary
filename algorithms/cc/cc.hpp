@@ -40,8 +40,9 @@ void ConnectedComponents<_TVertexValue, _TEdgeWeight>::component_stats(int *_com
     for (auto itr = sizes_stats.begin(); itr != sizes_stats.end(); ++itr)
         size_pairs.push_back(*itr);
 
-    sort(size_pairs.begin(), size_pairs.end(), [=](std::pair<int, int>& a, std::pair<int, int>& b)
-    { return a.first >= b.first; } );
+    auto cmp_func = [=](const std::pair<int, int>& a, const std::pair<int, int>& b) { return a.first >= b.first; };
+
+    sort(size_pairs.begin(), size_pairs.end(), cmp_func);
 
     for(auto it = size_pairs.begin(); it != size_pairs.end(); it++)
     {

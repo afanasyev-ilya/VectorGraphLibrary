@@ -82,3 +82,23 @@ void MemoryAPI::move_array_to_host(_T **_ptr, size_t _size)
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+#ifdef __USE_GPU__
+template <typename _T>
+void MemoryAPI::copy_array_to_device(_T *_dst, _T *_src, size_t _size)
+{
+    SAFE_CALL(cudaMemcpy(_dst, _src, _size * sizeof(_T), cudaMemcpyDeviceToHost));
+}
+#endif
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+#ifdef __USE_GPU__
+template <typename _T>
+void MemoryAPI::copy_array_to_host(_T *_dst, _T *_src, size_t _size)
+{
+    SAFE_CALL(cudaMemcpy(_dst, _src, _size * sizeof(_T), cudaMemcpyDeviceToHost));
+}
+#endif
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+

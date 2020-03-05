@@ -25,8 +25,8 @@ public:
 
     ~GraphPrimitivesGPU();
 
-    template <typename InitOperation>
-    void init(int size, InitOperation init_op);
+    template <typename ComputeOperation>
+    void compute(ComputeOperation compute_op, int _compute_size);
 
     template <typename _TVertexValue, typename _TEdgeWeight, typename EdgeOperation, typename VertexPreprocessOperation,
             typename VertexPostprocessOperation>
@@ -39,6 +39,8 @@ public:
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+#include "traversal_kernels.cu"
+#include "compute_kernels.cu"
 #include "graph_primitives_gpu.cu"
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

@@ -3,7 +3,7 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template <typename InitOperation>
-void __global__ init_kernel(int _size, InitOperation init_op)
+void __global__ compute_kernel(int _size, InitOperation init_op)
 {
     const int src_id = blockIdx.x * blockDim.x + threadIdx.x;
 

@@ -39,6 +39,12 @@ public:
 
     template <typename _T>
     static void move_array_to_host(_T **_ptr, size_t _size);
+
+    template <typename _T>
+    static void copy_array_to_device(_T *_dst, _T *_src, size_t _size);
+
+    template <typename _T>
+    static void copy_array_to_host(_T *_dst, _T *_src, size_t _size);
     #endif
 };
 

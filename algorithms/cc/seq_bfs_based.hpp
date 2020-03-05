@@ -3,8 +3,8 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template <typename _TVertexValue, typename _TEdgeWeight>
-void ConnectedComponents<_TVertexValue,_TEdgeWeight>::seq_bfs_based(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
-                                                                    int *_components)
+void CC::seq_bfs_based(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
+                       int *_components)
 {
     LOAD_EXTENDED_CSR_GRAPH_DATA(_graph);
 
@@ -49,9 +49,7 @@ void ConnectedComponents<_TVertexValue,_TEdgeWeight>::seq_bfs_based(ExtendedCSRG
 
     MemoryAPI::free_array(bfs_levels);
 
-    #ifdef __PRINT_SAMPLES_PERFORMANCE_STATS__
     component_stats(_components, vertices_count);
-    #endif
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

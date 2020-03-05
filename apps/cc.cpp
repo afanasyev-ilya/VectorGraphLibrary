@@ -49,21 +49,25 @@ int main(int argc, const char * argv[])
 
         ConnectedComponents<int, float> cc_operation(graph);
 
-        #if defined(__USE_NEC_SX_AURORA__) || defined( __USE_INTEL__)
         int *components;
         cc_operation.allocate_result_memory(graph.get_vertices_count(), &components);
+
+        #ifdef __USE_GPU__
+        graph.move_to_device();
         #endif
 
-        #ifdef __USE_NEC_SX_AURORA__
+        #ifdef __USE_NEC_SX_AURORA__ // for now run all 3 algorithms, TODO selection later
         cc_operation.nec_shiloach_vishkin(graph, components);
-        #endif
-
-        #ifdef __USE_NEC_SX_AURORA__
         cc_operation.nec_bfs_based(graph, components);
+        cc_operation.nec_random_mate(graph, components);
         #endif
 
-        #ifdef __USE_NEC_SX_AURORA__
-        cc_operation.nec_random_mate(graph, components);
+        #ifdef __USE_GPU__ // for now run all 3 algorithms, TODO selection later
+        cc_operation.gpu_shiloach_vishkin(graph, components);
+        #endif
+
+        #ifdef __USE_GPU__
+        graph.move_to_host();
         #endif
 
         if(parser.get_check_flag())
@@ -75,9 +79,7 @@ int main(int argc, const char * argv[])
             cc_operation.free_result_memory(check_components);
         }
 
-        #ifdef __USE_NEC_SX_AURORA_TSUBASA__
-        cc_operation.free_result_memory(bfs_result);
-        #endif
+        cc_operation.free_result_memory(components);
     }
     catch (string error)
     {

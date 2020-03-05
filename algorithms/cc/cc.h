@@ -7,10 +7,18 @@
 #include <cfloat>
 #endif
 
+#ifdef __USE_GPU__
+#include "gpu/shiloach_vishkin_gpu.cuh"
+#endif
+
 #define COMPONENT_UNSET -1
 #define FIRST_COMPONENT 1
 #define SINGLE_VERTEX_COMPONENT -2
 #define DUO_VERTEX_COMPONENT -3
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+#define CC ConnectedComponents<_TVertexValue, _TEdgeWeight>
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -43,6 +51,10 @@ public:
     void nec_random_mate(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph, int *_components);
     #endif
 
+    #ifdef __USE_GPU__
+    void gpu_shiloach_vishkin(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph, int *_components);
+    #endif
+
     void seq_bfs_based(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph, int *_components);
 };
 
@@ -53,5 +65,6 @@ public:
 #include "nec_shiloach_vishkin.hpp"
 #include "nec_bfs_based.hpp"
 #include "seq_bfs_based.hpp"
+#include "gpu_shiloach_vishkin.hpp"
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

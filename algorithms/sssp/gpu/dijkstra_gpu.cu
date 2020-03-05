@@ -2,19 +2,7 @@
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#include <iostream>
-#include <cstddef>
-#include <cstdio>
-#include <cstring>
-#include <ctime>
-#include "../../../common/gpu_API/cuda_error_handling.h"
-#include "../../../architectures.h"
-#include <cfloat>
-#include <cuda_fp16.h>
-#include "../../../graph_representations/base_graph.h"
-#include "../../../graph_representations/edges_list_graph/edges_list_graph.h"
-#include "../../../graph_representations/extended_CSR_graph/extended_CSR_graph.h"
-#include "../../../graph_processing_API/gpu/graph_primitives/graph_primitives_gpu.cuh"
+#include "../../../graph_processing_API/gpu/cuda_API_include.h"
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -30,12 +18,12 @@ void gpu_dijkstra_wrapper(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
 {
     LOAD_EXTENDED_CSR_GRAPH_DATA(_graph);
 
-    GraphPrimitivesGPU operations;
+    GraphPrimitivesGPU graph_API;
 
     char *was_updated;
     cudaMalloc((void**)&was_updated, vertices_count*sizeof(char));
 
-    FrontierGPU frontier(_graph.get_vertices_count());
+    FrontierGPU frontier(vertices_count);
 
     auto init_op = [_distances, _source_vertex] __device__ (int src_id) {
         if(src_id == _source_vertex)
@@ -74,14 +62,14 @@ void gpu_dijkstra_wrapper(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
             return false;
     };
 
-    operations.init(_graph.get_vertices_count(), init_op);
-    frontier.generate_frontier(_graph, initial_frontier_condition);
+    graph_API.compute(init_op, vertices_count);
+    frontier.filter(_graph, initial_frontier_condition);
 
     while(frontier.size() > 0)
     {
         cudaMemset(was_updated, 0, sizeof(char) * vertices_count);
-        operations.advance(_graph, frontier, edge_op, vertex_preprocess_op, vertex_postprocess_op);
-        frontier.generate_frontier(_graph, frontier_condition);
+        graph_API.advance(_graph, frontier, edge_op, vertex_preprocess_op, vertex_postprocess_op);
+        frontier.filter(_graph, frontier_condition);
         _iterations_count++;
     }
 
