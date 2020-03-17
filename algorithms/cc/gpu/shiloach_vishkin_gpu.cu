@@ -46,14 +46,14 @@ void shiloach_vishkin_wrapper(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_gr
             int src_val = _components[src_id];
             int dst_val = _components[dst_id];
 
-            int dst_dst_val = -1;
             if(src_val < dst_val)
-                dst_dst_val = _components[dst_val];
-
-            if((src_val < dst_val) && (dst_val == dst_dst_val))
             {
-                _components[dst_val] = src_val;
-                hook_changes[0] = 1;
+                int dst_dst_val = _components[_components[dst_id]];
+                if(dst_val == dst_dst_val)
+                {
+                    _components[dst_val] = src_val;
+                    hook_changes[0] = 0;
+                }
             }
         };
 

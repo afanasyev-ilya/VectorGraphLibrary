@@ -97,6 +97,8 @@ void GraphPrimitivesNEC::vector_engine_per_vertex_kernel(const long long *_verte
     double t2 = omp_get_wtime();
     #pragma omp master
     {
+        INNER_WALL_NEC_TIME += t2 - t1;
+
         double work = _vertex_pointers[_last_vertex] - _vertex_pointers[_first_vertex];
         double real_work = 0;
         for(int front_pos = _first_vertex; front_pos < _last_vertex; front_pos++)
@@ -154,11 +156,10 @@ void GraphPrimitivesNEC::vector_core_per_vertex_kernel(const long long *_vertex_
 
             for (int edge_vec_pos = 0; edge_vec_pos < connections_count - VECTOR_LENGTH; edge_vec_pos += VECTOR_LENGTH)
             {
-                #pragma _NEC ivdep
+                //#pragma _NEC ivdep
                 #pragma _NEC vovertake
                 #pragma _NEC novob
                 #pragma _NEC vector
-                #pragma _NEC unroll(VECTOR_LENGTH)
                 for (int i = 0; i < VECTOR_LENGTH; i++)
                 {
                     const long long int global_edge_pos = start + edge_vec_pos + i;
@@ -170,11 +171,10 @@ void GraphPrimitivesNEC::vector_core_per_vertex_kernel(const long long *_vertex_
                 }
             }
 
-            #pragma _NEC ivdep
+            //#pragma _NEC ivdep
             #pragma _NEC vovertake
             #pragma _NEC novob
             #pragma _NEC vector
-            #pragma _NEC unroll(VECTOR_LENGTH)
             for (int i = connections_count - VECTOR_LENGTH; i < connections_count; i++)
             {
                 const long long int global_edge_pos = start + i;
@@ -194,6 +194,8 @@ void GraphPrimitivesNEC::vector_core_per_vertex_kernel(const long long *_vertex_
     double t2 = omp_get_wtime();
     #pragma omp master
     {
+        INNER_WALL_NEC_TIME += t2 - t1;
+
         double work = _vertex_pointers[_last_vertex] - _vertex_pointers[_first_vertex];
         double real_work = 0;
         for(int front_pos = _first_vertex; front_pos < _last_vertex; front_pos++)
@@ -263,7 +265,6 @@ void GraphPrimitivesNEC::collective_vertex_processing_kernel(const long long *_v
         #pragma _NEC vovertake
         #pragma _NEC novob
         #pragma _NEC vector
-        #pragma _NEC unroll(VECTOR_LENGTH)
         for(int i = 0; i < VECTOR_LENGTH; i++)
         {
             if((front_pos + i) < _frontier_size)
@@ -298,7 +299,6 @@ void GraphPrimitivesNEC::collective_vertex_processing_kernel(const long long *_v
             #pragma _NEC vovertake
             #pragma _NEC novob
             #pragma _NEC vector
-            #pragma _NEC unroll(VECTOR_LENGTH)
             for(int i = 0; i < VECTOR_LENGTH; i++)
             {
                 if(((front_pos + i) < _frontier_size) && (edge_pos < reg_connections[i]))
@@ -333,6 +333,8 @@ void GraphPrimitivesNEC::collective_vertex_processing_kernel(const long long *_v
     double t2 = omp_get_wtime();
     #pragma omp master
     {
+        INNER_WALL_NEC_TIME += t2 - t1;
+
         double work = _vertex_pointers[_last_vertex] - _vertex_pointers[_first_vertex];
         double real_work = 0;
         for(int front_pos = _first_vertex; front_pos < _last_vertex; front_pos++)
@@ -394,7 +396,6 @@ void GraphPrimitivesNEC::ve_collective_vertex_processing_kernel(const long long 
         #pragma _NEC vovertake
         #pragma _NEC novob
         #pragma _NEC vector
-        #pragma _NEC unroll(VECTOR_LENGTH)
         for(int i = 0; i < VECTOR_LENGTH; i++)
         {
             int src_id = segment_first_vertex + i;
@@ -405,16 +406,15 @@ void GraphPrimitivesNEC::ve_collective_vertex_processing_kernel(const long long 
 
         for(int edge_pos = _first_edge; edge_pos < segment_connections_count; edge_pos++)
         {
-            #pragma _NEC ivdep
+            //#pragma _NEC ivdep
             #pragma _NEC vovertake
             #pragma _NEC novob
             #pragma _NEC vector
-            //#pragma _NEC unroll(VECTOR_LENGTH)
             for (int i = 0; i < VECTOR_LENGTH; i++)
             {
                 const int src_id = segment_first_vertex + i;
 
-                if(_frontier_flags[src_id] > 0) // border????
+                if(_frontier_flags[src_id] > 0)
                 {
                     const int vector_index = i;
                     const long long int global_edge_pos = segment_edges_start + edge_pos * VECTOR_LENGTH + i;
@@ -430,7 +430,6 @@ void GraphPrimitivesNEC::ve_collective_vertex_processing_kernel(const long long 
         #pragma _NEC vovertake
         #pragma _NEC novob
         #pragma _NEC vector
-        #pragma _NEC unroll(VECTOR_LENGTH)
         for(int i = 0; i < VECTOR_LENGTH; i++)
         {
             int src_id = segment_first_vertex + i;
@@ -445,6 +444,8 @@ void GraphPrimitivesNEC::ve_collective_vertex_processing_kernel(const long long 
     double t2 = omp_get_wtime();
     #pragma omp master
     {
+        INNER_WALL_NEC_TIME += t2 - t1;
+
         double work = _ve_vector_group_ptrs[_ve_vector_segments_count - 1] - _ve_vector_group_ptrs[0];
         double real_work = work;
 

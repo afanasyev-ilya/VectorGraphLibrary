@@ -59,6 +59,7 @@ public:
                       _TEdgeWeight *_distances, int _source_vertex);
     #endif
 
+    void nec_dijkstra_man(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph, _TEdgeWeight *_distances, int _source_vertex);
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

@@ -26,6 +26,7 @@ template <typename ComputeOperation>
 void GraphPrimitivesGPU::compute(ComputeOperation compute_op, int _compute_size)
 {
     compute_kernel <<< (_compute_size - 1)/BLOCK_SIZE + 1, BLOCK_SIZE >>> (_compute_size, compute_op);
+    cudaDeviceSynchronize();
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -78,7 +79,7 @@ void GraphPrimitivesGPU::advance(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &
     }
 
     int thread_vertices_count = thread_threshold_end - thread_threshold_start;
-    if (thread_vertices_count)
+    if (thread_vertices_count > 0)
     {
         thread_per_vertex_kernel <<< (thread_vertices_count - 1) / BLOCK_SIZE + 1, BLOCK_SIZE, 0, thread_processing_stream >>>
                 (outgoing_ptrs, outgoing_ids, _frontier.frontier_ids, vertices_count, thread_threshold_start,

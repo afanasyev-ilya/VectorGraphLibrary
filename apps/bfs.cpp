@@ -1,11 +1,3 @@
-//
-//  bfs.cpp
-//  ParallelGraphLibrary
-//
-//  Created by Elijah Afanasiev on 12/09/2019.
-//  Copyright © 2019 MSU. All rights reserved.
-//
-
 #include <stdio.h>
 #include "../graph_library.h"
 #include <iostream>

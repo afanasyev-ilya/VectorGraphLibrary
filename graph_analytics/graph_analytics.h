@@ -8,6 +8,8 @@ private:
 
     template <typename _TVertexValue, typename _TEdgeWeight>
     void print_graph_memory_consumption(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph);
+
+    void analyse_component_stats(int *_components, int _vertices_count);
 public:
 
     template <typename _TVertexValue, typename _TEdgeWeight>

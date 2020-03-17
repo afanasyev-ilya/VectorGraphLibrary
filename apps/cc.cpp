@@ -1,11 +1,3 @@
-//
-//  cc.cpp
-//  ParallelGraphLibrary
-//
-//  Created by Elijah Afanasiev on 07/09/2019.
-//  Copyright © 2019 MSU. All rights reserved.
-//
-
 #include "../graph_library.h"
 #include <iostream>
 

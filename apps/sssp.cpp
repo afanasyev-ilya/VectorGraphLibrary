@@ -12,7 +12,7 @@ int main(int argc, const char * argv[])
     try
     {
         cout << "SSSP (Single Source Shortest Paths) test..." << endl;
-        
+
         // parse args
         AlgorithmCommandOptionsParser parser;
         parser.parse_args(argc, argv);
@@ -55,8 +55,14 @@ int main(int argc, const char * argv[])
             last_src_vertex = i * 100 + 1;
 
             #ifdef __USE_NEC_SX_AURORA__
+            INNER_WALL_NEC_TIME = 0;
+            double t_st = omp_get_wtime();
             sssp_operation.nec_dijkstra(graph, distances, last_src_vertex, parser.get_algorithm_frontier_type(),
                                         parser.get_traversal_direction());
+            double t_end = omp_get_wtime();
+            cout << "main time: " << endl;
+            cout << "INNER_WALL_NEC_TIME: " << INNER_WALL_NEC_TIME << endl;
+            cout << "INNER PERF: " << graph.get_edges_count() / (INNER_WALL_NEC_TIME * 1e6) << " MTEPS" << endl;
             #endif
             
             #ifdef __USE_GPU__

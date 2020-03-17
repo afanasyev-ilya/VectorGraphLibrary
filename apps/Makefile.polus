@@ -26,7 +26,7 @@ VPATH=./:../algorithms/sssp/gpu/:../algorithms/bfs/gpu/:../algorithms/cc/gpu:../
 # binaries
 ##########
 
-all: bfs cc sssp
+all: bfs cc sssp generate_test_data analyse_graph
 
 sssp: create_folders sssp.o dijkstra_gpu.o
 	$(CUDA_COMPILER) $(CUDA_FLAGS) $(Include_Path) -dlink  object_files/dijkstra_gpu.o -o object_files/cuda_files_link.o -lcudadevrt -lcudart
@@ -41,7 +41,10 @@ bfs: create_folders bfs.o traditional_bfs_gpu.o
 	$(CXX) object_files/bfs.o object_files/traditional_bfs_gpu.o object_files/cuda_files_link.o $(Library_Path) $(Libraries) $(LDFLAGS) -o ./bin/bfs
  
 generate_test_data: create_folders generate_test_data.o
-	$(CXX) object_files/generate_test_data.o $(Library_Path) $(Libraries) $(LDFLAGS) -o ./bin/generate_test_data
+	$(CXX) object_files/generate_test_data.o $(Library_Path) $(Libraries) -fopenmp -o ./bin/generate_test_data
+
+analyse_graph: create_folders analyse_graph.o
+	$(CXX) object_files/analyse_graph.o $(Library_Path) $(Libraries) -fopenmp -o ./bin/analyse_graph
 
 ##########
 # CPPs
@@ -57,10 +60,10 @@ bfs.o: bfs.cpp
 	$(CXX) $(CXXFLAGS) $(Include_Path)  -c bfs.cpp -o object_files/bfs.o -fopenmp
 
 generate_test_data.o: generate_test_data.cpp
-	$(CXX) $(CXXFLAGS) $(Include_Path)  -c generate_test_data.cpp -o object_files/generate_test_data.o -fopenmp
+	$(CXX) -fopenmp $(Include_Path)  -c generate_test_data.cpp -o object_files/generate_test_data.o -fopenmp
 
-nvgraph_comparison.o: ../misc/nvgraph_comparison.cpp
-	$(CXX) $(CXXFLAGS) $(Include_Path)  -c nvgraph_comparison.cpp -o object_files/nvgraph_comparison.o -fopenmp
+analyse_graph.o: analyse_graph.cpp
+	$(CXX) -fopenmp $(Include_Path)  -c analyse_graph.cpp -o object_files/analyse_graph.o -fopenmp
 
 create_folders:
 	-mkdir -p ./bin

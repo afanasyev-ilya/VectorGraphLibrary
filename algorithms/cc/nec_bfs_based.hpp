@@ -2,6 +2,20 @@
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+int calculate_remaining_count(int *_components, int _vertices_count)
+{
+    int count = 0;
+    #pragma omp parallel for schedule(static) reduction(+: count)
+    for(int src_id = 0; src_id < _vertices_count; src_id++)
+    {
+        if(_components[src_id] == COMPONENT_UNSET)
+            count++;
+    }
+    return count;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 #ifdef __USE_NEC_SX_AURORA__
 template <typename _TVertexValue, typename _TEdgeWeight>
 void CC::nec_bfs_based(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
@@ -38,7 +52,7 @@ void CC::nec_bfs_based(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
     double t1 = omp_get_wtime();
     int current_component = FIRST_COMPONENT;
     int iterations_count = 0;
-    for(int v = 1; v < vertices_count; v++)
+    for(int v = 0; v < vertices_count; v++)
     {
         if(_components[v] == COMPONENT_UNSET)
         {
@@ -53,10 +67,11 @@ void CC::nec_bfs_based(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
             graph_API.compute(copy_levels_to_components_op, vertices_count);
             current_component++;
             iterations_count++;
-            if(v == 1)
+            if(v == 0)
             {
-                v = -1;
-                continue;
+                int remaining_count = calculate_remaining_count(_components, vertices_count);
+                if(remaining_count == 0)
+                    break;
             }
         }
         else if(_components[v] == SINGLE_VERTEX_COMPONENT)

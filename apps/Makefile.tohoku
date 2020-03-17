@@ -1,4 +1,4 @@
-CXX = /opt/nec/ve/bin/nc++
+CXX = /opt/nec/ve/bin/nc++ #-2.5.1
 
 # Include paths...
 
@@ -20,10 +20,7 @@ LDFLAGS = -fopenmp -report-all -L /opt/nec/ve/nlc/2.0.0/lib #-lasl_openmp_i64 #-
 # binaries
 ##########
 
-all: sssp bfs cc generate_test_data
-
-pr: create_folders pr.o
-	$(CXX) object_files/pr.o $(Library_Path) $(Libraries) $(LDFLAGS) -o ./bin/pr
+all: sssp bfs cc generate_test_data analyse_graph
 
 cc: create_folders cc.o
 	$(CXX) object_files/cc.o $(Library_Path) $(Libraries) $(LDFLAGS) -o ./bin/cc
@@ -31,17 +28,14 @@ cc: create_folders cc.o
 sssp: create_folders sssp.o
 	$(CXX) object_files/sssp.o $(Library_Path) $(Libraries) $(LDFLAGS) -o ./bin/sssp
 
-sswp: create_folders sswp.o
-	$(CXX) object_files/sswp.o $(Library_Path) $(Libraries) $(LDFLAGS) -o ./bin/sswp
-
 bfs: create_folders bfs.o
 	$(CXX) object_files/bfs.o $(Library_Path) $(Libraries) $(LDFLAGS) -o ./bin/bfs
-	
-custom_test: create_folders custom_test.o
-	$(CXX) object_files/custom_test.o $(Library_Path) $(Libraries) $(LDFLAGS) -o ./bin/custom_test
 
 generate_test_data: create_folders generate_test_data.o
-	~/bin/g++ object_files/generate_test_data.o $(Library_Path) $(Libraries) -fopenmp -o ./bin/generate_test_data
+	g++ object_files/generate_test_data.o $(Library_Path) $(Libraries) -fopenmp -o ./bin/generate_test_data
+
+analyse_graph: create_folders analyse_graph.o
+	$(CXX) object_files/analyse_graph.o $(Library_Path) $(Libraries) $(LDFLAGS) -o ./bin/analyse_graph
 
 ##########
 # CPPs
@@ -66,7 +60,10 @@ custom_test.o: ../misc/custom_test.cpp
 	$(CXX) $(CXXFLAGS) $(Include_Path)  -c custom_test.cpp -o object_files/custom_test.o -fopenmp
 
 generate_test_data.o: generate_test_data.cpp
-	~/bin/g++ -fpermissive $(Include_Path) -c generate_test_data.cpp -o object_files/generate_test_data.o -fopenmp
+	g++ -std=c++11 -fpermissive $(Include_Path) -c generate_test_data.cpp -o object_files/generate_test_data.o -fopenmp
+
+analyse_graph.o: analyse_graph.cpp
+	$(CXX)  $(CXXFLAGS) $(Include_Path) -c analyse_graph.cpp -o object_files/analyse_graph.o -fopenmp
 
 create_folders:
 	-mkdir -p ./bin

@@ -1,11 +1,3 @@
-//
-//  generate_test_data.cpp
-//  ParallelGraphLibrary
-//
-//  Created by Elijah Afanasiev on 16/04/2019.
-//  Copyright © 2019 MSU. All rights reserved.
-//
-
 #include <stdio.h>
 #include "../graph_library.h"
 
