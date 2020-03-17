@@ -89,7 +89,7 @@ void SSSP::nec_dijkstra_partial_active(ExtendedCSRGraph<_TVertexValue, _TEdgeWei
             {
                 int *was_changes;
                 VertexPostprocessFunctor(int *_was_changes): was_changes(_was_changes) {}
-                void operator()(int src_id, int connections_count, DelayedWriteNEC &delayed_write)
+                void operator()(int src_id, int connections_count, int vector_index, DelayedWriteNEC &delayed_write)
                 {
                     delayed_write.finish_write_max(was_changes, src_id);
                 }
@@ -148,7 +148,7 @@ void SSSP::nec_dijkstra_all_active(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight>
         changes = 0;
         float *collective_outgoing_weights = graph_API.get_collective_weights(_graph, frontier);
 
-        #pragma omp parallel
+        #pragma omp parallel shared(changes)
         {
             NEC_REGISTER_INT(changes, 0);
             NEC_REGISTER_FLT(distances, 0);
@@ -185,9 +185,8 @@ void SSSP::nec_dijkstra_all_active(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight>
                 float *_distances;
                 float *reg_distances;
                 VertexPreprocessFunctor(float *distances, float *_reg_distances): _distances(distances), reg_distances(_reg_distances) {}
-                void operator()(int src_id, int connections_count, DelayedWriteNEC &delayed_write)
+                void operator()(int src_id, int connections_count, int vector_index, DelayedWriteNEC &delayed_write)
                 {
-                    //#pragma _NEC unroll(VECTOR_LENGTH)
                     #pragma _NEC vector
                     for(int i = 0; i < VECTOR_LENGTH; i++)
                     {
@@ -203,12 +202,10 @@ void SSSP::nec_dijkstra_all_active(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight>
                 float *reg_distances;
                 VertexPostprocessFunctor(float *distances, float *_reg_distances): _distances(distances), reg_distances(_reg_distances) {}
 
-                void operator()(int src_id, int connections_count, DelayedWriteNEC &delayed_write)
+                void operator()(int src_id, int connections_count, int vector_index, DelayedWriteNEC &delayed_write)
                 {
                     _TEdgeWeight min = FLT_MAX;
 
-                    //#pragma _NEC unroll(VECTOR_LENGTH)
-                    #pragma _NEC ivdep
                     #pragma _NEC vector
                     for(int i = 0; i < VECTOR_LENGTH; i++)
                     {
@@ -233,15 +230,31 @@ void SSSP::nec_dijkstra_all_active(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight>
                 }
             };
 
-            auto edge_op_collective_pull = [collective_outgoing_weights, _distances, &reg_changes]
+            auto edge_op_collective_pull = [collective_outgoing_weights, _distances, &reg_changes, &reg_distances]
                     (int src_id, int dst_id, int local_edge_pos, long long int global_edge_pos,
                             int vector_index, DelayedWriteNEC &delayed_write)
             {
                 float weight = collective_outgoing_weights[global_edge_pos];
-                if(_distances[src_id] > _distances[dst_id] + weight)
+                float dst_weight = _distances[dst_id];
+                if(reg_distances[vector_index] > dst_weight + weight)
                 {
-                    _distances[src_id] = _distances[dst_id] + weight;
-                    reg_changes[vector_index] = 1;
+                    reg_distances[vector_index] = dst_weight + weight;
+                }
+            };
+
+            auto vertex_preprocess_op_collective_pull = [_distances, &reg_distances]
+                    (int src_id, int connections_count, int vector_index, DelayedWriteNEC &delayed_write)
+            {
+                reg_distances[vector_index] = _distances[src_id];
+            };
+
+            auto vertex_postprocess_op_collective_pull = [_distances, &reg_distances, &reg_changes]
+                    (int src_id, int connections_count, int vector_index, DelayedWriteNEC &delayed_write)
+            {
+                if(_distances[src_id] > reg_distances[vector_index])
+                {
+                     _distances[src_id] = reg_distances[vector_index];
+                     reg_changes[vector_index] = 1;
                 }
             };
 
@@ -250,9 +263,10 @@ void SSSP::nec_dijkstra_all_active(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight>
                                    edge_op_collective_push, EMPTY_VERTEX_OP, EMPTY_VERTEX_OP);
             else if(_traversal_direction == PULL_TRAVERSAL)
                 graph_API.advance(_graph, frontier, edge_op_pull, vertex_preprocess_op, vertex_postprocess_op,
-                                   edge_op_collective_pull, EMPTY_VERTEX_OP, EMPTY_VERTEX_OP);
+                                   edge_op_collective_pull, vertex_preprocess_op_collective_pull, vertex_postprocess_op_collective_pull);
 
-            changes = register_sum_reduce(reg_changes);
+            #pragma omp atomic
+            changes += register_sum_reduce(reg_changes);
         }
         iterations_count++;
     }
@@ -334,7 +348,6 @@ void SSSP::nec_dijkstra_man(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_grap
                         if(reg_distances[i] > _distances[dst_id] + weight)
                         {
                             reg_distances[i] = _distances[dst_id] + weight;
-                            //reg_changes[vector_index] = 1;
                         }
                     }
                 }
@@ -383,12 +396,12 @@ void SSSP::nec_dijkstra(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
                         AlgorithmFrontierType _frontier_type,
                         TraversalDirection _traversal_direction)
 {
+    nec_dijkstra_man(_graph, _distances, _source_vertex);
+
     if(_frontier_type == PARTIAL_ACTIVE)
         nec_dijkstra_partial_active(_graph, _distances, _source_vertex);
     else if(_frontier_type == ALL_ACTIVE)
         nec_dijkstra_all_active(_graph, _distances, _source_vertex, _traversal_direction);
-
-    nec_dijkstra_man(_graph, _distances, _source_vertex);
 }
 #endif
 

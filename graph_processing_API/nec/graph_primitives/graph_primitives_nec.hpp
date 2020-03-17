@@ -71,7 +71,7 @@ void GraphPrimitivesNEC::vector_engine_per_vertex_kernel(const long long *_verte
             const long long int end = _vertex_pointers[src_id + 1];
             const int connections_count = end - start;
 
-            vertex_preprocess_op(src_id, connections_count, delayed_write);
+            vertex_preprocess_op(src_id, connections_count, 0, delayed_write);
 
             #pragma _NEC ivdep
             #pragma _NEC vovertake
@@ -88,7 +88,7 @@ void GraphPrimitivesNEC::vector_engine_per_vertex_kernel(const long long *_verte
                 edge_op(src_id, dst_id, local_edge_pos, global_edge_pos, vector_index, delayed_write);
             }
 
-            vertex_postprocess_op(src_id, connections_count, delayed_write);
+            vertex_postprocess_op(src_id, connections_count, 0, delayed_write);
         }
     }
 
@@ -152,7 +152,7 @@ void GraphPrimitivesNEC::vector_core_per_vertex_kernel(const long long *_vertex_
             const long long int end = _vertex_pointers[src_id + 1];
             const int connections_count = end - start;
 
-            vertex_preprocess_op(src_id, connections_count, delayed_write);
+            vertex_preprocess_op(src_id, connections_count, 0, delayed_write);
 
             for (int edge_vec_pos = 0; edge_vec_pos < connections_count - VECTOR_LENGTH; edge_vec_pos += VECTOR_LENGTH)
             {
@@ -185,7 +185,7 @@ void GraphPrimitivesNEC::vector_core_per_vertex_kernel(const long long *_vertex_
                 edge_op(src_id, dst_id, local_edge_pos, global_edge_pos, vector_index, delayed_write);
             }
 
-            vertex_postprocess_op(src_id, connections_count, delayed_write);
+            vertex_postprocess_op(src_id, connections_count, 0, delayed_write);
         }
     }
 
@@ -261,9 +261,6 @@ void GraphPrimitivesNEC::collective_vertex_processing_kernel(const long long *_v
     #pragma omp for schedule(static, 1)
     for(int front_pos = 0; front_pos < _frontier_size; front_pos += VECTOR_LENGTH)
     {
-        #pragma _NEC ivdep
-        #pragma _NEC vovertake
-        #pragma _NEC novob
         #pragma _NEC vector
         for(int i = 0; i < VECTOR_LENGTH; i++)
         {
@@ -273,7 +270,7 @@ void GraphPrimitivesNEC::collective_vertex_processing_kernel(const long long *_v
                 reg_start[i] = _vertex_pointers[src_id];
                 reg_end[i] = _vertex_pointers[src_id + 1];
                 reg_connections[i] = reg_end[i] - reg_start[i];
-                vertex_preprocess_op(src_id, reg_connections[i], delayed_write);
+                vertex_preprocess_op(src_id, reg_connections[i], i, delayed_write);
             }
             else
             {
@@ -314,16 +311,13 @@ void GraphPrimitivesNEC::collective_vertex_processing_kernel(const long long *_v
             }
         }
 
-        #pragma _NEC ivdep
-        #pragma _NEC vovertake
-        #pragma _NEC novob
         #pragma _NEC vector
         for(int i = 0; i < VECTOR_LENGTH; i++)
         {
             if((front_pos + i) < _frontier_size)
             {
                 int src_id = _frontier_ids[front_pos + i];
-                vertex_postprocess_op(src_id, reg_connections[i], delayed_write);
+                vertex_postprocess_op(src_id, reg_connections[i], i, delayed_write);
             }
         }
     }
@@ -392,21 +386,18 @@ void GraphPrimitivesNEC::ve_collective_vertex_processing_kernel(const long long 
         long long segment_edges_start = _ve_vector_group_ptrs[cur_vector_segment];
         int segment_connections_count = _ve_vector_group_sizes[cur_vector_segment];
 
-        #pragma _NEC ivdep
-        #pragma _NEC vovertake
-        #pragma _NEC novob
         #pragma _NEC vector
         for(int i = 0; i < VECTOR_LENGTH; i++)
         {
             int src_id = segment_first_vertex + i;
 
             if(src_id < _vertices_count)
-                vertex_preprocess_op(src_id, segment_connections_count, delayed_write);
+                vertex_preprocess_op(src_id, segment_connections_count, i, delayed_write);
         }
 
         for(int edge_pos = _first_edge; edge_pos < segment_connections_count; edge_pos++)
         {
-            //#pragma _NEC ivdep
+            #pragma _NEC ivdep
             #pragma _NEC vovertake
             #pragma _NEC novob
             #pragma _NEC vector
@@ -426,16 +417,13 @@ void GraphPrimitivesNEC::ve_collective_vertex_processing_kernel(const long long 
             }
         }
 
-        #pragma _NEC ivdep
-        #pragma _NEC vovertake
-        #pragma _NEC novob
         #pragma _NEC vector
         for(int i = 0; i < VECTOR_LENGTH; i++)
         {
             int src_id = segment_first_vertex + i;
 
             if(src_id < _vertices_count)
-                vertex_postprocess_op(src_id, segment_connections_count, delayed_write);
+                vertex_postprocess_op(src_id, segment_connections_count, i, delayed_write);
         }
     }
 
