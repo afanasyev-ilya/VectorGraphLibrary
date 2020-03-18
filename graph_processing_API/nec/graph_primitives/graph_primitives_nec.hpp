@@ -466,9 +466,9 @@ void GraphPrimitivesNEC::advance(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &
 
     LOAD_EXTENDED_CSR_GRAPH_DATA(_graph);
 
-    /*#ifdef __PRINT_API_PERFORMANCE_STATS__
+    #ifdef __PRINT_API_PERFORMANCE_STATS__
     _frontier.print_frontier_info();
-    #endif*/
+    #endif
 
     const long long int *vertex_pointers = outgoing_ptrs;
     const int *adjacent_ids = outgoing_ids;
