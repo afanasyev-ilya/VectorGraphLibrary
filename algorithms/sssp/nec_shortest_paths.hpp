@@ -55,6 +55,8 @@ void SSSP::nec_dijkstra_partial_active(ExtendedCSRGraph<_TVertexValue, _TEdgeWei
 
         #pragma omp parallel
         {
+            NEC_REGISTER_INT(was_changes, 0);
+
             auto edge_op_push = [outgoing_weights, _distances, was_changes]
                (int src_id, int dst_id, int local_edge_pos, long long int global_edge_pos,
                 int vector_index, DelayedWriteNEC &delayed_write)
@@ -66,7 +68,7 @@ void SSSP::nec_dijkstra_partial_active(ExtendedCSRGraph<_TVertexValue, _TEdgeWei
                 {
                     _distances[dst_id] = src_weight + weight;
                     was_changes[dst_id] = 1;
-                    delayed_write.start_write(was_changes, 1, vector_index);
+                    delayed_write.start_write(_distances, 1, vector_index);
                 }
             };
 
@@ -88,13 +90,14 @@ void SSSP::nec_dijkstra_partial_active(ExtendedCSRGraph<_TVertexValue, _TEdgeWei
             struct VertexPostprocessFunctor
             {
                 int *was_changes;
-                VertexPostprocessFunctor(int *_was_changes): was_changes(_was_changes) {}
+                int *reg_was_changes;
+                VertexPostprocessFunctor(int *_was_changes, int *_reg_was_changes): was_changes(_was_changes), reg_was_changes(_reg_was_changes) {}
                 void operator()(int src_id, int connections_count, int vector_index, DelayedWriteNEC &delayed_write)
                 {
                     delayed_write.finish_write_max(was_changes, src_id);
                 }
             };
-            VertexPostprocessFunctor vertex_postprocess_op(was_changes);
+            VertexPostprocessFunctor vertex_postprocess_op(was_changes, reg_was_changes);
 
             graph_API.advance(_graph, frontier, edge_op_push, EMPTY_VERTEX_OP, vertex_postprocess_op,
                                edge_op_collective_push, EMPTY_VERTEX_OP, EMPTY_VERTEX_OP);

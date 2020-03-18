@@ -87,7 +87,7 @@ void FrontierNEC::filter(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph, 
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-int FrontierNEC::size()
+int FrontierNEC::size() // TOFIX
 {
     int size = 0;
 
@@ -101,7 +101,38 @@ int FrontierNEC::size()
         size += frontier_flags[i];
     }
 
+    sparse_frontier_size = size;
+
     return size;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+void FrontierNEC::print_frontier_info()
+{
+    string status;
+    if(frontier_type == ALL_ACTIVE_FRONTIER)
+        status = "all active";
+    if(frontier_type == SPARSE_FRONTIER)
+        status = "sparse";
+    if(frontier_type == DENSE_FRONTIER)
+        status = "dense";
+
+    if(omp_in_parallel())
+    {
+        #pragma omp master
+        {
+            cout << "frontier status: " << status << endl;
+            cout << "frontier size: " << sparse_frontier_size << " from " << max_frontier_size << ", " <<
+                 (100.0 * sparse_frontier_size) / max_frontier_size << " %" << endl;
+        }
+    }
+    else
+    {
+        cout << "frontier status: " << status << endl;
+        cout << "frontier size: " << sparse_frontier_size << " from " << max_frontier_size << ", " <<
+             (100.0 * sparse_frontier_size)/max_frontier_size << " %" << endl;
+    }
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

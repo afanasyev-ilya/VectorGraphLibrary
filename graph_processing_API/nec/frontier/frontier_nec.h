@@ -10,6 +10,7 @@
 #define FRONTIER_TYPE_CHANGE_THRESHOLD 0.75
 
 enum FrontierType {
+    ALL_ACTIVE_FRONTIER = 2,
     SPARSE_FRONTIER = 1,
     DENSE_FRONTIER = 0
 };
@@ -37,6 +38,8 @@ public:
     int size();
 
     FrontierType type() {return frontier_type;};
+
+    void print_frontier_info();
 
     friend class GraphPrimitivesNEC;
 };
