@@ -156,7 +156,7 @@ void GraphPrimitivesNEC::vector_core_per_vertex_kernel(const long long *_vertex_
 
             for (int edge_vec_pos = 0; edge_vec_pos < connections_count - VECTOR_LENGTH; edge_vec_pos += VECTOR_LENGTH)
             {
-                //#pragma _NEC ivdep
+                #pragma _NEC ivdep
                 #pragma _NEC vovertake
                 #pragma _NEC novob
                 #pragma _NEC vector
@@ -171,7 +171,7 @@ void GraphPrimitivesNEC::vector_core_per_vertex_kernel(const long long *_vertex_
                 }
             }
 
-            //#pragma _NEC ivdep
+            #pragma _NEC ivdep
             #pragma _NEC vovertake
             #pragma _NEC novob
             #pragma _NEC vector
