@@ -1,8 +1,12 @@
-//
-// Created by Elijah Afanasiev on 18/03/2020.
-//
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#ifndef PARALLELGRAPHLIBRARY_FILTER_HPP
-#define PARALLELGRAPHLIBRARY_FILTER_HPP
+template <typename _TVertexValue, typename _TEdgeWeight, typename FilterCondition>
+void GraphPrimitivesNEC::filter(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
+                                FrontierNEC &_frontier,
+                                FilterCondition &&filter_cond)
+{
+    _frontier.filter(_graph, filter_cond);
+    _frontier.print_frontier_info();
+}
 
-#endif //PARALLELGRAPHLIBRARY_FILTER_HPP
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

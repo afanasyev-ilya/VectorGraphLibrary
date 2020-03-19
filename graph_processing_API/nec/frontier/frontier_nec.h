@@ -26,18 +26,21 @@ private:
 
     FrontierType frontier_type;
 
-    int sparse_frontier_size;
+    int current_frontier_size;
     int max_frontier_size;
-public:
-    FrontierNEC(int _vertices_count);
-    ~FrontierNEC();
 
     template <typename _TVertexValue, typename _TEdgeWeight, typename Condition>
     void filter(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph, Condition condition_op);
+public:
+    template <typename _TVertexValue, typename _TEdgeWeight>
+    FrontierNEC(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph);
+    FrontierNEC(int _vertices_count);
+    ~FrontierNEC();
 
-    int size();
-
+    int size() {return current_frontier_size;};
     FrontierType type() {return frontier_type;};
+
+    void set_all_active();
 
     void print_frontier_info();
 

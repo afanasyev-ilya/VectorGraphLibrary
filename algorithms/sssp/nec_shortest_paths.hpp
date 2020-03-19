@@ -8,7 +8,7 @@ void SSSP::nec_dijkstra_partial_active(ExtendedCSRGraph<_TVertexValue, _TEdgeWei
                                        _TEdgeWeight *_distances,
                                        int _source_vertex)
 {
-    LOAD_EXTENDED_CSR_GRAPH_DATA(_graph);
+    /*LOAD_EXTENDED_CSR_GRAPH_DATA(_graph);
 
     int *was_changes;
     MemoryAPI::allocate_array(&was_changes, vertices_count);
@@ -112,7 +112,7 @@ void SSSP::nec_dijkstra_partial_active(ExtendedCSRGraph<_TVertexValue, _TEdgeWei
     performance_stats("partial active sssp (dijkstra)", t2 - t1, edges_count, iterations_count);
     #endif
 
-    MemoryAPI::free_array(was_changes);
+    MemoryAPI::free_array(was_changes);*/
 }
 #endif
 
@@ -128,6 +128,7 @@ void SSSP::nec_dijkstra_all_active(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight>
     double t1 = omp_get_wtime();
 
     LOAD_EXTENDED_CSR_GRAPH_DATA(_graph);
+    frontier.set_all_active();
 
     auto init_distances = [_distances, _source_vertex] (int src_id)
     {
@@ -136,13 +137,13 @@ void SSSP::nec_dijkstra_all_active(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight>
         else
             _distances[src_id] = FLT_MAX;
     };
-    graph_API.compute(init_distances, vertices_count);
+    graph_API.compute(_graph, frontier, init_distances);
 
     auto all_active = [] (int src_id)->int
     {
         return NEC_IN_FRONTIER_FLAG;
     };
-    frontier.filter(_graph, all_active);
+    graph_API.filter(_graph, frontier, all_active);
 
     int iterations_count = 0;
     int changes = 1;

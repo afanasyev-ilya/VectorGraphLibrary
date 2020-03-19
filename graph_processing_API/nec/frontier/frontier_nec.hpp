@@ -2,6 +2,14 @@
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+template <typename _TVertexValue, typename _TEdgeWeight>
+FrontierNEC::FrontierNEC(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph)
+{
+    FrontierNEC(_graph.get_vertices_count());
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 FrontierNEC::FrontierNEC(int _vertices_count)
 {
     max_frontier_size = _vertices_count;
@@ -9,14 +17,9 @@ FrontierNEC::FrontierNEC(int _vertices_count)
     MemoryAPI::allocate_array(&frontier_ids, max_frontier_size);
     MemoryAPI::allocate_array(&work_buffer, max_frontier_size);
 
-    #pragma omp parallel for schedule(static)
-    for(int i = 0; i < max_frontier_size; i++)
-    {
-        frontier_flags[i] = NEC_NOT_IN_FRONTIER_FLAG;
-    }
-
-    frontier_type = DENSE_FRONTIER;
-    sparse_frontier_size = 0;
+    // by default frontier is all active
+    frontier_type = ALL_ACTIVE_FRONTIER;
+    current_frontier_size = max_frontier_size;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -34,23 +37,48 @@ template <typename _TVertexValue, typename _TEdgeWeight, typename Condition>
 void FrontierNEC::filter(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph, Condition condition_op)
 {
     // fill flags
-    #pragma omp parallel for schedule(static)
-    for(int vec_start = 0; vec_start < max_frontier_size; vec_start += VECTOR_LENGTH)
+    if(frontier_type == ALL_ACTIVE_FRONTIER)
     {
-        #pragma _NEC vovertake
-        #pragma _NEC novob
-        #pragma _NEC vector
-        #pragma _NEC ivdep
-        #pragma _NEC unroll(VECTOR_LENGTH)
-        for(int i = 0; i < VECTOR_LENGTH; i++)
+        #pragma omp parallel for schedule(static)
+        for (int vec_start = 0; vec_start < max_frontier_size; vec_start += VECTOR_LENGTH)
         {
-            int src_id = vec_start + i;
-            if(src_id < max_frontier_size)
-                frontier_flags[src_id] = condition_op(src_id);
+            #pragma _NEC vovertake
+            #pragma _NEC novob
+            #pragma _NEC vector
+            #pragma _NEC ivdep
+            #pragma _NEC unroll(VECTOR_LENGTH)
+            for (int i = 0; i < VECTOR_LENGTH; i++)
+            {
+                int src_id = vec_start + i;
+                if (src_id < max_frontier_size)
+                {
+                    frontier_flags[src_id] = condition_op(src_id);
+                }
+            }
+        }
+    }
+    else if((frontier_type == SPARSE_FRONTIER) || (frontier_type == DENSE_FRONTIER))
+    {
+        #pragma omp parallel for schedule(static)
+        for (int vec_start = 0; vec_start < max_frontier_size; vec_start += VECTOR_LENGTH)
+        {
+            #pragma _NEC vovertake
+            #pragma _NEC novob
+            #pragma _NEC vector
+            #pragma _NEC ivdep
+            #pragma _NEC unroll(VECTOR_LENGTH)
+            for (int i = 0; i < VECTOR_LENGTH; i++)
+            {
+                int src_id = vec_start + i;
+                if ((src_id < max_frontier_size) && (frontier_flags[src_id] == NEC_IN_FRONTIER_FLAG))
+                {
+                    frontier_flags[src_id] = condition_op(src_id);
+                }
+            }
         }
     }
 
-    // calculate active count
+    // calculate current frontier size
     int vertices_in_frontier = 0;
     #pragma _NEC ivdep
     #pragma _NEC vector
@@ -59,80 +87,53 @@ void FrontierNEC::filter(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph, 
     {
         vertices_in_frontier += frontier_flags[i];
     }
+    current_frontier_size = vertices_in_frontier;
 
-    if(double(vertices_in_frontier)/max_frontier_size > FRONTIER_TYPE_CHANGE_THRESHOLD)
+    // chose frontier representation
+    if(current_frontier_size == max_frontier_size) // no checks required
     {
-        /*#pragma _NEC ivdep
-        #pragma _NEC vovertake
-        #pragma _NEC novob
-        #pragma _NEC vector
-        #pragma omp parallel for schedule(static)
-        for(int i = 0; i < max_frontier_size; i++)
-        {
-            frontier_flags[i] = NEC_IN_FRONTIER_FLAG;
-        }*/
-
+        frontier_type = ALL_ACTIVE_FRONTIER;
+    }
+    else if(double(current_frontier_size)/max_frontier_size > FRONTIER_TYPE_CHANGE_THRESHOLD) // flags array
+    {
         frontier_type = DENSE_FRONTIER;
     }
-    else
+    else // queue + flags for now
     {
+        frontier_type = SPARSE_FRONTIER;
         const int ve_threshold = _graph.get_nec_vector_engine_threshold_vertex();
         const int vc_threshold = _graph.get_nec_vector_core_threshold_vertex();
 
-        sparse_frontier_size = sparse_copy_if(frontier_ids, work_buffer, vc_threshold, max_frontier_size, condition_op);
-
-        frontier_type = SPARSE_FRONTIER;
+        int last_part_size = sparse_copy_if(frontier_ids, work_buffer, vc_threshold, max_frontier_size, condition_op);
     }
-}
-
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-int FrontierNEC::size() // TOFIX
-{
-    int size = 0;
-
-    #pragma _NEC ivdep
-    #pragma _NEC vovertake
-    #pragma _NEC novob
-    #pragma _NEC vector
-    #pragma omp parallel for schedule(static) reduction(+: size)
-    for(int i = 0; i < max_frontier_size; i++)
-    {
-        size += frontier_flags[i];
-    }
-
-    sparse_frontier_size = size;
-
-    return size;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 void FrontierNEC::print_frontier_info()
 {
-    string status;
-    if(frontier_type == ALL_ACTIVE_FRONTIER)
-        status = "all active";
-    if(frontier_type == SPARSE_FRONTIER)
-        status = "sparse";
-    if(frontier_type == DENSE_FRONTIER)
-        status = "dense";
+    #pragma omp master
+    {
+        string status;
+        if(frontier_type == ALL_ACTIVE_FRONTIER)
+            status = "all active";
+        if(frontier_type == SPARSE_FRONTIER)
+            status = "sparse";
+        if(frontier_type == DENSE_FRONTIER)
+            status = "dense";
 
-    if(omp_in_parallel())
-    {
-        #pragma omp master
-        {
-            cout << "frontier status: " << status << endl;
-            cout << "frontier size: " << sparse_frontier_size << " from " << max_frontier_size << ", " <<
-                 (100.0 * sparse_frontier_size) / max_frontier_size << " %" << endl;
-        }
-    }
-    else
-    {
         cout << "frontier status: " << status << endl;
-        cout << "frontier size: " << sparse_frontier_size << " from " << max_frontier_size << ", " <<
-             (100.0 * sparse_frontier_size)/max_frontier_size << " %" << endl;
+        cout << "frontier size: " << current_frontier_size << " from " << max_frontier_size << ", " <<
+        (100.0 * current_frontier_size) / max_frontier_size << " %" << endl;
     }
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+void FrontierNEC::set_all_active()
+{
+    frontier_type == ALL_ACTIVE_FRONTIER;
+    current_frontier_size = max_frontier_size;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
