@@ -466,10 +466,6 @@ void GraphPrimitivesNEC::advance(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &
 
     LOAD_EXTENDED_CSR_GRAPH_DATA(_graph);
 
-    #ifdef __PRINT_API_PERFORMANCE_STATS__
-    _frontier.print_frontier_info();
-    #endif
-
     const long long int *vertex_pointers = outgoing_ptrs;
     const int *adjacent_ids = outgoing_ids;
     const int *ve_adjacent_ids = ve_outgoing_ids;
@@ -483,25 +479,42 @@ void GraphPrimitivesNEC::advance(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &
     const int collective_threshold_start = _graph.get_nec_vector_core_threshold_vertex();
     const int collective_threshold_end = _graph.get_vertices_count();
 
-    vector_engine_per_vertex_kernel(vertex_pointers, adjacent_ids, frontier_flags, vector_engine_threshold_start,
-                                    vector_engine_threshold_end, edge_op, vertex_preprocess_op, vertex_postprocess_op, edges_count);
+    if(_frontier.type() == ALL_ACTIVE_FRONTIER)
+    {
+        vector_engine_per_vertex_kernel_all_active(vertex_pointers, adjacent_ids, frontier_flags,
+                                                   vector_engine_threshold_start, vector_engine_threshold_end,
+                                                   edge_op, vertex_preprocess_op, vertex_postprocess_op, edges_count);
 
-    vector_core_per_vertex_kernel(vertex_pointers, adjacent_ids, frontier_flags, vector_core_threshold_start,
-                                  vector_core_threshold_end, edge_op, vertex_preprocess_op, vertex_postprocess_op, edges_count);
+        vector_core_per_vertex_kernel_all_active(vertex_pointers, adjacent_ids, frontier_flags,
+                                                 vector_core_threshold_start, vector_core_threshold_end, edge_op,
+                                                 vertex_preprocess_op, vertex_postprocess_op, edges_count);
 
-    if(_frontier.type() == SPARSE_FRONTIER) {
+        ve_collective_vertex_processing_kernel_all_active(ve_vector_group_ptrs, ve_vector_group_sizes,
+                                                          ve_adjacent_ids, ve_vertices_count, ve_starting_vertex, ve_vector_segments_count,
+                                                          frontier_flags, collective_threshold_start,
+                                                          collective_threshold_end,  collective_edge_op, collective_vertex_preprocess_op,
+                                                          collective_vertex_postprocess_op, edges_count, vertices_count, _first_edge);
+    }
+    else if(_frontier.type() == DENSE_ACTIVE_FRONTIER)
+    {
+        
+    }
+
+
+
+    /*if(_frontier.type() == SPARSE_FRONTIER) {
         collective_vertex_processing_kernel(vertex_pointers, adjacent_ids, frontier_flags, collective_threshold_start,
                                             collective_threshold_end, collective_edge_op, collective_vertex_preprocess_op,
                                             collective_vertex_postprocess_op, edges_count,
-                                            frontier_ids, _frontier.sparse_frontier_size, _first_edge);
+                                            frontier_ids, _frontier.current_frontier_size, _first_edge);
     }
-    else if(_frontier.type() == DENSE_FRONTIER) {
+    else if(_frontier.type() == DENSE_FRONTIER || _frontier.type() == ALL_ACTIVE_FRONTIER) {
         ve_collective_vertex_processing_kernel(ve_vector_group_ptrs, ve_vector_group_sizes, ve_adjacent_ids,
                                                ve_vertices_count, ve_starting_vertex, ve_vector_segments_count,
                                                frontier_flags, collective_threshold_start, collective_threshold_end,
                                                collective_edge_op, collective_vertex_preprocess_op,
                                                collective_vertex_postprocess_op, edges_count, vertices_count, _first_edge);
-    }
+    }*/
 
     #pragma omp barrier
 }
