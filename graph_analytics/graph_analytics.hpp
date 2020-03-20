@@ -82,7 +82,9 @@ void GraphAnalytics::analyse_graph_stats(ExtendedCSRGraph<_TVertexValue, _TEdgeW
 
     print_graph_memory_consumption(_graph);
 
-    ConnectedComponents<int, float> cc_operation(_graph);
+    analyse_graph_thresholds(_graph);
+
+    /*ConnectedComponents<int, float> cc_operation(_graph);
     int *check_components;
     cc_operation.allocate_result_memory(_graph.get_vertices_count(), &check_components);
 
@@ -92,7 +94,7 @@ void GraphAnalytics::analyse_graph_stats(ExtendedCSRGraph<_TVertexValue, _TEdgeW
 
     analyse_component_stats(check_components, _graph.get_vertices_count());
 
-    cc_operation.free_result_memory(check_components);
+    cc_operation.free_result_memory(check_components);*/
 
     cout << "---------------------------------------------------------------------------------------------" << endl << endl;
 }
@@ -144,6 +146,19 @@ void GraphAnalytics::print_graph_memory_consumption(ExtendedCSRGraph<_TVertexVal
     cout << "size with weights (CSR): " << (no_wights_size_in_bytes + weights_size_in_bytes) / 1e9 << " GB" << endl;
     cout << "ve size: " << ve_size_in_bytes / 1e9 << " GB" << endl;
     cout << "indirectly accessed array size: " << sizeof(int)*vertices_count / 1e6 << " MB" << endl;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+template <typename _TVertexValue, typename _TEdgeWeight>
+void GraphAnalytics::analyse_graph_thresholds(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph)
+{
+    #ifdef __USE_NEC_SX_AURORA__
+    cout << endl;
+    cout << "large interval: (" << 0 << " ," << _graph.get_nec_vector_engine_threshold_vertex() << ")" << endl;
+    cout << "medium interval: (" << _graph.get_nec_vector_engine_threshold_vertex() << " ," << _graph.get_nec_vector_core_threshold_vertex() << ")" << endl;
+    cout << "small interval: (" << _graph.get_nec_vector_core_threshold_vertex() << " ," << _graph.get_vertices_count() << ")" << endl << endl;
+    #endif
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

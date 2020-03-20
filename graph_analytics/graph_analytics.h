@@ -10,6 +10,9 @@ private:
     void print_graph_memory_consumption(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph);
 
     void analyse_component_stats(int *_components, int _vertices_count);
+
+    template <typename _TVertexValue, typename _TEdgeWeight>
+    void analyse_graph_thresholds(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph);
 public:
 
     template <typename _TVertexValue, typename _TEdgeWeight>
@@ -19,7 +22,5 @@ public:
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #include "graph_analytics.hpp"
-#include "cache_metrics.hpp"
-#include "access_profiling.hpp"
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

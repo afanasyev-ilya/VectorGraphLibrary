@@ -36,9 +36,6 @@ int main(int argc, const char * argv[])
             cout << "file " << parser.get_graph_file_name() << " loaded in " << t2 - t1 << " sec" << endl;
         }
 
-        GraphAnalytics graph_analytics;
-        graph_analytics.analyse_graph_stats(graph, parser.get_graph_file_name());
-
         ConnectedComponents<int, float> cc_operation(graph);
 
         int *components;

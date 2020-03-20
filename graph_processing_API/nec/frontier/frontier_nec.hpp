@@ -94,7 +94,7 @@ void FrontierNEC::filter(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph, 
     {
         frontier_type = ALL_ACTIVE_FRONTIER;
     }
-    else if(double(current_frontier_size)/max_frontier_size > FRONTIER_TYPE_CHANGE_THRESHOLD) // flags array
+    else if(true)//(double(current_frontier_size)/max_frontier_size > FRONTIER_TYPE_CHANGE_THRESHOLD) // flags array
     {
         frontier_type = DENSE_FRONTIER;
     }
@@ -132,7 +132,7 @@ void FrontierNEC::print_frontier_info()
 
 void FrontierNEC::set_all_active()
 {
-    frontier_type == ALL_ACTIVE_FRONTIER;
+    frontier_type = ALL_ACTIVE_FRONTIER;
     current_frontier_size = max_frontier_size;
 }
 

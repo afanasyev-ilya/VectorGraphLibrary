@@ -8,7 +8,7 @@ _TEdgeWeight* GraphPrimitivesNEC::get_collective_weights(ExtendedCSRGraph<_TVert
 {
     if(_frontier.type() == SPARSE_FRONTIER)
         return _graph.get_outgoing_weights();
-    else
+    else if((_frontier.type() == ALL_ACTIVE_FRONTIER) || (_frontier.type() == DENSE_FRONTIER))
         return (_graph.get_last_vertices_ve_ptr())->get_adjacent_weights();
 }
 
