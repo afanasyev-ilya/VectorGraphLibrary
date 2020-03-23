@@ -35,6 +35,9 @@ int main(int argc, const char * argv[])
             cout << "file " << parser.get_graph_file_name() << " loaded in " << t2 - t1 << " sec" << endl;
         }
 
+        GraphAnalytics graph_analytics;
+        graph_analytics.analyse_graph_stats(graph, parser.get_graph_file_name());
+
         BFS<int, float> bfs_operation(graph);
 
         #if defined(__USE_NEC_SX_AURORA__) || defined( __USE_INTEL__)
@@ -60,10 +63,13 @@ int main(int argc, const char * argv[])
 
             double t1 = omp_get_wtime();
             #ifdef __USE_NEC_SX_AURORA__
-            if(parser.get_algorithm_bfs() == DIRECTION_OPTIMISING_BFS_ALGORITHM)
-                bfs_operation.nec_direction_optimising(graph, bfs_levels, vertex_to_check);
-            else if(parser.get_algorithm_bfs() == TOP_DOWN_BFS_ALGORITHM)
-                bfs_operation.nec_top_down(graph, bfs_levels, vertex_to_check);
+            //if(parser.get_algorithm_bfs() == DIRECTION_OPTIMISING_BFS_ALGORITHM)
+            //    bfs_operation.nec_direction_optimising(graph, bfs_levels, vertex_to_check);
+            //else if(parser.get_algorithm_bfs() == TOP_DOWN_BFS_ALGORITHM)
+            INNER_WALL_NEC_TIME = 0;
+            bfs_operation.nec_top_down(graph, bfs_levels, vertex_to_check);
+            cout << "INNER_WALL_NEC_TIME: " << INNER_WALL_NEC_TIME * 1000 << " ms" << endl;
+            cout << "INNER PERF: " << graph.get_edges_count() / (INNER_WALL_NEC_TIME * 1e6) << " MTEPS" << endl;
             #endif
 
             #ifdef __USE_GPU__

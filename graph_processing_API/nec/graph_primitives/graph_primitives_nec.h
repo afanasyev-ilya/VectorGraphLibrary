@@ -91,6 +91,17 @@ private:
     // sparse advance implementation
     template <typename EdgeOperation, typename VertexPreprocessOperation,
             typename VertexPostprocessOperation>
+    inline void vector_core_per_vertex_kernel_sparse(const long long *_vertex_pointers,
+                                                     const int *_adjacent_ids,
+                                                     const int *_frontier_ids,
+                                                     const int *_frontier_flags,
+                                                     const int _frontier_segment_size,
+                                                     EdgeOperation edge_op,
+                                                     VertexPreprocessOperation vertex_preprocess_op,
+                                                     VertexPostprocessOperation vertex_postprocess_op);
+
+    template <typename EdgeOperation, typename VertexPreprocessOperation,
+            typename VertexPostprocessOperation>
     inline void collective_vertex_processing_kernel_sparse(const long long *_vertex_pointers, const int *_adjacent_ids,
                                                            const int *_frontier_flags, const int _first_vertex,
                                                            const int _last_vertex, EdgeOperation edge_op,

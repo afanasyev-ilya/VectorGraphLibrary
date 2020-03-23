@@ -20,14 +20,15 @@ void BFS<_TVertexValue, _TEdgeWeight>::nec_top_down_compute_step(ExtendedCSRGrap
         {
             int src_level = _levels[src_id];
             int dst_level = _levels[dst_id];
-            reg_in_lvl[vector_index]++;
+            //reg_in_lvl[vector_index]++;
             if((src_level == _current_level) && (dst_level == UNVISITED_VERTEX))
             {
                 _levels[dst_id] = _current_level + 1;
-                reg_vis[vector_index]++;
+                //reg_vis[vector_index]++;
             }
         };
 
+        //frontier.set_all_active();
         graph_API.advance(_graph, frontier, edge_op);
 
         int local_vis = register_sum_reduce(reg_vis);
@@ -186,6 +187,7 @@ void BFS<_TVertexValue, _TEdgeWeight>::nec_top_down(ExtendedCSRGraph<_TVertexVal
                                                     int _source_vertex)
 {
     LOAD_EXTENDED_CSR_GRAPH_DATA(_graph);
+    frontier.set_all_active();
 
     auto init_levels = [_levels, _source_vertex] (int src_id)
     {
@@ -194,7 +196,7 @@ void BFS<_TVertexValue, _TEdgeWeight>::nec_top_down(ExtendedCSRGraph<_TVertexVal
         else
             _levels[src_id] = UNVISITED_VERTEX;
     };
-    graph_API.compute(init_levels, vertices_count);
+    graph_API.compute(_graph, frontier, init_levels);
 
     auto on_first_level = [_levels] (int src_id)->int
     {
@@ -203,14 +205,18 @@ void BFS<_TVertexValue, _TEdgeWeight>::nec_top_down(ExtendedCSRGraph<_TVertexVal
             result = NEC_IN_FRONTIER_FLAG;
         return result;
     };
-    frontier.filter(_graph, on_first_level);
+    graph_API.filter(_graph, frontier, on_first_level);
 
+    double t_inner = 0, t_frontier = 0;
     double t1 = omp_get_wtime();
     int current_level = FIRST_LEVEL_VERTEX;
     while(frontier.size() > 0)
     {
         int vis = 0, in_lvl = 0;
+        double t_st = omp_get_wtime();
         nec_top_down_compute_step(_graph, _levels, current_level, vis, in_lvl);
+        double t_end = omp_get_wtime();
+        t_inner += t_end - t_st;
 
         auto on_next_level = [_levels, current_level] (int src_id)->int
         {
@@ -219,12 +225,19 @@ void BFS<_TVertexValue, _TEdgeWeight>::nec_top_down(ExtendedCSRGraph<_TVertexVal
                 result = NEC_IN_FRONTIER_FLAG;
             return result;
         };
-        frontier.filter(_graph, on_next_level);
+
+        double t_st2 = omp_get_wtime();
+        frontier.set_all_active();
+        graph_API.filter(_graph, frontier, on_next_level);
+        double t_end2 = omp_get_wtime();
+        t_frontier += t_end2 - t_st2;
 
         current_level++;
     }
     double t2 = omp_get_wtime();
 
+    cout << "inner: " << t_inner * 1000 << " ms" << endl;
+    cout << "frontier: " << t_frontier * 1000 << " ms" << endl;
     #ifdef __PRINT_SAMPLES_PERFORMANCE_STATS__
     performance_stats("BFS (top-down)", t2 - t1, edges_count, current_level);
     #endif
@@ -259,6 +272,7 @@ void BFS<_TVertexValue, _TEdgeWeight>::nec_bottom_up(ExtendedCSRGraph<_TVertexVa
     };
     frontier.filter(_graph, vertex_value_is_unset);
 
+    double t1 = omp_get_wtime();
     int current_level = FIRST_LEVEL_VERTEX;
     int frontier_previous_size = 0, frontier_current_size = 1;
     while(frontier_previous_size != frontier_current_size)
@@ -272,6 +286,7 @@ void BFS<_TVertexValue, _TEdgeWeight>::nec_bottom_up(ExtendedCSRGraph<_TVertexVa
 
         current_level++;
     }
+    double t2 = omp_get_wtime();
 
     #ifdef __PRINT_SAMPLES_PERFORMANCE_STATS__
     performance_stats("BFS (bottom-up)", t2 - t1, edges_count, current_level);

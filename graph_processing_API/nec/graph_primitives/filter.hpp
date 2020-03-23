@@ -6,7 +6,6 @@ void GraphPrimitivesNEC::filter(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_
                                 FilterCondition &&filter_cond)
 {
     _frontier.filter(_graph, filter_cond);
-    _frontier.print_frontier_info();
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

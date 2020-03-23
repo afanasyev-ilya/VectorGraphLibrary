@@ -7,7 +7,7 @@
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#define FRONTIER_TYPE_CHANGE_THRESHOLD 0.75
+#define FRONTIER_TYPE_CHANGE_THRESHOLD 0.2
 
 enum FrontierType {
     ALL_ACTIVE_FRONTIER = 2,
@@ -23,6 +23,10 @@ private:
     int *frontier_flags;
     int *frontier_ids;
     int *work_buffer;
+
+    int vector_engine_part_size;
+    int vector_core_part_size;
+    int collective_part_size;
 
     FrontierType frontier_type;
 

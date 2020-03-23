@@ -72,7 +72,7 @@ void GraphPrimitivesNEC::vector_engine_per_vertex_kernel_dense(const long long *
             }
             cout << "1) time: " << (t2 - t1)*1000.0 << " ms" << endl;
             //cout << "1) all active work: " << work << " - " << 100.0 * work/_edges_count << " %" << endl;
-            cout << "1) all active BW: " << sizeof(int)*INT_ELEMENTS_PER_EDGE*work/((t2-t1)*1e9) << " GB/s" << endl;
+            //cout << "1) dense BW: " << sizeof(int)*INT_ELEMENTS_PER_EDGE*work/((t2-t1)*1e9) << " GB/s" << endl;
             //cout << "1) real work: " << real_work << " - " << 100.0 * real_work/_edges_count << " %" << endl;
             cout << "1) real BW: " << sizeof(int)*INT_ELEMENTS_PER_EDGE*real_work/((t2-t1)*1e9) << " GB/s" << endl;
         };
@@ -169,7 +169,7 @@ void GraphPrimitivesNEC::vector_core_per_vertex_kernel_dense(const long long *_v
             }
             cout << "2) time: " << (t2 - t1)*1000.0 << " ms" << endl;
             //cout << "2) all active work: " << work << " - " << 100.0 * work/_edges_count << " %" << endl;
-            cout << "2) all active BW: " << sizeof(int)*INT_ELEMENTS_PER_EDGE*work/((t2-t1)*1e9) << " GB/s" << endl;
+            //cout << "2) dense BW: " << sizeof(int)*INT_ELEMENTS_PER_EDGE*work/((t2-t1)*1e9) << " GB/s" << endl;
             //cout << "2) real work: " << real_work << " - " << 100.0 * real_work/_edges_count << " %" << endl;
             cout << "2) real BW: " << sizeof(int)*INT_ELEMENTS_PER_EDGE*real_work/((t2-t1)*1e9) << " GB/s" << endl;
         };
@@ -267,7 +267,7 @@ void GraphPrimitivesNEC::ve_collective_vertex_processing_kernel_dense(const long
 
             //cout << "3) all active work: " << work << " - " << 100.0 * work/_edges_count << " %" << endl;
             cout << "3) time: " << (t2 - t1)*1000.0 << " ms" << endl;
-            cout << "3) (ve) all active BW: " << sizeof(int)*INT_ELEMENTS_PER_EDGE*work/((t2-t1)*1e9) << " GB/s" << endl;
+            //cout << "3) (ve) dense BW: " << sizeof(int)*INT_ELEMENTS_PER_EDGE*work/((t2-t1)*1e9) << " GB/s" << endl;
             //cout << "3) real work: " << real_work << " - " << 100.0 * real_work/_edges_count << " %" << endl;
             cout << "3) (ve) real BW: " << sizeof(int)*INT_ELEMENTS_PER_EDGE*real_work/((t2-t1)*1e9) << " GB/s" << endl << endl;
         };

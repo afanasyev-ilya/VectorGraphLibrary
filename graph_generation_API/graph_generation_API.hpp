@@ -78,13 +78,12 @@ void GraphGenerationAPI<_TVertexValue, _TEdgeWeight>::R_MAT(EdgesListGraph<_TVer
     rng_api.generate_array_of_random_values<_TVertexValue>(_graph.get_vertex_values(), vertices_count, 1000);
     
     int threads_count = omp_get_max_threads();
-    cout << "using " << threads_count << " threads" << endl;
     
     // generate and add edges to graph
     unsigned int seed = 0;
     #pragma omp parallel private(seed) num_threads(threads_count)
     {
-        seed = /*int(time(NULL)) **/ omp_get_thread_num();
+        seed = int(time(NULL)) * omp_get_thread_num();
         
         #pragma omp for schedule(static)
         for (long long cur_edge = 0; cur_edge < edges_count; cur_edge += step)

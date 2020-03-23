@@ -1,5 +1,72 @@
 #pragma once
 
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+template <typename EdgeOperation, typename VertexPreprocessOperation,
+        typename VertexPostprocessOperation>
+void GraphPrimitivesNEC::vector_core_per_vertex_kernel_sparse(const long long *_vertex_pointers,
+                                                              const int *_adjacent_ids,
+                                                              const int *_frontier_ids,
+                                                              const int *_frontier_flags,
+                                                              const int _frontier_segment_size,
+                                                              EdgeOperation edge_op,
+                                                              VertexPreprocessOperation vertex_preprocess_op,
+                                                              VertexPostprocessOperation vertex_postprocess_op)
+{
+    DelayedWriteNEC delayed_write;
+    delayed_write.init();
+
+    #pragma omp barrier
+
+    #pragma omp for schedule(static, 8)
+    for (int front_pos = 0; front_pos < _frontier_segment_size; front_pos++)
+    {
+        const int src_id = _frontier_ids[front_pos];
+
+        const long long int start = _vertex_pointers[src_id];
+        const long long int end = _vertex_pointers[src_id + 1];
+        const int connections_count = end - start;
+
+        vertex_preprocess_op(src_id, connections_count, 0, delayed_write);
+
+        for (int edge_vec_pos = 0; edge_vec_pos < connections_count - VECTOR_LENGTH; edge_vec_pos += VECTOR_LENGTH)
+        {
+            #pragma _NEC ivdep
+            #pragma _NEC vovertake
+            #pragma _NEC novob
+            #pragma _NEC vector
+            for (int i = 0; i < VECTOR_LENGTH; i++)
+            {
+                const long long int global_edge_pos = start + edge_vec_pos + i;
+                const int local_edge_pos = edge_vec_pos + i;
+                const int vector_index = i;
+                const int dst_id = _adjacent_ids[global_edge_pos];
+
+                edge_op(src_id, dst_id, local_edge_pos, global_edge_pos, vector_index, delayed_write);
+            }
+        }
+
+        #pragma _NEC ivdep
+        #pragma _NEC vovertake
+        #pragma _NEC novob
+        #pragma _NEC vector
+        for (int i = connections_count - VECTOR_LENGTH; i < connections_count; i++)
+        {
+            const long long int global_edge_pos = start + i;
+            const int local_edge_pos = i;
+            const int vector_index = i - (connections_count - VECTOR_LENGTH);
+            const int dst_id = _adjacent_ids[global_edge_pos];
+
+            edge_op(src_id, dst_id, local_edge_pos, global_edge_pos, vector_index, delayed_write);
+        }
+
+        vertex_postprocess_op(src_id, connections_count, 0, delayed_write);
+    }
+
+    #pragma omp barrier
+}
+
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template <typename EdgeOperation, typename VertexPreprocessOperation,
@@ -125,7 +192,7 @@ void GraphPrimitivesNEC::collective_vertex_processing_kernel_sparse(const long l
             }
             cout << "3) time: " << (t2 - t1)*1000.0 << " ms" << endl;
             //cout << "3) all active work: " << work << " - " << 100.0 * work/_edges_count << " %" << endl;
-            cout << "3) all active BW: " << sizeof(int)*INT_ELEMENTS_PER_EDGE*work/((t2-t1)*1e9) << " GB/s" << endl;
+            //cout << "3) spatial BW: " << sizeof(int)*INT_ELEMENTS_PER_EDGE*work/((t2-t1)*1e9) << " GB/s" << endl;
             //cout << "3) real work: " << real_work << " - " << 100.0 * real_work/_edges_count << " %" << endl;
             cout << "3) real BW: " << sizeof(int)*INT_ELEMENTS_PER_EDGE*real_work/((t2-t1)*1e9) << " GB/s" << endl << endl;
         };

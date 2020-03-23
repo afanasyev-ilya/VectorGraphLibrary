@@ -46,7 +46,6 @@ void FrontierNEC::filter(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph, 
             #pragma _NEC novob
             #pragma _NEC vector
             #pragma _NEC ivdep
-            #pragma _NEC unroll(VECTOR_LENGTH)
             for (int i = 0; i < VECTOR_LENGTH; i++)
             {
                 int src_id = vec_start + i;
@@ -66,11 +65,11 @@ void FrontierNEC::filter(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph, 
             #pragma _NEC novob
             #pragma _NEC vector
             #pragma _NEC ivdep
-            #pragma _NEC unroll(VECTOR_LENGTH)
             for (int i = 0; i < VECTOR_LENGTH; i++)
             {
                 int src_id = vec_start + i;
-                if ((src_id < max_frontier_size) && (frontier_flags[src_id] == NEC_IN_FRONTIER_FLAG))
+                int old_val = frontier_flags[src_id];
+                if ((src_id < max_frontier_size) && (old_val == NEC_IN_FRONTIER_FLAG))
                 {
                     frontier_flags[src_id] = condition_op(src_id);
                 }
@@ -94,7 +93,7 @@ void FrontierNEC::filter(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph, 
     {
         frontier_type = ALL_ACTIVE_FRONTIER;
     }
-    else if(true)//(double(current_frontier_size)/max_frontier_size > FRONTIER_TYPE_CHANGE_THRESHOLD) // flags array
+    else if(double(current_frontier_size)/max_frontier_size > FRONTIER_TYPE_CHANGE_THRESHOLD) // flags array
     {
         frontier_type = DENSE_FRONTIER;
     }
@@ -103,8 +102,13 @@ void FrontierNEC::filter(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph, 
         frontier_type = SPARSE_FRONTIER;
         const int ve_threshold = _graph.get_nec_vector_engine_threshold_vertex();
         const int vc_threshold = _graph.get_nec_vector_core_threshold_vertex();
+        const int vertices_count = _graph.get_vertices_count();
 
-        int last_part_size = sparse_copy_if(frontier_ids, work_buffer, vc_threshold, max_frontier_size, condition_op);
+        vector_engine_part_size = sparse_copy_if(frontier_ids, work_buffer, max_frontier_size, 0, ve_threshold, condition_op);
+
+        vector_core_part_size = sparse_copy_if(&frontier_ids[vector_engine_part_size], work_buffer, max_frontier_size, ve_threshold, vc_threshold, condition_op);
+
+        collective_part_size = sparse_copy_if(&frontier_ids[vector_core_part_size + vector_engine_part_size], work_buffer, max_frontier_size, vc_threshold, vertices_count, condition_op);
     }
 }
 

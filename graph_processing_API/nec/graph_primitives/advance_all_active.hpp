@@ -65,7 +65,7 @@ void GraphPrimitivesNEC::vector_engine_per_vertex_kernel_all_active(const long l
                 real_work += _vertex_pointers[src_id + 1] - _vertex_pointers[src_id];
             }
             cout << "1) time: " << (t2 - t1)*1000.0 << " ms" << endl;
-            cout << "1) all active work: " << work << " - " << 100.0 * work/_edges_count << " %" << endl;
+            //cout << "1) all active work: " << work << " - " << 100.0 * work/_edges_count << " %" << endl;
             cout << "1) all active BW: " << sizeof(int)*INT_ELEMENTS_PER_EDGE*work/((t2-t1)*1e9) << " GB/s" << endl;
         };
         #pragma omp barrier
@@ -155,7 +155,7 @@ void GraphPrimitivesNEC::vector_core_per_vertex_kernel_all_active(const long lon
                 real_work += _vertex_pointers[src_id + 1] - _vertex_pointers[src_id];
             }
             cout << "2) time: " << (t2 - t1)*1000.0 << " ms" << endl;
-            cout << "2) all active work: " << work << " - " << 100.0 * work/_edges_count << " %" << endl;
+            //cout << "2) all active work: " << work << " - " << 100.0 * work/_edges_count << " %" << endl;
             cout << "2) all active BW: " << sizeof(int)*INT_ELEMENTS_PER_EDGE*work/((t2-t1)*1e9) << " GB/s" << endl;
         };
         #pragma omp barrier
@@ -246,7 +246,7 @@ void GraphPrimitivesNEC::ve_collective_vertex_processing_kernel_all_active(const
             double work = _ve_vector_group_ptrs[_ve_vector_segments_count - 1] - _ve_vector_group_ptrs[0];
             double real_work = work;
 
-            cout << "3) all active work: " << work << " - " << 100.0 * work/_edges_count << " %" << endl;
+            //cout << "3) all active work: " << work << " - " << 100.0 * work/_edges_count << " %" << endl;
             cout << "3) time: " << (t2 - t1)*1000.0 << " ms" << endl;
             cout << "3) (ve) all active BW: " << sizeof(int)*INT_ELEMENTS_PER_EDGE*work/((t2-t1)*1e9) << " GB/s" << endl << endl;
         };

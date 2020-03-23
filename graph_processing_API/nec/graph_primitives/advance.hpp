@@ -1,5 +1,9 @@
 #pragma once
 
+#include <set>
+
+using namespace std;
+
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template <typename _TVertexValue, typename _TEdgeWeight, typename EdgeOperation, typename VertexPreprocessOperation,
@@ -19,11 +23,14 @@ void GraphPrimitivesNEC::advance(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &
 
     LOAD_EXTENDED_CSR_GRAPH_DATA(_graph);
 
+    #ifdef __PRINT_API_PERFORMANCE_STATS__
+    _frontier.print_frontier_info();
+    #endif
+
     const long long int *vertex_pointers = outgoing_ptrs;
     const int *adjacent_ids = outgoing_ids;
     const int *ve_adjacent_ids = ve_outgoing_ids;
     int *frontier_flags = _frontier.frontier_flags;
-    int *frontier_ids = _frontier.frontier_ids;
 
     const int vector_engine_threshold_start = 0;
     const int vector_engine_threshold_end = _graph.get_nec_vector_engine_threshold_vertex();
@@ -34,56 +41,103 @@ void GraphPrimitivesNEC::advance(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &
 
     if(_frontier.type() == ALL_ACTIVE_FRONTIER)
     {
-        vector_engine_per_vertex_kernel_all_active(vertex_pointers, adjacent_ids, vector_engine_threshold_start,
-                                                   vector_engine_threshold_end, edge_op, vertex_preprocess_op,
-                                                   vertex_postprocess_op, edges_count);
+        if((vector_engine_threshold_end - vector_engine_threshold_start) > 0)
+            vector_engine_per_vertex_kernel_all_active(vertex_pointers, adjacent_ids, vector_engine_threshold_start,
+                                                       vector_engine_threshold_end, edge_op, vertex_preprocess_op,
+                                                       vertex_postprocess_op, edges_count);
 
-        vector_core_per_vertex_kernel_all_active(vertex_pointers, adjacent_ids, vector_core_threshold_start,
-                                                 vector_core_threshold_end, edge_op, vertex_preprocess_op,
-                                                 vertex_postprocess_op, edges_count);
+        if((vector_core_threshold_end - vector_core_threshold_start) > 0)
+            vector_core_per_vertex_kernel_all_active(vertex_pointers, adjacent_ids, vector_core_threshold_start,
+                                                     vector_core_threshold_end, edge_op, vertex_preprocess_op,
+                                                     vertex_postprocess_op, edges_count);
 
-        ve_collective_vertex_processing_kernel_all_active(ve_vector_group_ptrs, ve_vector_group_sizes,
-                                                          ve_adjacent_ids, ve_vertices_count, ve_starting_vertex,
-                                                          ve_vector_segments_count, collective_threshold_start, collective_threshold_end,
-                                                          collective_edge_op, collective_vertex_preprocess_op,
-                                                          collective_vertex_postprocess_op, edges_count, vertices_count, _first_edge);
+        if((collective_threshold_end - collective_threshold_start) > 0)
+            ve_collective_vertex_processing_kernel_all_active(ve_vector_group_ptrs, ve_vector_group_sizes,
+                                                              ve_adjacent_ids, ve_vertices_count, ve_starting_vertex,
+                                                              ve_vector_segments_count, collective_threshold_start, collective_threshold_end,
+                                                              collective_edge_op, collective_vertex_preprocess_op,
+                                                              collective_vertex_postprocess_op, edges_count, vertices_count, _first_edge);
     }
     else if(_frontier.type() == DENSE_FRONTIER)
     {
-        vector_engine_per_vertex_kernel_dense(vertex_pointers, adjacent_ids, frontier_flags,
-                                              vector_engine_threshold_start, vector_engine_threshold_end,
-                                              edge_op, vertex_preprocess_op, vertex_postprocess_op, edges_count);
+        if((vector_engine_threshold_end - vector_engine_threshold_start) > 0)
+            vector_engine_per_vertex_kernel_dense(vertex_pointers, adjacent_ids, frontier_flags,
+                                                  vector_engine_threshold_start, vector_engine_threshold_end,
+                                                  edge_op, vertex_preprocess_op, vertex_postprocess_op, edges_count);
 
-        vector_core_per_vertex_kernel_dense(vertex_pointers, adjacent_ids, frontier_flags,
-                                            vector_core_threshold_start, vector_core_threshold_end, edge_op,
-                                            vertex_preprocess_op, vertex_postprocess_op, edges_count);
+        if((vector_core_threshold_end - vector_core_threshold_start) > 0)
+            vector_core_per_vertex_kernel_dense(vertex_pointers, adjacent_ids, frontier_flags,
+                                                vector_core_threshold_start, vector_core_threshold_end, edge_op,
+                                                vertex_preprocess_op, vertex_postprocess_op, edges_count);
 
-        ve_collective_vertex_processing_kernel_dense(ve_vector_group_ptrs, ve_vector_group_sizes,
-                                                     ve_adjacent_ids, ve_vertices_count, ve_starting_vertex, ve_vector_segments_count,
-                                                     frontier_flags, collective_threshold_start, collective_threshold_end,
-                                                     collective_edge_op, collective_vertex_preprocess_op,
-                                                     collective_vertex_postprocess_op, edges_count, vertices_count, _first_edge);
+        if((collective_threshold_end - collective_threshold_start) > 0)
+            ve_collective_vertex_processing_kernel_dense(ve_vector_group_ptrs, ve_vector_group_sizes,
+                                                         ve_adjacent_ids, ve_vertices_count, ve_starting_vertex, ve_vector_segments_count,
+                                                         frontier_flags, collective_threshold_start, collective_threshold_end,
+                                                         collective_edge_op, collective_vertex_preprocess_op,
+                                                         collective_vertex_postprocess_op, edges_count, vertices_count, _first_edge);
     }
     else if(_frontier.type() == SPARSE_FRONTIER)
     {
+        if(_frontier.vector_engine_part_size > 0)
+        {
+            int *frontier_ids = &(_frontier.frontier_ids[0]);
+            vector_engine_per_vertex_kernel_dense(vertex_pointers, adjacent_ids, frontier_flags,
+                                                  vector_engine_threshold_start, vector_engine_threshold_end,
+                                                  edge_op, vertex_preprocess_op, vertex_postprocess_op, edges_count);
+        }
 
+        if(_frontier.vector_core_part_size > 0)
+        {
+            /*int *frontier_ids = &(_frontier.frontier_ids[_frontier.vector_engine_part_size]);
+            vector_core_per_vertex_kernel_sparse(vertex_pointers, adjacent_ids, frontier_ids, frontier_flags, _frontier.vector_core_part_size,
+                                                 edge_op, vertex_preprocess_op, vertex_postprocess_op);*/
+
+            /*vector_core_per_vertex_kernel_dense(vertex_pointers, adjacent_ids, frontier_flags,
+                                                vector_core_threshold_start, vector_core_threshold_end, edge_op,
+                                                vertex_preprocess_op, vertex_postprocess_op, edges_count);*/
+
+            int *frontier_ids = &(_frontier.frontier_ids[_frontier.vector_engine_part_size]);
+            vector_core_per_vertex_kernel_sparse(vertex_pointers, adjacent_ids, frontier_ids, frontier_flags, _frontier.vector_core_part_size,
+                                                 edge_op, vertex_preprocess_op, vertex_postprocess_op);
+        }
+
+        /*if((vector_core_threshold_end - vector_core_threshold_start) > 0)
+        {
+            int sum = 0;
+            for (int front_pos = vector_core_threshold_start; front_pos < vector_core_threshold_end; front_pos++)
+            {
+                if(frontier_flags[front_pos] > 0)
+                    sum++;
+            }
+
+            #pragma omp master
+            {
+                cout << sum << " vs " << _frontier.vector_core_part_size << endl;
+            }
+
+            for(int i = 0; i < _frontier.vector_core_part_size; i++)
+            {
+                if(frontier_flags[_frontier.frontier_ids[_frontier.vector_engine_part_size + i]] == 0)
+                    cout << "error in " << _frontier.frontier_ids[_frontier.vector_engine_part_size + i] << endl;
+            }
+
+            vector_core_per_vertex_kernel_dense(vertex_pointers, adjacent_ids, frontier_flags,
+                                                vector_core_threshold_start, vector_core_threshold_end, edge_op,
+                                                vertex_preprocess_op, vertex_postprocess_op, edges_count);
+        }*/
+
+        if(_frontier.collective_part_size > 0)
+        {
+            int *frontier_ids = &(_frontier.frontier_ids[_frontier.vector_core_part_size + _frontier.vector_engine_part_size]);
+            collective_vertex_processing_kernel_sparse(vertex_pointers, adjacent_ids, frontier_flags,
+                                                       collective_threshold_start,
+                                                       collective_threshold_end, collective_edge_op,
+                                                       collective_vertex_preprocess_op,
+                                                       collective_vertex_postprocess_op, edges_count,
+                                                       frontier_ids, _frontier.collective_part_size, _first_edge);
+        }
     }
-
-
-
-    /*if(_frontier.type() == SPARSE_FRONTIER) {
-        collective_vertex_processing_kernel(vertex_pointers, adjacent_ids, frontier_flags, collective_threshold_start,
-                                            collective_threshold_end, collective_edge_op, collective_vertex_preprocess_op,
-                                            collective_vertex_postprocess_op, edges_count,
-                                            frontier_ids, _frontier.current_frontier_size, _first_edge);
-    }
-    else if(_frontier.type() == DENSE_FRONTIER || _frontier.type() == ALL_ACTIVE_FRONTIER) {
-        ve_collective_vertex_processing_kernel(ve_vector_group_ptrs, ve_vector_group_sizes, ve_adjacent_ids,
-                                               ve_vertices_count, ve_starting_vertex, ve_vector_segments_count,
-                                               frontier_flags, collective_threshold_start, collective_threshold_end,
-                                               collective_edge_op, collective_vertex_preprocess_op,
-                                               collective_vertex_postprocess_op, edges_count, vertices_count, _first_edge);
-    }*/
 
     #pragma omp barrier
 }

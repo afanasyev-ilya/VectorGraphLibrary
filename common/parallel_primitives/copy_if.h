@@ -14,14 +14,15 @@
 template <typename Condition>
 inline int sparse_copy_if(int *_out_data,
                           int *_tmp_buffer,
+                          int _buffer_size,
                           int _start,
                           int _end,
                           Condition condition_op,
                           int _threads_count = MAX_SX_AURORA_THREADS)
 {
     int size = _end - _start;
-    int elements_per_thread = size/_threads_count;
-    int elements_per_vector = elements_per_thread/VECTOR_LENGTH;
+    int elements_per_thread = (_buffer_size - 1)/_threads_count + 1;
+    int elements_per_vector = (elements_per_thread - 1)/VECTOR_LENGTH + 1;
     int shifts_array[MAX_SX_AURORA_THREADS];
     
     int elements_count = 0;
@@ -35,7 +36,8 @@ inline int sparse_copy_if(int *_out_data,
         #pragma _NEC vreg(start_pointers_reg)
         #pragma _NEC vreg(current_pointers_reg)
         #pragma _NEC vreg(last_pointers_reg)
-        
+
+        #pragma _NEC vector
         for(int i = 0; i < VECTOR_LENGTH; i++)
         {
             start_pointers_reg[i] = tid * elements_per_thread + i * elements_per_vector;
@@ -105,6 +107,7 @@ inline int sparse_copy_if(int *_out_data,
             for(int i = 0; i < VECTOR_LENGTH; i++)
             {
                 int loc_size = current_pointers_reg[i] - start_pointers_reg[i];
+
                 if(pos < loc_size)
                 {
                     private_ptr[local_pos] = _tmp_buffer[last_pointers_reg[i]];
