@@ -41,8 +41,7 @@ void SSSP::nec_dijkstra_partial_active(ExtendedCSRGraph<_TVertexValue, _TEdgeWei
     graph_API.compute(_graph, all_active_frontier, init_distances); // init distances with all-active frontier
     graph_API.compute(_graph, all_active_frontier, init_changes); // init changes with all-active frontier
 
-    frontier.set_all_active();
-    graph_API.filter(_graph, frontier, changes_occurred); // reduce frontier to 1 source-vertex element
+    graph_API.generate_new_frontier(_graph, frontier, changes_occurred); // reduce frontier to 1 source-vertex element
 
     double t1 = omp_get_wtime();
     int iterations_count = 0;
@@ -105,8 +104,7 @@ void SSSP::nec_dijkstra_partial_active(ExtendedCSRGraph<_TVertexValue, _TEdgeWei
                                edge_op_collective_push, EMPTY_VERTEX_OP, EMPTY_VERTEX_OP);
         }
 
-        frontier.set_all_active(); // set all-active since frontier size can possibly increase
-        graph_API.filter(_graph, frontier, changes_occurred);
+        graph_API.generate_new_frontier(_graph, frontier, changes_occurred);
         iterations_count++;
     }
     double t2 = omp_get_wtime();
@@ -146,7 +144,7 @@ void SSSP::nec_dijkstra_all_active(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight>
     {
         return NEC_IN_FRONTIER_FLAG;
     };
-    graph_API.filter(_graph, frontier, all_active);
+    graph_API.generate_new_frontier(_graph, frontier, all_active);
 
     int iterations_count = 0;
     int changes = 1;

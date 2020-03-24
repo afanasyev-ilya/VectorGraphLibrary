@@ -8,9 +8,9 @@ void GraphPrimitivesNEC::compute(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &
                                  FrontierNEC &_frontier,
                                  ComputeOperation &&compute_op)
 {
-    int max_frontier_size = _frontier.max_frontier_size;
+    int max_frontier_size = _frontier.max_size;
 
-    if(_frontier.type() == ALL_ACTIVE_FRONTIER)
+    if(_frontier.type == ALL_ACTIVE_FRONTIER)
     {
         #pragma omp parallel for schedule(static)
         for(int vec_start = 0; vec_start < max_frontier_size - VECTOR_LENGTH; vec_start += VECTOR_LENGTH)
@@ -35,9 +35,9 @@ void GraphPrimitivesNEC::compute(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &
             compute_op(src_id);
         }
     }
-    else if((_frontier.type() == DENSE_FRONTIER) || (_frontier.type() == SPARSE_FRONTIER)) // TODO FIX SPARSE
+    else if((_frontier.type == DENSE_FRONTIER) || (_frontier.type == SPARSE_FRONTIER)) // TODO FIX SPARSE
     {
-        int *frontier_flags = _frontier.frontier_flags;
+        int *frontier_flags = _frontier.flags;
 
         #pragma omp parallel for schedule(static)
         for(int vec_start = 0; vec_start < max_frontier_size - VECTOR_LENGTH; vec_start += VECTOR_LENGTH)

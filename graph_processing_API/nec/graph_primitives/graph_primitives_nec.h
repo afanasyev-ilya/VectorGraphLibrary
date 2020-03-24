@@ -9,7 +9,7 @@
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#define INT_ELEMENTS_PER_EDGE 5.0
+#define INT_ELEMENTS_PER_EDGE 4.0 // bfs bottom-up
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -170,6 +170,10 @@ public:
                          int _first_edge,
                          int _last_edge);
 
+    // creates new frontier, which satisfy user-defined "cond" condition
+    template <typename _TVertexValue, typename _TEdgeWeight, typename Condition>
+    void generate_new_frontier(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph, FrontierNEC &_frontier, Condition &&cond);
+
     // removes elements from current frontier, which satisfy user-defined "filter_cond" condition
     template <typename _TVertexValue, typename _TEdgeWeight, typename FilterCondition>
     void filter(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph, FrontierNEC &_frontier, FilterCondition &&filter_cond);
@@ -189,5 +193,6 @@ public:
 #include "advance_dense.hpp"
 #include "advance_sparse.hpp"
 #include "advance_partial.hpp"
+#include "generate_new_frontier.hpp"
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

@@ -20,29 +20,26 @@ enum FrontierType {
 class FrontierNEC
 {
 private:
-    int *frontier_flags;
-    int *frontier_ids;
+    int *flags;
+    int *ids;
     int *work_buffer;
 
     int vector_engine_part_size;
     int vector_core_part_size;
     int collective_part_size;
 
-    FrontierType frontier_type;
+    FrontierType type;
 
-    int current_frontier_size;
-    int max_frontier_size;
-
-    template <typename _TVertexValue, typename _TEdgeWeight, typename Condition>
-    void filter(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph, Condition condition_op);
+    int current_size;
+    int max_size;
 public:
     template <typename _TVertexValue, typename _TEdgeWeight>
     FrontierNEC(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph);
     FrontierNEC(int _vertices_count);
     ~FrontierNEC();
 
-    int size() {return current_frontier_size;};
-    FrontierType type() {return frontier_type;};
+    int size() {return current_size;};
+    FrontierType get_type() {return type;};
 
     void set_all_active();
 

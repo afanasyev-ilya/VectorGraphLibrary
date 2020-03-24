@@ -61,6 +61,8 @@ int main(int argc, const char * argv[])
             vertex_to_check = i + 1;
             cout << "starting from vertex: " << vertex_to_check << endl;
 
+            bfs_operation.nec_test_edges_list(graph, bfs_levels, vertex_to_check);
+
             double t1 = omp_get_wtime();
             #ifdef __USE_NEC_SX_AURORA__
             //if(parser.get_algorithm_bfs() == DIRECTION_OPTIMISING_BFS_ALGORITHM)

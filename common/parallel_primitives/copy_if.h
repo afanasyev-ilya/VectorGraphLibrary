@@ -11,14 +11,13 @@
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-template <typename Condition>
-inline int sparse_copy_if(int *_out_data,
+inline int sparse_copy_if(const int *_in_data,
+                          int *_out_data,
                           int *_tmp_buffer,
-                          int _buffer_size,
-                          int _start,
-                          int _end,
-                          Condition condition_op,
-                          int _threads_count = MAX_SX_AURORA_THREADS)
+                          const int _buffer_size,
+                          const int _start,
+                          const int _end,
+                          const int _threads_count = MAX_SX_AURORA_THREADS)
 {
     int size = _end - _start;
     int elements_per_thread = (_buffer_size - 1)/_threads_count + 1;
@@ -54,7 +53,7 @@ inline int sparse_copy_if(int *_out_data,
             for(int i = 0; i < VECTOR_LENGTH; i++)
             {
                 int src_id = vec_start + i;
-                if((src_id < _end) && condition_op(src_id))
+                if((src_id < _end) && (_in_data[src_id] > 0))
                 {
                     _tmp_buffer[current_pointers_reg[i]] = src_id;
                     current_pointers_reg[i]++;
@@ -123,11 +122,10 @@ inline int sparse_copy_if(int *_out_data,
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-template <typename Condition>
-inline int dense_copy_if(int *_out_data,
-                         int _size,
-                         Condition condition_op,
-                         int _threads_count = MAX_SX_AURORA_THREADS)
+inline int dense_copy_if(int *_in_data,
+                         int *_out_data,
+                         const int _size,
+                         const int _threads_count = MAX_SX_AURORA_THREADS)
 {
     int shifts_array[MAX_SX_AURORA_THREADS];
     int pos = 0;
@@ -140,7 +138,7 @@ inline int dense_copy_if(int *_out_data,
         #pragma omp for schedule(static)
         for(int src_id = 0; src_id < _size; src_id++)
         {
-            if(condition_op(src_id))
+            if(_in_data[src_id] > 0)
             {
                 local_number_of_values++;
             }
@@ -175,7 +173,7 @@ inline int dense_copy_if(int *_out_data,
         #pragma omp for schedule(static)
         for(int src_id = 0; src_id < _size; src_id++)
         {
-            if(condition_op(src_id))
+            if(_in_data[src_id])
             {
                 private_ptr[local_pos] = src_id;
                 local_pos++;
