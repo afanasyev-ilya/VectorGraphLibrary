@@ -37,11 +37,20 @@ void GraphPrimitivesNEC::generate_new_frontier(ExtendedCSRGraph<_TVertexValue, _
     {
         _frontier.type = SPARSE_FRONTIER;
 
-        _frontier.vector_engine_part_size = sparse_copy_if(_frontier.flags, _frontier.ids, _frontier.work_buffer, _frontier.max_size, 0, ve_threshold);
+        if(ve_threshold > 0)
+            _frontier.vector_engine_part_size = sparse_copy_if(_frontier.flags, _frontier.ids, _frontier.work_buffer, _frontier.max_size, 0, ve_threshold);
+        else
+            _frontier.vector_engine_part_size = 0;
 
-        _frontier.vector_core_part_size = sparse_copy_if(_frontier.flags, &_frontier.ids[_frontier.vector_engine_part_size], _frontier.work_buffer, _frontier.max_size, ve_threshold, vc_threshold);
+        if((vc_threshold - ve_threshold) > 0)
+            _frontier.vector_core_part_size = sparse_copy_if(_frontier.flags, &_frontier.ids[_frontier.vector_engine_part_size], _frontier.work_buffer, _frontier.max_size, ve_threshold, vc_threshold);
+        else
+            _frontier.vector_core_part_size = 0;
 
-        _frontier.collective_part_size = sparse_copy_if(_frontier.flags, &_frontier.ids[_frontier.vector_core_part_size + _frontier.vector_engine_part_size], _frontier.work_buffer, _frontier.max_size, vc_threshold, vertices_count);
+        if((vertices_count - vc_threshold) > 0)
+            _frontier.collective_part_size = sparse_copy_if(_frontier.flags, &_frontier.ids[_frontier.vector_core_part_size + _frontier.vector_engine_part_size], _frontier.work_buffer, _frontier.max_size, vc_threshold, vertices_count);
+        else
+            _frontier.collective_part_size = 0;
     }
 }
 

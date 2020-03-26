@@ -424,6 +424,7 @@ void BFS<_TVertexValue, _TEdgeWeight>::nec_test_edges_list(ExtendedCSRGraph<_TVe
     frontier.set_all_active();
 
     cout << "edges list test" << endl;
+    int *cached_data = new int[CACHED_VERTICES * MAX_SX_AURORA_THREADS * CACHE_STEP];
 
     int *src_ids = new int[edges_count];
     int *dst_ids = outgoing_ids;
@@ -433,6 +434,7 @@ void BFS<_TVertexValue, _TEdgeWeight>::nec_test_edges_list(ExtendedCSRGraph<_TVe
     double t1 = omp_get_wtime();
     #pragma omp parallel
     {
+        // cahced API todo
         auto edge_op = [src_ids](int src_id, int dst_id, int local_edge_pos,
                 long long int global_edge_pos, int vector_index, DelayedWriteNEC &delayed_write)
         {
@@ -445,20 +447,29 @@ void BFS<_TVertexValue, _TEdgeWeight>::nec_test_edges_list(ExtendedCSRGraph<_TVe
 
     int _current_level = 1;
     t1 = omp_get_wtime();
-    #pragma _NEC vovertake
-    #pragma _NEC novob
-    #pragma _NEC vector
-    #pragma _NEC ivdep
-    #pragma omp parallel for schedule(static, 1024)
-    for(int edge_pos = 0; edge_pos < edges_count; edge_pos ++)
+    #pragma omp parallel
     {
-        int src_id = src_ids[edge_pos];
-        int src_level = _levels[src_id];
-        int dst_id = dst_ids[edge_pos];
-        int dst_level = _levels[dst_id];
-        if((src_level == _current_level) && (dst_level == UNVISITED_VERTEX))
+        #pragma omp for schedule(static)
+        for(int edge_pos = 0; edge_pos < edges_count; edge_pos += VECTOR_LENGTH)
         {
-            _levels[dst_id] = _current_level + 1;
+            #pragma _NEC vovertake
+            #pragma _NEC novob
+            #pragma _NEC vector
+            #pragma _NEC ivdep
+            for(int i = 0; i < VECTOR_LENGTH; i++)
+            {
+                int idx = edge_pos + i;
+                int src_id = src_ids[idx];
+                int src_level = _levels[src_id];
+
+                int dst_id = dst_ids[idx];
+                int dst_level = _levels[dst_id];
+
+                if((src_level == _current_level) && (dst_level == UNVISITED_VERTEX))
+                {
+                    _levels[src_id] = _current_level + 1;
+                }
+            }
         }
     }
     t2 = omp_get_wtime();
@@ -466,6 +477,7 @@ void BFS<_TVertexValue, _TEdgeWeight>::nec_test_edges_list(ExtendedCSRGraph<_TVe
     cout << "edges traversal BW: " << 4.0 * sizeof(int) * edges_count / ((t2 - t1)*1e9) << " GB/s" << endl;
 
     delete []src_ids;
+    delete []cached_data;
 }
 #endif
 
