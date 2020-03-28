@@ -12,7 +12,7 @@ void GraphPrimitivesNEC::vector_engine_per_vertex_kernel_dense(const long long *
                                                                EdgeOperation edge_op,
                                                                VertexPreprocessOperation vertex_preprocess_op,
                                                                VertexPostprocessOperation vertex_postprocess_op,
-                                                               long long _edges_count)
+                                                               const int _first_edge)
 {
     #ifdef __PRINT_API_PERFORMANCE_STATS__
         #pragma omp barrier
@@ -39,7 +39,7 @@ void GraphPrimitivesNEC::vector_engine_per_vertex_kernel_dense(const long long *
             #pragma _NEC novob
             #pragma _NEC vector
             #pragma omp for schedule(static)
-            for(int edge_pos = 0; edge_pos < connections_count; edge_pos++)
+            for(int edge_pos = _first_edge; edge_pos < connections_count; edge_pos++)
             {
                 const long long int global_edge_pos = start + edge_pos;
                 const int local_edge_pos = edge_pos;
@@ -89,7 +89,7 @@ void GraphPrimitivesNEC::vector_core_per_vertex_kernel_dense(const long long *_v
                                                              EdgeOperation edge_op,
                                                              VertexPreprocessOperation vertex_preprocess_op,
                                                              VertexPostprocessOperation vertex_postprocess_op,
-                                                             long long _edges_count)
+                                                             const int _first_edge)
 {
     #ifdef __PRINT_API_PERFORMANCE_STATS__
         #pragma omp barrier
@@ -112,7 +112,7 @@ void GraphPrimitivesNEC::vector_core_per_vertex_kernel_dense(const long long *_v
 
             vertex_preprocess_op(src_id, connections_count, 0, delayed_write);
 
-            for(int edge_vec_pos = 0; edge_vec_pos < connections_count - VECTOR_LENGTH; edge_vec_pos += VECTOR_LENGTH)
+            for(int edge_vec_pos = _first_edge; edge_vec_pos < connections_count - VECTOR_LENGTH; edge_vec_pos += VECTOR_LENGTH)
             {
                 #pragma _NEC ivdep
                 #pragma _NEC vovertake
@@ -187,9 +187,8 @@ void GraphPrimitivesNEC::ve_collective_vertex_processing_kernel_dense(const long
                                                                       EdgeOperation edge_op,
                                                                       VertexPreprocessOperation vertex_preprocess_op,
                                                                       VertexPostprocessOperation vertex_postprocess_op,
-                                                                      long long _edges_count,
                                                                       int _vertices_count,
-                                                                      int _first_edge)
+                                                                      const int _first_edge)
 {
     #ifdef __PRINT_API_PERFORMANCE_STATS__
         #pragma omp barrier

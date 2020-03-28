@@ -29,17 +29,25 @@ private:
     // all-active advance implementation
     template <typename EdgeOperation, typename VertexPreprocessOperation,
             typename VertexPostprocessOperation>
-    inline void vector_engine_per_vertex_kernel_all_active(const long long *_vertex_pointers, const int *_adjacent_ids,
-                                                           const int _first_vertex, const int _last_vertex, EdgeOperation edge_op,
+    inline void vector_engine_per_vertex_kernel_all_active(const long long *_vertex_pointers,
+                                                           const int *_adjacent_ids,
+                                                           const int _first_vertex,
+                                                           const int _last_vertex,
+                                                           EdgeOperation edge_op,
                                                            VertexPreprocessOperation vertex_preprocess_op,
-                                                           VertexPostprocessOperation vertex_postprocess_op, long long _edges_count);
+                                                           VertexPostprocessOperation vertex_postprocess_op,
+                                                           const int _first_edge);
 
     template <typename EdgeOperation, typename VertexPreprocessOperation,
             typename VertexPostprocessOperation>
-    inline void vector_core_per_vertex_kernel_all_active(const long long *_vertex_pointers,  const int *_adjacent_ids,
-                                                         const int _first_vertex, const int _last_vertex, EdgeOperation edge_op,
+    inline void vector_core_per_vertex_kernel_all_active(const long long *_vertex_pointers,
+                                                         const int *_adjacent_ids,
+                                                         const int _first_vertex,
+                                                         const int _last_vertex,
+                                                         EdgeOperation edge_op,
                                                          VertexPreprocessOperation vertex_preprocess_op,
-                                                         VertexPostprocessOperation vertex_postprocess_op, long long _edges_count);
+                                                         VertexPostprocessOperation vertex_postprocess_op,
+                                                         const int _first_edge);
 
     template <typename EdgeOperation, typename VertexPreprocessOperation,
             typename VertexPostprocessOperation>
@@ -50,11 +58,12 @@ private:
                                                                   const int _ve_starting_vertex,
                                                                   const int _ve_vector_segments_count,
                                                                   const int _first_vertex,
-                                                                  const int _last_vertex, EdgeOperation edge_op,
+                                                                  const int _last_vertex,
+                                                                  EdgeOperation edge_op,
                                                                   VertexPreprocessOperation vertex_preprocess_op,
                                                                   VertexPostprocessOperation vertex_postprocess_op,
-                                                                  long long _edges_count, int _vertices_count,
-                                                                  int _first_edge);
+                                                                  int _vertices_count,
+                                                                  const int _first_edge);
 
     // dense advance implementation
     template <typename EdgeOperation, typename VertexPreprocessOperation,
@@ -63,7 +72,8 @@ private:
                                                       const int *_frontier_flags, const int _first_vertex,
                                                       const int _last_vertex, EdgeOperation edge_op,
                                                       VertexPreprocessOperation vertex_preprocess_op,
-                                                      VertexPostprocessOperation vertex_postprocess_op, long long _edges_count);
+                                                      VertexPostprocessOperation vertex_postprocess_op,
+                                                      const int _first_edge);
 
     template <typename EdgeOperation, typename VertexPreprocessOperation,
             typename VertexPostprocessOperation>
@@ -71,7 +81,8 @@ private:
                                                     const int *_frontier_flags, const int _first_vertex,
                                                     const int _last_vertex, EdgeOperation edge_op,
                                                     VertexPreprocessOperation vertex_preprocess_op,
-                                                    VertexPostprocessOperation vertex_postprocess_op, long long _edges_count);
+                                                    VertexPostprocessOperation vertex_postprocess_op,
+                                                    const int _first_edge);
 
     template <typename EdgeOperation, typename VertexPreprocessOperation,
             typename VertexPostprocessOperation>
@@ -85,31 +96,44 @@ private:
                                                              const int _last_vertex, EdgeOperation edge_op,
                                                              VertexPreprocessOperation vertex_preprocess_op,
                                                              VertexPostprocessOperation vertex_postprocess_op,
-                                                             long long _edges_count, int _vertices_count,
-                                                             int _first_edge);
+                                                             int _vertices_count,
+                                                             const int _first_edge);
 
     // sparse advance implementation
+    template <typename EdgeOperation, typename VertexPreprocessOperation,
+            typename VertexPostprocessOperation>
+    inline void vector_engine_per_vertex_kernel_sparse(const long long *_vertex_pointers,
+                                                       const int *_adjacent_ids,
+                                                       const int *_frontier_ids,
+                                                       const int _frontier_segment_size,
+                                                       EdgeOperation edge_op,
+                                                       VertexPreprocessOperation vertex_preprocess_op,
+                                                       VertexPostprocessOperation vertex_postprocess_op,
+                                                       const int _first_edge);
+
     template <typename EdgeOperation, typename VertexPreprocessOperation,
             typename VertexPostprocessOperation>
     inline void vector_core_per_vertex_kernel_sparse(const long long *_vertex_pointers,
                                                      const int *_adjacent_ids,
                                                      const int *_frontier_ids,
-                                                     const int *_frontier_flags,
                                                      const int _frontier_segment_size,
                                                      EdgeOperation edge_op,
                                                      VertexPreprocessOperation vertex_preprocess_op,
-                                                     VertexPostprocessOperation vertex_postprocess_op);
+                                                     VertexPostprocessOperation vertex_postprocess_op,
+                                                     const int _first_edge);
 
     template <typename EdgeOperation, typename VertexPreprocessOperation,
             typename VertexPostprocessOperation>
-    inline void collective_vertex_processing_kernel_sparse(const long long *_vertex_pointers, const int *_adjacent_ids,
-                                                           const int *_frontier_flags, const int _first_vertex,
-                                                           const int _last_vertex, EdgeOperation edge_op,
+    inline void collective_vertex_processing_kernel_sparse(const long long *_vertex_pointers,
+                                                           const int *_adjacent_ids,
+                                                           const int *_frontier_ids,
+                                                           const int _frontier_size,
+                                                           const int _first_vertex,
+                                                           const int _last_vertex,
+                                                           EdgeOperation edge_op,
                                                            VertexPreprocessOperation vertex_preprocess_op,
-                                                           VertexPostprocessOperation vertex_postprocess_op, long long _edges_count,
-                                                           int *_frontier_ids,
-                                                           int _frontier_size,
-                                                           int _first_edge);
+                                                           VertexPostprocessOperation vertex_postprocess_op,
+                                                           const int _first_edge);
 
     template <typename EdgeOperation, typename VertexPreprocessOperation,
             typename VertexPostprocessOperation>
