@@ -56,25 +56,22 @@ void GraphPrimitivesNEC::vector_engine_per_vertex_kernel_dense(const long long *
     #ifdef __PRINT_API_PERFORMANCE_STATS__
         #pragma omp barrier
         double t2 = omp_get_wtime();
+
         #pragma omp master
         {
             INNER_WALL_NEC_TIME += t2 - t1;
 
-            double work = _vertex_pointers[_last_vertex] - _vertex_pointers[_first_vertex];
-            double real_work = 0;
+            double work = 0;
             for(int front_pos = _first_vertex; front_pos < _last_vertex; front_pos++)
             {
                 const int src_id = front_pos;
                 if(_frontier_flags[src_id] > 0)
                 {
-                    real_work += _vertex_pointers[src_id + 1] - _vertex_pointers[src_id];
+                    work += _vertex_pointers[src_id + 1] - _vertex_pointers[src_id];
                 }
             }
             cout << "1) time: " << (t2 - t1)*1000.0 << " ms" << endl;
-            //cout << "1) all active work: " << work << " - " << 100.0 * work/_edges_count << " %" << endl;
-            //cout << "1) dense BW: " << sizeof(int)*INT_ELEMENTS_PER_EDGE*work/((t2-t1)*1e9) << " GB/s" << endl;
-            //cout << "1) real work: " << real_work << " - " << 100.0 * real_work/_edges_count << " %" << endl;
-            cout << "1) real BW: " << sizeof(int)*INT_ELEMENTS_PER_EDGE*real_work/((t2-t1)*1e9) << " GB/s" << endl;
+            cout << "1) BW: " << sizeof(int)*INT_ELEMENTS_PER_EDGE*work/((t2-t1)*1e9) << " GB/s" << endl;
         };
         #pragma omp barrier
     #endif
@@ -153,25 +150,22 @@ void GraphPrimitivesNEC::vector_core_per_vertex_kernel_dense(const long long *_v
     #ifdef __PRINT_API_PERFORMANCE_STATS__
         #pragma omp barrier
         double t2 = omp_get_wtime();
+
         #pragma omp master
         {
             INNER_WALL_NEC_TIME += t2 - t1;
 
-            double work = _vertex_pointers[_last_vertex] - _vertex_pointers[_first_vertex];
-            double real_work = 0;
+            double work = 0;
             for(int front_pos = _first_vertex; front_pos < _last_vertex; front_pos++)
             {
                 const int src_id = front_pos;
                 if(_frontier_flags[src_id] > 0)
                 {
-                    real_work += _vertex_pointers[src_id + 1] - _vertex_pointers[src_id];
+                    work += _vertex_pointers[src_id + 1] - _vertex_pointers[src_id];
                 }
             }
             cout << "2) time: " << (t2 - t1)*1000.0 << " ms" << endl;
-            //cout << "2) all active work: " << work << " - " << 100.0 * work/_edges_count << " %" << endl;
-            //cout << "2) dense BW: " << sizeof(int)*INT_ELEMENTS_PER_EDGE*work/((t2-t1)*1e9) << " GB/s" << endl;
-            //cout << "2) real work: " << real_work << " - " << 100.0 * real_work/_edges_count << " %" << endl;
-            cout << "2) real BW: " << sizeof(int)*INT_ELEMENTS_PER_EDGE*real_work/((t2-t1)*1e9) << " GB/s" << endl;
+            cout << "2) BW: " << sizeof(int)*INT_ELEMENTS_PER_EDGE*work/((t2-t1)*1e9) << " GB/s" << endl;
         };
         #pragma omp barrier
     #endif
@@ -258,18 +252,24 @@ void GraphPrimitivesNEC::ve_collective_vertex_processing_kernel_dense(const long
     #ifdef __PRINT_API_PERFORMANCE_STATS__
         #pragma omp barrier
         double t2 = omp_get_wtime();
+
         #pragma omp master
         {
             INNER_WALL_NEC_TIME += t2 - t1;
 
-            double work = _ve_vector_group_ptrs[_ve_vector_segments_count - 1] - _ve_vector_group_ptrs[0];
-            double real_work = work;
+            double work = 0;
+            for(int pos = 0; pos < _ve_vector_segments_count*VECTOR_LENGTH; pos++)
+            {
+                int src_id = pos + _ve_starting_vertex;
+                int connections_count = _ve_vector_group_sizes[pos / VECTOR_LENGTH];
+                if(_frontier_flags[src_id] > 0)
+                {
+                    work += connections_count;
+                }
+            }
 
-            //cout << "3) all active work: " << work << " - " << 100.0 * work/_edges_count << " %" << endl;
-            cout << "3) time: " << (t2 - t1)*1000.0 << " ms" << endl;
-            //cout << "3) (ve) dense BW: " << sizeof(int)*INT_ELEMENTS_PER_EDGE*work/((t2-t1)*1e9) << " GB/s" << endl;
-            //cout << "3) real work: " << real_work << " - " << 100.0 * real_work/_edges_count << " %" << endl;
-            cout << "3) (ve) real BW: " << sizeof(int)*INT_ELEMENTS_PER_EDGE*real_work/((t2-t1)*1e9) << " GB/s" << endl << endl;
+            cout << "3) (ve) time: " << (t2 - t1)*1000.0 << " ms" << endl;
+            cout << "3) (ve) BW: " << sizeof(int)*INT_ELEMENTS_PER_EDGE*work/((t2-t1)*1e9) << " GB/s" << endl;
         };
         #pragma omp barrier
     #endif

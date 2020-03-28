@@ -182,8 +182,8 @@ void GraphPrimitivesNEC::partial_advance(ExtendedCSRGraph<_TVertexValue, _TEdgeW
     const long long int *vertex_pointers = outgoing_ptrs;
     const int *adjacent_ids = outgoing_ids;
     const int *ve_adjacent_ids = ve_outgoing_ids;
-    int *frontier_flags = _frontier.frontier_flags;
-    int *frontier_ids = _frontier.frontier_ids;
+    int *frontier_flags = _frontier.flags;
+    int *frontier_ids = _frontier.ids;
 
     const int vector_core_threshold_end = _graph.get_nec_vector_core_threshold_vertex();
     const int collective_threshold_start = _graph.get_nec_vector_core_threshold_vertex();

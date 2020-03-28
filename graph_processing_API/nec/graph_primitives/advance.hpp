@@ -105,6 +105,15 @@ void GraphPrimitivesNEC::advance(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &
                                                        frontier_ids, _frontier.collective_part_size, _first_edge);
         }
     }
+
+    #ifdef __PRINT_API_PERFORMANCE_STATS__
+    #pragma omp master
+    {
+        cout << endl;
+    }
+    #endif
+
+    #pragma omp barrier
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

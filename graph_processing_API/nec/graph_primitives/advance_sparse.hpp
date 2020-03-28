@@ -14,6 +14,12 @@ void GraphPrimitivesNEC::vector_core_per_vertex_kernel_sparse(const long long *_
                                                               VertexPreprocessOperation vertex_preprocess_op,
                                                               VertexPostprocessOperation vertex_postprocess_op)
 {
+    #ifdef __PRINT_API_PERFORMANCE_STATS__
+        #pragma omp barrier
+        double t1 = omp_get_wtime();
+        #pragma omp barrier
+    #endif
+
     DelayedWriteNEC delayed_write;
     delayed_write.init();
 
@@ -65,6 +71,28 @@ void GraphPrimitivesNEC::vector_core_per_vertex_kernel_sparse(const long long *_
     }
 
     #pragma omp barrier
+
+    #ifdef __PRINT_API_PERFORMANCE_STATS__
+        #pragma omp barrier
+        double t2 = omp_get_wtime();
+
+        #pragma omp master
+        {
+            double work = 0;
+            for (int front_pos = 0; front_pos < _frontier_segment_size; front_pos++)
+            {
+                const int src_id = _frontier_ids[front_pos];
+                const int connections_count = _vertex_pointers[src_id + 1] - _vertex_pointers[src_id];
+
+                work += connections_count;
+            }
+
+            INNER_WALL_NEC_TIME += t2 - t1;
+            cout << "2) time: " << (t2 - t1)*1000.0 << " ms" << endl;
+            cout << "2) BF: " << sizeof(int)*INT_ELEMENTS_PER_EDGE*work/((t2-t1)*1e9) << " GB/s" << endl;
+        };
+        #pragma omp barrier
+    #endif
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -85,9 +113,9 @@ void GraphPrimitivesNEC::collective_vertex_processing_kernel_sparse(const long l
                                                                     int _first_edge)
 {
     #ifdef __PRINT_API_PERFORMANCE_STATS__
-        #pragma omp barrier
-        double t1 = omp_get_wtime();
-        #pragma omp barrier
+    #pragma omp barrier
+    double t1 = omp_get_wtime();
+    #pragma omp barrier
     #endif
 
     long long int reg_start[VECTOR_LENGTH];
@@ -180,21 +208,15 @@ void GraphPrimitivesNEC::collective_vertex_processing_kernel_sparse(const long l
         {
             INNER_WALL_NEC_TIME += t2 - t1;
 
-            double work = _vertex_pointers[_last_vertex] - _vertex_pointers[_first_vertex];
-            double real_work = 0;
-            for(int front_pos = _first_vertex; front_pos < _last_vertex; front_pos++)
+            double work = 0;
+            for(int front_pos = 0; front_pos < _frontier_size; front_pos ++)
             {
-                const int src_id = front_pos;
-                if(_frontier_flags[src_id] > 0)
-                {
-                    real_work += _vertex_pointers[src_id + 1] - _vertex_pointers[src_id];
-                }
+                int src_id = _frontier_ids[front_pos];
+                int connections_count = _vertex_pointers[src_id + 1] - _vertex_pointers[src_id];
+                work += connections_count;
             }
             cout << "3) time: " << (t2 - t1)*1000.0 << " ms" << endl;
-            //cout << "3) all active work: " << work << " - " << 100.0 * work/_edges_count << " %" << endl;
-            //cout << "3) spatial BW: " << sizeof(int)*INT_ELEMENTS_PER_EDGE*work/((t2-t1)*1e9) << " GB/s" << endl;
-            //cout << "3) real work: " << real_work << " - " << 100.0 * real_work/_edges_count << " %" << endl;
-            cout << "3) real BW: " << sizeof(int)*INT_ELEMENTS_PER_EDGE*real_work/((t2-t1)*1e9) << " GB/s" << endl << endl;
+            cout << "3) BW: " << sizeof(int)*INT_ELEMENTS_PER_EDGE*work/((t2-t1)*1e9) << " GB/s" << endl;
         };
         #pragma omp barrier
     #endif
