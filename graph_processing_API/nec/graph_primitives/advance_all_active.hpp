@@ -58,12 +58,6 @@ void GraphPrimitivesNEC::vector_engine_per_vertex_kernel_all_active(const long l
             INNER_WALL_NEC_TIME += t2 - t1;
 
             double work = _vertex_pointers[_last_vertex] - _vertex_pointers[_first_vertex];
-            double real_work = 0;
-            for(int front_pos = _first_vertex; front_pos < _last_vertex; front_pos++)
-            {
-                const int src_id = front_pos;
-                real_work += _vertex_pointers[src_id + 1] - _vertex_pointers[src_id];
-            }
             cout << "1) time: " << (t2 - t1)*1000.0 << " ms" << endl;
             cout << "1) all active BW: " << sizeof(int)*INT_ELEMENTS_PER_EDGE*work/((t2-t1)*1e9) << " GB/s" << endl;
         };
@@ -72,7 +66,6 @@ void GraphPrimitivesNEC::vector_engine_per_vertex_kernel_all_active(const long l
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
 
 template <typename EdgeOperation, typename VertexPreprocessOperation,
         typename VertexPostprocessOperation>
@@ -94,7 +87,7 @@ void GraphPrimitivesNEC::vector_core_per_vertex_kernel_all_active(const long lon
     DelayedWriteNEC delayed_write;
     delayed_write.init();
 
-    #pragma omp for schedule(static, 8)
+    #pragma omp for schedule(static, 1)
     for (int front_pos = _first_vertex; front_pos < _last_vertex; front_pos++)
     {
         const int src_id = front_pos;//frontier_ids[front_pos];
@@ -147,12 +140,6 @@ void GraphPrimitivesNEC::vector_core_per_vertex_kernel_all_active(const long lon
             INNER_WALL_NEC_TIME += t2 - t1;
 
             double work = _vertex_pointers[_last_vertex] - _vertex_pointers[_first_vertex];
-            double real_work = 0;
-            for(int front_pos = _first_vertex; front_pos < _last_vertex; front_pos++)
-            {
-                const int src_id = front_pos;
-                real_work += _vertex_pointers[src_id + 1] - _vertex_pointers[src_id];
-            }
             cout << "2) time: " << (t2 - t1)*1000.0 << " ms" << endl;
             cout << "2) all active BW: " << sizeof(int)*INT_ELEMENTS_PER_EDGE*work/((t2-t1)*1e9) << " GB/s" << endl;
         };
@@ -187,7 +174,7 @@ void GraphPrimitivesNEC::ve_collective_vertex_processing_kernel_all_active(const
     DelayedWriteNEC delayed_write;
     delayed_write.init();
 
-    #pragma omp for schedule(static, 1)
+    #pragma omp for schedule(static, 8)
     for(int cur_vector_segment = 0; cur_vector_segment < _ve_vector_segments_count; cur_vector_segment++)
     {
         int segment_first_vertex = cur_vector_segment * VECTOR_LENGTH + _ve_starting_vertex;

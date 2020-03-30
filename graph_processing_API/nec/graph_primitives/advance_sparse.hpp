@@ -32,7 +32,7 @@ void GraphPrimitivesNEC::vector_engine_per_vertex_kernel_sparse(const long long 
 
         vertex_preprocess_op(src_id, connections_count, 0, delayed_write);
 
-        #pragma _NEC ivdep
+        /*#pragma _NEC ivdep
         #pragma _NEC vovertake
         #pragma _NEC novob
         #pragma _NEC vector
@@ -45,6 +45,25 @@ void GraphPrimitivesNEC::vector_engine_per_vertex_kernel_sparse(const long long 
             int dst_id = _adjacent_ids[global_edge_pos];
 
             edge_op(src_id, dst_id, local_edge_pos, global_edge_pos, vector_index, delayed_write);
+        }*/
+
+        #pragma omp for schedule(static)
+        for(int edge_first_pos = 0; edge_first_pos < connections_count; edge_first_pos += VECTOR_LENGTH)
+        {
+            #pragma _NEC ivdep
+            #pragma _NEC vovertake
+            #pragma _NEC novob
+            #pragma _NEC vector
+            for(int i = 0; i < VECTOR_LENGTH; i++)
+            {
+                int edge_pos = edge_first_pos + i;
+                const long long int global_edge_pos = start + edge_pos;
+                const int local_edge_pos = edge_pos;
+                const int vector_index = i;
+                int dst_id = _adjacent_ids[global_edge_pos];
+
+                edge_op(src_id, dst_id, local_edge_pos, global_edge_pos, vector_index, delayed_write);
+            }
         }
 
         vertex_postprocess_op(src_id, connections_count, 0, delayed_write);
@@ -96,8 +115,6 @@ void GraphPrimitivesNEC::vector_core_per_vertex_kernel_sparse(const long long *_
     DelayedWriteNEC delayed_write;
     delayed_write.init();
 
-    #pragma omp barrier
-
     #pragma omp for schedule(static, 8)
     for (int front_pos = 0; front_pos < _frontier_segment_size; front_pos++)
     {
@@ -142,8 +159,6 @@ void GraphPrimitivesNEC::vector_core_per_vertex_kernel_sparse(const long long *_
 
         vertex_postprocess_op(src_id, connections_count, 0, delayed_write);
     }
-
-    #pragma omp barrier
 
     #ifdef __PRINT_API_PERFORMANCE_STATS__
         #pragma omp barrier
@@ -240,34 +255,37 @@ void GraphPrimitivesNEC::collective_vertex_processing_kernel_sparse(const long l
             }
         }
 
-        for(int edge_pos = _first_edge; edge_pos < max_connections; edge_pos++)
+        if(max_connections > 0)
         {
-            #pragma _NEC ivdep
-            #pragma _NEC vovertake
-            #pragma _NEC novob
-            #pragma _NEC vector
-            for(int i = 0; i < VECTOR_LENGTH; i++)
+            for (int edge_pos = _first_edge; edge_pos < max_connections; edge_pos++)
             {
-                if(((front_pos + i) < _frontier_size) && (edge_pos < reg_connections[i]))
+                #pragma _NEC ivdep
+                #pragma _NEC vovertake
+                #pragma _NEC novob
+                #pragma _NEC vector
+                for (int i = 0; i < VECTOR_LENGTH; i++)
                 {
-                    const int src_id = _frontier_ids[front_pos + i];
-                    const int vector_index = i;
-                    const long long int global_edge_pos = reg_start[i] + edge_pos;
-                    const int local_edge_pos = edge_pos;
-                    const int dst_id = _adjacent_ids[global_edge_pos];
+                    if (((front_pos + i) < _frontier_size) && (edge_pos < reg_connections[i]))
+                    {
+                        const int src_id = _frontier_ids[front_pos + i];
+                        const int vector_index = i;
+                        const long long int global_edge_pos = reg_start[i] + edge_pos;
+                        const int local_edge_pos = edge_pos;
+                        const int dst_id = _adjacent_ids[global_edge_pos];
 
-                    edge_op(src_id, dst_id, local_edge_pos, global_edge_pos, vector_index, delayed_write);
+                        edge_op(src_id, dst_id, local_edge_pos, global_edge_pos, vector_index, delayed_write);
+                    }
                 }
             }
-        }
 
-        #pragma _NEC vector
-        for(int i = 0; i < VECTOR_LENGTH; i++)
-        {
-            if((front_pos + i) < _frontier_size)
+            #pragma _NEC vector
+            for (int i = 0; i < VECTOR_LENGTH; i++)
             {
-                int src_id = _frontier_ids[front_pos + i];
-                vertex_postprocess_op(src_id, reg_connections[i], i, delayed_write);
+                if ((front_pos + i) < _frontier_size)
+                {
+                    int src_id = _frontier_ids[front_pos + i];
+                    vertex_postprocess_op(src_id, reg_connections[i], i, delayed_write);
+                }
             }
         }
     }
@@ -288,6 +306,7 @@ void GraphPrimitivesNEC::collective_vertex_processing_kernel_sparse(const long l
             }
             cout << "3) time: " << (t2 - t1)*1000.0 << " ms" << endl;
             cout << "3) BW: " << sizeof(int)*INT_ELEMENTS_PER_EDGE*work/((t2-t1)*1e9) << " GB/s" << endl;
+            cout << "3) avg connections: " << work / _frontier_size << endl;
         };
         #pragma omp barrier
     #endif

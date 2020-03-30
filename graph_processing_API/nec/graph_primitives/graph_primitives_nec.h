@@ -152,6 +152,32 @@ private:
                                    EdgeOperation edge_op, VertexPreprocessOperation vertex_preprocess_op,
                                    VertexPostprocessOperation vertex_postprocess_op,
                                    long long _edges_count, int _first_edge, int _last_edge);
+
+
+    template <typename _TVertexValue, typename _TEdgeWeight, typename EdgeOperation, typename VertexPreprocessOperation,
+            typename VertexPostprocessOperation, typename CollectiveEdgeOperation, typename CollectiveVertexPreprocessOperation,
+            typename CollectiveVertexPostprocessOperation >
+    void advance_worker(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
+                        FrontierNEC &_frontier,
+                        EdgeOperation &&edge_op,
+                        VertexPreprocessOperation &&vertex_preprocess_op,
+                        VertexPostprocessOperation &&vertex_postprocess_op,
+                        CollectiveEdgeOperation &&collective_edge_op,
+                        CollectiveVertexPreprocessOperation &&collective_vertex_preprocess_op,
+                        CollectiveVertexPostprocessOperation &&collective_vertex_postprocess_op,
+                        int _first_edge = 0);
+
+
+    template <typename EdgeOperation, typename VertexPreprocessOperation,
+            typename VertexPostprocessOperation>
+    inline void my_test(const long long *_vertex_pointers,
+                        const int *_adjacent_ids,
+                        const int _first_vertex,
+                        const int _last_vertex,
+                        EdgeOperation edge_op,
+                        VertexPreprocessOperation vertex_preprocess_op,
+                        VertexPostprocessOperation vertex_postprocess_op,
+                        const int _first_edge);
 public:
     GraphPrimitivesNEC() {};
 
@@ -171,8 +197,7 @@ public:
                  VertexPostprocessOperation &&vertex_postprocess_op,
                  CollectiveEdgeOperation &&collective_edge_op,
                  CollectiveVertexPreprocessOperation &&collective_vertex_preprocess_op,
-                 CollectiveVertexPostprocessOperation &&collective_vertex_postprocess_op,
-                 int _first_edge = 0);
+                 CollectiveVertexPostprocessOperation &&collective_vertex_postprocess_op);
 
     template <typename _TVertexValue, typename _TEdgeWeight, typename EdgeOperation, typename VertexPreprocessOperation,
             typename VertexPostprocessOperation>
@@ -218,5 +243,6 @@ public:
 #include "advance_sparse.hpp"
 #include "advance_partial.hpp"
 #include "generate_new_frontier.hpp"
+#include "tests.hpp"
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
