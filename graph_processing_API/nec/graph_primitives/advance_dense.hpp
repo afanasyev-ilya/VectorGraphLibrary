@@ -100,7 +100,7 @@ void GraphPrimitivesNEC::vector_core_per_vertex_kernel_dense(const long long *_v
     DelayedWriteNEC delayed_write;
     delayed_write.init();
 
-    #pragma omp for schedule(static, 8)
+    #pragma omp for schedule(static, 1)
     for (int front_pos = _first_vertex; front_pos < _last_vertex; front_pos++)
     {
         const int src_id = front_pos;

@@ -24,7 +24,7 @@ private:
     #endif
 
     #ifdef __USE_NEC_SX_AURORA__
-    void nec_bottom_up_compute_step(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph, int *_levels,
+    void nec_bottom_up_compute_step(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph, int *_levels, int *_connections_array,
                                     int _current_level, int &_vis, int &_in_lvl, bool _use_vector_extension);
     #endif
 

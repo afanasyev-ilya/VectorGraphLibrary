@@ -8,6 +8,9 @@ void GraphPrimitivesNEC::compute(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &
                                  FrontierNEC &_frontier,
                                  ComputeOperation &&compute_op)
 {
+    LOAD_EXTENDED_CSR_GRAPH_DATA(_graph);
+    const long long int *vertex_pointers = outgoing_ptrs;
+
     int max_frontier_size = _frontier.max_size;
 
     if(_frontier.type == ALL_ACTIVE_FRONTIER)
@@ -22,7 +25,8 @@ void GraphPrimitivesNEC::compute(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &
             for(int i = 0; i < VECTOR_LENGTH; i++)
             {
                 int src_id = vec_start + i;
-                compute_op(src_id);
+                int connections_count = vertex_pointers[src_id + 1] - vertex_pointers[src_id];
+                compute_op(src_id, connections_count);
             }
         }
 
@@ -32,7 +36,8 @@ void GraphPrimitivesNEC::compute(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &
         #pragma _NEC vector
         for(int src_id = max_frontier_size - VECTOR_LENGTH; src_id < max_frontier_size; src_id++)
         {
-            compute_op(src_id);
+            int connections_count = vertex_pointers[src_id + 1] - vertex_pointers[src_id];
+            compute_op(src_id, connections_count);
         }
     }
     else if((_frontier.type == DENSE_FRONTIER) || (_frontier.type == SPARSE_FRONTIER)) // TODO FIX SPARSE
@@ -50,7 +55,10 @@ void GraphPrimitivesNEC::compute(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &
             {
                 int src_id = vec_start + i;
                 if(frontier_flags[src_id] == NEC_IN_FRONTIER_FLAG)
-                    compute_op(src_id);
+                {
+                    int connections_count = vertex_pointers[src_id + 1] - vertex_pointers[src_id];
+                    compute_op(src_id, connections_count);
+                }
             }
         }
 
@@ -61,7 +69,10 @@ void GraphPrimitivesNEC::compute(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &
         for(int src_id = max_frontier_size - VECTOR_LENGTH; src_id < max_frontier_size; src_id++)
         {
             if(frontier_flags[src_id] == NEC_IN_FRONTIER_FLAG)
-                compute_op(src_id);
+            {
+                int connections_count = vertex_pointers[src_id + 1] - vertex_pointers[src_id];
+                compute_op(src_id, connections_count);
+            }
         }
     }
 }

@@ -58,7 +58,7 @@ int main(int argc, const char * argv[])
         int vertex_to_check = 0;
         for(int i = 0; i < source_vertex_num; i++)
         {
-            vertex_to_check = i + 1;
+            vertex_to_check = i + 100;
             cout << "starting from vertex: " << vertex_to_check << endl;
 
             INNER_WALL_NEC_TIME = 0;

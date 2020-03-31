@@ -2,7 +2,6 @@
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-
 template <typename EdgeOperation, typename VertexPreprocessOperation,
         typename VertexPostprocessOperation>
 void GraphPrimitivesNEC::partial_first_groups(const long long *_vertex_pointers,
@@ -16,6 +15,11 @@ void GraphPrimitivesNEC::partial_first_groups(const long long *_vertex_pointers,
                                               int _first_edge,
                                               int _last_edge)
 {
+    #ifdef __PRINT_API_PERFORMANCE_STATS__
+    double t1 = omp_get_wtime();
+    #pragma omp barrier
+    #endif
+
     long long int reg_start[VECTOR_LENGTH];
     long long int reg_end[VECTOR_LENGTH];
     int reg_connections[VECTOR_LENGTH];
@@ -76,7 +80,6 @@ void GraphPrimitivesNEC::partial_first_groups(const long long *_vertex_pointers,
             #pragma _NEC vovertake
             #pragma _NEC novob
             #pragma _NEC vector
-            #pragma _NEC unroll(VECTOR_LENGTH)
             for(int i = 0; i < VECTOR_LENGTH; i++)
             {
                 if(((front_pos + i) < _last_vertex) && (edge_pos < reg_connections[i]))
@@ -92,6 +95,20 @@ void GraphPrimitivesNEC::partial_first_groups(const long long *_vertex_pointers,
             }
         }
     }
+
+    #ifdef __PRINT_API_PERFORMANCE_STATS__
+    #pragma omp barrier
+    double t2 = omp_get_wtime();
+
+    #pragma omp single
+    {
+        double work = (_last_edge - _first_edge) * _last_vertex;
+        cout << "partial last time: " << (t2 - t1)*1000.0 << " ms" << endl;
+        cout << "partial last BW: " << work * sizeof(int) * INT_ELEMENTS_PER_EDGE/((t2 - t1)*1e9) << " GB/s" << endl;
+    }
+
+    #pragma omp barrier
+    #endif
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -114,14 +131,15 @@ void GraphPrimitivesNEC::partial_last_group(const long long *_ve_vector_group_pt
                                             int _first_edge,
                                             int _last_edge)
 {
-    #ifdef __PRINT_DETAILED_STATS__
+    #ifdef __PRINT_API_PERFORMANCE_STATS__
     double t1 = omp_get_wtime();
+    #pragma omp barrier
     #endif
 
     DelayedWriteNEC delayed_write;
     delayed_write.init();
 
-    #pragma omp for schedule(static)
+    #pragma omp for schedule(static, 1)
     for(int cur_vector_segment = 0; cur_vector_segment < _ve_vector_segments_count; cur_vector_segment++)
     {
         int segment_first_vertex = cur_vector_segment * VECTOR_LENGTH + _ve_starting_vertex;
@@ -135,7 +153,6 @@ void GraphPrimitivesNEC::partial_last_group(const long long *_ve_vector_group_pt
             #pragma _NEC vovertake
             #pragma _NEC novob
             #pragma _NEC vector
-            #pragma _NEC unroll(VECTOR_LENGTH)
             for (int i = 0; i < VECTOR_LENGTH; i++)
             {
                 const int src_id = segment_first_vertex + i;
@@ -153,14 +170,15 @@ void GraphPrimitivesNEC::partial_last_group(const long long *_ve_vector_group_pt
         }
     }
 
-    #ifdef __PRINT_DETAILED_STATS__
+    #ifdef __PRINT_API_PERFORMANCE_STATS__
+    #pragma omp barrier
     double t2 = omp_get_wtime();
 
     #pragma omp single
     {
-        double work = _ve_vector_group_ptrs[_ve_vector_segments_count - 1] - _ve_vector_group_ptrs[0];
+        double work = (_last_edge - _first_edge) * _ve_vector_segments_count * VECTOR_LENGTH;
         cout << "partial last time: " << (t2 - t1)*1000.0 << " ms" << endl;
-        cout << "partial last BW: " << (_last_edge - _first_edge) * _ve_vector_segments_count * VECTOR_LENGTH *sizeof(int)*INT_ELEMENTS_PER_EDGE/((t2 - t1)*1e9) << " GB/s" << endl;
+        cout << "partial last BW: " << work*sizeof(int)*INT_ELEMENTS_PER_EDGE/((t2 - t1)*1e9) << " GB/s" << endl;
     }
 
     #pragma omp barrier
@@ -170,14 +188,12 @@ void GraphPrimitivesNEC::partial_last_group(const long long *_ve_vector_group_pt
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template <typename _TVertexValue, typename _TEdgeWeight, typename EdgeOperation>
-void GraphPrimitivesNEC::partial_advance(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
-                                         FrontierNEC &_frontier,
-                                         EdgeOperation &&edge_op,
-                                         int _first_edge,
-                                         int _last_edge)
+void GraphPrimitivesNEC::partial_advance_worker(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
+                                                FrontierNEC &_frontier,
+                                                EdgeOperation &&edge_op,
+                                                int _first_edge,
+                                                int _last_edge)
 {
-    #pragma omp barrier
-
     LOAD_EXTENDED_CSR_GRAPH_DATA(_graph);
     const long long int *vertex_pointers = outgoing_ptrs;
     const int *adjacent_ids = outgoing_ids;
@@ -196,8 +212,30 @@ void GraphPrimitivesNEC::partial_advance(ExtendedCSRGraph<_TVertexValue, _TEdgeW
                        ve_starting_vertex, ve_vector_segments_count, frontier_flags, collective_threshold_start,
                        collective_threshold_end, edge_op, EMPTY_VERTEX_OP, EMPTY_VERTEX_OP, edges_count, _first_edge,
                        _last_edge);
+}
 
-    #pragma omp barrier
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+template <typename _TVertexValue, typename _TEdgeWeight, typename EdgeOperation>
+void GraphPrimitivesNEC::partial_advance(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
+                                         FrontierNEC &_frontier,
+                                         EdgeOperation &&edge_op,
+                                         int _first_edge,
+                                         int _last_edge)
+{
+    if(omp_in_parallel())
+    {
+        #pragma omp barrier
+        partial_advance_worker(_graph, _frontier, edge_op, _first_edge, _last_edge);
+        #pragma omp barrier
+    }
+    else
+    {
+        #pragma omp parallel
+        {
+            partial_advance_worker(_graph, _frontier, edge_op, _first_edge, _last_edge);
+        }
+    }
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

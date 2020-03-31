@@ -1,4 +1,4 @@
-CXX = /opt/nec/ve/bin/nc++#-2.5.1
+CXX = /opt/nec/ve/bin/nc++ #-2.5.1
 
 # Include paths...
 

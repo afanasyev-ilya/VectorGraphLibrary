@@ -167,6 +167,13 @@ private:
                         CollectiveVertexPostprocessOperation &&collective_vertex_postprocess_op,
                         int _first_edge = 0);
 
+    template <typename _TVertexValue, typename _TEdgeWeight, typename EdgeOperation>
+    void partial_advance_worker(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
+                                FrontierNEC &_frontier,
+                                EdgeOperation &&edge_op,
+                                int _first_edge,
+                                int _last_edge);
+
 
     template <typename EdgeOperation, typename VertexPreprocessOperation,
             typename VertexPostprocessOperation>
@@ -197,7 +204,8 @@ public:
                  VertexPostprocessOperation &&vertex_postprocess_op,
                  CollectiveEdgeOperation &&collective_edge_op,
                  CollectiveVertexPreprocessOperation &&collective_vertex_preprocess_op,
-                 CollectiveVertexPostprocessOperation &&collective_vertex_postprocess_op);
+                 CollectiveVertexPostprocessOperation &&collective_vertex_postprocess_op,
+                 int _first_edge = 0);
 
     template <typename _TVertexValue, typename _TEdgeWeight, typename EdgeOperation, typename VertexPreprocessOperation,
             typename VertexPostprocessOperation>
