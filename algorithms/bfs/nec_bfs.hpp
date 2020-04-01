@@ -216,7 +216,7 @@ void BFS<_TVertexValue, _TEdgeWeight>::nec_top_down(ExtendedCSRGraph<_TVertexVal
     LOAD_EXTENDED_CSR_GRAPH_DATA(_graph);
     frontier.set_all_active();
 
-    auto init_levels = [_levels, _source_vertex] (int src_id, int connections_count)
+    auto init_levels = [_levels, _source_vertex] (int src_id, int connections_count, int vector_index)
     {
         if(src_id == _source_vertex)
             _levels[_source_vertex] = FIRST_LEVEL_VERTEX;
@@ -291,7 +291,7 @@ void BFS<_TVertexValue, _TEdgeWeight>::nec_direction_optimising(ExtendedCSRGraph
 
     int *connections_array;
     MemoryAPI::allocate_array(&connections_array, vertices_count);
-    auto init_connections = [connections_array] (int src_id, int connections_count)
+    auto init_connections = [connections_array] (int src_id, int connections_count, int vector_index)
     {
         connections_array[src_id] = connections_count;
     };
@@ -299,7 +299,7 @@ void BFS<_TVertexValue, _TEdgeWeight>::nec_direction_optimising(ExtendedCSRGraph
 
     double t1 = omp_get_wtime();
 
-    auto init_levels = [_levels, _source_vertex] (int src_id, int connections_count)
+    auto init_levels = [_levels, _source_vertex] (int src_id, int connections_count, int vector_index)
     {
         if(src_id == _source_vertex)
             _levels[_source_vertex] = FIRST_LEVEL_VERTEX;

@@ -10,17 +10,12 @@ void CC::nec_shiloach_vishkin(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_gr
     LOAD_EXTENDED_CSR_GRAPH_DATA(_graph);
 
     double t1 = omp_get_wtime();
-    auto init_components_op = [_components] (int src_id)
+    frontier.set_all_active();
+    auto init_components_op = [&_components] (int src_id, int connections_count, int vector_index)
     {
         _components[src_id] = src_id;
     };
-    graph_API.compute(init_components_op, vertices_count);
-
-    auto all_active = [] (int src_id)->int
-    {
-        return NEC_IN_FRONTIER_FLAG;
-    };
-    frontier.filter(_graph, all_active);
+    graph_API.compute(_graph, frontier, init_components_op);
 
     int hook_changes = 1, jump_changes = 1;
     int iteration = 0;
@@ -60,20 +55,20 @@ void CC::nec_shiloach_vishkin(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_gr
             jump_changes = 0;
             NEC_REGISTER_INT(jump_changes, 0);
 
-            auto jump_op = [_components, &reg_jump_changes](int src_id)
+            auto jump_op = [_components, &reg_jump_changes](int src_id, int connections_count, int vector_index)
             {
                 int src_val = _components[src_id];
                 int src_src_val = _components[src_val];
-                int vector_index = src_id % VECTOR_LENGTH;
 
                 if(src_val != src_src_val)
                 {
                     _components[src_id] = src_src_val;
-                    reg_jump_changes[vector_index]++;
+                    //_components[_components[src_id]] = src_val;
+                    //reg_jump_changes[vector_index]++;
                 }
             };
 
-            graph_API.compute(jump_op, vertices_count);
+            graph_API.compute(_graph, frontier, jump_op);
 
             jump_changes += register_sum_reduce(reg_jump_changes);
         }

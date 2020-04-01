@@ -14,7 +14,7 @@ void SSSP::nec_dijkstra_partial_active(ExtendedCSRGraph<_TVertexValue, _TEdgeWei
     int *was_changes;
     MemoryAPI::allocate_array(&was_changes, vertices_count);
 
-    auto init_distances = [_distances, _source_vertex] (int src_id, int connections_count)
+    auto init_distances = [_distances, _source_vertex] (int src_id, int connections_count, int vector_index)
     {
         if(src_id == _source_vertex)
             _distances[_source_vertex] = 0;
@@ -22,7 +22,7 @@ void SSSP::nec_dijkstra_partial_active(ExtendedCSRGraph<_TVertexValue, _TEdgeWei
             _distances[src_id] = FLT_MAX;
     };
 
-    auto init_changes = [was_changes, _source_vertex] (int src_id, int connections_count)
+    auto init_changes = [was_changes, _source_vertex] (int src_id, int connections_count, int vector_index)
     {
         if(src_id == _source_vertex)
             was_changes[_source_vertex] = 1;
@@ -48,7 +48,7 @@ void SSSP::nec_dijkstra_partial_active(ExtendedCSRGraph<_TVertexValue, _TEdgeWei
     while(frontier.size() > 0)
     {
         float *collective_outgoing_weights = graph_API.get_collective_weights(_graph, frontier);
-        auto reset_changes = [was_changes] (int src_id, int connections_count)
+        auto reset_changes = [was_changes] (int src_id, int connections_count, int vector_index)
         {
             was_changes[src_id] = 0;
         };
@@ -131,7 +131,7 @@ void SSSP::nec_dijkstra_all_active(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight>
     LOAD_EXTENDED_CSR_GRAPH_DATA(_graph);
     frontier.set_all_active();
 
-    auto init_distances = [_distances, _source_vertex] (int src_id, int connections_count)
+    auto init_distances = [_distances, _source_vertex] (int src_id, int connections_count, int vector_index)
     {
         if(src_id == _source_vertex)
             _distances[_source_vertex] = 0;

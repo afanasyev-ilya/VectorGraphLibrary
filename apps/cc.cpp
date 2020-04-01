@@ -48,7 +48,6 @@ int main(int argc, const char * argv[])
         #ifdef __USE_NEC_SX_AURORA__ // for now run all 3 algorithms, TODO selection later
         cc_operation.nec_shiloach_vishkin(graph, components);
         cc_operation.nec_bfs_based(graph, components);
-        cc_operation.nec_random_mate(graph, components);
         #endif
 
         #ifdef __USE_GPU__ // for now run all 3 algorithms, TODO selection later

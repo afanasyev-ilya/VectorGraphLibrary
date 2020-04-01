@@ -20,6 +20,9 @@ FrontierNEC::FrontierNEC(int _vertices_count)
     // by default frontier is all active
     type = ALL_ACTIVE_FRONTIER;
     current_size = max_size;
+
+    #pragma omp parallel
+    {}
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
