@@ -174,6 +174,11 @@ private:
                                 int _first_edge,
                                 int _last_edge);
 
+    // performs user-defined "compute_op" operation for each element in given frontier
+    template <typename _TVertexValue, typename _TEdgeWeight, typename ComputeOperation>
+    void compute_worker(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
+                        FrontierNEC &_frontier,
+                        ComputeOperation &&compute_op);
 
     template <typename EdgeOperation, typename VertexPreprocessOperation,
             typename VertexPostprocessOperation>

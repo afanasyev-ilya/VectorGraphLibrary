@@ -1,0 +1,157 @@
+cmake_minimum_required(VERSION 3.15)
+project(VectorGraphLibrary)
+
+set(CMAKE_CXX_STANDARD 14)
+
+include_directories(.)
+include_directories(algorithms)
+include_directories(algorithms/bfs)
+include_directories(algorithms/bfs/change_state)
+include_directories(algorithms/cc)
+include_directories(algorithms/kcore)
+include_directories(algorithms/label_propagation)
+include_directories(algorithms/page_rank)
+include_directories(algorithms/sssp)
+include_directories(algorithms/sswp)
+include_directories(apps)
+include_directories(common)
+include_directories(common/cmd_parser)
+include_directories(common/gpu_API)
+include_directories(common/memory_API)
+include_directories(common/parallel_primitives)
+include_directories(common/random_generator)
+include_directories(common/sorting)
+include_directories(common/verify_results)
+include_directories(export_graphs)
+include_directories(graph_analytics)
+include_directories(graph_generation_API)
+include_directories(graph_processing_API)
+include_directories(graph_processing_API/gpu)
+include_directories(graph_processing_API/nec)
+include_directories(graph_processing_API/nec/delayed_write)
+include_directories(graph_processing_API/nec/frontier)
+include_directories(graph_processing_API/nec/graph_primitives)
+include_directories(graph_processing_API/nec/vector_register)
+include_directories(graph_representations)
+include_directories(graph_representations/common)
+include_directories(graph_representations/edges_list_graph)
+include_directories(graph_representations/extended_CSR_graph)
+include_directories(graph_representations/extended_CSR_graph/vector_extension)
+include_directories(graph_representations/sharded_graph)
+include_directories(graph_representations/sharded_graph/shard_base)
+include_directories(graph_representations/sharded_graph/shard_CSR)
+include_directories(graph_representations/sharded_graph/shard_vect_CSR)
+include_directories(verification)
+
+add_executable(VectorGraphLibrary
+        algorithms/bfs/change_state/change_state.h
+        algorithms/bfs/change_state/change_state.hpp
+        algorithms/bfs/bfs.h
+        algorithms/bfs/bfs.hpp
+        algorithms/bfs/gpu_bfs.hpp
+        algorithms/bfs/nec_bfs.hpp
+        algorithms/bfs/seq_bfs.hpp
+        algorithms/cc/cc.h
+        algorithms/cc/cc.hpp
+        algorithms/cc/gpu_shiloach_vishkin.hpp
+        algorithms/cc/nec_bfs_based.hpp
+        algorithms/cc/nec_shiloach_vishkin.hpp
+        algorithms/cc/seq_bfs_based.hpp
+        algorithms/kcore/kcore.h
+        algorithms/kcore/kcore.hpp
+        algorithms/label_propagation/label_propagation.h
+        algorithms/label_propagation/label_propagation.hpp
+        algorithms/label_propagation/map_based_lp.hpp
+        algorithms/label_propagation/vect_dict_based_lp.hpp
+        algorithms/page_rank/page_rank.h
+        algorithms/page_rank/page_rank.hpp
+        algorithms/sssp/gpu_shortest_paths.hpp
+        algorithms/sssp/nec_shortest_paths.hpp
+        algorithms/sssp/seq_shortest_paths.hpp
+        algorithms/sssp/shortest_paths.h
+        algorithms/sssp/shortest_paths.hpp
+        algorithms/sswp/bellman_ford.hpp
+        algorithms/sswp/widest_paths.h
+        algorithms/sswp/widest_paths.hpp
+        apps/analyse_graph.cpp
+        apps/bfs.cpp
+        apps/cc.cpp
+        apps/generate_test_data.cpp
+        apps/graph_library.sh
+        apps/kcore.cpp
+        apps/Makefile.gcc
+        apps/Makefile.ibm
+        apps/Makefile.intel
+        apps/Makefile.polus
+        apps/Makefile.tohoku
+        apps/Makefile.volta
+        apps/pr.cpp
+        apps/sssp.cpp
+        apps/sswp.cpp
+        common/cmd_parser/cmd_parser.h
+        common/cmd_parser/cmd_parser.hpp
+        common/cmd_parser/parser_options.h
+        common/gpu_API/cuda_error_handling.h
+        common/memory_API/memory_API.h
+        common/memory_API/memory_API.hpp
+        common/parallel_primitives/copy_if.h
+        common/parallel_primitives/get_elements_count.h
+        common/random_generator/ASL_random_generator.h
+        common/random_generator/ASL_random_generator.hpp
+        common/random_generator/common_random_generator.h
+        common/random_generator/random_generation_API.h
+        common/sorting/sorting.h
+        common/verify_results/verify_results.h
+        export_graphs/gapbs_export.h
+        export_graphs/ligra_export.h
+        graph_analytics/graph_analytics.h
+        graph_analytics/graph_analytics.hpp
+        graph_generation_API/graph_generation_API.h
+        graph_generation_API/graph_generation_API.hpp
+        graph_processing_API/gpu/cuda_API_include.h
+        graph_processing_API/nec/delayed_write/delayed_write_nec.h
+        graph_processing_API/nec/delayed_write/delayed_write_nec.hpp
+        graph_processing_API/nec/frontier/frontier_nec.h
+        graph_processing_API/nec/frontier/frontier_nec.hpp
+        graph_processing_API/nec/graph_primitives/advance.hpp
+        graph_processing_API/nec/graph_primitives/advance_all_active.hpp
+        graph_processing_API/nec/graph_primitives/advance_dense.hpp
+        graph_processing_API/nec/graph_primitives/advance_partial.hpp
+        graph_processing_API/nec/graph_primitives/advance_sparse.hpp
+        graph_processing_API/nec/graph_primitives/compute.hpp
+        graph_processing_API/nec/graph_primitives/filter.hpp
+        graph_processing_API/nec/graph_primitives/generate_new_frontier.hpp
+        graph_processing_API/nec/graph_primitives/graph_primitives_nec.h
+        graph_processing_API/nec/graph_primitives/graph_primitives_nec.hpp
+        graph_processing_API/nec/graph_primitives/tests.hpp
+        graph_processing_API/nec/vector_register/vector_registers.h
+        graph_representations/common/graph_types.h
+        graph_representations/common/tmp_edge_data.h
+        graph_representations/edges_list_graph/edges_list_graph.h
+        graph_representations/edges_list_graph/edges_list_graph.hpp
+        graph_representations/extended_CSR_graph/vector_extension/vector_extension.h
+        graph_representations/extended_CSR_graph/vector_extension/vector_extension.hpp
+        graph_representations/extended_CSR_graph/extended_CSR_graph.h
+        graph_representations/extended_CSR_graph/extended_CSR_graph.hpp
+        graph_representations/extended_CSR_graph/gpu_api.hpp
+        graph_representations/extended_CSR_graph/init_graph.hpp
+        graph_representations/extended_CSR_graph/nec_api.hpp
+        graph_representations/sharded_graph/shard_base/shard_base.h
+        graph_representations/sharded_graph/shard_base/shard_base.hpp
+        graph_representations/sharded_graph/shard_CSR/shard_CSR.h
+        graph_representations/sharded_graph/shard_CSR/shard_CSR.hpp
+        graph_representations/sharded_graph/shard_CSR/shard_CSR_pointer_data.h
+        graph_representations/sharded_graph/shard_vect_CSR/shard_vect_CSR.h
+        graph_representations/sharded_graph/shard_vect_CSR/shard_vect_CSR.hpp
+        graph_representations/sharded_graph/shard_vect_CSR/shard_vect_CSR_pointer_data.h
+        graph_representations/sharded_graph/sharded_graph.h
+        graph_representations/sharded_graph/sharded_graph.hpp
+        graph_representations/base_graph.h
+        misc/custom_test.cpp
+        misc/generate_memory_traces.cpp
+        misc/lambda_tests.cpp
+        misc/nvgraph_comparison.cpp
+        verification/page_rank_verification.hpp
+        verification/shortest_paths_verification.hpp
+        architectures.h
+        graph_library.h)
