@@ -48,4 +48,10 @@ enum AlgorithmBFS
     DIRECTION_OPTIMISING_BFS_ALGORITHM = 2
 };
 
+enum AlgorithmCC
+{
+    SHILOACH_VISHKIN_ALGORITHM = 0,
+    BFS_BASED_ALGORITHM = 1
+};
+
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

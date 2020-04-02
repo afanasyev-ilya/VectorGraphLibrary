@@ -14,6 +14,7 @@ AlgorithmCommandOptionsParser::AlgorithmCommandOptionsParser()
     number_of_rounds = 1;
     steps_count = 1;
     algorithm_bfs = DIRECTION_OPTIMISING_BFS_ALGORITHM;
+    algorithm_cc = SHILOACH_VISHKIN_ALGORITHM;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -98,6 +99,15 @@ void AlgorithmCommandOptionsParser::parse_args(int _argc, const char * _argv[])
         else if (option.compare("-do") == 0 || option.compare("-direction-optimising") == 0)
         {
             algorithm_bfs = DIRECTION_OPTIMISING_BFS_ALGORITHM;
+        }
+
+        if ((option.compare("-shiloach_vishkin") == 0) || (option.compare("-sv") == 0))
+        {
+            algorithm_cc = SHILOACH_VISHKIN_ALGORITHM;
+        }
+        else if (option.compare("-bfs-based") == 0)
+        {
+            algorithm_cc = BFS_BASED_ALGORITHM;
         }
     }
 }

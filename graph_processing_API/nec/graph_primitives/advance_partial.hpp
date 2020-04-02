@@ -99,9 +99,9 @@ void GraphPrimitivesNEC::partial_first_groups(const long long *_vertex_pointers,
     #ifdef __PRINT_API_PERFORMANCE_STATS__
     #pragma omp barrier
     double t2 = omp_get_wtime();
-
     #pragma omp single
     {
+        INNER_WALL_NEC_TIME += t2 - t1;
         double work = (_last_edge - _first_edge) * _last_vertex;
         cout << "partial last time: " << (t2 - t1)*1000.0 << " ms" << endl;
         cout << "partial last BW: " << work * sizeof(int) * INT_ELEMENTS_PER_EDGE/((t2 - t1)*1e9) << " GB/s" << endl;
@@ -173,9 +173,9 @@ void GraphPrimitivesNEC::partial_last_group(const long long *_ve_vector_group_pt
     #ifdef __PRINT_API_PERFORMANCE_STATS__
     #pragma omp barrier
     double t2 = omp_get_wtime();
-
     #pragma omp single
     {
+        INNER_WALL_NEC_TIME += t2 - t1;
         double work = (_last_edge - _first_edge) * _ve_vector_segments_count * VECTOR_LENGTH;
         cout << "partial last time: " << (t2 - t1)*1000.0 << " ms" << endl;
         cout << "partial last BW: " << work*sizeof(int)*INT_ELEMENTS_PER_EDGE/((t2 - t1)*1e9) << " GB/s" << endl;

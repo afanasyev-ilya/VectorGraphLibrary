@@ -76,15 +76,15 @@ void BFS<_TVertexValue, _TEdgeWeight>::nec_bottom_up_compute_step(ExtendedCSRGra
     int first_edge = 0;
     if(_use_vector_extension)
     {
-        //frontier.set_all_active();
-        auto vertex_value_is_unset = [_levels, _connections_array] (int src_id)->int
+        frontier.set_all_active();
+        /*auto vertex_value_is_unset = [_levels, _connections_array] (int src_id)->int
         {
             int result = NEC_NOT_IN_FRONTIER_FLAG;
             if((_levels[src_id] == UNVISITED_VERTEX) && (_connections_array[src_id] > 0))
                 result = NEC_IN_FRONTIER_FLAG;
             return result;
         };
-        graph_API.generate_new_frontier(_graph, frontier, vertex_value_is_unset);
+        graph_API.generate_new_frontier(_graph, frontier, vertex_value_is_unset);*/
 
         first_edge = 4;
         #pragma omp parallel
@@ -118,7 +118,8 @@ void BFS<_TVertexValue, _TEdgeWeight>::nec_bottom_up_compute_step(ExtendedCSRGra
             result = NEC_IN_FRONTIER_FLAG;
         return result;
     };
-    graph_API.filter(_graph, frontier, vertex_value_is_unset); // TODO replace with filter
+    //graph_API.filter(_graph, frontier, vertex_value_is_unset); // TODO replace with filter
+    graph_API.generate_new_frontier(_graph, frontier, vertex_value_is_unset); // TODO replace with filter
 
     #pragma omp parallel
     {
@@ -316,12 +317,13 @@ void BFS<_TVertexValue, _TEdgeWeight>::nec_direction_optimising(ExtendedCSRGraph
     int vis = 1, in_lvl = 0;
     int current_level = FIRST_LEVEL_VERTEX;
     StateOfBFS current_state = TOP_DOWN;
-    bool _use_vect_CSR_extension = 0;
+    bool _use_vect_CSR_extension = false;
     int current_frontier_size = 1, prev_frontier_size = 0;
     while(vis > 0)
     {
         #ifdef __PRINT_SAMPLES_PERFORMANCE_STATS__
         step_states.push_back(current_state);
+        cout << "step " << current_level - FIRST_LEVEL_VERTEX << " in state " << current_state << endl;
         #endif
 
         double t_st, t_end;
@@ -329,7 +331,6 @@ void BFS<_TVertexValue, _TEdgeWeight>::nec_direction_optimising(ExtendedCSRGraph
         vis = 0, in_lvl = 0;
         if(current_state == TOP_DOWN)
         {
-            cout << "TD state" << endl;
             auto on_current_level = [_levels, current_level] (int src_id)->int
             {
                 int result = NEC_NOT_IN_FRONTIER_FLAG;
@@ -351,7 +352,6 @@ void BFS<_TVertexValue, _TEdgeWeight>::nec_direction_optimising(ExtendedCSRGraph
         }
         else if(current_state == BOTTOM_UP)
         {
-            cout << "BU state" << endl;
             #ifdef __PRINT_SAMPLES_PERFORMANCE_STATS__
             t_st = omp_get_wtime();
             #endif
@@ -373,8 +373,6 @@ void BFS<_TVertexValue, _TEdgeWeight>::nec_direction_optimising(ExtendedCSRGraph
         #ifdef __PRINT_SAMPLES_PERFORMANCE_STATS__
         step_times.push_back(t_end - t_st);
         #endif
-
-        cout << endl << endl;
     }
     double t2 = omp_get_wtime();
 
@@ -386,7 +384,7 @@ void BFS<_TVertexValue, _TEdgeWeight>::nec_direction_optimising(ExtendedCSRGraph
         compute_time += step_times[i];
     }
     cout << "time diff: " << compute_time << " vs " << t2 - t1 << endl;
-    performance_stats("BFS (direction-optimising)", t2 - t1, edges_count, current_level);
+    performance_stats("BFS (direction-optimising)", compute_time, edges_count, current_level);
     #endif
 
     MemoryAPI::free_array(connections_array);

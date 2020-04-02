@@ -5,6 +5,10 @@ void GraphPrimitivesNEC::generate_new_frontier(ExtendedCSRGraph<_TVertexValue, _
                                                FrontierNEC &_frontier,
                                                FilterCondition &&filter_cond)
 {
+    #ifdef __PRINT_API_PERFORMANCE_STATS__
+    double t1 = omp_get_wtime();
+    #endif
+
     const int ve_threshold = _graph.get_nec_vector_engine_threshold_vertex();
     const int vc_threshold = _graph.get_nec_vector_core_threshold_vertex();
     const int vertices_count = _graph.get_vertices_count();
@@ -23,6 +27,10 @@ void GraphPrimitivesNEC::generate_new_frontier(ExtendedCSRGraph<_TVertexValue, _
         vertices_in_frontier += new_flag;
     }
     _frontier.current_size = vertices_in_frontier;
+
+    #ifdef __PRINT_API_PERFORMANCE_STATS__
+    double t2 = omp_get_wtime();
+    #endif
 
     // chose frontier representation
     if(_frontier.current_size == _frontier.max_size) // no checks required
@@ -52,6 +60,15 @@ void GraphPrimitivesNEC::generate_new_frontier(ExtendedCSRGraph<_TVertexValue, _
         else
             _frontier.collective_part_size = 0;
     }
+
+    #ifdef __PRINT_API_PERFORMANCE_STATS__
+    double t3 = omp_get_wtime();
+    INNER_WALL_NEC_TIME += t3 - t1;
+    cout << "GNF flags time: " << 1000*(t2 - t1) << " ms" << endl;
+    cout << "GNF flags BW: " << 2.0*sizeof(int)*_frontier.max_size/((t2-t1)*1e9) << " GB/s" << endl;
+    cout << "GNF copy if time: " << 1000*(t3 - t2) << " ms" << endl;
+    cout << "GNF copy if BW: " << 2.0*sizeof(int)*_frontier.max_size/((t3-t2)*1e9) << " GB/s" << endl << endl;
+    #endif
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

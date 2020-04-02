@@ -45,9 +45,11 @@ int main(int argc, const char * argv[])
         graph.move_to_device();
         #endif
 
-        #ifdef __USE_NEC_SX_AURORA__ // for now run all 3 algorithms, TODO selection later
-        cc_operation.nec_shiloach_vishkin(graph, components);
-        cc_operation.nec_bfs_based(graph, components);
+        #ifdef __USE_NEC_SX_AURORA__
+        if(parser.get_algorithm_cc() == SHILOACH_VISHKIN_ALGORITHM)
+            cc_operation.nec_shiloach_vishkin(graph, components);
+        else if(parser.get_algorithm_cc() == BFS_BASED_ALGORITHM)
+            cc_operation.nec_bfs_based(graph, components);
         #endif
 
         #ifdef __USE_GPU__ // for now run all 3 algorithms, TODO selection later

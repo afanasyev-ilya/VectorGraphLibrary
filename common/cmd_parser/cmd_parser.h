@@ -25,6 +25,7 @@ private:
     bool number_of_rounds;
 
     AlgorithmBFS algorithm_bfs;
+    AlgorithmCC algorithm_cc;
 public:
     AlgorithmCommandOptionsParser();
     
@@ -40,6 +41,7 @@ public:
     TraversalDirection get_traversal_direction() {return traversal_direction;};
 
     AlgorithmBFS get_algorithm_bfs() {return algorithm_bfs;};
+    AlgorithmCC get_algorithm_cc() {return algorithm_cc;};
     
     void parse_args(int _argc, const char * _argv[]);
 };

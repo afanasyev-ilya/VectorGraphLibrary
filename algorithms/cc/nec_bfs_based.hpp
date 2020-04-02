@@ -21,25 +21,26 @@ template <typename _TVertexValue, typename _TEdgeWeight>
 void CC::nec_bfs_based(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
                        int *_components)
 {
-    /*LOAD_EXTENDED_CSR_GRAPH_DATA(_graph);
+    LOAD_EXTENDED_CSR_GRAPH_DATA(_graph);
 
     int *bfs_levels;
     BFS<_TVertexValue,_TEdgeWeight> bfs_operation(_graph);
     bfs_operation.allocate_result_memory(_graph.get_vertices_count(), &bfs_levels);
 
-    auto init_components_op = [_components] (int src_id)
+    frontier.set_all_active();
+    auto init_components_op = [_components] (int src_id, int connections_count, int vector_index)
     {
         _components[src_id] = COMPONENT_UNSET;
     };
-    graph_API.compute(init_components_op, vertices_count);
+    graph_API.compute(_graph, frontier, init_components_op);
 
     auto all_active = [] (int src_id)->int
     {
         return NEC_IN_FRONTIER_FLAG;
     };
-    frontier.filter(_graph, all_active);
+    graph_API.filter(_graph, frontier, all_active);
 
-    auto remove_zero_nodes_op = [_components, vertices_count] (int src_id, int connections_count, DelayedWriteNEC &delayed_write)
+    auto remove_zero_nodes_op = [_components, vertices_count] (int src_id, int connections_count, int vector_index)
     {
         if((connections_count == 0) && (src_id < vertices_count))
             _components[src_id] = SINGLE_VERTEX_COMPONENT;
@@ -47,7 +48,7 @@ void CC::nec_bfs_based(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
         if((connections_count == 1) && (src_id < vertices_count))
             _components[src_id] = DUO_VERTEX_COMPONENT;
     };
-    graph_API.advance(_graph, frontier, EMPTY_EDGE_OP, remove_zero_nodes_op, EMPTY_VERTEX_OP);
+    graph_API.compute(_graph, frontier, remove_zero_nodes_op);
 
     double t1 = omp_get_wtime();
     int current_component = FIRST_COMPONENT;
@@ -57,14 +58,14 @@ void CC::nec_bfs_based(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
         if(_components[v] == COMPONENT_UNSET)
         {
             bfs_operation.nec_direction_optimising(_graph, bfs_levels, v);
-            auto copy_levels_to_components_op = [_components, bfs_levels, current_component] (int src_id)
+            auto copy_levels_to_components_op = [_components, bfs_levels, current_component] (int src_id, int connections_count, int vector_index)
             {
                 if(bfs_levels[src_id] > 0)
                 {
                     _components[src_id] = current_component;
                 }
             };
-            graph_API.compute(copy_levels_to_components_op, vertices_count);
+            graph_API.compute(_graph, frontier, copy_levels_to_components_op);
             current_component++;
             iterations_count++;
             if(v == 0)
@@ -94,7 +95,7 @@ void CC::nec_bfs_based(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
 
     #ifdef __PRINT_SAMPLES_PERFORMANCE_STATS__
     component_stats(_components, vertices_count);
-    #endif*/
+    #endif
 }
 #endif
 

@@ -134,7 +134,10 @@ inline int dense_copy_if(int *_in_data,
     {
         int tid = omp_get_thread_num();
         int local_number_of_values = 0;
-        
+
+        #pragma _NEC vovertake
+        #pragma _NEC novob
+        #pragma _NEC vector
         #pragma omp for schedule(static)
         for(int src_id = 0; src_id < _size; src_id++)
         {
@@ -170,10 +173,13 @@ inline int dense_copy_if(int *_in_data,
         int *private_ptr = &(_out_data[tid_shift]);
         
         int local_pos = 0;
+        #pragma _NEC vovertake
+        #pragma _NEC novob
+        #pragma _NEC vector
         #pragma omp for schedule(static)
         for(int src_id = 0; src_id < _size; src_id++)
         {
-            if(_in_data[src_id])
+            if(_in_data[src_id] > 0)
             {
                 private_ptr[local_pos] = src_id;
                 local_pos++;
