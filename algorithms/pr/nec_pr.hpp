@@ -14,9 +14,11 @@ void PR::nec_page_rank(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
     int   *number_of_loops;
     int   *incoming_degrees_without_loops;
     float *old_page_ranks;
+    float *reversed_degrees;
     MemoryAPI::allocate_array(&number_of_loops, vertices_count);
     MemoryAPI::allocate_array(&incoming_degrees_without_loops, vertices_count);
     MemoryAPI::allocate_array(&old_page_ranks, vertices_count);
+    MemoryAPI::allocate_array(&reversed_degrees, vertices_count);
 
     float d = 0.85;
     float k = (1.0 - d) / ((float)vertices_count);
@@ -55,8 +57,15 @@ void PR::nec_page_rank(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
     };
     graph_API.compute(_graph, frontier, calculate_degrees_without_loops);
 
+    auto calculate_reversed_degrees = [reversed_degrees, incoming_degrees_without_loops] (int src_id, int connections_count, int vector_index)
+    {
+        reversed_degrees[src_id] = 1.0 / incoming_degrees_without_loops[src_id];
+    };
+    graph_API.compute(_graph, frontier, calculate_reversed_degrees);
+
+    double t1 = omp_get_wtime();
     int iterations_count = 0;
-    for(iterations_count = 0; iterations_count < 3; iterations_count++)
+    for(iterations_count = 0; iterations_count < _max_iterations; iterations_count++)
     {
         auto save_old_ranks = [old_page_ranks, _page_ranks] (int src_id, int connections_count, int vector_index)
         {
@@ -70,35 +79,29 @@ void PR::nec_page_rank(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
         #pragma omp parallel for reduction(+: dangling_input)
         for(int i = 0; i < vertices_count; i++)
         {
-            if(incoming_degrees_without_loops[i] <= 0)
+            if(incoming_degrees_without_loops[i] == 0)
             {
                 dangling_input += old_page_ranks[i] / vertices_count;
             }
         }
 
-        struct VertexPreprocessFunctor
+        auto vertex_preprocess_op = [](int src_id, int connections_count, int vector_index, DelayedWriteNEC &delayed_write)
         {
-            void operator()(int src_id, int connections_count, int vector_index, DelayedWriteNEC &delayed_write)
+            #pragma _NEC vector
+            for(int i = 0; i < VECTOR_LENGTH; i++)
             {
-                /*#pragma _NEC novector
-                #pragma _NEC unroll(VECTOR_LENGTH)
-                for(int i = 0; i < VECTOR_LENGTH; i++)
-                {
-                    delayed_write.flt_vec_reg[i] = 0;
-                }*/
+                delayed_write.flt_vec_reg[i] = 0;
             }
         };
-        VertexPreprocessFunctor vertex_preprocess_op;
 
-        auto edge_op = [_page_ranks, old_page_ranks, incoming_degrees_without_loops](int src_id, int dst_id, int local_edge_pos,
+        auto edge_op = [_page_ranks, old_page_ranks, reversed_degrees](int src_id, int dst_id, int local_edge_pos,
                                                                              long long int global_edge_pos, int vector_index, DelayedWriteNEC &delayed_write)
         {
             float dst_rank = old_page_ranks[dst_id];
-            float dst_links_num = 1.0 / incoming_degrees_without_loops[dst_id];
+            float reversed_dst_links_num = reversed_degrees[dst_id];
 
             if(src_id != dst_id)
-                _page_ranks[src_id] += dst_rank * dst_links_num;
-                //delayed_write.flt_vec_reg[vector_index] += dst_rank * dst_links_num;
+                delayed_write.flt_vec_reg[vector_index] += dst_rank * reversed_dst_links_num;
         };
 
         struct VertexPostprocessFunctor
@@ -112,41 +115,26 @@ void PR::nec_page_rank(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
             void operator()(int src_id, int connections_count, int vector_index, DelayedWriteNEC &delayed_write)
             {
                 float new_rank = 0.0;
-                //#pragma _NEC unroll(VECTOR_LENGTH)
-                /*for(int i = 0; i < VECTOR_LENGTH; i++)
+                #pragma _NEC unroll(VECTOR_LENGTH)
+                for(int i = 0; i < VECTOR_LENGTH; i++)
                 {
                     new_rank += delayed_write.flt_vec_reg[i];
                 }
-                page_ranks[src_id] = k + d * (new_rank + dangling_input);*/
-                page_ranks[src_id] = k + d * (page_ranks[src_id] + dangling_input);
+                page_ranks[src_id] = k + d * (new_rank + dangling_input);
+                //page_ranks[src_id] = k + d * (page_ranks[src_id] + dangling_input);
             }
         };
         VertexPostprocessFunctor vertex_postprocess_op(_page_ranks, k, d, dangling_input);
 
-        struct CollectiveVertexPreprocessFunctor
+        auto collective_vertex_preprocess_op = [](int src_id, int connections_count, int vector_index, DelayedWriteNEC &delayed_write)
         {
-            void operator()(int src_id, int connections_count, int vector_index, DelayedWriteNEC &delayed_write)
-            {
-                //delayed_write.flt_vec_reg[vector_index] = 0.0;
-            }
+            delayed_write.flt_vec_reg[vector_index] = 0.0;
         };
-        CollectiveVertexPreprocessFunctor collective_vertex_preprocess_op;
 
-        struct CollectiveVertexPostprocessFunctor
+        auto collective_vertex_postprocess_op = [_page_ranks, k, d, dangling_input](int src_id, int connections_count, int vector_index, DelayedWriteNEC &delayed_write)
         {
-            float *page_ranks;
-            float k;
-            float d;
-            float dangling_input;
-            CollectiveVertexPostprocessFunctor(float *_page_ranks, float _k, float _d, float _dangling_input): page_ranks(_page_ranks), k(_k), d(_d), dangling_input(_dangling_input) {}
-
-            void operator()(int src_id, int connections_count, int vector_index, DelayedWriteNEC &delayed_write)
-            {
-                //page_ranks[src_id] = k + d * (delayed_write.flt_vec_reg[vector_index] + dangling_input);
-                page_ranks[src_id] = k + d * (page_ranks[src_id] + dangling_input);
-            }
+            _page_ranks[src_id] = k + d * (delayed_write.flt_vec_reg[vector_index] + dangling_input);
         };
-        CollectiveVertexPostprocessFunctor collective_vertex_postprocess_op(_page_ranks, k, d, dangling_input);
 
         graph_API.advance(_graph, frontier, edge_op, vertex_preprocess_op, vertex_postprocess_op, edge_op, collective_vertex_preprocess_op, collective_vertex_postprocess_op);
 
@@ -164,10 +152,13 @@ void PR::nec_page_rank(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
             throw "ERROR: page rank sum is incorrect";
         }
     }
+    double t2 = omp_get_wtime();
+    performance_stats("page ranks", t2 - t1, edges_count, iterations_count);
 
     MemoryAPI::free_array(number_of_loops);
     MemoryAPI::free_array(incoming_degrees_without_loops);
     MemoryAPI::free_array(old_page_ranks);
+    MemoryAPI::free_array(reversed_degrees);
 }
 #endif
 

@@ -37,13 +37,14 @@ int main(int argc, const char * argv[])
         }
 
         PageRank<int, float> pr_operation;
+        int iterations_count = 5;//parser.get_number_of_rounds();
 
         float *page_ranks;
+
         pr_operation.allocate_result_memory(graph.get_vertices_count(), &page_ranks);
 
-        // TODO new call
         #ifdef __USE_NEC_SX_AURORA__
-        pr_operation.nec_page_rank(graph, page_ranks);
+        pr_operation.nec_page_rank(graph, page_ranks, 1.0e-4, iterations_count);
         #endif
 
         if(parser.get_check_flag())
@@ -51,7 +52,7 @@ int main(int argc, const char * argv[])
             float *check_page_ranks;
             pr_operation.allocate_result_memory(graph.get_vertices_count(), &check_page_ranks);
             //pr_operation.seq_page_rank(graph, check_page_ranks);
-            pr_operation.seq_page_rank(graph, page_ranks);
+            pr_operation.seq_page_rank(graph, check_page_ranks, 1.0e-4, iterations_count);
 
             verify_results(page_ranks, check_page_ranks, graph.get_vertices_count());
 

@@ -51,7 +51,7 @@ int main(int argc, const char * argv[])
         graph.move_to_device();
         #endif
 
-        int source_vertex_num = parser.get_steps_count();
+        int source_vertex_num = parser.get_number_of_rounds();
 
         double avg_perf = 0;
         double total_time = 0;

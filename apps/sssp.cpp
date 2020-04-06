@@ -51,9 +51,9 @@ int main(int argc, const char * argv[])
         graph.move_to_device();
         #endif
 
-        cout << "Doing " << parser.get_steps_count() << " SSSP iterations..." << endl;
+        cout << "Doing " << parser.get_number_of_rounds() << " SSSP iterations..." << endl;
         double t1 = omp_get_wtime();
-        for(int i = 0; i < parser.get_steps_count(); i++)
+        for(int i = 0; i < parser.get_number_of_rounds(); i++)
         {
             last_src_vertex = i * 100 + 1;
 
@@ -76,7 +76,7 @@ int main(int argc, const char * argv[])
         #endif
         
         cout << "SSSP wall time: " << t2 - t1 << " sec" << endl;
-        cout << "SSSP average performance: " << parser.get_steps_count() * (((double)graph.get_edges_count()) / ((t2 - t1) * 1e6)) << " MFLOPS" << endl << endl;
+        cout << "SSSP average performance: " << parser.get_number_of_rounds() * (((double)graph.get_edges_count()) / ((t2 - t1) * 1e6)) << " MFLOPS" << endl << endl;
         
         // check if required
         if(parser.get_check_flag())

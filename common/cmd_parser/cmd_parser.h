@@ -16,8 +16,6 @@ private:
     int scale;
     int avg_degree;
 
-    int steps_count;
-    
     string graph_file_name;
     
     bool check_flag;
@@ -35,7 +33,6 @@ public:
     string get_graph_file_name() { return graph_file_name; };
     bool get_check_flag() { return check_flag; };
     int get_number_of_rounds() { return number_of_rounds; };
-    int get_steps_count() { return steps_count; };
 
     AlgorithmFrontierType get_algorithm_frontier_type() {return algorithm_frontier_type;};
     TraversalDirection get_traversal_direction() {return traversal_direction;};

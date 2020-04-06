@@ -12,7 +12,6 @@ AlgorithmCommandOptionsParser::AlgorithmCommandOptionsParser()
     check_flag = false;
     graph_file_name = "test.gbin";
     number_of_rounds = 1;
-    steps_count = 1;
     algorithm_bfs = DIRECTION_OPTIMISING_BFS_ALGORITHM;
     algorithm_cc = SHILOACH_VISHKIN_ALGORITHM;
 }
@@ -46,12 +45,6 @@ void AlgorithmCommandOptionsParser::parse_args(int _argc, const char * _argv[])
         {
             avg_degree = atoi(_argv[++i]);
         }
-
-        if ((option.compare("-steps") == 0) || (option.compare("-steps-count") == 0) ||
-            (option.compare("-source-num") == 0))
-        {
-            steps_count = atoi(_argv[++i]);
-        }
         
         if ((option.compare("-check") == 0))
         {
@@ -63,7 +56,7 @@ void AlgorithmCommandOptionsParser::parse_args(int _argc, const char * _argv[])
             check_flag = false;
         }
         
-        if ((option.compare("-rounds") == 0))
+        if ((option.compare("-rounds") == 0) || (option.compare("-iterations") == 0))
         {
             number_of_rounds = atoi(_argv[++i]);
         }

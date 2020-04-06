@@ -10,22 +10,22 @@ template <typename _TVertexValue, typename _TEdgeWeight>
 class PageRank
 {
 private:
-
+    void performance_stats(string _name, double _time, long long _edges_count, int _iterations_count);
 public:
-    static void allocate_result_memory  (int _vertices_count, float **_page_ranks);
-    static void free_result_memory      (float *_page_ranks);
+    void allocate_result_memory  (int _vertices_count, float **_page_ranks);
+    void free_result_memory      (float *_page_ranks);
 
     #ifdef __USE_NEC_SX_AURORA__
-    static void nec_page_rank(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
-                              float *_page_ranks,
-                              float _convergence_factor = 1.0e-4,
-                              int _max_iterations = 5);
+    void nec_page_rank(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
+                       float *_page_ranks,
+                       float _convergence_factor = 1.0e-4,
+                       int _max_iterations = 5);
     #endif
 
-    static void seq_page_rank(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
-                              float *_page_ranks,
-                              float _convergence_factor = 1.0e-4,
-                              int _max_iterations = 5);
+    void seq_page_rank(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
+                       float *_page_ranks,
+                       float _convergence_factor = 1.0e-4,
+                       int _max_iterations = 5);
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
