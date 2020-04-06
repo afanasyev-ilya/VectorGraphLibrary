@@ -28,7 +28,7 @@ set(CMAKE_CXX_TARGET_INCLUDE_PATH
   "../algorithms/cc"
   "../algorithms/kcore"
   "../algorithms/label_propagation"
-  "../algorithms/page_rank"
+  "../algorithms/pr"
   "../algorithms/sssp"
   "../algorithms/sswp"
   "../apps"

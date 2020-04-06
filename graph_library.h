@@ -43,6 +43,7 @@ using namespace std;
 #include "algorithms/sssp/shortest_paths.h"
 #include "algorithms/bfs/bfs.h"
 #include "algorithms/cc/cc.h"
+#include "algorithms/pr/pr.h"
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -51,8 +52,6 @@ using namespace std;
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#include "graph_analytics/access_profiling.hpp"
-#include "graph_analytics/cache_metrics.hpp"
 #include "export_graphs/ligra_export.h"
 #include "export_graphs/gapbs_export.h"
 

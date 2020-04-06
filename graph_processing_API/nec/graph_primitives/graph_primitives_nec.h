@@ -17,6 +17,13 @@ auto EMPTY_EDGE_OP = [] (int src_id, int dst_id, int local_edge_pos, long long i
         DelayedWriteNEC &delayed_write) {};
 auto EMPTY_VERTEX_OP = [] (int src_id, int connections_count, int vector_index, DelayedWriteNEC &delayed_write){};
 
+auto ALL_ACTIVE_FRONTIER_CONDITION = [] (int src_id)->int
+{
+    return NEC_IN_FRONTIER_FLAG;
+};
+
+auto EMPTY_COMPUTE_OP = [] (int src_id, int connections_count, int vector_index) {};
+
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 double INNER_WALL_NEC_TIME = 0;
@@ -244,6 +251,13 @@ public:
     template <typename _TVertexValue, typename _TEdgeWeight, typename ComputeOperation>
     void compute(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph, FrontierNEC &_frontier, ComputeOperation &&compute_op);
 };
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+inline int get_vector_connection_border(int _connections_count)
+{
+    return VECTOR_LENGTH * (int((_connections_count)/VECTOR_LENGTH));
+}
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 

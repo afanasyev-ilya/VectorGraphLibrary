@@ -1,8 +1,6 @@
 cmake_minimum_required(VERSION 3.15)
 project(VectorGraphLibrary)
 
-set(CMAKE_CXX_STANDARD 14)
-
 include_directories(.)
 include_directories(algorithms)
 include_directories(algorithms/bfs)
@@ -10,7 +8,7 @@ include_directories(algorithms/bfs/change_state)
 include_directories(algorithms/cc)
 include_directories(algorithms/kcore)
 include_directories(algorithms/label_propagation)
-include_directories(algorithms/page_rank)
+include_directories(algorithms/pr)
 include_directories(algorithms/sssp)
 include_directories(algorithms/sswp)
 include_directories(apps)
@@ -63,8 +61,8 @@ add_executable(VectorGraphLibrary
         algorithms/label_propagation/label_propagation.hpp
         algorithms/label_propagation/map_based_lp.hpp
         algorithms/label_propagation/vect_dict_based_lp.hpp
-        algorithms/page_rank/page_rank.h
-        algorithms/page_rank/page_rank.hpp
+        algorithms/pr/pr.h
+        algorithms/pr/pr.hpp
         algorithms/sssp/gpu_shortest_paths.hpp
         algorithms/sssp/nec_shortest_paths.hpp
         algorithms/sssp/seq_shortest_paths.hpp

@@ -20,7 +20,7 @@ LDFLAGS = -fopenmp -report-all -L /opt/nec/ve/nlc/2.0.0/lib #-lasl_openmp_i64 #-
 # binaries
 ##########
 
-all: sssp bfs cc generate_test_data analyse_graph
+all: sssp bfs cc pr generate_test_data analyse_graph
 
 cc: create_folders cc.o
 	$(CXX) object_files/cc.o $(Library_Path) $(Libraries) $(LDFLAGS) -o ./bin/cc
@@ -30,6 +30,9 @@ sssp: create_folders sssp.o
 
 bfs: create_folders bfs.o
 	$(CXX) object_files/bfs.o $(Library_Path) $(Libraries) $(LDFLAGS) -o ./bin/bfs
+
+pr: create_folders pr.o
+	$(CXX) object_files/pr.o $(Library_Path) $(Libraries) $(LDFLAGS) -o ./bin/pr
 
 generate_test_data: create_folders generate_test_data.o
 	g++ object_files/generate_test_data.o $(Library_Path) $(Libraries) -fopenmp -o ./bin/generate_test_data

@@ -51,7 +51,7 @@
 					<Add directory="/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/algorithms/cc"/>
 					<Add directory="/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/algorithms/kcore"/>
 					<Add directory="/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/algorithms/label_propagation"/>
-					<Add directory="/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/algorithms/page_rank"/>
+					<Add directory="/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/algorithms/pr"/>
 					<Add directory="/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/algorithms/sssp"/>
 					<Add directory="/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/algorithms/sswp"/>
 					<Add directory="/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/apps"/>
@@ -112,7 +112,7 @@
 					<Add directory="/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/algorithms/cc"/>
 					<Add directory="/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/algorithms/kcore"/>
 					<Add directory="/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/algorithms/label_propagation"/>
-					<Add directory="/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/algorithms/page_rank"/>
+					<Add directory="/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/algorithms/pr"/>
 					<Add directory="/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/algorithms/sssp"/>
 					<Add directory="/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/algorithms/sswp"/>
 					<Add directory="/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/apps"/>
@@ -217,10 +217,10 @@
 		<Unit filename="/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/algorithms/label_propagation/vect_dict_based_lp.hpp">
 			<Option target="VectorGraphLibrary"/>
 		</Unit>
-		<Unit filename="/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/algorithms/page_rank/page_rank.h">
+		<Unit filename="/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/algorithms/pr/pr.h">
 			<Option target="VectorGraphLibrary"/>
 		</Unit>
-		<Unit filename="/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/algorithms/page_rank/page_rank.hpp">
+		<Unit filename="/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/algorithms/pr/pr.hpp">
 			<Option target="VectorGraphLibrary"/>
 		</Unit>
 		<Unit filename="/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/algorithms/sssp/gpu_shortest_paths.hpp">

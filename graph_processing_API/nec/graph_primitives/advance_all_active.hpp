@@ -29,22 +29,43 @@ void GraphPrimitivesNEC::vector_engine_per_vertex_kernel_all_active(const long l
         const long long int start = _vertex_pointers[src_id];
         const long long int end = _vertex_pointers[src_id + 1];
         const int connections_count = end - start;
+        const int first_part_connections_count = get_vector_connection_border(connections_count);
 
         vertex_preprocess_op(src_id, connections_count, 0, delayed_write);
 
-        #pragma _NEC ivdep
-        #pragma _NEC vovertake
-        #pragma _NEC novob
-        #pragma _NEC vector
         #pragma omp for schedule(static)
-        for(int edge_pos = _first_edge; edge_pos < connections_count; edge_pos++)
+        for(int edge_pos = _first_edge; edge_pos < first_part_connections_count; edge_pos += VECTOR_LENGTH)
         {
-            const long long int global_edge_pos = start + edge_pos;
-            const int local_edge_pos = edge_pos;
-            const int vector_index = edge_pos % VECTOR_LENGTH;
-            int dst_id = _adjacent_ids[global_edge_pos];
+            #pragma _NEC ivdep
+            #pragma _NEC vovertake
+            #pragma _NEC novob
+            #pragma _NEC vector
+            for(int i = 0; i < VECTOR_LENGTH; i++)
+            {
+                const long long int global_edge_pos = start + edge_pos + i;
+                const int local_edge_pos = edge_pos + i;
+                const int vector_index = i;
+                int dst_id = _adjacent_ids[global_edge_pos];
 
-            edge_op(src_id, dst_id, local_edge_pos, global_edge_pos, vector_index, delayed_write);
+                edge_op(src_id, dst_id, local_edge_pos, global_edge_pos, vector_index, delayed_write);
+            }
+        }
+
+        #pragma omp single
+        {
+            #pragma _NEC ivdep
+            #pragma _NEC vovertake
+            #pragma _NEC novob
+            #pragma _NEC vector
+            for (int i = first_part_connections_count; i < connections_count; i++)
+            {
+                const long long int global_edge_pos = start + i;
+                const int local_edge_pos = i;
+                const int vector_index = i - first_part_connections_count;
+                const int dst_id = _adjacent_ids[global_edge_pos];
+
+                edge_op(src_id, dst_id, local_edge_pos, global_edge_pos, vector_index, delayed_write);
+            }
         }
 
         vertex_postprocess_op(src_id, connections_count, 0, delayed_write);
@@ -88,17 +109,16 @@ void GraphPrimitivesNEC::vector_core_per_vertex_kernel_all_active(const long lon
     delayed_write.init();
 
     #pragma omp for schedule(static, 1)
-    for (int front_pos = _first_vertex; front_pos < _last_vertex; front_pos++)
+    for (int src_id = _first_vertex; src_id < _last_vertex; src_id++)
     {
-        const int src_id = front_pos;//frontier_ids[front_pos];
-
         const long long int start = _vertex_pointers[src_id];
         const long long int end = _vertex_pointers[src_id + 1];
         const int connections_count = end - start;
+        const int first_part_connections_count = get_vector_connection_border(connections_count);
 
         vertex_preprocess_op(src_id, connections_count, 0, delayed_write);
 
-        for (int edge_vec_pos = _first_edge; edge_vec_pos < connections_count - VECTOR_LENGTH; edge_vec_pos += VECTOR_LENGTH)
+        for (int edge_vec_pos = _first_edge; edge_vec_pos < first_part_connections_count; edge_vec_pos += VECTOR_LENGTH)
         {
             #pragma _NEC ivdep
             #pragma _NEC vovertake
@@ -119,11 +139,11 @@ void GraphPrimitivesNEC::vector_core_per_vertex_kernel_all_active(const long lon
         #pragma _NEC vovertake
         #pragma _NEC novob
         #pragma _NEC vector
-        for (int i = connections_count - VECTOR_LENGTH; i < connections_count; i++)
+        for (int i = first_part_connections_count; i < connections_count; i++)
         {
             const long long int global_edge_pos = start + i;
             const int local_edge_pos = i;
-            const int vector_index = i - (connections_count - VECTOR_LENGTH);
+            const int vector_index = i - first_part_connections_count;
             const int dst_id = _adjacent_ids[global_edge_pos];
 
             edge_op(src_id, dst_id, local_edge_pos, global_edge_pos, vector_index, delayed_write);

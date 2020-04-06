@@ -120,6 +120,8 @@ long long *ve_vector_group_ptrs = (_graph.get_last_vertices_ve_ptr())->get_vecto
 int *ve_vector_group_sizes = (_graph.get_last_vertices_ve_ptr())->get_vector_group_sizes();\
 int *ve_outgoing_ids = (_graph.get_last_vertices_ve_ptr())->get_adjacent_ids();\
 _TEdgeWeight *ve_outgoing_weights = (_graph.get_last_vertices_ve_ptr())->get_adjacent_weights();\
+\
+int *incoming_degrees = input_graph.get_incoming_degrees();\
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 

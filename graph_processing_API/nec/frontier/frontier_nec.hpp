@@ -5,7 +5,17 @@
 template <typename _TVertexValue, typename _TEdgeWeight>
 FrontierNEC::FrontierNEC(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph)
 {
-    FrontierNEC(_graph.get_vertices_count());
+    max_size = _graph.get_vertices_count();
+    MemoryAPI::allocate_array(&flags, max_size);
+    MemoryAPI::allocate_array(&ids, max_size);
+    MemoryAPI::allocate_array(&work_buffer, max_size);
+
+    // by default frontier is all active
+    type = ALL_ACTIVE_FRONTIER;
+    current_size = max_size;
+
+    #pragma omp parallel
+    {}
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
