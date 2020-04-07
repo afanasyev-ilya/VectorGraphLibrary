@@ -8,12 +8,12 @@
 
 bool are_same(float a, float b)
 {
-    return fabs(a - b) < std::numeric_limits<float>::epsilon();
+    return fabs(a - b) < 100.0*std::numeric_limits<float>::epsilon();
 }
 
 bool are_same(double a, double b)
 {
-    return fabs(a - b) < std::numeric_limits<double>::epsilon();
+    return fabs(a - b) < 100.0*std::numeric_limits<double>::epsilon();
 }
 
 bool are_same(int a, int b)

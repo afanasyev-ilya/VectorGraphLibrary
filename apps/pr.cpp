@@ -43,7 +43,7 @@ int main(int argc, const char * argv[])
         }
 
         PageRank<int, float> pr_operation;
-        int iterations_count = 5;//parser.get_number_of_rounds();
+        int iterations_count = parser.get_number_of_rounds();
 
         float *page_ranks;
 

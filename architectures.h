@@ -37,7 +37,7 @@
 // Common properties
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-//#define __PRINT_API_PERFORMANCE_STATS__
+#define __PRINT_API_PERFORMANCE_STATS__
 #define __PRINT_SAMPLES_PERFORMANCE_STATS__
 #define __USE_WEIGHTED_GRAPHS__
 

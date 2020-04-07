@@ -79,6 +79,7 @@ void GraphPrimitivesNEC::vector_engine_per_vertex_kernel_sparse(const long long 
         #pragma omp master
         {
             INNER_WALL_NEC_TIME += t2 - t1;
+            INNER_ADVANCE_NEC_TIME += t2 - t1;
 
             double work = 0;
             for (int front_pos = 0; front_pos < _frontier_segment_size; front_pos++)
@@ -170,6 +171,9 @@ void GraphPrimitivesNEC::vector_core_per_vertex_kernel_sparse(const long long *_
 
         #pragma omp master
         {
+            INNER_WALL_NEC_TIME += t2 - t1;
+            INNER_ADVANCE_NEC_TIME += t2 - t1;
+
             double work = 0;
             for (int front_pos = 0; front_pos < _frontier_segment_size; front_pos++)
             {
@@ -179,7 +183,6 @@ void GraphPrimitivesNEC::vector_core_per_vertex_kernel_sparse(const long long *_
                 work += connections_count;
             }
 
-            INNER_WALL_NEC_TIME += t2 - t1;
             cout << "2) time: " << (t2 - t1)*1000.0 << " ms" << endl;
             cout << "2) BF: " << sizeof(int)*INT_ELEMENTS_PER_EDGE*work/((t2-t1)*1e9) << " GB/s" << endl;
         };
@@ -300,6 +303,7 @@ void GraphPrimitivesNEC::collective_vertex_processing_kernel_sparse(const long l
         #pragma omp master
         {
             INNER_WALL_NEC_TIME += t2 - t1;
+            INNER_ADVANCE_NEC_TIME += t2 - t1;
 
             double work = 0;
             for(int front_pos = 0; front_pos < _frontier_size; front_pos ++)

@@ -151,6 +151,20 @@ void PR::nec_page_rank(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
             cout << "ranks sum: " << ranks_sum << endl;
             throw "ERROR: page rank sum is incorrect";
         }
+
+        float err = 0.0;
+        #pragma omp parallel for reduction(+: err)
+        for(int i = 0; i < vertices_count; i++)
+        {
+            float diff = _page_ranks[i] - old_page_ranks[i];
+            if(diff < 0)
+                diff *= -1;
+            err += diff;
+        }
+
+        cout << "err: " << err << endl;
+        //if(err < (vertices_count * _convergence_factor))
+        //    break;
     }
     double t2 = omp_get_wtime();
     performance_stats("page ranks", t2 - t1, edges_count, iterations_count);

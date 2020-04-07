@@ -77,6 +77,7 @@ void GraphPrimitivesNEC::vector_engine_per_vertex_kernel_all_active(const long l
         #pragma omp master
         {
             INNER_WALL_NEC_TIME += t2 - t1;
+            INNER_ADVANCE_NEC_TIME += t2 - t1;
 
             double work = _vertex_pointers[_last_vertex] - _vertex_pointers[_first_vertex];
             cout << "1) time: " << (t2 - t1)*1000.0 << " ms" << endl;
@@ -158,6 +159,7 @@ void GraphPrimitivesNEC::vector_core_per_vertex_kernel_all_active(const long lon
         #pragma omp master
         {
             INNER_WALL_NEC_TIME += t2 - t1;
+            INNER_ADVANCE_NEC_TIME += t2 - t1;
 
             double work = _vertex_pointers[_last_vertex] - _vertex_pointers[_first_vertex];
             cout << "2) time: " << (t2 - t1)*1000.0 << " ms" << endl;
@@ -246,6 +248,7 @@ void GraphPrimitivesNEC::ve_collective_vertex_processing_kernel_all_active(const
         #pragma omp master
         {
             INNER_WALL_NEC_TIME += t2 - t1;
+            INNER_ADVANCE_NEC_TIME += t2 - t1;
 
             double work = _ve_vector_group_ptrs[_ve_vector_segments_count - 1] - _ve_vector_group_ptrs[0];
             double real_work = work;

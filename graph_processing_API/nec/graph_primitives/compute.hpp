@@ -80,7 +80,8 @@ void GraphPrimitivesNEC::compute_worker(ExtendedCSRGraph<_TVertexValue, _TEdgeWe
             #pragma _NEC vector
             for (int src_id = max_frontier_size - VECTOR_LENGTH; src_id < max_frontier_size; src_id++)
             {
-                if (frontier_flags[src_id] == NEC_IN_FRONTIER_FLAG) {
+                if (frontier_flags[src_id] == NEC_IN_FRONTIER_FLAG)
+                {
                     int connections_count = vertex_pointers[src_id + 1] - vertex_pointers[src_id];
                     int vector_index = src_id - (max_frontier_size - VECTOR_LENGTH);
                     compute_op(src_id, connections_count, vector_index);
@@ -94,6 +95,9 @@ void GraphPrimitivesNEC::compute_worker(ExtendedCSRGraph<_TVertexValue, _TEdgeWe
     double t2 = omp_get_wtime();
     #pragma omp master
     {
+        INNER_WALL_NEC_TIME += t2 - t1;
+        INNER_COMPUTE_NEC_TIME += t2 - t1;
+
         double work = max_frontier_size;
         cout << "compute time: " << (t2 - t1)*1000.0 << " ms" << endl;
         cout << "compute BW: " << sizeof(int)*2.0*work/((t2-t1)*1e9) << " GB/s" << endl << endl;

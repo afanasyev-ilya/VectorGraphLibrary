@@ -67,16 +67,23 @@ int main(int argc, const char * argv[])
             vertex_to_check = i + 100;
             cout << "starting from vertex: " << vertex_to_check << endl;
 
-            INNER_WALL_NEC_TIME = 0;
             double t1 = omp_get_wtime();
             #ifdef __USE_NEC_SX_AURORA__
+
+            #ifdef __PRINT_API_PERFORMANCE_STATS__
+            reset_nec_debug_timers();
+            #endif // __PRINT_API_PERFORMANCE_STATS__
+
             if(parser.get_algorithm_bfs() == DIRECTION_OPTIMISING_BFS_ALGORITHM)
                 bfs_operation.nec_direction_optimising(graph, bfs_levels, vertex_to_check);
             else if(parser.get_algorithm_bfs() == TOP_DOWN_BFS_ALGORITHM)
                 bfs_operation.nec_top_down(graph, bfs_levels, vertex_to_check);
-            cout << "INNER_WALL_NEC_TIME: " << INNER_WALL_NEC_TIME * 1000 << " ms" << endl;
-            cout << "INNER PERF: " << graph.get_edges_count() / (INNER_WALL_NEC_TIME * 1e6) << " MTEPS" << endl;
-            #endif
+
+            #ifdef __PRINT_API_PERFORMANCE_STATS__
+            print_nec_debug_timers(graph);
+            #endif // __PRINT_API_PERFORMANCE_STATS__
+
+            #endif // __USE_NEC_SX_AURORA__
 
             #ifdef __USE_GPU__
             bfs_operation.gpu_direction_optimising_BFS(graph, device_bfs_levels, vertex_to_check);

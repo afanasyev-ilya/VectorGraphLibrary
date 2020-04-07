@@ -70,6 +70,9 @@ void FrontierNEC::set_all_active()
 {
     type = ALL_ACTIVE_FRONTIER;
     current_size = max_size;
+
+    #pragma omp parallel // dummy for performance evaluation
+    {};
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

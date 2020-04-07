@@ -288,10 +288,10 @@ void BFS<_TVertexValue, _TEdgeWeight>::nec_direction_optimising(ExtendedCSRGraph
 {
     LOAD_EXTENDED_CSR_GRAPH_DATA(_graph);
     GraphStructure graph_structure = check_graph_structure(_graph);
-    frontier.set_all_active();
-
     int *connections_array;
     MemoryAPI::allocate_array(&connections_array, vertices_count);
+
+    frontier.set_all_active();
     auto init_connections = [connections_array] (int src_id, int connections_count, int vector_index)
     {
         connections_array[src_id] = connections_count;

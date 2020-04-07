@@ -5,6 +5,10 @@ void GraphPrimitivesNEC::filter(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_
                                 FrontierNEC &_frontier,
                                 FilterCondition &&filter_cond)
 {
+    #ifdef __PRINT_API_PERFORMANCE_STATS__
+    double t1 = omp_get_wtime();
+    #endif
+
     const int ve_threshold = _graph.get_nec_vector_engine_threshold_vertex();
     const int vc_threshold = _graph.get_nec_vector_core_threshold_vertex();
     const int vertices_count = _graph.get_vertices_count();
@@ -78,6 +82,16 @@ void GraphPrimitivesNEC::filter(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_
 
         _frontier.collective_part_size = sparse_copy_if(_frontier.flags, &_frontier.ids[_frontier.vector_core_part_size + _frontier.vector_engine_part_size], _frontier.work_buffer, _frontier.max_size, vc_threshold, vertices_count);
     }
+
+    #ifdef __PRINT_API_PERFORMANCE_STATS__
+    double t2 = omp_get_wtime();
+
+    INNER_WALL_NEC_TIME += t2 - t1;
+    INNER_FILTER_NEC_TIME += t2 - t1;
+    double work = _frontier.max_size;
+    cout << "filter time: " << (t2 - t1)*1000.0 << " ms" << endl;
+    cout << "filter BW: " << sizeof(int)*2.0*work/((t2-t1)*1e9) << " GB/s" << endl << endl;
+    #endif
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

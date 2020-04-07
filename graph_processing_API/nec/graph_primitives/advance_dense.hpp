@@ -155,6 +155,7 @@ void GraphPrimitivesNEC::vector_core_per_vertex_kernel_dense(const long long *_v
         #pragma omp master
         {
             INNER_WALL_NEC_TIME += t2 - t1;
+            INNER_ADVANCE_NEC_TIME += t2 - t1;
 
             double work = 0;
             for(int front_pos = _first_vertex; front_pos < _last_vertex; front_pos++)
@@ -256,6 +257,7 @@ void GraphPrimitivesNEC::ve_collective_vertex_processing_kernel_dense(const long
         #pragma omp master
         {
             INNER_WALL_NEC_TIME += t2 - t1;
+            INNER_ADVANCE_NEC_TIME += t2 - t1;
 
             double work = 0;
             for(int pos = 0; pos < _ve_vector_segments_count*VECTOR_LENGTH; pos++)
