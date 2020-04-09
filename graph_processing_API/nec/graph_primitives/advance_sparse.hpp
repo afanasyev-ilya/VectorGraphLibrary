@@ -29,7 +29,7 @@ void GraphPrimitivesNEC::vector_engine_per_vertex_kernel_sparse(const long long 
         const long long int start = _vertex_pointers[src_id];
         const long long int end = _vertex_pointers[src_id + 1];
         const int connections_count = end - start;
-        const int first_part_connections_count = get_vector_connection_border(connections_count);
+        const int first_part_connections_count = get_vector_border(connections_count);
 
         vertex_preprocess_op(src_id, connections_count, 0, delayed_write);
 
@@ -80,6 +80,7 @@ void GraphPrimitivesNEC::vector_engine_per_vertex_kernel_sparse(const long long 
         {
             INNER_WALL_NEC_TIME += t2 - t1;
             INNER_ADVANCE_NEC_TIME += t2 - t1;
+            DETAILED_ADVANCE_PART_1_NEC_TIME += t2 - t1;
 
             double work = 0;
             for (int front_pos = 0; front_pos < _frontier_segment_size; front_pos++)
@@ -127,7 +128,7 @@ void GraphPrimitivesNEC::vector_core_per_vertex_kernel_sparse(const long long *_
         const long long int start = _vertex_pointers[src_id];
         const long long int end = _vertex_pointers[src_id + 1];
         const int connections_count = end - start;
-        const int first_part_connections_count = get_vector_connection_border(connections_count);
+        const int first_part_connections_count = get_vector_border(connections_count);
 
         vertex_preprocess_op(src_id, connections_count, 0, delayed_write);
 
@@ -173,6 +174,7 @@ void GraphPrimitivesNEC::vector_core_per_vertex_kernel_sparse(const long long *_
         {
             INNER_WALL_NEC_TIME += t2 - t1;
             INNER_ADVANCE_NEC_TIME += t2 - t1;
+            DETAILED_ADVANCE_PART_2_NEC_TIME += t2 - t1;
 
             double work = 0;
             for (int front_pos = 0; front_pos < _frontier_segment_size; front_pos++)
@@ -304,6 +306,7 @@ void GraphPrimitivesNEC::collective_vertex_processing_kernel_sparse(const long l
         {
             INNER_WALL_NEC_TIME += t2 - t1;
             INNER_ADVANCE_NEC_TIME += t2 - t1;
+            DETAILED_ADVANCE_PART_3_NEC_TIME += t2 - t1;
 
             double work = 0;
             for(int front_pos = 0; front_pos < _frontier_size; front_pos ++)

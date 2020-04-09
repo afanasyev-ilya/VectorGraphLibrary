@@ -43,10 +43,10 @@ RM = /Applications/CLion.app/Contents/bin/cmake/mac/bin/cmake -E remove -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary
+CMAKE_SOURCE_DIR = /Users/elijah/Documents/workspace/VectorGraphLibrary
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/cmake-build-debug
+CMAKE_BINARY_DIR = /Users/elijah/Documents/workspace/VectorGraphLibrary/cmake-build-debug
 
 # Include any dependencies generated for this target.
 include CMakeFiles/VectorGraphLibrary.dir/depend.make
@@ -59,159 +59,159 @@ include CMakeFiles/VectorGraphLibrary.dir/flags.make
 
 CMakeFiles/VectorGraphLibrary.dir/apps/analyse_graph.cpp.o: CMakeFiles/VectorGraphLibrary.dir/flags.make
 CMakeFiles/VectorGraphLibrary.dir/apps/analyse_graph.cpp.o: ../apps/analyse_graph.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object CMakeFiles/VectorGraphLibrary.dir/apps/analyse_graph.cpp.o"
-	/Library/Developer/CommandLineTools/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/VectorGraphLibrary.dir/apps/analyse_graph.cpp.o -c /Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/apps/analyse_graph.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/Users/elijah/Documents/workspace/VectorGraphLibrary/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object CMakeFiles/VectorGraphLibrary.dir/apps/analyse_graph.cpp.o"
+	/usr/local/bin/g++-9  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/VectorGraphLibrary.dir/apps/analyse_graph.cpp.o -c /Users/elijah/Documents/workspace/VectorGraphLibrary/apps/analyse_graph.cpp
 
 CMakeFiles/VectorGraphLibrary.dir/apps/analyse_graph.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/VectorGraphLibrary.dir/apps/analyse_graph.cpp.i"
-	/Library/Developer/CommandLineTools/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/apps/analyse_graph.cpp > CMakeFiles/VectorGraphLibrary.dir/apps/analyse_graph.cpp.i
+	/usr/local/bin/g++-9 $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /Users/elijah/Documents/workspace/VectorGraphLibrary/apps/analyse_graph.cpp > CMakeFiles/VectorGraphLibrary.dir/apps/analyse_graph.cpp.i
 
 CMakeFiles/VectorGraphLibrary.dir/apps/analyse_graph.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/VectorGraphLibrary.dir/apps/analyse_graph.cpp.s"
-	/Library/Developer/CommandLineTools/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/apps/analyse_graph.cpp -o CMakeFiles/VectorGraphLibrary.dir/apps/analyse_graph.cpp.s
+	/usr/local/bin/g++-9 $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /Users/elijah/Documents/workspace/VectorGraphLibrary/apps/analyse_graph.cpp -o CMakeFiles/VectorGraphLibrary.dir/apps/analyse_graph.cpp.s
 
 CMakeFiles/VectorGraphLibrary.dir/apps/bfs.cpp.o: CMakeFiles/VectorGraphLibrary.dir/flags.make
 CMakeFiles/VectorGraphLibrary.dir/apps/bfs.cpp.o: ../apps/bfs.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building CXX object CMakeFiles/VectorGraphLibrary.dir/apps/bfs.cpp.o"
-	/Library/Developer/CommandLineTools/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/VectorGraphLibrary.dir/apps/bfs.cpp.o -c /Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/apps/bfs.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/Users/elijah/Documents/workspace/VectorGraphLibrary/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building CXX object CMakeFiles/VectorGraphLibrary.dir/apps/bfs.cpp.o"
+	/usr/local/bin/g++-9  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/VectorGraphLibrary.dir/apps/bfs.cpp.o -c /Users/elijah/Documents/workspace/VectorGraphLibrary/apps/bfs.cpp
 
 CMakeFiles/VectorGraphLibrary.dir/apps/bfs.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/VectorGraphLibrary.dir/apps/bfs.cpp.i"
-	/Library/Developer/CommandLineTools/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/apps/bfs.cpp > CMakeFiles/VectorGraphLibrary.dir/apps/bfs.cpp.i
+	/usr/local/bin/g++-9 $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /Users/elijah/Documents/workspace/VectorGraphLibrary/apps/bfs.cpp > CMakeFiles/VectorGraphLibrary.dir/apps/bfs.cpp.i
 
 CMakeFiles/VectorGraphLibrary.dir/apps/bfs.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/VectorGraphLibrary.dir/apps/bfs.cpp.s"
-	/Library/Developer/CommandLineTools/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/apps/bfs.cpp -o CMakeFiles/VectorGraphLibrary.dir/apps/bfs.cpp.s
+	/usr/local/bin/g++-9 $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /Users/elijah/Documents/workspace/VectorGraphLibrary/apps/bfs.cpp -o CMakeFiles/VectorGraphLibrary.dir/apps/bfs.cpp.s
 
 CMakeFiles/VectorGraphLibrary.dir/apps/cc.cpp.o: CMakeFiles/VectorGraphLibrary.dir/flags.make
 CMakeFiles/VectorGraphLibrary.dir/apps/cc.cpp.o: ../apps/cc.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Building CXX object CMakeFiles/VectorGraphLibrary.dir/apps/cc.cpp.o"
-	/Library/Developer/CommandLineTools/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/VectorGraphLibrary.dir/apps/cc.cpp.o -c /Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/apps/cc.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/Users/elijah/Documents/workspace/VectorGraphLibrary/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Building CXX object CMakeFiles/VectorGraphLibrary.dir/apps/cc.cpp.o"
+	/usr/local/bin/g++-9  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/VectorGraphLibrary.dir/apps/cc.cpp.o -c /Users/elijah/Documents/workspace/VectorGraphLibrary/apps/cc.cpp
 
 CMakeFiles/VectorGraphLibrary.dir/apps/cc.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/VectorGraphLibrary.dir/apps/cc.cpp.i"
-	/Library/Developer/CommandLineTools/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/apps/cc.cpp > CMakeFiles/VectorGraphLibrary.dir/apps/cc.cpp.i
+	/usr/local/bin/g++-9 $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /Users/elijah/Documents/workspace/VectorGraphLibrary/apps/cc.cpp > CMakeFiles/VectorGraphLibrary.dir/apps/cc.cpp.i
 
 CMakeFiles/VectorGraphLibrary.dir/apps/cc.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/VectorGraphLibrary.dir/apps/cc.cpp.s"
-	/Library/Developer/CommandLineTools/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/apps/cc.cpp -o CMakeFiles/VectorGraphLibrary.dir/apps/cc.cpp.s
+	/usr/local/bin/g++-9 $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /Users/elijah/Documents/workspace/VectorGraphLibrary/apps/cc.cpp -o CMakeFiles/VectorGraphLibrary.dir/apps/cc.cpp.s
 
 CMakeFiles/VectorGraphLibrary.dir/apps/generate_test_data.cpp.o: CMakeFiles/VectorGraphLibrary.dir/flags.make
 CMakeFiles/VectorGraphLibrary.dir/apps/generate_test_data.cpp.o: ../apps/generate_test_data.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Building CXX object CMakeFiles/VectorGraphLibrary.dir/apps/generate_test_data.cpp.o"
-	/Library/Developer/CommandLineTools/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/VectorGraphLibrary.dir/apps/generate_test_data.cpp.o -c /Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/apps/generate_test_data.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/Users/elijah/Documents/workspace/VectorGraphLibrary/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Building CXX object CMakeFiles/VectorGraphLibrary.dir/apps/generate_test_data.cpp.o"
+	/usr/local/bin/g++-9  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/VectorGraphLibrary.dir/apps/generate_test_data.cpp.o -c /Users/elijah/Documents/workspace/VectorGraphLibrary/apps/generate_test_data.cpp
 
 CMakeFiles/VectorGraphLibrary.dir/apps/generate_test_data.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/VectorGraphLibrary.dir/apps/generate_test_data.cpp.i"
-	/Library/Developer/CommandLineTools/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/apps/generate_test_data.cpp > CMakeFiles/VectorGraphLibrary.dir/apps/generate_test_data.cpp.i
+	/usr/local/bin/g++-9 $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /Users/elijah/Documents/workspace/VectorGraphLibrary/apps/generate_test_data.cpp > CMakeFiles/VectorGraphLibrary.dir/apps/generate_test_data.cpp.i
 
 CMakeFiles/VectorGraphLibrary.dir/apps/generate_test_data.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/VectorGraphLibrary.dir/apps/generate_test_data.cpp.s"
-	/Library/Developer/CommandLineTools/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/apps/generate_test_data.cpp -o CMakeFiles/VectorGraphLibrary.dir/apps/generate_test_data.cpp.s
+	/usr/local/bin/g++-9 $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /Users/elijah/Documents/workspace/VectorGraphLibrary/apps/generate_test_data.cpp -o CMakeFiles/VectorGraphLibrary.dir/apps/generate_test_data.cpp.s
 
 CMakeFiles/VectorGraphLibrary.dir/apps/kcore.cpp.o: CMakeFiles/VectorGraphLibrary.dir/flags.make
 CMakeFiles/VectorGraphLibrary.dir/apps/kcore.cpp.o: ../apps/kcore.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_5) "Building CXX object CMakeFiles/VectorGraphLibrary.dir/apps/kcore.cpp.o"
-	/Library/Developer/CommandLineTools/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/VectorGraphLibrary.dir/apps/kcore.cpp.o -c /Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/apps/kcore.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/Users/elijah/Documents/workspace/VectorGraphLibrary/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_5) "Building CXX object CMakeFiles/VectorGraphLibrary.dir/apps/kcore.cpp.o"
+	/usr/local/bin/g++-9  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/VectorGraphLibrary.dir/apps/kcore.cpp.o -c /Users/elijah/Documents/workspace/VectorGraphLibrary/apps/kcore.cpp
 
 CMakeFiles/VectorGraphLibrary.dir/apps/kcore.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/VectorGraphLibrary.dir/apps/kcore.cpp.i"
-	/Library/Developer/CommandLineTools/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/apps/kcore.cpp > CMakeFiles/VectorGraphLibrary.dir/apps/kcore.cpp.i
+	/usr/local/bin/g++-9 $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /Users/elijah/Documents/workspace/VectorGraphLibrary/apps/kcore.cpp > CMakeFiles/VectorGraphLibrary.dir/apps/kcore.cpp.i
 
 CMakeFiles/VectorGraphLibrary.dir/apps/kcore.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/VectorGraphLibrary.dir/apps/kcore.cpp.s"
-	/Library/Developer/CommandLineTools/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/apps/kcore.cpp -o CMakeFiles/VectorGraphLibrary.dir/apps/kcore.cpp.s
+	/usr/local/bin/g++-9 $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /Users/elijah/Documents/workspace/VectorGraphLibrary/apps/kcore.cpp -o CMakeFiles/VectorGraphLibrary.dir/apps/kcore.cpp.s
 
 CMakeFiles/VectorGraphLibrary.dir/apps/pr.cpp.o: CMakeFiles/VectorGraphLibrary.dir/flags.make
 CMakeFiles/VectorGraphLibrary.dir/apps/pr.cpp.o: ../apps/pr.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_6) "Building CXX object CMakeFiles/VectorGraphLibrary.dir/apps/pr.cpp.o"
-	/Library/Developer/CommandLineTools/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/VectorGraphLibrary.dir/apps/pr.cpp.o -c /Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/apps/pr.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/Users/elijah/Documents/workspace/VectorGraphLibrary/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_6) "Building CXX object CMakeFiles/VectorGraphLibrary.dir/apps/pr.cpp.o"
+	/usr/local/bin/g++-9  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/VectorGraphLibrary.dir/apps/pr.cpp.o -c /Users/elijah/Documents/workspace/VectorGraphLibrary/apps/pr.cpp
 
 CMakeFiles/VectorGraphLibrary.dir/apps/pr.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/VectorGraphLibrary.dir/apps/pr.cpp.i"
-	/Library/Developer/CommandLineTools/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/apps/pr.cpp > CMakeFiles/VectorGraphLibrary.dir/apps/pr.cpp.i
+	/usr/local/bin/g++-9 $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /Users/elijah/Documents/workspace/VectorGraphLibrary/apps/pr.cpp > CMakeFiles/VectorGraphLibrary.dir/apps/pr.cpp.i
 
 CMakeFiles/VectorGraphLibrary.dir/apps/pr.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/VectorGraphLibrary.dir/apps/pr.cpp.s"
-	/Library/Developer/CommandLineTools/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/apps/pr.cpp -o CMakeFiles/VectorGraphLibrary.dir/apps/pr.cpp.s
+	/usr/local/bin/g++-9 $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /Users/elijah/Documents/workspace/VectorGraphLibrary/apps/pr.cpp -o CMakeFiles/VectorGraphLibrary.dir/apps/pr.cpp.s
 
 CMakeFiles/VectorGraphLibrary.dir/apps/sssp.cpp.o: CMakeFiles/VectorGraphLibrary.dir/flags.make
 CMakeFiles/VectorGraphLibrary.dir/apps/sssp.cpp.o: ../apps/sssp.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_7) "Building CXX object CMakeFiles/VectorGraphLibrary.dir/apps/sssp.cpp.o"
-	/Library/Developer/CommandLineTools/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/VectorGraphLibrary.dir/apps/sssp.cpp.o -c /Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/apps/sssp.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/Users/elijah/Documents/workspace/VectorGraphLibrary/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_7) "Building CXX object CMakeFiles/VectorGraphLibrary.dir/apps/sssp.cpp.o"
+	/usr/local/bin/g++-9  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/VectorGraphLibrary.dir/apps/sssp.cpp.o -c /Users/elijah/Documents/workspace/VectorGraphLibrary/apps/sssp.cpp
 
 CMakeFiles/VectorGraphLibrary.dir/apps/sssp.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/VectorGraphLibrary.dir/apps/sssp.cpp.i"
-	/Library/Developer/CommandLineTools/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/apps/sssp.cpp > CMakeFiles/VectorGraphLibrary.dir/apps/sssp.cpp.i
+	/usr/local/bin/g++-9 $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /Users/elijah/Documents/workspace/VectorGraphLibrary/apps/sssp.cpp > CMakeFiles/VectorGraphLibrary.dir/apps/sssp.cpp.i
 
 CMakeFiles/VectorGraphLibrary.dir/apps/sssp.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/VectorGraphLibrary.dir/apps/sssp.cpp.s"
-	/Library/Developer/CommandLineTools/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/apps/sssp.cpp -o CMakeFiles/VectorGraphLibrary.dir/apps/sssp.cpp.s
+	/usr/local/bin/g++-9 $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /Users/elijah/Documents/workspace/VectorGraphLibrary/apps/sssp.cpp -o CMakeFiles/VectorGraphLibrary.dir/apps/sssp.cpp.s
 
 CMakeFiles/VectorGraphLibrary.dir/apps/sswp.cpp.o: CMakeFiles/VectorGraphLibrary.dir/flags.make
 CMakeFiles/VectorGraphLibrary.dir/apps/sswp.cpp.o: ../apps/sswp.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_8) "Building CXX object CMakeFiles/VectorGraphLibrary.dir/apps/sswp.cpp.o"
-	/Library/Developer/CommandLineTools/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/VectorGraphLibrary.dir/apps/sswp.cpp.o -c /Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/apps/sswp.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/Users/elijah/Documents/workspace/VectorGraphLibrary/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_8) "Building CXX object CMakeFiles/VectorGraphLibrary.dir/apps/sswp.cpp.o"
+	/usr/local/bin/g++-9  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/VectorGraphLibrary.dir/apps/sswp.cpp.o -c /Users/elijah/Documents/workspace/VectorGraphLibrary/apps/sswp.cpp
 
 CMakeFiles/VectorGraphLibrary.dir/apps/sswp.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/VectorGraphLibrary.dir/apps/sswp.cpp.i"
-	/Library/Developer/CommandLineTools/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/apps/sswp.cpp > CMakeFiles/VectorGraphLibrary.dir/apps/sswp.cpp.i
+	/usr/local/bin/g++-9 $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /Users/elijah/Documents/workspace/VectorGraphLibrary/apps/sswp.cpp > CMakeFiles/VectorGraphLibrary.dir/apps/sswp.cpp.i
 
 CMakeFiles/VectorGraphLibrary.dir/apps/sswp.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/VectorGraphLibrary.dir/apps/sswp.cpp.s"
-	/Library/Developer/CommandLineTools/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/apps/sswp.cpp -o CMakeFiles/VectorGraphLibrary.dir/apps/sswp.cpp.s
+	/usr/local/bin/g++-9 $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /Users/elijah/Documents/workspace/VectorGraphLibrary/apps/sswp.cpp -o CMakeFiles/VectorGraphLibrary.dir/apps/sswp.cpp.s
 
 CMakeFiles/VectorGraphLibrary.dir/misc/custom_test.cpp.o: CMakeFiles/VectorGraphLibrary.dir/flags.make
 CMakeFiles/VectorGraphLibrary.dir/misc/custom_test.cpp.o: ../misc/custom_test.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_9) "Building CXX object CMakeFiles/VectorGraphLibrary.dir/misc/custom_test.cpp.o"
-	/Library/Developer/CommandLineTools/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/VectorGraphLibrary.dir/misc/custom_test.cpp.o -c /Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/misc/custom_test.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/Users/elijah/Documents/workspace/VectorGraphLibrary/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_9) "Building CXX object CMakeFiles/VectorGraphLibrary.dir/misc/custom_test.cpp.o"
+	/usr/local/bin/g++-9  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/VectorGraphLibrary.dir/misc/custom_test.cpp.o -c /Users/elijah/Documents/workspace/VectorGraphLibrary/misc/custom_test.cpp
 
 CMakeFiles/VectorGraphLibrary.dir/misc/custom_test.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/VectorGraphLibrary.dir/misc/custom_test.cpp.i"
-	/Library/Developer/CommandLineTools/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/misc/custom_test.cpp > CMakeFiles/VectorGraphLibrary.dir/misc/custom_test.cpp.i
+	/usr/local/bin/g++-9 $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /Users/elijah/Documents/workspace/VectorGraphLibrary/misc/custom_test.cpp > CMakeFiles/VectorGraphLibrary.dir/misc/custom_test.cpp.i
 
 CMakeFiles/VectorGraphLibrary.dir/misc/custom_test.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/VectorGraphLibrary.dir/misc/custom_test.cpp.s"
-	/Library/Developer/CommandLineTools/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/misc/custom_test.cpp -o CMakeFiles/VectorGraphLibrary.dir/misc/custom_test.cpp.s
+	/usr/local/bin/g++-9 $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /Users/elijah/Documents/workspace/VectorGraphLibrary/misc/custom_test.cpp -o CMakeFiles/VectorGraphLibrary.dir/misc/custom_test.cpp.s
 
 CMakeFiles/VectorGraphLibrary.dir/misc/generate_memory_traces.cpp.o: CMakeFiles/VectorGraphLibrary.dir/flags.make
 CMakeFiles/VectorGraphLibrary.dir/misc/generate_memory_traces.cpp.o: ../misc/generate_memory_traces.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_10) "Building CXX object CMakeFiles/VectorGraphLibrary.dir/misc/generate_memory_traces.cpp.o"
-	/Library/Developer/CommandLineTools/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/VectorGraphLibrary.dir/misc/generate_memory_traces.cpp.o -c /Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/misc/generate_memory_traces.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/Users/elijah/Documents/workspace/VectorGraphLibrary/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_10) "Building CXX object CMakeFiles/VectorGraphLibrary.dir/misc/generate_memory_traces.cpp.o"
+	/usr/local/bin/g++-9  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/VectorGraphLibrary.dir/misc/generate_memory_traces.cpp.o -c /Users/elijah/Documents/workspace/VectorGraphLibrary/misc/generate_memory_traces.cpp
 
 CMakeFiles/VectorGraphLibrary.dir/misc/generate_memory_traces.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/VectorGraphLibrary.dir/misc/generate_memory_traces.cpp.i"
-	/Library/Developer/CommandLineTools/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/misc/generate_memory_traces.cpp > CMakeFiles/VectorGraphLibrary.dir/misc/generate_memory_traces.cpp.i
+	/usr/local/bin/g++-9 $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /Users/elijah/Documents/workspace/VectorGraphLibrary/misc/generate_memory_traces.cpp > CMakeFiles/VectorGraphLibrary.dir/misc/generate_memory_traces.cpp.i
 
 CMakeFiles/VectorGraphLibrary.dir/misc/generate_memory_traces.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/VectorGraphLibrary.dir/misc/generate_memory_traces.cpp.s"
-	/Library/Developer/CommandLineTools/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/misc/generate_memory_traces.cpp -o CMakeFiles/VectorGraphLibrary.dir/misc/generate_memory_traces.cpp.s
+	/usr/local/bin/g++-9 $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /Users/elijah/Documents/workspace/VectorGraphLibrary/misc/generate_memory_traces.cpp -o CMakeFiles/VectorGraphLibrary.dir/misc/generate_memory_traces.cpp.s
 
 CMakeFiles/VectorGraphLibrary.dir/misc/lambda_tests.cpp.o: CMakeFiles/VectorGraphLibrary.dir/flags.make
 CMakeFiles/VectorGraphLibrary.dir/misc/lambda_tests.cpp.o: ../misc/lambda_tests.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_11) "Building CXX object CMakeFiles/VectorGraphLibrary.dir/misc/lambda_tests.cpp.o"
-	/Library/Developer/CommandLineTools/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/VectorGraphLibrary.dir/misc/lambda_tests.cpp.o -c /Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/misc/lambda_tests.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/Users/elijah/Documents/workspace/VectorGraphLibrary/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_11) "Building CXX object CMakeFiles/VectorGraphLibrary.dir/misc/lambda_tests.cpp.o"
+	/usr/local/bin/g++-9  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/VectorGraphLibrary.dir/misc/lambda_tests.cpp.o -c /Users/elijah/Documents/workspace/VectorGraphLibrary/misc/lambda_tests.cpp
 
 CMakeFiles/VectorGraphLibrary.dir/misc/lambda_tests.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/VectorGraphLibrary.dir/misc/lambda_tests.cpp.i"
-	/Library/Developer/CommandLineTools/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/misc/lambda_tests.cpp > CMakeFiles/VectorGraphLibrary.dir/misc/lambda_tests.cpp.i
+	/usr/local/bin/g++-9 $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /Users/elijah/Documents/workspace/VectorGraphLibrary/misc/lambda_tests.cpp > CMakeFiles/VectorGraphLibrary.dir/misc/lambda_tests.cpp.i
 
 CMakeFiles/VectorGraphLibrary.dir/misc/lambda_tests.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/VectorGraphLibrary.dir/misc/lambda_tests.cpp.s"
-	/Library/Developer/CommandLineTools/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/misc/lambda_tests.cpp -o CMakeFiles/VectorGraphLibrary.dir/misc/lambda_tests.cpp.s
+	/usr/local/bin/g++-9 $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /Users/elijah/Documents/workspace/VectorGraphLibrary/misc/lambda_tests.cpp -o CMakeFiles/VectorGraphLibrary.dir/misc/lambda_tests.cpp.s
 
 CMakeFiles/VectorGraphLibrary.dir/misc/nvgraph_comparison.cpp.o: CMakeFiles/VectorGraphLibrary.dir/flags.make
 CMakeFiles/VectorGraphLibrary.dir/misc/nvgraph_comparison.cpp.o: ../misc/nvgraph_comparison.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_12) "Building CXX object CMakeFiles/VectorGraphLibrary.dir/misc/nvgraph_comparison.cpp.o"
-	/Library/Developer/CommandLineTools/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/VectorGraphLibrary.dir/misc/nvgraph_comparison.cpp.o -c /Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/misc/nvgraph_comparison.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/Users/elijah/Documents/workspace/VectorGraphLibrary/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_12) "Building CXX object CMakeFiles/VectorGraphLibrary.dir/misc/nvgraph_comparison.cpp.o"
+	/usr/local/bin/g++-9  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/VectorGraphLibrary.dir/misc/nvgraph_comparison.cpp.o -c /Users/elijah/Documents/workspace/VectorGraphLibrary/misc/nvgraph_comparison.cpp
 
 CMakeFiles/VectorGraphLibrary.dir/misc/nvgraph_comparison.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/VectorGraphLibrary.dir/misc/nvgraph_comparison.cpp.i"
-	/Library/Developer/CommandLineTools/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/misc/nvgraph_comparison.cpp > CMakeFiles/VectorGraphLibrary.dir/misc/nvgraph_comparison.cpp.i
+	/usr/local/bin/g++-9 $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /Users/elijah/Documents/workspace/VectorGraphLibrary/misc/nvgraph_comparison.cpp > CMakeFiles/VectorGraphLibrary.dir/misc/nvgraph_comparison.cpp.i
 
 CMakeFiles/VectorGraphLibrary.dir/misc/nvgraph_comparison.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/VectorGraphLibrary.dir/misc/nvgraph_comparison.cpp.s"
-	/Library/Developer/CommandLineTools/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/misc/nvgraph_comparison.cpp -o CMakeFiles/VectorGraphLibrary.dir/misc/nvgraph_comparison.cpp.s
+	/usr/local/bin/g++-9 $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /Users/elijah/Documents/workspace/VectorGraphLibrary/misc/nvgraph_comparison.cpp -o CMakeFiles/VectorGraphLibrary.dir/misc/nvgraph_comparison.cpp.s
 
 # Object files for target VectorGraphLibrary
 VectorGraphLibrary_OBJECTS = \
@@ -245,7 +245,7 @@ VectorGraphLibrary: CMakeFiles/VectorGraphLibrary.dir/misc/lambda_tests.cpp.o
 VectorGraphLibrary: CMakeFiles/VectorGraphLibrary.dir/misc/nvgraph_comparison.cpp.o
 VectorGraphLibrary: CMakeFiles/VectorGraphLibrary.dir/build.make
 VectorGraphLibrary: CMakeFiles/VectorGraphLibrary.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_13) "Linking CXX executable VectorGraphLibrary"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/Users/elijah/Documents/workspace/VectorGraphLibrary/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_13) "Linking CXX executable VectorGraphLibrary"
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/VectorGraphLibrary.dir/link.txt --verbose=$(VERBOSE)
 
 # Rule to build all files generated by this target.
@@ -258,6 +258,6 @@ CMakeFiles/VectorGraphLibrary.dir/clean:
 .PHONY : CMakeFiles/VectorGraphLibrary.dir/clean
 
 CMakeFiles/VectorGraphLibrary.dir/depend:
-	cd /Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/cmake-build-debug && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary /Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary /Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/cmake-build-debug /Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/cmake-build-debug /Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/cmake-build-debug/CMakeFiles/VectorGraphLibrary.dir/DependInfo.cmake --color=$(COLOR)
+	cd /Users/elijah/Documents/workspace/VectorGraphLibrary/cmake-build-debug && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /Users/elijah/Documents/workspace/VectorGraphLibrary /Users/elijah/Documents/workspace/VectorGraphLibrary /Users/elijah/Documents/workspace/VectorGraphLibrary/cmake-build-debug /Users/elijah/Documents/workspace/VectorGraphLibrary/cmake-build-debug /Users/elijah/Documents/workspace/VectorGraphLibrary/cmake-build-debug/CMakeFiles/VectorGraphLibrary.dir/DependInfo.cmake --color=$(COLOR)
 .PHONY : CMakeFiles/VectorGraphLibrary.dir/depend
 

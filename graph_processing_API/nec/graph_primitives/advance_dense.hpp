@@ -60,6 +60,8 @@ void GraphPrimitivesNEC::vector_engine_per_vertex_kernel_dense(const long long *
         #pragma omp master
         {
             INNER_WALL_NEC_TIME += t2 - t1;
+            INNER_ADVANCE_NEC_TIME += t2 - t1;
+            DETAILED_ADVANCE_PART_1_NEC_TIME += t2 - t1;
 
             double work = 0;
             for(int front_pos = _first_vertex; front_pos < _last_vertex; front_pos++)
@@ -109,7 +111,7 @@ void GraphPrimitivesNEC::vector_core_per_vertex_kernel_dense(const long long *_v
             const long long int start = _vertex_pointers[src_id];
             const long long int end = _vertex_pointers[src_id + 1];
             const int connections_count = end - start;
-            const int first_part_connections_count = get_vector_connection_border(connections_count);
+            const int first_part_connections_count = get_vector_border(connections_count);
 
             vertex_preprocess_op(src_id, connections_count, 0, delayed_write);
 
@@ -156,6 +158,7 @@ void GraphPrimitivesNEC::vector_core_per_vertex_kernel_dense(const long long *_v
         {
             INNER_WALL_NEC_TIME += t2 - t1;
             INNER_ADVANCE_NEC_TIME += t2 - t1;
+            DETAILED_ADVANCE_PART_2_NEC_TIME += t2 - t1;
 
             double work = 0;
             for(int front_pos = _first_vertex; front_pos < _last_vertex; front_pos++)
@@ -258,6 +261,7 @@ void GraphPrimitivesNEC::ve_collective_vertex_processing_kernel_dense(const long
         {
             INNER_WALL_NEC_TIME += t2 - t1;
             INNER_ADVANCE_NEC_TIME += t2 - t1;
+            DETAILED_ADVANCE_PART_3_NEC_TIME += t2 - t1;
 
             double work = 0;
             for(int pos = 0; pos < _ve_vector_segments_count*VECTOR_LENGTH; pos++)

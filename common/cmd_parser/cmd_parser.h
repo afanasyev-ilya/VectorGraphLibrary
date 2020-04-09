@@ -20,7 +20,7 @@ private:
     
     bool check_flag;
     
-    int number_of_rounds;
+    bool number_of_rounds;
 
     AlgorithmBFS algorithm_bfs;
     AlgorithmCC algorithm_cc;

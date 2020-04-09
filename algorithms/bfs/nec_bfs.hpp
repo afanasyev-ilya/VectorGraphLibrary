@@ -288,10 +288,12 @@ void BFS<_TVertexValue, _TEdgeWeight>::nec_direction_optimising(ExtendedCSRGraph
 {
     LOAD_EXTENDED_CSR_GRAPH_DATA(_graph);
     GraphStructure graph_structure = check_graph_structure(_graph);
+
     int *connections_array;
     MemoryAPI::allocate_array(&connections_array, vertices_count);
 
     frontier.set_all_active();
+
     auto init_connections = [connections_array] (int src_id, int connections_count, int vector_index)
     {
         connections_array[src_id] = connections_count;
@@ -364,7 +366,18 @@ void BFS<_TVertexValue, _TEdgeWeight>::nec_direction_optimising(ExtendedCSRGraph
         }
 
         prev_frontier_size = current_frontier_size;
-        current_frontier_size = get_level_size(_levels, vertices_count, current_level + 1);
+        //current_frontier_size = get_level_size(_levels, vertices_count, current_level + 1);
+
+        auto get_level_size = [_levels, current_level](int src_id, int connections_count, int vector_index)->float
+        {
+            int result = 0;
+            if(_levels[src_id] == (current_level + 1))
+            {
+                result = 1;
+            }
+            return result;
+        };
+        current_frontier_size = graph_API.reduce<int>(_graph, frontier, get_level_size, REDUCE_SUM);
 
         current_state = nec_change_state(prev_frontier_size, current_frontier_size, vertices_count, edges_count, current_state,
                                          vis, in_lvl, _use_vect_CSR_extension, current_level, graph_structure, _levels);

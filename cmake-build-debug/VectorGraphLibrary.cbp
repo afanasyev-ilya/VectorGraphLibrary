@@ -8,492 +8,492 @@
 		<Option virtualFolders="CMake Files\;"/>
 		<Build>
 			<Target title="all">
-				<Option working_dir="/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/cmake-build-debug"/>
+				<Option working_dir="/Users/elijah/Documents/workspace/VectorGraphLibrary/cmake-build-debug"/>
 				<Option type="4"/>
 				<MakeCommands>
-					<Build command="/opt/local/bin/gmake -j4 -f &quot;/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/cmake-build-debug/Makefile&quot;  VERBOSE=1 all"/>
-					<CompileFile command="/opt/local/bin/gmake -j4 -f &quot;/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
-					<Clean command="/opt/local/bin/gmake -j4 -f &quot;/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
-					<DistClean command="/opt/local/bin/gmake -j4 -f &quot;/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<Build command="/usr/bin/make -j8 -f &quot;/Users/elijah/Documents/workspace/VectorGraphLibrary/cmake-build-debug/Makefile&quot;  VERBOSE=1 all"/>
+					<CompileFile command="/usr/bin/make -j8 -f &quot;/Users/elijah/Documents/workspace/VectorGraphLibrary/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j8 -f &quot;/Users/elijah/Documents/workspace/VectorGraphLibrary/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j8 -f &quot;/Users/elijah/Documents/workspace/VectorGraphLibrary/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
 				</MakeCommands>
 			</Target>
 			<Target title="rebuild_cache">
-				<Option working_dir="/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/cmake-build-debug"/>
+				<Option working_dir="/Users/elijah/Documents/workspace/VectorGraphLibrary/cmake-build-debug"/>
 				<Option type="4"/>
 				<MakeCommands>
-					<Build command="/opt/local/bin/gmake -j4 -f &quot;/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/cmake-build-debug/Makefile&quot;  VERBOSE=1 rebuild_cache"/>
-					<CompileFile command="/opt/local/bin/gmake -j4 -f &quot;/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
-					<Clean command="/opt/local/bin/gmake -j4 -f &quot;/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
-					<DistClean command="/opt/local/bin/gmake -j4 -f &quot;/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<Build command="/usr/bin/make -j8 -f &quot;/Users/elijah/Documents/workspace/VectorGraphLibrary/cmake-build-debug/Makefile&quot;  VERBOSE=1 rebuild_cache"/>
+					<CompileFile command="/usr/bin/make -j8 -f &quot;/Users/elijah/Documents/workspace/VectorGraphLibrary/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j8 -f &quot;/Users/elijah/Documents/workspace/VectorGraphLibrary/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j8 -f &quot;/Users/elijah/Documents/workspace/VectorGraphLibrary/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
 				</MakeCommands>
 			</Target>
 			<Target title="edit_cache">
-				<Option working_dir="/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/cmake-build-debug"/>
+				<Option working_dir="/Users/elijah/Documents/workspace/VectorGraphLibrary/cmake-build-debug"/>
 				<Option type="4"/>
 				<MakeCommands>
-					<Build command="/opt/local/bin/gmake -j4 -f &quot;/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/cmake-build-debug/Makefile&quot;  VERBOSE=1 edit_cache"/>
-					<CompileFile command="/opt/local/bin/gmake -j4 -f &quot;/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
-					<Clean command="/opt/local/bin/gmake -j4 -f &quot;/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
-					<DistClean command="/opt/local/bin/gmake -j4 -f &quot;/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<Build command="/usr/bin/make -j8 -f &quot;/Users/elijah/Documents/workspace/VectorGraphLibrary/cmake-build-debug/Makefile&quot;  VERBOSE=1 edit_cache"/>
+					<CompileFile command="/usr/bin/make -j8 -f &quot;/Users/elijah/Documents/workspace/VectorGraphLibrary/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j8 -f &quot;/Users/elijah/Documents/workspace/VectorGraphLibrary/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j8 -f &quot;/Users/elijah/Documents/workspace/VectorGraphLibrary/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
 				</MakeCommands>
 			</Target>
 			<Target title="VectorGraphLibrary">
-				<Option output="/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/cmake-build-debug/VectorGraphLibrary" prefix_auto="0" extension_auto="0"/>
-				<Option working_dir="/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/cmake-build-debug"/>
+				<Option output="/Users/elijah/Documents/workspace/VectorGraphLibrary/cmake-build-debug/VectorGraphLibrary" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/Users/elijah/Documents/workspace/VectorGraphLibrary/cmake-build-debug"/>
 				<Option object_output="./"/>
 				<Option type="1"/>
 				<Option compiler="gcc"/>
 				<Compiler>
-					<Add directory="/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/."/>
-					<Add directory="/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/algorithms"/>
-					<Add directory="/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/algorithms/bfs"/>
-					<Add directory="/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/algorithms/bfs/change_state"/>
-					<Add directory="/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/algorithms/cc"/>
-					<Add directory="/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/algorithms/kcore"/>
-					<Add directory="/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/algorithms/label_propagation"/>
-					<Add directory="/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/algorithms/pr"/>
-					<Add directory="/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/algorithms/sssp"/>
-					<Add directory="/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/algorithms/sswp"/>
-					<Add directory="/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/apps"/>
-					<Add directory="/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/common"/>
-					<Add directory="/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/common/cmd_parser"/>
-					<Add directory="/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/common/gpu_API"/>
-					<Add directory="/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/common/memory_API"/>
-					<Add directory="/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/common/parallel_primitives"/>
-					<Add directory="/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/common/random_generator"/>
-					<Add directory="/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/common/sorting"/>
-					<Add directory="/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/common/verify_results"/>
-					<Add directory="/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/export_graphs"/>
-					<Add directory="/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/graph_analytics"/>
-					<Add directory="/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/graph_generation_API"/>
-					<Add directory="/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/graph_processing_API"/>
-					<Add directory="/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/graph_processing_API/gpu"/>
-					<Add directory="/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/graph_processing_API/nec"/>
-					<Add directory="/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/graph_processing_API/nec/delayed_write"/>
-					<Add directory="/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/graph_processing_API/nec/frontier"/>
-					<Add directory="/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/graph_processing_API/nec/graph_primitives"/>
-					<Add directory="/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/graph_processing_API/nec/vector_register"/>
-					<Add directory="/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/graph_representations"/>
-					<Add directory="/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/graph_representations/common"/>
-					<Add directory="/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/graph_representations/edges_list_graph"/>
-					<Add directory="/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/graph_representations/extended_CSR_graph"/>
-					<Add directory="/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/graph_representations/extended_CSR_graph/vector_extension"/>
-					<Add directory="/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/graph_representations/sharded_graph"/>
-					<Add directory="/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/graph_representations/sharded_graph/shard_base"/>
-					<Add directory="/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/graph_representations/sharded_graph/shard_CSR"/>
-					<Add directory="/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/graph_representations/sharded_graph/shard_vect_CSR"/>
-					<Add directory="/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/verification"/>
-					<Add directory="/Library/Developer/CommandLineTools/usr/include/c++/v1"/>
-					<Add directory="/usr/local/include"/>
-					<Add directory="/Library/Developer/CommandLineTools/usr/lib/clang/10.0.1/include"/>
-					<Add directory="/Library/Developer/CommandLineTools/usr/include"/>
-					<Add directory="/usr/include"/>
-					<Add directory="/System/Library/Frameworks"/>
-					<Add directory="/Library/Frameworks"/>
+					<Add directory="/Users/elijah/Documents/workspace/VectorGraphLibrary/."/>
+					<Add directory="/Users/elijah/Documents/workspace/VectorGraphLibrary/algorithms"/>
+					<Add directory="/Users/elijah/Documents/workspace/VectorGraphLibrary/algorithms/bfs"/>
+					<Add directory="/Users/elijah/Documents/workspace/VectorGraphLibrary/algorithms/bfs/change_state"/>
+					<Add directory="/Users/elijah/Documents/workspace/VectorGraphLibrary/algorithms/cc"/>
+					<Add directory="/Users/elijah/Documents/workspace/VectorGraphLibrary/algorithms/kcore"/>
+					<Add directory="/Users/elijah/Documents/workspace/VectorGraphLibrary/algorithms/label_propagation"/>
+					<Add directory="/Users/elijah/Documents/workspace/VectorGraphLibrary/algorithms/pr"/>
+					<Add directory="/Users/elijah/Documents/workspace/VectorGraphLibrary/algorithms/sssp"/>
+					<Add directory="/Users/elijah/Documents/workspace/VectorGraphLibrary/algorithms/sswp"/>
+					<Add directory="/Users/elijah/Documents/workspace/VectorGraphLibrary/apps"/>
+					<Add directory="/Users/elijah/Documents/workspace/VectorGraphLibrary/common"/>
+					<Add directory="/Users/elijah/Documents/workspace/VectorGraphLibrary/common/cmd_parser"/>
+					<Add directory="/Users/elijah/Documents/workspace/VectorGraphLibrary/common/gpu_API"/>
+					<Add directory="/Users/elijah/Documents/workspace/VectorGraphLibrary/common/memory_API"/>
+					<Add directory="/Users/elijah/Documents/workspace/VectorGraphLibrary/common/parallel_primitives"/>
+					<Add directory="/Users/elijah/Documents/workspace/VectorGraphLibrary/common/random_generator"/>
+					<Add directory="/Users/elijah/Documents/workspace/VectorGraphLibrary/common/sorting"/>
+					<Add directory="/Users/elijah/Documents/workspace/VectorGraphLibrary/common/verify_results"/>
+					<Add directory="/Users/elijah/Documents/workspace/VectorGraphLibrary/export_graphs"/>
+					<Add directory="/Users/elijah/Documents/workspace/VectorGraphLibrary/graph_analytics"/>
+					<Add directory="/Users/elijah/Documents/workspace/VectorGraphLibrary/graph_generation_API"/>
+					<Add directory="/Users/elijah/Documents/workspace/VectorGraphLibrary/graph_processing_API"/>
+					<Add directory="/Users/elijah/Documents/workspace/VectorGraphLibrary/graph_processing_API/gpu"/>
+					<Add directory="/Users/elijah/Documents/workspace/VectorGraphLibrary/graph_processing_API/nec"/>
+					<Add directory="/Users/elijah/Documents/workspace/VectorGraphLibrary/graph_processing_API/nec/delayed_write"/>
+					<Add directory="/Users/elijah/Documents/workspace/VectorGraphLibrary/graph_processing_API/nec/frontier"/>
+					<Add directory="/Users/elijah/Documents/workspace/VectorGraphLibrary/graph_processing_API/nec/graph_primitives"/>
+					<Add directory="/Users/elijah/Documents/workspace/VectorGraphLibrary/graph_processing_API/nec/vector_register"/>
+					<Add directory="/Users/elijah/Documents/workspace/VectorGraphLibrary/graph_representations"/>
+					<Add directory="/Users/elijah/Documents/workspace/VectorGraphLibrary/graph_representations/common"/>
+					<Add directory="/Users/elijah/Documents/workspace/VectorGraphLibrary/graph_representations/edges_list_graph"/>
+					<Add directory="/Users/elijah/Documents/workspace/VectorGraphLibrary/graph_representations/extended_CSR_graph"/>
+					<Add directory="/Users/elijah/Documents/workspace/VectorGraphLibrary/graph_representations/extended_CSR_graph/vector_extension"/>
+					<Add directory="/Users/elijah/Documents/workspace/VectorGraphLibrary/graph_representations/sharded_graph"/>
+					<Add directory="/Users/elijah/Documents/workspace/VectorGraphLibrary/graph_representations/sharded_graph/shard_base"/>
+					<Add directory="/Users/elijah/Documents/workspace/VectorGraphLibrary/graph_representations/sharded_graph/shard_CSR"/>
+					<Add directory="/Users/elijah/Documents/workspace/VectorGraphLibrary/graph_representations/sharded_graph/shard_vect_CSR"/>
+					<Add directory="/Users/elijah/Documents/workspace/VectorGraphLibrary/verification"/>
+					<Add directory="/usr/local/Cellar/gcc/9.3.0/lib/gcc/9/gcc/x86_64-apple-darwin19/9.3.0/../../../../../../include/c++/9.3.0"/>
+					<Add directory="/usr/local/Cellar/gcc/9.3.0/lib/gcc/9/gcc/x86_64-apple-darwin19/9.3.0/../../../../../../include/c++/9.3.0/x86_64-apple-darwin19"/>
+					<Add directory="/usr/local/Cellar/gcc/9.3.0/lib/gcc/9/gcc/x86_64-apple-darwin19/9.3.0/../../../../../../include/c++/9.3.0/backward"/>
+					<Add directory="/usr/local/Cellar/gcc/9.3.0/lib/gcc/9/gcc/x86_64-apple-darwin19/9.3.0/include"/>
+					<Add directory="/usr/local/Cellar/gcc/9.3.0/lib/gcc/9/gcc/x86_64-apple-darwin19/9.3.0/include-fixed"/>
+					<Add directory="/Library/Developer/CommandLineTools/SDKs/MacOSX10.15.sdk/usr/include"/>
+					<Add directory="/Library/Developer/CommandLineTools/SDKs/MacOSX10.15.sdk/System/Library/Frameworks"/>
 				</Compiler>
 				<MakeCommands>
-					<Build command="/opt/local/bin/gmake -j4 -f &quot;/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/cmake-build-debug/Makefile&quot;  VERBOSE=1 VectorGraphLibrary"/>
-					<CompileFile command="/opt/local/bin/gmake -j4 -f &quot;/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
-					<Clean command="/opt/local/bin/gmake -j4 -f &quot;/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
-					<DistClean command="/opt/local/bin/gmake -j4 -f &quot;/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<Build command="/usr/bin/make -j8 -f &quot;/Users/elijah/Documents/workspace/VectorGraphLibrary/cmake-build-debug/Makefile&quot;  VERBOSE=1 VectorGraphLibrary"/>
+					<CompileFile command="/usr/bin/make -j8 -f &quot;/Users/elijah/Documents/workspace/VectorGraphLibrary/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j8 -f &quot;/Users/elijah/Documents/workspace/VectorGraphLibrary/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j8 -f &quot;/Users/elijah/Documents/workspace/VectorGraphLibrary/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
 				</MakeCommands>
 			</Target>
 			<Target title="VectorGraphLibrary/fast">
-				<Option output="/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/cmake-build-debug/VectorGraphLibrary" prefix_auto="0" extension_auto="0"/>
-				<Option working_dir="/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/cmake-build-debug"/>
+				<Option output="/Users/elijah/Documents/workspace/VectorGraphLibrary/cmake-build-debug/VectorGraphLibrary" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/Users/elijah/Documents/workspace/VectorGraphLibrary/cmake-build-debug"/>
 				<Option object_output="./"/>
 				<Option type="1"/>
 				<Option compiler="gcc"/>
 				<Compiler>
-					<Add directory="/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/."/>
-					<Add directory="/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/algorithms"/>
-					<Add directory="/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/algorithms/bfs"/>
-					<Add directory="/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/algorithms/bfs/change_state"/>
-					<Add directory="/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/algorithms/cc"/>
-					<Add directory="/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/algorithms/kcore"/>
-					<Add directory="/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/algorithms/label_propagation"/>
-					<Add directory="/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/algorithms/pr"/>
-					<Add directory="/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/algorithms/sssp"/>
-					<Add directory="/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/algorithms/sswp"/>
-					<Add directory="/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/apps"/>
-					<Add directory="/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/common"/>
-					<Add directory="/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/common/cmd_parser"/>
-					<Add directory="/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/common/gpu_API"/>
-					<Add directory="/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/common/memory_API"/>
-					<Add directory="/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/common/parallel_primitives"/>
-					<Add directory="/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/common/random_generator"/>
-					<Add directory="/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/common/sorting"/>
-					<Add directory="/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/common/verify_results"/>
-					<Add directory="/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/export_graphs"/>
-					<Add directory="/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/graph_analytics"/>
-					<Add directory="/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/graph_generation_API"/>
-					<Add directory="/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/graph_processing_API"/>
-					<Add directory="/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/graph_processing_API/gpu"/>
-					<Add directory="/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/graph_processing_API/nec"/>
-					<Add directory="/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/graph_processing_API/nec/delayed_write"/>
-					<Add directory="/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/graph_processing_API/nec/frontier"/>
-					<Add directory="/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/graph_processing_API/nec/graph_primitives"/>
-					<Add directory="/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/graph_processing_API/nec/vector_register"/>
-					<Add directory="/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/graph_representations"/>
-					<Add directory="/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/graph_representations/common"/>
-					<Add directory="/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/graph_representations/edges_list_graph"/>
-					<Add directory="/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/graph_representations/extended_CSR_graph"/>
-					<Add directory="/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/graph_representations/extended_CSR_graph/vector_extension"/>
-					<Add directory="/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/graph_representations/sharded_graph"/>
-					<Add directory="/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/graph_representations/sharded_graph/shard_base"/>
-					<Add directory="/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/graph_representations/sharded_graph/shard_CSR"/>
-					<Add directory="/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/graph_representations/sharded_graph/shard_vect_CSR"/>
-					<Add directory="/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/verification"/>
-					<Add directory="/Library/Developer/CommandLineTools/usr/include/c++/v1"/>
-					<Add directory="/usr/local/include"/>
-					<Add directory="/Library/Developer/CommandLineTools/usr/lib/clang/10.0.1/include"/>
-					<Add directory="/Library/Developer/CommandLineTools/usr/include"/>
-					<Add directory="/usr/include"/>
-					<Add directory="/System/Library/Frameworks"/>
-					<Add directory="/Library/Frameworks"/>
+					<Add directory="/Users/elijah/Documents/workspace/VectorGraphLibrary/."/>
+					<Add directory="/Users/elijah/Documents/workspace/VectorGraphLibrary/algorithms"/>
+					<Add directory="/Users/elijah/Documents/workspace/VectorGraphLibrary/algorithms/bfs"/>
+					<Add directory="/Users/elijah/Documents/workspace/VectorGraphLibrary/algorithms/bfs/change_state"/>
+					<Add directory="/Users/elijah/Documents/workspace/VectorGraphLibrary/algorithms/cc"/>
+					<Add directory="/Users/elijah/Documents/workspace/VectorGraphLibrary/algorithms/kcore"/>
+					<Add directory="/Users/elijah/Documents/workspace/VectorGraphLibrary/algorithms/label_propagation"/>
+					<Add directory="/Users/elijah/Documents/workspace/VectorGraphLibrary/algorithms/pr"/>
+					<Add directory="/Users/elijah/Documents/workspace/VectorGraphLibrary/algorithms/sssp"/>
+					<Add directory="/Users/elijah/Documents/workspace/VectorGraphLibrary/algorithms/sswp"/>
+					<Add directory="/Users/elijah/Documents/workspace/VectorGraphLibrary/apps"/>
+					<Add directory="/Users/elijah/Documents/workspace/VectorGraphLibrary/common"/>
+					<Add directory="/Users/elijah/Documents/workspace/VectorGraphLibrary/common/cmd_parser"/>
+					<Add directory="/Users/elijah/Documents/workspace/VectorGraphLibrary/common/gpu_API"/>
+					<Add directory="/Users/elijah/Documents/workspace/VectorGraphLibrary/common/memory_API"/>
+					<Add directory="/Users/elijah/Documents/workspace/VectorGraphLibrary/common/parallel_primitives"/>
+					<Add directory="/Users/elijah/Documents/workspace/VectorGraphLibrary/common/random_generator"/>
+					<Add directory="/Users/elijah/Documents/workspace/VectorGraphLibrary/common/sorting"/>
+					<Add directory="/Users/elijah/Documents/workspace/VectorGraphLibrary/common/verify_results"/>
+					<Add directory="/Users/elijah/Documents/workspace/VectorGraphLibrary/export_graphs"/>
+					<Add directory="/Users/elijah/Documents/workspace/VectorGraphLibrary/graph_analytics"/>
+					<Add directory="/Users/elijah/Documents/workspace/VectorGraphLibrary/graph_generation_API"/>
+					<Add directory="/Users/elijah/Documents/workspace/VectorGraphLibrary/graph_processing_API"/>
+					<Add directory="/Users/elijah/Documents/workspace/VectorGraphLibrary/graph_processing_API/gpu"/>
+					<Add directory="/Users/elijah/Documents/workspace/VectorGraphLibrary/graph_processing_API/nec"/>
+					<Add directory="/Users/elijah/Documents/workspace/VectorGraphLibrary/graph_processing_API/nec/delayed_write"/>
+					<Add directory="/Users/elijah/Documents/workspace/VectorGraphLibrary/graph_processing_API/nec/frontier"/>
+					<Add directory="/Users/elijah/Documents/workspace/VectorGraphLibrary/graph_processing_API/nec/graph_primitives"/>
+					<Add directory="/Users/elijah/Documents/workspace/VectorGraphLibrary/graph_processing_API/nec/vector_register"/>
+					<Add directory="/Users/elijah/Documents/workspace/VectorGraphLibrary/graph_representations"/>
+					<Add directory="/Users/elijah/Documents/workspace/VectorGraphLibrary/graph_representations/common"/>
+					<Add directory="/Users/elijah/Documents/workspace/VectorGraphLibrary/graph_representations/edges_list_graph"/>
+					<Add directory="/Users/elijah/Documents/workspace/VectorGraphLibrary/graph_representations/extended_CSR_graph"/>
+					<Add directory="/Users/elijah/Documents/workspace/VectorGraphLibrary/graph_representations/extended_CSR_graph/vector_extension"/>
+					<Add directory="/Users/elijah/Documents/workspace/VectorGraphLibrary/graph_representations/sharded_graph"/>
+					<Add directory="/Users/elijah/Documents/workspace/VectorGraphLibrary/graph_representations/sharded_graph/shard_base"/>
+					<Add directory="/Users/elijah/Documents/workspace/VectorGraphLibrary/graph_representations/sharded_graph/shard_CSR"/>
+					<Add directory="/Users/elijah/Documents/workspace/VectorGraphLibrary/graph_representations/sharded_graph/shard_vect_CSR"/>
+					<Add directory="/Users/elijah/Documents/workspace/VectorGraphLibrary/verification"/>
+					<Add directory="/usr/local/Cellar/gcc/9.3.0/lib/gcc/9/gcc/x86_64-apple-darwin19/9.3.0/../../../../../../include/c++/9.3.0"/>
+					<Add directory="/usr/local/Cellar/gcc/9.3.0/lib/gcc/9/gcc/x86_64-apple-darwin19/9.3.0/../../../../../../include/c++/9.3.0/x86_64-apple-darwin19"/>
+					<Add directory="/usr/local/Cellar/gcc/9.3.0/lib/gcc/9/gcc/x86_64-apple-darwin19/9.3.0/../../../../../../include/c++/9.3.0/backward"/>
+					<Add directory="/usr/local/Cellar/gcc/9.3.0/lib/gcc/9/gcc/x86_64-apple-darwin19/9.3.0/include"/>
+					<Add directory="/usr/local/Cellar/gcc/9.3.0/lib/gcc/9/gcc/x86_64-apple-darwin19/9.3.0/include-fixed"/>
+					<Add directory="/Library/Developer/CommandLineTools/SDKs/MacOSX10.15.sdk/usr/include"/>
+					<Add directory="/Library/Developer/CommandLineTools/SDKs/MacOSX10.15.sdk/System/Library/Frameworks"/>
 				</Compiler>
 				<MakeCommands>
-					<Build command="/opt/local/bin/gmake -j4 -f &quot;/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/cmake-build-debug/Makefile&quot;  VERBOSE=1 VectorGraphLibrary/fast"/>
-					<CompileFile command="/opt/local/bin/gmake -j4 -f &quot;/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
-					<Clean command="/opt/local/bin/gmake -j4 -f &quot;/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
-					<DistClean command="/opt/local/bin/gmake -j4 -f &quot;/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<Build command="/usr/bin/make -j8 -f &quot;/Users/elijah/Documents/workspace/VectorGraphLibrary/cmake-build-debug/Makefile&quot;  VERBOSE=1 VectorGraphLibrary/fast"/>
+					<CompileFile command="/usr/bin/make -j8 -f &quot;/Users/elijah/Documents/workspace/VectorGraphLibrary/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j8 -f &quot;/Users/elijah/Documents/workspace/VectorGraphLibrary/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j8 -f &quot;/Users/elijah/Documents/workspace/VectorGraphLibrary/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
 				</MakeCommands>
 			</Target>
 		</Build>
-		<Unit filename="/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/algorithms/bfs/bfs.h">
+		<Unit filename="/Users/elijah/Documents/workspace/VectorGraphLibrary/algorithms/bfs/bfs.h">
 			<Option target="VectorGraphLibrary"/>
 		</Unit>
-		<Unit filename="/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/algorithms/bfs/bfs.hpp">
+		<Unit filename="/Users/elijah/Documents/workspace/VectorGraphLibrary/algorithms/bfs/bfs.hpp">
 			<Option target="VectorGraphLibrary"/>
 		</Unit>
-		<Unit filename="/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/algorithms/bfs/change_state/change_state.h">
+		<Unit filename="/Users/elijah/Documents/workspace/VectorGraphLibrary/algorithms/bfs/change_state/change_state.h">
 			<Option target="VectorGraphLibrary"/>
 		</Unit>
-		<Unit filename="/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/algorithms/bfs/change_state/change_state.hpp">
+		<Unit filename="/Users/elijah/Documents/workspace/VectorGraphLibrary/algorithms/bfs/change_state/change_state.hpp">
 			<Option target="VectorGraphLibrary"/>
 		</Unit>
-		<Unit filename="/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/algorithms/bfs/gpu_bfs.hpp">
+		<Unit filename="/Users/elijah/Documents/workspace/VectorGraphLibrary/algorithms/bfs/gpu_bfs.hpp">
 			<Option target="VectorGraphLibrary"/>
 		</Unit>
-		<Unit filename="/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/algorithms/bfs/nec_bfs.hpp">
+		<Unit filename="/Users/elijah/Documents/workspace/VectorGraphLibrary/algorithms/bfs/nec_bfs.hpp">
 			<Option target="VectorGraphLibrary"/>
 		</Unit>
-		<Unit filename="/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/algorithms/bfs/seq_bfs.hpp">
+		<Unit filename="/Users/elijah/Documents/workspace/VectorGraphLibrary/algorithms/bfs/seq_bfs.hpp">
 			<Option target="VectorGraphLibrary"/>
 		</Unit>
-		<Unit filename="/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/algorithms/cc/cc.h">
+		<Unit filename="/Users/elijah/Documents/workspace/VectorGraphLibrary/algorithms/cc/cc.h">
 			<Option target="VectorGraphLibrary"/>
 		</Unit>
-		<Unit filename="/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/algorithms/cc/cc.hpp">
+		<Unit filename="/Users/elijah/Documents/workspace/VectorGraphLibrary/algorithms/cc/cc.hpp">
 			<Option target="VectorGraphLibrary"/>
 		</Unit>
-		<Unit filename="/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/algorithms/cc/gpu_shiloach_vishkin.hpp">
+		<Unit filename="/Users/elijah/Documents/workspace/VectorGraphLibrary/algorithms/cc/gpu_shiloach_vishkin.hpp">
 			<Option target="VectorGraphLibrary"/>
 		</Unit>
-		<Unit filename="/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/algorithms/cc/nec_bfs_based.hpp">
+		<Unit filename="/Users/elijah/Documents/workspace/VectorGraphLibrary/algorithms/cc/nec_bfs_based.hpp">
 			<Option target="VectorGraphLibrary"/>
 		</Unit>
-		<Unit filename="/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/algorithms/cc/nec_shiloach_vishkin.hpp">
+		<Unit filename="/Users/elijah/Documents/workspace/VectorGraphLibrary/algorithms/cc/nec_shiloach_vishkin.hpp">
 			<Option target="VectorGraphLibrary"/>
 		</Unit>
-		<Unit filename="/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/algorithms/cc/seq_bfs_based.hpp">
+		<Unit filename="/Users/elijah/Documents/workspace/VectorGraphLibrary/algorithms/cc/seq_bfs_based.hpp">
 			<Option target="VectorGraphLibrary"/>
 		</Unit>
-		<Unit filename="/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/algorithms/kcore/kcore.h">
+		<Unit filename="/Users/elijah/Documents/workspace/VectorGraphLibrary/algorithms/kcore/kcore.h">
 			<Option target="VectorGraphLibrary"/>
 		</Unit>
-		<Unit filename="/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/algorithms/kcore/kcore.hpp">
+		<Unit filename="/Users/elijah/Documents/workspace/VectorGraphLibrary/algorithms/kcore/kcore.hpp">
 			<Option target="VectorGraphLibrary"/>
 		</Unit>
-		<Unit filename="/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/algorithms/label_propagation/label_propagation.h">
+		<Unit filename="/Users/elijah/Documents/workspace/VectorGraphLibrary/algorithms/label_propagation/label_propagation.h">
 			<Option target="VectorGraphLibrary"/>
 		</Unit>
-		<Unit filename="/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/algorithms/label_propagation/label_propagation.hpp">
+		<Unit filename="/Users/elijah/Documents/workspace/VectorGraphLibrary/algorithms/label_propagation/label_propagation.hpp">
 			<Option target="VectorGraphLibrary"/>
 		</Unit>
-		<Unit filename="/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/algorithms/label_propagation/map_based_lp.hpp">
+		<Unit filename="/Users/elijah/Documents/workspace/VectorGraphLibrary/algorithms/label_propagation/map_based_lp.hpp">
 			<Option target="VectorGraphLibrary"/>
 		</Unit>
-		<Unit filename="/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/algorithms/label_propagation/vect_dict_based_lp.hpp">
+		<Unit filename="/Users/elijah/Documents/workspace/VectorGraphLibrary/algorithms/label_propagation/vect_dict_based_lp.hpp">
 			<Option target="VectorGraphLibrary"/>
 		</Unit>
-		<Unit filename="/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/algorithms/pr/pr.h">
+		<Unit filename="/Users/elijah/Documents/workspace/VectorGraphLibrary/algorithms/pr/pr.h">
 			<Option target="VectorGraphLibrary"/>
 		</Unit>
-		<Unit filename="/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/algorithms/pr/pr.hpp">
+		<Unit filename="/Users/elijah/Documents/workspace/VectorGraphLibrary/algorithms/pr/pr.hpp">
 			<Option target="VectorGraphLibrary"/>
 		</Unit>
-		<Unit filename="/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/algorithms/sssp/gpu_shortest_paths.hpp">
+		<Unit filename="/Users/elijah/Documents/workspace/VectorGraphLibrary/algorithms/sssp/gpu_shortest_paths.hpp">
 			<Option target="VectorGraphLibrary"/>
 		</Unit>
-		<Unit filename="/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/algorithms/sssp/nec_shortest_paths.hpp">
+		<Unit filename="/Users/elijah/Documents/workspace/VectorGraphLibrary/algorithms/sssp/nec_shortest_paths.hpp">
 			<Option target="VectorGraphLibrary"/>
 		</Unit>
-		<Unit filename="/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/algorithms/sssp/seq_shortest_paths.hpp">
+		<Unit filename="/Users/elijah/Documents/workspace/VectorGraphLibrary/algorithms/sssp/seq_shortest_paths.hpp">
 			<Option target="VectorGraphLibrary"/>
 		</Unit>
-		<Unit filename="/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/algorithms/sssp/shortest_paths.h">
+		<Unit filename="/Users/elijah/Documents/workspace/VectorGraphLibrary/algorithms/sssp/shortest_paths.h">
 			<Option target="VectorGraphLibrary"/>
 		</Unit>
-		<Unit filename="/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/algorithms/sssp/shortest_paths.hpp">
+		<Unit filename="/Users/elijah/Documents/workspace/VectorGraphLibrary/algorithms/sssp/shortest_paths.hpp">
 			<Option target="VectorGraphLibrary"/>
 		</Unit>
-		<Unit filename="/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/algorithms/sswp/bellman_ford.hpp">
+		<Unit filename="/Users/elijah/Documents/workspace/VectorGraphLibrary/algorithms/sswp/bellman_ford.hpp">
 			<Option target="VectorGraphLibrary"/>
 		</Unit>
-		<Unit filename="/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/algorithms/sswp/widest_paths.h">
+		<Unit filename="/Users/elijah/Documents/workspace/VectorGraphLibrary/algorithms/sswp/widest_paths.h">
 			<Option target="VectorGraphLibrary"/>
 		</Unit>
-		<Unit filename="/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/algorithms/sswp/widest_paths.hpp">
+		<Unit filename="/Users/elijah/Documents/workspace/VectorGraphLibrary/algorithms/sswp/widest_paths.hpp">
 			<Option target="VectorGraphLibrary"/>
 		</Unit>
-		<Unit filename="/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/apps/Makefile.gcc">
+		<Unit filename="/Users/elijah/Documents/workspace/VectorGraphLibrary/apps/Makefile.gcc">
 			<Option target="VectorGraphLibrary"/>
 		</Unit>
-		<Unit filename="/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/apps/Makefile.ibm">
+		<Unit filename="/Users/elijah/Documents/workspace/VectorGraphLibrary/apps/Makefile.ibm">
 			<Option target="VectorGraphLibrary"/>
 		</Unit>
-		<Unit filename="/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/apps/Makefile.intel">
+		<Unit filename="/Users/elijah/Documents/workspace/VectorGraphLibrary/apps/Makefile.intel">
 			<Option target="VectorGraphLibrary"/>
 		</Unit>
-		<Unit filename="/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/apps/Makefile.polus">
+		<Unit filename="/Users/elijah/Documents/workspace/VectorGraphLibrary/apps/Makefile.polus">
 			<Option target="VectorGraphLibrary"/>
 		</Unit>
-		<Unit filename="/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/apps/Makefile.tohoku">
+		<Unit filename="/Users/elijah/Documents/workspace/VectorGraphLibrary/apps/Makefile.tohoku">
 			<Option target="VectorGraphLibrary"/>
 		</Unit>
-		<Unit filename="/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/apps/Makefile.volta">
+		<Unit filename="/Users/elijah/Documents/workspace/VectorGraphLibrary/apps/Makefile.volta">
 			<Option target="VectorGraphLibrary"/>
 		</Unit>
-		<Unit filename="/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/apps/analyse_graph.cpp">
+		<Unit filename="/Users/elijah/Documents/workspace/VectorGraphLibrary/apps/analyse_graph.cpp">
 			<Option target="VectorGraphLibrary"/>
 		</Unit>
-		<Unit filename="/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/apps/bfs.cpp">
+		<Unit filename="/Users/elijah/Documents/workspace/VectorGraphLibrary/apps/bfs.cpp">
 			<Option target="VectorGraphLibrary"/>
 		</Unit>
-		<Unit filename="/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/apps/cc.cpp">
+		<Unit filename="/Users/elijah/Documents/workspace/VectorGraphLibrary/apps/cc.cpp">
 			<Option target="VectorGraphLibrary"/>
 		</Unit>
-		<Unit filename="/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/apps/generate_test_data.cpp">
+		<Unit filename="/Users/elijah/Documents/workspace/VectorGraphLibrary/apps/generate_test_data.cpp">
 			<Option target="VectorGraphLibrary"/>
 		</Unit>
-		<Unit filename="/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/apps/graph_library.sh">
+		<Unit filename="/Users/elijah/Documents/workspace/VectorGraphLibrary/apps/graph_library.sh">
 			<Option target="VectorGraphLibrary"/>
 		</Unit>
-		<Unit filename="/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/apps/kcore.cpp">
+		<Unit filename="/Users/elijah/Documents/workspace/VectorGraphLibrary/apps/kcore.cpp">
 			<Option target="VectorGraphLibrary"/>
 		</Unit>
-		<Unit filename="/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/apps/pr.cpp">
+		<Unit filename="/Users/elijah/Documents/workspace/VectorGraphLibrary/apps/pr.cpp">
 			<Option target="VectorGraphLibrary"/>
 		</Unit>
-		<Unit filename="/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/apps/sssp.cpp">
+		<Unit filename="/Users/elijah/Documents/workspace/VectorGraphLibrary/apps/sssp.cpp">
 			<Option target="VectorGraphLibrary"/>
 		</Unit>
-		<Unit filename="/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/apps/sswp.cpp">
+		<Unit filename="/Users/elijah/Documents/workspace/VectorGraphLibrary/apps/sswp.cpp">
 			<Option target="VectorGraphLibrary"/>
 		</Unit>
-		<Unit filename="/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/architectures.h">
+		<Unit filename="/Users/elijah/Documents/workspace/VectorGraphLibrary/architectures.h">
 			<Option target="VectorGraphLibrary"/>
 		</Unit>
-		<Unit filename="/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/common/cmd_parser/cmd_parser.h">
+		<Unit filename="/Users/elijah/Documents/workspace/VectorGraphLibrary/common/cmd_parser/cmd_parser.h">
 			<Option target="VectorGraphLibrary"/>
 		</Unit>
-		<Unit filename="/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/common/cmd_parser/cmd_parser.hpp">
+		<Unit filename="/Users/elijah/Documents/workspace/VectorGraphLibrary/common/cmd_parser/cmd_parser.hpp">
 			<Option target="VectorGraphLibrary"/>
 		</Unit>
-		<Unit filename="/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/common/cmd_parser/parser_options.h">
+		<Unit filename="/Users/elijah/Documents/workspace/VectorGraphLibrary/common/cmd_parser/parser_options.h">
 			<Option target="VectorGraphLibrary"/>
 		</Unit>
-		<Unit filename="/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/common/gpu_API/cuda_error_handling.h">
+		<Unit filename="/Users/elijah/Documents/workspace/VectorGraphLibrary/common/gpu_API/cuda_error_handling.h">
 			<Option target="VectorGraphLibrary"/>
 		</Unit>
-		<Unit filename="/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/common/memory_API/memory_API.h">
+		<Unit filename="/Users/elijah/Documents/workspace/VectorGraphLibrary/common/memory_API/memory_API.h">
 			<Option target="VectorGraphLibrary"/>
 		</Unit>
-		<Unit filename="/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/common/memory_API/memory_API.hpp">
+		<Unit filename="/Users/elijah/Documents/workspace/VectorGraphLibrary/common/memory_API/memory_API.hpp">
 			<Option target="VectorGraphLibrary"/>
 		</Unit>
-		<Unit filename="/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/common/parallel_primitives/copy_if.h">
+		<Unit filename="/Users/elijah/Documents/workspace/VectorGraphLibrary/common/parallel_primitives/copy_if.h">
 			<Option target="VectorGraphLibrary"/>
 		</Unit>
-		<Unit filename="/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/common/parallel_primitives/get_elements_count.h">
+		<Unit filename="/Users/elijah/Documents/workspace/VectorGraphLibrary/common/parallel_primitives/get_elements_count.h">
 			<Option target="VectorGraphLibrary"/>
 		</Unit>
-		<Unit filename="/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/common/random_generator/ASL_random_generator.h">
+		<Unit filename="/Users/elijah/Documents/workspace/VectorGraphLibrary/common/random_generator/ASL_random_generator.h">
 			<Option target="VectorGraphLibrary"/>
 		</Unit>
-		<Unit filename="/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/common/random_generator/ASL_random_generator.hpp">
+		<Unit filename="/Users/elijah/Documents/workspace/VectorGraphLibrary/common/random_generator/ASL_random_generator.hpp">
 			<Option target="VectorGraphLibrary"/>
 		</Unit>
-		<Unit filename="/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/common/random_generator/common_random_generator.h">
+		<Unit filename="/Users/elijah/Documents/workspace/VectorGraphLibrary/common/random_generator/common_random_generator.h">
 			<Option target="VectorGraphLibrary"/>
 		</Unit>
-		<Unit filename="/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/common/random_generator/random_generation_API.h">
+		<Unit filename="/Users/elijah/Documents/workspace/VectorGraphLibrary/common/random_generator/random_generation_API.h">
 			<Option target="VectorGraphLibrary"/>
 		</Unit>
-		<Unit filename="/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/common/sorting/sorting.h">
+		<Unit filename="/Users/elijah/Documents/workspace/VectorGraphLibrary/common/sorting/sorting.h">
 			<Option target="VectorGraphLibrary"/>
 		</Unit>
-		<Unit filename="/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/common/verify_results/verify_results.h">
+		<Unit filename="/Users/elijah/Documents/workspace/VectorGraphLibrary/common/verify_results/verify_results.h">
 			<Option target="VectorGraphLibrary"/>
 		</Unit>
-		<Unit filename="/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/export_graphs/gapbs_export.h">
+		<Unit filename="/Users/elijah/Documents/workspace/VectorGraphLibrary/export_graphs/gapbs_export.h">
 			<Option target="VectorGraphLibrary"/>
 		</Unit>
-		<Unit filename="/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/export_graphs/ligra_export.h">
+		<Unit filename="/Users/elijah/Documents/workspace/VectorGraphLibrary/export_graphs/ligra_export.h">
 			<Option target="VectorGraphLibrary"/>
 		</Unit>
-		<Unit filename="/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/graph_analytics/graph_analytics.h">
+		<Unit filename="/Users/elijah/Documents/workspace/VectorGraphLibrary/graph_analytics/graph_analytics.h">
 			<Option target="VectorGraphLibrary"/>
 		</Unit>
-		<Unit filename="/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/graph_analytics/graph_analytics.hpp">
+		<Unit filename="/Users/elijah/Documents/workspace/VectorGraphLibrary/graph_analytics/graph_analytics.hpp">
 			<Option target="VectorGraphLibrary"/>
 		</Unit>
-		<Unit filename="/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/graph_generation_API/graph_generation_API.h">
+		<Unit filename="/Users/elijah/Documents/workspace/VectorGraphLibrary/graph_generation_API/graph_generation_API.h">
 			<Option target="VectorGraphLibrary"/>
 		</Unit>
-		<Unit filename="/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/graph_generation_API/graph_generation_API.hpp">
+		<Unit filename="/Users/elijah/Documents/workspace/VectorGraphLibrary/graph_generation_API/graph_generation_API.hpp">
 			<Option target="VectorGraphLibrary"/>
 		</Unit>
-		<Unit filename="/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/graph_library.h">
+		<Unit filename="/Users/elijah/Documents/workspace/VectorGraphLibrary/graph_library.h">
 			<Option target="VectorGraphLibrary"/>
 		</Unit>
-		<Unit filename="/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/graph_processing_API/gpu/cuda_API_include.h">
+		<Unit filename="/Users/elijah/Documents/workspace/VectorGraphLibrary/graph_processing_API/gpu/cuda_API_include.h">
 			<Option target="VectorGraphLibrary"/>
 		</Unit>
-		<Unit filename="/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/graph_processing_API/nec/delayed_write/delayed_write_nec.h">
+		<Unit filename="/Users/elijah/Documents/workspace/VectorGraphLibrary/graph_processing_API/nec/delayed_write/delayed_write_nec.h">
 			<Option target="VectorGraphLibrary"/>
 		</Unit>
-		<Unit filename="/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/graph_processing_API/nec/delayed_write/delayed_write_nec.hpp">
+		<Unit filename="/Users/elijah/Documents/workspace/VectorGraphLibrary/graph_processing_API/nec/delayed_write/delayed_write_nec.hpp">
 			<Option target="VectorGraphLibrary"/>
 		</Unit>
-		<Unit filename="/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/graph_processing_API/nec/frontier/frontier_nec.h">
+		<Unit filename="/Users/elijah/Documents/workspace/VectorGraphLibrary/graph_processing_API/nec/frontier/frontier_nec.h">
 			<Option target="VectorGraphLibrary"/>
 		</Unit>
-		<Unit filename="/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/graph_processing_API/nec/frontier/frontier_nec.hpp">
+		<Unit filename="/Users/elijah/Documents/workspace/VectorGraphLibrary/graph_processing_API/nec/frontier/frontier_nec.hpp">
 			<Option target="VectorGraphLibrary"/>
 		</Unit>
-		<Unit filename="/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/graph_processing_API/nec/graph_primitives/advance.hpp">
+		<Unit filename="/Users/elijah/Documents/workspace/VectorGraphLibrary/graph_processing_API/nec/graph_primitives/advance.hpp">
 			<Option target="VectorGraphLibrary"/>
 		</Unit>
-		<Unit filename="/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/graph_processing_API/nec/graph_primitives/advance_all_active.hpp">
+		<Unit filename="/Users/elijah/Documents/workspace/VectorGraphLibrary/graph_processing_API/nec/graph_primitives/advance_all_active.hpp">
 			<Option target="VectorGraphLibrary"/>
 		</Unit>
-		<Unit filename="/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/graph_processing_API/nec/graph_primitives/advance_dense.hpp">
+		<Unit filename="/Users/elijah/Documents/workspace/VectorGraphLibrary/graph_processing_API/nec/graph_primitives/advance_dense.hpp">
 			<Option target="VectorGraphLibrary"/>
 		</Unit>
-		<Unit filename="/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/graph_processing_API/nec/graph_primitives/advance_partial.hpp">
+		<Unit filename="/Users/elijah/Documents/workspace/VectorGraphLibrary/graph_processing_API/nec/graph_primitives/advance_partial.hpp">
 			<Option target="VectorGraphLibrary"/>
 		</Unit>
-		<Unit filename="/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/graph_processing_API/nec/graph_primitives/advance_sparse.hpp">
+		<Unit filename="/Users/elijah/Documents/workspace/VectorGraphLibrary/graph_processing_API/nec/graph_primitives/advance_sparse.hpp">
 			<Option target="VectorGraphLibrary"/>
 		</Unit>
-		<Unit filename="/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/graph_processing_API/nec/graph_primitives/compute.hpp">
+		<Unit filename="/Users/elijah/Documents/workspace/VectorGraphLibrary/graph_processing_API/nec/graph_primitives/compute.hpp">
 			<Option target="VectorGraphLibrary"/>
 		</Unit>
-		<Unit filename="/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/graph_processing_API/nec/graph_primitives/filter.hpp">
+		<Unit filename="/Users/elijah/Documents/workspace/VectorGraphLibrary/graph_processing_API/nec/graph_primitives/filter.hpp">
 			<Option target="VectorGraphLibrary"/>
 		</Unit>
-		<Unit filename="/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/graph_processing_API/nec/graph_primitives/generate_new_frontier.hpp">
+		<Unit filename="/Users/elijah/Documents/workspace/VectorGraphLibrary/graph_processing_API/nec/graph_primitives/generate_new_frontier.hpp">
 			<Option target="VectorGraphLibrary"/>
 		</Unit>
-		<Unit filename="/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/graph_processing_API/nec/graph_primitives/graph_primitives_nec.h">
+		<Unit filename="/Users/elijah/Documents/workspace/VectorGraphLibrary/graph_processing_API/nec/graph_primitives/graph_primitives_nec.h">
 			<Option target="VectorGraphLibrary"/>
 		</Unit>
-		<Unit filename="/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/graph_processing_API/nec/graph_primitives/graph_primitives_nec.hpp">
+		<Unit filename="/Users/elijah/Documents/workspace/VectorGraphLibrary/graph_processing_API/nec/graph_primitives/graph_primitives_nec.hpp">
 			<Option target="VectorGraphLibrary"/>
 		</Unit>
-		<Unit filename="/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/graph_processing_API/nec/graph_primitives/tests.hpp">
+		<Unit filename="/Users/elijah/Documents/workspace/VectorGraphLibrary/graph_processing_API/nec/graph_primitives/tests.hpp">
 			<Option target="VectorGraphLibrary"/>
 		</Unit>
-		<Unit filename="/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/graph_processing_API/nec/vector_register/vector_registers.h">
+		<Unit filename="/Users/elijah/Documents/workspace/VectorGraphLibrary/graph_processing_API/nec/vector_register/vector_registers.h">
 			<Option target="VectorGraphLibrary"/>
 		</Unit>
-		<Unit filename="/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/graph_representations/base_graph.h">
+		<Unit filename="/Users/elijah/Documents/workspace/VectorGraphLibrary/graph_representations/base_graph.h">
 			<Option target="VectorGraphLibrary"/>
 		</Unit>
-		<Unit filename="/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/graph_representations/common/graph_types.h">
+		<Unit filename="/Users/elijah/Documents/workspace/VectorGraphLibrary/graph_representations/common/graph_types.h">
 			<Option target="VectorGraphLibrary"/>
 		</Unit>
-		<Unit filename="/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/graph_representations/common/tmp_edge_data.h">
+		<Unit filename="/Users/elijah/Documents/workspace/VectorGraphLibrary/graph_representations/common/tmp_edge_data.h">
 			<Option target="VectorGraphLibrary"/>
 		</Unit>
-		<Unit filename="/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/graph_representations/edges_list_graph/edges_list_graph.h">
+		<Unit filename="/Users/elijah/Documents/workspace/VectorGraphLibrary/graph_representations/edges_list_graph/edges_list_graph.h">
 			<Option target="VectorGraphLibrary"/>
 		</Unit>
-		<Unit filename="/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/graph_representations/edges_list_graph/edges_list_graph.hpp">
+		<Unit filename="/Users/elijah/Documents/workspace/VectorGraphLibrary/graph_representations/edges_list_graph/edges_list_graph.hpp">
 			<Option target="VectorGraphLibrary"/>
 		</Unit>
-		<Unit filename="/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/graph_representations/extended_CSR_graph/extended_CSR_graph.h">
+		<Unit filename="/Users/elijah/Documents/workspace/VectorGraphLibrary/graph_representations/extended_CSR_graph/extended_CSR_graph.h">
 			<Option target="VectorGraphLibrary"/>
 		</Unit>
-		<Unit filename="/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/graph_representations/extended_CSR_graph/extended_CSR_graph.hpp">
+		<Unit filename="/Users/elijah/Documents/workspace/VectorGraphLibrary/graph_representations/extended_CSR_graph/extended_CSR_graph.hpp">
 			<Option target="VectorGraphLibrary"/>
 		</Unit>
-		<Unit filename="/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/graph_representations/extended_CSR_graph/gpu_api.hpp">
+		<Unit filename="/Users/elijah/Documents/workspace/VectorGraphLibrary/graph_representations/extended_CSR_graph/gpu_api.hpp">
 			<Option target="VectorGraphLibrary"/>
 		</Unit>
-		<Unit filename="/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/graph_representations/extended_CSR_graph/init_graph.hpp">
+		<Unit filename="/Users/elijah/Documents/workspace/VectorGraphLibrary/graph_representations/extended_CSR_graph/init_graph.hpp">
 			<Option target="VectorGraphLibrary"/>
 		</Unit>
-		<Unit filename="/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/graph_representations/extended_CSR_graph/nec_api.hpp">
+		<Unit filename="/Users/elijah/Documents/workspace/VectorGraphLibrary/graph_representations/extended_CSR_graph/nec_api.hpp">
 			<Option target="VectorGraphLibrary"/>
 		</Unit>
-		<Unit filename="/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/graph_representations/extended_CSR_graph/vector_extension/vector_extension.h">
+		<Unit filename="/Users/elijah/Documents/workspace/VectorGraphLibrary/graph_representations/extended_CSR_graph/vector_extension/vector_extension.h">
 			<Option target="VectorGraphLibrary"/>
 		</Unit>
-		<Unit filename="/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/graph_representations/extended_CSR_graph/vector_extension/vector_extension.hpp">
+		<Unit filename="/Users/elijah/Documents/workspace/VectorGraphLibrary/graph_representations/extended_CSR_graph/vector_extension/vector_extension.hpp">
 			<Option target="VectorGraphLibrary"/>
 		</Unit>
-		<Unit filename="/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/graph_representations/sharded_graph/shard_CSR/shard_CSR.h">
+		<Unit filename="/Users/elijah/Documents/workspace/VectorGraphLibrary/graph_representations/sharded_graph/shard_CSR/shard_CSR.h">
 			<Option target="VectorGraphLibrary"/>
 		</Unit>
-		<Unit filename="/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/graph_representations/sharded_graph/shard_CSR/shard_CSR.hpp">
+		<Unit filename="/Users/elijah/Documents/workspace/VectorGraphLibrary/graph_representations/sharded_graph/shard_CSR/shard_CSR.hpp">
 			<Option target="VectorGraphLibrary"/>
 		</Unit>
-		<Unit filename="/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/graph_representations/sharded_graph/shard_CSR/shard_CSR_pointer_data.h">
+		<Unit filename="/Users/elijah/Documents/workspace/VectorGraphLibrary/graph_representations/sharded_graph/shard_CSR/shard_CSR_pointer_data.h">
 			<Option target="VectorGraphLibrary"/>
 		</Unit>
-		<Unit filename="/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/graph_representations/sharded_graph/shard_base/shard_base.h">
+		<Unit filename="/Users/elijah/Documents/workspace/VectorGraphLibrary/graph_representations/sharded_graph/shard_base/shard_base.h">
 			<Option target="VectorGraphLibrary"/>
 		</Unit>
-		<Unit filename="/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/graph_representations/sharded_graph/shard_base/shard_base.hpp">
+		<Unit filename="/Users/elijah/Documents/workspace/VectorGraphLibrary/graph_representations/sharded_graph/shard_base/shard_base.hpp">
 			<Option target="VectorGraphLibrary"/>
 		</Unit>
-		<Unit filename="/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/graph_representations/sharded_graph/shard_vect_CSR/shard_vect_CSR.h">
+		<Unit filename="/Users/elijah/Documents/workspace/VectorGraphLibrary/graph_representations/sharded_graph/shard_vect_CSR/shard_vect_CSR.h">
 			<Option target="VectorGraphLibrary"/>
 		</Unit>
-		<Unit filename="/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/graph_representations/sharded_graph/shard_vect_CSR/shard_vect_CSR.hpp">
+		<Unit filename="/Users/elijah/Documents/workspace/VectorGraphLibrary/graph_representations/sharded_graph/shard_vect_CSR/shard_vect_CSR.hpp">
 			<Option target="VectorGraphLibrary"/>
 		</Unit>
-		<Unit filename="/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/graph_representations/sharded_graph/shard_vect_CSR/shard_vect_CSR_pointer_data.h">
+		<Unit filename="/Users/elijah/Documents/workspace/VectorGraphLibrary/graph_representations/sharded_graph/shard_vect_CSR/shard_vect_CSR_pointer_data.h">
 			<Option target="VectorGraphLibrary"/>
 		</Unit>
-		<Unit filename="/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/graph_representations/sharded_graph/sharded_graph.h">
+		<Unit filename="/Users/elijah/Documents/workspace/VectorGraphLibrary/graph_representations/sharded_graph/sharded_graph.h">
 			<Option target="VectorGraphLibrary"/>
 		</Unit>
-		<Unit filename="/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/graph_representations/sharded_graph/sharded_graph.hpp">
+		<Unit filename="/Users/elijah/Documents/workspace/VectorGraphLibrary/graph_representations/sharded_graph/sharded_graph.hpp">
 			<Option target="VectorGraphLibrary"/>
 		</Unit>
-		<Unit filename="/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/misc/custom_test.cpp">
+		<Unit filename="/Users/elijah/Documents/workspace/VectorGraphLibrary/misc/custom_test.cpp">
 			<Option target="VectorGraphLibrary"/>
 		</Unit>
-		<Unit filename="/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/misc/generate_memory_traces.cpp">
+		<Unit filename="/Users/elijah/Documents/workspace/VectorGraphLibrary/misc/generate_memory_traces.cpp">
 			<Option target="VectorGraphLibrary"/>
 		</Unit>
-		<Unit filename="/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/misc/lambda_tests.cpp">
+		<Unit filename="/Users/elijah/Documents/workspace/VectorGraphLibrary/misc/lambda_tests.cpp">
 			<Option target="VectorGraphLibrary"/>
 		</Unit>
-		<Unit filename="/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/misc/nvgraph_comparison.cpp">
+		<Unit filename="/Users/elijah/Documents/workspace/VectorGraphLibrary/misc/nvgraph_comparison.cpp">
 			<Option target="VectorGraphLibrary"/>
 		</Unit>
-		<Unit filename="/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/verification/page_rank_verification.hpp">
+		<Unit filename="/Users/elijah/Documents/workspace/VectorGraphLibrary/verification/page_rank_verification.hpp">
 			<Option target="VectorGraphLibrary"/>
 		</Unit>
-		<Unit filename="/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/verification/shortest_paths_verification.hpp">
+		<Unit filename="/Users/elijah/Documents/workspace/VectorGraphLibrary/verification/shortest_paths_verification.hpp">
 			<Option target="VectorGraphLibrary"/>
 		</Unit>
-		<Unit filename="/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/CMakeLists.txt">
+		<Unit filename="/Users/elijah/Documents/workspace/VectorGraphLibrary/CMakeLists.txt">
 			<Option virtualFolder="CMake Files\"/>
 		</Unit>
 	</Project>

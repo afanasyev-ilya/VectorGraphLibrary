@@ -6,7 +6,29 @@
 #include "../frontier/frontier_nec.h"
 #include "../delayed_write/delayed_write_nec.h"
 #include <functional>
-#include "helpers.hpp"
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+auto EMPTY_EDGE_OP = [] (int src_id, int dst_id, int local_edge_pos, long long int global_edge_pos, int vector_index,
+                         DelayedWriteNEC &delayed_write) {};
+auto EMPTY_VERTEX_OP = [] (int src_id, int connections_count, int vector_index, DelayedWriteNEC &delayed_write){};
+
+auto ALL_ACTIVE_FRONTIER_CONDITION = [] (int src_id)->int
+{
+    return NEC_IN_FRONTIER_FLAG;
+};
+
+auto EMPTY_COMPUTE_OP = [] (int src_id, int connections_count, int vector_index) {};
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+enum REDUCE_TYPE
+{
+    REDUCE_SUM = 0,
+    REDUCE_MAX = 1,
+    REDUCE_MIN = 1,
+    REDUCE_AVG = 3
+};
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -177,6 +199,11 @@ private:
                         VertexPreprocessOperation vertex_preprocess_op,
                         VertexPostprocessOperation vertex_postprocess_op,
                         const int _first_edge);
+
+    template <typename _T, typename _TVertexValue, typename _TEdgeWeight, typename ReduceOperation>
+    _T reduce_sum(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
+                  FrontierNEC &_frontier,
+                  ReduceOperation &&reduce_op);
 public:
     GraphPrimitivesNEC() {};
 
@@ -227,13 +254,18 @@ public:
     template <typename _TVertexValue, typename _TEdgeWeight, typename FilterCondition>
     void filter(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph, FrontierNEC &_frontier, FilterCondition &&filter_cond);
 
-    // performs user-defined "compute_op" operation for each element in given frontier
+    // performs user-defined "compute_op" operation for each element in the given frontier
     template <typename _TVertexValue, typename _TEdgeWeight, typename ComputeOperation>
     void compute(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph, FrontierNEC &_frontier, ComputeOperation &&compute_op);
+
+    // performs reduction using user-defined "reduce_op" operation for each element in the given frontier
+    template <typename _T, typename _TVertexValue, typename _TEdgeWeight, typename ReduceOperation>
+    _T reduce(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph, FrontierNEC &_frontier, ReduceOperation &&reduce_op, REDUCE_TYPE _reduce_type);
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+#include "helpers.hpp"
 #include "graph_primitives_nec.hpp"
 #include "filter.hpp"
 #include "compute.hpp"
@@ -243,6 +275,8 @@ public:
 #include "advance_sparse.hpp"
 #include "advance_partial.hpp"
 #include "generate_new_frontier.hpp"
+#include "reduce.hpp"
+#include "pack_array_data.hpp"
 #include "tests.hpp"
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

@@ -15,10 +15,12 @@ void PR::nec_page_rank(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
     int   *incoming_degrees_without_loops;
     float *old_page_ranks;
     float *reversed_degrees;
+    //uint64_t *packed_data;
     MemoryAPI::allocate_array(&number_of_loops, vertices_count);
     MemoryAPI::allocate_array(&incoming_degrees_without_loops, vertices_count);
     MemoryAPI::allocate_array(&old_page_ranks, vertices_count);
     MemoryAPI::allocate_array(&reversed_degrees, vertices_count);
+    //MemoryAPI::allocate_array(&packed_data, vertices_count);
 
     float d = 0.85;
     float k = (1.0 - d) / ((float)vertices_count);
@@ -74,97 +76,42 @@ void PR::nec_page_rank(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
         };
         graph_API.compute(_graph, frontier, save_old_ranks);
 
-        float dangling_input = 0;
-        #pragma _NEC vector
-        #pragma omp parallel for reduction(+: dangling_input)
-        for(int i = 0; i < vertices_count; i++)
-        {
-            if(incoming_degrees_without_loops[i] == 0)
-            {
-                dangling_input += old_page_ranks[i] / vertices_count;
-            }
-        }
+        //pack_array_data(old_page_ranks, reversed_degrees, packed_data, vertices_count);
 
-        auto vertex_preprocess_op = [](int src_id, int connections_count, int vector_index, DelayedWriteNEC &delayed_write)
+        auto reduce_dangling_input = [incoming_degrees_without_loops, old_page_ranks, vertices_count](int src_id, int connections_count, int vector_index)->float
         {
-            #pragma _NEC vector
-            for(int i = 0; i < VECTOR_LENGTH; i++)
+            float result = 0.0;
+            if(incoming_degrees_without_loops[src_id] == 0)
             {
-                delayed_write.flt_vec_reg[i] = 0;
+                result = old_page_ranks[src_id] / vertices_count;
             }
+            return result;
         };
+        double dangling_input = graph_API.reduce<double>(_graph, frontier, reduce_dangling_input, REDUCE_SUM);
 
         auto edge_op = [_page_ranks, old_page_ranks, reversed_degrees](int src_id, int dst_id, int local_edge_pos,
-                                                                             long long int global_edge_pos, int vector_index, DelayedWriteNEC &delayed_write)
+                                                                       long long int global_edge_pos, int vector_index, DelayedWriteNEC &delayed_write)
         {
             float dst_rank = old_page_ranks[dst_id];
             float reversed_dst_links_num = reversed_degrees[dst_id];
 
             if(src_id != dst_id)
-                delayed_write.flt_vec_reg[vector_index] += dst_rank * reversed_dst_links_num;
+                _page_ranks[src_id] += dst_rank * reversed_dst_links_num;
         };
 
-        struct VertexPostprocessFunctor
+        auto vertex_postprocess_op = [_page_ranks, k, d, dangling_input](int src_id, int connections_count, int vector_index, DelayedWriteNEC &delayed_write)
         {
-            float *page_ranks;
-            float k;
-            float d;
-            float dangling_input;
-            VertexPostprocessFunctor(float *_page_ranks, float _k, float _d, float _dangling_input): page_ranks(_page_ranks), k(_k), d(_d), dangling_input(_dangling_input) {}
-
-            void operator()(int src_id, int connections_count, int vector_index, DelayedWriteNEC &delayed_write)
-            {
-                float new_rank = 0.0;
-                #pragma _NEC unroll(VECTOR_LENGTH)
-                for(int i = 0; i < VECTOR_LENGTH; i++)
-                {
-                    new_rank += delayed_write.flt_vec_reg[i];
-                }
-                page_ranks[src_id] = k + d * (new_rank + dangling_input);
-                //page_ranks[src_id] = k + d * (page_ranks[src_id] + dangling_input);
-            }
-        };
-        VertexPostprocessFunctor vertex_postprocess_op(_page_ranks, k, d, dangling_input);
-
-        auto collective_vertex_preprocess_op = [](int src_id, int connections_count, int vector_index, DelayedWriteNEC &delayed_write)
-        {
-            delayed_write.flt_vec_reg[vector_index] = 0.0;
+            _page_ranks[src_id] = k + d * (_page_ranks[src_id] + dangling_input);
         };
 
-        auto collective_vertex_postprocess_op = [_page_ranks, k, d, dangling_input](int src_id, int connections_count, int vector_index, DelayedWriteNEC &delayed_write)
+        graph_API.advance(_graph, frontier, edge_op, EMPTY_VERTEX_OP, vertex_postprocess_op);
+
+        auto reduce_ranks_sum = [_page_ranks](int src_id, int connections_count, int vector_index)->float
         {
-            _page_ranks[src_id] = k + d * (delayed_write.flt_vec_reg[vector_index] + dangling_input);
+            return _page_ranks[src_id];
         };
-
-        graph_API.advance(_graph, frontier, edge_op, vertex_preprocess_op, vertex_postprocess_op, edge_op, collective_vertex_preprocess_op, collective_vertex_postprocess_op);
-
-        double ranks_sum = 0;
-        #pragma omp parallel for reduction(+: ranks_sum)
-        for(int i = 0; i < vertices_count; i++)
-        {
-            ranks_sum += _page_ranks[i];
-        }
+        double ranks_sum = graph_API.reduce<double>(_graph, frontier, reduce_ranks_sum, REDUCE_SUM);
         cout << "ranks sum: " << ranks_sum << endl;
-
-        if(fabs(ranks_sum - 1.0) > _convergence_factor)
-        {
-            cout << "ranks sum: " << ranks_sum << endl;
-            throw "ERROR: page rank sum is incorrect";
-        }
-
-        float err = 0.0;
-        #pragma omp parallel for reduction(+: err)
-        for(int i = 0; i < vertices_count; i++)
-        {
-            float diff = _page_ranks[i] - old_page_ranks[i];
-            if(diff < 0)
-                diff *= -1;
-            err += diff;
-        }
-
-        cout << "err: " << err << endl;
-        //if(err < (vertices_count * _convergence_factor))
-        //    break;
     }
     double t2 = omp_get_wtime();
     performance_stats("page ranks", t2 - t1, edges_count, iterations_count);
@@ -173,6 +120,7 @@ void PR::nec_page_rank(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
     MemoryAPI::free_array(incoming_degrees_without_loops);
     MemoryAPI::free_array(old_page_ranks);
     MemoryAPI::free_array(reversed_degrees);
+    //MemoryAPI::free_array(packed_data);
 }
 #endif
 

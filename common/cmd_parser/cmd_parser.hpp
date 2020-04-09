@@ -56,7 +56,7 @@ void AlgorithmCommandOptionsParser::parse_args(int _argc, const char * _argv[])
             check_flag = false;
         }
         
-        if ((option.compare("-rounds") == 0) || (option.compare("-iterations") == 0) || (option.compare("-i") == 0))
+        if ((option.compare("-rounds") == 0) || (option.compare("-iterations") == 0))
         {
             number_of_rounds = atoi(_argv[++i]);
         }

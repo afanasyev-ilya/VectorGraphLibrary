@@ -4,20 +4,20 @@ set(CMAKE_DEPENDS_LANGUAGES
   )
 # The set of files for implicit dependencies of each language:
 set(CMAKE_DEPENDS_CHECK_CXX
-  "/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/apps/analyse_graph.cpp" "/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/cmake-build-debug/CMakeFiles/VectorGraphLibrary.dir/apps/analyse_graph.cpp.o"
-  "/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/apps/bfs.cpp" "/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/cmake-build-debug/CMakeFiles/VectorGraphLibrary.dir/apps/bfs.cpp.o"
-  "/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/apps/cc.cpp" "/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/cmake-build-debug/CMakeFiles/VectorGraphLibrary.dir/apps/cc.cpp.o"
-  "/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/apps/generate_test_data.cpp" "/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/cmake-build-debug/CMakeFiles/VectorGraphLibrary.dir/apps/generate_test_data.cpp.o"
-  "/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/apps/kcore.cpp" "/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/cmake-build-debug/CMakeFiles/VectorGraphLibrary.dir/apps/kcore.cpp.o"
-  "/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/apps/pr.cpp" "/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/cmake-build-debug/CMakeFiles/VectorGraphLibrary.dir/apps/pr.cpp.o"
-  "/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/apps/sssp.cpp" "/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/cmake-build-debug/CMakeFiles/VectorGraphLibrary.dir/apps/sssp.cpp.o"
-  "/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/apps/sswp.cpp" "/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/cmake-build-debug/CMakeFiles/VectorGraphLibrary.dir/apps/sswp.cpp.o"
-  "/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/misc/custom_test.cpp" "/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/cmake-build-debug/CMakeFiles/VectorGraphLibrary.dir/misc/custom_test.cpp.o"
-  "/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/misc/generate_memory_traces.cpp" "/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/cmake-build-debug/CMakeFiles/VectorGraphLibrary.dir/misc/generate_memory_traces.cpp.o"
-  "/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/misc/lambda_tests.cpp" "/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/cmake-build-debug/CMakeFiles/VectorGraphLibrary.dir/misc/lambda_tests.cpp.o"
-  "/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/misc/nvgraph_comparison.cpp" "/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/cmake-build-debug/CMakeFiles/VectorGraphLibrary.dir/misc/nvgraph_comparison.cpp.o"
+  "/Users/elijah/Documents/workspace/VectorGraphLibrary/apps/analyse_graph.cpp" "/Users/elijah/Documents/workspace/VectorGraphLibrary/cmake-build-debug/CMakeFiles/VectorGraphLibrary.dir/apps/analyse_graph.cpp.o"
+  "/Users/elijah/Documents/workspace/VectorGraphLibrary/apps/bfs.cpp" "/Users/elijah/Documents/workspace/VectorGraphLibrary/cmake-build-debug/CMakeFiles/VectorGraphLibrary.dir/apps/bfs.cpp.o"
+  "/Users/elijah/Documents/workspace/VectorGraphLibrary/apps/cc.cpp" "/Users/elijah/Documents/workspace/VectorGraphLibrary/cmake-build-debug/CMakeFiles/VectorGraphLibrary.dir/apps/cc.cpp.o"
+  "/Users/elijah/Documents/workspace/VectorGraphLibrary/apps/generate_test_data.cpp" "/Users/elijah/Documents/workspace/VectorGraphLibrary/cmake-build-debug/CMakeFiles/VectorGraphLibrary.dir/apps/generate_test_data.cpp.o"
+  "/Users/elijah/Documents/workspace/VectorGraphLibrary/apps/kcore.cpp" "/Users/elijah/Documents/workspace/VectorGraphLibrary/cmake-build-debug/CMakeFiles/VectorGraphLibrary.dir/apps/kcore.cpp.o"
+  "/Users/elijah/Documents/workspace/VectorGraphLibrary/apps/pr.cpp" "/Users/elijah/Documents/workspace/VectorGraphLibrary/cmake-build-debug/CMakeFiles/VectorGraphLibrary.dir/apps/pr.cpp.o"
+  "/Users/elijah/Documents/workspace/VectorGraphLibrary/apps/sssp.cpp" "/Users/elijah/Documents/workspace/VectorGraphLibrary/cmake-build-debug/CMakeFiles/VectorGraphLibrary.dir/apps/sssp.cpp.o"
+  "/Users/elijah/Documents/workspace/VectorGraphLibrary/apps/sswp.cpp" "/Users/elijah/Documents/workspace/VectorGraphLibrary/cmake-build-debug/CMakeFiles/VectorGraphLibrary.dir/apps/sswp.cpp.o"
+  "/Users/elijah/Documents/workspace/VectorGraphLibrary/misc/custom_test.cpp" "/Users/elijah/Documents/workspace/VectorGraphLibrary/cmake-build-debug/CMakeFiles/VectorGraphLibrary.dir/misc/custom_test.cpp.o"
+  "/Users/elijah/Documents/workspace/VectorGraphLibrary/misc/generate_memory_traces.cpp" "/Users/elijah/Documents/workspace/VectorGraphLibrary/cmake-build-debug/CMakeFiles/VectorGraphLibrary.dir/misc/generate_memory_traces.cpp.o"
+  "/Users/elijah/Documents/workspace/VectorGraphLibrary/misc/lambda_tests.cpp" "/Users/elijah/Documents/workspace/VectorGraphLibrary/cmake-build-debug/CMakeFiles/VectorGraphLibrary.dir/misc/lambda_tests.cpp.o"
+  "/Users/elijah/Documents/workspace/VectorGraphLibrary/misc/nvgraph_comparison.cpp" "/Users/elijah/Documents/workspace/VectorGraphLibrary/cmake-build-debug/CMakeFiles/VectorGraphLibrary.dir/misc/nvgraph_comparison.cpp.o"
   )
-set(CMAKE_CXX_COMPILER_ID "AppleClang")
+set(CMAKE_CXX_COMPILER_ID "GNU")
 
 # The include file search paths:
 set(CMAKE_CXX_TARGET_INCLUDE_PATH

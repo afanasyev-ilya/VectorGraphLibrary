@@ -19,73 +19,34 @@ void GraphPrimitivesNEC::compute_worker(ExtendedCSRGraph<_TVertexValue, _TEdgeWe
 
     if(_frontier.type == ALL_ACTIVE_FRONTIER)
     {
+        #pragma _NEC ivdep
+        #pragma _NEC vovertake
+        #pragma _NEC novob
+        #pragma _NEC vector
         #pragma omp for schedule(static)
-        for(int vec_start = 0; vec_start < max_frontier_size - VECTOR_LENGTH; vec_start += VECTOR_LENGTH)
+        for(int src_id = 0; src_id < max_frontier_size; src_id++)
         {
-            #pragma _NEC ivdep
-            #pragma _NEC vovertake
-            #pragma _NEC novob
-            #pragma _NEC vector
-            for(int i = 0; i < VECTOR_LENGTH; i++)
-            {
-                int src_id = vec_start + i;
-                int connections_count = vertex_pointers[src_id + 1] - vertex_pointers[src_id];
-                int vector_index = i;
-                compute_op(src_id, connections_count, vector_index);
-            }
-        }
-
-        #pragma omp single
-        {
-            #pragma _NEC ivdep
-            #pragma _NEC vovertake
-            #pragma _NEC novob
-            #pragma _NEC vector
-            for (int src_id = max_frontier_size - VECTOR_LENGTH; src_id < max_frontier_size; src_id++)
-            {
-                int connections_count = vertex_pointers[src_id + 1] - vertex_pointers[src_id];
-                int vector_index = src_id - (max_frontier_size - VECTOR_LENGTH);
-                compute_op(src_id, connections_count, vector_index);
-            }
+            int connections_count = vertex_pointers[src_id + 1] - vertex_pointers[src_id];
+            int vector_index = src_id % VECTOR_LENGTH;
+            compute_op(src_id, connections_count, vector_index);
         }
     }
     else if((_frontier.type == DENSE_FRONTIER) || (_frontier.type == SPARSE_FRONTIER)) // TODO FIX SPARSE
     {
         int *frontier_flags = _frontier.flags;
 
+        #pragma _NEC ivdep
+        #pragma _NEC vovertake
+        #pragma _NEC novob
+        #pragma _NEC vector
         #pragma omp for schedule(static)
-        for(int vec_start = 0; vec_start < max_frontier_size - VECTOR_LENGTH; vec_start += VECTOR_LENGTH)
+        for(int src_id = 0; src_id < max_frontier_size; src_id++)
         {
-            #pragma _NEC ivdep
-            #pragma _NEC vovertake
-            #pragma _NEC novob
-            #pragma _NEC vector
-            for(int i = 0; i < VECTOR_LENGTH; i++)
+            if(frontier_flags[src_id] == NEC_IN_FRONTIER_FLAG)
             {
-                int src_id = vec_start + i;
-                if(frontier_flags[src_id] == NEC_IN_FRONTIER_FLAG)
-                {
-                    int connections_count = vertex_pointers[src_id + 1] - vertex_pointers[src_id];
-                    int vector_index = i;
-                    compute_op(src_id, connections_count, vector_index);
-                }
-            }
-        }
-
-        #pragma omp single
-        {
-            #pragma _NEC ivdep
-            #pragma _NEC vovertake
-            #pragma _NEC novob
-            #pragma _NEC vector
-            for (int src_id = max_frontier_size - VECTOR_LENGTH; src_id < max_frontier_size; src_id++)
-            {
-                if (frontier_flags[src_id] == NEC_IN_FRONTIER_FLAG)
-                {
-                    int connections_count = vertex_pointers[src_id + 1] - vertex_pointers[src_id];
-                    int vector_index = src_id - (max_frontier_size - VECTOR_LENGTH);
-                    compute_op(src_id, connections_count, vector_index);
-                }
+                int connections_count = vertex_pointers[src_id + 1] - vertex_pointers[src_id];
+                int vector_index = src_id % VECTOR_LENGTH;
+                compute_op(src_id, connections_count, vector_index);
             }
         }
     }
