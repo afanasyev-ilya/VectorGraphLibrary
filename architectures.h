@@ -12,15 +12,11 @@
 
 //#define __USE_ASL__
 #define VECTOR_LENGTH 256
-#define LLC_CACHE_SIZE 8*1024*1024
 #define MAX_SX_AURORA_THREADS 8
-
-#define CACHED_VERTICES 3500 //4608 //4500
-#define CACHE_STEP 7
 
 #define NEC_VECTOR_ENGINE_THRESHOLD_VALUE  VECTOR_LENGTH * MAX_SX_AURORA_THREADS * 128
 //#define NEC_VECTOR_CORE_THRESHOLD_VALUE    4*VECTOR_LENGTH // large size is required for fast pull-based algorithms
-#define NEC_VECTOR_CORE_THRESHOLD_VALUE    4*VECTOR_LENGTH
+#define NEC_VECTOR_CORE_THRESHOLD_VALUE    3*VECTOR_LENGTH
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // GPU properties

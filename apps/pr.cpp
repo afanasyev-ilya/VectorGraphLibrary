@@ -50,7 +50,16 @@ int main(int argc, const char * argv[])
         pr_operation.allocate_result_memory(graph.get_vertices_count(), &page_ranks);
 
         #ifdef __USE_NEC_SX_AURORA__
+
+        #ifdef __PRINT_API_PERFORMANCE_STATS__
+        reset_nec_debug_timers();
+        #endif
+
         pr_operation.nec_page_rank(graph, page_ranks, 1.0e-4, iterations_count);
+
+        #ifdef __PRINT_API_PERFORMANCE_STATS__
+        print_nec_debug_timers(graph);
+        #endif
         #endif
 
         if(parser.get_check_flag())

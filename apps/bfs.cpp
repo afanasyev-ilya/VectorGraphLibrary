@@ -72,7 +72,7 @@ int main(int argc, const char * argv[])
 
             #ifdef __PRINT_API_PERFORMANCE_STATS__
             reset_nec_debug_timers();
-            #endif // __PRINT_API_PERFORMANCE_STATS__
+            #endif
 
             if(parser.get_algorithm_bfs() == DIRECTION_OPTIMISING_BFS_ALGORITHM)
                 bfs_operation.nec_direction_optimising(graph, bfs_levels, vertex_to_check);
@@ -81,9 +81,9 @@ int main(int argc, const char * argv[])
 
             #ifdef __PRINT_API_PERFORMANCE_STATS__
             print_nec_debug_timers(graph);
-            #endif // __PRINT_API_PERFORMANCE_STATS__
+            #endif
 
-            #endif // __USE_NEC_SX_AURORA__
+            #endif
 
             #ifdef __USE_GPU__
             bfs_operation.gpu_direction_optimising_BFS(graph, device_bfs_levels, vertex_to_check);

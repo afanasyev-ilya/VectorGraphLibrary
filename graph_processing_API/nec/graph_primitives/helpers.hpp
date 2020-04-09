@@ -45,6 +45,9 @@ void print_nec_debug_timers(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_grap
     cout << "INNER_WALL_NEC_TIME: " << INNER_WALL_NEC_TIME * 1000 << " ms" << endl;
     cout << "INNER perf: " << _graph.get_edges_count() / (INNER_WALL_NEC_TIME * 1e6) << " MTEPS" << endl;
     cout << "INNER_ADVANCE_NEC_TIME: " << int(100.0 * INNER_ADVANCE_NEC_TIME / INNER_WALL_NEC_TIME) << " %" << endl;
+    cout << "         DETAILED_ADVANCE_PART_1_NEC_TIME: " << int(100.0 * DETAILED_ADVANCE_PART_1_NEC_TIME / INNER_WALL_NEC_TIME) << " %" << endl;
+    cout << "         DETAILED_ADVANCE_PART_2_NEC_TIME: " << int(100.0 * DETAILED_ADVANCE_PART_2_NEC_TIME / INNER_WALL_NEC_TIME) << " %" << endl;
+    cout << "         DETAILED_ADVANCE_PART_3_NEC_TIME: " << int(100.0 * DETAILED_ADVANCE_PART_3_NEC_TIME / INNER_WALL_NEC_TIME) << " %" << endl;
     cout << "INNER_COMPUTE_NEC_TIME: " << int(100.0 * INNER_COMPUTE_NEC_TIME / INNER_WALL_NEC_TIME) << " %" << endl;
     cout << "INNER_GNF_NEC_TIME: " << int(100.0 * INNER_GNF_NEC_TIME / INNER_WALL_NEC_TIME) << " %" << endl;
     cout << "INNER_REDUCE_NEC_TIME: " << int(100.0 * INNER_REDUCE_NEC_TIME / INNER_WALL_NEC_TIME) << " %" << endl;

@@ -64,11 +64,14 @@ int main(int argc, const char * argv[])
             last_src_vertex = i * 100 + 1;
 
             #ifdef __USE_NEC_SX_AURORA__
-            INNER_WALL_NEC_TIME = 0;
+            #ifdef __PRINT_API_PERFORMANCE_STATS__
+            reset_nec_debug_timers();
+            #endif
             sssp_operation.nec_dijkstra(graph, distances, last_src_vertex, parser.get_algorithm_frontier_type(),
                                         parser.get_traversal_direction());
-            cout << "INNER_WALL_NEC_TIME: " << INNER_WALL_NEC_TIME * 1000 << " ms" << endl;
-            cout << "INNER PERF: " << graph.get_edges_count() / (INNER_WALL_NEC_TIME * 1e6) << " MTEPS" << endl;
+            #ifdef __PRINT_API_PERFORMANCE_STATS__
+            print_nec_debug_timers(graph);
+            #endif
             #endif
             
             #ifdef __USE_GPU__
