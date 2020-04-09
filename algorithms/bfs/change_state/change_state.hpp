@@ -94,7 +94,7 @@ StateOfBFS nec_change_state(int _current_queue_size, int _next_queue_size, int _
             new_state = BOTTOM_UP;  // in the case of RMAT graph better switch to bottom up early
     }
     
-    if((_graph_structure == POWER_LAW_GRAPH) && (_cur_level == 1)/* && (_cur_level == 2)*/) // tofix
+    if((_graph_structure == POWER_LAW_GRAPH) && (_cur_level == 1)) // tofix
     {
         _use_vect_CSR_extension = true;
     }

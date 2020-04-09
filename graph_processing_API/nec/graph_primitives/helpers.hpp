@@ -15,9 +15,9 @@ double INNER_PACK_NEC_TIME = 0;
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-inline int get_vector_border(int _connections_count)
+inline int get_vector_index(int index)
 {
-    return VECTOR_LENGTH * (int((_connections_count)/VECTOR_LENGTH));
+    return index - VECTOR_LENGTH*(index >> VECTOR_LENGTH_POW);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -49,7 +49,7 @@ void print_nec_debug_timers(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_grap
     cout << "         DETAILED_ADVANCE_PART_2_NEC_TIME: " << int(100.0 * DETAILED_ADVANCE_PART_2_NEC_TIME / INNER_WALL_NEC_TIME) << " %" << endl;
     cout << "         DETAILED_ADVANCE_PART_3_NEC_TIME: " << int(100.0 * DETAILED_ADVANCE_PART_3_NEC_TIME / INNER_WALL_NEC_TIME) << " %" << endl;
     cout << "INNER_COMPUTE_NEC_TIME: " << int(100.0 * INNER_COMPUTE_NEC_TIME / INNER_WALL_NEC_TIME) << " %" << endl;
-    cout << "INNER_GNF_NEC_TIME: " << int(100.0 * INNER_GNF_NEC_TIME / INNER_WALL_NEC_TIME) << " %" << endl;
+    cout << "INNER_GNF_NEC_TIME: " << int(100.0 * INNER_GNF_NEC_TIME / INNER_WALL_NEC_TIME) << " % (" << 1000.0*INNER_GNF_NEC_TIME << ")" << endl;
     cout << "INNER_REDUCE_NEC_TIME: " << int(100.0 * INNER_REDUCE_NEC_TIME / INNER_WALL_NEC_TIME) << " %" << endl;
     cout << "INNER_PACK_NEC_TIME: " << int(100.0 * INNER_PACK_NEC_TIME / INNER_WALL_NEC_TIME) << " %" << endl;
     cout << "INNER_FILTER_NEC_TIME: " << int(100.0 * INNER_FILTER_NEC_TIME / INNER_WALL_NEC_TIME) << " %" << endl << endl;

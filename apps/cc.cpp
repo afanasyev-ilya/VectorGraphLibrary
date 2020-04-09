@@ -1,3 +1,9 @@
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+#define INT_ELEMENTS_PER_EDGE 6.0
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 #include "../graph_library.h"
 #include <iostream>
 
@@ -46,10 +52,18 @@ int main(int argc, const char * argv[])
         #endif
 
         #ifdef __USE_NEC_SX_AURORA__
+        #ifdef __PRINT_API_PERFORMANCE_STATS__
+        reset_nec_debug_timers();
+        #endif
+
         if(parser.get_algorithm_cc() == SHILOACH_VISHKIN_ALGORITHM)
             cc_operation.nec_shiloach_vishkin(graph, components);
         else if(parser.get_algorithm_cc() == BFS_BASED_ALGORITHM)
             cc_operation.nec_bfs_based(graph, components);
+
+        #ifdef __PRINT_API_PERFORMANCE_STATS__
+        print_nec_debug_timers(graph);
+        #endif
         #endif
 
         #ifdef __USE_GPU__ // for now run all 3 algorithms, TODO selection later

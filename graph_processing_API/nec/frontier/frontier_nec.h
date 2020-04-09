@@ -7,7 +7,7 @@
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#define FRONTIER_TYPE_CHANGE_THRESHOLD 0.1
+#define FRONTIER_TYPE_CHANGE_THRESHOLD 0.3
 
 enum FrontierType {
     ALL_ACTIVE_FRONTIER = 2,
@@ -42,6 +42,8 @@ public:
     FrontierType get_type() {return type;};
 
     void set_all_active();
+
+    void change_size(int _size) {max_size = _size;};
 
     void print_frontier_info();
 

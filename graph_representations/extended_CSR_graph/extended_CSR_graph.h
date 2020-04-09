@@ -30,6 +30,10 @@ VerticesState vertices_state;
     int           *outgoing_ids;
     _TEdgeWeight  *outgoing_weights;
 
+    long long     *incoming_ptrs;
+    int           *incoming_ids;
+    _TEdgeWeight  *incoming_weights;
+
     VectorExtension<_TVertexValue, _TEdgeWeight> last_vertices_ve;
     
     #ifdef __USE_GPU__

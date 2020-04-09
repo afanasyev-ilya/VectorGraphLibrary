@@ -132,7 +132,7 @@ void BFS<_TVertexValue, _TEdgeWeight>::nec_bottom_up_compute_step(ExtendedCSRGra
             reg_in_lvl[vector_index]++;
             if((_levels[src_id] == UNVISITED_VERTEX) && (_levels[dst_id] == _current_level))
             {
-                delayed_write.int_vec_reg[vector_index] = _current_level + 1;
+                _levels[src_id] = _current_level + 1;
                 reg_vis[vector_index]++;
             }
         };
@@ -148,51 +148,7 @@ void BFS<_TVertexValue, _TEdgeWeight>::nec_bottom_up_compute_step(ExtendedCSRGra
             }
         };
 
-        struct VertexPreprocessFunctor
-        {
-            int *_levels;
-            VertexPreprocessFunctor(int *levels): _levels(levels) {}
-            void operator()(int src_id, int connections_count, int vector_index, DelayedWriteNEC &delayed_write)
-            {
-                #pragma _NEC ivdep
-                #pragma _NEC vovertake
-                #pragma _NEC novob
-                #pragma _NEC vector
-                for(int i = 0; i < VECTOR_LENGTH; i++)
-                {
-                    delayed_write.int_vec_reg[i] = UNVISITED_VERTEX;
-                }
-            }
-        };
-        VertexPreprocessFunctor vertex_preprocess_op(_levels);
-
-        struct VertexPostprocessFunctor
-        {
-            int *_levels;
-            int _current_level;
-            VertexPostprocessFunctor(int *levels, int current_level): _levels(levels),_current_level(current_level) {}
-            void operator()(int src_id, int connections_count, int vector_index, DelayedWriteNEC &delayed_write)
-            {
-                int new_level = UNVISITED_VERTEX;
-                #pragma _NEC ivdep
-                #pragma _NEC vovertake
-                #pragma _NEC novob
-                #pragma _NEC vector
-                for(int i = 0; i < VECTOR_LENGTH; i++)
-                {
-                    if(delayed_write.int_vec_reg[i] == (_current_level + 1))
-                    {
-                        new_level = _current_level + 1;
-                    }
-                }
-                if(new_level == (_current_level + 1))
-                    _levels[src_id] = _current_level + 1;
-            }
-        };
-        VertexPostprocessFunctor vertex_postprocess_op(_levels, _current_level);
-
-        graph_API.advance(_graph, frontier, edge_op, vertex_preprocess_op, vertex_postprocess_op, edge_collective_op,
-                          EMPTY_VERTEX_OP, EMPTY_VERTEX_OP, 0);
+        graph_API.advance(_graph, frontier, edge_op);
 
         int local_vis = register_sum_reduce(reg_vis);
         int local_in_lvl = register_sum_reduce(reg_in_lvl);
@@ -288,10 +244,29 @@ void BFS<_TVertexValue, _TEdgeWeight>::nec_direction_optimising(ExtendedCSRGraph
 {
     LOAD_EXTENDED_CSR_GRAPH_DATA(_graph);
     GraphStructure graph_structure = check_graph_structure(_graph);
-
     int *connections_array;
     MemoryAPI::allocate_array(&connections_array, vertices_count);
+    frontier.set_all_active();
 
+    auto calculate_non_zero_count = [](int src_id, int connections_count, int vector_index)->int
+    {
+        int result = 0;
+        if(connections_count > 0)
+        {
+            result = 1;
+        }
+        return result;
+    };
+    int non_zero_count = graph_API.reduce<int>(_graph, frontier, calculate_non_zero_count, REDUCE_SUM);
+
+    auto set_reminder = [_levels, non_zero_count](int src_id, int connections_count, int vector_index)
+    {
+        if(src_id >= non_zero_count)
+            _levels[src_id] = UNVISITED_VERTEX;
+    };
+    graph_API.compute(_graph, frontier, set_reminder);
+
+    frontier.change_size(non_zero_count);
     frontier.set_all_active();
 
     auto init_connections = [connections_array] (int src_id, int connections_count, int vector_index)

@@ -27,7 +27,7 @@ void GraphPrimitivesNEC::compute_worker(ExtendedCSRGraph<_TVertexValue, _TEdgeWe
         for(int src_id = 0; src_id < max_frontier_size; src_id++)
         {
             int connections_count = vertex_pointers[src_id + 1] - vertex_pointers[src_id];
-            int vector_index = src_id % VECTOR_LENGTH;
+            int vector_index = get_vector_index(src_id);
             compute_op(src_id, connections_count, vector_index);
         }
     }
@@ -45,7 +45,7 @@ void GraphPrimitivesNEC::compute_worker(ExtendedCSRGraph<_TVertexValue, _TEdgeWe
             if(frontier_flags[src_id] == NEC_IN_FRONTIER_FLAG)
             {
                 int connections_count = vertex_pointers[src_id + 1] - vertex_pointers[src_id];
-                int vector_index = src_id % VECTOR_LENGTH;
+                int vector_index = get_vector_index(src_id);
                 compute_op(src_id, connections_count, vector_index);
             }
         }

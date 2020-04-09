@@ -41,7 +41,7 @@ void GraphPrimitivesNEC::vector_engine_per_vertex_kernel_all_active(const long l
         for (int local_edge_pos = 0; local_edge_pos < connections_count; local_edge_pos++)
         {
             const long long int global_edge_pos = start + local_edge_pos;
-            const int vector_index = 0;
+            const int vector_index = get_vector_index(local_edge_pos);
             const int dst_id = _adjacent_ids[global_edge_pos];
 
             edge_op(src_id, dst_id, local_edge_pos, global_edge_pos, vector_index, delayed_write);
@@ -106,7 +106,7 @@ void GraphPrimitivesNEC::vector_core_per_vertex_kernel_all_active(const long lon
         for (int local_edge_pos = 0; local_edge_pos < connections_count; local_edge_pos++)
         {
             const long long int global_edge_pos = start + local_edge_pos;
-            const int vector_index = 0;
+            const int vector_index = get_vector_index(local_edge_pos);
             const int dst_id = _adjacent_ids[global_edge_pos];
 
             edge_op(src_id, dst_id, local_edge_pos, global_edge_pos, vector_index, delayed_write);
