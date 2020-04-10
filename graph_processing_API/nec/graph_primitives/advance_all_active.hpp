@@ -142,6 +142,7 @@ void GraphPrimitivesNEC::ve_collective_vertex_processing_kernel_all_active(const
                                                                            const int _ve_vertices_count,
                                                                            const int _ve_starting_vertex,
                                                                            const int _ve_vector_segments_count,
+                                                                           const long long *_vertex_pointers,
                                                                            const int _first_vertex,
                                                                            const int _last_vertex,
                                                                            EdgeOperation edge_op,
@@ -159,6 +160,11 @@ void GraphPrimitivesNEC::ve_collective_vertex_processing_kernel_all_active(const
     DelayedWriteNEC delayed_write;
     delayed_write.init();
 
+    int reg_real_connections_count[VECTOR_LENGTH];
+    #pragma _NEC vreg(reg_real_connections_count)
+    for(int i = 0; i < VECTOR_LENGTH; i++)
+        reg_real_connections_count[i] = 0;
+
     #pragma omp for schedule(static, 8)
     for(int cur_vector_segment = 0; cur_vector_segment < _ve_vector_segments_count; cur_vector_segment++)
     {
@@ -172,8 +178,13 @@ void GraphPrimitivesNEC::ve_collective_vertex_processing_kernel_all_active(const
         {
             int src_id = segment_first_vertex + i;
 
+            if(segment_connections_count > 0)
+                reg_real_connections_count[i] = _vertex_pointers[src_id + 1] - _vertex_pointers[src_id];
+            else
+                reg_real_connections_count[i] = 0;
+
             if(src_id < _vertices_count)
-                vertex_preprocess_op(src_id, segment_connections_count, i, delayed_write);
+                vertex_preprocess_op(src_id, reg_real_connections_count[i], i, delayed_write);
         }
 
         for(int edge_pos = _first_edge; edge_pos < segment_connections_count; edge_pos++)
@@ -191,8 +202,8 @@ void GraphPrimitivesNEC::ve_collective_vertex_processing_kernel_all_active(const
                 const long long int global_edge_pos = segment_edges_start + edge_pos * VECTOR_LENGTH + i;
                 const int local_edge_pos = edge_pos;
                 const int dst_id = _ve_adjacent_ids[global_edge_pos];
-
-                edge_op(src_id, dst_id, local_edge_pos, global_edge_pos, vector_index, delayed_write);
+                if(edge_pos < reg_real_connections_count[i])
+                    edge_op(src_id, dst_id, local_edge_pos, global_edge_pos, vector_index, delayed_write);
             }
         }
 
@@ -202,7 +213,7 @@ void GraphPrimitivesNEC::ve_collective_vertex_processing_kernel_all_active(const
             int src_id = segment_first_vertex + i;
 
             if(src_id < _vertices_count)
-                vertex_postprocess_op(src_id, segment_connections_count, i, delayed_write);
+                vertex_postprocess_op(src_id, reg_real_connections_count[i], i, delayed_write);
         }
     }
 

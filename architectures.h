@@ -16,7 +16,7 @@
 #define MAX_SX_AURORA_THREADS 8
 
 #define NEC_VECTOR_ENGINE_THRESHOLD_VALUE  VECTOR_LENGTH * MAX_SX_AURORA_THREADS * 128
-#define NEC_VECTOR_CORE_THRESHOLD_VALUE    2*VECTOR_LENGTH
+#define NEC_VECTOR_CORE_THRESHOLD_VALUE    3*VECTOR_LENGTH
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // GPU properties

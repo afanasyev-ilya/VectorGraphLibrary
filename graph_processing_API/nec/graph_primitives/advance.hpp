@@ -52,7 +52,7 @@ void GraphPrimitivesNEC::advance_worker(ExtendedCSRGraph<_TVertexValue, _TEdgeWe
         if((collective_threshold_end - collective_threshold_start) > 0)
             ve_collective_vertex_processing_kernel_all_active(ve_vector_group_ptrs, ve_vector_group_sizes,
                                                               ve_adjacent_ids, ve_vertices_count, ve_starting_vertex,
-                                                              ve_vector_segments_count, collective_threshold_start, collective_threshold_end,
+                                                              ve_vector_segments_count, vertex_pointers, collective_threshold_start, collective_threshold_end,
                                                               collective_edge_op, collective_vertex_preprocess_op,
                                                               collective_vertex_postprocess_op, vertices_count, _first_edge);
 
@@ -72,7 +72,7 @@ void GraphPrimitivesNEC::advance_worker(ExtendedCSRGraph<_TVertexValue, _TEdgeWe
         if((collective_threshold_end - collective_threshold_start) > 0)
             ve_collective_vertex_processing_kernel_dense(ve_vector_group_ptrs, ve_vector_group_sizes,
                                                          ve_adjacent_ids, ve_vertices_count, ve_starting_vertex, ve_vector_segments_count,
-                                                         frontier_flags, collective_threshold_start, collective_threshold_end,
+                                                         frontier_flags, vertex_pointers, collective_threshold_start, collective_threshold_end,
                                                          collective_edge_op, collective_vertex_preprocess_op,
                                                          collective_vertex_postprocess_op, vertices_count, _first_edge);
     }

@@ -17,10 +17,10 @@ private:
     int avg_degree;
 
     string graph_file_name;
-    
+
     bool check_flag;
-    
-    bool number_of_rounds;
+
+    int number_of_rounds;
 
     AlgorithmBFS algorithm_bfs;
     AlgorithmCC algorithm_cc;

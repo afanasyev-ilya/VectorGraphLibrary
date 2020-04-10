@@ -37,21 +37,15 @@ void PR::nec_page_rank(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
     };
     graph_API.compute(_graph, frontier, init_data);
 
-    // TOFIX
-    for(int src_id = 0; src_id < vertices_count; src_id++)
+    auto calculate_number_of_loops = [number_of_loops](int src_id, int dst_id, int local_edge_pos,
+                                     long long int global_edge_pos, int vector_index, DelayedWriteNEC &delayed_write)
     {
-        const long long edge_start = outgoing_ptrs[src_id];
-        const int connections_count = outgoing_ptrs[src_id + 1] - outgoing_ptrs[src_id];
-
-        for (int edge_pos = 0; edge_pos < connections_count; edge_pos++)
+        if(src_id == dst_id)
         {
-            long long int global_edge_pos = edge_start + edge_pos;
-            int dst_id = outgoing_ids[global_edge_pos];
-
-            if(src_id == dst_id)
-                number_of_loops[src_id]++;
+            number_of_loops[src_id]++;
         }
-    }
+    };
+    graph_API.advance(_graph, frontier, calculate_number_of_loops);
 
     auto calculate_degrees_without_loops = [incoming_degrees_without_loops, incoming_degrees, number_of_loops] (int src_id, int connections_count, int vector_index)
     {
