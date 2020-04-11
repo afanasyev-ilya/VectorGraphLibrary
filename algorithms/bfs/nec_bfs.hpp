@@ -79,9 +79,9 @@ void BFS<_TVertexValue, _TEdgeWeight>::nec_bottom_up_compute_step(ExtendedCSRGra
         frontier.set_all_active();
         /*auto vertex_value_is_unset = [_levels, _connections_array] (int src_id)->int
         {
-            int result = NEC_NOT_IN_FRONTIER_FLAG;
+            int result = NOT_IN_FRONTIER_FLAG;
             if((_levels[src_id] == UNVISITED_VERTEX) && (_connections_array[src_id] > 0))
-                result = NEC_IN_FRONTIER_FLAG;
+                result = IN_FRONTIER_FLAG;
             return result;
         };
         graph_API.generate_new_frontier(_graph, frontier, vertex_value_is_unset);*/
@@ -113,9 +113,9 @@ void BFS<_TVertexValue, _TEdgeWeight>::nec_bottom_up_compute_step(ExtendedCSRGra
 
     auto vertex_value_is_unset = [_levels, _connections_array] (int src_id)->int
     {
-        int result = NEC_NOT_IN_FRONTIER_FLAG;
+        int result = NOT_IN_FRONTIER_FLAG;
         if((_levels[src_id] == UNVISITED_VERTEX) && (_connections_array[src_id] > 0))
-            result = NEC_IN_FRONTIER_FLAG;
+            result = IN_FRONTIER_FLAG;
         return result;
     };
     //graph_API.filter(_graph, frontier, vertex_value_is_unset); // TODO replace with filter
@@ -184,9 +184,9 @@ void BFS<_TVertexValue, _TEdgeWeight>::nec_top_down(ExtendedCSRGraph<_TVertexVal
 
     auto on_first_level = [_levels] (int src_id)->int
     {
-        int result = NEC_NOT_IN_FRONTIER_FLAG;
+        int result = NOT_IN_FRONTIER_FLAG;
         if(_levels[src_id] == FIRST_LEVEL_VERTEX)
-            result = NEC_IN_FRONTIER_FLAG;
+            result = IN_FRONTIER_FLAG;
         return result;
     };
     graph_API.filter(_graph, frontier, on_first_level);
@@ -200,9 +200,9 @@ void BFS<_TVertexValue, _TEdgeWeight>::nec_top_down(ExtendedCSRGraph<_TVertexVal
 
         auto on_next_level = [_levels, current_level] (int src_id)->int
         {
-            int result = NEC_NOT_IN_FRONTIER_FLAG;
+            int result = NOT_IN_FRONTIER_FLAG;
             if(_levels[src_id] == (current_level + 1))
-                result = NEC_IN_FRONTIER_FLAG;
+                result = IN_FRONTIER_FLAG;
             return result;
         };
 
@@ -217,22 +217,6 @@ void BFS<_TVertexValue, _TEdgeWeight>::nec_top_down(ExtendedCSRGraph<_TVertexVal
     #endif
 }
 #endif
-
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-int get_level_size(int *_levels, int _vertices_count, int _current_level)
-{
-    int result = 0;
-    #pragma omp parallel for reduction(+: result)
-    for(int i = 0; i < _vertices_count; i++)
-    {
-        if(_levels[i] == _current_level)
-        {
-            result++;
-        }
-    }
-    return result;
-}
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -310,9 +294,9 @@ void BFS<_TVertexValue, _TEdgeWeight>::nec_direction_optimising(ExtendedCSRGraph
         {
             auto on_current_level = [_levels, current_level] (int src_id)->int
             {
-                int result = NEC_NOT_IN_FRONTIER_FLAG;
+                int result = NOT_IN_FRONTIER_FLAG;
                 if(_levels[src_id] == current_level)
-                    result = NEC_IN_FRONTIER_FLAG;
+                    result = IN_FRONTIER_FLAG;
                 return result;
             };
 

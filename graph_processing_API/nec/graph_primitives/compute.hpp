@@ -42,7 +42,7 @@ void GraphPrimitivesNEC::compute_worker(ExtendedCSRGraph<_TVertexValue, _TEdgeWe
         #pragma omp for schedule(static)
         for(int src_id = 0; src_id < max_frontier_size; src_id++)
         {
-            if(frontier_flags[src_id] == NEC_IN_FRONTIER_FLAG)
+            if(frontier_flags[src_id] == IN_FRONTIER_FLAG)
             {
                 int connections_count = vertex_pointers[src_id + 1] - vertex_pointers[src_id];
                 int vector_index = get_vector_index(src_id);

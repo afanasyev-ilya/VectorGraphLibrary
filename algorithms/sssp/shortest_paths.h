@@ -21,8 +21,11 @@ template <typename _TVertexValue, typename _TEdgeWeight>
 class ShortestPaths
 {
 private:
+    #ifdef __USE_NEC_SX_AURORA__
     GraphPrimitivesNEC graph_API;
     FrontierNEC frontier;
+    _TEdgeWeight *class_old_distances;
+    #endif
 
     #ifdef __USE_NEC_SX_AURORA__
     void nec_dijkstra_all_active(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
@@ -39,6 +42,7 @@ private:
     void performance_stats(string _name, double _time, long long _edges_count, int _iterations_count);
 public:
     ShortestPaths(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph);
+    ~ShortestPaths();
 
     void allocate_result_memory(int _vertices_count, _TEdgeWeight **_distances);
     void free_result_memory    (_TEdgeWeight *_distances);
@@ -50,16 +54,16 @@ public:
 
     #ifdef __USE_NEC_SX_AURORA__
     void nec_dijkstra(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph, _TEdgeWeight *_distances,
-                      int _source_vertex, AlgorithmFrontierType _frontier_type = PARTIAL_ACTIVE,
+                      int _source_vertex, AlgorithmFrontierType _frontier_type = ALL_ACTIVE,
                       TraversalDirection _traversal_direction = PUSH_TRAVERSAL);
     #endif
 
     #ifdef __USE_GPU__
     void gpu_dijkstra(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
-                      _TEdgeWeight *_distances, int _source_vertex);
+                      _TEdgeWeight *_distances, int _source_vertex,
+                      AlgorithmFrontierType _frontier_type = PARTIAL_ACTIVE,
+                      TraversalDirection _traversal_direction = PUSH_TRAVERSAL);
     #endif
-
-    void nec_dijkstra_man(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph, _TEdgeWeight *_distances, int _source_vertex);
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

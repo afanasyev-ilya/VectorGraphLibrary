@@ -32,8 +32,7 @@ void BFS<_TVertexValue, _TEdgeWeight>::copy_result_to_host(int *_host_levels, in
 
 #ifdef __USE_GPU__
 template <typename _TVertexValue, typename _TEdgeWeight>
-void BFS<_TVertexValue, _TEdgeWeight>::gpu_direction_optimising_BFS(
-                                         ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
+void BFS<_TVertexValue, _TEdgeWeight>::gpu_top_down(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
                                          int *_device_levels,
                                          int _source_vertex)
 {
@@ -42,10 +41,12 @@ void BFS<_TVertexValue, _TEdgeWeight>::gpu_direction_optimising_BFS(
     _graph.move_to_device();
 
     int iterations_count = 0;
-    gpu_direction_optimising_bfs_wrapper<_TVertexValue, _TEdgeWeight>(_graph, _device_levels, _source_vertex, iterations_count);
+    double t1 = omp_get_wtime();
+    top_down_wrapper<_TVertexValue, _TEdgeWeight>(_graph, _device_levels, _source_vertex, iterations_count);
+    double t2 = omp_get_wtime();
 
     #ifdef __PRINT_SAMPLES_PERFORMANCE_STATS__
-    performance_stats("BFS (direction-optimising)", t2 - t1, edges_count, iterations_count);
+    performance_stats("BFS (top-down)", t2 - t1, edges_count, iterations_count);
     #endif
 }
 #endif

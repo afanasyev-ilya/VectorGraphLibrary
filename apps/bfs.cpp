@@ -1,6 +1,8 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #define INT_ELEMENTS_PER_EDGE 4.0
+#define __PRINT_API_PERFORMANCE_STATS__
+#define __PRINT_SAMPLES_PERFORMANCE_STATS__
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -69,24 +71,21 @@ int main(int argc, const char * argv[])
 
             double t1 = omp_get_wtime();
             #ifdef __USE_NEC_SX_AURORA__
-
             #ifdef __PRINT_API_PERFORMANCE_STATS__
             reset_nec_debug_timers();
             #endif
-
             if(parser.get_algorithm_bfs() == DIRECTION_OPTIMISING_BFS_ALGORITHM)
                 bfs_operation.nec_direction_optimising(graph, bfs_levels, vertex_to_check);
             else if(parser.get_algorithm_bfs() == TOP_DOWN_BFS_ALGORITHM)
                 bfs_operation.nec_top_down(graph, bfs_levels, vertex_to_check);
-
             #ifdef __PRINT_API_PERFORMANCE_STATS__
             print_nec_debug_timers(graph);
             #endif
-
             #endif
 
             #ifdef __USE_GPU__
-            bfs_operation.gpu_direction_optimising_BFS(graph, device_bfs_levels, vertex_to_check);
+            if(parser.get_algorithm_bfs() == TOP_DOWN_BFS_ALGORITHM)
+                bfs_operation.gpu_top_down(graph, device_bfs_levels, vertex_to_check);
             #endif
             double t2 = omp_get_wtime();
             total_time += t2 - t1;
@@ -103,9 +102,9 @@ int main(int argc, const char * argv[])
         if(parser.get_check_flag())
         {
             #ifdef __USE_GPU__
-            int *bfs_result;
-            bfs_operation.allocate_result_memory(graph.get_vertices_count(), &bfs_result);
-            bfs_operation.copy_result_to_host(bfs_result, device_bfs_result, graph.get_vertices_count());
+            int *bfs_levels;
+            bfs_operation.allocate_result_memory(graph.get_vertices_count(), &bfs_levels);
+            bfs_operation.copy_result_to_host(bfs_levels, device_bfs_levels, graph.get_vertices_count());
             #endif
 
             int *check_levels;
@@ -117,7 +116,7 @@ int main(int argc, const char * argv[])
             bfs_operation.free_result_memory(check_levels);
 
             #ifdef __USE_GPU__
-            bfs_operation.free_result_memory(bfs_result);
+            bfs_operation.free_result_memory(bfs_levels);
             #endif
         }
 
@@ -126,7 +125,7 @@ int main(int argc, const char * argv[])
         #endif
 
         #ifdef __USE_GPU__
-        bfs_operation.free_device_result_memory(device_bfs_result);
+        bfs_operation.free_device_result_memory(device_bfs_levels);
         #endif
     }
     catch (string error)

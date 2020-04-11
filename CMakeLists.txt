@@ -152,4 +152,4 @@ add_executable(VectorGraphLibrary
         verification/page_rank_verification.hpp
         verification/shortest_paths_verification.hpp
         architectures.h
-        graph_library.h)
+        graph_library.h graph_processing_API/framework_types.h)

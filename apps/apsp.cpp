@@ -1,8 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#define INT_ELEMENTS_PER_EDGE 6.0
-#define __PRINT_API_PERFORMANCE_STATS__
-#define __PRINT_SAMPLES_PERFORMANCE_STATS__
+#define INT_ELEMENTS_PER_EDGE 5.0
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -19,21 +17,22 @@ int main(int argc, const char * argv[])
 {
     try
     {
-        cout << "CC (connected components) test..." << endl;
+        cout << "APSP (All-pair Shortest Paths) test..." << endl;
 
         // parse args
         AlgorithmCommandOptionsParser parser;
         parser.parse_args(argc, argv);
 
-        // load graph
+        //VectorisedCSRGraph<int, float> graph;
         ExtendedCSRGraph<int, float> graph;
         EdgesListGraph<int, float> rand_graph;
         if(parser.get_compute_mode() == GENERATE_NEW_GRAPH)
         {
             int vertices_count = pow(2.0, parser.get_scale());
             long long edges_count = vertices_count * parser.get_avg_degree();
+            //GraphGenerationAPI<int, float>::random_uniform(rand_graph, vertices_count, edges_count, UNDIRECTED_GRAPH);
             GraphGenerationAPI<int, float>::R_MAT(rand_graph, vertices_count, edges_count, 57, 19, 19, 5, UNDIRECTED_GRAPH);
-            graph.import_graph(rand_graph);
+            graph.import_graph(rand_graph, VERTICES_SORTED, EDGES_SORTED, VECTOR_LENGTH, PULL_TRAVERSAL);
         }
         else if(parser.get_compute_mode() == LOAD_GRAPH_FROM_FILE)
         {
@@ -44,48 +43,41 @@ int main(int argc, const char * argv[])
             cout << "file " << parser.get_graph_file_name() << " loaded in " << t2 - t1 << " sec" << endl;
         }
 
-        ConnectedComponents<int, float> cc_operation(graph);
+        GraphAnalytics graph_analytics;
+        graph_analytics.analyse_graph_stats(graph, parser.get_graph_file_name());
 
-        int *components;
-        cc_operation.allocate_result_memory(graph.get_vertices_count(), &components);
+        // compute APSP
+        cout << "Computations started..." << endl;
+        ShortestPaths<int, float> sssp_operation(graph);
+        float *distances;
+        sssp_operation.allocate_result_memory(graph.get_vertices_count(), &distances);
 
-        #ifdef __USE_GPU__
-        graph.move_to_device();
-        #endif
-
-        #ifdef __USE_NEC_SX_AURORA__
-        #ifdef __PRINT_API_PERFORMANCE_STATS__
-        reset_nec_debug_timers();
-        #endif
-
-        if(parser.get_algorithm_cc() == SHILOACH_VISHKIN_ALGORITHM)
-            cc_operation.nec_shiloach_vishkin(graph, components);
-        else if(parser.get_algorithm_cc() == BFS_BASED_ALGORITHM)
-            cc_operation.nec_bfs_based(graph, components);
-
-        #ifdef __PRINT_API_PERFORMANCE_STATS__
-        print_nec_debug_timers(graph);
-        #endif
-        #endif
-
-        #ifdef __USE_GPU__ // for now run all 3 algorithms, TODO selection later
-        cc_operation.gpu_shiloach_vishkin(graph, components);
-        #endif
-
-        #ifdef __USE_GPU__
-        graph.move_to_host();
-        #endif
-
-        if(parser.get_check_flag())
+        int vertices_count = graph.get_vertices_count();
+        int vertices_per_percent = vertices_count / 100;
+        double t1 = omp_get_wtime();
+        for(int current_vertex = 0; current_vertex < vertices_count; current_vertex++)
         {
-            int *check_components;
-            cc_operation.allocate_result_memory(graph.get_vertices_count(), &check_components);
-            cc_operation.seq_bfs_based(graph, check_components);
+            #ifdef __USE_NEC_SX_AURORA__
+            #ifdef __PRINT_API_PERFORMANCE_STATS__
+            reset_nec_debug_timers();
+            #endif
+            sssp_operation.nec_dijkstra(graph, distances, current_vertex, ALL_ACTIVE, PUSH_TRAVERSAL);
+            #ifdef __PRINT_API_PERFORMANCE_STATS__
+            print_nec_debug_timers(graph);
+            #endif
+            #endif
 
-            cc_operation.free_result_memory(check_components);
+            if(current_vertex % vertices_per_percent == 0)
+            {
+                cout << ((100.0 * current_vertex) / vertices_count) << "% done!" << endl;
+            }
         }
+        double t2 = omp_get_wtime();
 
-        cc_operation.free_result_memory(components);
+        cout << "APSP wall time: " << t2 - t1 << " sec" << endl;
+        cout << "APSP average performance: " << 10.0 * (((double)graph.get_edges_count()) / ((t2 - t1) * 1e6)) << " MFLOPS" << endl << endl;
+
+        sssp_operation.free_result_memory(distances);
     }
     catch (string error)
     {
@@ -99,4 +91,3 @@ int main(int argc, const char * argv[])
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-

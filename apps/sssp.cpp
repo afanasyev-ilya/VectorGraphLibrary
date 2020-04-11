@@ -1,6 +1,8 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #define INT_ELEMENTS_PER_EDGE 5.0
+#define __PRINT_API_PERFORMANCE_STATS__
+#define __PRINT_SAMPLES_PERFORMANCE_STATS__
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -75,7 +77,8 @@ int main(int argc, const char * argv[])
             #endif
             
             #ifdef __USE_GPU__
-            sssp_operation.gpu_dijkstra(graph, distances, last_src_vertex);
+            sssp_operation.gpu_dijkstra(graph, distances, last_src_vertex, parser.get_algorithm_frontier_type(),
+                                        parser.get_traversal_direction());
             #endif
         }
         double t2 = omp_get_wtime();
@@ -84,7 +87,7 @@ int main(int argc, const char * argv[])
         graph.move_to_host();
         #endif
         
-        cout << "SSSP wall time: " << t2 - t1 << " sec" << endl;
+        cout << "SSSP wall time: " << 1000.0 * (t2 - t1) << " ms" << endl;
         cout << "SSSP average performance: " << parser.get_number_of_rounds() * (((double)graph.get_edges_count()) / ((t2 - t1) * 1e6)) << " MFLOPS" << endl << endl;
         
         // check if required

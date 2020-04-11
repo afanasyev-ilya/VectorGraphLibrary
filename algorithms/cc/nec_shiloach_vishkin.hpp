@@ -63,7 +63,6 @@ void CC::nec_shiloach_vishkin(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_gr
                 if(src_val != src_src_val)
                 {
                     _components[src_id] = src_src_val;
-                    //_components[_components[src_id]] = src_val;
                     reg_jump_changes[vector_index]++;
                 }
             };

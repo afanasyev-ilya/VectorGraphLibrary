@@ -2,10 +2,44 @@
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+#ifdef __USE_NEC_SX_AURORA__
 template <typename _TVertexValue, typename _TEdgeWeight>
 SSSP::ShortestPaths(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph):
 frontier(_graph.get_vertices_count())
-{}
+{
+    MemoryAPI::allocate_array(&class_old_distances, _graph.get_vertices_count());
+}
+#endif
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+#ifdef __USE_GPU__
+template <typename _TVertexValue, typename _TEdgeWeight>
+SSSP::ShortestPaths(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph)
+{
+
+}
+#endif
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+#ifdef __USE_NEC_SX_AURORA__
+template <typename _TVertexValue, typename _TEdgeWeight>
+SSSP::~ShortestPaths()
+{
+    MemoryAPI::free_array(class_old_distances);
+}
+#endif
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+#ifdef __USE_GPU__
+template <typename _TVertexValue, typename _TEdgeWeight>
+SSSP::~ShortestPaths()
+{
+
+}
+#endif
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -13,6 +47,8 @@ template <typename _TVertexValue, typename _TEdgeWeight>
 void SSSP::allocate_result_memory(int _vertices_count, _TEdgeWeight **_distances)
 {
     MemoryAPI::allocate_array(_distances, _vertices_count);
+    #pragma omp parallel
+    {};
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

@@ -44,7 +44,7 @@ public:
     #endif
 
     #ifdef __USE_GPU__
-    void gpu_direction_optimising_BFS(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph, int *_levels, int _source_vertex);
+    void gpu_top_down(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph, int *_levels, int _source_vertex);
     #endif
 
     #ifdef __USE_NEC_SX_AURORA__

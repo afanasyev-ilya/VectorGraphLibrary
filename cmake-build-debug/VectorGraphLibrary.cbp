@@ -358,6 +358,9 @@
 		<Unit filename="/Users/elijah/Documents/workspace/VectorGraphLibrary/graph_library.h">
 			<Option target="VectorGraphLibrary"/>
 		</Unit>
+		<Unit filename="/Users/elijah/Documents/workspace/VectorGraphLibrary/graph_processing_API/frontier_type.h">
+			<Option target="VectorGraphLibrary"/>
+		</Unit>
 		<Unit filename="/Users/elijah/Documents/workspace/VectorGraphLibrary/graph_processing_API/gpu/cuda_API_include.h">
 			<Option target="VectorGraphLibrary"/>
 		</Unit>

@@ -38,7 +38,7 @@ void GraphPrimitivesNEC::filter(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_
         #pragma omp parallel for schedule(static) reduction(+: vertices_in_frontier)
         for (int src_id = 0; src_id < _frontier.max_size; src_id++)
         {
-            if (_frontier.flags[src_id] == NEC_IN_FRONTIER_FLAG)
+            if (_frontier.flags[src_id] == IN_FRONTIER_FLAG)
             {
                 int new_flag = filter_cond(src_id);
                 _frontier.flags[src_id] = new_flag;

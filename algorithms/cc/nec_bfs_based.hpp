@@ -36,7 +36,7 @@ void CC::nec_bfs_based(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
 
     auto all_active = [] (int src_id)->int
     {
-        return NEC_IN_FRONTIER_FLAG;
+        return IN_FRONTIER_FLAG;
     };
     graph_API.filter(_graph, frontier, all_active);
 

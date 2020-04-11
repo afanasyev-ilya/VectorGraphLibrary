@@ -15,7 +15,7 @@ auto EMPTY_VERTEX_OP = [] (int src_id, int connections_count, int vector_index, 
 
 auto ALL_ACTIVE_FRONTIER_CONDITION = [] (int src_id)->int
 {
-    return NEC_IN_FRONTIER_FLAG;
+    return IN_FRONTIER_FLAG;
 };
 
 auto EMPTY_COMPUTE_OP = [] (int src_id, int connections_count, int vector_index) {};

@@ -32,9 +32,9 @@ void SSSP::nec_dijkstra_partial_active(ExtendedCSRGraph<_TVertexValue, _TEdgeWei
 
     auto changes_occurred = [&was_changes] (int src_id)->int
     {
-        int res = NEC_NOT_IN_FRONTIER_FLAG;
+        int res = NOT_IN_FRONTIER_FLAG;
         if(was_changes[src_id] > 0)
-            res = NEC_IN_FRONTIER_FLAG;
+            res = IN_FRONTIER_FLAG;
         return res;
     };
 
@@ -126,11 +126,11 @@ void SSSP::nec_dijkstra_all_active(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight>
                                    int _source_vertex,
                                    TraversalDirection _traversal_direction)
 {
-    LOAD_EXTENDED_CSR_GRAPH_DATA(_graph);
+    #ifdef __PRINT_SAMPLES_PERFORMANCE_STATS__
     double t1 = omp_get_wtime();
-
-    _TEdgeWeight *old_distances;
-    MemoryAPI::allocate_array(&old_distances, vertices_count);
+    #endif
+    LOAD_EXTENDED_CSR_GRAPH_DATA(_graph);
+    _TEdgeWeight *old_distances = class_old_distances;
 
     frontier.set_all_active();
 
@@ -247,13 +247,11 @@ void SSSP::nec_dijkstra_all_active(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight>
 
         iterations_count++;
     }
-    double t2 = omp_get_wtime();
 
     #ifdef __PRINT_SAMPLES_PERFORMANCE_STATS__
+    double t2 = omp_get_wtime();
     performance_stats("all active sssp (dijkstra)", t2 - t1, edges_count, iterations_count);
     #endif
-
-    MemoryAPI::free_array(old_distances);
 }
 #endif
 
