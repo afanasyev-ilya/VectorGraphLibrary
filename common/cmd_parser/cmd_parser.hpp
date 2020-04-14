@@ -64,21 +64,25 @@ void AlgorithmCommandOptionsParser::parse_args(int _argc, const char * _argv[])
         if (option.compare("-all-active") == 0)
         {
             algorithm_frontier_type = ALL_ACTIVE;
+            cout << "cmd parser selected all-active" << endl;
         }
 
         if (option.compare("-partial-active") == 0)
         {
             algorithm_frontier_type = PARTIAL_ACTIVE;
+            cout << "cmd parser selected partial-active" << endl;
         }
 
         if (option.compare("-push") == 0)
         {
             traversal_direction = PUSH_TRAVERSAL;
+            cout << "cmd parser selected push traversal" << endl;
         }
 
         if (option.compare("-pull") == 0)
         {
             traversal_direction = PULL_TRAVERSAL;
+            cout << "cmd parser selected pull traversal" << endl;
         }
 
         if (option.compare("-top-down") == 0)

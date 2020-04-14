@@ -70,6 +70,7 @@ void top_down_wrapper(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
 
         current_level++;
     }
+    _iterations_count = current_level;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

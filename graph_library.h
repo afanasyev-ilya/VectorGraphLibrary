@@ -22,6 +22,7 @@ using namespace std;
 #include "common/cmd_parser/cmd_parser.h"
 #include "common/parallel_primitives/copy_if.h"
 #include "common/parallel_primitives/get_elements_count.h"
+#include "common/performance_data/performance_data.h"
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -44,6 +45,7 @@ using namespace std;
 #include "algorithms/bfs/bfs.h"
 #include "algorithms/cc/cc.h"
 #include "algorithms/pr/pr.h"
+#include "algorithms/lp/lp.h"
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 

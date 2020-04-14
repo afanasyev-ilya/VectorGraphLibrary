@@ -57,8 +57,8 @@ public:
     //void filter(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph, FrontierGPU &_frontier, FilterCondition &&filter_cond);
 
     // performs reduction using user-defined "reduce_op" operation for each element in the given frontier
-    //template <typename _T, typename _TVertexValue, typename _TEdgeWeight, typename ReduceOperation>
-    //_T reduce(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph, FrontieGPU &_frontier, ReduceOperation &&reduce_op, REDUCE_TYPE _reduce_type);
+    template <typename _T, typename _TVertexValue, typename _TEdgeWeight, typename ReduceOperation>
+    _T reduce(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph, FrontierGPU &_frontier, ReduceOperation &&reduce_op, REDUCE_TYPE _reduce_type);
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,7 @@ public:
 #include "advance_sparse.cu"
 #include "compute.cu"
 #include "filter.cu"
+#include "reduce.cu"
 #include "generate_new_frontier.cu"
 #include "graph_primitives_gpu.cu"
 

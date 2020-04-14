@@ -31,7 +31,7 @@ void FrontierGPU::set_all_active()
 {
     type = ALL_ACTIVE_FRONTIER;
 
-    SAFE_KERNEL_CALL((set_all_active_frontier_kernel<<< max_size/BLOCK_SIZE, BLOCK_SIZE >>> (ids, flags, max_size)));
+    SAFE_KERNEL_CALL((set_all_active_frontier_kernel<<< (max_size - 1)/BLOCK_SIZE + 1, BLOCK_SIZE >>> (ids, flags, max_size)));
     current_size = max_size;
 }
 

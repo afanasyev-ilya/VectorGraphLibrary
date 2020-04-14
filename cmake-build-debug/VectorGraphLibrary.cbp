@@ -50,7 +50,7 @@
 					<Add directory="/Users/elijah/Documents/workspace/VectorGraphLibrary/algorithms/bfs/change_state"/>
 					<Add directory="/Users/elijah/Documents/workspace/VectorGraphLibrary/algorithms/cc"/>
 					<Add directory="/Users/elijah/Documents/workspace/VectorGraphLibrary/algorithms/kcore"/>
-					<Add directory="/Users/elijah/Documents/workspace/VectorGraphLibrary/algorithms/label_propagation"/>
+					<Add directory="/Users/elijah/Documents/workspace/VectorGraphLibrary/algorithms/lp"/>
 					<Add directory="/Users/elijah/Documents/workspace/VectorGraphLibrary/algorithms/pr"/>
 					<Add directory="/Users/elijah/Documents/workspace/VectorGraphLibrary/algorithms/sssp"/>
 					<Add directory="/Users/elijah/Documents/workspace/VectorGraphLibrary/algorithms/sswp"/>
@@ -111,7 +111,7 @@
 					<Add directory="/Users/elijah/Documents/workspace/VectorGraphLibrary/algorithms/bfs/change_state"/>
 					<Add directory="/Users/elijah/Documents/workspace/VectorGraphLibrary/algorithms/cc"/>
 					<Add directory="/Users/elijah/Documents/workspace/VectorGraphLibrary/algorithms/kcore"/>
-					<Add directory="/Users/elijah/Documents/workspace/VectorGraphLibrary/algorithms/label_propagation"/>
+					<Add directory="/Users/elijah/Documents/workspace/VectorGraphLibrary/algorithms/lp"/>
 					<Add directory="/Users/elijah/Documents/workspace/VectorGraphLibrary/algorithms/pr"/>
 					<Add directory="/Users/elijah/Documents/workspace/VectorGraphLibrary/algorithms/sssp"/>
 					<Add directory="/Users/elijah/Documents/workspace/VectorGraphLibrary/algorithms/sswp"/>
@@ -205,16 +205,10 @@
 		<Unit filename="/Users/elijah/Documents/workspace/VectorGraphLibrary/algorithms/kcore/kcore.hpp">
 			<Option target="VectorGraphLibrary"/>
 		</Unit>
-		<Unit filename="/Users/elijah/Documents/workspace/VectorGraphLibrary/algorithms/label_propagation/label_propagation.h">
+		<Unit filename="/Users/elijah/Documents/workspace/VectorGraphLibrary/algorithms/lp/lp.h">
 			<Option target="VectorGraphLibrary"/>
 		</Unit>
-		<Unit filename="/Users/elijah/Documents/workspace/VectorGraphLibrary/algorithms/label_propagation/label_propagation.hpp">
-			<Option target="VectorGraphLibrary"/>
-		</Unit>
-		<Unit filename="/Users/elijah/Documents/workspace/VectorGraphLibrary/algorithms/label_propagation/map_based_lp.hpp">
-			<Option target="VectorGraphLibrary"/>
-		</Unit>
-		<Unit filename="/Users/elijah/Documents/workspace/VectorGraphLibrary/algorithms/label_propagation/vect_dict_based_lp.hpp">
+		<Unit filename="/Users/elijah/Documents/workspace/VectorGraphLibrary/algorithms/lp/lp.hpp">
 			<Option target="VectorGraphLibrary"/>
 		</Unit>
 		<Unit filename="/Users/elijah/Documents/workspace/VectorGraphLibrary/algorithms/pr/pr.h">
@@ -358,7 +352,7 @@
 		<Unit filename="/Users/elijah/Documents/workspace/VectorGraphLibrary/graph_library.h">
 			<Option target="VectorGraphLibrary"/>
 		</Unit>
-		<Unit filename="/Users/elijah/Documents/workspace/VectorGraphLibrary/graph_processing_API/frontier_type.h">
+		<Unit filename="/Users/elijah/Documents/workspace/VectorGraphLibrary/graph_processing_API/framework_types.h">
 			<Option target="VectorGraphLibrary"/>
 		</Unit>
 		<Unit filename="/Users/elijah/Documents/workspace/VectorGraphLibrary/graph_processing_API/gpu/cuda_API_include.h">

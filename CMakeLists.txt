@@ -7,7 +7,7 @@ include_directories(algorithms/bfs)
 include_directories(algorithms/bfs/change_state)
 include_directories(algorithms/cc)
 include_directories(algorithms/kcore)
-include_directories(algorithms/label_propagation)
+include_directories(algorithms/lp)
 include_directories(algorithms/pr)
 include_directories(algorithms/sssp)
 include_directories(algorithms/sswp)
@@ -57,10 +57,8 @@ add_executable(VectorGraphLibrary
         algorithms/cc/seq_bfs_based.hpp
         algorithms/kcore/kcore.h
         algorithms/kcore/kcore.hpp
-        algorithms/label_propagation/label_propagation.h
-        algorithms/label_propagation/label_propagation.hpp
-        algorithms/label_propagation/map_based_lp.hpp
-        algorithms/label_propagation/vect_dict_based_lp.hpp
+        algorithms/lp/lp.h
+        algorithms/lp/lp.hpp
         algorithms/pr/pr.h
         algorithms/pr/pr.hpp
         algorithms/sssp/gpu_shortest_paths.hpp

@@ -242,4 +242,16 @@ bool ExtendedCSRGraph<_TVertexValue, _TEdgeWeight>::load_from_binary_file(string
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+template <typename _TVertexValue, typename _TEdgeWeight>
+void ExtendedCSRGraph<_TVertexValue, _TEdgeWeight>::set_vertex_data_from_array(_TVertexValue *_values_array)
+{
+    #pragma omp parallel for
+    for(int src_id = 0; src_id < this->vertices_count; src_id++)
+    {
+        this->vertex_values[src_id] = _values_array[src_id];
+    }
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 

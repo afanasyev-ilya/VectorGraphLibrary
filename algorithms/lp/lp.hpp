@@ -3,36 +3,23 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template <typename _TVertexValue, typename _TEdgeWeight>
-BFS<_TVertexValue, _TEdgeWeight>::BFS(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph):
-frontier(_graph.get_vertices_count())
-{}
-
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-template <typename _TVertexValue, typename _TEdgeWeight>
-BFS<_TVertexValue, _TEdgeWeight>::~BFS()
-{}
-
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-template <typename _TVertexValue, typename _TEdgeWeight>
-void BFS<_TVertexValue, _TEdgeWeight>::allocate_result_memory(int _vertices_count, int **_levels)
+void LP::allocate_result_memory(int _vertices_count, int **_labels)
 {
-    MemoryAPI::allocate_array(_levels, _vertices_count);
+    MemoryAPI::allocate_array(_labels, _vertices_count);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template <typename _TVertexValue, typename _TEdgeWeight>
-void BFS<_TVertexValue, _TEdgeWeight>::free_result_memory(int *_levels)
+void LP::free_result_memory(int *_labels)
 {
-    MemoryAPI::free_array(_levels);
+    MemoryAPI::free_array(_labels);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template <typename _TVertexValue, typename _TEdgeWeight>
-void BFS<_TVertexValue, _TEdgeWeight>::performance_stats(string _name, double _time, long long _edges_count, int _iterations_count)
+void LP::performance_stats(string _name, double _time, long long _edges_count, int _iterations_count)
 {
     cout << " --------------------------- " << _name << " performance stats --------------------------- " << endl;
     cout << "wall time: " << _time*1000.0 << " ms" << endl;
@@ -44,4 +31,3 @@ void BFS<_TVertexValue, _TEdgeWeight>::performance_stats(string _name, double _t
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
