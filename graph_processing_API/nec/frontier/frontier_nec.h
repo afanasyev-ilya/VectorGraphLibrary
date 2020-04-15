@@ -2,7 +2,7 @@
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#define FRONTIER_TYPE_CHANGE_THRESHOLD 0.3
+#define FRONTIER_TYPE_CHANGE_THRESHOLD 0.1
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -17,11 +17,15 @@ private:
     int *ids;
     int *work_buffer;
 
+    FrontierType type;
+
     int vector_engine_part_size;
     int vector_core_part_size;
     int collective_part_size;
 
-    FrontierType type;
+    FrontierType vector_engine_part_type;
+    FrontierType vector_core_part_type;
+    FrontierType collective_part_type;
 
     int current_size;
     int max_size;
@@ -38,7 +42,11 @@ public:
 
     void change_size(int _size) {max_size = _size;};
 
-    void print_frontier_info();
+    template <typename _TVertexValue, typename _TEdgeWeight>
+    void print_frontier_info(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph);
+
+    template <typename _TVertexValue, typename _TEdgeWeight>
+    void add_vertex(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph, int src_id);
 
     friend class GraphPrimitivesNEC;
 };

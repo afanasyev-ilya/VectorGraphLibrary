@@ -193,6 +193,12 @@ private:
                         VertexPostprocessOperation vertex_postprocess_op,
                         const int _first_edge);
 
+    template <typename FilterCondition>
+    int estimate_sorted_frontier_part_size(FrontierNEC &_frontier,
+                                           int _first_vertex,
+                                           int _last_vertex,
+                                           FilterCondition &&filter_cond);
+
     template <typename _T, typename _TVertexValue, typename _TEdgeWeight, typename ReduceOperation>
     _T reduce_sum(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
                   FrontierNEC &_frontier,

@@ -22,7 +22,12 @@ void GraphPrimitivesNEC::advance_worker(ExtendedCSRGraph<_TVertexValue, _TEdgeWe
     LOAD_EXTENDED_CSR_GRAPH_DATA(_graph);
 
     #ifdef __PRINT_API_PERFORMANCE_STATS__
-    _frontier.print_frontier_info();
+    _frontier.print_frontier_info(_graph);
+    #pragma omp master
+    {
+        cout << "ADVANCE stats: " << endl;
+    }
+    #pragma omp barrier
     #endif
 
     const long long int *vertex_pointers = outgoing_ptrs;
@@ -57,26 +62,66 @@ void GraphPrimitivesNEC::advance_worker(ExtendedCSRGraph<_TVertexValue, _TEdgeWe
                                                               collective_vertex_postprocess_op, vertices_count, _first_edge);
 
     }
-    else if(_frontier.type == DENSE_FRONTIER)
+    else
     {
-        if((vector_engine_threshold_end - vector_engine_threshold_start) > 0)
-            vector_engine_per_vertex_kernel_dense(vertex_pointers, adjacent_ids, frontier_flags,
-                                                  vector_engine_threshold_start, vector_engine_threshold_end,
-                                                  edge_op, vertex_preprocess_op, vertex_postprocess_op, _first_edge);
+        if(_frontier.vector_engine_part_size > 0)
+        {
+            if (_frontier.vector_engine_part_type == DENSE_FRONTIER)
+            {
+                vector_engine_per_vertex_kernel_dense(vertex_pointers, adjacent_ids, frontier_flags,
+                                                      vector_engine_threshold_start, vector_engine_threshold_end,
+                                                      edge_op, vertex_preprocess_op, vertex_postprocess_op,
+                                                      _first_edge);
+            }
+            else if (_frontier.vector_engine_part_type == SPARSE_FRONTIER)
+            {
+                int *frontier_ids = &(_frontier.ids[0]);
+                vector_engine_per_vertex_kernel_sparse(vertex_pointers, adjacent_ids, frontier_ids,
+                                                       _frontier.vector_engine_part_size,
+                                                       edge_op, vertex_preprocess_op, vertex_postprocess_op,
+                                                       _first_edge);
+            }
+        }
 
-        if((vector_core_threshold_end - vector_core_threshold_start) > 0)
-            vector_core_per_vertex_kernel_dense(vertex_pointers, adjacent_ids, frontier_flags,
-                                                vector_core_threshold_start, vector_core_threshold_end, edge_op,
-                                                vertex_preprocess_op, vertex_postprocess_op, _first_edge);
+        if(_frontier.vector_core_part_size > 0)
+        {
+            if(_frontier.vector_core_part_type == DENSE_FRONTIER)
+            {
+                vector_core_per_vertex_kernel_dense(vertex_pointers, adjacent_ids, frontier_flags,
+                                                    vector_core_threshold_start, vector_core_threshold_end, edge_op,
+                                                    vertex_preprocess_op, vertex_postprocess_op, _first_edge);
+            }
+            else if(_frontier.vector_core_part_type == SPARSE_FRONTIER)
+            {
+                int *frontier_ids = &(_frontier.ids[_frontier.vector_engine_part_size]);
+                vector_core_per_vertex_kernel_sparse(vertex_pointers, adjacent_ids, frontier_ids,
+                                                     _frontier.vector_core_part_size,
+                                                     edge_op, vertex_preprocess_op, vertex_postprocess_op, _first_edge);
+            }
+        }
 
-        if((collective_threshold_end - collective_threshold_start) > 0)
-            ve_collective_vertex_processing_kernel_dense(ve_vector_group_ptrs, ve_vector_group_sizes,
-                                                         ve_adjacent_ids, ve_vertices_count, ve_starting_vertex, ve_vector_segments_count,
-                                                         frontier_flags, vertex_pointers, collective_threshold_start, collective_threshold_end,
-                                                         collective_edge_op, collective_vertex_preprocess_op,
-                                                         collective_vertex_postprocess_op, vertices_count, _first_edge);
+        if(_frontier.collective_part_size > 0)
+        {
+            if(_frontier.collective_part_type == DENSE_FRONTIER)
+            {
+                ve_collective_vertex_processing_kernel_dense(ve_vector_group_ptrs, ve_vector_group_sizes,
+                                                             ve_adjacent_ids, ve_vertices_count, ve_starting_vertex, ve_vector_segments_count,
+                                                             frontier_flags, vertex_pointers, collective_threshold_start, collective_threshold_end,
+                                                             collective_edge_op, collective_vertex_preprocess_op,
+                                                             collective_vertex_postprocess_op, vertices_count, _first_edge);
+            }
+            else if(_frontier.collective_part_type == SPARSE_FRONTIER)
+            {
+                int *frontier_ids = &(_frontier.ids[_frontier.vector_core_part_size + _frontier.vector_engine_part_size]);
+                collective_vertex_processing_kernel_sparse(vertex_pointers, adjacent_ids, frontier_ids, _frontier.collective_part_size,
+                                                           collective_threshold_start,
+                                                           collective_threshold_end, collective_edge_op,
+                                                           collective_vertex_preprocess_op,
+                                                           collective_vertex_postprocess_op, _first_edge);
+            }
+        }
     }
-    else if(_frontier.type == SPARSE_FRONTIER)
+    /*else if(_frontier.type == SPARSE_FRONTIER)
     {
         if(_frontier.vector_engine_part_size > 0)
         {
@@ -101,7 +146,7 @@ void GraphPrimitivesNEC::advance_worker(ExtendedCSRGraph<_TVertexValue, _TEdgeWe
                                                        collective_vertex_preprocess_op,
                                                        collective_vertex_postprocess_op, _first_edge);
         }
-    }
+    }*/
 
     #ifdef __PRINT_API_PERFORMANCE_STATS__
     #pragma omp master

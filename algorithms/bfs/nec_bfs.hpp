@@ -189,7 +189,8 @@ void BFS<_TVertexValue, _TEdgeWeight>::nec_top_down(ExtendedCSRGraph<_TVertexVal
             result = IN_FRONTIER_FLAG;
         return result;
     };
-    graph_API.filter(_graph, frontier, on_first_level);
+    //graph_API.generate_new_frontier(_graph, frontier, on_first_level);
+    frontier.add_vertex(_graph, _source_vertex);
 
     double t1 = omp_get_wtime();
     int current_level = FIRST_LEVEL_VERTEX;
