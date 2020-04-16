@@ -108,7 +108,8 @@ void PR::nec_page_rank(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
         cout << "ranks sum: " << ranks_sum << endl;
     }
     double t2 = omp_get_wtime();
-    performance_stats("page ranks", t2 - t1, edges_count, iterations_count);
+
+    PerformanceStats::print_performance_stats("page ranks", t2 - t1, edges_count, iterations_count);
 
     MemoryAPI::free_array(number_of_loops);
     MemoryAPI::free_array(incoming_degrees_without_loops);

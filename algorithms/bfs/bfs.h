@@ -27,8 +27,6 @@ private:
     void nec_bottom_up_compute_step(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph, int *_levels, int *_connections_array,
                                     int _current_level, int &_vis, int &_in_lvl, bool _use_vector_extension);
     #endif
-
-    void performance_stats(string _name, double _time, long long _edges_count, int _iterations_count);
 public:
     BFS(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph);
     ~BFS();

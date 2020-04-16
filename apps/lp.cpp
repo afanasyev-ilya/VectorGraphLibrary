@@ -1,8 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #define INT_ELEMENTS_PER_EDGE 4.0
-#define __PRINT_API_PERFORMANCE_STATS__
-#define __PRINT_SAMPLES_PERFORMANCE_STATS__
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -67,6 +65,9 @@ int main(int argc, const char * argv[])
         #ifdef __USE_GPU__
         graph.move_to_host();
         #endif
+
+
+        lp_operation.seq_lp(graph, labels);
 
         lp_operation.free_result_memory(labels);
     }

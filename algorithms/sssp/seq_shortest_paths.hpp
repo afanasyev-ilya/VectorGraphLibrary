@@ -38,23 +38,23 @@ void SSSP::seq_dijkstra(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
         // has to be done this way to keep the vertices
         // sorted distance (distance must be first item
         // in pair)
-        int u = pq.top().second;
+        int src_id = pq.top().second;
         pq.pop();
 
-        const long long edge_start = outgoing_ptrs[u];
-        const int connections_count = outgoing_ptrs[u + 1] - outgoing_ptrs[u];
+        const long long edge_start = outgoing_ptrs[src_id];
+        const int connections_count = outgoing_ptrs[src_id + 1] - outgoing_ptrs[src_id];
 
         for(int edge_pos = 0; edge_pos < connections_count; edge_pos++)
         {
             long long int global_edge_pos = edge_start + edge_pos;
-            int v = outgoing_ids[global_edge_pos];
+            int dst_id = outgoing_ids[global_edge_pos];
             _TEdgeWeight weight = outgoing_weights[global_edge_pos];
 
-            if (_distances[v] > _distances[u] + weight)
+            if (_distances[dst_id] > _distances[src_id] + weight)
             {
-                // Updating distance of v
-                _distances[v] = _distances[u] + weight;
-                pq.push(make_pair(_distances[v], v));
+                // Updating distance of dst_id
+                _distances[dst_id] = _distances[src_id] + weight;
+                pq.push(make_pair(_distances[dst_id], dst_id));
             }
         }
     }

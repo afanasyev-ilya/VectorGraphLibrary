@@ -111,14 +111,13 @@ void BFS<_TVertexValue, _TEdgeWeight>::nec_bottom_up_compute_step(ExtendedCSRGra
         }
     }
 
-    auto vertex_value_is_unset = [_levels, _connections_array] (int src_id)->int
+    auto vertex_value_is_unset = [_levels, _connections_array, first_edge] (int src_id)->int
     {
         int result = NOT_IN_FRONTIER_FLAG;
         if((_levels[src_id] == UNVISITED_VERTEX) && (_connections_array[src_id] > 0))
             result = IN_FRONTIER_FLAG;
         return result;
     };
-    //graph_API.filter(_graph, frontier, vertex_value_is_unset); // TODO replace with filter
     graph_API.generate_new_frontier(_graph, frontier, vertex_value_is_unset); // TODO replace with filter
 
     #pragma omp parallel
@@ -214,7 +213,7 @@ void BFS<_TVertexValue, _TEdgeWeight>::nec_top_down(ExtendedCSRGraph<_TVertexVal
     double t2 = omp_get_wtime();
 
     #ifdef __PRINT_SAMPLES_PERFORMANCE_STATS__
-    performance_stats("BFS (top-down)", t2 - t1, edges_count, current_level);
+    PerformanceStats::print_performance_stats("BFS (top-down)", t2 - t1, edges_count, current_level);
     #endif
 }
 #endif
@@ -305,7 +304,10 @@ void BFS<_TVertexValue, _TEdgeWeight>::nec_direction_optimising(ExtendedCSRGraph
             t_st = omp_get_wtime();
             #endif
 
-            graph_API.generate_new_frontier(_graph, frontier, on_current_level);
+            if(current_level == FIRST_LEVEL_VERTEX)
+                frontier.add_vertex(_graph, _source_vertex);
+            else
+                graph_API.generate_new_frontier(_graph, frontier, on_current_level);
             nec_top_down_compute_step(_graph, _levels, current_level, vis, in_lvl, true);
 
             #ifdef __PRINT_SAMPLES_PERFORMANCE_STATS__
@@ -357,7 +359,7 @@ void BFS<_TVertexValue, _TEdgeWeight>::nec_direction_optimising(ExtendedCSRGraph
         compute_time += step_times[i];
     }
     cout << "time diff: " << compute_time << " vs " << t2 - t1 << endl;
-    performance_stats("BFS (direction-optimising)", compute_time, edges_count, current_level);
+    PerformanceStats::print_performance_stats("BFS (direction-optimising)", compute_time, edges_count, current_level);
     #endif
 
     MemoryAPI::free_array(connections_array);

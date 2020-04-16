@@ -13,11 +13,11 @@
 template <typename _TVertexValue, typename _TEdgeWeight>
 class LabelPropagation
 {
-private:
-    void performance_stats(string _name, double _time, long long _edges_count, int _iterations_count);
 public:
     void allocate_result_memory(int _vertices_count, int **_labels);
     void free_result_memory    (int *_labels);
+
+    void seq_lp(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph, int *_labels);
 
     #ifdef __USE_GPU__
     void gpu_lp(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph, int *_labels);
@@ -27,7 +27,8 @@ public:
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #include "lp.hpp"
-#include "gpu_label_propagation.hpp"
+#include "seq_lp.hpp"
+#include "gpu_lp.hpp"
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 

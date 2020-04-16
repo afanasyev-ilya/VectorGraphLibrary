@@ -110,7 +110,7 @@ void SSSP::nec_dijkstra_partial_active(ExtendedCSRGraph<_TVertexValue, _TEdgeWei
     double t2 = omp_get_wtime();
 
     #ifdef __PRINT_SAMPLES_PERFORMANCE_STATS__
-    performance_stats("partial active sssp (dijkstra)", t2 - t1, edges_count, iterations_count);
+    PerformanceStats::print_performance_stats("partial active sssp (dijkstra)", t2 - t1, edges_count, iterations_count);
     #endif
 
     MemoryAPI::free_array(was_changes);
@@ -250,7 +250,7 @@ void SSSP::nec_dijkstra_all_active(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight>
 
     #ifdef __PRINT_SAMPLES_PERFORMANCE_STATS__
     double t2 = omp_get_wtime();
-    performance_stats("all active sssp (dijkstra)", t2 - t1, edges_count, iterations_count);
+    PerformanceStats::print_performance_stats("all active sssp (dijkstra)", t2 - t1, edges_count, iterations_count);
     #endif
 }
 #endif

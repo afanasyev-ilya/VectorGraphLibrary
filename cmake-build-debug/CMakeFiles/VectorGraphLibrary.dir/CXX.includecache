@@ -6,179 +6,197 @@
 
 #IncludeRegexTransform: 
 
-/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/algorithms/bfs/bfs.h
+/Users/elijah/Documents/workspace/VectorGraphLibrary/algorithms/bfs/bfs.h
 gpu/traditional_bfs.cuh
-/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/algorithms/bfs/gpu/traditional_bfs.cuh
+/Users/elijah/Documents/workspace/VectorGraphLibrary/algorithms/bfs/gpu/traditional_bfs.cuh
 string
 -
 change_state/change_state.h
-/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/algorithms/bfs/change_state/change_state.h
+/Users/elijah/Documents/workspace/VectorGraphLibrary/algorithms/bfs/change_state/change_state.h
 bfs.hpp
-/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/algorithms/bfs/bfs.hpp
+/Users/elijah/Documents/workspace/VectorGraphLibrary/algorithms/bfs/bfs.hpp
 seq_bfs.hpp
-/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/algorithms/bfs/seq_bfs.hpp
+/Users/elijah/Documents/workspace/VectorGraphLibrary/algorithms/bfs/seq_bfs.hpp
 gpu_bfs.hpp
-/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/algorithms/bfs/gpu_bfs.hpp
+/Users/elijah/Documents/workspace/VectorGraphLibrary/algorithms/bfs/gpu_bfs.hpp
 nec_bfs.hpp
-/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/algorithms/bfs/nec_bfs.hpp
+/Users/elijah/Documents/workspace/VectorGraphLibrary/algorithms/bfs/nec_bfs.hpp
 change_state/change_state.hpp
-/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/algorithms/bfs/change_state/change_state.hpp
+/Users/elijah/Documents/workspace/VectorGraphLibrary/algorithms/bfs/change_state/change_state.hpp
 
-/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/algorithms/bfs/bfs.hpp
+/Users/elijah/Documents/workspace/VectorGraphLibrary/algorithms/bfs/bfs.hpp
 
-/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/algorithms/bfs/change_state/change_state.h
+/Users/elijah/Documents/workspace/VectorGraphLibrary/algorithms/bfs/change_state/change_state.h
 
-/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/algorithms/bfs/change_state/change_state.hpp
+/Users/elijah/Documents/workspace/VectorGraphLibrary/algorithms/bfs/change_state/change_state.hpp
 
-/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/algorithms/bfs/gpu/traditional_bfs.cuh
+/Users/elijah/Documents/workspace/VectorGraphLibrary/algorithms/bfs/gpu/traditional_bfs.cuh
 
-/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/algorithms/bfs/gpu_bfs.hpp
+/Users/elijah/Documents/workspace/VectorGraphLibrary/algorithms/bfs/gpu_bfs.hpp
 
-/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/algorithms/bfs/nec_bfs.hpp
+/Users/elijah/Documents/workspace/VectorGraphLibrary/algorithms/bfs/nec_bfs.hpp
 
-/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/algorithms/bfs/seq_bfs.hpp
+/Users/elijah/Documents/workspace/VectorGraphLibrary/algorithms/bfs/seq_bfs.hpp
 queue
 -
 list
 -
 
-/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/algorithms/cc/cc.h
+/Users/elijah/Documents/workspace/VectorGraphLibrary/algorithms/cc/cc.h
 limits
 -
 cfloat
 -
 gpu/shiloach_vishkin_gpu.cuh
-/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/algorithms/cc/gpu/shiloach_vishkin_gpu.cuh
+/Users/elijah/Documents/workspace/VectorGraphLibrary/algorithms/cc/gpu/shiloach_vishkin_gpu.cuh
 cc.hpp
-/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/algorithms/cc/cc.hpp
+/Users/elijah/Documents/workspace/VectorGraphLibrary/algorithms/cc/cc.hpp
 nec_shiloach_vishkin.hpp
-/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/algorithms/cc/nec_shiloach_vishkin.hpp
+/Users/elijah/Documents/workspace/VectorGraphLibrary/algorithms/cc/nec_shiloach_vishkin.hpp
 nec_bfs_based.hpp
-/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/algorithms/cc/nec_bfs_based.hpp
+/Users/elijah/Documents/workspace/VectorGraphLibrary/algorithms/cc/nec_bfs_based.hpp
 seq_bfs_based.hpp
-/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/algorithms/cc/seq_bfs_based.hpp
+/Users/elijah/Documents/workspace/VectorGraphLibrary/algorithms/cc/seq_bfs_based.hpp
 gpu_shiloach_vishkin.hpp
-/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/algorithms/cc/gpu_shiloach_vishkin.hpp
+/Users/elijah/Documents/workspace/VectorGraphLibrary/algorithms/cc/gpu_shiloach_vishkin.hpp
 
-/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/algorithms/cc/cc.hpp
+/Users/elijah/Documents/workspace/VectorGraphLibrary/algorithms/cc/cc.hpp
 
-/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/algorithms/cc/gpu/shiloach_vishkin_gpu.cuh
+/Users/elijah/Documents/workspace/VectorGraphLibrary/algorithms/cc/gpu/shiloach_vishkin_gpu.cuh
 
-/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/algorithms/cc/gpu_shiloach_vishkin.hpp
+/Users/elijah/Documents/workspace/VectorGraphLibrary/algorithms/cc/gpu_shiloach_vishkin.hpp
 
-/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/algorithms/cc/nec_bfs_based.hpp
+/Users/elijah/Documents/workspace/VectorGraphLibrary/algorithms/cc/nec_bfs_based.hpp
 
-/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/algorithms/cc/nec_shiloach_vishkin.hpp
+/Users/elijah/Documents/workspace/VectorGraphLibrary/algorithms/cc/nec_shiloach_vishkin.hpp
 
-/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/algorithms/cc/seq_bfs_based.hpp
+/Users/elijah/Documents/workspace/VectorGraphLibrary/algorithms/cc/seq_bfs_based.hpp
 
-/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/algorithms/pr/nec_pr.hpp
+/Users/elijah/Documents/workspace/VectorGraphLibrary/algorithms/lp/gpu/lp_gpu.cuh
 
-/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/algorithms/pr/pr.h
+/Users/elijah/Documents/workspace/VectorGraphLibrary/algorithms/lp/gpu_lp.hpp
+
+/Users/elijah/Documents/workspace/VectorGraphLibrary/algorithms/lp/lp.h
+gpu/lp_gpu.cuh
+/Users/elijah/Documents/workspace/VectorGraphLibrary/algorithms/lp/gpu/lp_gpu.cuh
+lp.hpp
+/Users/elijah/Documents/workspace/VectorGraphLibrary/algorithms/lp/lp.hpp
+seq_lp.hpp
+/Users/elijah/Documents/workspace/VectorGraphLibrary/algorithms/lp/seq_lp.hpp
+gpu_lp.hpp
+/Users/elijah/Documents/workspace/VectorGraphLibrary/algorithms/lp/gpu_lp.hpp
+
+/Users/elijah/Documents/workspace/VectorGraphLibrary/algorithms/lp/lp.hpp
+
+/Users/elijah/Documents/workspace/VectorGraphLibrary/algorithms/lp/seq_lp.hpp
+
+/Users/elijah/Documents/workspace/VectorGraphLibrary/algorithms/pr/nec_pr.hpp
+
+/Users/elijah/Documents/workspace/VectorGraphLibrary/algorithms/pr/pr.h
 pr.hpp
-/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/algorithms/pr/pr.hpp
+/Users/elijah/Documents/workspace/VectorGraphLibrary/algorithms/pr/pr.hpp
 seq_pr.hpp
-/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/algorithms/pr/seq_pr.hpp
+/Users/elijah/Documents/workspace/VectorGraphLibrary/algorithms/pr/seq_pr.hpp
 nec_pr.hpp
-/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/algorithms/pr/nec_pr.hpp
+/Users/elijah/Documents/workspace/VectorGraphLibrary/algorithms/pr/nec_pr.hpp
 
-/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/algorithms/pr/pr.hpp
+/Users/elijah/Documents/workspace/VectorGraphLibrary/algorithms/pr/pr.hpp
 
-/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/algorithms/pr/seq_pr.hpp
+/Users/elijah/Documents/workspace/VectorGraphLibrary/algorithms/pr/seq_pr.hpp
 
-/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/algorithms/sssp/gpu/dijkstra_gpu.cuh
+/Users/elijah/Documents/workspace/VectorGraphLibrary/algorithms/sssp/gpu/dijkstra_gpu.cuh
 
-/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/algorithms/sssp/gpu_shortest_paths.hpp
+/Users/elijah/Documents/workspace/VectorGraphLibrary/algorithms/sssp/gpu_shortest_paths.hpp
 
-/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/algorithms/sssp/nec_shortest_paths.hpp
+/Users/elijah/Documents/workspace/VectorGraphLibrary/algorithms/sssp/nec_shortest_paths.hpp
 
-/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/algorithms/sssp/seq_shortest_paths.hpp
+/Users/elijah/Documents/workspace/VectorGraphLibrary/algorithms/sssp/seq_shortest_paths.hpp
 functional
 -
 queue
 -
 
-/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/algorithms/sssp/shortest_paths.h
+/Users/elijah/Documents/workspace/VectorGraphLibrary/algorithms/sssp/shortest_paths.h
 limits
 -
 cfloat
 -
 gpu/dijkstra_gpu.cuh
-/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/algorithms/sssp/gpu/dijkstra_gpu.cuh
+/Users/elijah/Documents/workspace/VectorGraphLibrary/algorithms/sssp/gpu/dijkstra_gpu.cuh
 shortest_paths.hpp
-/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/algorithms/sssp/shortest_paths.hpp
+/Users/elijah/Documents/workspace/VectorGraphLibrary/algorithms/sssp/shortest_paths.hpp
 gpu_shortest_paths.hpp
-/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/algorithms/sssp/gpu_shortest_paths.hpp
+/Users/elijah/Documents/workspace/VectorGraphLibrary/algorithms/sssp/gpu_shortest_paths.hpp
 seq_shortest_paths.hpp
-/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/algorithms/sssp/seq_shortest_paths.hpp
+/Users/elijah/Documents/workspace/VectorGraphLibrary/algorithms/sssp/seq_shortest_paths.hpp
 nec_shortest_paths.hpp
-/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/algorithms/sssp/nec_shortest_paths.hpp
+/Users/elijah/Documents/workspace/VectorGraphLibrary/algorithms/sssp/nec_shortest_paths.hpp
 
-/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/algorithms/sssp/shortest_paths.hpp
+/Users/elijah/Documents/workspace/VectorGraphLibrary/algorithms/sssp/shortest_paths.hpp
 
-/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/apps/analyse_graph.cpp
+/Users/elijah/Documents/workspace/VectorGraphLibrary/apps/analyse_graph.cpp
 ../graph_library.h
-/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/graph_library.h
+/Users/elijah/Documents/workspace/VectorGraphLibrary/graph_library.h
 iostream
 -
 
-/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/apps/bfs.cpp
+/Users/elijah/Documents/workspace/VectorGraphLibrary/apps/bfs.cpp
 stdio.h
 -
 ../graph_library.h
-/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/graph_library.h
+/Users/elijah/Documents/workspace/VectorGraphLibrary/graph_library.h
 iostream
 -
 
-/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/apps/cc.cpp
+/Users/elijah/Documents/workspace/VectorGraphLibrary/apps/cc.cpp
 ../graph_library.h
-/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/graph_library.h
+/Users/elijah/Documents/workspace/VectorGraphLibrary/graph_library.h
 iostream
 -
 
-/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/apps/generate_test_data.cpp
+/Users/elijah/Documents/workspace/VectorGraphLibrary/apps/generate_test_data.cpp
 stdio.h
 -
 ../graph_library.h
-/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/graph_library.h
+/Users/elijah/Documents/workspace/VectorGraphLibrary/graph_library.h
 
-/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/apps/kcore.cpp
+/Users/elijah/Documents/workspace/VectorGraphLibrary/apps/kcore.cpp
 ../graph_library.h
-/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/graph_library.h
+/Users/elijah/Documents/workspace/VectorGraphLibrary/graph_library.h
 iostream
 -
 
-/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/apps/pr.cpp
+/Users/elijah/Documents/workspace/VectorGraphLibrary/apps/pr.cpp
 ../graph_library.h
-/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/graph_library.h
+/Users/elijah/Documents/workspace/VectorGraphLibrary/graph_library.h
 iostream
 -
 
-/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/apps/sssp.cpp
+/Users/elijah/Documents/workspace/VectorGraphLibrary/apps/sssp.cpp
 ../graph_library.h
-/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/graph_library.h
+/Users/elijah/Documents/workspace/VectorGraphLibrary/graph_library.h
 iostream
 -
 
-/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/apps/sswp.cpp
+/Users/elijah/Documents/workspace/VectorGraphLibrary/apps/sswp.cpp
 ../graph_library.h
-/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/graph_library.h
+/Users/elijah/Documents/workspace/VectorGraphLibrary/graph_library.h
 iostream
 -
 
-/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/architectures.h
+/Users/elijah/Documents/workspace/VectorGraphLibrary/architectures.h
 
-/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/common/cmd_parser/cmd_parser.h
+/Users/elijah/Documents/workspace/VectorGraphLibrary/common/cmd_parser/cmd_parser.h
 parser_options.h
-/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/common/cmd_parser/parser_options.h
+/Users/elijah/Documents/workspace/VectorGraphLibrary/common/cmd_parser/parser_options.h
 cmd_parser.hpp
-/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/common/cmd_parser/cmd_parser.hpp
+/Users/elijah/Documents/workspace/VectorGraphLibrary/common/cmd_parser/cmd_parser.hpp
 
-/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/common/cmd_parser/cmd_parser.hpp
+/Users/elijah/Documents/workspace/VectorGraphLibrary/common/cmd_parser/cmd_parser.hpp
 
-/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/common/cmd_parser/parser_options.h
+/Users/elijah/Documents/workspace/VectorGraphLibrary/common/cmd_parser/parser_options.h
 
-/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/common/gpu_API/cuda_error_handling.h
+/Users/elijah/Documents/workspace/VectorGraphLibrary/common/gpu_API/cuda_error_handling.h
 cstdio
 -
 cstdlib
@@ -188,7 +206,7 @@ cuda_runtime_api.h
 cuda.h
 -
 
-/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/common/memory_API/memory_API.h
+/Users/elijah/Documents/workspace/VectorGraphLibrary/common/memory_API/memory_API.h
 stdio.h
 -
 stdlib.h
@@ -196,39 +214,47 @@ stdlib.h
 cuda_runtime.h
 -
 ../gpu_API/cuda_error_handling.h
-/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/common/gpu_API/cuda_error_handling.h
+/Users/elijah/Documents/workspace/VectorGraphLibrary/common/gpu_API/cuda_error_handling.h
 memory_API.hpp
-/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/common/memory_API/memory_API.hpp
+/Users/elijah/Documents/workspace/VectorGraphLibrary/common/memory_API/memory_API.hpp
 
-/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/common/memory_API/memory_API.hpp
+/Users/elijah/Documents/workspace/VectorGraphLibrary/common/memory_API/memory_API.hpp
 
-/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/common/parallel_primitives/copy_if.h
+/Users/elijah/Documents/workspace/VectorGraphLibrary/common/parallel_primitives/copy_if.h
 
-/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/common/parallel_primitives/get_elements_count.h
+/Users/elijah/Documents/workspace/VectorGraphLibrary/common/parallel_primitives/get_elements_count.h
 
-/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/common/random_generator/ASL_random_generator.h
+/Users/elijah/Documents/workspace/VectorGraphLibrary/common/performance_data/performance_data.h
+fstream
+-
+performance_data.hpp
+/Users/elijah/Documents/workspace/VectorGraphLibrary/common/performance_data/performance_data.hpp
+
+/Users/elijah/Documents/workspace/VectorGraphLibrary/common/performance_data/performance_data.hpp
+
+/Users/elijah/Documents/workspace/VectorGraphLibrary/common/random_generator/ASL_random_generator.h
 asl.h
 -
 math.h
 -
 ASL_random_generator.hpp
-/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/common/random_generator/ASL_random_generator.hpp
+/Users/elijah/Documents/workspace/VectorGraphLibrary/common/random_generator/ASL_random_generator.hpp
 
-/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/common/random_generator/ASL_random_generator.hpp
+/Users/elijah/Documents/workspace/VectorGraphLibrary/common/random_generator/ASL_random_generator.hpp
 
-/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/common/random_generator/common_random_generator.h
+/Users/elijah/Documents/workspace/VectorGraphLibrary/common/random_generator/common_random_generator.h
 stdio.h
 -
 stdlib.h
 -
 
-/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/common/random_generator/random_generation_API.h
+/Users/elijah/Documents/workspace/VectorGraphLibrary/common/random_generator/random_generation_API.h
 ASL_random_generator.h
-/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/common/random_generator/ASL_random_generator.h
+/Users/elijah/Documents/workspace/VectorGraphLibrary/common/random_generator/ASL_random_generator.h
 common_random_generator.h
-/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/common/random_generator/common_random_generator.h
+/Users/elijah/Documents/workspace/VectorGraphLibrary/common/random_generator/common_random_generator.h
 
-/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/common/sorting/sorting.h
+/Users/elijah/Documents/workspace/VectorGraphLibrary/common/sorting/sorting.h
 asl.h
 -
 math.h
@@ -236,19 +262,21 @@ math.h
 algorithm
 -
 
-/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/common/verify_results/verify_results.h
+/Users/elijah/Documents/workspace/VectorGraphLibrary/common/verify_results/verify_results.h
+limits
+-
 
-/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/export_graphs/gapbs_export.h
+/Users/elijah/Documents/workspace/VectorGraphLibrary/export_graphs/gapbs_export.h
 
-/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/export_graphs/ligra_export.h
+/Users/elijah/Documents/workspace/VectorGraphLibrary/export_graphs/ligra_export.h
 
-/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/graph_analytics/graph_analytics.h
+/Users/elijah/Documents/workspace/VectorGraphLibrary/graph_analytics/graph_analytics.h
 graph_analytics.hpp
-/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/graph_analytics/graph_analytics.hpp
+/Users/elijah/Documents/workspace/VectorGraphLibrary/graph_analytics/graph_analytics.hpp
 
-/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/graph_analytics/graph_analytics.hpp
+/Users/elijah/Documents/workspace/VectorGraphLibrary/graph_analytics/graph_analytics.hpp
 
-/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/graph_generation_API/graph_generation_API.h
+/Users/elijah/Documents/workspace/VectorGraphLibrary/graph_generation_API/graph_generation_API.h
 math.h
 -
 sstream
@@ -256,11 +284,11 @@ sstream
 string
 -
 graph_generation_API.hpp
-/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/graph_generation_API/graph_generation_API.hpp
+/Users/elijah/Documents/workspace/VectorGraphLibrary/graph_generation_API/graph_generation_API.hpp
 
-/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/graph_generation_API/graph_generation_API.hpp
+/Users/elijah/Documents/workspace/VectorGraphLibrary/graph_generation_API/graph_generation_API.hpp
 
-/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/graph_library.h
+/Users/elijah/Documents/workspace/VectorGraphLibrary/graph_library.h
 omp.h
 -
 string
@@ -270,143 +298,163 @@ iostream
 vector
 -
 architectures.h
-/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/architectures.h
+/Users/elijah/Documents/workspace/VectorGraphLibrary/architectures.h
 common/memory_API/memory_API.h
-/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/common/memory_API/memory_API.h
+/Users/elijah/Documents/workspace/VectorGraphLibrary/common/memory_API/memory_API.h
 common/random_generator/random_generation_API.h
-/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/common/random_generator/random_generation_API.h
+/Users/elijah/Documents/workspace/VectorGraphLibrary/common/random_generator/random_generation_API.h
 common/sorting/sorting.h
-/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/common/sorting/sorting.h
+/Users/elijah/Documents/workspace/VectorGraphLibrary/common/sorting/sorting.h
 common/verify_results/verify_results.h
-/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/common/verify_results/verify_results.h
+/Users/elijah/Documents/workspace/VectorGraphLibrary/common/verify_results/verify_results.h
 common/cmd_parser/cmd_parser.h
-/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/common/cmd_parser/cmd_parser.h
+/Users/elijah/Documents/workspace/VectorGraphLibrary/common/cmd_parser/cmd_parser.h
 common/parallel_primitives/copy_if.h
-/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/common/parallel_primitives/copy_if.h
+/Users/elijah/Documents/workspace/VectorGraphLibrary/common/parallel_primitives/copy_if.h
 common/parallel_primitives/get_elements_count.h
-/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/common/parallel_primitives/get_elements_count.h
+/Users/elijah/Documents/workspace/VectorGraphLibrary/common/parallel_primitives/get_elements_count.h
+common/performance_data/performance_data.h
+/Users/elijah/Documents/workspace/VectorGraphLibrary/common/performance_data/performance_data.h
 graph_representations/base_graph.h
-/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/graph_representations/base_graph.h
+/Users/elijah/Documents/workspace/VectorGraphLibrary/graph_representations/base_graph.h
 graph_representations/edges_list_graph/edges_list_graph.h
-/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/graph_representations/edges_list_graph/edges_list_graph.h
+/Users/elijah/Documents/workspace/VectorGraphLibrary/graph_representations/edges_list_graph/edges_list_graph.h
 graph_representations/extended_CSR_graph/extended_CSR_graph.h
-/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/graph_representations/extended_CSR_graph/extended_CSR_graph.h
+/Users/elijah/Documents/workspace/VectorGraphLibrary/graph_representations/extended_CSR_graph/extended_CSR_graph.h
 graph_representations/sharded_graph/sharded_graph.h
-/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/graph_representations/sharded_graph/sharded_graph.h
+/Users/elijah/Documents/workspace/VectorGraphLibrary/graph_representations/sharded_graph/sharded_graph.h
 graph_generation_API/graph_generation_API.h
-/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/graph_generation_API/graph_generation_API.h
+/Users/elijah/Documents/workspace/VectorGraphLibrary/graph_generation_API/graph_generation_API.h
 graph_processing_API/nec/graph_primitives/graph_primitives_nec.h
-/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/graph_processing_API/nec/graph_primitives/graph_primitives_nec.h
+/Users/elijah/Documents/workspace/VectorGraphLibrary/graph_processing_API/nec/graph_primitives/graph_primitives_nec.h
 algorithms/sssp/shortest_paths.h
-/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/algorithms/sssp/shortest_paths.h
+/Users/elijah/Documents/workspace/VectorGraphLibrary/algorithms/sssp/shortest_paths.h
 algorithms/bfs/bfs.h
-/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/algorithms/bfs/bfs.h
+/Users/elijah/Documents/workspace/VectorGraphLibrary/algorithms/bfs/bfs.h
 algorithms/cc/cc.h
-/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/algorithms/cc/cc.h
+/Users/elijah/Documents/workspace/VectorGraphLibrary/algorithms/cc/cc.h
 algorithms/pr/pr.h
-/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/algorithms/pr/pr.h
+/Users/elijah/Documents/workspace/VectorGraphLibrary/algorithms/pr/pr.h
+algorithms/lp/lp.h
+/Users/elijah/Documents/workspace/VectorGraphLibrary/algorithms/lp/lp.h
 verification/shortest_paths_verification.hpp
-/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/verification/shortest_paths_verification.hpp
+/Users/elijah/Documents/workspace/VectorGraphLibrary/verification/shortest_paths_verification.hpp
 verification/page_rank_verification.hpp
-/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/verification/page_rank_verification.hpp
+/Users/elijah/Documents/workspace/VectorGraphLibrary/verification/page_rank_verification.hpp
 export_graphs/ligra_export.h
-/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/export_graphs/ligra_export.h
+/Users/elijah/Documents/workspace/VectorGraphLibrary/export_graphs/ligra_export.h
 export_graphs/gapbs_export.h
-/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/export_graphs/gapbs_export.h
+/Users/elijah/Documents/workspace/VectorGraphLibrary/export_graphs/gapbs_export.h
 graph_analytics/graph_analytics.h
-/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/graph_analytics/graph_analytics.h
+/Users/elijah/Documents/workspace/VectorGraphLibrary/graph_analytics/graph_analytics.h
 
-/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/graph_processing_API/nec/delayed_write/delayed_write_nec.h
+/Users/elijah/Documents/workspace/VectorGraphLibrary/graph_processing_API/framework_types.h
+
+/Users/elijah/Documents/workspace/VectorGraphLibrary/graph_processing_API/nec/delayed_write/delayed_write_nec.h
 ../../../architectures.h
-/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/architectures.h
+/Users/elijah/Documents/workspace/VectorGraphLibrary/architectures.h
 cfloat
 -
 delayed_write_nec.hpp
-/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/graph_processing_API/nec/delayed_write/delayed_write_nec.hpp
+/Users/elijah/Documents/workspace/VectorGraphLibrary/graph_processing_API/nec/delayed_write/delayed_write_nec.hpp
 
-/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/graph_processing_API/nec/delayed_write/delayed_write_nec.hpp
+/Users/elijah/Documents/workspace/VectorGraphLibrary/graph_processing_API/nec/delayed_write/delayed_write_nec.hpp
 
-/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/graph_processing_API/nec/frontier/frontier_nec.h
+/Users/elijah/Documents/workspace/VectorGraphLibrary/graph_processing_API/nec/frontier/frontier_nec.h
+../../framework_types.h
+/Users/elijah/Documents/workspace/VectorGraphLibrary/graph_processing_API/framework_types.h
 frontier_nec.hpp
-/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/graph_processing_API/nec/frontier/frontier_nec.hpp
+/Users/elijah/Documents/workspace/VectorGraphLibrary/graph_processing_API/nec/frontier/frontier_nec.hpp
 
-/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/graph_processing_API/nec/frontier/frontier_nec.hpp
+/Users/elijah/Documents/workspace/VectorGraphLibrary/graph_processing_API/nec/frontier/frontier_nec.hpp
 
-/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/graph_processing_API/nec/graph_primitives/advance.hpp
+/Users/elijah/Documents/workspace/VectorGraphLibrary/graph_processing_API/nec/graph_primitives/advance.hpp
 set
 -
 
-/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/graph_processing_API/nec/graph_primitives/advance_all_active.hpp
+/Users/elijah/Documents/workspace/VectorGraphLibrary/graph_processing_API/nec/graph_primitives/advance_all_active.hpp
 
-/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/graph_processing_API/nec/graph_primitives/advance_dense.hpp
+/Users/elijah/Documents/workspace/VectorGraphLibrary/graph_processing_API/nec/graph_primitives/advance_dense.hpp
 
-/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/graph_processing_API/nec/graph_primitives/advance_partial.hpp
+/Users/elijah/Documents/workspace/VectorGraphLibrary/graph_processing_API/nec/graph_primitives/advance_partial.hpp
 
-/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/graph_processing_API/nec/graph_primitives/advance_sparse.hpp
+/Users/elijah/Documents/workspace/VectorGraphLibrary/graph_processing_API/nec/graph_primitives/advance_sparse.hpp
 
-/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/graph_processing_API/nec/graph_primitives/compute.hpp
+/Users/elijah/Documents/workspace/VectorGraphLibrary/graph_processing_API/nec/graph_primitives/compute.hpp
 
-/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/graph_processing_API/nec/graph_primitives/filter.hpp
+/Users/elijah/Documents/workspace/VectorGraphLibrary/graph_processing_API/nec/graph_primitives/filter.hpp
 
-/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/graph_processing_API/nec/graph_primitives/generate_new_frontier.hpp
+/Users/elijah/Documents/workspace/VectorGraphLibrary/graph_processing_API/nec/graph_primitives/generate_new_frontier.hpp
 
-/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/graph_processing_API/nec/graph_primitives/graph_primitives_nec.h
+/Users/elijah/Documents/workspace/VectorGraphLibrary/graph_processing_API/nec/graph_primitives/graph_primitives_nec.h
 ../vector_register/vector_registers.h
-/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/graph_processing_API/nec/vector_register/vector_registers.h
+/Users/elijah/Documents/workspace/VectorGraphLibrary/graph_processing_API/nec/vector_register/vector_registers.h
 ../frontier/frontier_nec.h
-/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/graph_processing_API/nec/frontier/frontier_nec.h
+/Users/elijah/Documents/workspace/VectorGraphLibrary/graph_processing_API/nec/frontier/frontier_nec.h
 ../delayed_write/delayed_write_nec.h
-/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/graph_processing_API/nec/delayed_write/delayed_write_nec.h
+/Users/elijah/Documents/workspace/VectorGraphLibrary/graph_processing_API/nec/delayed_write/delayed_write_nec.h
 functional
 -
+helpers.hpp
+/Users/elijah/Documents/workspace/VectorGraphLibrary/graph_processing_API/nec/graph_primitives/helpers.hpp
 graph_primitives_nec.hpp
-/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/graph_processing_API/nec/graph_primitives/graph_primitives_nec.hpp
+/Users/elijah/Documents/workspace/VectorGraphLibrary/graph_processing_API/nec/graph_primitives/graph_primitives_nec.hpp
 filter.hpp
-/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/graph_processing_API/nec/graph_primitives/filter.hpp
+/Users/elijah/Documents/workspace/VectorGraphLibrary/graph_processing_API/nec/graph_primitives/filter.hpp
 compute.hpp
-/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/graph_processing_API/nec/graph_primitives/compute.hpp
+/Users/elijah/Documents/workspace/VectorGraphLibrary/graph_processing_API/nec/graph_primitives/compute.hpp
 advance.hpp
-/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/graph_processing_API/nec/graph_primitives/advance.hpp
+/Users/elijah/Documents/workspace/VectorGraphLibrary/graph_processing_API/nec/graph_primitives/advance.hpp
 advance_all_active.hpp
-/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/graph_processing_API/nec/graph_primitives/advance_all_active.hpp
+/Users/elijah/Documents/workspace/VectorGraphLibrary/graph_processing_API/nec/graph_primitives/advance_all_active.hpp
 advance_dense.hpp
-/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/graph_processing_API/nec/graph_primitives/advance_dense.hpp
+/Users/elijah/Documents/workspace/VectorGraphLibrary/graph_processing_API/nec/graph_primitives/advance_dense.hpp
 advance_sparse.hpp
-/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/graph_processing_API/nec/graph_primitives/advance_sparse.hpp
+/Users/elijah/Documents/workspace/VectorGraphLibrary/graph_processing_API/nec/graph_primitives/advance_sparse.hpp
 advance_partial.hpp
-/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/graph_processing_API/nec/graph_primitives/advance_partial.hpp
+/Users/elijah/Documents/workspace/VectorGraphLibrary/graph_processing_API/nec/graph_primitives/advance_partial.hpp
 generate_new_frontier.hpp
-/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/graph_processing_API/nec/graph_primitives/generate_new_frontier.hpp
+/Users/elijah/Documents/workspace/VectorGraphLibrary/graph_processing_API/nec/graph_primitives/generate_new_frontier.hpp
+reduce.hpp
+/Users/elijah/Documents/workspace/VectorGraphLibrary/graph_processing_API/nec/graph_primitives/reduce.hpp
+pack_array_data.hpp
+/Users/elijah/Documents/workspace/VectorGraphLibrary/graph_processing_API/nec/graph_primitives/pack_array_data.hpp
 tests.hpp
-/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/graph_processing_API/nec/graph_primitives/tests.hpp
+/Users/elijah/Documents/workspace/VectorGraphLibrary/graph_processing_API/nec/graph_primitives/tests.hpp
 
-/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/graph_processing_API/nec/graph_primitives/graph_primitives_nec.hpp
+/Users/elijah/Documents/workspace/VectorGraphLibrary/graph_processing_API/nec/graph_primitives/graph_primitives_nec.hpp
 
-/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/graph_processing_API/nec/graph_primitives/tests.hpp
+/Users/elijah/Documents/workspace/VectorGraphLibrary/graph_processing_API/nec/graph_primitives/helpers.hpp
 
-/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/graph_processing_API/nec/vector_register/vector_registers.h
+/Users/elijah/Documents/workspace/VectorGraphLibrary/graph_processing_API/nec/graph_primitives/pack_array_data.hpp
 
-/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/graph_representations/base_graph.h
+/Users/elijah/Documents/workspace/VectorGraphLibrary/graph_processing_API/nec/graph_primitives/reduce.hpp
+
+/Users/elijah/Documents/workspace/VectorGraphLibrary/graph_processing_API/nec/graph_primitives/tests.hpp
+
+/Users/elijah/Documents/workspace/VectorGraphLibrary/graph_processing_API/nec/vector_register/vector_registers.h
+
+/Users/elijah/Documents/workspace/VectorGraphLibrary/graph_representations/base_graph.h
 common/graph_types.h
-/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/graph_representations/common/graph_types.h
+/Users/elijah/Documents/workspace/VectorGraphLibrary/graph_representations/common/graph_types.h
 string
 -
 
-/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/graph_representations/common/graph_types.h
+/Users/elijah/Documents/workspace/VectorGraphLibrary/graph_representations/common/graph_types.h
 
-/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/graph_representations/common/tmp_edge_data.h
+/Users/elijah/Documents/workspace/VectorGraphLibrary/graph_representations/common/tmp_edge_data.h
 limits
 -
 
-/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/graph_representations/edges_list_graph/edges_list_graph.h
+/Users/elijah/Documents/workspace/VectorGraphLibrary/graph_representations/edges_list_graph/edges_list_graph.h
 fstream
 -
 edges_list_graph.hpp
-/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/graph_representations/edges_list_graph/edges_list_graph.hpp
+/Users/elijah/Documents/workspace/VectorGraphLibrary/graph_representations/edges_list_graph/edges_list_graph.hpp
 
-/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/graph_representations/edges_list_graph/edges_list_graph.hpp
+/Users/elijah/Documents/workspace/VectorGraphLibrary/graph_representations/edges_list_graph/edges_list_graph.hpp
 
-/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/graph_representations/extended_CSR_graph/extended_CSR_graph.h
+/Users/elijah/Documents/workspace/VectorGraphLibrary/graph_representations/extended_CSR_graph/extended_CSR_graph.h
 vector
 -
 algorithm
@@ -418,65 +466,65 @@ fstream
 stdio.h
 -
 ../../common/cmd_parser/parser_options.h
-/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/common/cmd_parser/parser_options.h
+/Users/elijah/Documents/workspace/VectorGraphLibrary/common/cmd_parser/parser_options.h
 ../common/tmp_edge_data.h
-/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/graph_representations/common/tmp_edge_data.h
+/Users/elijah/Documents/workspace/VectorGraphLibrary/graph_representations/common/tmp_edge_data.h
 vector_extension/vector_extension.h
-/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/graph_representations/extended_CSR_graph/vector_extension/vector_extension.h
+/Users/elijah/Documents/workspace/VectorGraphLibrary/graph_representations/extended_CSR_graph/vector_extension/vector_extension.h
 ../../common/memory_API/memory_API.h
-/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/common/memory_API/memory_API.h
+/Users/elijah/Documents/workspace/VectorGraphLibrary/common/memory_API/memory_API.h
 extended_CSR_graph.hpp
-/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/graph_representations/extended_CSR_graph/extended_CSR_graph.hpp
+/Users/elijah/Documents/workspace/VectorGraphLibrary/graph_representations/extended_CSR_graph/extended_CSR_graph.hpp
 init_graph.hpp
-/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/graph_representations/extended_CSR_graph/init_graph.hpp
+/Users/elijah/Documents/workspace/VectorGraphLibrary/graph_representations/extended_CSR_graph/init_graph.hpp
 gpu_api.hpp
-/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/graph_representations/extended_CSR_graph/gpu_api.hpp
+/Users/elijah/Documents/workspace/VectorGraphLibrary/graph_representations/extended_CSR_graph/gpu_api.hpp
 nec_api.hpp
-/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/graph_representations/extended_CSR_graph/nec_api.hpp
+/Users/elijah/Documents/workspace/VectorGraphLibrary/graph_representations/extended_CSR_graph/nec_api.hpp
 
-/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/graph_representations/extended_CSR_graph/extended_CSR_graph.hpp
+/Users/elijah/Documents/workspace/VectorGraphLibrary/graph_representations/extended_CSR_graph/extended_CSR_graph.hpp
 
-/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/graph_representations/extended_CSR_graph/gpu_api.hpp
+/Users/elijah/Documents/workspace/VectorGraphLibrary/graph_representations/extended_CSR_graph/gpu_api.hpp
 
-/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/graph_representations/extended_CSR_graph/init_graph.hpp
+/Users/elijah/Documents/workspace/VectorGraphLibrary/graph_representations/extended_CSR_graph/init_graph.hpp
 
-/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/graph_representations/extended_CSR_graph/nec_api.hpp
+/Users/elijah/Documents/workspace/VectorGraphLibrary/graph_representations/extended_CSR_graph/nec_api.hpp
 
-/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/graph_representations/extended_CSR_graph/vector_extension/vector_extension.h
+/Users/elijah/Documents/workspace/VectorGraphLibrary/graph_representations/extended_CSR_graph/vector_extension/vector_extension.h
 ../../../common/memory_API/memory_API.h
-/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/common/memory_API/memory_API.h
+/Users/elijah/Documents/workspace/VectorGraphLibrary/common/memory_API/memory_API.h
 vector_extension.hpp
-/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/graph_representations/extended_CSR_graph/vector_extension/vector_extension.hpp
+/Users/elijah/Documents/workspace/VectorGraphLibrary/graph_representations/extended_CSR_graph/vector_extension/vector_extension.hpp
 
-/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/graph_representations/extended_CSR_graph/vector_extension/vector_extension.hpp
+/Users/elijah/Documents/workspace/VectorGraphLibrary/graph_representations/extended_CSR_graph/vector_extension/vector_extension.hpp
 
-/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/graph_representations/sharded_graph/shard_CSR/shard_CSR.h
+/Users/elijah/Documents/workspace/VectorGraphLibrary/graph_representations/sharded_graph/shard_CSR/shard_CSR.h
 shard_CSR_pointer_data.h
-/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/graph_representations/sharded_graph/shard_CSR/shard_CSR_pointer_data.h
+/Users/elijah/Documents/workspace/VectorGraphLibrary/graph_representations/sharded_graph/shard_CSR/shard_CSR_pointer_data.h
 shard_CSR.hpp
-/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/graph_representations/sharded_graph/shard_CSR/shard_CSR.hpp
+/Users/elijah/Documents/workspace/VectorGraphLibrary/graph_representations/sharded_graph/shard_CSR/shard_CSR.hpp
 
-/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/graph_representations/sharded_graph/shard_CSR/shard_CSR.hpp
+/Users/elijah/Documents/workspace/VectorGraphLibrary/graph_representations/sharded_graph/shard_CSR/shard_CSR.hpp
 
-/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/graph_representations/sharded_graph/shard_CSR/shard_CSR_pointer_data.h
+/Users/elijah/Documents/workspace/VectorGraphLibrary/graph_representations/sharded_graph/shard_CSR/shard_CSR_pointer_data.h
 
-/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/graph_representations/sharded_graph/shard_base/shard_base.h
+/Users/elijah/Documents/workspace/VectorGraphLibrary/graph_representations/sharded_graph/shard_base/shard_base.h
 shard_base.hpp
-/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/graph_representations/sharded_graph/shard_base/shard_base.hpp
+/Users/elijah/Documents/workspace/VectorGraphLibrary/graph_representations/sharded_graph/shard_base/shard_base.hpp
 
-/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/graph_representations/sharded_graph/shard_base/shard_base.hpp
+/Users/elijah/Documents/workspace/VectorGraphLibrary/graph_representations/sharded_graph/shard_base/shard_base.hpp
 
-/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/graph_representations/sharded_graph/shard_vect_CSR/shard_vect_CSR.h
+/Users/elijah/Documents/workspace/VectorGraphLibrary/graph_representations/sharded_graph/shard_vect_CSR/shard_vect_CSR.h
 shard_vect_CSR_pointer_data.h
-/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/graph_representations/sharded_graph/shard_vect_CSR/shard_vect_CSR_pointer_data.h
+/Users/elijah/Documents/workspace/VectorGraphLibrary/graph_representations/sharded_graph/shard_vect_CSR/shard_vect_CSR_pointer_data.h
 shard_vect_CSR.hpp
-/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/graph_representations/sharded_graph/shard_vect_CSR/shard_vect_CSR.hpp
+/Users/elijah/Documents/workspace/VectorGraphLibrary/graph_representations/sharded_graph/shard_vect_CSR/shard_vect_CSR.hpp
 
-/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/graph_representations/sharded_graph/shard_vect_CSR/shard_vect_CSR.hpp
+/Users/elijah/Documents/workspace/VectorGraphLibrary/graph_representations/sharded_graph/shard_vect_CSR/shard_vect_CSR.hpp
 
-/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/graph_representations/sharded_graph/shard_vect_CSR/shard_vect_CSR_pointer_data.h
+/Users/elijah/Documents/workspace/VectorGraphLibrary/graph_representations/sharded_graph/shard_vect_CSR/shard_vect_CSR_pointer_data.h
 
-/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/graph_representations/sharded_graph/sharded_graph.h
+/Users/elijah/Documents/workspace/VectorGraphLibrary/graph_representations/sharded_graph/sharded_graph.h
 iostream
 -
 map
@@ -486,33 +534,33 @@ iterator
 vector
 -
 shard_base/shard_base.h
-/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/graph_representations/sharded_graph/shard_base/shard_base.h
+/Users/elijah/Documents/workspace/VectorGraphLibrary/graph_representations/sharded_graph/shard_base/shard_base.h
 shard_CSR/shard_CSR.h
-/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/graph_representations/sharded_graph/shard_CSR/shard_CSR.h
+/Users/elijah/Documents/workspace/VectorGraphLibrary/graph_representations/sharded_graph/shard_CSR/shard_CSR.h
 shard_vect_CSR/shard_vect_CSR.h
-/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/graph_representations/sharded_graph/shard_vect_CSR/shard_vect_CSR.h
+/Users/elijah/Documents/workspace/VectorGraphLibrary/graph_representations/sharded_graph/shard_vect_CSR/shard_vect_CSR.h
 sharded_graph.hpp
-/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/graph_representations/sharded_graph/sharded_graph.hpp
+/Users/elijah/Documents/workspace/VectorGraphLibrary/graph_representations/sharded_graph/sharded_graph.hpp
 
-/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/graph_representations/sharded_graph/sharded_graph.hpp
+/Users/elijah/Documents/workspace/VectorGraphLibrary/graph_representations/sharded_graph/sharded_graph.hpp
 
-/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/misc/custom_test.cpp
+/Users/elijah/Documents/workspace/VectorGraphLibrary/misc/custom_test.cpp
 ../graph_library.h
-/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/graph_library.h
+/Users/elijah/Documents/workspace/VectorGraphLibrary/graph_library.h
 iostream
 -
 
-/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/misc/generate_memory_traces.cpp
+/Users/elijah/Documents/workspace/VectorGraphLibrary/misc/generate_memory_traces.cpp
 stdio.h
 -
 ../graph_library.h
-/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/graph_library.h
+/Users/elijah/Documents/workspace/VectorGraphLibrary/graph_library.h
 complex
 -
 valarray
 -
 
-/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/misc/lambda_tests.cpp
+/Users/elijah/Documents/workspace/VectorGraphLibrary/misc/lambda_tests.cpp
 iostream
 -
 omp.h
@@ -520,15 +568,15 @@ omp.h
 stdio.h
 -
 
-/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/misc/nvgraph_comparison.cpp
+/Users/elijah/Documents/workspace/VectorGraphLibrary/misc/nvgraph_comparison.cpp
 ../graph_library.h
-/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/graph_library.h
+/Users/elijah/Documents/workspace/VectorGraphLibrary/graph_library.h
 nvgraph.h
-/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/misc/nvgraph.h
+/Users/elijah/Documents/workspace/VectorGraphLibrary/misc/nvgraph.h
 iostream
 -
 
-/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/verification/page_rank_verification.hpp
+/Users/elijah/Documents/workspace/VectorGraphLibrary/verification/page_rank_verification.hpp
 
-/Users/Elijah/Documents/LocalProjects/VectorGraphLibrary/VectorGraphLibrary/verification/shortest_paths_verification.hpp
+/Users/elijah/Documents/workspace/VectorGraphLibrary/verification/shortest_paths_verification.hpp
 

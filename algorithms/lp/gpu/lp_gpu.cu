@@ -11,7 +11,9 @@ using namespace std;
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template <typename _TVertexValue, typename _TEdgeWeight>
-void gpu_lp_wrapper(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph, int *_labels)
+void gpu_lp_wrapper(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
+                    int *_labels,
+                    int &_iterations_count)
 {
     LOAD_EXTENDED_CSR_GRAPH_DATA(_graph);
     GraphPrimitivesGPU graph_API;
@@ -28,17 +30,27 @@ void gpu_lp_wrapper(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph, int *
 
     graph_API.compute(_graph, frontier, init_op);
 
-    auto gather_edge_op = [_labels, gathered_labels] __device__(int src_id, int dst_id, int local_edge_pos, long long int global_edge_pos){
-        int dst_label = __ldg(&_labels[dst_id]);
-        gathered_labels[global_edge_pos] = dst_label;
-    };
-    graph_API.advance(_graph, frontier, gather_edge_op);
+    _iterations_count = 0;
+    while(_iterations_count < 1) // for example we can do only 1 iteration
+    {
+        auto gather_edge_op = [_labels, gathered_labels] __device__(int
+        src_id, int
+        dst_id, int
+        local_edge_pos, long long int
+        global_edge_pos){
+            int dst_label = __ldg(&_labels[dst_id]);
+            gathered_labels[global_edge_pos] = dst_label;
+        };
+        graph_API.advance(_graph, frontier, gather_edge_op);
+
+        _iterations_count++;
+    }
 
     MemoryAPI::free_device_array(gathered_labels);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-template void gpu_lp_wrapper<int, float>(ExtendedCSRGraph<int, float> &_graph, int *_labels);
+template void gpu_lp_wrapper<int, float>(ExtendedCSRGraph<int, float> &_graph, int *_labels, int &_iterations_count);
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

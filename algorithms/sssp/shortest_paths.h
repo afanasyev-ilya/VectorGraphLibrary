@@ -38,8 +38,6 @@ private:
                                      _TEdgeWeight *_distances,
                                      int _source_vertex);
     #endif
-
-    void performance_stats(string _name, double _time, long long _edges_count, int _iterations_count);
 public:
     ShortestPaths(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph);
     ~ShortestPaths();

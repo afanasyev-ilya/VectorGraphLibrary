@@ -26,7 +26,7 @@ VPATH=./:../algorithms/sssp/gpu/:../algorithms/bfs/gpu/:../algorithms/cc/gpu:../
 # binaries
 ##########
 
-all: bfs cc sssp lp
+all: bfs cc sssp lp generate_test_data
 
 sssp: create_folders sssp.o dijkstra_gpu.o
 	$(CUDA_COMPILER) $(CUDA_FLAGS) $(Include_Path) -dlink  object_files/dijkstra_gpu.o -o object_files/cuda_files_link.o -lcudadevrt -lcudart
@@ -67,10 +67,10 @@ lp.o: lp.cpp
 	$(CXX) $(CXXFLAGS) $(Include_Path)  -c lp.cpp -o object_files/lp.o -fopenmp
 
 generate_test_data.o: generate_test_data.cpp
-	$(CXX) -fopenmp $(Include_Path)  -c generate_test_data.cpp -o object_files/generate_test_data.o -fopenmp
+	$(CXX) $(CXXFLAGS) $(Include_Path) -fopenmp $(Include_Path)  -c generate_test_data.cpp -o object_files/generate_test_data.o -fopenmp
 
 analyse_graph.o: analyse_graph.cpp
-	$(CXX) -fopenmp $(Include_Path)  -c analyse_graph.cpp -o object_files/analyse_graph.o -fopenmp
+	$(CXX) $(CXXFLAGS) $(Include_Path) -fopenmp $(Include_Path)  -c analyse_graph.cpp -o object_files/analyse_graph.o -fopenmp
 
 create_folders:
 	-mkdir -p ./bin

@@ -1,8 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #define INT_ELEMENTS_PER_EDGE 4.0
-#define __PRINT_API_PERFORMANCE_STATS__
-#define __PRINT_SAMPLES_PERFORMANCE_STATS__
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -96,8 +94,7 @@ int main(int argc, const char * argv[])
         cout << "AVG Performance: " << avg_perf << " MTEPS" << endl << endl;
 
         #ifdef __SAVE_PERFORMANCE_STATS_TO_FILE__
-        PerformanceData performance_data("bfs");
-        performance_data.save_performance_data(parser.get_graph_file_name(), avg_perf);
+        PerformanceStats::save_performance_to_file("sssp", parser.get_graph_file_name(), avg_perf);
         #endif
 
         #ifdef __USE_GPU__

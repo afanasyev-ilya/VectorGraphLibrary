@@ -20,10 +20,10 @@ void CC::gpu_shiloach_vishkin(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_gr
     MemoryAPI::copy_array_to_host(_components, device_components, vertices_count);
     MemoryAPI::free_device_array(device_components);
 
-    //#ifdef __PRINT_DETAILED_STATS__
-    performance_stats("shiloach vishkin", t2 - t1, edges_count, iterations_count);
-    component_stats(_components, vertices_count);
-    //#endif
+    #ifdef __PRINT_DETAILED_STATS__
+    PerformanceStats::print_performance_stats("shiloach vishkin", t2 - t1, edges_count, iterations_count);
+    PerformanceStats::component_stats(_components, vertices_count);
+    #endif
 }
 #endif
 

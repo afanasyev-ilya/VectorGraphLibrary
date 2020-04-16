@@ -9,8 +9,6 @@
 template <typename _TVertexValue, typename _TEdgeWeight>
 class PageRank
 {
-private:
-    void performance_stats(string _name, double _time, long long _edges_count, int _iterations_count);
 public:
     void allocate_result_memory  (int _vertices_count, float **_page_ranks);
     void free_result_memory      (float *_page_ranks);

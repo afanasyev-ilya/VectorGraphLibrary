@@ -76,10 +76,9 @@ void CC::nec_shiloach_vishkin(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_gr
     }
     double t2 = omp_get_wtime();
 
-    performance_stats("shiloach vishkin", t2 - t1, edges_count, iteration);
-
     #ifdef __PRINT_SAMPLES_PERFORMANCE_STATS__
-    component_stats(_components, vertices_count);
+    PerformanceStats::print_performance_stats("shiloach vishkin", t2 - t1, edges_count, iteration);
+    PerformanceStats::component_stats(_components, vertices_count);
     #endif
 }
 #endif

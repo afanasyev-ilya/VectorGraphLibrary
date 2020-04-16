@@ -91,10 +91,9 @@ void CC::nec_bfs_based(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
 
     bfs_operation.free_result_memory(bfs_levels);
 
-    performance_stats("nec bfs based", t2 - t1, edges_count, iterations_count);
-
     #ifdef __PRINT_SAMPLES_PERFORMANCE_STATS__
-    component_stats(_components, vertices_count);
+    PerformanceStats::print_performance_stats("nec bfs based", t2 - t1, edges_count, iterations_count);
+    PerformanceStats::component_stats(_components, vertices_count);
     #endif
 }
 #endif

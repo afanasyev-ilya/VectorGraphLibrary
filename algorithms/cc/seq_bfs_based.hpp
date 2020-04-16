@@ -49,7 +49,9 @@ void CC::seq_bfs_based(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
 
     MemoryAPI::free_array(bfs_levels);
 
-    component_stats(_components, vertices_count);
+    #ifdef __PRINT_SAMPLES_PERFORMANCE_STATS__
+    PerformanceStats::component_stats(_components, vertices_count);
+    #endif
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
