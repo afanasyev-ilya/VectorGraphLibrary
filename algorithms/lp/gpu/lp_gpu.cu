@@ -57,10 +57,10 @@ __global__ void get_labels(int *I, int *S, int *L, int *_labels) {
     _labels[i] = L[S[I[i]]];
 }
 
-__global__ void print_scanned_array(int *scanned,long long int *ptr, int edges_count) {
-    int i = threadIdx.x + blockIdx.x * blockDim.x;
-    printf("%d----%d\n", i , scanned[i]);
-    printf("%d----%d\n", i , ptr[i]);
+__global__ void print_array(long long int *ptr, int vertices_count) {
+    long long int i = threadIdx.x + blockIdx.x * blockDim.x;
+    //printf("%d----%d\n", i , scanned[i]);
+    printf("ptr : %d----%d\n", i , ptr[i]);
 }
 
 __global__ void fill_indices(int *I) {
@@ -122,14 +122,15 @@ void gpu_lp_wrapper(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
         };
         graph_API.advance(_graph, frontier, gather_edge_op);
 
-        mgpu::segmented_sort(gathered_labels, values, edges_count, outgoing_ptrs, vertices_count,
-                             mgpu::less_t<int>(), context);
         {
-            dim3 block(edges_count, 1);
+            dim3 block(vertices_count, 1);
             dim3 grid(1, 1);
             SAFE_KERNEL_CALL(
-                    (print_scanned_array<<<grid,block>>>(gathered_labels,outgoing_ptrs,edges_count))); //fill 1 in bounds
+                    (print_array<<<grid,block>>>(outgoing_ptrs,vertices_count))); //fill 1 in bounds
         }
+
+        mgpu::segmented_sort(gathered_labels, values, edges_count, outgoing_ptrs, vertices_count,
+                             mgpu::less_t<int>(), context);
 
         SAFE_CALL((cudaMemset(F_mem, 0, (size_t)(sizeof(int)) * edges_count))); //was taken from group of memcpy
         {
