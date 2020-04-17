@@ -3,6 +3,10 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #include "../../../graph_processing_API/gpu/cuda_API_include.h"
+#include "../../../external_libraries/moderngpu/src/moderngpu/kernel_segsort.hxx"
+#include "../../../external_libraries/moderngpu/src/moderngpu/memory.hxx"
+#include "../../../external_libraries/moderngpu/src/moderngpu/kernel_segreduce.hxx"
+#include "../../../external_libraries/moderngpu/src/moderngpu/kernel_scan.hxx"
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
