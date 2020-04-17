@@ -64,8 +64,7 @@ int main(int argc, const char * argv[])
         int vertex_to_check = 0;
         for(int i = 0; i < source_vertex_num; i++)
         {
-            vertex_to_check = i + 100;
-            cout << "starting from vertex: " << vertex_to_check << endl;
+            vertex_to_check = rand() % (graph.get_vertices_count() / 20);
 
             double t1 = omp_get_wtime();
             #ifdef __USE_NEC_SX_AURORA__
@@ -94,7 +93,7 @@ int main(int argc, const char * argv[])
         cout << "AVG Performance: " << avg_perf << " MTEPS" << endl << endl;
 
         #ifdef __SAVE_PERFORMANCE_STATS_TO_FILE__
-        PerformanceStats::save_performance_to_file("sssp", parser.get_graph_file_name(), avg_perf);
+        PerformanceStats::save_performance_to_file("bfs", parser.get_graph_file_name(), avg_perf);
         #endif
 
         #ifdef __USE_GPU__

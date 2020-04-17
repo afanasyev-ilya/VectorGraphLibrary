@@ -40,7 +40,7 @@ bfs: create_folders bfs.o traditional_bfs_gpu.o
 	$(CUDA_COMPILER) $(CUDA_FLAGS) $(Include_Path) -dlink  object_files/traditional_bfs_gpu.o -o object_files/cuda_files_link.o -lcudadevrt -lcudart
 	$(CXX) object_files/bfs.o object_files/traditional_bfs_gpu.o object_files/cuda_files_link.o $(Library_Path) $(Libraries) $(LDFLAGS) -o ./bin/bfs
 
-lp: create_folders lp.o lp_gpu.o
+lp: create_folders install lp.o lp_gpu.o
 	$(CUDA_COMPILER) $(CUDA_FLAGS) $(Include_Path) -dlink  object_files/lp_gpu.o -o object_files/cuda_files_link.o -lcudadevrt -lcudart
 	$(CXX) object_files/lp.o object_files/lp_gpu.o object_files/cuda_files_link.o $(Library_Path) $(Libraries) $(LDFLAGS) -o ./bin/lp
 

@@ -238,6 +238,13 @@ public:
                  FrontierNEC &_frontier,
                  EdgeOperation &&edge_op);
 
+    template <typename _TVertexValue, typename _TEdgeWeight, typename EdgeOperation, typename Condition>
+    void advance(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
+                 FrontierNEC &_in_frontier,
+                 FrontierNEC &_out_frontier,
+                 EdgeOperation &&edge_op,
+                 Condition &&cond);
+
     template <typename _TVertexValue, typename _TEdgeWeight, typename EdgeOperation>
     void partial_advance(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
                          FrontierNEC &_frontier,

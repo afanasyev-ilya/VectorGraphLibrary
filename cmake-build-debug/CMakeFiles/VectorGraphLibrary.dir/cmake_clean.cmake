@@ -11,8 +11,8 @@ file(REMOVE_RECURSE
   "CMakeFiles/VectorGraphLibrary.dir/misc/generate_memory_traces.cpp.o"
   "CMakeFiles/VectorGraphLibrary.dir/misc/lambda_tests.cpp.o"
   "CMakeFiles/VectorGraphLibrary.dir/misc/nvgraph_comparison.cpp.o"
-  "VectorGraphLibrary.pdb"
   "VectorGraphLibrary"
+  "VectorGraphLibrary.pdb"
 )
 
 # Per-language clean rules from dependency scanning.

@@ -20,7 +20,7 @@ LDFLAGS = -fopenmp -report-all -L /opt/nec/ve/nlc/2.0.0/lib #-lasl_openmp_i64 #-
 # binaries
 ##########
 
-all: sssp bfs cc pr apsp
+all: sssp bfs cc pr apsp generate_test_data
 
 cc: create_folders cc.o
 	$(CXX) object_files/cc.o $(Library_Path) $(Libraries) $(LDFLAGS) -o ./bin/cc
