@@ -66,8 +66,10 @@ int main(int argc, const char * argv[])
         graph.move_to_host();
         #endif
 
-
-        lp_operation.seq_lp(graph, labels);
+        if(parser.get_check_flag())
+        {
+            lp_operation.seq_lp(graph, labels);
+        }
 
         lp_operation.free_result_memory(labels);
     }

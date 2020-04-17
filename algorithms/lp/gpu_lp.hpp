@@ -21,10 +21,11 @@ void LP::gpu_lp(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph, int *_lab
 
     #ifdef __PRINT_SAMPLES_PERFORMANCE_STATS__
     PerformanceStats::print_performance_stats("gpu label propagation", t2 - t1, edges_count, iterations_count);
-    PerformanceStats::component_stats(_labels, vertices_count);
     #endif
 
-    if(vertices_count < 30)
+    PerformanceStats::component_stats(_labels, vertices_count);
+
+    if(vertices_count < VISUALISATION_SMALL_GRAPH_VERTEX_THRESHOLD)
     {
         _graph.move_to_host();
         _graph.set_vertex_data_from_array(_labels);
