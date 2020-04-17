@@ -57,7 +57,7 @@ __global__ void get_labels(int *I, int *S, int *L, int *_labels) {
     _labels[i] = L[S[I[i]]];
 }
 
-__global__ void print_scanned_array(int *scanned,int *ptr, int edges_count) {
+__global__ void print_scanned_array(int *scanned,long long int *ptr, int edges_count) {
     int i = threadIdx.x + blockIdx.x * blockDim.x;
     printf("%d----%d\n", i , scanned[i]);
     printf("%d----%d\n", i , ptr[i]);
