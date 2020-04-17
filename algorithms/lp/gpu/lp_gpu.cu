@@ -10,7 +10,7 @@
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //Device functions
-__global__ void extract_boundaries_initial(int *boundaries, int *v_array, int edges_count) {
+__global__ void extract_boundaries_initial(int *boundaries, long long int *v_array, int edges_count) {
 
     long int i = threadIdx.x + blockIdx.x * blockDim.x;
     long int position = v_array[i];
@@ -37,7 +37,7 @@ __global__ void count_labels(int *scanned_array, int edges_count, int *S_array) 
     }
 }
 
-__global__ void new_boundaries(int *scanned_array, int *v_array, int edges_count, int *S_ptr) {
+__global__ void new_boundaries(int *scanned_array, long long int *v_array, int edges_count, int *S_ptr) {
     int i = threadIdx.x + blockIdx.x * blockDim.x;
     S_ptr[i] = scanned_array[v_array[i]];
 }
@@ -190,7 +190,7 @@ void gpu_lp_wrapper(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
             dim3 block(1024, 1);
             dim3 grid(vertices_count / block.x, 1);
             SAFE_KERNEL_CALL((get_labels << < grid, block >> >
-                                                    (out.data(), s_array.data(), gathered_labels, dev_labels)));
+                                                    (out.data(), s_array.data(), gathered_labels, _labels)));
         }
         _iterations_count++;
     }
