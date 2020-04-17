@@ -129,14 +129,14 @@ void gpu_lp_wrapper(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
         SAFE_CALL((cudaMemset(F_mem, 0, (size_t)(sizeof(int)) * edges_count))); //was taken from group of memcpy
         {
             dim3 block(1024, 1);
-            dim3 grid(vertices_count / block.x, 1);
+            dim3 grid((edges_count - 1) / block.x + 1, 1);
             SAFE_KERNEL_CALL(
                     (extract_boundaries_initial << < grid, block >> >
                                                            (F_mem, outgoing_ptrs, edges_count))); //fill 1 in bounds
         }
         {
             dim3 block(1024, 1);
-            dim3 grid(edges_count / block.x, 1);
+            dim3 grid((edges_count - 1) / block.x + 1, 1);
 
             SAFE_KERNEL_CALL(
                     (extract_boundaries_optional << < grid, block >> >
@@ -150,20 +150,20 @@ void gpu_lp_wrapper(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
         mgpu::mem_t<int> s_array(reduced_size, context);
         {
             dim3 block(1024, 1);
-            dim3 grid(edges_count / block.x, 1);
+            dim3 grid((edges_count - 1) / block.x + 1, 1);
             SAFE_KERNEL_CALL(
                     (count_labels << < grid, block >> > (F_scanned, edges_count, s_array.data())));
         }
         {
             dim3 block(1024, 1);
-            dim3 grid(vertices_count / block.x, 1);
+            dim3 grid((edges_count - 1) / block.x + 1, 1);
             SAFE_KERNEL_CALL((new_boundaries << < grid, block >> >
                                                         (F_scanned, outgoing_ptrs, edges_count, s_ptr_array)));
         }
         mgpu::mem_t<int> w_array(reduced_size, context);
         {
             dim3 block(1024, 1);
-            dim3 grid(reduced_size / block.x, 1);
+            dim3 grid((edges_count - 1) / block.x + 1, 1);
 
 
             SAFE_KERNEL_CALL((frequency_count << < grid, block >> > (w_array.data(), s_array.data())));
@@ -188,7 +188,7 @@ void gpu_lp_wrapper(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
 
         {
             dim3 block(1024, 1);
-            dim3 grid(vertices_count / block.x, 1);
+            dim3 grid((edges_count - 1) / block.x + 1, 1);
             SAFE_KERNEL_CALL((get_labels << < grid, block >> >
                                                     (out.data(), s_array.data(), gathered_labels, _labels)));
         }
