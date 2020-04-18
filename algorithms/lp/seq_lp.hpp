@@ -78,7 +78,7 @@ void LP::seq_lp(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph, int *_lab
                 }
             }
             //Updating label
-            if (decision_label != _labels[vertice_id])
+            if ((decision_label != _labels[vertice_id])&&(decision_label!=-1))
             {
                 _labels[vertice_id] = decision_label;
                 updated = true;
