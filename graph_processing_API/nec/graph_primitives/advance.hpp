@@ -121,32 +121,6 @@ void GraphPrimitivesNEC::advance_worker(ExtendedCSRGraph<_TVertexValue, _TEdgeWe
             }
         }
     }
-    /*else if(_frontier.type == SPARSE_FRONTIER)
-    {
-        if(_frontier.vector_engine_part_size > 0)
-        {
-            int *frontier_ids = &(_frontier.ids[0]);
-            vector_engine_per_vertex_kernel_sparse(vertex_pointers, adjacent_ids, frontier_ids, _frontier.vector_engine_part_size,
-                                                   edge_op, vertex_preprocess_op, vertex_postprocess_op, _first_edge);
-        }
-
-        if(_frontier.vector_core_part_size > 0)
-        {
-            int *frontier_ids = &(_frontier.ids[_frontier.vector_engine_part_size]);
-            vector_core_per_vertex_kernel_sparse(vertex_pointers, adjacent_ids, frontier_ids, _frontier.vector_core_part_size,
-                                                 edge_op, vertex_preprocess_op, vertex_postprocess_op, _first_edge);
-        }
-
-        if(_frontier.collective_part_size > 0)
-        {
-            int *frontier_ids = &(_frontier.ids[_frontier.vector_core_part_size + _frontier.vector_engine_part_size]);
-            collective_vertex_processing_kernel_sparse(vertex_pointers, adjacent_ids, frontier_ids, _frontier.collective_part_size,
-                                                       collective_threshold_start,
-                                                       collective_threshold_end, collective_edge_op,
-                                                       collective_vertex_preprocess_op,
-                                                       collective_vertex_postprocess_op, _first_edge);
-        }
-    }*/
 
     #ifdef __PRINT_API_PERFORMANCE_STATS__
     #pragma omp master
@@ -257,13 +231,65 @@ void GraphPrimitivesNEC::advance(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &
     int vertices_count = _graph.get_vertices_count();
     int old_frontier_size = _in_frontier.size();
 
-    if((old_frontier_size > 100) || (old_frontier_size == 1))
+    if((old_frontier_size > 1000) || (old_frontier_size == 1))
     {
         generate_new_frontier(_graph, _out_frontier, cond);
     }
     else
     {
+        LOAD_EXTENDED_CSR_GRAPH_DATA(_graph);
+
         double t1 = omp_get_wtime();
+        int cur_pos = 0;
+        int *tmp_frontier = _in_frontier.work_buffer;
+
+        #pragma omp parallel for
+        for(int front_pos = 0; front_pos < _in_frontier.current_size; front_pos++)
+        {
+            int src_id = _in_frontier.ids[front_pos];
+
+            const long long int start = outgoing_ptrs[src_id];
+            const long long int end = outgoing_ptrs[src_id + 1];
+            const int connections_count = end - start;
+
+            #pragma _NEC ivdep
+            #pragma _NEC vector
+            for (int local_edge_pos = 0; local_edge_pos < connections_count; local_edge_pos++)
+            {
+                const long long int global_edge_pos = start + local_edge_pos;
+                const int dst_id = outgoing_ids[global_edge_pos];
+                if(cond(dst_id))
+                {
+                    tmp_frontier[cur_pos] = dst_id;
+                    cur_pos++;
+                }
+            }
+        }
+
+        _out_frontier.current_size = cur_pos;
+        _out_frontier.type = SPARSE_FRONTIER;
+        _out_frontier.vector_engine_part_type = SPARSE_FRONTIER;
+        _out_frontier.vector_core_part_type = SPARSE_FRONTIER;
+        _out_frontier.collective_part_type = SPARSE_FRONTIER;
+        _out_frontier.vector_engine_part_size = 0;
+        _out_frontier.vector_core_part_size = 0;
+        _out_frontier.collective_part_size = cur_pos;
+
+        #pragma _NEC ivdep
+        #pragma _NEC vector
+        #pragma omp parallel for
+        for(int i = 0; i < _out_frontier.current_size; i++)
+        {
+            _out_frontier.ids[i] = tmp_frontier[i];
+        }
+
+        double t2 = omp_get_wtime();
+        cout << "check time: " << 1000.0 * (t2 - t1) << " ms" << endl;
+        cout << "check TEPS: " << edges_count / ((t2 - t1)*1e6) << " TEPS" << endl;
+        cout << "check bw: " << sizeof(int)*vertices_count / ((t2 - t1)*1e9) << " gb/s" << endl;
+
+        /*double t1 = omp_get_wtime();
+        int in_frontier_size = _in_frontier.size();
         const long long int *vertex_pointers = _graph.get_outgoing_ptrs();
         int *offsets = _in_frontier.work_buffer;
 
@@ -296,6 +322,8 @@ void GraphPrimitivesNEC::advance(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &
             tmp_ids[where_to_write] = dst_id;
         };
 
+        double t_mid = omp_get_wtime();
+
         #pragma omp parallel
         {
             advance_worker(_graph, _in_frontier, gen_edge_op, EMPTY_VERTEX_OP, EMPTY_VERTEX_OP, gen_edge_op, EMPTY_VERTEX_OP, EMPTY_VERTEX_OP, 0);
@@ -310,13 +338,21 @@ void GraphPrimitivesNEC::advance(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &
         _out_frontier.vector_core_part_size = 0;
         _out_frontier.collective_part_size = _out_frontier.current_size;
 
-        #pragma omp parallel for
+        //#pragma omp parallel for
         for(int i = 0; i < _out_frontier.current_size; i++)
         {
-            _out_frontier.ids[i] = tmp_ids[i];
+            _out_frontier.flags[i] = tmp_ids[i];
         }
+
+        //sparse_copy_if(_out_frontier.flags, _out_frontier.ids, _out_frontier.work_buffer, _out_frontier.current_size, 0,  _out_frontier.current_size);
+
         double t2 = omp_get_wtime();
+        cout << "resulting size: " << in_frontier_size << " -> " << _out_frontier.current_size << endl;
         cout << "check time: " << 1000.0 * (t2 - t1) << " ms" << endl;
+        cout << "check TEPS: " << edges_count / ((t2 - t1)*1e6) << " TEPS" << endl;
+        cout << "check bw: " << sizeof(int)*vertices_count / ((t2 - t1)*1e9) << " gb/s" << endl;
+        cout << "mid time: " << (t_mid - t1) * 1000 << " ms" << endl;
+        throw "error";*/
     }
 }
 
