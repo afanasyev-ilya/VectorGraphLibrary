@@ -39,10 +39,19 @@ __global__ void count_labels(int *scanned_array, long long int edges_count, int 
     }
 }
 
-__global__ void new_boundaries(int *scanned_array, long long int *v_array, int vertices_count, int *S_ptr) {
+__global__ void new_boundaries(int *scanned_array, long long int *v_array, int vertices_count, int *S_ptr, long long edges_count) {
     int i = threadIdx.x + blockIdx.x * blockDim.x;
     if (i < vertices_count) {
-        S_ptr[i] = scanned_array[v_array[i]];
+        if(v_array[i] == edges_count)
+        {
+            S_ptr[i] = edges_count;
+        }
+        else
+        {
+            S_ptr[i] = scanned_array[v_array[i]];
+        }
+
+        //printf("%d %ld %d!!!!\n", i, v_array[i], scanned_array[v_array[i]]);
     }
 }
 
@@ -99,8 +108,8 @@ void gpu_lp_wrapper(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
     int *out;
     SAFE_CALL((cudaMalloc((void **) &F_mem, (size_t)(sizeof(int)) * edges_count)));
     SAFE_CALL((cudaMalloc((void **) &values, (size_t)(sizeof(int)) * edges_count)));
-    SAFE_CALL((cudaMalloc((void **) &s_ptr_array, (size_t)(sizeof(long long int)) * vertices_count)));
-    SAFE_CALL((cudaMalloc((void **) &F_scanned, (size_t)(sizeof(int)) * edges_count)));
+    SAFE_CALL((cudaMallocManaged((void **) &s_ptr_array, (size_t)(sizeof(long long int)) * vertices_count)));
+    SAFE_CALL((cudaMallocManaged((void **) &F_scanned, (size_t)(sizeof(int)) * edges_count)));
     SAFE_CALL((cudaMalloc((void **) &I_mem, (size_t)(sizeof(int)) * edges_count)));
     SAFE_CALL((cudaMalloc((void **) &out, (size_t)(sizeof(long long int)) * vertices_count)));
     {
@@ -124,7 +133,7 @@ void gpu_lp_wrapper(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
     graph_API.compute(_graph, frontier, init_op);
 
     _iterations_count = 0;
-    while (_iterations_count < 1) // for example we can do only 1 iteration
+    while (_iterations_count < 10) // for example we can do only 1 iteration
     {
         auto gather_edge_op = [_labels, gathered_labels]
                 __device__(int
@@ -168,23 +177,26 @@ void gpu_lp_wrapper(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
         cout<<4<<endl;
         long long int reduced_size = 0;
         int *scanned_data_ptr = F_scanned;
-        SAFE_CALL(cudaMemcpy(&reduced_size, scanned_data_ptr + (edges_count - 1), sizeof(int), cudaMemcpyDeviceToHost));
+        int t_reduced_size = 0;
+        SAFE_CALL(cudaMemcpy(&t_reduced_size, scanned_data_ptr + (edges_count - 1), sizeof(int), cudaMemcpyDeviceToHost));
 
+        reduced_size = t_reduced_size;
         //SAFE_CALL(cudaMemcpy(&reduced_size, &F_scanned[edges_count - 1], sizeof(long long int), cudaMemcpyDeviceToHost));
         mgpu::mem_t<int> s_array(reduced_size, context);
         cout<<5<<endl;
         {
-            dim3 block(1024, 1);
-            dim3 grid((edges_count - 1) / block.x + 1, 1);
+            dim3 block(1024);
+            dim3 grid((edges_count - 1) / block.x + 1);
             SAFE_KERNEL_CALL(
                     (count_labels << < grid, block >> > (F_scanned, edges_count, s_array.data())));
         }
         cout<<6<<endl;
+
         {
-            dim3 block(1024, 1);
-            dim3 grid((vertices_count - 1) / block.x + 1, 1);
+            dim3 block(1024);
+            dim3 grid((vertices_count - 1) / block.x + 1);
             SAFE_KERNEL_CALL((new_boundaries << < grid, block >> >
-                                                        (F_scanned, outgoing_ptrs, vertices_count, s_ptr_array)));
+                                                        (F_scanned, outgoing_ptrs, vertices_count, s_ptr_array, edges_count)));
         }
         cout<<7<<endl;
         mgpu::mem_t<int> w_array(reduced_size, context);
@@ -210,10 +222,27 @@ void gpu_lp_wrapper(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
                 } else{
                     return b;
                 }
+                return true;
         };
 
+        int cnt = 0;
+        for(int i = 0; i < vertices_count; i++)
+        {
+            if(s_ptr_array[i] == 0)
+            {
+                if(cnt < 40)
+                    cout << i << " " << s_ptr_array[i] << endl;
+                cnt++;
+            }
 
-        mgpu::segreduce(I_mem, reduced_size, s_ptr_array, vertices_count, out,
+        }
+        cout << "vert count: " << vertices_count << endl;
+        cout << "edges count: " << edges_count << endl;
+        cout << "reduced size: " << reduced_size << endl;
+        cout << "cnt: " << cnt << endl;
+        cout << endl;
+
+        mgpu::segreduce(I_mem, reduced_size, s_ptr_array, vertices_count/1.8, out,
                         my_cool_lambda, (int) init, context);
         cout<<9<<endl;
         {
