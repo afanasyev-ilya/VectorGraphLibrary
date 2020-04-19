@@ -90,10 +90,10 @@ void LP::seq_lp(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph, int *_lab
     cout << "sequential check labels: " << endl;
     PerformanceStats::component_stats(_labels, vertices_count);
 
-    cout << "seq labels: ";
+    /*cout << "seq labels: ";
     for(int i = 0; i < vertices_count; i++)
         cout << _labels[i] << " ";
-    cout << endl;
+    cout << endl;*/
 
     if(vertices_count < VISUALISATION_SMALL_GRAPH_VERTEX_THRESHOLD)
     {
