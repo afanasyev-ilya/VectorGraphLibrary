@@ -63,18 +63,17 @@ __global__ void frequency_count(int *W_array, int *S, long long int reduced_size
     }
 }
 
-__global__ void get_labels(int *I, int *S, int *L, int *_labels,int vertices_count) {
+__global__ void get_labels(int *out, int *s_array, int *gathered_labels, int *_labels, int vertices_count)
+{
     int i = threadIdx.x + blockIdx.x * blockDim.x;
     if (i < vertices_count)
     {
-        _labels[i] = L[S[I[i]]];
-        if(i == vertices_count - 1){
-            printf("AFTER ITER %d _____ %d\n",i, _labels[i]);
-        }
+        _labels[i] = gathered_labels[s_array[out[i]]];
     }
 }
 
-__global__ void fill_indices(int *I, long long edges_count) {
+__global__ void fill_indices(int *I, long long edges_count)
+{
     int i = threadIdx.x + blockIdx.x * blockDim.x;
     if(i < edges_count)
     {
@@ -82,25 +81,46 @@ __global__ void fill_indices(int *I, long long edges_count) {
     }
 }
 
-
-__global__ void print_labels(int *_labels,int vertices_count) {
-    int i = threadIdx.x + blockIdx.x * blockDim.x;
-
-
-        if(i == vertices_count - 1){
-            printf("LABEL init %d _____ %d\n",i, _labels[i]);
-        }
-
-}
-
-__global__ void gen_labels(int *_labels,int vertices_count) {
-    int i = threadIdx.x + blockIdx.x * blockDim.x;
-    if(i<vertices_count){
-        _labels[i] = i;
-        //printf("LABEL init %d _____ %d\n",i, _labels[i]);
+template <typename _T>
+void print_data(string _name, _T *_data, int _size)
+{
+    cout << _name << ": ";
+    for(int i = 0; i < _size; i++)
+    {
+        cout << _data[i] << " ";
     }
-
+    cout << endl << endl;
 }
+
+template <typename DataType, typename SegmentType>
+void print_segmented_array(string _name, DataType *_data, SegmentType *_segments, int _segment_count, int _data_size)
+{
+    cout << _name << ": ";
+    for(int i = 0; i < _data_size; i++)
+    {
+        cout << _data[i] << " ";
+    }
+    cout << endl;
+
+    cout << _name << " with segments: ";
+
+    for(int segment = 0; segment < _segment_count; segment++)
+    {
+        int start = _segments[segment];
+        int end = _segments[segment + 1];
+        cout << " [";
+        for(int i = start; i < end; i++)
+        {
+            if(i != (end - 1))
+                cout << _data[i] << " ";
+            else
+                cout << _data[i];
+        }
+        cout << "] ";
+    }
+    cout << endl << endl;
+}
+
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 using namespace std;
@@ -117,18 +137,23 @@ void gpu_lp_wrapper(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
 
 
     int *gathered_labels;
-    int *values;
+    int *tmp_work_buffer_for_seg_sort;
     int *s_ptr_array;
     int *F_mem;
     int *F_scanned;
     int *I_mem;
-    int *out;
-    SAFE_CALL((cudaMalloc((void **) &F_mem, (size_t)(sizeof(int)) * edges_count)));
-    SAFE_CALL((cudaMalloc((void **) &values, (size_t)(sizeof(int)) * edges_count)));
-    SAFE_CALL((cudaMallocManaged((void **) &s_ptr_array, (size_t)(sizeof(long long int)) * vertices_count)));
-    SAFE_CALL((cudaMallocManaged((void **) &F_scanned, (size_t)(sizeof(int)) * (edges_count+1))));
-    SAFE_CALL((cudaMalloc((void **) &I_mem, (size_t)(sizeof(int)) * edges_count)));
-    SAFE_CALL((cudaMalloc((void **) &out, (size_t)(sizeof(long long int)) * vertices_count)));
+    int *seg_reduce_result;
+    int *s_array;
+    int *w_array;
+    MemoryAPI::allocate_device_array(&F_mem, edges_count);
+    MemoryAPI::allocate_device_array(&tmp_work_buffer_for_seg_sort, edges_count);
+    MemoryAPI::allocate_device_array(&s_ptr_array, vertices_count);
+    MemoryAPI::allocate_device_array(&F_scanned, edges_count + 1);
+    MemoryAPI::allocate_device_array(&I_mem, edges_count);
+    MemoryAPI::allocate_device_array(&seg_reduce_result, vertices_count);
+    MemoryAPI::allocate_device_array(&s_array, edges_count);
+    MemoryAPI::allocate_device_array(&w_array, edges_count);
+
     {
         dim3 block(1024, 1);
         dim3 grid((edges_count - 1) / block.x + 1, 1);
@@ -140,23 +165,18 @@ void gpu_lp_wrapper(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
 
     frontier.set_all_active();
 
-    auto init_op =[_labels] __device__(int
-    src_id, int
-    connections_count) {
+    auto init_op =[_labels] __device__(int src_id, int connections_count) {
         _labels[src_id] = src_id;
     };
 
     graph_API.compute(_graph, frontier, init_op);
 
     _iterations_count = 0;
-    {
-        dim3 block(1024, 1);
-        dim3 grid((vertices_count - 1) / block.x + 1, 1);
-        SAFE_KERNEL_CALL((gen_labels<<<grid,block>>>(_labels,vertices_count))); //fill 1 in bounds
-    }
 
-    while (_iterations_count < 3) // for example we can do only 1 iteration
+    while (_iterations_count < 1) // for example we can do only 1 iteration
     {
+        print_data("before iteration labels: ",  _labels, vertices_count);
+
         auto gather_edge_op = [_labels, gathered_labels]
                 __device__(int
         src_id, int
@@ -170,55 +190,60 @@ void gpu_lp_wrapper(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
 
         cudaDeviceSynchronize();
 
+        print_segmented_array("gathered labels", gathered_labels, outgoing_ptrs, vertices_count, edges_count);
 
-        mgpu::segmented_sort(gathered_labels, values, edges_count, outgoing_ptrs, vertices_count,
+
+        mgpu::segmented_sort(gathered_labels, tmp_work_buffer_for_seg_sort, edges_count, outgoing_ptrs, vertices_count,
                              mgpu::less_t<int>(), context);
+
+        print_segmented_array("gathered labels after sort", gathered_labels, outgoing_ptrs, vertices_count, edges_count);
+
+
         //cout<<1<<endl;
 
-        {
-            dim3 block(1024, 1);
-            dim3 grid((vertices_count) / block.x + 1, 1);
-            SAFE_KERNEL_CALL(
-                    (print_labels<< < grid, block >> >
-                                                           (_labels,vertices_count))); //fill 1 in bounds
-        }
-
         SAFE_CALL((cudaMemset(F_mem, 0, (size_t)(sizeof(int)) * edges_count))); //was taken from group of memcpy
-        {
-            dim3 block(1024, 1);
-            dim3 grid((vertices_count - 1) / block.x + 1, 1);
-            SAFE_KERNEL_CALL(
-                    (extract_boundaries_initial << < grid, block >> >
+        dim3 block_vertices(1024);
+        dim3 grid_vertices((vertices_count - 1) / block_vertices.x + 1);
+        SAFE_KERNEL_CALL((extract_boundaries_initial <<< grid_vertices, block_vertices >>>
                                                            (F_mem, outgoing_ptrs, edges_count,vertices_count))); //fill 1 in bounds
-        }
         //cout<<2<<endl;
 
-        {
-            dim3 block(1024, 1);
-            dim3 grid((edges_count - 1) / block.x + 1, 1);
+        print_segmented_array("extract_boundaries_initial", F_mem, outgoing_ptrs, vertices_count, edges_count);
 
-            SAFE_KERNEL_CALL(
-                    (extract_boundaries_optional << < grid, block >> >
-                                                            (F_mem, gathered_labels, edges_count))); //sub(i+1, i)
-        }
+        dim3 block_edges(1024);
+        dim3 grid_edges((edges_count - 1) / block_edges.x + 1);
+
+        SAFE_KERNEL_CALL(
+                    (extract_boundaries_optional <<< grid_edges, block_edges >>>
+                                                            (F_mem, gathered_labels, edges_count)));
+
+        print_segmented_array("F_mem", F_mem, outgoing_ptrs, vertices_count, edges_count + 1);
 
         cout<<3<<endl;
-        mgpu::scan(F_mem, edges_count+1, F_scanned, context);
+        mgpu::scan(F_mem, edges_count, F_scanned, context);
+
+        print_segmented_array("F_mem after scan", F_mem, outgoing_ptrs, vertices_count, edges_count+1);
+
+        print_segmented_array("F_scanned after scan", F_scanned, outgoing_ptrs, vertices_count, edges_count+1);
+
         cout<<4<<endl;
         long long int reduced_size = 0;
         int *scanned_data_ptr = F_scanned;
         int t_reduced_size = 0;
-        SAFE_CALL(cudaMemcpy(&t_reduced_size, scanned_data_ptr + edges_count , sizeof(int), cudaMemcpyDeviceToHost));
+        reduced_size = F_scanned[edges_count - 1];
+        cout << "reduced size: " << reduced_size << endl;
+        cout << "edges count: " << edges_count << endl;
+        //SAFE_CALL(cudaMemcpy(&t_reduced_size, scanned_data_ptr + edges_count , sizeof(int), cudaMemcpyDeviceToHost));
 
         reduced_size = t_reduced_size;
         //SAFE_CALL(cudaMemcpy(&reduced_size, &F_scanned[edges_count - 1], sizeof(long long int), cudaMemcpyDeviceToHost));
-        mgpu::mem_t<int> s_array(reduced_size, context);
+        //mgpu::mem_t<int> s_array(reduced_size+1, context);
         cout<<5<<endl;
         {
             dim3 block(1024);
             dim3 grid((edges_count - 1) / block.x + 1);
             SAFE_KERNEL_CALL(
-                    (count_labels << < grid, block >> > (F_scanned, edges_count, s_array.data())));
+                    (count_labels << < grid, block >> > (F_scanned, edges_count, s_array)));
         }
         cout<<6<<endl;
 
@@ -229,68 +254,68 @@ void gpu_lp_wrapper(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
                                                         (F_scanned, outgoing_ptrs, vertices_count, s_ptr_array, edges_count)));
         }
         cout<<7<<endl;
-        int w_size;
-        int* ptr = s_ptr_array;
-        SAFE_CALL(cudaMemcpy(&w_size, ptr + vertices_count , sizeof(int), cudaMemcpyDeviceToHost));
-        mgpu::mem_t<int> w_array(w_size, context);
+        int w_size = s_ptr_array[vertices_count - 1];
+        //int* ptr = s_ptr_array;
+        //SAFE_CALL(cudaMemcpy(&w_size, ptr + vertices_count , sizeof(int), cudaMemcpyDeviceToHost));
+
         {
             dim3 block(1024, 1);
             dim3 grid((edges_count - 1) / block.x + 1, 1);
 
-
-            SAFE_KERNEL_CALL((frequency_count << < grid, block >> > (w_array.data(), s_array.data(),w_size)));
+            SAFE_KERNEL_CALL((frequency_count << < grid, block >> > (w_array, s_array, w_size)));
         }
 
         cout<<8<<endl;
         int init = 0;
-        int *w_ptr = w_array.data();
 
         cout<<8.5<<endl;
 
-        auto my_cool_lambda =[w_ptr] MGPU_DEVICE(int
-        a, int
-        b) ->int{
-                if ( w_ptr[a] > w_ptr[b]){
-                    return a;
-                } else{
-                    return b;
-                }
-                return true;
+        auto seg_reduce_op =[w_array] MGPU_DEVICE(int a, int b) ->int{
+            if ( w_array[a] > w_array[b])
+            {
+                return a;
+            }
+            else
+            {
+                return b;
+            }
+            return true;
         };
 
-//        int cnt = 0;
-//        for(int i = 0; i < vertices_count; i++)
-//        {
-//            if(s_ptr_array[i] == 0)
-//            {
-//                if(cnt < 40)
-//                    cout << i << " " << s_ptr_array[i] << endl;
-//                cnt++;
-//            }
-//
-//        }
-//        cout << "vert count: " << vertices_count << endl;
-//        cout << "edges count: " << edges_count << endl;
-//        cout << "reduced size: " << reduced_size << endl;
-//        cout << "cnt: " << cnt << endl;
-//        cout << endl;
+        print_data("I_mem: ", I_mem, edges_count);
+        print_data("w_ptr: ", w_array, w_size);
 
-        mgpu::segreduce(I_mem, reduced_size, s_ptr_array, vertices_count, out,
-                        my_cool_lambda, (int) init, context);
+        mgpu::segreduce(I_mem, reduced_size, s_ptr_array, vertices_count, seg_reduce_result,
+                        seg_reduce_op, (int) init, context);
+
+        print_data("seg_reduce_result: ",  seg_reduce_result, vertices_count);
+
+        print_data("gathered labels: ",  gathered_labels, edges_count);
+        print_data("seg_array: ",  s_array, vertices_count);
+
         cout<<9<<endl;
         {
-            dim3 block(1024, 1);
-            dim3 grid((vertices_count - 1) / block.x + 1, 1);
+            dim3 block(1024);
+            dim3 grid((vertices_count - 1) / block.x + 1);
             SAFE_KERNEL_CALL((get_labels << < grid, block >> >
-                                                    (out, s_array.data(), gathered_labels, _labels,vertices_count)));
+                                                    (seg_reduce_result, s_array, gathered_labels, _labels, vertices_count)));
         }
         cout<<10<<endl;
+
+        print_data("after iteration labels: ",  _labels, vertices_count);
+
         _iterations_count++;
     }
-    SAFE_CALL(cudaFree(F_mem));
-    SAFE_CALL(cudaFree(values));
-    SAFE_CALL(cudaFree(F_scanned));
-    SAFE_CALL(cudaFree(s_ptr_array));
+
+    MemoryAPI::free_device_array(F_mem);
+    MemoryAPI::free_device_array(tmp_work_buffer_for_seg_sort);
+    MemoryAPI::free_device_array(s_ptr_array);
+    MemoryAPI::free_device_array(F_scanned);
+    MemoryAPI::free_device_array(I_mem);
+    MemoryAPI::free_device_array(seg_reduce_result);
+    MemoryAPI::free_device_array(s_array);
+    MemoryAPI::free_device_array(w_array);
+
     MemoryAPI::free_device_array(gathered_labels);
 }
 
