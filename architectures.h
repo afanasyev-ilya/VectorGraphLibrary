@@ -2,9 +2,9 @@
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-//#define __USE_GPU__
+#define __USE_GPU__
 //#define __USE_INTEL__
-#define __USE_NEC_SX_AURORA__
+//#define __USE_NEC_SX_AURORA__
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // SX-Aurora properties
@@ -39,7 +39,7 @@
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-//#define __PRINT_API_PERFORMANCE_STATS__ // prints inner api detailed performance stats, causes significant delays when active
+#define __PRINT_API_PERFORMANCE_STATS__ // prints inner api detailed performance stats, causes significant delays when active
 //#define __PRINT_SAMPLES_PERFORMANCE_STATS__ // prints samples stats (iterations, bandwidths, components stats)
 #define __SAVE_PERFORMANCE_STATS_TO_FILE__ // saves performance stats to files (useful for multiple batch launches)
 

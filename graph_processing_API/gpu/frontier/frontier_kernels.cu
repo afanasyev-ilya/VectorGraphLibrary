@@ -51,6 +51,23 @@ void __global__ split_frontier_kernel(const long long *_vertex_pointers,
         {
             *_warp_threshold_vertex = idx + 1;
         }
+
+        if((current_size > GPU_VWP_16_THRESHOLD_VALUE) && (next_size <= GPU_VWP_16_THRESHOLD_VALUE))
+        {
+            //*_warp_threshold_vertex = idx + 1;
+        }
+        if((current_size > GPU_VWP_8_THRESHOLD_VALUE) && (next_size <= GPU_VWP_8_THRESHOLD_VALUE))
+        {
+            //*_warp_threshold_vertex = idx + 1;
+        }
+        if((current_size > GPU_VWP_4_THRESHOLD_VALUE) && (next_size <= GPU_VWP_4_THRESHOLD_VALUE))
+        {
+            //*_warp_threshold_vertex = idx + 1;
+        }
+        if((current_size > GPU_VWP_2_THRESHOLD_VALUE) && (next_size <= GPU_VWP_2_THRESHOLD_VALUE))
+        {
+            //*_warp_threshold_vertex = idx + 1;
+        }
     }
 }
 

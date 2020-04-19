@@ -2,65 +2,6 @@
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-template <typename _TVertexValue, typename _TEdgeWeight, typename EdgeOperation, typename VertexPreprocessOperation,
-        typename VertexPostprocessOperation>
-void GraphPrimitivesGPU::advance_sparse(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
-                                        FrontierGPU &_frontier,
-                                        EdgeOperation edge_op,
-                                        VertexPreprocessOperation vertex_preprocess_op,
-                                        VertexPostprocessOperation vertex_postprocess_op)
-{
-    LOAD_EXTENDED_CSR_GRAPH_DATA(_graph);
-
-    int grid_threshold_start = 0;
-    int grid_threshold_end = 0;
-    int block_threshold_start = 0;
-    int block_threshold_end = 0;
-    int warp_threshold_start = 0;
-    int warp_threshold_end = 0;
-    int thread_threshold_start = 0;
-    int thread_threshold_end = 0;
-
-    _frontier.split_sorted_frontier(outgoing_ptrs, grid_threshold_start, grid_threshold_end, block_threshold_start,
-                                    block_threshold_end, warp_threshold_start, warp_threshold_end,
-                                    thread_threshold_start, thread_threshold_end);
-
-    int grid_vertices_count = grid_threshold_end - grid_threshold_start;
-    if (grid_vertices_count > 0)
-    {
-        grid_per_vertex_kernel <<< grid_vertices_count, 1, 0, grid_processing_stream >>>
-                                                              (outgoing_ptrs, outgoing_ids, _frontier.ids, vertices_count, grid_threshold_start,
-                                                                      grid_threshold_end, edge_op, vertex_preprocess_op, vertex_postprocess_op);
-    }
-
-    int block_vertices_count = block_threshold_end - block_threshold_start;
-    if (block_vertices_count > 0)
-    {
-        block_per_vertex_kernel <<< block_vertices_count, BLOCK_SIZE, 0, block_processing_stream >>>
-                                                                         (outgoing_ptrs, outgoing_ids, _frontier.ids, vertices_count, block_threshold_start,
-                                                                                 block_threshold_end, edge_op, vertex_preprocess_op, vertex_postprocess_op);
-    }
-
-    int warp_vertices_count = warp_threshold_end - warp_threshold_start;
-    if (warp_vertices_count > 0)
-    {
-        warp_per_vertex_kernel <<< WARP_SIZE*(warp_vertices_count - 1)/BLOCK_SIZE + 1, BLOCK_SIZE, 0, warp_processing_stream >>>
-                                                                                                      (outgoing_ptrs, outgoing_ids, _frontier.ids, vertices_count, warp_threshold_start,
-                                                                                                              warp_threshold_end, edge_op, vertex_preprocess_op, vertex_postprocess_op);
-    }
-
-    int thread_vertices_count = thread_threshold_end - thread_threshold_start;
-    if (thread_vertices_count > 0)
-    {
-        thread_per_vertex_kernel <<< (thread_vertices_count - 1) / BLOCK_SIZE + 1, BLOCK_SIZE, 0, thread_processing_stream >>>
-                                                                                                  (outgoing_ptrs, outgoing_ids, _frontier.ids, vertices_count, thread_threshold_start,
-                                                                                                          thread_threshold_end, edge_op, vertex_preprocess_op, vertex_postprocess_op);
-    }
-    cudaDeviceSynchronize();
-}
-
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
 template <class EdgeOperation>
 void __global__ grid_per_vertex_kernel_child(const long long *_vertex_pointers,
                                              const int *_adjacent_ids,
@@ -228,42 +169,118 @@ void __global__ thread_per_vertex_kernel(const long long *_vertex_pointers,
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-template <typename EdgeOperation, typename VertexPreprocessOperation, typename VertexPostprocessOperation>
-void __global__ remaining_vertices_kernel(const long long *_vector_group_pointers,
-                                          const int *_vector_group_sizes,
-                                          const int _number_of_vertices_in_first_part,
-                                          const int *_adjacent_ids,
-                                          const int *_frontier_flags,
-                                          const int _vertices_count,
-                                          EdgeOperation edge_op,
-                                          VertexPreprocessOperation vertex_preprocess_op,
-                                          VertexPostprocessOperation vertex_postprocess_op)
+template <int VirtualWarpSize, typename EdgeOperation, typename VertexPreprocessOperation, typename VertexPostprocessOperation>
+void __global__ virtual_warp_per_vertex_kernel(const long long *_vertex_pointers,
+                                               const int *_adjacent_ids,
+                                               const int *_frontier_ids,
+                                               const int _vertices_count,
+                                               const int _vertex_part_start,
+                                               const int _vertex_part_end,
+                                               EdgeOperation edge_op,
+                                               VertexPreprocessOperation vertex_preprocess_op,
+                                               VertexPostprocessOperation vertex_postprocess_op)
 {
-    const int src_id = blockIdx.x * blockDim.x + threadIdx.x + _number_of_vertices_in_first_part;
+    const int virtual_warp_id = threadIdx.x / VirtualWarpSize;
+    const int position_in_virtual_warp = threadIdx.x % VirtualWarpSize;
 
-    if(src_id < _vertices_count)
+    const int frontier_pos = blockIdx.x * (blockDim.x / VirtualWarpSize) + virtual_warp_id + _vertex_part_start;
+
+    if(frontier_pos < _vertex_part_end)
     {
-        const int segment_connections_count  = _vector_group_sizes[blockIdx.x];
-        if(segment_connections_count > 0)
+        const int src_id = _frontier_ids[frontier_pos];
+
+        const long long edge_start = _vertex_pointers[src_id];
+        const int connections_count = _vertex_pointers[src_id + 1] - _vertex_pointers[src_id];
+
+        vertex_preprocess_op(src_id, connections_count);
+
+        for(register int edge_pos = position_in_virtual_warp; edge_pos < connections_count; edge_pos += VirtualWarpSize)
         {
-            if(_frontier_flags[src_id] == IN_FRONTIER_FLAG)
+            if(edge_pos < connections_count)
             {
-                vertex_preprocess_op(src_id, segment_connections_count);
-
-                const long long int segment_edges_start = _vector_group_pointers[blockIdx.x];
-                for(register int edge_pos = 0; edge_pos < segment_connections_count; edge_pos++)
-                {
-                    const long long int global_edge_pos = segment_edges_start + edge_pos * blockDim.x + threadIdx.x;
-                    const int dst_id = _adjacent_ids[global_edge_pos];
-                    const int local_edge_pos = edge_pos;
-
-                    edge_op(src_id, dst_id, local_edge_pos, global_edge_pos);
-                }
-
-                vertex_postprocess_op(src_id, segment_connections_count);
+                const long long int global_edge_pos = edge_start + edge_pos;
+                const int dst_id = _adjacent_ids[global_edge_pos];
+                const int local_edge_pos = edge_pos;
+                edge_op(src_id, dst_id, local_edge_pos, global_edge_pos);
             }
         }
+
+        vertex_postprocess_op(src_id, connections_count);
     }
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+template <typename _TVertexValue, typename _TEdgeWeight, typename EdgeOperation, typename VertexPreprocessOperation,
+        typename VertexPostprocessOperation>
+void GraphPrimitivesGPU::advance_sparse(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
+                                        FrontierGPU &_frontier,
+                                        EdgeOperation edge_op,
+                                        VertexPreprocessOperation vertex_preprocess_op,
+                                        VertexPostprocessOperation vertex_postprocess_op)
+{
+    #ifdef __PRINT_API_PERFORMANCE_STATS__
+    double t1 = omp_get_wtime();
+    #endif
+
+    LOAD_EXTENDED_CSR_GRAPH_DATA(_graph);
+
+    int grid_threshold_start = 0;
+    int grid_threshold_end = 0;
+    int block_threshold_start = 0;
+    int block_threshold_end = 0;
+    int warp_threshold_start = 0;
+    int warp_threshold_end = 0;
+    int thread_threshold_start = 0;
+    int thread_threshold_end = 0;
+
+    _frontier.split_sorted_frontier(outgoing_ptrs, grid_threshold_start, grid_threshold_end, block_threshold_start,
+                                    block_threshold_end, warp_threshold_start, warp_threshold_end,
+                                    thread_threshold_start, thread_threshold_end);
+
+    int grid_vertices_count = grid_threshold_end - grid_threshold_start;
+    if (grid_vertices_count > 0)
+    {
+        grid_per_vertex_kernel <<< grid_vertices_count, 1, 0, grid_processing_stream >>>
+                (outgoing_ptrs, outgoing_ids, _frontier.ids, vertices_count, grid_threshold_start,
+                 grid_threshold_end, edge_op, vertex_preprocess_op, vertex_postprocess_op);
+    }
+
+    int block_vertices_count = block_threshold_end - block_threshold_start;
+    if (block_vertices_count > 0)
+    {
+        block_per_vertex_kernel <<< block_vertices_count, BLOCK_SIZE, 0, block_processing_stream >>>
+                (outgoing_ptrs, outgoing_ids, _frontier.ids, vertices_count, block_threshold_start,
+                 block_threshold_end, edge_op, vertex_preprocess_op, vertex_postprocess_op);
+    }
+
+    int warp_vertices_count = warp_threshold_end - warp_threshold_start;
+    if (warp_vertices_count > 0)
+    {
+        warp_per_vertex_kernel <<< WARP_SIZE*(warp_vertices_count - 1)/BLOCK_SIZE + 1, BLOCK_SIZE, 0, warp_processing_stream >>>
+                (outgoing_ptrs, outgoing_ids, _frontier.ids, vertices_count, warp_threshold_start,
+                 warp_threshold_end, edge_op, vertex_preprocess_op, vertex_postprocess_op);
+    }
+
+    int thread_vertices_count = thread_threshold_end - thread_threshold_start;
+    if (thread_vertices_count > 0)
+    {
+        /*thread_per_vertex_kernel <<< (thread_vertices_count - 1) / BLOCK_SIZE + 1, BLOCK_SIZE, 0, thread_processing_stream >>>
+                                                                                                  (outgoing_ptrs, outgoing_ids, _frontier.ids, vertices_count, thread_threshold_start,
+                                                                                                          thread_threshold_end, edge_op, vertex_preprocess_op, vertex_postprocess_op);*/
+        virtual_warp_per_vertex_kernel<16> <<< 16*(thread_vertices_count - 1) / BLOCK_SIZE + 1, BLOCK_SIZE, 0, thread_processing_stream >>>
+                (outgoing_ptrs, outgoing_ids, _frontier.ids, vertices_count, thread_threshold_start,
+                 thread_threshold_end, edge_op, vertex_preprocess_op, vertex_postprocess_op);
+    }
+    cudaDeviceSynchronize();
+
+    #ifdef __PRINT_API_PERFORMANCE_STATS__
+    // TODO if all active
+    double t2 = omp_get_wtime();
+    double work = edges_count;
+    cout << "advance time: " << (t2 - t1)*1000.0 << " ms" << endl;
+    cout << "advance all active BW: " << sizeof(int)*INT_ELEMENTS_PER_EDGE*work/((t2-t1)*1e9) << " GB/s" << endl << endl;
+    #endif
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
