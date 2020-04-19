@@ -29,7 +29,7 @@
 
 #define GPU_GRID_THRESHOLD_VALUE     TYPICAL_SM_COUNT * BLOCK_SIZE
 #define GPU_BLOCK_THRESHOLD_VALUE    BLOCK_SIZE
-#define GPU_WARP_THRESHOLD_VALUE     2*WARP_SIZE
+#define GPU_WARP_THRESHOLD_VALUE     WARP_SIZE
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Common properties

@@ -24,7 +24,11 @@ void __global__ split_frontier_kernel(const long long *_vertex_pointers,
                                       const int _frontier_size,
                                       int *_grid_threshold_vertex,
                                       int *_block_threshold_vertex,
-                                      int *_warp_threshold_vertex)
+                                      int *_warp_threshold_vertex,
+                                      int *_vwp_16_threshold_vertex,
+                                      int *_vwp_8_threshold_vertex,
+                                      int *_vwp_4_threshold_vertex,
+                                      int *_vwp_2_threshold_vertex)
 {
     register const int idx = blockIdx.x * blockDim.x + threadIdx.x;
     if(idx < _frontier_size)
@@ -54,19 +58,19 @@ void __global__ split_frontier_kernel(const long long *_vertex_pointers,
 
         if((current_size > GPU_VWP_16_THRESHOLD_VALUE) && (next_size <= GPU_VWP_16_THRESHOLD_VALUE))
         {
-            //*_warp_threshold_vertex = idx + 1;
+            *_vwp_16_threshold_vertex = idx + 1;
         }
         if((current_size > GPU_VWP_8_THRESHOLD_VALUE) && (next_size <= GPU_VWP_8_THRESHOLD_VALUE))
         {
-            //*_warp_threshold_vertex = idx + 1;
+            *_vwp_8_threshold_vertex = idx + 1;
         }
         if((current_size > GPU_VWP_4_THRESHOLD_VALUE) && (next_size <= GPU_VWP_4_THRESHOLD_VALUE))
         {
-            //*_warp_threshold_vertex = idx + 1;
+            *_vwp_4_threshold_vertex = idx + 1;
         }
         if((current_size > GPU_VWP_2_THRESHOLD_VALUE) && (next_size <= GPU_VWP_2_THRESHOLD_VALUE))
         {
-            //*_warp_threshold_vertex = idx + 1;
+            *_vwp_2_threshold_vertex = idx + 1;
         }
     }
 }

@@ -231,11 +231,25 @@ void GraphPrimitivesGPU::advance_sparse(ExtendedCSRGraph<_TVertexValue, _TEdgeWe
     int block_threshold_end = 0;
     int warp_threshold_start = 0;
     int warp_threshold_end = 0;
+
+    int vwp_16_threshold_start = 0;
+    int vwp_16_threshold_end = 0;
+    int vwp_8_threshold_start = 0;
+    int vwp_8_threshold_end = 0;
+    int vwp_4_threshold_start = 0;
+    int vwp_4_threshold_end = 0;
+    int vwp_2_threshold_start = 0;
+    int vwp_2_threshold_end = 0;
+
     int thread_threshold_start = 0;
     int thread_threshold_end = 0;
 
     _frontier.split_sorted_frontier(outgoing_ptrs, grid_threshold_start, grid_threshold_end, block_threshold_start,
                                     block_threshold_end, warp_threshold_start, warp_threshold_end,
+                                    vwp_16_threshold_start, vwp_16_threshold_end,
+                                    vwp_8_threshold_start, vwp_8_threshold_end,
+                                    vwp_4_threshold_start, vwp_4_threshold_end,
+                                    vwp_2_threshold_start, vwp_2_threshold_end,
                                     thread_threshold_start, thread_threshold_end);
 
     int grid_vertices_count = grid_threshold_end - grid_threshold_start;
@@ -262,15 +276,44 @@ void GraphPrimitivesGPU::advance_sparse(ExtendedCSRGraph<_TVertexValue, _TEdgeWe
                  warp_threshold_end, edge_op, vertex_preprocess_op, vertex_postprocess_op);
     }
 
+    int vwp_16_vertices_count = vwp_16_threshold_end - vwp_16_threshold_start;
+    if(vwp_16_vertices_count > 0)
+    {
+        virtual_warp_per_vertex_kernel<16> <<< 16*(vwp_16_vertices_count - 1) / BLOCK_SIZE + 1, BLOCK_SIZE, 0, vwp_16_processing_stream >>>
+                (outgoing_ptrs, outgoing_ids, _frontier.ids, vertices_count, vwp_16_threshold_start,
+                 vwp_16_threshold_end, edge_op, vertex_preprocess_op, vertex_postprocess_op);
+    }
+
+    int vwp_8_vertices_count = vwp_8_threshold_end - vwp_8_threshold_start;
+    if(vwp_8_vertices_count > 0)
+    {
+        virtual_warp_per_vertex_kernel<8> <<< 8*(vwp_8_vertices_count - 1) / BLOCK_SIZE + 1, BLOCK_SIZE, 0, vwp_8_processing_stream >>>
+                (outgoing_ptrs, outgoing_ids, _frontier.ids, vertices_count, vwp_8_threshold_start,
+                 vwp_8_threshold_end, edge_op, vertex_preprocess_op, vertex_postprocess_op);
+    }
+
+    int vwp_4_vertices_count = vwp_4_threshold_end - vwp_4_threshold_start;
+    if(vwp_4_vertices_count > 0)
+    {
+        virtual_warp_per_vertex_kernel<4> <<< 4*(vwp_4_vertices_count - 1) / BLOCK_SIZE + 1, BLOCK_SIZE, 0, vwp_4_processing_stream >>>
+                (outgoing_ptrs, outgoing_ids, _frontier.ids, vertices_count, vwp_4_threshold_start,
+                 vwp_4_threshold_end, edge_op, vertex_preprocess_op, vertex_postprocess_op);
+    }
+
+    int vwp_2_vertices_count = vwp_2_threshold_end - vwp_2_threshold_start;
+    if(vwp_2_vertices_count > 0)
+    {
+        virtual_warp_per_vertex_kernel<2> <<< 2*(vwp_2_vertices_count - 1) / BLOCK_SIZE + 1, BLOCK_SIZE, 0, vwp_2_processing_stream >>>
+                (outgoing_ptrs, outgoing_ids, _frontier.ids, vertices_count, vwp_2_threshold_start,
+                 vwp_2_threshold_end, edge_op, vertex_preprocess_op, vertex_postprocess_op);
+    }
+
     int thread_vertices_count = thread_threshold_end - thread_threshold_start;
     if (thread_vertices_count > 0)
     {
-        /*thread_per_vertex_kernel <<< (thread_vertices_count - 1) / BLOCK_SIZE + 1, BLOCK_SIZE, 0, thread_processing_stream >>>
+        thread_per_vertex_kernel <<< (thread_vertices_count - 1) / BLOCK_SIZE + 1, BLOCK_SIZE, 0, thread_processing_stream >>>
                                                                                                   (outgoing_ptrs, outgoing_ids, _frontier.ids, vertices_count, thread_threshold_start,
-                                                                                                          thread_threshold_end, edge_op, vertex_preprocess_op, vertex_postprocess_op);*/
-        virtual_warp_per_vertex_kernel<16> <<< 16*(thread_vertices_count - 1) / BLOCK_SIZE + 1, BLOCK_SIZE, 0, thread_processing_stream >>>
-                (outgoing_ptrs, outgoing_ids, _frontier.ids, vertices_count, thread_threshold_start,
-                 thread_threshold_end, edge_op, vertex_preprocess_op, vertex_postprocess_op);
+                                                                                                          thread_threshold_end, edge_op, vertex_preprocess_op, vertex_postprocess_op);
     }
     cudaDeviceSynchronize();
 
