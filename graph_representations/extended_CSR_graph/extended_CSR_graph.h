@@ -79,7 +79,7 @@ public:
                       EdgesState _edges_state = EDGES_SORTED,
                       int _supported_vector_length = 1,
                       TraversalDirection _traversal_type = PULL_TRAVERSAL,
-                      MultipleArcsState _multiple_arcs_state = MULTIPLE_ARCS_PRESENT);
+                      MultipleArcsState _multiple_arcs_state = MULTIPLE_ARCS_REMOVED);
     
     inline int           *get_reordered_vertex_ids() {return reordered_vertex_ids;};
     inline long long     *get_outgoing_ptrs()        {return outgoing_ptrs;};

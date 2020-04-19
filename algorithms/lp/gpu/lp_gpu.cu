@@ -63,12 +63,16 @@ __global__ void frequency_count(int *W_array, int *S, long long int reduced_size
     }
 }
 
-__global__ void get_labels(int *out, int *s_array, int *gathered_labels, int *_labels, int vertices_count)
+__global__ void get_labels(int *out, int *s_array, int *gathered_labels, int *_labels, int vertices_count, int *_updated)
 {
     int i = threadIdx.x + blockIdx.x * blockDim.x;
     if (i < vertices_count)
     {
-        _labels[i] = gathered_labels[s_array[out[i]]];
+        if((out[i] != -1) && (_labels[i] != gathered_labels[s_array[out[i]]]))
+        {
+            _labels[i] = gathered_labels[s_array[out[i]]];
+            _updated[0] = 1;
+        }
     }
 }
 
@@ -173,7 +177,10 @@ void gpu_lp_wrapper(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
 
     _iterations_count = 0;
 
-    while (_iterations_count < 1) // for example we can do only 1 iteration
+    int *updated;
+    MemoryAPI::allocate_device_array(&updated, 1);
+
+    do
     {
         print_data("before iteration labels: ",  _labels, vertices_count);
 
@@ -267,7 +274,7 @@ void gpu_lp_wrapper(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
         print_data("w_array", w_array, reduced_size);
 
         cout<<8<<endl;
-        int init = 0;
+        int init = -1;
 
         cout<<8.5<<endl;
 
@@ -286,7 +293,7 @@ void gpu_lp_wrapper(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
         print_data("I_mem: ", I_mem, edges_count);
         print_data("w_ptr: ", w_array, w_size);
 
-        mgpu::segreduce(I_mem, reduced_size, s_ptr_array, vertices_count, seg_reduce_result,
+        mgpu::segreduce(I_mem, reduced_size + 1, s_ptr_array, vertices_count, seg_reduce_result,
                         seg_reduce_op, (int) init, context);
 
         print_data("seg_reduce_result: ",  seg_reduce_result, vertices_count);
@@ -294,19 +301,20 @@ void gpu_lp_wrapper(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
         print_data("gathered labels: ",  gathered_labels, edges_count);
         print_data("seg_array: ",  s_array, vertices_count);
 
-        cout<<9<<endl;
-        {
-            dim3 block(1024);
-            dim3 grid((vertices_count - 1) / block.x + 1);
-            SAFE_KERNEL_CALL((get_labels << < grid, block >> >
-                                                    (seg_reduce_result, s_array, gathered_labels, _labels, vertices_count)));
-        }
+        updated[0] = 0;
+
+        SAFE_KERNEL_CALL((get_labels << < grid_vertices, block_vertices >> >
+                                                    (seg_reduce_result, s_array, gathered_labels, _labels, vertices_count, updated)));
         cout<<10<<endl;
+        cout << "updated: " << updated[0] << endl;
 
         print_data("after iteration labels: ",  _labels, vertices_count);
 
         _iterations_count++;
     }
+    while((_iterations_count < 10) && (updated[0] > 0));
+
+    cout << "done " << _iterations_count << " iterations" << endl;
 
     MemoryAPI::free_device_array(F_mem);
     MemoryAPI::free_device_array(tmp_work_buffer_for_seg_sort);
