@@ -7,6 +7,7 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #define LP LabelPropagation<_TVertexValue, _TEdgeWeight>
+#define LP_DEFAULT_MAX_ITERATIONS 10
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -17,10 +18,10 @@ public:
     void allocate_result_memory(int _vertices_count, int **_labels);
     void free_result_memory    (int *_labels);
 
-    void seq_lp(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph, int *_labels);
+    void seq_lp(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph, int *_labels, int _max_iterations = LP_DEFAULT_MAX_ITERATIONS);
 
     #ifdef __USE_GPU__
-    void gpu_lp(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph, int *_labels);
+    void gpu_lp(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph, int *_labels, int _max_iterations = LP_DEFAULT_MAX_ITERATIONS);
     #endif
 };
 
