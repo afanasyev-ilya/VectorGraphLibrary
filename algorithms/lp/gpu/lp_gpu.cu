@@ -10,7 +10,8 @@
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-__global__ void extract_boundaries_initial(int *boundaries, long long int *v_array, long long int edges_count,int vertices_count)
+//Puts a 1 in the last element of each segment in boundaries_array. Segments are passed by v_array
+__global__ void extract_boundaries_initial(int *boundaries, long long int *v_array, int vertices_count)
 {
     long int i = threadIdx.x + blockIdx.x * blockDim.x;
     if( i < vertices_count + 1)
@@ -25,6 +26,7 @@ __global__ void extract_boundaries_initial(int *boundaries, long long int *v_arr
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+//Puts a 1 in boundaries[i] if a label of next vertice is different from its label. 0 for cases with the same labels
 __global__ void extract_boundaries_optional(int *boundaries, int *dest_labels, int edges_count)
 {
     long long int i = threadIdx.x + blockIdx.x * blockDim.x;
@@ -39,51 +41,59 @@ __global__ void extract_boundaries_optional(int *boundaries, int *dest_labels, i
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-__global__ void count_labels(int *scanned_array, long long int edges_count, int *S_array)
+
+//Get rid of repeated labels by setting indices to reduce_scan array
+// i-th element of reduced_scan contains index of last entry of i element in scanned array
+__global__ void count_labels(int *scanned_array, long long int edges_count, int *reduced_scan)
 {
     int i = threadIdx.x + blockIdx.x * blockDim.x;
     if ((i < edges_count) && (scanned_array[i + 1] != scanned_array[i]))
     {
-        S_array[scanned_array[i]] = i;
+        reduced_scan[scanned_array[i]] = i;
     }
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-__global__ void new_boundaries(int *scanned_array, long long int *v_array, int vertices_count, int *S_ptr, long long edges_count)
+//new_ptr array contains new bounds of segments by getting them from scan
+//This is necessary due to shortened size of reduced_scan
+__global__ void new_boundaries(int *scanned_array, long long int *v_array, int vertices_count, int *new_ptr)
 {
     int i = threadIdx.x + blockIdx.x * blockDim.x;
-    if (i < vertices_count +1)
+    if (i < vertices_count + 1)
     {
-        S_ptr[i] = scanned_array[v_array[i]];
+        new_ptr[i] = scanned_array[v_array[i]];
     }
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-__global__ void frequency_count(int *W_array, int *S, long long int reduced_size)
+//Getting frequency of each label in reduced_scan
+__global__ void frequency_count(int *frequencies, int *reduced_scan, long long int reduced_size)
 {
     long long int i = threadIdx.x + blockIdx.x * blockDim.x;
     if (i < reduced_size)
     {
-        if ((i > 0)) {
-            W_array[i] = S[i] - S[i - 1];
+        if ((i > 0))
+        {
+            frequencies[i] = reduced_scan[i] - reduced_scan[i - 1];
         } else {
-            W_array[0] = S[0] + 1;
+            frequencies[0] = reduced_scan[0] + 1;
         }
     }
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-__global__ void get_labels(int *out, int *s_array, int *gathered_labels, int *_labels, int vertices_count, int *_updated)
+//Update labels
+__global__ void get_labels(int *reduce_result, int *reduced_scan, int *gathered_labels, int *_labels, int vertices_count, int *_updated)
 {
     int i = threadIdx.x + blockIdx.x * blockDim.x;
     if (i < vertices_count)
     {
-        if((out[i] != -1) && (_labels[i] != gathered_labels[s_array[out[i]]]))
+        if((reduce_result[i] != -1) && (_labels[i] != gathered_labels[reduced_scan[reduce_result[i]]]))
         {
-            _labels[i] = gathered_labels[s_array[out[i]]];
+            _labels[i] = gathered_labels[reduced_scan[reduce_result[i]]];
             _updated[0] = 1;
         }
     }
@@ -91,12 +101,13 @@ __global__ void get_labels(int *out, int *s_array, int *gathered_labels, int *_l
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-__global__ void fill_indices(int *I, long long edges_count)
+//Service inidices to iterate over frequencies_array
+__global__ void fill_indices(int *indices, long long edges_count)
 {
     int i = threadIdx.x + blockIdx.x * blockDim.x;
     if(i < edges_count)
     {
-        I[i] = i;
+        indices[i] = i;
     }
 }
 
@@ -164,18 +175,18 @@ void gpu_lp_wrapper(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
     int *s_ptr_array;
     int *F_mem;
     int *F_scanned;
-    int *I_mem;
+    int *indices;
     int *seg_reduce_result;
-    int *s_array;
-    int *w_array;
+    int *reduced_scan;
+    int *frequencies;
     MemoryAPI::allocate_device_array(&F_mem, edges_count + 1);
     MemoryAPI::allocate_device_array(&tmp_work_buffer_for_seg_sort, edges_count + 1);
     MemoryAPI::allocate_device_array(&s_ptr_array, vertices_count + 1);
     MemoryAPI::allocate_device_array(&F_scanned, edges_count + 1);
-    MemoryAPI::allocate_device_array(&I_mem, edges_count);
+    MemoryAPI::allocate_device_array(&indices, edges_count);
     MemoryAPI::allocate_device_array(&seg_reduce_result, vertices_count);
-    MemoryAPI::allocate_device_array(&s_array, edges_count);
-    MemoryAPI::allocate_device_array(&w_array, edges_count);
+    MemoryAPI::allocate_device_array(&reduced_scan, edges_count);
+    MemoryAPI::allocate_device_array(&frequencies, edges_count);
     MemoryAPI::allocate_device_array(&gathered_labels, edges_count);
 
     frontier.set_all_active();
@@ -198,7 +209,7 @@ void gpu_lp_wrapper(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
     dim3 block_edges(1024);
     dim3 grid_edges((edges_count - 1) / block_edges.x + 1);
 
-    SAFE_KERNEL_CALL((fill_indices<<<grid_edges, block_edges>>>(I_mem, edges_count)));
+    SAFE_KERNEL_CALL((fill_indices<<<grid_edges, block_edges>>>(indices, edges_count)));
 
     do
     {
@@ -209,20 +220,21 @@ void gpu_lp_wrapper(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
             int dst_label = __ldg(&_labels[dst_id]);
             gathered_labels[global_edge_pos] = dst_label;
         };
+        //Gathering labels of adjacent vertices
         graph_API.advance(_graph, frontier, gather_edge_op);
 
         print_segmented_array("gathered labels", gathered_labels, outgoing_ptrs, vertices_count, edges_count);
 
+        //Sorting labels of adjacent vertices in per-vertice components.
         mgpu::segmented_sort(gathered_labels, tmp_work_buffer_for_seg_sort, edges_count, outgoing_ptrs, vertices_count,
                              mgpu::less_t<int>(), context);
 
         print_segmented_array("gathered labels after sort", gathered_labels, outgoing_ptrs, vertices_count, edges_count);
 
-
         SAFE_CALL((cudaMemset(F_mem, 0, (size_t)(sizeof(int)) * edges_count))); //was taken from group of memcpy
 
         SAFE_KERNEL_CALL((extract_boundaries_initial <<< grid_vertices, block_vertices >>>
-                                                           (F_mem, outgoing_ptrs, edges_count,vertices_count))); //fill 1 in bounds
+                                                           (F_mem, outgoing_ptrs, vertices_count)));
 
         print_segmented_array("extract_boundaries_initial", F_mem, outgoing_ptrs, vertices_count, edges_count);
 
@@ -231,6 +243,7 @@ void gpu_lp_wrapper(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
 
         print_segmented_array("F_mem", F_mem, outgoing_ptrs + 1, vertices_count, edges_count);
 
+        //exclusive scan in order to pass repeated labels and divide different labels
         thrust::exclusive_scan(thrust::device, F_mem, F_mem + edges_count + 1, F_scanned, 0); // in-place scan
 
         print_segmented_array("F_mem after scan", F_mem, outgoing_ptrs, vertices_count, edges_count + 1);
@@ -241,31 +254,31 @@ void gpu_lp_wrapper(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
         int *scanned_data_ptr = F_scanned; // TODO delete ptrs which you don't need
         reduced_size = F_scanned[edges_count - 1]; // TODO fix, memcpy required
         //SAFE_CALL(cudaMemcpy(&t_reduced_size, scanned_data_ptr + edges_count , sizeof(int), cudaMemcpyDeviceToHost));
+        
+        SAFE_KERNEL_CALL((count_labels <<< grid_edges, block_edges >>> (F_scanned, edges_count, reduced_scan)));
 
-        SAFE_KERNEL_CALL((count_labels <<< grid_edges, block_edges >>> (F_scanned, edges_count, s_array)));
-
-        print_data("count labels/s_array", s_array, reduced_size);
+        print_data("count labels/reduced_scan", reduced_scan, reduced_size);
 
         SAFE_KERNEL_CALL((new_boundaries <<< grid_vertices, block_vertices >>>
-                                             (F_scanned, outgoing_ptrs, vertices_count, s_ptr_array, edges_count)));
+                                             (F_scanned, outgoing_ptrs, vertices_count, s_ptr_array)));
 
         print_data("outgoing ptrs", outgoing_ptrs, vertices_count + 1);
         print_data("s_ptr_array", s_ptr_array, vertices_count + 1);
 
-        SAFE_KERNEL_CALL((frequency_count << < grid_edges, block_edges >> > (w_array, s_array, reduced_size)));
+        SAFE_KERNEL_CALL((frequency_count << < grid_edges, block_edges >> > (frequencies, reduced_scan, reduced_size)));
 
-        print_data("w_array", w_array, reduced_size);
+        print_data("frequencies", frequencies, reduced_size);
 
         int init = -1; // TODO use defined constant
 
-        auto seg_reduce_op =[w_array, reduced_size] MGPU_DEVICE(int a, int b) ->int
+        auto seg_reduce_op =[frequencies, reduced_size] MGPU_DEVICE(int a, int b) ->int
         {
             int w_a = -1;
             int w_b = -1;
             if(a >= 0)
-                w_a = w_array[a];
+                w_a = frequencies[a];
             if(b >= 0)
-                w_b = w_array[b];
+                w_b = frequencies[b];
 
             if (w_a > w_b)
             {
@@ -277,26 +290,27 @@ void gpu_lp_wrapper(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
             }
         };
 
-        print_data("I_mem: ", I_mem, edges_count);
+        print_data("indices: ", indices, edges_count);
 
-        mgpu::segreduce(I_mem, reduced_size + 1, s_ptr_array, vertices_count, seg_reduce_result,
+        //Searching for maximum frequency in each per-vertice segment
+        mgpu::segreduce(indices, reduced_size + 1, s_ptr_array, vertices_count, seg_reduce_result,
                         seg_reduce_op, (int) init, context);
 
         print_data("seg_reduce_result: ",  seg_reduce_result, vertices_count);
 
         print_data("gathered labels: ",  gathered_labels, edges_count);
-        print_data("seg_array: ",  s_array, vertices_count);
+        print_data("seg_array: ",  reduced_scan, vertices_count);
 
         updated[0] = 0;
 
         //SAFE_KERNEL_CALL((get_labels <<< grid_vertices, block_vertices >>>
-        //                              (seg_reduce_result, s_array, gathered_labels, _labels, vertices_count, updated)));
+        //                              (seg_reduce_result, reduced_scan, gathered_labels, _labels, vertices_count, updated)));
 
-        auto get_labels_op = [seg_reduce_result, s_array, gathered_labels, _labels, updated] __device__(int src_id, int connections_count)
+        auto get_labels_op = [seg_reduce_result, reduced_scan, gathered_labels, _labels, updated] __device__(int src_id, int connections_count)
         {
-            if((seg_reduce_result[src_id] != -1) && (_labels[src_id] != gathered_labels[s_array[seg_reduce_result[src_id]]]))
+            if((seg_reduce_result[src_id] != -1) && (_labels[src_id] != gathered_labels[reduced_scan[seg_reduce_result[src_id]]]))
             {
-                _labels[src_id] = gathered_labels[s_array[seg_reduce_result[src_id]]];
+                _labels[src_id] = gathered_labels[reduced_scan[seg_reduce_result[src_id]]];
                 updated[0] = 1;
             }
         };
@@ -314,10 +328,10 @@ void gpu_lp_wrapper(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
     MemoryAPI::free_device_array(tmp_work_buffer_for_seg_sort);
     MemoryAPI::free_device_array(s_ptr_array);
     MemoryAPI::free_device_array(F_scanned);
-    MemoryAPI::free_device_array(I_mem);
+    MemoryAPI::free_device_array(indices);
     MemoryAPI::free_device_array(seg_reduce_result);
-    MemoryAPI::free_device_array(s_array);
-    MemoryAPI::free_device_array(w_array);
+    MemoryAPI::free_device_array(reduced_scan);
+    MemoryAPI::free_device_array(frequencies);
 
     MemoryAPI::free_device_array(gathered_labels);
 
