@@ -289,8 +289,18 @@ void gpu_lp_wrapper(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
 
         updated[0] = 0;
 
-        SAFE_KERNEL_CALL((get_labels <<< grid_vertices, block_vertices >>>
-                                      (seg_reduce_result, s_array, gathered_labels, _labels, vertices_count, updated)));
+        //SAFE_KERNEL_CALL((get_labels <<< grid_vertices, block_vertices >>>
+        //                              (seg_reduce_result, s_array, gathered_labels, _labels, vertices_count, updated)));
+
+        auto get_labels_op = [seg_reduce_result, s_array, gathered_labels, _labels, updated] __device__(int src_id, int connections_count)
+        {
+            if((seg_reduce_result[src_id] != -1) && (_labels[src_id] != gathered_labels[s_array[seg_reduce_result[src_id]]]))
+            {
+                _labels[src_id] = gathered_labels[s_array[seg_reduce_result[src_id]]];
+                updated[0] = 1;
+            }
+        };
+        graph_API.compute(_graph, frontier, get_labels_op);
 
         print_data("after iteration labels: ",  _labels, vertices_count);
 
