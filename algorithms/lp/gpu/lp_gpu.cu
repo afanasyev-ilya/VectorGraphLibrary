@@ -303,9 +303,6 @@ void gpu_lp_wrapper(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
 
         updated[0] = 0;
 
-        //SAFE_KERNEL_CALL((get_labels <<< grid_vertices, block_vertices >>>
-        //                              (seg_reduce_result, reduced_scan, gathered_labels, _labels, vertices_count, updated)));
-
         auto get_labels_op = [seg_reduce_result, reduced_scan, gathered_labels, _labels, updated] __device__(int src_id, int connections_count)
         {
             if((seg_reduce_result[src_id] != -1) && (_labels[src_id] != gathered_labels[reduced_scan[seg_reduce_result[src_id]]]))
