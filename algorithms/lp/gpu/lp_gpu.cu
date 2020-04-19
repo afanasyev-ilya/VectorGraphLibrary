@@ -217,35 +217,34 @@ void gpu_lp_wrapper(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
                     (extract_boundaries_optional <<< grid_edges, block_edges >>>
                                                             (F_mem, gathered_labels, edges_count)));
 
-        print_segmented_array("F_mem", F_mem, outgoing_ptrs, vertices_count, edges_count + 1);
+        print_segmented_array("F_mem", F_mem, outgoing_ptrs, vertices_count, edges_count);
 
         cout<<3<<endl;
-        mgpu::scan(F_mem, edges_count, F_scanned, context);
+        //mgpu::scan(F_mem, edges_count + 1, F_scanned, context);
+        //ScanExc(data->get(), N, &total, context);
+        thrust::exclusive_scan(thrust::device, F_mem, F_mem + edges_count, F_scanned, 0); // in-place scan
 
-        print_segmented_array("F_mem after scan", F_mem, outgoing_ptrs, vertices_count, edges_count+1);
+        print_segmented_array("F_mem after scan", F_mem, outgoing_ptrs, vertices_count, edges_count);
 
-        print_segmented_array("F_scanned after scan", F_scanned, outgoing_ptrs, vertices_count, edges_count+1);
+        print_segmented_array("F_scanned after scan", F_scanned, outgoing_ptrs, vertices_count, edges_count);
 
         cout<<4<<endl;
         long long int reduced_size = 0;
         int *scanned_data_ptr = F_scanned;
         int t_reduced_size = 0;
-        reduced_size = F_scanned[edges_count - 1];
+        reduced_size = F_scanned[edges_count - 1]; // TODO fix
         cout << "reduced size: " << reduced_size << endl;
         cout << "edges count: " << edges_count << endl;
         //SAFE_CALL(cudaMemcpy(&t_reduced_size, scanned_data_ptr + edges_count , sizeof(int), cudaMemcpyDeviceToHost));
 
-        reduced_size = t_reduced_size;
         //SAFE_CALL(cudaMemcpy(&reduced_size, &F_scanned[edges_count - 1], sizeof(long long int), cudaMemcpyDeviceToHost));
         //mgpu::mem_t<int> s_array(reduced_size+1, context);
         cout<<5<<endl;
-        {
-            dim3 block(1024);
-            dim3 grid((edges_count - 1) / block.x + 1);
-            SAFE_KERNEL_CALL(
-                    (count_labels << < grid, block >> > (F_scanned, edges_count, s_array)));
-        }
+        SAFE_KERNEL_CALL(
+                    (count_labels <<< grid_edges, block_edges >>> (F_scanned, edges_count, s_array)));
         cout<<6<<endl;
+        //print_segmented_array("count_labels/s_array", s_array, outgoing_ptrs, vertices_count, edges_count);
+        print_data("count labels/s_array", s_array, reduced_size);
 
         {
             dim3 block(1024,1);
