@@ -217,14 +217,14 @@ void gpu_lp_wrapper(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
                     (extract_boundaries_optional <<< grid_edges, block_edges >>>
                                                             (F_mem, gathered_labels, edges_count)));
 
-        print_segmented_array("F_mem", F_mem, outgoing_ptrs, vertices_count, edges_count);
+        print_segmented_array("F_mem", F_mem, outgoing_ptrs + 1, vertices_count, edges_count);
 
         cout<<3<<endl;
         //mgpu::scan(F_mem, edges_count + 1, F_scanned, context);
         //ScanExc(data->get(), N, &total, context);
-        thrust::exclusive_scan(thrust::device, F_mem, F_mem + edges_count, F_scanned, 0); // in-place scan
+        thrust::exclusive_scan(thrust::device, F_mem, F_mem + edges_count + 1, F_scanned, 0); // in-place scan
 
-        print_segmented_array("F_mem after scan", F_mem, outgoing_ptrs, vertices_count, edges_count);
+        print_segmented_array("F_mem after scan", F_mem, outgoing_ptrs, vertices_count, edges_count + 1);
 
         print_segmented_array("F_scanned after scan", F_scanned, outgoing_ptrs, vertices_count, edges_count);
 
@@ -253,16 +253,18 @@ void gpu_lp_wrapper(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
                                                         (F_scanned, outgoing_ptrs, vertices_count, s_ptr_array, edges_count)));
         }
         cout<<7<<endl;
-        int w_size = s_ptr_array[vertices_count - 1];
+        int w_size = s_ptr_array[vertices_count] - 1;
+        cout << "wsize: " << w_size << endl;
+
+        print_data("outgoing ptrs", outgoing_ptrs, vertices_count + 1);
+        print_data("s_ptr_array", s_ptr_array, vertices_count + 1);
+
         //int* ptr = s_ptr_array;
         //SAFE_CALL(cudaMemcpy(&w_size, ptr + vertices_count , sizeof(int), cudaMemcpyDeviceToHost));
 
-        {
-            dim3 block(1024, 1);
-            dim3 grid((edges_count - 1) / block.x + 1, 1);
+        SAFE_KERNEL_CALL((frequency_count << < grid_edges, block_edges >> > (w_array, s_array, w_size)));
 
-            SAFE_KERNEL_CALL((frequency_count << < grid, block >> > (w_array, s_array, w_size)));
-        }
+        print_data("w_array", w_array, reduced_size);
 
         cout<<8<<endl;
         int init = 0;
