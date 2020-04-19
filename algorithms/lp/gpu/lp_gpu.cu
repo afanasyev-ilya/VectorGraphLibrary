@@ -88,41 +88,41 @@ __global__ void fill_indices(int *I, long long edges_count)
 template <typename _T>
 void print_data(string _name, _T *_data, int _size)
 {
-    cout << _name << ": ";
-    for(int i = 0; i < _size; i++)
-    {
-        cout << _data[i] << " ";
-    }
-    cout << endl << endl;
+//    cout << _name << ": ";
+//    for(int i = 0; i < _size; i++)
+//    {
+//        cout << _data[i] << " ";
+//    }
+//    cout << endl << endl;
 }
 
 template <typename DataType, typename SegmentType>
 void print_segmented_array(string _name, DataType *_data, SegmentType *_segments, int _segment_count, int _data_size)
 {
-    cout << _name << ": ";
-    for(int i = 0; i < _data_size; i++)
-    {
-        cout << _data[i] << " ";
-    }
-    cout << endl;
-
-    cout << _name << " with segments: ";
-
-    for(int segment = 0; segment < _segment_count; segment++)
-    {
-        int start = _segments[segment];
-        int end = _segments[segment + 1];
-        cout << " [";
-        for(int i = start; i < end; i++)
-        {
-            if(i != (end - 1))
-                cout << _data[i] << " ";
-            else
-                cout << _data[i];
-        }
-        cout << "] ";
-    }
-    cout << endl << endl;
+//    cout << _name << ": ";
+//    for(int i = 0; i < _data_size; i++)
+//    {
+//        cout << _data[i] << " ";
+//    }
+//    cout << endl;
+//
+//    cout << _name << " with segments: ";
+//
+//    for(int segment = 0; segment < _segment_count; segment++)
+//    {
+//        int start = _segments[segment];
+//        int end = _segments[segment + 1];
+//        cout << " [";
+//        for(int i = start; i < end; i++)
+//        {
+//            if(i != (end - 1))
+//                cout << _data[i] << " ";
+//            else
+//                cout << _data[i];
+//        }
+//        cout << "] ";
+//    }
+//    cout << endl << endl;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -149,14 +149,14 @@ void gpu_lp_wrapper(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
     int *seg_reduce_result;
     int *s_array;
     int *w_array;
-    MemoryAPI::allocate_device_array(&F_mem, edges_count);
-    MemoryAPI::allocate_device_array(&tmp_work_buffer_for_seg_sort, edges_count);
-    MemoryAPI::allocate_device_array(&s_ptr_array, vertices_count);
-    MemoryAPI::allocate_device_array(&F_scanned, edges_count + 1);
-    MemoryAPI::allocate_device_array(&I_mem, edges_count);
-    MemoryAPI::allocate_device_array(&seg_reduce_result, vertices_count);
-    MemoryAPI::allocate_device_array(&s_array, edges_count);
-    MemoryAPI::allocate_device_array(&w_array, edges_count);
+    MemoryAPI::allocate_device_array(&F_mem, edges_count+1);
+    MemoryAPI::allocate_device_array(&tmp_work_buffer_for_seg_sort, edges_count+1);
+    MemoryAPI::allocate_device_array(&s_ptr_array, vertices_count+1);
+    MemoryAPI::allocate_device_array(&F_scanned, edges_count + 1 +1);
+    MemoryAPI::allocate_device_array(&I_mem, edges_count+1);
+    MemoryAPI::allocate_device_array(&seg_reduce_result, vertices_count+1);
+    MemoryAPI::allocate_device_array(&s_array, edges_count+1);
+    MemoryAPI::allocate_device_array(&w_array, edges_count+1);
 
     {
         dim3 block(1024, 1);
@@ -239,7 +239,7 @@ void gpu_lp_wrapper(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
         long long int reduced_size = 0;
         int *scanned_data_ptr = F_scanned;
         int t_reduced_size = 0;
-        reduced_size = F_scanned[edges_count - 1]; // TODO fix
+        reduced_size = F_scanned[edges_count -1]; // TODO fix
         cout << "reduced size: " << reduced_size << endl;
         cout << "edges count: " << edges_count << endl;
         //SAFE_CALL(cudaMemcpy(&t_reduced_size, scanned_data_ptr + edges_count , sizeof(int), cudaMemcpyDeviceToHost));
@@ -260,7 +260,7 @@ void gpu_lp_wrapper(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
                                                         (F_scanned, outgoing_ptrs, vertices_count, s_ptr_array, edges_count)));
         }
         cout<<7<<endl;
-        int w_size = s_ptr_array[vertices_count] - 1;
+        int w_size = s_ptr_array[vertices_count] -1;
         cout << "wsize: " << w_size << endl;
 
         print_data("outgoing ptrs", outgoing_ptrs, vertices_count + 1);
@@ -293,7 +293,7 @@ void gpu_lp_wrapper(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
         print_data("I_mem: ", I_mem, edges_count);
         print_data("w_ptr: ", w_array, w_size);
 
-        mgpu::segreduce(I_mem, reduced_size + 1, s_ptr_array, vertices_count, seg_reduce_result,
+        mgpu::segreduce(I_mem, reduced_size + 1 , s_ptr_array, vertices_count, seg_reduce_result,
                         seg_reduce_op, (int) init, context);
 
         print_data("seg_reduce_result: ",  seg_reduce_result, vertices_count);
