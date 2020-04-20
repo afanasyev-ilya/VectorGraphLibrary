@@ -44,42 +44,71 @@ void FrontierGPU::split_sorted_frontier(const long long *_vertex_pointers,
                                         int &_block_threshold_end,
                                         int &_warp_threshold_start,
                                         int &_warp_threshold_end,
+                                        int &_vwp_16_threshold_start,
+                                        int &_vwp_16_threshold_end,
+                                        int &_vwp_8_threshold_start,
+                                        int &_vwp_8_threshold_end,
+                                        int &_vwp_4_threshold_start,
+                                        int &_vwp_4_threshold_end,
+                                        int &_vwp_2_threshold_start,
+                                        int &_vwp_2_threshold_end,
                                         int &_thread_threshold_start,
                                         int &_thread_threshold_end)
 {
-    int *dev_grid_threshold_vertex;
-    int *dev_block_threshold_vertex;
-    int *dev_warp_threshold_vertex;
-    cudaMalloc((void**)&dev_grid_threshold_vertex, sizeof(int));
-    cudaMalloc((void**)&dev_block_threshold_vertex, sizeof(int));
-    cudaMalloc((void**)&dev_warp_threshold_vertex, sizeof(int));
+    int *grid_threshold_vertex;
+    int *block_threshold_vertex;
+    int *warp_threshold_vertex;
+    int *vwp_16_threshold_vertex;
+    int *vwp_8_threshold_vertex;
+    int *vwp_4_threshold_vertex;
+    int *vwp_2_threshold_vertex;
 
-    cudaMemset(dev_grid_threshold_vertex, 0, sizeof(int));
-    cudaMemset(dev_block_threshold_vertex, 0, sizeof(int));
-    cudaMemset(dev_warp_threshold_vertex, 0, sizeof(int));
+    MemoryAPI::allocate_unified_array(&grid_threshold_vertex, 1);
+    MemoryAPI::allocate_unified_array(&block_threshold_vertex, 1);
+    MemoryAPI::allocate_unified_array(&warp_threshold_vertex, 1);
+    MemoryAPI::allocate_unified_array(&vwp_16_threshold_vertex, 1);
+    MemoryAPI::allocate_unified_array(&vwp_8_threshold_vertex, 1);
+    MemoryAPI::allocate_unified_array(&vwp_4_threshold_vertex, 1);
+    MemoryAPI::allocate_unified_array(&vwp_2_threshold_vertex, 1);
+
+    grid_threshold_vertex[0] = 0;
+    block_threshold_vertex[0] = 0;
+    warp_threshold_vertex[0] = 0;
+    vwp_16_threshold_vertex[0] = 0;
+    vwp_8_threshold_vertex[0] = 0;
+    vwp_4_threshold_vertex[0] = 0;
+    vwp_2_threshold_vertex[0] = 0;
 
     split_frontier_kernel<<<(current_size - 1)/BLOCK_SIZE+1, BLOCK_SIZE>>>(_vertex_pointers, ids,
-            current_size, dev_grid_threshold_vertex, dev_block_threshold_vertex, dev_warp_threshold_vertex);
+            current_size, grid_threshold_vertex, block_threshold_vertex, warp_threshold_vertex,
+            vwp_16_threshold_vertex, vwp_8_threshold_vertex, vwp_4_threshold_vertex, vwp_2_threshold_vertex);
 
-    int host_grid_threshold_vertex;
-    int host_block_threshold_vertex;
-    int host_warp_threshold_vertex;
-    cudaMemcpy(&host_grid_threshold_vertex, dev_grid_threshold_vertex, sizeof(int), cudaMemcpyDeviceToHost);
-    cudaMemcpy(&host_block_threshold_vertex, dev_block_threshold_vertex, sizeof(int), cudaMemcpyDeviceToHost);
-    cudaMemcpy(&host_warp_threshold_vertex, dev_warp_threshold_vertex, sizeof(int), cudaMemcpyDeviceToHost);
+    cudaDeviceSynchronize();
 
     _grid_threshold_start   = 0;
-    _grid_threshold_end     = host_grid_threshold_vertex;
+    _grid_threshold_end     = grid_threshold_vertex[0];
     _block_threshold_start  = _grid_threshold_end;
-    _block_threshold_end    = host_block_threshold_vertex;
+    _block_threshold_end    = block_threshold_vertex[0];
     _warp_threshold_start   = _block_threshold_end;
-    _warp_threshold_end     = host_warp_threshold_vertex;
-    _thread_threshold_start = _warp_threshold_end;
+    _warp_threshold_end     = warp_threshold_vertex[0];
+    _vwp_16_threshold_start = _warp_threshold_end;
+    _vwp_16_threshold_end   = vwp_16_threshold_vertex[0];
+    _vwp_8_threshold_start = _vwp_16_threshold_end;
+    _vwp_8_threshold_end   = vwp_8_threshold_vertex[0];
+    _vwp_4_threshold_start = _vwp_8_threshold_end;
+    _vwp_4_threshold_end   = vwp_4_threshold_vertex[0];
+    _vwp_2_threshold_start = _vwp_4_threshold_end;
+    _vwp_2_threshold_end   = vwp_2_threshold_vertex[0];
+    _thread_threshold_start = _vwp_2_threshold_end;
     _thread_threshold_end   = current_size;
 
-    cudaFree(dev_grid_threshold_vertex);
-    cudaFree(dev_block_threshold_vertex);
-    cudaFree(dev_warp_threshold_vertex);
+    MemoryAPI::free_device_array(grid_threshold_vertex);
+    MemoryAPI::free_device_array(block_threshold_vertex);
+    MemoryAPI::free_device_array(warp_threshold_vertex);
+    MemoryAPI::free_device_array(vwp_16_threshold_vertex);
+    MemoryAPI::free_device_array(vwp_8_threshold_vertex);
+    MemoryAPI::free_device_array(vwp_4_threshold_vertex);
+    MemoryAPI::free_device_array(vwp_2_threshold_vertex);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

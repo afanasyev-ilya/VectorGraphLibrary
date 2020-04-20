@@ -16,6 +16,7 @@ class GraphPrimitivesGPU
 {
 private:
     cudaStream_t grid_processing_stream,block_processing_stream, warp_processing_stream, thread_processing_stream;
+    cudaStream_t vwp_16_processing_stream, vwp_8_processing_stream, vwp_4_processing_stream, vwp_2_processing_stream;
 
     void split_frontier(FrontierGPU &_frontier);
 
