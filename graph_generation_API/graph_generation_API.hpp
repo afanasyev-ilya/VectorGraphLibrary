@@ -83,7 +83,7 @@ void GraphGenerationAPI<_TVertexValue, _TEdgeWeight>::R_MAT(EdgesListGraph<_TVer
     unsigned int seed = 0;
     #pragma omp parallel private(seed) num_threads(threads_count)
     {
-        seed = int(time(NULL)) * omp_get_thread_num();
+        seed = /*int(time(NULL)) * */omp_get_thread_num();
         
         #pragma omp for schedule(static)
         for (long long cur_edge = 0; cur_edge < edges_count; cur_edge += step)

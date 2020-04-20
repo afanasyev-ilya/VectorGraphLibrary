@@ -1,6 +1,8 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+#ifdef __USE_NEC_SX_AURORA__
 #include <ftrace.h>
+#endif
 
 template <typename EdgeOperation, typename VertexPreprocessOperation,
         typename VertexPostprocessOperation>
@@ -42,7 +44,9 @@ void GraphPrimitivesNEC::my_test(const long long *_vertex_pointers, const int *_
         cout << "borders: (" << first_border << " - " << last_border << ")" << endl;
     }
 
+    #ifdef __USE_NEC_SX_AURORA__
     ftrace_region_begin("test reg");
+    #endif
 
     #ifdef __PRINT_API_PERFORMANCE_STATS__
     #pragma omp barrier
@@ -83,7 +87,9 @@ void GraphPrimitivesNEC::my_test(const long long *_vertex_pointers, const int *_
         }
     }
 
+    #ifdef __USE_NEC_SX_AURORA__
     ftrace_region_end("test reg");
+    #endif
 
     #ifdef __PRINT_API_PERFORMANCE_STATS__
     #pragma omp barrier

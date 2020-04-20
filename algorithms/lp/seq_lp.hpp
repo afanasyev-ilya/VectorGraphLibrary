@@ -9,7 +9,7 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template <typename _TVertexValue, typename _TEdgeWeight>
-void LP::seq_lp(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph, int *_labels)
+void LP::seq_lp(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph, int *_labels, int _max_iterations)
 {
     LOAD_EXTENDED_CSR_GRAPH_DATA(_graph);
 
@@ -21,7 +21,6 @@ void LP::seq_lp(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph, int *_lab
     }
     bool updated;
     int iters = 0;
-    int stop_value = 10;
 
     //To keep it simple, initial label is a vertice id
     for (int src_id = 0; src_id < vertices_count; src_id++)
@@ -78,17 +77,22 @@ void LP::seq_lp(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph, int *_lab
                 }
             }
             //Updating label
-            if (decision_label != _labels[vertice_id])
+            if ((decision_label != _labels[vertice_id])&&(decision_label!=-1))
             {
                 _labels[vertice_id] = decision_label;
                 updated = true;
             }
         }
         iters++;
-    } while ((updated) && (iters<stop_value));
+    } while ((updated) && (iters < _max_iterations));
 
     cout << "sequential check labels: " << endl;
     PerformanceStats::component_stats(_labels, vertices_count);
+
+    /*cout << "seq labels: ";
+    for(int i = 0; i < vertices_count; i++)
+        cout << _labels[i] << " ";
+    cout << endl;*/
 
     if(vertices_count < VISUALISATION_SMALL_GRAPH_VERTEX_THRESHOLD)
     {
