@@ -1,8 +1,12 @@
 #pragma once
 #define REDUCE_INITIAL -1
+#define DECISION_BOUND 0.2
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+#include <random>
+#include <curand.h>
+#include <curand_kernel.h>
 #include "../../../graph_processing_API/gpu/cuda_API_include.h"
 #include "../../../external_libraries/moderngpu/src/moderngpu/kernel_segsort.hxx"
 #include "../../../external_libraries/moderngpu/src/moderngpu/memory.hxx"
@@ -99,22 +103,24 @@ void gpu_lp_wrapper(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
 
     int *gathered_labels;
     int *tmp_work_buffer_for_seg_sort;
-    int *s_ptr_array;
+    int *new_ptr;
     int *label_differences;
     int *scanned;
     int *seg_reduce_indices;
     int *seg_reduce_result;
     int *reduced_scan;
     int *frequencies;
+    int *old_labels;
     MemoryAPI::allocate_device_array(&label_differences, edges_count + 1);
     MemoryAPI::allocate_device_array(&tmp_work_buffer_for_seg_sort, edges_count + 1);
-    MemoryAPI::allocate_device_array(&s_ptr_array, vertices_count + 1);
+    MemoryAPI::allocate_device_array(&new_ptr, vertices_count + 1);
     MemoryAPI::allocate_device_array(&scanned, edges_count + 1);
     MemoryAPI::allocate_device_array(&seg_reduce_indices, edges_count);
     MemoryAPI::allocate_device_array(&seg_reduce_result, vertices_count);
     MemoryAPI::allocate_device_array(&reduced_scan, edges_count);
     MemoryAPI::allocate_device_array(&frequencies, edges_count);
     MemoryAPI::allocate_device_array(&gathered_labels, edges_count);
+    MemoryAPI::allocate_device_array(&old_labels, edges_count);
 
     frontier.set_all_active();
 
@@ -176,9 +182,9 @@ void gpu_lp_wrapper(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
 
         //new_ptr array contains new bounds of segments by getting them from scan
         //This is necessary due to shortened size of reduced_scan
-        auto new_boundaries_op = [outgoing_ptrs, scanned, s_ptr_array] __device__(int src_id, int connections_count)
+        auto new_boundaries_op = [outgoing_ptrs, scanned, new_ptr] __device__(int src_id, int connections_count)
         {
-            s_ptr_array[src_id] = scanned[outgoing_ptrs[src_id]];
+            new_ptr[src_id] = scanned[outgoing_ptrs[src_id]];
         };
         graph_API.compute(_graph, frontier, new_boundaries_op);
 
@@ -206,17 +212,41 @@ void gpu_lp_wrapper(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
         };
 
         //Searching for maximum frequency in each per-vertice segment
-        mgpu::segreduce(seg_reduce_indices, reduced_size + 1, s_ptr_array, vertices_count, seg_reduce_result,
+        mgpu::segreduce(seg_reduce_indices, reduced_size + 1, new_ptr, vertices_count, seg_reduce_result,
                         seg_reduce_op, (int) init, context);
 
         updated[0] = 0;
 
-        auto get_labels_op = [seg_reduce_result, reduced_scan, gathered_labels, _labels, updated] __device__(int src_id, int connections_count)
+        auto get_labels_op = [seg_reduce_result, reduced_scan, gathered_labels, _labels, updated , _iterations_count, old_labels] __device__(int src_id, int connections_count)
         {
             if((seg_reduce_result[src_id] != -1) && (_labels[src_id] != gathered_labels[reduced_scan[seg_reduce_result[src_id]]]))
             {
-                _labels[src_id] = gathered_labels[reduced_scan[seg_reduce_result[src_id]]];
-                updated[0] = 1;
+                curandState state;
+                curand_init(0, 0, 0, &state);
+                //if(change > 0.2)
+                //{
+
+                    int temp_label = gathered_labels[reduced_scan[seg_reduce_result[src_id]]];
+                    if((_iterations_count!=0)&&(temp_label == old_labels[src_id])){
+                        float change = curand_uniform(&state);
+                        //printf("%f ",change);
+                        if(change > 0.5){
+                            old_labels[src_id] = _labels[src_id];
+                            _labels[src_id] = temp_label;
+                            updated[0] = 1;
+                        } else{
+                            //old_labels = _labels[src_id];
+                            _labels[src_id] = temp_label;
+                        }
+
+                    } else {
+                        old_labels[src_id] = _labels[src_id];
+                        _labels[src_id] = temp_label;
+                        updated[0] = 1;
+
+                    }
+
+                //}
             }
         };
         graph_API.compute(_graph, frontier, get_labels_op);
@@ -228,12 +258,13 @@ void gpu_lp_wrapper(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
 
     MemoryAPI::free_device_array(label_differences);
     MemoryAPI::free_device_array(tmp_work_buffer_for_seg_sort);
-    MemoryAPI::free_device_array(s_ptr_array);
+    MemoryAPI::free_device_array(new_ptr);
     MemoryAPI::free_device_array(scanned);
     MemoryAPI::free_device_array(seg_reduce_indices);
     MemoryAPI::free_device_array(seg_reduce_result);
     MemoryAPI::free_device_array(reduced_scan);
     MemoryAPI::free_device_array(frequencies);
+    MemoryAPI::free_device_array(old_labels);
 
     MemoryAPI::free_device_array(gathered_labels);
 
