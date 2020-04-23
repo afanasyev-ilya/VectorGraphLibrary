@@ -106,6 +106,8 @@ public:
     void set_vertex_data_from_array(_TVertexValue *_values_array);
 
     VectorExtension<_TVertexValue, _TEdgeWeight> *get_last_vertices_ve_ptr(){return &last_vertices_ve;}
+
+    size_t get_graph_size_in_bytes();
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

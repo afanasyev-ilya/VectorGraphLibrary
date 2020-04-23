@@ -30,7 +30,10 @@ void GraphGenerationAPI<_TVertexValue, _TEdgeWeight>::random_uniform(EdgesListGr
     rng_api.generate_array_of_random_values<_TVertexValue>(_graph.get_vertex_values(), vertices_count, 1000);
     rng_api.generate_array_of_random_values<int>(_graph.get_src_ids(), directed_edges_count, max_id_val);
     rng_api.generate_array_of_random_values<int>(_graph.get_dst_ids(), directed_edges_count, max_id_val);
+
+    #ifdef __USE_WEIGHTED_GRAPHS__
     rng_api.generate_array_of_random_values<_TEdgeWeight>(_graph.get_weights(), directed_edges_count, 1.0);
+    #endif
     
     if(!_direction_type)
     {
@@ -42,7 +45,10 @@ void GraphGenerationAPI<_TVertexValue, _TEdgeWeight>::random_uniform(EdgesListGr
             
             (_graph.get_src_ids())[i + directed_edges_count] = dst_id;
             (_graph.get_dst_ids())[i + directed_edges_count] = src_id;
+
+            #ifdef __USE_WEIGHTED_GRAPHS__
             (_graph.get_weights())[i + directed_edges_count] = weight;
+            #endif
         }
     }
 }
@@ -127,13 +133,19 @@ void GraphGenerationAPI<_TVertexValue, _TEdgeWeight>::R_MAT(EdgesListGraph<_TVer
             
             src_ids[cur_edge] = from;
             dst_ids[cur_edge] = to;
+
+            #ifdef __USE_WEIGHTED_GRAPHS__
             weights[cur_edge] = edge_weight;
+            #endif
             
             if(!_direction_type)
             {
                 src_ids[cur_edge + 1] = to;
                 dst_ids[cur_edge + 1] = from;
+
+                #ifdef __USE_WEIGHTED_GRAPHS__
                 weights[cur_edge + 1] = edge_weight;
+                #endif
             }
         }
     }
@@ -352,7 +364,10 @@ void GraphGenerationAPI<_TVertexValue, _TEdgeWeight>::SSCA2(EdgesListGraph<_TVer
     {
         _graph.get_src_ids()[i] = startVertex[i];
         _graph.get_dst_ids()[i] = endVertex[i];
+
+        #ifdef __USE_WEIGHTED_GRAPHS__
         _graph.get_weights()[i] = weights[i];
+        #endif
     }
     fprintf(stderr, "done\n");
 }
@@ -421,7 +436,10 @@ void GraphGenerationAPI<_TVertexValue, _TEdgeWeight>::SCC_uniform(EdgesListGraph
             
             src_ids[current_edges_pos] = src_id;
             dst_ids[current_edges_pos] = dst_id;
+
+            #ifdef __USE_WEIGHTED_GRAPHS__
             weights[current_edges_pos] = weight;
+            #endif
             current_edges_pos++;
         }
     }
@@ -523,7 +541,10 @@ void GraphGenerationAPI<_TVertexValue, _TEdgeWeight>::init_from_txt_file(EdgesLi
     {
         _graph.get_src_ids()[i] = tmp_src_ids[i];
         _graph.get_dst_ids()[i] = tmp_dst_ids[i];
+
+        #ifdef __USE_WEIGHTED_GRAPHS__
         _graph.get_weights()[i] = 0.0;
+        #endif
     }
     
     // validate

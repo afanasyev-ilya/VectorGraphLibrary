@@ -254,4 +254,23 @@ void ExtendedCSRGraph<_TVertexValue, _TEdgeWeight>::set_vertex_data_from_array(_
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+template <typename _TVertexValue, typename _TEdgeWeight>
+size_t ExtendedCSRGraph<_TVertexValue, _TEdgeWeight>::get_graph_size_in_bytes()
+{
+    size_t graph_size = 0;
+    graph_size += this->vertices_count * sizeof(_TVertexValue);
+    graph_size += this->vertices_count * sizeof(int);
+    graph_size += (this->vertices_count + 1) * sizeof(long long);
+    graph_size += this->edges_count * sizeof(int);
+
+    #ifdef __USE_WEIGHTED_GRAPHS__
+    graph_size += this->edges_count * sizeof(_TEdgeWeight);
+    #endif
+
+    return graph_size;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
 

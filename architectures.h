@@ -35,12 +35,12 @@
 // Common properties
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#define __USE_WEIGHTED_GRAPHS__
+//#define __USE_WEIGHTED_GRAPHS__
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-//#define __PRINT_API_PERFORMANCE_STATS__ // prints inner api detailed performance stats, causes significant delays when active
-//#define __PRINT_SAMPLES_PERFORMANCE_STATS__ // prints samples stats (iterations, bandwidths, components stats)
+#define __PRINT_API_PERFORMANCE_STATS__ // prints inner api detailed performance stats, causes significant delays when active
+#define __PRINT_SAMPLES_PERFORMANCE_STATS__ // prints samples stats (iterations, bandwidths, components stats)
 //#define __SAVE_PERFORMANCE_STATS_TO_FILE__ // saves performance stats to files (useful for multiple batch launches)
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

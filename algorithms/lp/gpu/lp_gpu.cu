@@ -110,21 +110,26 @@ void gpu_lp_wrapper(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
     int *new_ptr;
     int *label_differences;
     int *scanned;
+    int *array_1;
+    int *array_2;
     int *seg_reduce_indices;
     int *seg_reduce_result;
     int *reduced_scan;
     int *frequencies;
     int *old_labels;
-    MemoryAPI::allocate_device_array(&label_differences, edges_count + 1);
-    MemoryAPI::allocate_device_array(&tmp_work_buffer_for_seg_sort, edges_count + 1);
     MemoryAPI::allocate_device_array(&new_ptr, vertices_count + 1);
-    MemoryAPI::allocate_device_array(&scanned, edges_count + 1);
-    MemoryAPI::allocate_device_array(&seg_reduce_indices, edges_count);
+    MemoryAPI::allocate_device_array(&array_1, edges_count + 1);
+    MemoryAPI::allocate_device_array(&array_2, edges_count + 1);
+    MemoryAPI::allocate_device_array(&seg_reduce_indices, edges_count + 1);
     MemoryAPI::allocate_device_array(&seg_reduce_result, vertices_count);
-    MemoryAPI::allocate_device_array(&reduced_scan, edges_count);
-    MemoryAPI::allocate_device_array(&frequencies, edges_count);
-    MemoryAPI::allocate_device_array(&gathered_labels, edges_count);
-    MemoryAPI::allocate_device_array(&old_labels, edges_count);
+    MemoryAPI::allocate_device_array(&gathered_labels, edges_count + 1);
+    MemoryAPI::allocate_device_array(&old_labels, vertices_count);
+
+    #ifdef __PRINT_API_PERFORMANCE_STATS__
+    double additional_memory_size = (edges_count * 4.0 + vertices_count * 3.0)*sizeof(int);
+    cout << "LP allocated additionally " << additional_memory_size / 1e9 << " GB of memory" << endl;
+    cout << "current GPU memory consumption: " << (_graph.get_graph_size_in_bytes() + additional_memory_size) / 1e9 << " GB" << endl;
+    #endif
 
     frontier.set_all_active();
 
@@ -140,13 +145,18 @@ void gpu_lp_wrapper(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
     int *updated;
     cudaMallocManaged((void**)&updated,  sizeof(int));
 
-    dim3 block_edges(1024);
+    dim3 block_edges(BLOCK_SIZE);
     dim3 grid_edges((edges_count - 1) / block_edges.x + 1);
 
     SAFE_KERNEL_CALL((fill_indices<<<grid_edges, block_edges>>>(seg_reduce_indices, edges_count)));
 
     do
     {
+        cudaMemPrefetchAsync(_labels, vertices_count, 0, 0);
+        cudaMemPrefetchAsync(outgoing_ptrs, vertices_count + 1, 0, 0);
+        cudaMemPrefetchAsync(outgoing_ids, edges_count, 0, 0);
+        cudaDeviceSynchronize();
+
         auto gather_edge_op = [_labels, gathered_labels] __device__(int src_id, int dst_id, int local_edge_pos, long long int global_edge_pos)
         {
             int dst_label = __ldg(&_labels[dst_id]);
@@ -157,9 +167,12 @@ void gpu_lp_wrapper(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
         graph_API.advance(_graph, frontier, gather_edge_op);
 
         //Sorting labels of adjacent vertices in per-vertice components.
+        tmp_work_buffer_for_seg_sort = array_1;
         mgpu::segmented_sort(gathered_labels, tmp_work_buffer_for_seg_sort, edges_count, outgoing_ptrs, vertices_count,
                              mgpu::less_t<int>(), context);
 
+
+        label_differences = array_2;
         SAFE_CALL((cudaMemset(label_differences, 0, (size_t)(sizeof(int)) * edges_count))); //was taken from group of memcpy
 
         //Puts a 1 in the last element of each segment in boundaries_array. Segments are passed by v_array
@@ -174,14 +187,16 @@ void gpu_lp_wrapper(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
         graph_API.compute(_graph, frontier, label_differences_initial_op);
 
         SAFE_KERNEL_CALL((label_differences_advanced <<< grid_edges, block_edges >>>
-                                (label_differences, gathered_labels, edges_count)));
+                (label_differences, gathered_labels, edges_count)));
 
+        scanned = array_1;
         //exclusive scan in order to pass repeated labels and divide different labels
-        thrust::exclusive_scan(thrust::device, label_differences, label_differences + edges_count + 1, scanned, 0); // in-place scan
+        thrust::exclusive_scan(thrust::device, label_differences, label_differences + edges_count + 1, scanned, 0);
 
         int reduced_size = 0;
         SAFE_CALL(cudaMemcpy(&reduced_size, scanned + edges_count , sizeof(int), cudaMemcpyDeviceToHost));
 
+        reduced_scan = array_2;
         SAFE_KERNEL_CALL((count_labels <<< grid_edges, block_edges >>> (scanned, edges_count, reduced_scan)));
 
         //new_ptr array contains new bounds of segments by getting them from scan
@@ -192,6 +207,7 @@ void gpu_lp_wrapper(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
         };
         graph_API.compute(_graph, frontier, new_boundaries_op);
 
+        frequencies = array_1;
         SAFE_KERNEL_CALL((frequency_count <<< grid_edges, block_edges >>> (frequencies, reduced_scan, reduced_size)));
 
         int init = REDUCE_INITIAL;
@@ -227,30 +243,26 @@ void gpu_lp_wrapper(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
             {
                 curandState state;
                 curand_init(0, 0, 0, &state);
-                //if(change > 0.2)
-                //{
 
-                    int temp_label = gathered_labels[reduced_scan[seg_reduce_result[src_id]]];
-                    if((_iterations_count!=0)&&(temp_label == old_labels[src_id])){
-                        float change = curand_uniform(&state);
-                        //printf("%f ",change);
-                        if(change > 0.5){
-                            old_labels[src_id] = _labels[src_id];
-                            _labels[src_id] = temp_label;
-                            updated[0] = 1;
-                        } else{
-                            //old_labels = _labels[src_id];
-                            _labels[src_id] = temp_label;
-                        }
-
-                    } else {
+                int temp_label = gathered_labels[reduced_scan[seg_reduce_result[src_id]]];
+                if((_iterations_count!=0)&&(temp_label == old_labels[src_id])){
+                    float change = curand_uniform(&state);
+                    //printf("%f ",change);
+                    if(change > 0.5){
                         old_labels[src_id] = _labels[src_id];
                         _labels[src_id] = temp_label;
                         updated[0] = 1;
-
+                    } else{
+                        //old_labels = _labels[src_id];
+                        _labels[src_id] = temp_label;
                     }
 
-                //}
+                } else {
+                    old_labels[src_id] = _labels[src_id];
+                    _labels[src_id] = temp_label;
+                    updated[0] = 1;
+
+                }
             }
         };
         graph_API.compute(_graph, frontier, get_labels_op);
@@ -260,16 +272,12 @@ void gpu_lp_wrapper(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
 
     cout << "done " << _iterations_count << " iterations" << endl;
 
-    MemoryAPI::free_device_array(label_differences);
-    MemoryAPI::free_device_array(tmp_work_buffer_for_seg_sort);
     MemoryAPI::free_device_array(new_ptr);
-    MemoryAPI::free_device_array(scanned);
+    MemoryAPI::free_device_array(array_1);
+    MemoryAPI::free_device_array(array_2);
     MemoryAPI::free_device_array(seg_reduce_indices);
     MemoryAPI::free_device_array(seg_reduce_result);
-    MemoryAPI::free_device_array(reduced_scan);
-    MemoryAPI::free_device_array(frequencies);
     MemoryAPI::free_device_array(old_labels);
-
     MemoryAPI::free_device_array(gathered_labels);
 
     cudaFree(updated);
