@@ -6,3 +6,9 @@ template <typename _TVertexValue, typename _TEdgeWeight>
 void gpu_lp_wrapper(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph, int *_labels, int &_iterations_count, int _max_iterations);
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+template<typename _TVertexValue, typename _TEdgeWeight>
+void gpu_lp_dict_based_wrapper(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
+                               int *_labels, int &_iterations_count, int _max_iterations);
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

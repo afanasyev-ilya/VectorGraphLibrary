@@ -45,7 +45,7 @@ void GraphPrimitivesNEC::my_test(const long long *_vertex_pointers, const int *_
     }
 
     #ifdef __USE_NEC_SX_AURORA__
-    ftrace_region_begin("test reg");
+    //ftrace_region_begin("test reg");
     #endif
 
     #ifdef __PRINT_API_PERFORMANCE_STATS__
@@ -55,40 +55,39 @@ void GraphPrimitivesNEC::my_test(const long long *_vertex_pointers, const int *_
     #endif
 
     int reg_res[VECTOR_LENGTH];
+    #pragma _NEC vreg(reg_res)
 
     DelayedWriteNEC delayed_write;
     delayed_write.init();
 
     #pragma omp for schedule(static)
-    for (int front_pos = first_border; front_pos < last_border - 256; front_pos += 4)
+    for (int front_pos = first_border; front_pos < last_border; front_pos += 8)
     {
-        #pragma _NEC vector
-        #pragma _NEC ivdep
-        #pragma _NEC vovertake
-        #pragma _NEC novob
-        for(int i = 0; i < 256; i++)
+        #pragma _NEC collapse
+        #pragma _NEC interchange
+        for(int vertex_shift = 0; vertex_shift < 8; vertex_shift++)
         {
-            const int virtual_warp_id = i >> 6;
-            const int position_in_virtual_warp = i & (4 - 1);
-
-            int src_id = front_pos + 0;// virtual_warp_id;
-
+            int src_id = front_pos + vertex_shift;
             const long long int start = _vertex_pointers[src_id];
-            //const long long int end = _vertex_pointers[src_id + 1];
-            //const int connections_count = end - start;
 
-            const long long int global_edge_pos = start + i;
-            //const int vector_index = i;
-            const int dst_id = _adjacent_ids[global_edge_pos];
+            #pragma _NEC vector
+            #pragma _NEC ivdep
+            #pragma _NEC vovertake
+            #pragma _NEC novob
+            #pragma _NEC gather_reorder
+            for (int local_edge_pos = 0; local_edge_pos < 32; local_edge_pos++)
+            {
+                const long long int global_edge_pos = start + local_edge_pos;
+                const int vector_index = local_edge_pos + 32 * vertex_shift;
+                const int dst_id = _adjacent_ids[global_edge_pos];
 
-            reg_res[i] += dst_id;
-
-            //edge_op(src_id, dst_id, position_in_virtual_warp, global_edge_pos, vector_index, delayed_write);
+                edge_op(src_id, dst_id, local_edge_pos, global_edge_pos, vector_index, delayed_write);
+            }
         }
     }
 
     #ifdef __USE_NEC_SX_AURORA__
-    ftrace_region_end("test reg");
+    //ftrace_region_end("test reg");
     #endif
 
     #ifdef __PRINT_API_PERFORMANCE_STATS__
@@ -98,11 +97,12 @@ void GraphPrimitivesNEC::my_test(const long long *_vertex_pointers, const int *_
         {
             INNER_WALL_NEC_TIME += t2 - t1;
 
-            double work = _vertex_pointers[last_border] - _vertex_pointers[first_border];
+            //double work = _vertex_pointers[last_border] - _vertex_pointers[first_border];
+            double work = 32 * (last_border - first_border);
             cout << "TEST BANDWIDTH: " << endl;
             cout << "TES work: " << work << endl;
             cout << "TEST 3) time: " << (t2 - t1)*1000.0 << " ms" << endl;
-            cout << "TEST 3) BW: " << sizeof(int)*2.0*work/((t2-t1)*1e9) << " GB/s" << endl << endl;
+            cout << "TEST 3) BW: " << sizeof(int)*6.0*work/((t2-t1)*1e9) << " GB/s" << endl << endl;
         };
         #pragma omp barrier
     #endif

@@ -280,3 +280,97 @@ void gpu_lp_wrapper(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
 template void gpu_lp_wrapper<int, float>(ExtendedCSRGraph<int, float> &_graph, int *_labels, int &_iterations_count, int _max_iterations);
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+void init(int _vertices_count, int *_dict_sizes)
+{
+    MemoryAPI::allocate_unified_array(&_dict_sizes, _vertices_count);
+
+    for(int i = 0; i < _vertices_count; i++)
+        _dict_sizes[i] = 0;
+}
+
+void free(int *_dict_sizes)
+{
+    MemoryAPI::free_array(_dict_sizes);
+}
+
+void __device__ add_item(int _src_id, int _item, int *_dict_sizes)
+{
+    extern __shared__ int s[];
+    int *vals = &s[0];
+    int *freqs = &s[BLOCK_SIZE * 3];
+    int idx = threadIdx.x;
+
+    int size = _dict_sizes[_src_id];
+    for(int search_pos = 0; search_pos < size; search_pos++)
+    {
+        int elem = 0;
+        int freq = 0;
+        if(search_pos < 3)
+        {
+            elem = vals[idx + BLOCK_SIZE * search_pos];
+            if(_item == elem)
+            {
+                vals[idx + BLOCK_SIZE * search_pos] += 1;
+            }
+            // get from shared mem
+        }
+    }
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+template<typename _TVertexValue, typename _TEdgeWeight>
+void gpu_lp_dict_based_wrapper(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
+                               int *_labels,
+                               int &_iterations_count,
+                               int _max_iterations)
+{
+    LOAD_EXTENDED_CSR_GRAPH_DATA(_graph);
+    GraphPrimitivesGPU graph_API;
+    FrontierGPU frontier(_graph.get_vertices_count());
+
+    int *gathered_labels;
+    MemoryAPI::allocate_device_array(&gathered_labels, edges_count);
+
+    frontier.set_all_active();
+
+    auto init_op =[_labels] __device__(int src_id, int connections_count)
+    {
+        _labels[src_id] = src_id;
+    };
+
+    graph_API.compute(_graph, frontier, init_op);
+
+    _iterations_count = 0;
+    do
+    {
+        int *dict_sizes;
+        init(vertices_count, dict_sizes);
+
+        auto gather_edge_op = [_labels, gathered_labels, dict_sizes] __device__(int src_id, int dst_id, int local_edge_pos, long long int global_edge_pos)
+        {
+            int dst_label = __ldg(&_labels[dst_id]);
+            //gathered_labels[global_edge_pos] = dst_label;
+
+            //add_freq(src_id, dst_label);
+            add_item(src_id, dst_label, dict_sizes);
+        };
+
+        //Gathering labels of adjacent vertices
+        graph_API.advance(_graph, frontier, gather_edge_op);
+
+        free(dict_sizes);
+
+        _iterations_count++;
+        break;
+    } while(_iterations_count < _max_iterations);
+
+    MemoryAPI::free_device_array(gathered_labels);
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+template void gpu_lp_dict_based_wrapper<int, float>(ExtendedCSRGraph<int, float> &_graph, int *_labels, int &_iterations_count, int _max_iterations);
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
