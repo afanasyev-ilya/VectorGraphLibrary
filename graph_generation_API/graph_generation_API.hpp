@@ -41,7 +41,9 @@ void GraphGenerationAPI<_TVertexValue, _TEdgeWeight>::random_uniform(EdgesListGr
         {
             int src_id = (_graph.get_src_ids())[i];
             int dst_id = (_graph.get_dst_ids())[i];
+            #ifdef __USE_WEIGHTED_GRAPHS__
             _TEdgeWeight weight = (_graph.get_weights())[i];
+            #endif
             
             (_graph.get_src_ids())[i + directed_edges_count] = dst_id;
             (_graph.get_dst_ids())[i + directed_edges_count] = src_id;
