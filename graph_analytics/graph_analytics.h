@@ -3,7 +3,7 @@
 class GraphAnalytics
 {
 private:
-    pair<int, int> calculate_power_range(int _val);
+    pair<long long, long long> calculate_power_range(long long _val);
     map<int, int> calculate_degree_distribution(long long *_adjacent_ptrs, int _vertices_count);
 
     template <typename _TVertexValue, typename _TEdgeWeight>

@@ -2,6 +2,10 @@
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+#define INT_ELEMENTS_PER_EDGE 3.0
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 #include "../../../graph_processing_API/gpu/cuda_API_include.h"
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -48,9 +52,8 @@ void top_down_wrapper(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
     {
         auto edge_op = [_levels, current_level] __device__ (int src_id, int dst_id, int local_edge_pos, long long int global_edge_pos)
         {
-            int src_level = _levels[src_id];
             int dst_level = _levels[dst_id];
-            if((src_level == current_level) && (dst_level == UNVISITED_VERTEX))
+            if(dst_level == UNVISITED_VERTEX)
             {
                 _levels[dst_id] = current_level + 1;
             }

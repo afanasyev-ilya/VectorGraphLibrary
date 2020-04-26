@@ -28,7 +28,7 @@ void GraphAnalytics::analyse_component_stats(int *_components, int _vertices_cou
     sort(size_pairs.begin(), size_pairs.end(), cmp_func);
 
     int larges_component = 0;
-    int non_trivial_components_count = 0;
+    long long non_trivial_components_count = 0;
     for(auto it = size_pairs.begin(); it != size_pairs.end(); it++)
     {
         cout << "there are " << it->second << " components of size " << it->first << endl;
@@ -64,7 +64,7 @@ void GraphAnalytics::analyse_graph_stats(ExtendedCSRGraph<_TVertexValue, _TEdgeW
     cout << "highest vertex degree: " << adjacent_ptrs[1] - adjacent_ptrs[0] << ", " << 100.0*(adjacent_ptrs[1] - adjacent_ptrs[0])/edges_count << " % of all edges" << endl;
     auto degree_distribution = calculate_degree_distribution(adjacent_ptrs, vertices_count);
     cout << "degree_distribution:" << endl;
-    int zero_nodes_count = 0;
+    long long zero_nodes_count = 0;
     for(auto it = degree_distribution.rbegin(); it != degree_distribution.rend(); it++)
     {
         if(it->first != -1)
@@ -101,13 +101,13 @@ void GraphAnalytics::analyse_graph_stats(ExtendedCSRGraph<_TVertexValue, _TEdgeW
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-pair<int, int> GraphAnalytics::calculate_power_range(int _val)
+pair<long long, long long> GraphAnalytics::calculate_power_range(long long _val)
 {
     double val = _val;
-    int low_border = int(log2(_val));
-    int high_border = int(log2(_val)) + 1;
+    long long low_border = (long long)(log2(_val));
+    long long high_border = (long long)(log2(_val)) + 1;
 
-    return (pair<int, int>(low_border, high_border));
+    return (pair<long long, long long>(low_border, high_border));
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
