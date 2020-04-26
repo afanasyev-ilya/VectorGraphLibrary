@@ -119,17 +119,11 @@ void gpu_lp_wrapper(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
     int *old_labels;
     MemoryAPI::allocate_device_array(&new_ptr, vertices_count + 1);
     MemoryAPI::allocate_device_array(&array_1, edges_count + 1);
-    MemoryAPI::allocate_device_array(&array_2, edges_count + 1);
+    MemoryAPI::allocate_device_array(&array_2, edges_count +1);
     MemoryAPI::allocate_device_array(&seg_reduce_indices, edges_count + 1);
     MemoryAPI::allocate_device_array(&seg_reduce_result, vertices_count);
     MemoryAPI::allocate_device_array(&gathered_labels, edges_count + 1);
     MemoryAPI::allocate_device_array(&old_labels, vertices_count);
-
-    #ifdef __PRINT_API_PERFORMANCE_STATS__
-    double additional_memory_size = (edges_count * 4.0 + vertices_count * 3.0)*sizeof(int);
-    cout << "LP allocated additionally " << additional_memory_size / 1e9 << " GB of memory" << endl;
-    cout << "current GPU memory consumption: " << (_graph.get_graph_size_in_bytes() + additional_memory_size) / 1e9 << " GB" << endl;
-    #endif
 
     frontier.set_all_active();
 
@@ -145,18 +139,13 @@ void gpu_lp_wrapper(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
     int *updated;
     cudaMallocManaged((void**)&updated,  sizeof(int));
 
-    dim3 block_edges(BLOCK_SIZE);
+    dim3 block_edges(1024);
     dim3 grid_edges((edges_count - 1) / block_edges.x + 1);
 
     SAFE_KERNEL_CALL((fill_indices<<<grid_edges, block_edges>>>(seg_reduce_indices, edges_count)));
 
     do
     {
-        cudaMemPrefetchAsync(_labels, vertices_count, 0, 0);
-        cudaMemPrefetchAsync(outgoing_ptrs, vertices_count + 1, 0, 0);
-        cudaMemPrefetchAsync(outgoing_ids, edges_count, 0, 0);
-        cudaDeviceSynchronize();
-
         auto gather_edge_op = [_labels, gathered_labels] __device__(int src_id, int dst_id, int local_edge_pos, long long int global_edge_pos)
         {
             int dst_label = __ldg(&_labels[dst_id]);
@@ -187,7 +176,7 @@ void gpu_lp_wrapper(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
         graph_API.compute(_graph, frontier, label_differences_initial_op);
 
         SAFE_KERNEL_CALL((label_differences_advanced <<< grid_edges, block_edges >>>
-                (label_differences, gathered_labels, edges_count)));
+                                (label_differences, gathered_labels, edges_count)));
 
         scanned = array_1;
         //exclusive scan in order to pass repeated labels and divide different labels
@@ -243,26 +232,30 @@ void gpu_lp_wrapper(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
             {
                 curandState state;
                 curand_init(0, 0, 0, &state);
+                //if(change > 0.2)
+                //{
 
-                int temp_label = gathered_labels[reduced_scan[seg_reduce_result[src_id]]];
-                if((_iterations_count!=0)&&(temp_label == old_labels[src_id])){
-                    float change = curand_uniform(&state);
-                    //printf("%f ",change);
-                    if(change > 0.5){
+                    int temp_label = gathered_labels[reduced_scan[seg_reduce_result[src_id]]];
+                    if((_iterations_count!=0)&&(temp_label == old_labels[src_id])){
+                        float change = curand_uniform(&state);
+                        //printf("%f ",change);
+                        if(change > 0.5){
+                            old_labels[src_id] = _labels[src_id];
+                            _labels[src_id] = temp_label;
+                            updated[0] = 1;
+                        } else{
+                            //old_labels = _labels[src_id];
+                            _labels[src_id] = temp_label;
+                        }
+
+                    } else {
                         old_labels[src_id] = _labels[src_id];
                         _labels[src_id] = temp_label;
                         updated[0] = 1;
-                    } else{
-                        //old_labels = _labels[src_id];
-                        _labels[src_id] = temp_label;
+
                     }
 
-                } else {
-                    old_labels[src_id] = _labels[src_id];
-                    _labels[src_id] = temp_label;
-                    updated[0] = 1;
-
-                }
+                //}
             }
         };
         graph_API.compute(_graph, frontier, get_labels_op);
@@ -286,180 +279,5 @@ void gpu_lp_wrapper(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template void gpu_lp_wrapper<int, float>(ExtendedCSRGraph<int, float> &_graph, int *_labels, int &_iterations_count, int _max_iterations);
-
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-void __device__ add_item(int _src_id, int _item, long long _starting_edge_shift, int *_dict_sizes, int *_dict_values, int *_dict_frequencies, long long _edges_count)
-{
-    int idx = threadIdx.x;
-
-    bool found = false;
-    int size = _dict_sizes[_src_id];
-    for(int search_pos = 0; search_pos < size; search_pos++)
-    {
-        int value = 0;
-        value = _dict_values[_starting_edge_shift + search_pos];
-        if(_item == value)
-        {
-            _dict_frequencies[_starting_edge_shift + search_pos] += 1;
-            found = true;
-            break;
-        }
-    }
-
-    if(!found)
-    {
-        _dict_frequencies[_starting_edge_shift + size] = 1;
-        _dict_values[_starting_edge_shift + size] = _item;
-        _dict_sizes[_src_id]++;
-    }
-}
-
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-__global__ void count_frequencies(long long *_outgoing_ptrs, int *_gathered_labels, int *_dict_sizes,
-                                  int *_dict_values, int *_dict_frequencies, int *_new_labels, int _vertices_count, long long _edges_count)
-{
-    int src_id = threadIdx.x + blockIdx.x * blockDim.x;
-    if (src_id < _vertices_count)
-    {
-        _dict_sizes[src_id] = 0;
-
-        long long start = _outgoing_ptrs[src_id];
-        long long end = _outgoing_ptrs[src_id + 1];
-        for(long long edge_pos = start; edge_pos < end; edge_pos++)
-        {
-            int dst_label = _gathered_labels[edge_pos];
-
-            add_item(src_id, dst_label, start, _dict_sizes, _dict_values, _dict_frequencies, _edges_count);
-        }
-
-        int size = _dict_sizes[src_id];
-        int max_freq = 0;
-        int max_val = -1;
-
-        for(int i = 0; i < size; i++)
-        {
-            if(_dict_frequencies[i] > max_freq)
-                max_val = _dict_values[i];
-        }
-
-        _new_labels[src_id] = max_val;
-    }
-}
-
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-template<typename _TVertexValue, typename _TEdgeWeight>
-void gpu_lp_dict_based_wrapper(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
-                               int *_labels,
-                               int &_iterations_count,
-                               int _max_iterations)
-{
-    LOAD_EXTENDED_CSR_GRAPH_DATA(_graph);
-    GraphPrimitivesGPU graph_API;
-    FrontierGPU frontier(_graph.get_vertices_count());
-
-    int *gathered_labels;
-    MemoryAPI::allocate_device_array(&gathered_labels, edges_count + 1);
-
-    int *dict_values;
-    int *dict_frequencies;
-    int *dict_sizes;
-    int *new_labels;
-    MemoryAPI::allocate_unified_array(&dict_sizes, vertices_count);
-    MemoryAPI::allocate_unified_array(&dict_values, edges_count + 1);
-    MemoryAPI::allocate_unified_array(&dict_frequencies, edges_count + 1);
-    MemoryAPI::allocate_unified_array(&new_labels, vertices_count);
-
-    frontier.set_all_active();
-
-    auto init_op =[_labels] __device__(int src_id, int connections_count)
-    {
-        _labels[src_id] = src_id;
-    };
-
-    graph_API.compute(_graph, frontier, init_op);
-
-    int *updated;
-    MemoryAPI::allocate_unified_array(&updated, 1);
-
-    _iterations_count = 0;
-    do
-    {
-        updated[0] = 0;
-
-        /*auto preprocess_op = [dict_sizes] __device__(int src_id, int connections_count)
-        {
-            dict_sizes[src_id] = 0;
-        };
-
-        auto gather_edge_op = [_labels, gathered_labels, dict_sizes, dict_values, dict_frequencies] __device__(int src_id, int dst_id, int local_edge_pos, long long int global_edge_pos)
-        {
-            int dst_label = __ldg(&_labels[dst_id]);
-            add_item(src_id, dst_label, global_edge_pos, dict_sizes, dict_values, dict_frequencies);
-        };
-
-        auto postprocess_op = [dict_sizes, dict_values, dict_frequencies, new_labels] __device__(int src_id, int connections_count)
-        {
-            int size = dict_sizes[src_id];
-            int max_freq = 0;
-            int max_val = -1;
-
-            for(int i = 0; i < size; i++)
-            {
-                if(dict_frequencies[i] > max_freq)
-                    max_val = dict_values[i];
-            }
-
-            new_labels[src_id] = max_val;
-        };*/
-
-        auto gather_edge_op = [_labels, gathered_labels] __device__(int src_id, int dst_id, int local_edge_pos, long long int global_edge_pos)
-        {
-            int dst_label = __ldg(&_labels[dst_id]);
-            gathered_labels[global_edge_pos] = dst_label;
-        };
-
-        //Gathering labels of adjacent vertices
-        graph_API.advance(_graph, frontier, gather_edge_op);
-
-        dim3 block_vertices(BLOCK_SIZE);
-        dim3 grid_vertices((vertices_count - 1) / block_vertices.x + 1);
-
-        double t1 = omp_get_wtime();
-        SAFE_KERNEL_CALL((count_frequencies<<< grid_vertices, block_vertices >>> (outgoing_ptrs, gathered_labels, dict_sizes,
-                          dict_values, dict_frequencies, new_labels, vertices_count, edges_count)));
-        double t2 = omp_get_wtime();
-        cout << "count_frequencies time: " << (t2 - t1)*1000 << " ms" << endl;
-
-        auto update_labels_op = [_labels, new_labels, updated] __device__(int src_id, int connections_count)
-        {
-            if((new_labels[src_id] >= 0) && (_labels[src_id] != new_labels[src_id]))
-            {
-                _labels[src_id] = new_labels[src_id];
-                updated[0]++;
-            }
-        };
-
-        graph_API.compute(_graph, frontier, update_labels_op);
-
-        _iterations_count++;
-    } while((_iterations_count < 10) && (updated[0] > 0));
-
-    cout << "done" << endl;
-
-    MemoryAPI::free_device_array(gathered_labels);
-    MemoryAPI::free_device_array(dict_values);
-    MemoryAPI::free_device_array(dict_frequencies);
-    MemoryAPI::free_device_array(dict_sizes);
-    MemoryAPI::free_device_array(new_labels);
-
-    MemoryAPI::free_device_array(updated);
-}
-
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-template void gpu_lp_dict_based_wrapper<int, float>(ExtendedCSRGraph<int, float> &_graph, int *_labels, int &_iterations_count, int _max_iterations);
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

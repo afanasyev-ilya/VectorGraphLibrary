@@ -188,7 +188,7 @@ void BFS<_TVertexValue, _TEdgeWeight>::nec_top_down(ExtendedCSRGraph<_TVertexVal
     while(frontier.size() > 0)
     {
         int vis = 0, in_lvl = 0;
-        nec_top_down_compute_step(_graph, _levels, current_level, vis, in_lvl, false);
+        //nec_top_down_compute_step(_graph, _levels, current_level, vis, in_lvl, false);
 
         auto on_next_level = [_levels, current_level] (int src_id)->int
         {
@@ -198,7 +198,7 @@ void BFS<_TVertexValue, _TEdgeWeight>::nec_top_down(ExtendedCSRGraph<_TVertexVal
             return result;
         };
 
-        /*auto edge_op = [_levels, current_level](int src_id, int dst_id, int local_edge_pos,
+        auto edge_op = [_levels, current_level](int src_id, int dst_id, int local_edge_pos,
                                                  long long int global_edge_pos, int vector_index, DelayedWriteNEC &delayed_write)
         {
             int src_level = _levels[src_id];
@@ -209,9 +209,9 @@ void BFS<_TVertexValue, _TEdgeWeight>::nec_top_down(ExtendedCSRGraph<_TVertexVal
             }
         };
 
-        graph_API.advance(_graph, frontier, frontier, edge_op, on_next_level);*/
+        graph_API.advance(_graph, frontier, frontier, edge_op, on_next_level);
 
-        graph_API.generate_new_frontier(_graph, frontier, on_next_level);
+        //graph_API.generate_new_frontier(_graph, frontier, on_next_level);
 
         current_level++;
     }

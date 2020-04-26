@@ -220,12 +220,11 @@ void GraphPrimitivesNEC::ve_collective_vertex_processing_kernel_dense(const long
             #pragma _NEC vovertake
             #pragma _NEC novob
             #pragma _NEC vector
-            #pragma _NEC sparse
-            #pragma _NEC gather_reorder
             for (int i = 0; i < VECTOR_LENGTH; i++)
             {
                 const int src_id = segment_first_vertex + i;
 
+                #pragma _NEC sparse
                 if(_frontier_flags[src_id] > 0)
                 {
                     const int vector_index = i;
