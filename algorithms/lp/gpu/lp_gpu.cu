@@ -320,7 +320,7 @@ void __device__ add_item(int _src_id, int _item, long long _starting_edge_shift,
 __global__ void count_frequencies(long long *_outgoing_ptrs, int *_gathered_labels, int *_dict_sizes,
                                   int *_dict_values, int *_dict_frequencies, int *_new_labels, int _vertices_count, long long _edges_count)
 {
-    int src_id = threadIdx.x + blockIdx.x * blockDim.x + 10000;
+    int src_id = threadIdx.x + blockIdx.x * blockDim.x;
     if (src_id < _vertices_count)
     {
         _dict_sizes[src_id] = 0;
@@ -349,7 +349,6 @@ __global__ void count_frequencies(long long *_outgoing_ptrs, int *_gathered_labe
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
 
 template<typename _TVertexValue, typename _TEdgeWeight>
 void gpu_lp_dict_based_wrapper(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,

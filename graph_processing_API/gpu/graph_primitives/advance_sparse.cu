@@ -255,7 +255,7 @@ void GraphPrimitivesGPU::advance_sparse(ExtendedCSRGraph<_TVertexValue, _TEdgeWe
     int grid_vertices_count = grid_threshold_end - grid_threshold_start;
     if (grid_vertices_count > 0)
     {
-        SAFE_KERNEL_CALL((grid_per_vertex_kernel <<< grid_vertices_count, 1, SHARED_ELEMENTS_PER_THREAD*BLOCK_SIZE*sizeof(int), grid_processing_stream >>>
+        SAFE_KERNEL_CALL((grid_per_vertex_kernel <<< grid_vertices_count, 1, 0, grid_processing_stream >>>
                 (outgoing_ptrs, outgoing_ids, _frontier.ids, vertices_count, grid_threshold_start,
                  grid_threshold_end, edge_op, vertex_preprocess_op, vertex_postprocess_op)));
     }
@@ -263,7 +263,7 @@ void GraphPrimitivesGPU::advance_sparse(ExtendedCSRGraph<_TVertexValue, _TEdgeWe
     int block_vertices_count = block_threshold_end - block_threshold_start;
     if (block_vertices_count > 0)
     {
-        SAFE_KERNEL_CALL((block_per_vertex_kernel <<< block_vertices_count, BLOCK_SIZE, SHARED_ELEMENTS_PER_THREAD*BLOCK_SIZE*sizeof(int), block_processing_stream >>>
+        SAFE_KERNEL_CALL((block_per_vertex_kernel <<< block_vertices_count, BLOCK_SIZE, 0, block_processing_stream >>>
                 (outgoing_ptrs, outgoing_ids, _frontier.ids, vertices_count, block_threshold_start,
                  block_threshold_end, edge_op, vertex_preprocess_op, vertex_postprocess_op)));
     }
