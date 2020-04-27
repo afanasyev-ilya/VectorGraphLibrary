@@ -100,3 +100,5 @@ traditional_bfs_gpu.o: traditional_bfs.cu
 
 lp_gpu.o: lp_gpu.cu
 	$(CUDA_COMPILER) $(CUDA_FLAGS) $(Include_Path) -rdc=true -c ../algorithms/lp/gpu/lp_gpu.cu -o object_files/lp_gpu.o
+
+
