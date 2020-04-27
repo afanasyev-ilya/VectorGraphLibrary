@@ -97,6 +97,31 @@ __global__ void fill_indices(int *seg_reduce_indices, long long edges_count)
 #define LP_BOUNDARY_PASSIVE 2
 #define LP_INNER 3
 
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+void print_active_percentages(int *_node_states, int _vertices_count)
+{
+    int boundary_active_count = 0;
+    int boundary_passive_count = 0;
+    int inner_count = 0;
+    for(int i = 0; i < _vertices_count; i++)
+    {
+        if(_node_states[i] == LP_INNER)
+            inner_count++;
+        if(_node_states[i] == LP_BOUNDARY_ACTIVE)
+            boundary_active_count++;
+        if(_node_states[i] == LP_BOUNDARY_PASSIVE)
+            boundary_passive_count++;
+    }
+
+    cout << 100.0 * boundary_active_count / _vertices_count << " % boundary active" << endl;
+    cout << 100.0 * boundary_passive_count / _vertices_count << " % boundary passive" << endl;
+    cout << 100.0 * inner_count / _vertices_count << " % boundary inner" << endl;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
 template<typename _TVertexValue, typename _TEdgeWeight>
 void gpu_lp_wrapper(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
                     int *_labels,
@@ -120,21 +145,21 @@ void gpu_lp_wrapper(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
     int *seg_reduce_result;
     int *reduced_scan;
     int *frequencies;
-    int *node_types;
+    int *node_states;
     MemoryAPI::allocate_device_array(&new_ptr, vertices_count + 1);
     MemoryAPI::allocate_device_array(&array_1, edges_count + 1);
     MemoryAPI::allocate_device_array(&array_2, edges_count +1);
     MemoryAPI::allocate_device_array(&seg_reduce_indices, edges_count + 1);
     MemoryAPI::allocate_device_array(&seg_reduce_result, vertices_count);
     MemoryAPI::allocate_device_array(&gathered_labels, edges_count + 1);
-    MemoryAPI::allocate_unified_array(&node_types, vertices_count);
+    MemoryAPI::allocate_unified_array(&node_states, vertices_count);
 
     frontier.set_all_active();
 
-    auto init_op =[_labels, node_types] __device__(int src_id, int connections_count)
+    auto init_op =[_labels, node_states] __device__(int src_id, int connections_count)
     {
         _labels[src_id] = src_id;
-        node_types[src_id] = LP_BOUNDARY_ACTIVE;
+        node_states[src_id] = LP_BOUNDARY_ACTIVE;
     };
 
     graph_API.compute(_graph, frontier, init_op);
@@ -151,6 +176,8 @@ void gpu_lp_wrapper(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
 
     do
     {
+        print_active_percentages(node_states, vertices_count);
+
         int *different_presence = new_ptr;
         auto gather_edge_op = [_labels, gathered_labels, different_presence] __device__(int src_id, int dst_id, int local_edge_pos, long long int global_edge_pos)
         {
@@ -166,17 +193,17 @@ void gpu_lp_wrapper(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
             different_presence[src_id] = 0;
         };
 
-        auto postprocess_op = [different_presence, node_types] __device__(int src_id, int connections_count)
+        auto postprocess_op = [different_presence, node_states] __device__(int src_id, int connections_count)
         {
             if(different_presence[src_id] == 0)
-                node_types[src_id] = LP_INNER;
+                node_states[src_id] = LP_INNER;
         };
 
         //Gathering labels of adjacent vertices
         graph_API.advance(_graph, frontier, gather_edge_op, preprocess_op, postprocess_op);
 
-        for(int i = 0; i < 50; i++)
-            cout << node_types[i] << " ";
+        for(int i = 0; i < 100; i++)
+            cout << node_states[i] << " ";
         cout << endl;
 
         //Sorting labels of adjacent vertices in per-vertice components.
@@ -250,14 +277,23 @@ void gpu_lp_wrapper(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
 
         updated[0] = 0;
 
-        auto get_labels_op = [seg_reduce_result, reduced_scan, gathered_labels, _labels, updated] __device__(int src_id, int connections_count)
+        auto get_labels_op = [seg_reduce_result, reduced_scan, gathered_labels, _labels, updated, node_states] __device__(int src_id, int connections_count)
         {
             int new_label = gathered_labels[reduced_scan[seg_reduce_result[src_id]]];
 
-            if((seg_reduce_result[src_id] != -1) && (new_label != _labels[src_id]))
+            if(node_states[src_id] == LP_BOUNDARY_ACTIVE)
             {
-                _labels[src_id] = new_label;
-                updated[0] = 1;
+                if ((seg_reduce_result[src_id] != -1) && (new_label != _labels[src_id]))
+                {
+                    _labels[src_id] = new_label;
+                    updated[0] = 1;
+                    node_states[src_id] == LP_BOUNDARY_ACTIVE;
+                }
+
+                if(new_label == _labels[src_id])
+                {
+                    node_states[src_id] == LP_BOUNDARY_PASSIVE;
+                }
             }
         };
 
@@ -274,7 +310,7 @@ void gpu_lp_wrapper(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
     MemoryAPI::free_device_array(seg_reduce_indices);
     MemoryAPI::free_device_array(seg_reduce_result);
     MemoryAPI::free_device_array(gathered_labels);
-    MemoryAPI::free_device_array(node_types);
+    MemoryAPI::free_device_array(node_states);
 
     cudaFree(updated);
 }
