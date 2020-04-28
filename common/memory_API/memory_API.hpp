@@ -32,8 +32,11 @@ void MemoryAPI::free_array(_T *_ptr)
 template <typename _T>
 void MemoryAPI::allocate_device_array(_T **_ptr, size_t _size)
 {
-    //SAFE_CALL(cudaMalloc((void**)_ptr, _size * sizeof(_T)));
+    #ifdef __USE_MANAGED_MEMORY__
     SAFE_CALL(cudaMallocManaged((void**)_ptr, _size * sizeof(_T)));
+    #else
+    SAFE_CALL(cudaMalloc((void**)_ptr, _size * sizeof(_T)));
+    #endif
 }
 #endif
 
@@ -41,7 +44,7 @@ void MemoryAPI::allocate_device_array(_T **_ptr, size_t _size)
 
 #ifdef __USE_GPU__
 template <typename _T>
-void MemoryAPI::allocate_unified_array(_T **_ptr, size_t _size)
+void MemoryAPI::allocate_managed_array(_T **_ptr, size_t _size)
 {
     SAFE_CALL(cudaMallocManaged((void**)_ptr, _size * sizeof(_T)));
 }

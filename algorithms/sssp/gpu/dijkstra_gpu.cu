@@ -27,7 +27,7 @@ void gpu_dijkstra_all_active_wrapper(ExtendedCSRGraph<_TVertexValue, _TEdgeWeigh
 
     frontier.set_all_active();
 
-    auto init_op = [_distances, _source_vertex] __device__ (int src_id, int connections_count) {
+    auto init_op = [_distances, _source_vertex] __device__ (int src_id, int position_in_frontier, int connections_count) {
         if(src_id == _source_vertex)
             _distances[_source_vertex] = 0;
         else
@@ -94,7 +94,7 @@ void gpu_dijkstra_partial_active_wrapper(ExtendedCSRGraph<_TVertexValue, _TEdgeW
     FrontierGPU frontier(vertices_count);
     frontier.set_all_active();
 
-    auto init_op = [_distances, _source_vertex] __device__ (int src_id, int connections_count) {
+    auto init_op = [_distances, _source_vertex] __device__ (int src_id, int position_in_frontier, int connections_count) {
         if(src_id == _source_vertex)
             _distances[_source_vertex] = 0;
         else

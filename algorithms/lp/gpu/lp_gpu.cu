@@ -207,7 +207,7 @@ void gpu_lp_wrapper(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
     MemoryAPI::allocate_device_array(&seg_reduce_indices, edges_count + 1);
     MemoryAPI::allocate_device_array(&seg_reduce_result, vertices_count);
     MemoryAPI::allocate_device_array(&gathered_labels, edges_count + 1);
-    MemoryAPI::allocate_unified_array(&node_states, vertices_count);
+    MemoryAPI::allocate_managed_array(&node_states, vertices_count);
 
     frontier.set_all_active();
 
@@ -374,6 +374,8 @@ void gpu_lp_wrapper(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
         auto get_labels_op = [seg_reduce_result, reduced_scan, gathered_labels, _labels, updated, node_states, changes_recently_occurred] __device__(int src_id, int position_in_frontier, int connections_count)
         {
             changes_recently_occurred[src_id] = 0;
+            if(position_in_frontier < 10)
+                printf("%d %d\n", position_in_frontier, seg_reduce_result[position_in_frontier]);
 
             if(seg_reduce_result[position_in_frontier] != -1)
             {

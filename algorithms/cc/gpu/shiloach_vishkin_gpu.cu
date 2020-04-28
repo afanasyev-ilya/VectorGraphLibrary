@@ -17,7 +17,7 @@ void shiloach_vishkin_wrapper(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_gr
     FrontierGPU frontier(_graph.get_vertices_count());
     frontier.set_all_active();
 
-    auto init_components_op = [_components] __device__ (int src_id, int connections_count)
+    auto init_components_op = [_components] __device__ (int src_id, int position_in_frontier, int connections_count)
     {
         _components[src_id] = src_id;
     };
@@ -53,7 +53,7 @@ void shiloach_vishkin_wrapper(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_gr
         do
         {
             jump_changes[0] = 0;
-            auto jump_op = [_components, jump_changes] __device__(int src_id, int connections_count)
+            auto jump_op = [_components, jump_changes] __device__(int src_id, int position_in_frontier, int connections_count)
             {
                 int src_val = _components[src_id];
                 int src_src_val = _components[src_val];

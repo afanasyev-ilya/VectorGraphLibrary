@@ -29,7 +29,7 @@ void top_down_wrapper(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
 
     frontier.set_all_active();
 
-    auto init_levels = [_levels, _source_vertex] __device__ (int src_id, int connections_count)
+    auto init_levels = [_levels, _source_vertex] __device__ (int src_id, int position_in_frontier, int connections_count)
     {
         if(src_id == _source_vertex)
             _levels[_source_vertex] = FIRST_LEVEL_VERTEX;

@@ -32,7 +32,7 @@ public:
     static void allocate_device_array(_T **_ptr, size_t _size);
 
     template <typename _T>
-    static void allocate_unified_array(_T **_ptr, size_t _size);
+    static void allocate_managed_array(_T **_ptr, size_t _size);
 
     template <typename _T>
     static void free_device_array(_T *_ptr);

@@ -63,13 +63,13 @@ void FrontierGPU::split_sorted_frontier(const long long *_vertex_pointers,
     int *vwp_4_threshold_vertex;
     int *vwp_2_threshold_vertex;
 
-    MemoryAPI::allocate_unified_array(&grid_threshold_vertex, 1);
-    MemoryAPI::allocate_unified_array(&block_threshold_vertex, 1);
-    MemoryAPI::allocate_unified_array(&warp_threshold_vertex, 1);
-    MemoryAPI::allocate_unified_array(&vwp_16_threshold_vertex, 1);
-    MemoryAPI::allocate_unified_array(&vwp_8_threshold_vertex, 1);
-    MemoryAPI::allocate_unified_array(&vwp_4_threshold_vertex, 1);
-    MemoryAPI::allocate_unified_array(&vwp_2_threshold_vertex, 1);
+    MemoryAPI::allocate_managed_array(&grid_threshold_vertex, 1);
+    MemoryAPI::allocate_managed_array(&block_threshold_vertex, 1);
+    MemoryAPI::allocate_managed_array(&warp_threshold_vertex, 1);
+    MemoryAPI::allocate_managed_array(&vwp_16_threshold_vertex, 1);
+    MemoryAPI::allocate_managed_array(&vwp_8_threshold_vertex, 1);
+    MemoryAPI::allocate_managed_array(&vwp_4_threshold_vertex, 1);
+    MemoryAPI::allocate_managed_array(&vwp_2_threshold_vertex, 1);
 
     grid_threshold_vertex[0] = 0;
     block_threshold_vertex[0] = 0;
