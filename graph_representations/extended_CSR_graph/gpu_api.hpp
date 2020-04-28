@@ -22,6 +22,15 @@ void ExtendedCSRGraph<_TVertexValue, _TEdgeWeight>::move_to_device()
     MemoryAPI::move_array_to_device<_TEdgeWeight>(&outgoing_weights, this->edges_count);
     #endif
 
+    #ifdef __USE_MANAGED_MEMORY__
+    MemoryAPI::prefetch_managed_array(outgoing_ptrs, this->vertices_count + 1);
+    MemoryAPI::prefetch_managed_array(outgoing_ids, this->edges_count);
+
+    #ifdef __USE_WEIGHTED_GRAPHS__
+    MemoryAPI::prefetch_managed_array(outgoing_weights, this->edges_count);
+    #endif
+    #endif
+
     // TODO VE MOVE
 }
 #endif

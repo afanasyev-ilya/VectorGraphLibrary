@@ -15,7 +15,7 @@ void SSSP::gpu_dijkstra(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
     LOAD_EXTENDED_CSR_GRAPH_DATA(_graph);
 
     _TEdgeWeight *device_distances;
-    MemoryAPI::allocate_device_array(&device_distances, vertices_count);
+    MemoryAPI::allocate_non_managed_array(&device_distances, vertices_count);
 
     int iterations_count = 0;
     double t1 = omp_get_wtime();

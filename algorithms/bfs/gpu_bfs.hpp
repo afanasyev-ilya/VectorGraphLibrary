@@ -4,7 +4,7 @@
 template <typename _TVertexValue, typename _TEdgeWeight>
 void BFS<_TVertexValue, _TEdgeWeight>::allocate_device_result_memory(int _vertices_count, int **_device_levels)
 {
-    MemoryAPI::allocate_device_array(_device_levels, _vertices_count);
+    MemoryAPI::allocate_non_managed_array(_device_levels, _vertices_count);
 }
 #endif
 

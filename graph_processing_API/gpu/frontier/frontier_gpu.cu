@@ -10,8 +10,8 @@ FrontierGPU::FrontierGPU(int _vertices_count)
 {
     max_size = _vertices_count;
     current_size = 0;
-    cudaMalloc((void**)&ids, max_size*sizeof(int));
-    cudaMalloc((void**)&flags, max_size*sizeof(int));
+    MemoryAPI::allocate_non_managed_array(&ids, max_size);
+    MemoryAPI::allocate_non_managed_array(&flags, max_size);
     cudaMemset(ids, 0, max_size*sizeof(int));
     cudaMemset(flags, 0, max_size*sizeof(int));
     type = ALL_ACTIVE_FRONTIER;

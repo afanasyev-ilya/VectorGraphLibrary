@@ -44,6 +44,28 @@ void MemoryAPI::allocate_device_array(_T **_ptr, size_t _size)
 
 #ifdef __USE_GPU__
 template <typename _T>
+void MemoryAPI::allocate_non_managed_array(_T **_ptr, size_t _size)
+{
+    SAFE_CALL(cudaMalloc((void**)_ptr, _size * sizeof(_T)));
+}
+#endif
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+#ifdef __USE_GPU__
+template <typename _T>
+void MemoryAPI::prefetch_managed_array(_T *_ptr, size_t _size)
+{
+    int device = -1;
+    SAFE_CALL(cudaGetDevice(&device));
+    SAFE_CALL(cudaMemPrefetchAsync(_ptr, _size*sizeof(_T), device, NULL));
+}
+#endif
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+#ifdef __USE_GPU__
+template <typename _T>
 void MemoryAPI::allocate_managed_array(_T **_ptr, size_t _size)
 {
     SAFE_CALL(cudaMallocManaged((void**)_ptr, _size * sizeof(_T)));
