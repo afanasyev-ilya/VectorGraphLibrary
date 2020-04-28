@@ -137,6 +137,48 @@ void print_active_ids(int *_node_states, int _vertices_count)
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+template <typename _T>
+void print_data(string _name, _T *_data, int _size)
+{
+    cout << _name << ": ";
+    for(int i = 0; i < _size; i++)
+    {
+        cout << _data[i] << " ";
+    }
+    cout << endl << endl;
+}
+
+template <typename DataType, typename SegmentType>
+void print_segmented_array(string _name, DataType *_data, SegmentType *_segments, int _segment_count, int _data_size)
+{
+    cout << _name << ": ";
+    for(int i = 0; i < _data_size; i++)
+    {
+        cout << _data[i] << " ";
+    }
+    cout << endl;
+
+    cout << _name << " with segments: ";
+
+    for(int segment = 0; segment < _segment_count; segment++)
+    {
+        int start = _segments[segment];
+        int end = _segments[segment + 1];
+        cout << " (" << segment << ")" << "[";
+        for(int i = start; i < end; i++)
+        {
+            if(i != (end - 1))
+                cout << _data[i] << " ";
+            else
+                cout << _data[i];
+        }
+        cout << "] ";
+    }
+    cout << endl << endl;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 template<typename _TVertexValue, typename _TEdgeWeight>
 void gpu_lp_wrapper(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
                     int *_labels,
@@ -161,7 +203,7 @@ void gpu_lp_wrapper(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
     int *reduced_scan;
     int *frequencies;
     int *node_states;
-    MemoryAPI::allocate_unified_array(&new_ptr, vertices_count + 1);
+    MemoryAPI::allocate_device_array(&new_ptr, vertices_count + 1);
     MemoryAPI::allocate_device_array(&array_1, edges_count + 1);
     MemoryAPI::allocate_device_array(&array_2, edges_count +1);
     MemoryAPI::allocate_device_array(&seg_reduce_indices, edges_count + 1);
@@ -214,7 +256,7 @@ void gpu_lp_wrapper(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
 
         //frontier.set_all_active();
 
-        int *different_presence = new_ptr;
+        int *different_presence = seg_reduce_indices;
         auto gather_edge_op = [_labels, gathered_labels, different_presence, shifts] __device__(int src_id, int dst_id, int local_edge_pos, long long int global_edge_pos)
         {
             int dst_label = __ldg(&_labels[dst_id]);
@@ -222,6 +264,7 @@ void gpu_lp_wrapper(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
 
             //gathered_labels[global_edge_pos] = dst_label;
             gathered_labels[shifts[src_id] + local_edge_pos] = dst_label;
+            printf("%d) %d + %d, l=%d\n", src_id, shifts[src_id], local_edge_pos, dst_label);
 
             if(src_label != dst_label)
                 different_presence[src_id] = 1;
@@ -242,6 +285,7 @@ void gpu_lp_wrapper(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
         graph_API.advance(_graph, frontier, gather_edge_op, preprocess_op, postprocess_op);
 
         print_active_ids(node_states, vertices_count);
+        print_segmented_array("gathered labels", gathered_labels, outgoing_ptrs, vertices_count, edges_count);
 
         //Sorting labels of adjacent vertices in per-vertice components.
         tmp_work_buffer_for_seg_sort = array_1;
