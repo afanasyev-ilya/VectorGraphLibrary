@@ -178,6 +178,8 @@ void gpu_lp_wrapper(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
     {
         print_active_percentages(node_states, vertices_count);
 
+        frontier.set_all_active();
+
         int *different_presence = new_ptr;
         auto gather_edge_op = [_labels, gathered_labels, different_presence] __device__(int src_id, int dst_id, int local_edge_pos, long long int global_edge_pos)
         {
@@ -277,27 +279,57 @@ void gpu_lp_wrapper(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
 
         updated[0] = 0;
 
-        auto get_labels_op = [seg_reduce_result, reduced_scan, gathered_labels, _labels, updated, node_states] __device__(int src_id, int connections_count)
+        int *changes_recently_occurred = new_ptr;
+
+        auto get_labels_op = [seg_reduce_result, reduced_scan, gathered_labels, _labels, updated, node_states, changes_recently_occurred] __device__(int src_id, int connections_count)
         {
-            int new_label = gathered_labels[reduced_scan[seg_reduce_result[src_id]]];
+            changes_recently_occurred[src_id] = 0;
 
-            if(node_states[src_id] == LP_BOUNDARY_ACTIVE)
+            if(seg_reduce_result[src_id] != -1)
             {
-                if ((seg_reduce_result[src_id] != -1) && (new_label != _labels[src_id]))
-                {
-                    _labels[src_id] = new_label;
-                    updated[0] = 1;
-                    node_states[src_id] == LP_BOUNDARY_ACTIVE;
-                }
+                int new_label = gathered_labels[reduced_scan[seg_reduce_result[src_id]]];
 
-                if(new_label == _labels[src_id])
+                if (node_states[src_id] == LP_BOUNDARY_ACTIVE)
                 {
-                    node_states[src_id] == LP_BOUNDARY_PASSIVE;
+                    if(new_label != _labels[src_id])
+                    {
+                        _labels[src_id] = new_label;
+                        updated[0] = 1;
+                        node_states[src_id] = LP_BOUNDARY_ACTIVE;
+                        changes_recently_occurred[src_id] = 1;
+                    }
+
+                    if (new_label == _labels[src_id])
+                    {
+                        node_states[src_id] = LP_BOUNDARY_PASSIVE;
+                    }
                 }
             }
         };
 
         graph_API.compute(_graph, frontier, get_labels_op);
+
+        auto label_recently_changed = [changes_recently_occurred] __device__ (int src_id)->int
+        {
+            if(changes_recently_occurred[src_id] > 0)
+                return IN_FRONTIER_FLAG;
+            else
+                return NOT_IN_FRONTIER_FLAG;
+        };
+
+        graph_API.generate_new_frontier(_graph, frontier, label_recently_changed);
+
+        auto set_all_neighbours_active = [node_states] __device__(int src_id, int dst_id, int local_edge_pos, long long int global_edge_pos)
+        {
+            //if(node_states[dst_id] == LP_BOUNDARY_PASSIVE)
+            //    node_states[dst_id] = LP_BOUNDARY_ACTIVE;
+
+            if(node_states[dst_id] != LP_BOUNDARY_ACTIVE)
+                node_states[dst_id] = LP_BOUNDARY_ACTIVE;
+        };
+
+        graph_API.advance(_graph, frontier, set_all_neighbours_active);
+
         _iterations_count++;
     }
     while((_iterations_count < _max_iterations) && (updated[0] > 0));
