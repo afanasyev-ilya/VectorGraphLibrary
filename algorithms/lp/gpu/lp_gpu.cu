@@ -249,11 +249,7 @@ void gpu_lp_wrapper(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
         {
             shifts[src_id] = connections_count;
         };
-
         graph_API.compute(_graph, frontier, copy_degrees);
-
-        print_data("connections", shifts, vertices_count);
-
         thrust::exclusive_scan(thrust::device, shifts, shifts + vertices_count, shifts);
 
         //frontier.set_all_active();
@@ -269,10 +265,17 @@ void gpu_lp_wrapper(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
         //Gathering labels of adjacent vertices
         graph_API.advance(_graph, frontier, gather_edge_op);
 
-        //print_segmented_array("gathered labels", gathered_labels, shifts, frontier.size(), edges_count);
+        // remove dublicates from shifts
+        thrust::unique(thrust::device, shifts, shifts + vertices_count);
+        int new_vertices_count = frontier.size();
+        int new_edges_count = shifts[new_vertices_count]; // TODO fix when not in mananged memory
+
         print_data("shifts", shifts, vertices_count);
         print_active_ids(node_states, shifts, outgoing_ptrs, vertices_count);
-        //print_segmented_array("gathered labels", gathered_labels, outgoing_ptrs, vertices_count, edges_count);
+        cout << "new vertices count: " << new_vertices_count << endl;
+        cout << "new edges count: " << new_edges_count;
+        print_data("new shifts", shifts, new_vertices_count);
+        print_segmented_array("sparse gathered labels", gathered_labels, shifts, new_vertices_count, new_edges_count);
 
         //Sorting labels of adjacent vertices in per-vertice components.
         tmp_work_buffer_for_seg_sort = array_1;
