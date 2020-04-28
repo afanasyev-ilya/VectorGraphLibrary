@@ -11,7 +11,7 @@ void __global__ compute_kernel_all_active(const int _frontier_size,
     if(src_id < _frontier_size)
     {
         int connections_count = _vertex_pointers[src_id + 1] - _vertex_pointers[src_id];
-        compute_op(src_id, connections_count);
+        compute_op(src_id, src_id, connections_count);
     }
 }
 
@@ -29,7 +29,7 @@ void __global__ compute_kernel_dense(const int *_frontier_flags,
         if(_frontier_flags[src_id] > 0)
         {
             int connections_count = _vertex_pointers[src_id + 1] - _vertex_pointers[src_id];
-            compute_op(src_id, connections_count);
+            compute_op(src_id, src_id, connections_count);
         }
     }
 }
@@ -47,7 +47,7 @@ void __global__ compute_kernel_sparse(const int *_frontier_ids,
     {
         int src_id = _frontier_ids[idx];
         int connections_count = _vertex_pointers[src_id + 1] - _vertex_pointers[src_id];
-        compute_op(src_id, connections_count);
+        compute_op(src_id, idx, connections_count);
     }
 }
 
