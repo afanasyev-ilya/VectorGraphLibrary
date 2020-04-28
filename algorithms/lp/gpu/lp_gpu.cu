@@ -121,7 +121,7 @@ void print_active_percentages(int *_node_states, int _vertices_count)
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void print_active_ids(int *_node_states, int _vertices_count)
+void print_active_ids(int *_node_states, int *_shifts, long long *_outgoing_ptrs, int _vertices_count)
 {
     if(_vertices_count < 30)
     {
@@ -129,13 +129,11 @@ void print_active_ids(int *_node_states, int _vertices_count)
         for (int src_id = 0; src_id < _vertices_count; src_id++)
         {
             if (_node_states[src_id] == LP_BOUNDARY_ACTIVE)
-                cout << src_id << " ";
+                printf("id=%d(CC=%ld, shift=%d) ", src_id, _outgoing_ptrs[src_id + 1] - _outgoing_ptrs[src_id], _shifts[src_id]);
         }
         cout << endl;
     }
 }
-
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template <typename _T>
 void print_data(string _name, _T *_data, int _size)
@@ -251,41 +249,30 @@ void gpu_lp_wrapper(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
         {
             shifts[src_id] = connections_count;
         };
+
         graph_API.compute(_graph, frontier, copy_degrees);
+
+        print_data("connections", shifts, vertices_count);
+
         thrust::exclusive_scan(thrust::device, shifts, shifts + vertices_count, shifts);
 
         //frontier.set_all_active();
-
-        int *different_presence = seg_reduce_indices;
-        auto gather_edge_op = [_labels, gathered_labels, different_presence, shifts] __device__(int src_id, int dst_id, int local_edge_pos, long long int global_edge_pos)
+        auto gather_edge_op = [_labels, gathered_labels, shifts] __device__(int src_id, int dst_id, int local_edge_pos, long long int global_edge_pos)
         {
             int dst_label = __ldg(&_labels[dst_id]);
             int src_label = _labels[src_id];
 
             //gathered_labels[global_edge_pos] = dst_label;
             gathered_labels[shifts[src_id] + local_edge_pos] = dst_label;
-            printf("%d) %d + %d, l=%d\n", src_id, shifts[src_id], local_edge_pos, dst_label);
-
-            if(src_label != dst_label)
-                different_presence[src_id] = 1;
-        };
-
-        auto preprocess_op = [different_presence] __device__(int src_id, int connections_count)
-        {
-            different_presence[src_id] = 0;
-        };
-
-        auto postprocess_op = [different_presence, node_states] __device__(int src_id, int connections_count)
-        {
-            if(different_presence[src_id] == 0)
-                node_states[src_id] = LP_INNER;
         };
 
         //Gathering labels of adjacent vertices
-        graph_API.advance(_graph, frontier, gather_edge_op, preprocess_op, postprocess_op);
+        graph_API.advance(_graph, frontier, gather_edge_op);
 
-        print_active_ids(node_states, vertices_count);
-        print_segmented_array("gathered labels", gathered_labels, outgoing_ptrs, vertices_count, edges_count);
+        //print_segmented_array("gathered labels", gathered_labels, shifts, frontier.size(), edges_count);
+        print_data("shifts", shifts, vertices_count);
+        print_active_ids(node_states, shifts, outgoing_ptrs, vertices_count);
+        //print_segmented_array("gathered labels", gathered_labels, outgoing_ptrs, vertices_count, edges_count);
 
         //Sorting labels of adjacent vertices in per-vertice components.
         tmp_work_buffer_for_seg_sort = array_1;
@@ -398,16 +385,31 @@ void gpu_lp_wrapper(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
 
         graph_API.generate_new_frontier(_graph, frontier, label_recently_changed);
 
-        auto set_all_neighbours_active = [node_states] __device__(int src_id, int dst_id, int local_edge_pos, long long int global_edge_pos)
+        int *different_presence = seg_reduce_indices;
+        auto preprocess_op = [different_presence] __device__(int src_id, int connections_count)
         {
-            //if(node_states[dst_id] == LP_BOUNDARY_PASSIVE)
-            //    node_states[dst_id] = LP_BOUNDARY_ACTIVE;
+            different_presence[src_id] = 0;
+        };
+
+        auto postprocess_op = [different_presence, node_states] __device__(int src_id, int connections_count)
+        {
+            if(different_presence[src_id] == 0)
+                node_states[src_id] = LP_INNER;
+        };
+
+        auto set_all_neighbours_active = [_labels, node_states, different_presence] __device__(int src_id, int dst_id, int local_edge_pos, long long int global_edge_pos)
+        {
+            int dst_label = __ldg(&_labels[dst_id]);
+            int src_label = _labels[src_id];
+
+            if(src_label != dst_label)
+                different_presence[src_id] = 1;
 
             if(node_states[dst_id] != LP_BOUNDARY_ACTIVE)
                 node_states[dst_id] = LP_BOUNDARY_ACTIVE;
         };
 
-        graph_API.advance(_graph, frontier, set_all_neighbours_active);
+        graph_API.advance(_graph, frontier, set_all_neighbours_active, preprocess_op, postprocess_op);
 
         _iterations_count++;
     }
