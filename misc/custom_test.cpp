@@ -73,23 +73,22 @@ int main(int argc, const char * argv[])
             #pragma omp for schedule(static)
             for (int vec_start = 0; vec_start < size; vec_start += VECTOR_LENGTH)
             {
+                #pragma _NEC prefetch(&in_data[src_id])
+
                 #pragma _NEC vector
                 for (int i = 0; i < VECTOR_LENGTH; i++)
                 {
                     int src_id = vec_start + i;
                     reg_data[i] = in_data[src_id];
-                    shifted_data[i] = 0;
-                }
+                    shifted_data[i] = in_data[src_id - 1];
 
-                #pragma _NEC vector
-                for (int i = 0; i < (VECTOR_LENGTH - 1); i++)
-                {
-                    shifted_data[i + 1] = reg_data[i];
                 }
 
                 #pragma _NEC vector
                 for (int i = 0; i < VECTOR_LENGTH; i++)
                 {
+                    //if(i < 16)
+                    //    cout << reg_data[i] << " + " << shifted_data[i] << " = " << reg_data[i] + shifted_data[i] << endl;
                     int src_id = vec_start + i;
                     out_data[src_id] = reg_data[i] + shifted_data[i];
                 }
@@ -102,10 +101,20 @@ int main(int argc, const char * argv[])
         {
             cout << in_data[i] << " ";
         }
+        cout << endl;
+        cout << "+" << endl;
+        cout << "0 ";
+        for (int i = 1; i < 16; i++)
+        {
+            cout << in_data[i - 1] << " ";
+        }
+
+        cout << endl;
         for (int i = 0; i < 16; i++)
         {
             cout << out_data[i] << " ";
         }
+        cout << endl;
         
         delete []in_data;
         delete []out_data;

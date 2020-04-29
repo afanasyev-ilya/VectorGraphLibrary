@@ -251,37 +251,39 @@ void gpu_lp_wrapper(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
 
         // calculate shifts for gathered labels
         cudaMemset(shifts, 0, vertices_count*sizeof(int));
-        auto copy_degrees = [shifts] __device__(int src_id, int position_in_frontier, int connections_count)
+        int frontier_size = frontier.size();
+        auto copy_degrees = [shifts, frontier_size] __device__(int src_id, int position_in_frontier, int connections_count)
         {
-            shifts[src_id] = connections_count;
+            shifts[position_in_frontier] = connections_count;
         };
-        shifts[vertices_count] = edges_count; // TODO FIX without managed
 
         graph_API.compute(_graph, frontier, copy_degrees);
-        thrust::exclusive_scan(thrust::device, shifts, shifts + vertices_count, shifts);
+        thrust::exclusive_scan(thrust::device, shifts, shifts + frontier.size() + 1, shifts);
+        print_data("old shifts", shifts, frontier.size() + 1);
 
         //frontier.set_all_active();
-        auto gather_edge_op = [_labels, gathered_labels, shifts] __device__(int src_id, int dst_id, int local_edge_pos, long long int global_edge_pos)
+        auto gather_edge_op = [_labels, gathered_labels, shifts] __device__(int src_id, int dst_id, int local_edge_pos, long long int global_edge_pos, int position_in_frontier)
         {
             int dst_label = __ldg(&_labels[dst_id]);
             int src_label = _labels[src_id];
 
             //gathered_labels[global_edge_pos] = dst_label;
-            gathered_labels[shifts[src_id] + local_edge_pos] = dst_label;
+            gathered_labels[shifts[position_in_frontier] + local_edge_pos] = dst_label;
         };
 
         //Gathering labels of adjacent vertices
         graph_API.advance(_graph, frontier, gather_edge_op);
 
         // remove dublicates from shifts
-        thrust::unique(thrust::device, shifts, shifts + vertices_count);
+        //int *end = thrust::unique(thrust::device, shifts, shifts + vertices_count);
+
         int new_vertices_count = frontier.size();
         int new_edges_count = shifts[new_vertices_count]; // TODO fix when not in mananged memory
 
         //print_data("shifts", shifts, vertices_count);
         print_active_ids(node_states, shifts, outgoing_ptrs, vertices_count);
         cout << "new vertices count: " << new_vertices_count << endl;
-        cout << "new edges count: " << new_edges_count;
+        cout << "new edges count: " << new_edges_count << endl;
         print_data("new shifts", shifts, new_vertices_count + 1);
         print_segmented_array("sparse gathered labels", gathered_labels, shifts, new_vertices_count, new_edges_count);
 
@@ -374,7 +376,7 @@ void gpu_lp_wrapper(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
         };
 
         //Searching for maximum frequency in each per-vertice segment
-        mgpu::segreduce(seg_reduce_indices, reduced_size + 1, new_ptr, new_vertices_count, seg_reduce_result,
+        mgpu::segreduce(seg_reduce_indices, reduced_size + 1, new_ptr, new_vertices_count + 1, seg_reduce_result,
                         seg_reduce_op, (int) init, context);
 
         print_data("Segreduced array", seg_reduce_result, new_vertices_count);
@@ -393,15 +395,6 @@ void gpu_lp_wrapper(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
 
                 if(node_states[src_id] == LP_BOUNDARY_ACTIVE)
                 {
-                    if(src_id == 14)
-                    {
-                        printf("14 %d -> %d\n", _labels[src_id], new_label);
-                    }
-                    if(src_id == 15)
-                    {
-                        printf("15 %d -> %d\n", _labels[src_id], new_label);
-                    }
-
                     if(new_label != _labels[src_id])
                     {
                         _labels[src_id] = new_label;
@@ -431,18 +424,18 @@ void gpu_lp_wrapper(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
         graph_API.generate_new_frontier(_graph, frontier, label_recently_changed);
 
         int *different_presence = seg_reduce_indices;
-        auto preprocess_op = [different_presence] __device__(int src_id, int connections_count)
+        auto preprocess_op = [different_presence] __device__(int src_id, int position_in_frontier, int connections_count)
         {
             different_presence[src_id] = 0;
         };
 
-        auto postprocess_op = [different_presence, node_states] __device__(int src_id, int connections_count)
+        auto postprocess_op = [different_presence, node_states] __device__(int src_id, int position_in_frontier, int connections_count)
         {
             if(different_presence[src_id] == 0)
                 node_states[src_id] = LP_INNER;
         };
 
-        auto set_all_neighbours_active = [_labels, node_states, different_presence] __device__(int src_id, int dst_id, int local_edge_pos, long long int global_edge_pos)
+        auto set_all_neighbours_active = [_labels, node_states, different_presence] __device__(int src_id, int dst_id, int local_edge_pos, long long int global_edge_pos, int position_in_frontier)
         {
             int dst_label = __ldg(&_labels[dst_id]);
             int src_label = _labels[src_id];
@@ -461,7 +454,7 @@ void gpu_lp_wrapper(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
 
         _iterations_count++;
     }
-    while((_iterations_count < 1) && (updated[0] > 0));
+    while((_iterations_count < 10) && (updated[0] > 0));
 
     cout << "done " << _iterations_count << " iterations" << endl;
 
