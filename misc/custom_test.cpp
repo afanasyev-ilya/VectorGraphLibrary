@@ -8,6 +8,8 @@
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+#define INT_ELEMENTS_PER_EDGE 1.0
+
 #include "../graph_library.h"
 #include <iostream>
 
@@ -22,7 +24,7 @@ int main(int argc, const char * argv[])
         double t1,t2;
         cout << "Custom test..." << endl;
         
-        int size = pow(2.0, 23);
+        int size = 4000000;
         
         int *in_data = new int[size];
         int *out_data = new int[size];
@@ -33,61 +35,77 @@ int main(int argc, const char * argv[])
         #pragma omp parallel for
         for(int i = 0; i < size; i++)
         {
-            in_data[i] = 0;
+            in_data[i] = rand() % 3;
+            out_data[i] = 0;
+            tmp_buffer[i] = 0;
         }
-        
-        vector<double> sparse_bandwidths;
-        vector<double> dense_bandwidths;
-        vector<string> numbers_of_elements;
-        
-        int divider = 1024*1024;
-        while(divider >= 1)
+
+        t1 = omp_get_wtime();
+        #pragma omp parallel for
+        for(int vec_start = 0; vec_start < size; vec_start += VECTOR_LENGTH)
         {
-            int number_of_active_elements = size / divider;
-            cout << "number of elements for test: " << number_of_active_elements << endl;
-            cout << "percent: " << (100.0 * number_of_active_elements)/size << " %" << endl;
-            
-            for(int i = 0; i < number_of_active_elements; i++)
+            #pragma _NEC vector
+            for(int i = 0; i < VECTOR_LENGTH; i++)
             {
-                int dst_id = rand() % size;
-                in_data[dst_id] = val_to_find;
+                int src_id = vec_start + i;
+                tmp_buffer[src_id] = in_data[src_id];
             }
-            
-            cout << "SPARSE" << endl;
-            t1 = omp_get_wtime();
-            sparse_copy_if(in_data, out_data, tmp_buffer, size, val_to_find);
-            t2 = omp_get_wtime();
-            cout << "time: " << (t2 - t1) * 1000.0 << " ms" << endl;
-            cout << "bandwidth: " << 2.0 * size * sizeof(int) / ((t2 - t1)*1e9) << " GB/s" << endl;
-            
-            sparse_bandwidths.push_back(2.0 * size * sizeof(int) / ((t2 - t1)*1e9));
-            
-            cout << "DENSE" << endl;
-            t1 = omp_get_wtime();
-            dense_copy_if(in_data, out_data, size, val_to_find);
-            t2 = omp_get_wtime();
-            cout << "time: " << (t2 - t1) * 1000.0 << " ms" << endl;
-            cout << "bandwidth: " << 2.0 * size * sizeof(int) / ((t2 - t1)*1e9) << " GB/s" << endl << endl;
-            
-            dense_bandwidths.push_back(2.0 * size * sizeof(int) / ((t2 - t1)*1e9));
-            
-            string info = std::to_string(number_of_active_elements) + string(" (") + std::to_string((100.0 * number_of_active_elements)/size) + string("%)");
-            numbers_of_elements.push_back(info);
-            
-            divider /= 2;
         }
-        
-        for(int i = 0; i < sparse_bandwidths.size(); i++)
-            cout << sparse_bandwidths[i] << endl;
-        cout << endl << endl;
-        
-        for(int i = 0; i < dense_bandwidths.size(); i++)
-            cout << dense_bandwidths[i] << endl;
-        cout << endl << endl;
-        
-        for(int i = 0; i < numbers_of_elements.size(); i++)
-            cout << numbers_of_elements[i] << endl;
-        cout << endl << endl;
+        t2 = omp_get_wtime();
+        cout << "BW: " << 2.0 * sizeof(int) * size / ( (t2 - t1) * 1e9 ) << " GB/s" << endl;
+
+        t1 = omp_get_wtime();
+        #pragma omp parallel
+        {
+            int reg_data[VECTOR_LENGTH];
+            int shifted_data[VECTOR_LENGTH];
+
+            #pragma _NEC vreg(reg_data)
+            #pragma _NEC vreg(shifted_data)
+
+            #pragma _NEC vector
+            for (int i = 0; i < VECTOR_LENGTH; i++)
+            {
+                reg_data[i] = 0;
+                shifted_data[i] = 0;
+            }
+
+            #pragma omp for schedule(static)
+            for (int vec_start = 0; vec_start < size; vec_start += VECTOR_LENGTH)
+            {
+                #pragma _NEC vector
+                for (int i = 0; i < VECTOR_LENGTH; i++)
+                {
+                    int src_id = vec_start + i;
+                    reg_data[i] = in_data[src_id];
+                    shifted_data[i] = 0;
+                }
+
+                #pragma _NEC vector
+                for (int i = 0; i < (VECTOR_LENGTH - 1); i++)
+                {
+                    shifted_data[i + 1] = reg_data[i];
+                }
+
+                #pragma _NEC vector
+                for (int i = 0; i < VECTOR_LENGTH; i++)
+                {
+                    int src_id = vec_start + i;
+                    out_data[src_id] = reg_data[i] + shifted_data[i];
+                }
+            }
+        }
+        t2 = omp_get_wtime();
+        cout << "BW 2: " << 2.0 * sizeof(int) * size / ( (t2 - t1) * 1e9 ) << " GB/s" << endl;
+
+        for (int i = 0; i < 16; i++)
+        {
+            cout << in_data[i] << " ";
+        }
+        for (int i = 0; i < 16; i++)
+        {
+            cout << out_data[i] << " ";
+        }
         
         delete []in_data;
         delete []out_data;
