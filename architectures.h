@@ -31,7 +31,7 @@
 #define GPU_BLOCK_THRESHOLD_VALUE    BLOCK_SIZE
 #define GPU_WARP_THRESHOLD_VALUE     WARP_SIZE
 
-#define __USE_MANAGED_MEMORY__
+//#define __USE_MANAGED_MEMORY__
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Common properties
