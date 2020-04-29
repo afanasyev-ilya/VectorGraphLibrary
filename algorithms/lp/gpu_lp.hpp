@@ -9,7 +9,7 @@ void LP::gpu_lp(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph, int *_lab
     LOAD_EXTENDED_CSR_GRAPH_DATA(_graph);
 
     int *device_labels;
-    MemoryAPI::allocate_non_managed_array(&device_labels, vertices_count);
+    MemoryAPI::allocate_device_array(&device_labels, vertices_count);
 
     int iterations_count = 0;
     double t1 = omp_get_wtime();

@@ -57,7 +57,9 @@ __global__ void frequency_count(int *frequencies, int *reduced_scan, long long i
         if ((i > 0))
         {
             frequencies[i] = reduced_scan[i] - reduced_scan[i - 1];
-        } else {
+        }
+        else
+        {
             frequencies[0] = reduced_scan[0] + 1;
         }
     }
@@ -216,8 +218,8 @@ void gpu_lp_wrapper(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
     auto init_op =[_labels, node_states] __device__(int src_id, int position_in_frontier, int connections_count)
     {
         _labels[src_id] = src_id;
-        //node_states[src_id] = LP_BOUNDARY_ACTIVE;
-        node_states[src_id] = LP_BOUNDARY_PASSIVE; // TOFIX
+        node_states[src_id] = LP_BOUNDARY_ACTIVE;
+        //node_states[src_id] = LP_BOUNDARY_PASSIVE; // TODO tmp fix
     };
 
     graph_API.compute(_graph, frontier, init_op);
@@ -232,17 +234,17 @@ void gpu_lp_wrapper(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
         // generate new frontier with only active nodes
         auto node_is_active = [node_states] __device__ (int src_id)->int
         {
-            /*if(node_states[src_id] == LP_BOUNDARY_ACTIVE)
+            if(node_states[src_id] == LP_BOUNDARY_ACTIVE)
                 return IN_FRONTIER_FLAG;
             else
-                return NOT_IN_FRONTIER_FLAG;*/
-            if(src_id == 1 || src_id == 3)
+                return NOT_IN_FRONTIER_FLAG;
+            /*if(src_id == 2) // TODO tmp fix
             {
                 node_states[src_id] = LP_BOUNDARY_ACTIVE;
                 return IN_FRONTIER_FLAG;
             }
             else
-                return NOT_IN_FRONTIER_FLAG;
+                return NOT_IN_FRONTIER_FLAG;*/
         };
         graph_API.generate_new_frontier(_graph, frontier, node_is_active);
         print_active_percentages(node_states, vertices_count); // debug part
@@ -276,20 +278,19 @@ void gpu_lp_wrapper(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
         int new_vertices_count = frontier.size();
         int new_edges_count = shifts[new_vertices_count]; // TODO fix when not in mananged memory
 
-        dim3 block_edges(1024);
-        dim3 grid_edges((new_edges_count - 1) / block_edges.x + 1);
-
-        SAFE_KERNEL_CALL((fill_indices<<<grid_edges, block_edges>>>(seg_reduce_indices, edges_count)));
-
-        print_data("shifts", shifts, vertices_count);
+        //print_data("shifts", shifts, vertices_count);
         print_active_ids(node_states, shifts, outgoing_ptrs, vertices_count);
         cout << "new vertices count: " << new_vertices_count << endl;
         cout << "new edges count: " << new_edges_count;
         print_data("new shifts", shifts, new_vertices_count + 1);
         print_segmented_array("sparse gathered labels", gathered_labels, shifts, new_vertices_count, new_edges_count);
 
-        //Sorting labels of adjacent vertices in per-vertice components.
+        dim3 block_edges(1024);
+        dim3 grid_edges((new_edges_count - 1) / block_edges.x + 1);
 
+        SAFE_KERNEL_CALL((fill_indices<<<grid_edges, block_edges>>>(seg_reduce_indices, edges_count)));
+
+        //Sorting labels of adjacent vertices in per-vertice components.
         tmp_work_buffer_for_seg_sort = array_1;
 
         mgpu::segmented_sort(gathered_labels, tmp_work_buffer_for_seg_sort, new_edges_count, shifts, new_vertices_count,
@@ -331,7 +332,6 @@ void gpu_lp_wrapper(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
         reduced_scan = array_2;
         SAFE_KERNEL_CALL((count_labels <<< grid_edges, block_edges >>> (scanned, new_edges_count, reduced_scan)));
 
-        //print_segmented_array("Reduced scan array", reduced_scan, shifts, new_vertices_count, reduced_size);
         print_data("Reduced scan array", reduced_scan, reduced_size);
 
         //new_ptr array contains new bounds of segments by getting them from scan
@@ -340,12 +340,15 @@ void gpu_lp_wrapper(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
         {
             new_ptr[position_in_frontier] = scanned[shifts[position_in_frontier]];
         };
+        new_ptr[new_vertices_count] = scanned[shifts[new_vertices_count]]; // TODO FIX without managed
         graph_API.compute(_graph, frontier, new_boundaries_op);
 
         print_data("new boundaries", new_ptr, new_vertices_count + 1);
 
         frequencies = array_1;
         SAFE_KERNEL_CALL((frequency_count <<< grid_edges, block_edges >>> (frequencies, reduced_scan, reduced_size)));
+
+        print_data("frequency_count", frequencies, reduced_size);
 
         print_segmented_array("Frequencies array", frequencies, shifts, new_vertices_count, new_edges_count);
 
@@ -374,7 +377,7 @@ void gpu_lp_wrapper(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
         mgpu::segreduce(seg_reduce_indices, reduced_size + 1, new_ptr, new_vertices_count, seg_reduce_result,
                         seg_reduce_op, (int) init, context);
 
-        print_segmented_array("Segreduced array", reduced_scan, shifts, new_vertices_count, new_edges_count);
+        print_data("Segreduced array", seg_reduce_indices, reduced_size);
 
         updated[0] = 0;
 
@@ -388,8 +391,17 @@ void gpu_lp_wrapper(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
             {
                 int new_label = gathered_labels[reduced_scan[seg_reduce_result[position_in_frontier]]];
 
-                if (node_states[src_id] == LP_BOUNDARY_ACTIVE)
+                if(node_states[src_id] == LP_BOUNDARY_ACTIVE)
                 {
+                    if(src_id == 14)
+                    {
+                        printf("14 %d -> %d\n", _labels[src_id], new_label);
+                    }
+                    if(src_id == 15)
+                    {
+                        printf("15 %d -> %d\n", _labels[src_id], new_label);
+                    }
+
                     if(new_label != _labels[src_id])
                     {
                         _labels[src_id] = new_label;
@@ -400,7 +412,7 @@ void gpu_lp_wrapper(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
 
                     if (new_label == _labels[src_id])
                     {
-                        node_states[src_id] = LP_BOUNDARY_PASSIVE;
+                        //node_states[src_id] = LP_BOUNDARY_PASSIVE;
                     }
                 }
             }
@@ -438,15 +450,18 @@ void gpu_lp_wrapper(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
             if(src_label != dst_label)
                 different_presence[src_id] = 1;
 
-            if(node_states[dst_id] != LP_BOUNDARY_ACTIVE)
-                node_states[dst_id] = LP_BOUNDARY_ACTIVE;
+            //if(node_states[dst_id] != LP_BOUNDARY_ACTIVE)
+                //node_states[dst_id] = LP_BOUNDARY_ACTIVE;
         };
 
         graph_API.advance(_graph, frontier, set_all_neighbours_active, preprocess_op, postprocess_op);
 
+        print_data("status: ", node_states, vertices_count);
+        print_data("new labels: ", _labels, vertices_count);
+
         _iterations_count++;
     }
-    while((_iterations_count < _max_iterations) && (updated[0] > 0));
+    while((_iterations_count < 1) && (updated[0] > 0));
 
     cout << "done " << _iterations_count << " iterations" << endl;
 
