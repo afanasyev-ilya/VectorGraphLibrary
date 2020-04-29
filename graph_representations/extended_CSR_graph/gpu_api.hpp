@@ -30,8 +30,6 @@ void ExtendedCSRGraph<_TVertexValue, _TEdgeWeight>::move_to_device()
     MemoryAPI::prefetch_managed_array(outgoing_weights, this->edges_count);
     #endif
     #endif
-
-    // TODO VE MOVE
 }
 #endif
 

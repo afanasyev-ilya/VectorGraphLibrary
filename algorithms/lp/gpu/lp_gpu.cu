@@ -201,20 +201,23 @@ void gpu_lp_wrapper(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
     int *reduced_scan;
     int *frequencies;
     int *node_states;
+    int *shifts;
     MemoryAPI::allocate_device_array(&new_ptr, vertices_count + 1);
     MemoryAPI::allocate_device_array(&array_1, edges_count + 1);
     MemoryAPI::allocate_device_array(&array_2, edges_count +1);
     MemoryAPI::allocate_device_array(&seg_reduce_indices, edges_count + 1);
     MemoryAPI::allocate_device_array(&seg_reduce_result, vertices_count);
     MemoryAPI::allocate_device_array(&gathered_labels, edges_count + 1);
-    MemoryAPI::allocate_managed_array(&node_states, vertices_count);
+    MemoryAPI::allocate_device_array(&node_states, vertices_count);
+    MemoryAPI::allocate_device_array(&shifts, vertices_count + 1);
 
     frontier.set_all_active();
 
     auto init_op =[_labels, node_states] __device__(int src_id, int position_in_frontier, int connections_count)
     {
         _labels[src_id] = src_id;
-        node_states[src_id] = LP_BOUNDARY_ACTIVE;
+        //node_states[src_id] = LP_BOUNDARY_ACTIVE;
+        node_states[src_id] = LP_BOUNDARY_PASSIVE; // TOFIX
     };
 
     graph_API.compute(_graph, frontier, init_op);
@@ -229,25 +232,29 @@ void gpu_lp_wrapper(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
         // generate new frontier with only active nodes
         auto node_is_active = [node_states] __device__ (int src_id)->int
         {
-            if(node_states[src_id] == LP_BOUNDARY_ACTIVE)
-                return IN_FRONTIER_FLAG;
-            else
-                return NOT_IN_FRONTIER_FLAG;
-            /*if(src_id == 1 || src_id == 10 || src_id == 20)
+            /*if(node_states[src_id] == LP_BOUNDARY_ACTIVE)
                 return IN_FRONTIER_FLAG;
             else
                 return NOT_IN_FRONTIER_FLAG;*/
+            if(src_id == 1 || src_id == 3)
+            {
+                node_states[src_id] = LP_BOUNDARY_ACTIVE;
+                return IN_FRONTIER_FLAG;
+            }
+            else
+                return NOT_IN_FRONTIER_FLAG;
         };
         graph_API.generate_new_frontier(_graph, frontier, node_is_active);
         print_active_percentages(node_states, vertices_count); // debug part
 
         // calculate shifts for gathered labels
-        int *shifts = new_ptr;
         cudaMemset(shifts, 0, vertices_count*sizeof(int));
         auto copy_degrees = [shifts] __device__(int src_id, int position_in_frontier, int connections_count)
         {
             shifts[src_id] = connections_count;
         };
+        shifts[vertices_count] = edges_count; // TODO FIX without managed
+
         graph_API.compute(_graph, frontier, copy_degrees);
         thrust::exclusive_scan(thrust::device, shifts, shifts + vertices_count, shifts);
 
@@ -267,19 +274,19 @@ void gpu_lp_wrapper(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
         // remove dublicates from shifts
         thrust::unique(thrust::device, shifts, shifts + vertices_count);
         int new_vertices_count = frontier.size();
-        int new_edges_count = shifts[new_vertices_count - 1]; // TODO fix when not in mananged memory
+        int new_edges_count = shifts[new_vertices_count]; // TODO fix when not in mananged memory
 
         dim3 block_edges(1024);
         dim3 grid_edges((new_edges_count - 1) / block_edges.x + 1);
 
         SAFE_KERNEL_CALL((fill_indices<<<grid_edges, block_edges>>>(seg_reduce_indices, edges_count)));
 
-        //print_data("shifts", shifts, vertices_count);
-        //print_active_ids(node_states, shifts, outgoing_ptrs, vertices_count);
+        print_data("shifts", shifts, vertices_count);
+        print_active_ids(node_states, shifts, outgoing_ptrs, vertices_count);
         cout << "new vertices count: " << new_vertices_count << endl;
         cout << "new edges count: " << new_edges_count;
-        //print_data("new shifts", shifts, new_vertices_count);
-        //print_segmented_array("sparse gathered labels", gathered_labels, shifts, new_vertices_count, new_edges_count);
+        print_data("new shifts", shifts, new_vertices_count + 1);
+        print_segmented_array("sparse gathered labels", gathered_labels, shifts, new_vertices_count, new_edges_count);
 
         //Sorting labels of adjacent vertices in per-vertice components.
 
@@ -288,57 +295,59 @@ void gpu_lp_wrapper(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
         mgpu::segmented_sort(gathered_labels, tmp_work_buffer_for_seg_sort, new_edges_count, shifts, new_vertices_count,
                              mgpu::less_t<int>(), context);
 
-//      print_segmented_array("sparse gathered SORTED labels", gathered_labels, shifts, new_vertices_count, new_edges_count);
+        print_segmented_array("sparse gathered SORTED labels", gathered_labels, shifts, new_vertices_count, new_edges_count);
 
         label_differences = array_2;
-        SAFE_CALL((cudaMemset(label_differences, 0, (size_t)(sizeof(int)) * new_edges_count))); //was taken from group of memcpy
 
         //Puts a 1 in the last element of each segment in boundaries_array. Segments are passed by v_array
-        auto label_differences_initial_op = [outgoing_ptrs, label_differences] __device__(int src_id, int position_in_frontier, int connections_count)
+        auto label_differences_initial_op = [shifts, label_differences] __device__(int src_id, int position_in_frontier, int connections_count)
         {
-            long int position = outgoing_ptrs[src_id];
-            if(src_id != 0)
+            long int position = shifts[position_in_frontier];
+            if(position_in_frontier != 0)
             {
                 label_differences[position - 1] = 1;
             }
         };
+        SAFE_CALL((cudaMemset(label_differences, 0, (size_t)(sizeof(int)) * new_edges_count))); // set zeroes to difference array
         graph_API.compute(_graph, frontier, label_differences_initial_op);
 
         SAFE_KERNEL_CALL((label_differences_advanced <<< grid_edges, block_edges >>>
                                 (label_differences, gathered_labels, new_edges_count)));
 
-        //print_segmented_array("Label differences", label_differences, shifts, new_vertices_count, new_edges_count);
+        print_segmented_array("Label differences", label_differences, shifts, new_vertices_count, new_edges_count);
 
         scanned = array_1;
         //exclusive scan in order to pass repeated labels and divide different labels
         thrust::exclusive_scan(thrust::device, label_differences, label_differences + new_edges_count + 1, scanned, 0);
 
 
-        //print_segmented_array("Scanned array", scanned, shifts, new_vertices_count, new_edges_count);
+        print_segmented_array("Scanned array", scanned, shifts, new_vertices_count, new_edges_count);
 
         int reduced_size = 0;
         SAFE_CALL(cudaMemcpy(&reduced_size, scanned + new_edges_count , sizeof(int), cudaMemcpyDeviceToHost));
 
-        SAFE_CALL((cudaMemset(label_differences, 0, (size_t)(sizeof(int)) * new_edges_count)));
-        reduced_scan = array_2;
+        cout << "reduced size: " << reduced_size << endl;
 
+        reduced_scan = array_2;
         SAFE_KERNEL_CALL((count_labels <<< grid_edges, block_edges >>> (scanned, new_edges_count, reduced_scan)));
 
         //print_segmented_array("Reduced scan array", reduced_scan, shifts, new_vertices_count, reduced_size);
+        print_data("Reduced scan array", reduced_scan, reduced_size);
 
         //new_ptr array contains new bounds of segments by getting them from scan
         //This is necessary due to shortened size of reduced_scan
         auto new_boundaries_op = [shifts, scanned, new_ptr] __device__(int src_id, int position_in_frontier, int connections_count)
         {
-            new_ptr[src_id] = scanned[shifts[src_id]];
+            new_ptr[position_in_frontier] = scanned[shifts[position_in_frontier]];
         };
-        SAFE_CALL((cudaMemset(new_ptr, 0, (size_t)(sizeof(int)) * (new_vertices_count+1))));
         graph_API.compute(_graph, frontier, new_boundaries_op);
+
+        print_data("new boundaries", new_ptr, new_vertices_count + 1);
 
         frequencies = array_1;
         SAFE_KERNEL_CALL((frequency_count <<< grid_edges, block_edges >>> (frequencies, reduced_scan, reduced_size)));
 
-        //print_segmented_array("Frequencies array", frequencies, shifts, new_vertices_count, new_edges_count);
+        print_segmented_array("Frequencies array", frequencies, shifts, new_vertices_count, new_edges_count);
 
         int init = REDUCE_INITIAL;
 
@@ -365,7 +374,7 @@ void gpu_lp_wrapper(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
         mgpu::segreduce(seg_reduce_indices, reduced_size + 1, new_ptr, new_vertices_count, seg_reduce_result,
                         seg_reduce_op, (int) init, context);
 
-        //print_segmented_array("Segreduced array", reduced_scan, shifts, new_vertices_count, new_edges_count);
+        print_segmented_array("Segreduced array", reduced_scan, shifts, new_vertices_count, new_edges_count);
 
         updated[0] = 0;
 
@@ -374,8 +383,6 @@ void gpu_lp_wrapper(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
         auto get_labels_op = [seg_reduce_result, reduced_scan, gathered_labels, _labels, updated, node_states, changes_recently_occurred] __device__(int src_id, int position_in_frontier, int connections_count)
         {
             changes_recently_occurred[src_id] = 0;
-            if(position_in_frontier < 10)
-                printf("%d %d\n", position_in_frontier, seg_reduce_result[position_in_frontier]);
 
             if(seg_reduce_result[position_in_frontier] != -1)
             {
@@ -450,6 +457,7 @@ void gpu_lp_wrapper(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
     MemoryAPI::free_device_array(seg_reduce_result);
     MemoryAPI::free_device_array(gathered_labels);
     MemoryAPI::free_device_array(node_states);
+    MemoryAPI::free_device_array(shifts);
 
     cudaFree(updated);
 }
