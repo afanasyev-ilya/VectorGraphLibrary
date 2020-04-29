@@ -377,7 +377,7 @@ void gpu_lp_wrapper(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
         mgpu::segreduce(seg_reduce_indices, reduced_size + 1, new_ptr, new_vertices_count, seg_reduce_result,
                         seg_reduce_op, (int) init, context);
 
-        print_data("Segreduced array", seg_reduce_indices, reduced_size);
+        print_data("Segreduced array", seg_reduce_result, new_vertices_count);
 
         updated[0] = 0;
 
