@@ -450,8 +450,8 @@ void gpu_lp_wrapper(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
             if(src_label != dst_label)
                 different_presence[src_id] = 1;
 
-            //if(node_states[dst_id] != LP_BOUNDARY_ACTIVE)
-                //node_states[dst_id] = LP_BOUNDARY_ACTIVE;
+            if(node_states[dst_id] != LP_BOUNDARY_ACTIVE)
+                node_states[dst_id] = LP_BOUNDARY_ACTIVE;
         };
 
         graph_API.advance(_graph, frontier, set_all_neighbours_active, preprocess_op, postprocess_op);
