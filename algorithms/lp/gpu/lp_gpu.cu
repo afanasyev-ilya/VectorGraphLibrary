@@ -118,7 +118,7 @@ void print_active_percentages(int *_node_states, int _vertices_count)
 
     cout << 100.0 * boundary_active_count / _vertices_count << " % boundary active" << endl;
     cout << 100.0 * boundary_passive_count / _vertices_count << " % boundary passive" << endl;
-    cout << 100.0 * inner_count / _vertices_count << " % boundary inner" << endl;
+    cout << 100.0 * inner_count / _vertices_count << " % boundary inner" << endl << endl;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -230,6 +230,8 @@ void gpu_lp_wrapper(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
 
     do
     {
+        updated[0] = 0;
+
         // generate new frontier with only active nodes
         auto node_is_active = [node_states] __device__ (int src_id)->int
         {
@@ -276,7 +278,13 @@ void gpu_lp_wrapper(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
         dim3 block_edges(1024);
         dim3 grid_edges((new_edges_count - 1) / block_edges.x + 1);
 
-        SAFE_KERNEL_CALL((fill_indices<<<grid_edges, block_edges>>>(seg_reduce_indices, edges_count)));
+        if(new_edges_count == 0)
+        {
+            _iterations_count++;
+            continue;
+        }
+
+        SAFE_KERNEL_CALL((fill_indices<<<grid_edges, block_edges>>>(seg_reduce_indices, new_edges_count)));
 
         //Sorting labels of adjacent vertices in per-vertice components.
         tmp_work_buffer_for_seg_sort = array_1;
@@ -351,8 +359,6 @@ void gpu_lp_wrapper(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
         mgpu::segreduce(seg_reduce_indices, reduced_size, new_ptr, new_vertices_count, seg_reduce_result,
                         seg_reduce_op, (int) init, context);
 
-        updated[0] = 0;
-
         int *changes_recently_occurred = new_ptr;
 
         auto get_labels_op = [seg_reduce_result, reduced_scan, gathered_labels, _labels, updated, node_states, changes_recently_occurred] __device__(int src_id, int position_in_frontier, int connections_count)
@@ -375,7 +381,7 @@ void gpu_lp_wrapper(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
 
                     if (new_label == _labels[src_id])
                     {
-                        //node_states[src_id] = LP_BOUNDARY_PASSIVE;
+                        node_states[src_id] = LP_BOUNDARY_PASSIVE;
                     }
                 }
             }
@@ -421,7 +427,7 @@ void gpu_lp_wrapper(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
         
         _iterations_count++;
     }
-    while((_iterations_count < 10) && (updated[0] > 0));
+    while((_iterations_count < 20) && (updated[0] > 0));
 
     cout << "done " << _iterations_count << " iterations" << endl;
 
