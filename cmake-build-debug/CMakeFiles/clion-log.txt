@@ -1,4 +1,4 @@
+Cannot generate into /Users/elijah/Documents/workspace/VectorGraphLibrary/cmake-build-debug
+It is already used for project /home/dimon/VectorGraphLibrary
 
--- Configuring done
--- Generating done
--- Build files have been written to: /home/dimon/VectorGraphLibrary/cmake-build-debug
+Please either delete it manually or select another generation directory

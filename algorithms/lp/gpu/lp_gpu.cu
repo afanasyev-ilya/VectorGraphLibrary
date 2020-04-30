@@ -8,14 +8,22 @@
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+#define LP_BOUNDARY_ACTIVE 1
+#define LP_BOUNDARY_PASSIVE 2
+#define LP_INNER 3
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 #include <random>
 #include <curand.h>
 #include <curand_kernel.h>
+#include "../lp_constants.h"
 #include "../../../graph_processing_API/gpu/cuda_API_include.h"
 #include "../../../external_libraries/moderngpu/src/moderngpu/kernel_segsort.hxx"
 #include "../../../external_libraries/moderngpu/src/moderngpu/memory.hxx"
 #include "../../../external_libraries/moderngpu/src/moderngpu/kernel_segreduce.hxx"
 #include "../../../external_libraries/moderngpu/src/moderngpu/kernel_scan.hxx"
+#include "active_conditions.cuh"
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -33,7 +41,6 @@ __global__ void label_differences_advanced(int *differences, int *dest_labels, i
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
 
 //Get rid of repeated labels by setting indices to reduce_scan array
 // i-th element of reduced_scan contains index of last entry of i element in scanned array
@@ -92,12 +99,6 @@ __global__ void fill_indices(int *seg_reduce_indices, long long edges_count)
         seg_reduce_indices[i] = i;
     }
 }
-
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-#define LP_BOUNDARY_ACTIVE 1
-#define LP_BOUNDARY_PASSIVE 2
-#define LP_INNER 3
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -183,6 +184,7 @@ template<typename _TVertexValue, typename _TEdgeWeight>
 void gpu_lp_wrapper(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
                     int *_labels,
                     int &_iterations_count,
+                    GpuActiveConditionType _gpu_active_condition_type,
                     int _max_iterations)
 {
     LOAD_EXTENDED_CSR_GRAPH_DATA(_graph);
@@ -215,13 +217,25 @@ void gpu_lp_wrapper(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
 
     frontier.set_all_active();
 
-    auto init_op =[_labels, node_states] __device__(int src_id, int position_in_frontier, int connections_count)
+    // init labels and node states
+    if(_gpu_active_condition_type == LabelChangedRecently)
     {
-        _labels[src_id] = src_id;
-        node_states[src_id] = LP_BOUNDARY_ACTIVE;
-    };
-
-    graph_API.compute(_graph, frontier, init_op);
+        auto init_op = [_labels, node_states] __device__(int src_id, int position_in_frontier, int connections_count)
+        {
+            _labels[src_id] = src_id;
+            node_states[src_id] = 4;
+        };
+        graph_API.compute(_graph, frontier, init_op);
+    }
+    else
+    {
+        auto init_op = [_labels, node_states] __device__(int src_id, int position_in_frontier, int connections_count)
+        {
+            _labels[src_id] = src_id;
+            node_states[src_id] = LP_BOUNDARY_ACTIVE;
+        };
+        graph_API.compute(_graph, frontier, init_op);
+    }
 
     _iterations_count = 0;
 
@@ -233,14 +247,32 @@ void gpu_lp_wrapper(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
         updated[0] = 0;
 
         // generate new frontier with only active nodes
-        auto node_is_active = [node_states] __device__ (int src_id)->int
+        if(_gpu_active_condition_type == LabelChangedRecently)
         {
-            if(node_states[src_id] == LP_BOUNDARY_ACTIVE)
-                return IN_FRONTIER_FLAG;
-            else
-                return NOT_IN_FRONTIER_FLAG;
-        };
-        graph_API.generate_new_frontier(_graph, frontier, node_is_active);
+            auto node_is_active = [node_states] __device__ (int src_id)->int
+            {
+                if(node_states[src_id] > 0)
+                    return IN_FRONTIER_FLAG;
+                else
+                    return NOT_IN_FRONTIER_FLAG;
+            };
+            graph_API.generate_new_frontier(_graph, frontier, node_is_active);
+        }
+        else if(_gpu_active_condition_type == AlwaysActive)
+        {
+            frontier.set_all_active();
+        }
+        else
+        {
+            auto node_is_active = [node_states] __device__ (int src_id)->int
+            {
+                if(node_states[src_id] == LP_BOUNDARY_ACTIVE)
+                    return IN_FRONTIER_FLAG;
+                else
+                    return NOT_IN_FRONTIER_FLAG;
+            };
+            graph_API.generate_new_frontier(_graph, frontier, node_is_active);
+        }
         //print_active_percentages(node_states, vertices_count); // debug part
 
         // calculate shifts for gathered labels
@@ -267,13 +299,6 @@ void gpu_lp_wrapper(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
         int new_vertices_count = frontier.size();
         int new_edges_count = 0;
         SAFE_CALL(cudaMemcpy(&new_edges_count, shifts + new_vertices_count , sizeof(int), cudaMemcpyDeviceToHost));
-
-        //print_data("shifts", shifts, vertices_count);
-        //print_active_ids(node_states, shifts, outgoing_ptrs, vertices_count);
-        //cout << "new vertices count: " << new_vertices_count << endl;
-        //cout << "new edges count: " << new_edges_count << endl;
-        //print_data("new shifts", shifts, new_vertices_count + 1);
-        //print_segmented_array("sparse gathered labels", gathered_labels, shifts, new_vertices_count, new_edges_count);
 
         dim3 block_edges(1024);
         dim3 grid_edges((new_edges_count - 1) / block_edges.x + 1);
@@ -359,77 +384,34 @@ void gpu_lp_wrapper(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
         mgpu::segreduce(seg_reduce_indices, reduced_size, new_ptr, new_vertices_count, seg_reduce_result,
                         seg_reduce_op, (int) init, context);
 
-        int *changes_recently_occurred = new_ptr;
-
-        auto get_labels_op = [seg_reduce_result, reduced_scan, gathered_labels, _labels, updated, node_states, changes_recently_occurred] __device__(int src_id, int position_in_frontier, int connections_count)
+        if(_gpu_active_condition_type == AlwaysActive)
         {
-            changes_recently_occurred[src_id] = 0;
-
-            if(seg_reduce_result[position_in_frontier] != -1)
-            {
-                int new_label = gathered_labels[reduced_scan[seg_reduce_result[position_in_frontier]]];
-
-                if(node_states[src_id] == LP_BOUNDARY_ACTIVE)
-                {
-                    if(new_label != _labels[src_id])
-                    {
-                        _labels[src_id] = new_label;
-                        updated[0] = 1;
-                        node_states[src_id] = LP_BOUNDARY_ACTIVE;
-                        changes_recently_occurred[src_id] = 1;
-                    }
-
-                    if (new_label == _labels[src_id])
-                    {
-                        node_states[src_id] = LP_BOUNDARY_PASSIVE;
-                    }
-                }
-            }
-        };
-
-        graph_API.compute(_graph, frontier, get_labels_op);
-
-        auto label_recently_changed = [changes_recently_occurred] __device__ (int src_id)->int
+            always_active(_graph, graph_API, frontier, new_ptr, gathered_labels,
+                          _labels, updated, node_states, seg_reduce_result,
+                          reduced_scan, seg_reduce_indices, _iterations_count);
+        }
+        else if(_gpu_active_condition_type == ActivePassiveInner)
         {
-            if(changes_recently_occurred[src_id] > 0)
-                return IN_FRONTIER_FLAG;
-            else
-                return NOT_IN_FRONTIER_FLAG;
-        };
-
-        graph_API.generate_new_frontier(_graph, frontier, label_recently_changed);
-
-        int *different_presence = seg_reduce_indices;
-        auto preprocess_op = [different_presence] __device__(int src_id, int position_in_frontier, int connections_count)
+            active_passive_inner(_graph, graph_API, frontier, new_ptr, gathered_labels,
+                                 _labels, updated, node_states, seg_reduce_result,
+                                 reduced_scan, seg_reduce_indices, _iterations_count);
+        }
+        else if(_gpu_active_condition_type == LabelChangedOnPreviousIteration)
         {
-            different_presence[src_id] = 0;
-        };
-
-        auto postprocess_op = [different_presence, node_states] __device__(int src_id, int position_in_frontier, int connections_count)
+            label_changed_on_previous_iteration(_graph, graph_API, frontier, new_ptr, gathered_labels,
+                                                _labels, updated, node_states, seg_reduce_result,
+                                                reduced_scan, seg_reduce_indices, _iterations_count);
+        }
+        else if(_gpu_active_condition_type == LabelChangedRecently)
         {
-            if(different_presence[src_id] == 0)
-                node_states[src_id] = LP_INNER;
-        };
-
-        auto set_all_neighbours_active = [_labels, node_states, different_presence] __device__(int src_id, int dst_id, int local_edge_pos, long long int global_edge_pos, int position_in_frontier)
-        {
-            int dst_label = __ldg(&_labels[dst_id]);
-            int src_label = _labels[src_id];
-
-            if(src_label != dst_label)
-                different_presence[src_id] = 1;
-
-            if(node_states[dst_id] != LP_BOUNDARY_ACTIVE)
-                node_states[dst_id] = LP_BOUNDARY_ACTIVE;
-        };
-
-        graph_API.advance(_graph, frontier, set_all_neighbours_active, preprocess_op, postprocess_op);
+            label_changed_recently(_graph, graph_API, frontier, new_ptr, gathered_labels,
+                                   _labels, updated, node_states, seg_reduce_result,
+                                   reduced_scan, seg_reduce_indices, _iterations_count);
+        }
         
         _iterations_count++;
     }
-    while((_iterations_count < 20) && (updated[0] > 0));
-
-    cout << "done " << _iterations_count << " iterations" << endl;
+    while((_iterations_count < _max_iterations) && (updated[0] > 0));
 
     MemoryAPI::free_device_array(new_ptr);
     MemoryAPI::free_device_array(array_1);
@@ -445,6 +427,7 @@ void gpu_lp_wrapper(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-template void gpu_lp_wrapper<int, float>(ExtendedCSRGraph<int, float> &_graph, int *_labels, int &_iterations_count, int _max_iterations);
+template void gpu_lp_wrapper<int, float>(ExtendedCSRGraph<int, float> &_graph, int *_labels, int &_iterations_count,
+                                         GpuActiveConditionType _gpu_active_condition_type, int _max_iterations);
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

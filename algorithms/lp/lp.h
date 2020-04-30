@@ -7,7 +7,7 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #define LP LabelPropagation<_TVertexValue, _TEdgeWeight>
-#define LP_DEFAULT_MAX_ITERATIONS 10
+#define LP_DEFAULT_MAX_ITERATIONS 20
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -21,7 +21,9 @@ public:
     void seq_lp(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph, int *_labels, int _max_iterations = LP_DEFAULT_MAX_ITERATIONS);
 
     #ifdef __USE_GPU__
-    void gpu_lp(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph, int *_labels, int _max_iterations = LP_DEFAULT_MAX_ITERATIONS);
+    void gpu_lp(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph, int *_labels,
+                GpuActiveConditionType _gpu_active_condition_type = ActivePassiveInner,
+                int _max_iterations = LP_DEFAULT_MAX_ITERATIONS);
     #endif
 };
 

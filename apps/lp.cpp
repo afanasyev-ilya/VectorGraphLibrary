@@ -59,7 +59,17 @@ int main(int argc, const char * argv[])
         #endif
 
         #ifdef __USE_GPU__
-        lp_operation.gpu_lp(graph, labels);
+        cout << "Always active test" << endl;
+        lp_operation.gpu_lp(graph, labels, AlwaysActive);
+
+        cout << "Active-passive-inner-condition test" << endl;
+        lp_operation.gpu_lp(graph, labels, ActivePassiveInner);
+
+        cout << "Label Changed on previous iteration test" << endl;
+        lp_operation.gpu_lp(graph, labels, LabelChangedOnPreviousIteration);
+
+        cout << "Label Changed Recently test" << endl;
+        lp_operation.gpu_lp(graph, labels, LabelChangedRecently);
         #endif
 
         #ifdef __USE_GPU__

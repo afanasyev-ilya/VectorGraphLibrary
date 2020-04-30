@@ -4,7 +4,10 @@
 
 #ifdef __USE_GPU__
 template <typename _TVertexValue, typename _TEdgeWeight>
-void LP::gpu_lp(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph, int *_labels, int _max_iterations)
+void LP::gpu_lp(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
+                int *_labels,
+                GpuActiveConditionType _gpu_active_condition_type,
+                int _max_iterations)
 {
     LOAD_EXTENDED_CSR_GRAPH_DATA(_graph);
 
@@ -13,7 +16,7 @@ void LP::gpu_lp(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph, int *_lab
 
     int iterations_count = 0;
     double t1 = omp_get_wtime();
-    gpu_lp_wrapper(_graph, device_labels, iterations_count, _max_iterations);
+    gpu_lp_wrapper(_graph, device_labels, iterations_count, _gpu_active_condition_type, _max_iterations);
     double t2 = omp_get_wtime();
 
     MemoryAPI::copy_array_to_host(_labels, device_labels, vertices_count);
