@@ -410,6 +410,7 @@ void gpu_lp_wrapper(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
         }
         
         _iterations_count++;
+        updated[0] = 1;
     }
     while((_iterations_count < _max_iterations) && (updated[0] > 0));
 
