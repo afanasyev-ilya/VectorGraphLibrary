@@ -56,11 +56,21 @@ void GraphPrimitivesGPU::generate_new_frontier(ExtendedCSRGraph<_TVertexValue, _
     int vertices_count = _graph.get_vertices_count();
     _frontier.type = SPARSE_FRONTIER;
 
+    double t1, t2;
+
+    t1 = omp_get_wtime();
     SAFE_KERNEL_CALL((copy_frontier_ids_kernel<<<(vertices_count-1)/BLOCK_SIZE+1, BLOCK_SIZE>>>(_frontier.ids, _frontier.flags,
                                                                                                 vertices_count, cond)));
+    t2 = omp_get_wtime();
+    cout << "copy frontier kernel: " << (t2 - t1)*1000 << " ms" << endl;
+    cout << "BW: " << 2.0*sizeof(int)*vertices_count/((t2 - t1)*1e9) << " GB/s" << endl;
 
+    t1 = omp_get_wtime();
     int *new_end = thrust::remove_if(thrust::device, _frontier.ids, _frontier.ids + vertices_count, is_not_active());
     _frontier.current_size = new_end - _frontier.ids;
+    t2 = omp_get_wtime();
+    cout << "copy if thrust kernel: " << (t2 - t1)*1000 << " ms" << endl;
+    cout << "BW: " << 2.0*sizeof(int)*vertices_count/((t2 - t1)*1e9) << " GB/s" << endl;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

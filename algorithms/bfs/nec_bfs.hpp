@@ -214,7 +214,7 @@ void BFS<_TVertexValue, _TEdgeWeight>::nec_top_down(ExtendedCSRGraph<_TVertexVal
 
 #ifdef __USE_NEC_SX_AURORA__
 template <typename _TVertexValue, typename _TEdgeWeight>
-void BFS<_TVertexValue, _TEdgeWeight>::nec_direction_optimising(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
+void BFS<_TVertexValue, _TEdgeWeight>::nec_direction_optimizing(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
                                                                 int *_levels,
                                                                 int _source_vertex)
 {
@@ -351,7 +351,7 @@ void BFS<_TVertexValue, _TEdgeWeight>::nec_direction_optimising(ExtendedCSRGraph
         compute_time += step_times[i];
     }
     cout << "time diff: " << compute_time << " vs " << t2 - t1 << endl;
-    PerformanceStats::print_performance_stats("BFS (direction-optimising)", compute_time, edges_count, current_level);
+    PerformanceStats::print_performance_stats("BFS (direction-optimizing)", compute_time, edges_count, current_level);
     #endif
 
     MemoryAPI::free_array(connections_array);

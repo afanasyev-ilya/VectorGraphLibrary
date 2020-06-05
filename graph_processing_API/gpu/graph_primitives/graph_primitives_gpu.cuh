@@ -26,7 +26,8 @@ private:
                         FrontierGPU &_frontier,
                         EdgeOperation edge_op,
                         VertexPreprocessOperation vertex_preprocess_op,
-                        VertexPostprocessOperation vertex_postprocess_op);
+                        VertexPostprocessOperation vertex_postprocess_op,
+                        bool _generate_frontier = false);
 public:
     GraphPrimitivesGPU();
 
@@ -44,6 +45,16 @@ public:
     void advance(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
                  FrontierGPU &_frontier,
                  EdgeOperation edge_op);
+
+    template <typename _TVertexValue, typename _TEdgeWeight, typename EdgeOperation, typename VertexPreprocessOperation,
+            typename VertexPostprocessOperation, typename Condition>
+    void advance(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
+                 FrontierGPU &_in_frontier,
+                 EdgeOperation edge_op,
+                 VertexPreprocessOperation vertex_preprocess_op,
+                 VertexPostprocessOperation vertex_postprocess_op,
+                 FrontierGPU &_out_frontier,
+                 Condition &&cond);
 
     // creates new frontier, which satisfy user-defined "cond" condition
     template <typename _TVertexValue, typename _TEdgeWeight, typename Condition>

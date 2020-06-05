@@ -1,5 +1,6 @@
 CXX = g++
 CUDA_DIR = /usr/local/cuda-9.1/
+#CUDA_DIR = /usr/local/cuda-10.2
 CUDA_COMPILER = $(CUDA_DIR)/bin/nvcc
 
 # Include paths...
@@ -15,7 +16,7 @@ CXXFLAGS = -O2 -fopenmp -std=c++11 -fpermissive
 LDFLAGS = -fopenmp
 
 # CUDA Compiler flags
-CUDA_FLAGS = -O2 -w -m64 -std=c++11 -Xptxas -dlcm=ca --expt-extended-lambda -gencode arch=compute_60,code=sm_60
+CUDA_FLAGS = -O2 -w -m64 -std=c++11 -Xptxas -dlcm=ca --expt-extended-lambda -gencode arch=compute_52,code=sm_52 -gencode arch=compute_60,code=sm_60 -gencode arch=compute_70,code=sm_70
 
 # Paths to gpu algorithms from current sample
 VPATH=./:../algorithms/sssp/gpu/:../algorithms/bfs/gpu/:../algorithms/cc/gpu:../graph_processing_API/gpu/:../algorithms/lp/gpu
@@ -36,9 +37,9 @@ cc: create_folders cc.o shiloach_vishkin_gpu.o
 	$(CUDA_COMPILER) $(CUDA_FLAGS) $(Include_Path) -dlink  object_files/shiloach_vishkin_gpu.o -o object_files/cuda_files_link.o -lcudadevrt -lcudart
 	$(CXX) object_files/cc.o object_files/shiloach_vishkin_gpu.o object_files/cuda_files_link.o $(Library_Path) $(Libraries) $(LDFLAGS) -o ./bin/cc
 	
-bfs: create_folders bfs.o traditional_bfs_gpu.o
-	$(CUDA_COMPILER) $(CUDA_FLAGS) $(Include_Path) -dlink  object_files/traditional_bfs_gpu.o -o object_files/cuda_files_link.o -lcudadevrt -lcudart
-	$(CXX) object_files/bfs.o object_files/traditional_bfs_gpu.o object_files/cuda_files_link.o $(Library_Path) $(Libraries) $(LDFLAGS) -o ./bin/bfs
+bfs: create_folders bfs.o top_down_bfs_gpu.o
+	$(CUDA_COMPILER) $(CUDA_FLAGS) $(Include_Path) -dlink object_files/top_down_bfs_gpu.o -o object_files/cuda_files_link.o -lcudadevrt -lcudart
+	$(CXX) object_files/bfs.o object_files/top_down_bfs_gpu.o object_files/cuda_files_link.o $(Library_Path) $(Libraries) $(LDFLAGS) -o ./bin/bfs
 
 lp: create_folders install lp.o lp_gpu.o
 	$(CUDA_COMPILER) $(CUDA_FLAGS) $(Include_Path) -dlink  object_files/lp_gpu.o -o object_files/cuda_files_link.o -lcudadevrt -lcudart
@@ -95,8 +96,8 @@ dijkstra_gpu.o: dijkstra_gpu.cu
 shiloach_vishkin_gpu.o: shiloach_vishkin_gpu.cu
 	$(CUDA_COMPILER) $(CUDA_FLAGS) $(Include_Path) -rdc=true -c ../algorithms/cc/gpu/shiloach_vishkin_gpu.cu -o object_files/shiloach_vishkin_gpu.o
 
-traditional_bfs_gpu.o: traditional_bfs.cu
-	$(CUDA_COMPILER) $(CUDA_FLAGS) $(Include_Path) -rdc=true -c ../algorithms/bfs/gpu/traditional_bfs.cu -o object_files/traditional_bfs_gpu.o
+top_down_bfs_gpu.o: top_down_bfs.cu
+	$(CUDA_COMPILER) $(CUDA_FLAGS) $(Include_Path) -rdc=true -c ../algorithms/bfs/gpu/top_down_bfs.cu -o object_files/top_down_bfs_gpu.o
 
 lp_gpu.o: lp_gpu.cu
 	$(CUDA_COMPILER) $(CUDA_FLAGS) $(Include_Path) -rdc=true -c ../algorithms/lp/gpu/lp_gpu.cu -o object_files/lp_gpu.o

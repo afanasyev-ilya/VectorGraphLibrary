@@ -95,7 +95,7 @@ void parse_cmd_params(int _argc, char **_argv, int &_scale, int &_avg_degree, st
             _edges_state = EDGES_UNSORTED;
         }
 
-        if(option.compare("-multiple-arcs-removed") == 0)
+        if(option.compare("-multiple-arcs-removed") == 0 || option.compare("-no-multiple-arcs") == 0)
         {
             _multiple_arcs_state = MULTIPLE_ARCS_REMOVED;
         }

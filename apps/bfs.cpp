@@ -64,15 +64,15 @@ int main(int argc, const char * argv[])
         int vertex_to_check = 0;
         for(int i = 0; i < source_vertex_num; i++)
         {
-            vertex_to_check = rand() % (graph.get_vertices_count() / 20);
+            vertex_to_check = rand() % 100;
 
             double t1 = omp_get_wtime();
             #ifdef __USE_NEC_SX_AURORA__
             #ifdef __PRINT_API_PERFORMANCE_STATS__
             reset_nec_debug_timers();
             #endif
-            if(parser.get_algorithm_bfs() == DIRECTION_OPTIMISING_BFS_ALGORITHM)
-                bfs_operation.nec_direction_optimising(graph, bfs_levels, vertex_to_check);
+            if(parser.get_algorithm_bfs() == DIRECTION_OPTIMIZING_BFS_ALGORITHM)
+                bfs_operation.nec_direction_optimizing(graph, bfs_levels, vertex_to_check);
             else if(parser.get_algorithm_bfs() == TOP_DOWN_BFS_ALGORITHM)
                 bfs_operation.nec_top_down(graph, bfs_levels, vertex_to_check);
             #ifdef __PRINT_API_PERFORMANCE_STATS__
@@ -83,6 +83,8 @@ int main(int argc, const char * argv[])
             #ifdef __USE_GPU__
             if(parser.get_algorithm_bfs() == TOP_DOWN_BFS_ALGORITHM)
                 bfs_operation.gpu_top_down(graph, device_bfs_levels, vertex_to_check);
+            else if(parser.get_algorithm_bfs() == DIRECTION_OPTIMIZING_BFS_ALGORITHM)
+                bfs_operation.gpu_direction_optimizing(graph, device_bfs_levels, vertex_to_check);
             #endif
             double t2 = omp_get_wtime();
             total_time += t2 - t1;

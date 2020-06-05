@@ -2,6 +2,85 @@
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+template <typename _T>
+__inline__ __device__ _T warp_reduce_sum(_T val)
+{
+    for (int offset = warpSize/2; offset > 0; offset /= 2)
+        val += __shfl_down(val, offset);
+    return val;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+template <typename _T>
+__inline__ __device__ _T block_reduce_sum(_T val)
+{
+    static __shared__ _T shared[32]; // Shared mem for 32 partial sums
+    int lane = threadIdx.x % warpSize;
+    int wid = threadIdx.x / warpSize;
+
+    val = warp_reduce_sum(val);     // Each warp performs partial reduction
+
+    if (lane==0)
+        shared[wid]=val; // Write reduced value to shared memory
+
+    __syncthreads();              // Wait for all partial reductions
+
+    //read from shared memory only if that warp existed
+    val = (threadIdx.x < blockDim.x / warpSize) ? shared[lane] : 0;
+
+    if(wid == 0)
+        val = warp_reduce_sum(val); //Final reduce within first warp
+
+    return val;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+template <typename _T, typename ReduceOperation>
+__global__ void reduce_kernel_sparse(const int *_frontier_ids,
+                                     const int _frontier_size,
+                                     const long long *_vertex_pointers,
+                                     ReduceOperation reduce_op,
+                                     _T* out)
+{
+    const int idx = blockIdx.x * blockDim.x + threadIdx.x;
+
+    if(idx < _frontier_size)
+    {
+        int src_id = _frontier_ids[idx];
+        int connections_count = _vertex_pointers[src_id + 1] - _vertex_pointers[src_id];
+
+        _T sum = reduce_op(src_id, connections_count);
+
+        sum = block_reduce_sum(sum);
+        if (threadIdx.x == 0)
+            atomicAdd(out, sum);
+    }
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+template <typename _T, typename ReduceOperation>
+__global__ void reduce_kernel_all_active(const int _size,
+                                         const long long *_vertex_pointers,
+                                         ReduceOperation reduce_op,
+                                         _T* _result)
+{
+    const int src_id = blockIdx.x * blockDim.x + threadIdx.x;
+    if(src_id < _size)
+    {
+        int connections_count = _vertex_pointers[src_id + 1] - _vertex_pointers[src_id];
+        _T sum = reduce_op(src_id, connections_count);
+
+        sum = block_reduce_sum(sum);
+        if (threadIdx.x == 0)
+            atomicAdd(_result, sum);
+    }
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 template <typename _T, typename _TVertexValue, typename _TEdgeWeight, typename ReduceOperation>
 _T GraphPrimitivesGPU::reduce(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
                               FrontierGPU &_frontier,
@@ -11,99 +90,29 @@ _T GraphPrimitivesGPU::reduce(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_gr
     LOAD_EXTENDED_CSR_GRAPH_DATA(_graph);
     long long *vertex_pointers = outgoing_ptrs;
 
-    _T *reduce_tmp_array;
-    MemoryAPI::allocate_device_array(&reduce_tmp_array, vertices_count);
-    cudaMemset(reduce_tmp_array, 0, sizeof(_T) * vertices_count);
+    _T *managed_reduced_result;
+    MemoryAPI::allocate_managed_array(&managed_reduced_result, 1);
 
-    _T reduce_result = 0;
     if(_frontier.type == ALL_ACTIVE_FRONTIER)
     {
-        SAFE_KERNEL_CALL((reduce_kernel_all_active <<< (vertices_count - 1) / BLOCK_SIZE + 1, BLOCK_SIZE >>>
-                  (reduce_tmp_array, vertices_count, vertex_pointers, reduce_op)));
-        if(_reduce_type == REDUCE_SUM)
-        {
-            reduce_result = thrust::reduce(thrust::device, reduce_tmp_array, reduce_tmp_array + vertices_count);
-        }
+        SAFE_KERNEL_CALL((reduce_kernel_all_active<<< (vertices_count - 1) / BLOCK_SIZE + 1, BLOCK_SIZE >>>(vertices_count, vertex_pointers, reduce_op, managed_reduced_result)));
     }
     else if(_frontier.type == DENSE_FRONTIER)
     {
-        SAFE_KERNEL_CALL((reduce_kernel_dense <<< (vertices_count - 1) / BLOCK_SIZE + 1, BLOCK_SIZE >>>
-                  (reduce_tmp_array, _frontier.flags, vertices_count, vertex_pointers, reduce_op)));
-        if(_reduce_type == REDUCE_SUM)
-        {
-            reduce_result = thrust::reduce(thrust::device, reduce_tmp_array, reduce_tmp_array + vertices_count);
-        }
+        throw "Error: dense frontier in reduce is not supported";
     }
     else if(_frontier.type == SPARSE_FRONTIER)
     {
         int frontier_size = _frontier.size();
-        SAFE_KERNEL_CALL((reduce_kernel_sparse <<< (frontier_size - 1) / BLOCK_SIZE + 1, BLOCK_SIZE >>>
-                   (reduce_tmp_array, _frontier.ids, frontier_size, vertex_pointers, reduce_op)));
-        if(_reduce_type == REDUCE_SUM)
-        {
-            reduce_result = thrust::reduce(thrust::device, reduce_tmp_array, reduce_tmp_array + frontier_size);
-        }
+        SAFE_KERNEL_CALL((reduce_kernel_sparse<<< (frontier_size - 1) / BLOCK_SIZE + 1, BLOCK_SIZE >>>(_frontier.ids, frontier_size, vertex_pointers, reduce_op, managed_reduced_result)));
     }
 
-    MemoryAPI::free_device_array(reduce_tmp_array);
     cudaDeviceSynchronize();
+    _T reduce_result = managed_reduced_result[0];
+
+    //MemoryAPI::free_array(managed_reduced_result);
 
     return reduce_result;
-}
-
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-
-template<typename ReduceOperation>
-void __global__ reduce_kernel_all_active(int *_reduce_tmp_array,
-                                         const int _frontier_size,
-                                         const long long *_vertex_pointers,
-                                         ReduceOperation reduce_op)
-{
-    const int src_id = blockIdx.x * blockDim.x + threadIdx.x;
-    if(src_id < _frontier_size)
-    {
-        int connections_count = _vertex_pointers[src_id + 1] - _vertex_pointers[src_id];
-        _reduce_tmp_array[src_id] = reduce_op(src_id, connections_count);
-    }
-}
-
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-template<typename ReduceOperation>
-void __global__ reduce_kernel_dense(int *_reduce_tmp_array,
-                                    const int *_frontier_flags,
-                                    const int _frontier_size,
-                                    const long long *_vertex_pointers,
-                                    ReduceOperation reduce_op)
-{
-    const int src_id = blockIdx.x * blockDim.x + threadIdx.x;
-    if(src_id < _frontier_size)
-    {
-        if(_frontier_flags[src_id] > 0)
-        {
-            int connections_count = _vertex_pointers[src_id + 1] - _vertex_pointers[src_id];
-            _reduce_tmp_array[src_id] = reduce_op(src_id, connections_count);
-        }
-    }
-}
-
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-template<typename ReduceOperation>
-void __global__ reduce_kernel_sparse(int *_reduce_tmp_array,
-                                     const int *_frontier_ids,
-                                     const int _frontier_size,
-                                     const long long *_vertex_pointers,
-                                     ReduceOperation reduce_op)
-{
-    const int idx = blockIdx.x * blockDim.x + threadIdx.x;
-    if(idx < _frontier_size)
-    {
-        int src_id = _frontier_ids[idx];
-        int connections_count = _vertex_pointers[src_id + 1] - _vertex_pointers[src_id];
-        _reduce_tmp_array[idx] = reduce_op(src_id, connections_count);
-    }
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

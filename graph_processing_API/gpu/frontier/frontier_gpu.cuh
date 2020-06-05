@@ -49,8 +49,12 @@ public:
     ~FrontierGPU();
 
     int size() {return current_size;};
+    void clear() {current_size = 0; type = SPARSE_FRONTIER;};
 
     FrontierType get_type() {return type;};
+
+    template <typename _TVertexValue, typename _TEdgeWeight>
+    void add_vertex(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph, int src_id);
 
     friend class GraphPrimitivesGPU;
 };

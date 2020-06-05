@@ -112,3 +112,21 @@ void FrontierGPU::split_sorted_frontier(const long long *_vertex_pointers,
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+template <typename _TVertexValue, typename _TEdgeWeight>
+void FrontierGPU::add_vertex(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph, int src_id)
+{
+    if(type == ALL_ACTIVE_FRONTIER)
+    {
+        throw "ERROR: can't add vertices to all-active frontier";
+    }
+
+    if(current_size < (max_size - 1))
+    {
+        cout << "current size: " << current_size << endl;
+        MemoryAPI::copy_array_to_device(ids + current_size, &src_id, 1);
+        current_size++;
+    }
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

@@ -79,22 +79,18 @@ void active_passive_inner(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
 
     graph_API.compute(_graph, frontier, get_labels_op);
 
-    /*auto label_recently_changed = [changes_recently_occurred, node_states] __device__ (int src_id)->int
+    auto label_recently_changed = [changes_recently_occurred] __device__ (int src_id)->int
     {
-        //if(changes_recently_occurred[src_id] > 0)
-        //    return IN_FRONTIER_FLAG;
-        //else
-        //    return NOT_IN_FRONTIER_FLAG;
-        if(node_states[src_id] == LP_BOUNDARY_ACTIVE)
+        if(changes_recently_occurred[src_id] > 0)
             return IN_FRONTIER_FLAG;
         else
             return NOT_IN_FRONTIER_FLAG;
     };
-    graph_API.generate_new_frontier(_graph, frontier, label_recently_changed);*/
+
+    graph_API.generate_new_frontier(_graph, frontier, label_recently_changed);
 
     int *freqs = new_ptr;
     cudaMemset(freqs, 0, _graph.get_vertices_count() * sizeof(int));
-
     int *different_presence = seg_reduce_indices;
     auto preprocess_op = [different_presence] __device__(int src_id, int position_in_frontier, int connections_count)
     {
@@ -115,27 +111,26 @@ void active_passive_inner(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
         if(src_label != dst_label)
             different_presence[src_id] = 1;
 
-        freqs[dst_id]++;
-        //    node_states[dst_id] = LP_BOUNDARY_ACTIVE;
+        if(node_states[dst_id] != LP_BOUNDARY_ACTIVE)
+        {
+            atomicAdd(&freqs[dst_id], 1);
+            //node_states[dst_id] = LP_BOUNDARY_ACTIVE;
+        }
     };
 
     graph_API.advance(_graph, frontier, set_all_neighbours_active, preprocess_op, postprocess_op);
 
+    frontier.set_all_active();
     auto test_op = [freqs, node_states] __device__(int src_id, int position_in_frontier, int connections_count)
     {
-        double cur_freq = freqs[src_id];
-        double cc = connections_count;
-        if(cur_freq >= 0.1 * cc)
+        if(freqs[src_id] > connections_count * 0.006)
             node_states[src_id] = LP_BOUNDARY_ACTIVE;
-
-        if(src_id < 10)
-            printf("%lf %lf %d\n", cur_freq, cc, node_states[src_id]);
     };
-
-    frontier.set_all_active();
     graph_API.compute(_graph, frontier, test_op);
-    cout << endl << endl;
 }
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 

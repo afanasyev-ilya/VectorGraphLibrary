@@ -3,7 +3,7 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #ifdef __USE_GPU__
-#include "gpu/traditional_bfs.cuh"
+#include "gpu/top_down_bfs.cuh"
 #endif
 
 #include <string>
@@ -45,12 +45,16 @@ public:
     void gpu_top_down(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph, int *_levels, int _source_vertex);
     #endif
 
+    #ifdef __USE_GPU__
+    void gpu_direction_optimizing(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph, int *_levels, int _source_vertex);
+    #endif
+
     #ifdef __USE_NEC_SX_AURORA__
     void nec_top_down(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph, int *_levels, int _source_vertex);
     #endif
 
     #ifdef __USE_NEC_SX_AURORA__
-    void nec_direction_optimising(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph, int *_levels,
+    void nec_direction_optimizing(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph, int *_levels,
                                   int _source_vertex);
     #endif
 

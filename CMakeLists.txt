@@ -76,11 +76,9 @@ add_executable(VectorGraphLibrary
         apps/graph_library.sh
         apps/kcore.cpp
         apps/Makefile.gcc
-        apps/Makefile.ibm
         apps/Makefile.intel
-        apps/Makefile.polus
+        apps/Makefile.gpu
         apps/Makefile.tohoku
-        apps/Makefile.volta
         apps/pr.cpp
         apps/sssp.cpp
         apps/sswp.cpp
@@ -150,4 +148,4 @@ add_executable(VectorGraphLibrary
         verification/page_rank_verification.hpp
         verification/shortest_paths_verification.hpp
         architectures.h
-        graph_library.h graph_processing_API/framework_types.h algorithms/lp/lp_constants.h algorithms/lp/gpu/active_conditions.cuh)
+        graph_library.h graph_processing_API/framework_types.h algorithms/lp/lp_constants.h algorithms/lp/gpu/active_conditions.cuh misc/memory_access_patterns.cpp misc/memory_access_patterns.cu)

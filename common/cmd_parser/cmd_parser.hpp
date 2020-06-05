@@ -12,7 +12,7 @@ AlgorithmCommandOptionsParser::AlgorithmCommandOptionsParser()
     check_flag = false;
     graph_file_name = "test.gbin";
     number_of_rounds = 1;
-    algorithm_bfs = DIRECTION_OPTIMISING_BFS_ALGORITHM;
+    algorithm_bfs = DIRECTION_OPTIMIZING_BFS_ALGORITHM;
     algorithm_cc = SHILOACH_VISHKIN_ALGORITHM;
 }
 
@@ -93,9 +93,9 @@ void AlgorithmCommandOptionsParser::parse_args(int _argc, const char * _argv[])
         {
             algorithm_bfs = BOTTOM_UP_BFS_ALGORITHM;
         }
-        else if (option.compare("-do") == 0 || option.compare("-direction-optimising") == 0)
+        else if (option.compare("-do") == 0 || option.compare("-direction-optimizing") == 0)
         {
-            algorithm_bfs = DIRECTION_OPTIMISING_BFS_ALGORITHM;
+            algorithm_bfs = DIRECTION_OPTIMIZING_BFS_ALGORITHM;
         }
 
         if ((option.compare("-shiloach_vishkin") == 0) || (option.compare("-sv") == 0))
