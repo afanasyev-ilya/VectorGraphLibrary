@@ -71,8 +71,9 @@ int main(int argc, const char * argv[])
             #ifdef __PRINT_API_PERFORMANCE_STATS__
             reset_nec_debug_timers();
             #endif
+            double inner_perf = 0;
             if(parser.get_algorithm_bfs() == DIRECTION_OPTIMIZING_BFS_ALGORITHM)
-                bfs_operation.nec_direction_optimizing(graph, bfs_levels, vertex_to_check);
+                inner_perf = bfs_operation.nec_direction_optimizing(graph, bfs_levels, vertex_to_check);
             else if(parser.get_algorithm_bfs() == TOP_DOWN_BFS_ALGORITHM)
                 bfs_operation.nec_top_down(graph, bfs_levels, vertex_to_check);
             #ifdef __PRINT_API_PERFORMANCE_STATS__
@@ -89,7 +90,8 @@ int main(int argc, const char * argv[])
             double t2 = omp_get_wtime();
             total_time += t2 - t1;
 
-            avg_perf += graph.get_edges_count() / (source_vertex_num*(t2 - t1)*1e6);
+            //avg_perf += graph.get_edges_count() / (source_vertex_num*(t2 - t1)*1e6);
+            avg_perf += inner_perf / source_vertex_num;
         }
         cout << "total time: " << total_time << " sec" << endl;
         cout << "AVG Performance: " << avg_perf << " MTEPS" << endl << endl;

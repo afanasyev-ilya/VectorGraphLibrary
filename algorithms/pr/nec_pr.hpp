@@ -4,7 +4,7 @@
 
 #ifdef __USE_NEC_SX_AURORA__
 template <typename _TVertexValue, typename _TEdgeWeight>
-void PR::nec_page_rank(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
+double PR::nec_page_rank(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
                    float *_page_ranks,
                    float _convergence_factor,
                    int _max_iterations)
@@ -116,6 +116,9 @@ void PR::nec_page_rank(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
     MemoryAPI::free_array(old_page_ranks);
     MemoryAPI::free_array(reversed_degrees);
     //MemoryAPI::free_array(packed_data);
+
+    double inner_perf = double(iterations_count) * (edges_count/((t2 - t1)*1e6));
+    return inner_perf;
 }
 #endif
 

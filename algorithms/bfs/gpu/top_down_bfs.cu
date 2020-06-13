@@ -110,16 +110,89 @@ void __global__ bottom_up_kernel(const long long *_vertex_pointers,
     }
 }
 
+#define VERTICES_IN_VECTOR_EXTENSION 2
+
+void __global__ ve_bottom_up_kernel(const long long *_vertex_pointers,
+                                    const int *_adjacent_ids,
+                                    const int _vertices_count,
+                                    int *_vector_extension,
+                                    int *_levels,
+                                    int _current_level,
+                                    int *_vis)
+{
+    const int src_id = blockIdx.x * blockDim.x + threadIdx.x;
+
+    if(src_id < _vertices_count)
+    {
+        if(_levels[src_id] == UNVISITED_VERTEX)
+        {
+            long long start = _vertex_pointers[src_id];
+            long long end = _vertex_pointers[src_id + 1];
+            int connections_count = end - start;
+            for(int i = 0; i < VERTICES_IN_VECTOR_EXTENSION; i++)
+            {
+                int dst_id = _vector_extension[i * _vertices_count + src_id];
+                if ((i < connections_count) && (_levels[dst_id] == _current_level))
+                {
+                    _levels[src_id] = _current_level + 1;
+                    atomicAdd(_vis, 1);
+                    break;
+                }
+            }
+        }
+    }
+}
+
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 void bottom_up_step(const long long *_vertex_pointers,
                     const int *_adjacent_ids,
                     const int _vertices_count,
+                    int *_vector_extension,
                     int *_levels,
                     int _current_level,
-                    int *_vis)
+                    int *_vis,
+                    bool _use_vector_extension)
 {
-    bottom_up_kernel<<< (_vertices_count - 1)/BLOCK_SIZE + 1, BLOCK_SIZE >>>(_vertex_pointers, _adjacent_ids, _vertices_count, _levels, _current_level, _vis);
+    if(_use_vector_extension)
+    {
+        ve_bottom_up_kernel<<< (_vertices_count - 1)/BLOCK_SIZE + 1, BLOCK_SIZE >>>(_vertex_pointers, _adjacent_ids, _vertices_count, _vector_extension, _levels, _current_level, _vis);
+    }
+    else
+    {
+        bottom_up_kernel<<< (_vertices_count - 1)/BLOCK_SIZE + 1, BLOCK_SIZE >>>(_vertex_pointers, _adjacent_ids, _vertices_count, _levels, _current_level, _vis);
+    }
+
+    cudaDeviceSynchronize();
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+void __global__ init_vector_extension_kernel(const long long *_vertex_pointers,
+                                             const int *_adjacent_ids,
+                                             const int _vertices_count,
+                                             int *_vector_extension)
+{
+    const int src_id = blockIdx.x * blockDim.x + threadIdx.x;
+
+    if (src_id < _vertices_count)
+    {
+        long long start = _vertex_pointers[src_id];
+        long long end = _vertex_pointers[src_id + 1];
+        int connections_count = end - start;
+        for (int i = 0; i < min(connections_count, VERTICES_IN_VECTOR_EXTENSION); i++)
+        {
+            _vector_extension[_vertices_count * i + src_id] = _adjacent_ids[start + i];
+        }
+    }
+}
+
+void init_vector_extension(const long long *_vertex_pointers,
+                           const int *_adjacent_ids,
+                           const int _vertices_count,
+                           int *_vector_extension)
+{
+    init_vector_extension_kernel<<< (_vertices_count - 1)/BLOCK_SIZE + 1, BLOCK_SIZE >>>(_vertex_pointers, _adjacent_ids, _vertices_count, _vector_extension);
     cudaDeviceSynchronize();
 }
 
@@ -135,6 +208,11 @@ void direction_optimizing_wrapper(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> 
     LOAD_EXTENDED_CSR_GRAPH_DATA(_graph);
     GraphPrimitivesGPU graph_API;
     FrontierGPU frontier(_graph.get_vertices_count());
+
+    // unroll here - 4-5x
+    int *vector_extension;
+    MemoryAPI::allocate_device_array(&vector_extension, vertices_count * VERTICES_IN_VECTOR_EXTENSION);
+    init_vector_extension(_graph.get_outgoing_ptrs(), _graph.get_outgoing_ids(), vertices_count, vector_extension);
 
     int *next_frontier_size;
     MemoryAPI::allocate_managed_array(&next_frontier_size, 1);
@@ -171,7 +249,6 @@ void direction_optimizing_wrapper(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> 
     {
         double t1, t2;
         cout << "state: " << current_state << endl;
-        cout << "prev_frontier_size: " << prev_frontier_size << endl;
         vis[0] = 0;
 
         t1 = omp_get_wtime();
@@ -183,7 +260,6 @@ void direction_optimizing_wrapper(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> 
         t2 = omp_get_wtime();
         reduce_time += t2 - t1;
         cout << "reduces time: " << 1000.0*(t2 - t1) << " ms" << endl;
-        cout << "in lvl (for estimating next front): " << in_lvl[0] << " " << 100.0*in_lvl[0]/vertices_count << endl;
 
         MemoryAPI::prefetch_managed_array(vis, 1);
 
@@ -213,7 +289,10 @@ void direction_optimizing_wrapper(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> 
         }
         else if(current_state == BOTTOM_UP)
         {
-            bottom_up_step(_graph.get_outgoing_ptrs(), _graph.get_outgoing_ids(), vertices_count, _levels, current_level, vis);
+            bool _use_vector_extension = false;
+            //if(current_level == 2)
+            //    _use_vector_extension = true;
+            bottom_up_step(_graph.get_outgoing_ptrs(), _graph.get_outgoing_ids(), vertices_count, vector_extension, _levels, current_level, vis, _use_vector_extension);
         }
         t2 = omp_get_wtime();
         cout << "td/bu time: " << 1000.0*(t2 - t1) << " ms" << endl;
@@ -249,8 +328,8 @@ void direction_optimizing_wrapper(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> 
         prev_frontier_size = current_frontier_size;
         current_level++;
 
-        cout << "vis: " << vis[0] << endl;
         cout << endl;
+
     } while(vis[0] > 0);
     double t_end = omp_get_wtime();
     cout << "inner time: " << total_time*1000 << " ms" <<  endl;
@@ -259,7 +338,11 @@ void direction_optimizing_wrapper(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> 
     cout << "advance_time: " << advance_time * 1000  << " ms" << endl;
     cout << "gnf_time: " << gnf_time * 1000  << " ms" << endl;
 
+    cout << "inner perf: " << edges_count / ((t_end - t_begin)*1e6) << " TEPS" << endl;
+
     _iterations_count = current_level;
+
+    MemoryAPI::free_device_array(vector_extension);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

@@ -54,7 +54,7 @@ public:
     #endif
 
     #ifdef __USE_NEC_SX_AURORA__
-    void nec_direction_optimizing(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph, int *_levels,
+    double nec_direction_optimizing(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph, int *_levels,
                                   int _source_vertex);
     #endif
 
