@@ -285,13 +285,12 @@ void direction_optimizing_wrapper(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> 
                     return NOT_IN_FRONTIER_FLAG;
             };
 
-            graph_API.advance(_graph, frontier, edge_op, EMPTY_VERTEX_OP, EMPTY_VERTEX_OP, frontier, on_next_level);
+            //graph_API.advance(_graph, frontier, edge_op, EMPTY_VERTEX_OP, EMPTY_VERTEX_OP, frontier, on_next_level);
+            graph_API.advance(_graph, frontier, edge_op);
         }
         else if(current_state == BOTTOM_UP)
         {
             bool _use_vector_extension = false;
-            //if(current_level == 2)
-            //    _use_vector_extension = true;
             bottom_up_step(_graph.get_outgoing_ptrs(), _graph.get_outgoing_ids(), vertices_count, vector_extension, _levels, current_level, vis, _use_vector_extension);
         }
         t2 = omp_get_wtime();
@@ -307,7 +306,7 @@ void direction_optimizing_wrapper(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> 
         StateOfBFS next_state = gpu_change_state(current_frontier_size, vis[0], vertices_count, edges_count,
                 current_state, vis[0], in_lvl[0], current_level, POWER_LAW_GRAPH);
 
-        if((current_state == BOTTOM_UP) && (next_state == TOP_DOWN))
+        if(next_state == TOP_DOWN)
         {
             t1 = omp_get_wtime();
             auto on_next_level = [_levels, current_level] __device__ (int src_id)->int
