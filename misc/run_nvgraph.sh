@@ -1,12 +1,12 @@
 #!/bin/bash
 
-PROG_NAME=$1
-PROG_ARGS=$2
+PROG_NAME=./nvgraph
+PROG_ARGS=""
 
-FILE_PREFIX=" -load ./ext_csr_graphs/"
-FILE_SUFIX="_ext_CSR.gbin"
+FILE_PREFIX="  ~/VectorGraphLibrary/apps/bin/ext_csr_graphs/"
+FILE_SUFIX="_ext_CSR.gbin sp"
 
-PERF_PATTERN="INNER perf"
+PERF_PATTERN="sp nvGRAPH performance (MTEPS):"
 
 declare -a file_names=("dir_rmat_20_32"
                        "dir_rmat_21_32"

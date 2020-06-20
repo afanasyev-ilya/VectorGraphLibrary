@@ -38,7 +38,12 @@ void verify_results(_T *_first_result, _T *_second_result, int _elements_count, 
             }
         }
     }
-    cout << "error count: " << error_count << endl;
+    cout << "error count: " << error_count << endl << endl;
+
+    cout << "first 10 results: " << endl;
+    for(int i = 0; i < 10; i++)
+        cout << _first_result[i] << " & " << _second_result[i] << endl;
+    cout << endl << endl;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

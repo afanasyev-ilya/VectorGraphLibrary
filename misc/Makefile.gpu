@@ -1,0 +1,7 @@
+CXX = g++
+CUDA_DIR = ~/local_cuda/
+#CUDA_DIR = /usr/local/cuda-10.2
+CUDA_COMPILER = $(CUDA_DIR)/bin/nvcc
+
+nvgraph: nvgraph_comparison.cpp
+	~/local_cuda/bin/nvcc -I ~/local_cuda/include/ nvgraph_comparison.cpp -std=c++11 -lnvgraph -Xcompiler -fopenmp -o nvgraph

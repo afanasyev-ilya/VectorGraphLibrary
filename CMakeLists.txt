@@ -66,7 +66,6 @@ add_executable(VectorGraphLibrary
         algorithms/sssp/seq_shortest_paths.hpp
         algorithms/sssp/shortest_paths.h
         algorithms/sssp/shortest_paths.hpp
-        algorithms/sswp/bellman_ford.hpp
         algorithms/sswp/widest_paths.h
         algorithms/sswp/widest_paths.hpp
         apps/analyse_graph.cpp
@@ -148,4 +147,4 @@ add_executable(VectorGraphLibrary
         verification/page_rank_verification.hpp
         verification/shortest_paths_verification.hpp
         architectures.h
-        graph_library.h graph_processing_API/framework_types.h algorithms/lp/lp_constants.h algorithms/lp/gpu/active_conditions.cuh misc/memory_access_patterns.cpp misc/memory_access_patterns.cu)
+        graph_library.h graph_processing_API/framework_types.h algorithms/lp/lp_constants.h algorithms/lp/gpu/active_conditions.cuh misc/memory_access_patterns.cpp misc/memory_access_patterns.cu algorithms/sswp/nec_widest_paths.hpp algorithms/sswp/seq_widest_paths.hpp)

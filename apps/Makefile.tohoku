@@ -1,4 +1,4 @@
-CXX = /opt/nec/ve/bin/nc++ #-2.5.1
+CXX = nc++ #-2.5.1
 
 # Include paths...
 
@@ -20,13 +20,16 @@ LDFLAGS = -fopenmp -report-all -L /opt/nec/ve/nlc/2.0.0/lib -ftrace #-lasl_openm
 # binaries
 ##########
 
-all: sssp bfs cc pr apsp generate_test_data
+all: sssp sswp bfs cc pr apsp generate_test_data
 
 cc: create_folders cc.o
 	$(CXX) object_files/cc.o $(Library_Path) $(Libraries) $(LDFLAGS) -o ./bin/cc
 
 sssp: create_folders sssp.o
 	$(CXX) object_files/sssp.o $(Library_Path) $(Libraries) $(LDFLAGS) -o ./bin/sssp
+
+sswp: create_folders sswp.o
+	$(CXX) object_files/sswp.o $(Library_Path) $(Libraries) $(LDFLAGS) -o ./bin/sswp
 
 apsp: create_folders apsp.o
 	$(CXX) object_files/apsp.o $(Library_Path) $(Libraries) $(LDFLAGS) -o ./bin/apsp

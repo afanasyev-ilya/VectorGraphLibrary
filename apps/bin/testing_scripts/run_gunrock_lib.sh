@@ -40,16 +40,12 @@ do
    CMD_RUN="$PROG_NAME $PROG_ARGS$FILE_PREFIX$name$FILE_SUFIX "
    echo "running $CMD_RUN ..."
 
-   eval $CMD_RUN
+   eval $CMD_RUN > tmp_file.txt
 
-   #eval $CMD_RUN > tmp_file.txt
-
-   #echo "$name: " >> full_perf_file.txt
-   #awk '{for (I=1;I<=NF;I++) if ($I == "rate:") {print $(I+1)};}' tmp_file.txt >> perf_file.txt
-   #awk '{for (I=1;I<=NF;I++) if ($I == "rate:") {print $(I+1)};}' tmp_file.txt >> full_perf_file.txt
-   #echo "---------------" >> full_perf_file.txt
-
-   # or do whatever with individual element of the array
+   echo "$name: " >> full_perf_file.txt
+   awk '{for (I=1;I<=NF;I++) if ($I == "rate:") {print $(I+1)};}' tmp_file.txt >> perf_file.txt
+   awk '{for (I=1;I<=NF;I++) if ($I == "rate:") {print $(I+1)};}' tmp_file.txt >> full_perf_file.txt
+   echo "---------------" >> full_perf_file.txt
 done
 
 rm tmp_file.txt

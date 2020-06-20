@@ -1,20 +1,13 @@
-//
-//  widest_paths.hpp
-//  ParallelGraphLibrary
-//
-//  Created by Elijah Afanasiev on 08/09/2019.
-//  Copyright © 2019 MSU. All rights reserved.
-//
-
-#ifndef widest_paths_hpp
-#define widest_paths_hpp
+#pragma once
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template <typename _TVertexValue, typename _TEdgeWeight>
 void WidestPaths<_TVertexValue, _TEdgeWeight>::allocate_result_memory(int _vertices_count, _TEdgeWeight **_widths)
 {
-    *_widths = new _TEdgeWeight[_vertices_count];
+    MemoryAPI::allocate_array(_widths, _vertices_count);
+    #pragma omp parallel
+    {};
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -22,9 +15,29 @@ void WidestPaths<_TVertexValue, _TEdgeWeight>::allocate_result_memory(int _verti
 template <typename _TVertexValue, typename _TEdgeWeight>
 void WidestPaths<_TVertexValue, _TEdgeWeight>::free_result_memory(_TEdgeWeight *_widths)
 {
-    delete[] _widths;
+    MemoryAPI::free_array(_widths);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#endif /* widest_paths_hpp */
+#ifdef __USE_NEC_SX_AURORA__
+template <typename _TVertexValue, typename _TEdgeWeight>
+SSWP::WidestPaths(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph):
+frontier(_graph.get_vertices_count())
+{
+    MemoryAPI::allocate_array(&class_old_widths, _graph.get_vertices_count());
+}
+#endif
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+#ifdef __USE_NEC_SX_AURORA__
+template <typename _TVertexValue, typename _TEdgeWeight>
+SSWP::~WidestPaths()
+{
+    MemoryAPI::free_array(class_old_widths);
+}
+#endif
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+

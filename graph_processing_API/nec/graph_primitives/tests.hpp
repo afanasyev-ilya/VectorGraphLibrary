@@ -16,7 +16,9 @@ void GraphPrimitivesNEC::my_test(const long long *_vertex_pointers, const int *_
 {
     int first_border = 0;
     int last_border = _last_vertex;
-    /*for (int front_pos = _first_vertex; front_pos < _last_vertex - 1; front_pos++)
+    int top_border = 0;
+    int down_border = 0;
+    for (int front_pos = _first_vertex; front_pos < _last_vertex - 1; front_pos++)
     {
         const int src_id = front_pos;
 
@@ -28,25 +30,34 @@ void GraphPrimitivesNEC::my_test(const long long *_vertex_pointers, const int *_
         const long long int next_end = _vertex_pointers[src_id + 2];
         const int next_connections_count = next_end - next_start;
 
-        if((next_connections_count < VECTOR_LENGTH) && (connections_count >= VECTOR_LENGTH))
+        if((next_connections_count < 64) && (connections_count >= 64))
         {
             top_border = src_id;
         }
 
-        if((next_connections_count < 128) && (connections_count >= 128))
+        if((next_connections_count < 32) && (connections_count >= 32))
         {
             down_border = src_id;
         }
-    }*/
+    }
 
     #pragma omp master
     {
-        cout << "borders: (" << first_border << " - " << last_border << ")" << endl;
+        cout << "borders: (" << top_border << " - " << down_border << ")" << endl;
     }
+
 
     #ifdef __USE_NEC_SX_AURORA__
     ftrace_region_begin("test reg");
     #endif
+
+    float reg_res[VECTOR_LENGTH];
+    for(int i = 0; i < 256; i++)
+        reg_res[i] = 0.0;
+    #pragma _NEC vreg(reg_res)
+
+    DelayedWriteNEC delayed_write;
+    delayed_write.init();
 
     #ifdef __PRINT_API_PERFORMANCE_STATS__
     #pragma omp barrier
@@ -54,36 +65,26 @@ void GraphPrimitivesNEC::my_test(const long long *_vertex_pointers, const int *_
     #pragma omp barrier
     #endif
 
-    int reg_res[VECTOR_LENGTH];
-
-    DelayedWriteNEC delayed_write;
-    delayed_write.init();
-
     #pragma omp for schedule(static)
-    for (int front_pos = first_border; front_pos < last_border - 256; front_pos += 4)
+    for (int front_pos = top_border; front_pos < down_border; front_pos += 4)
     {
-        #pragma _NEC vector
         #pragma _NEC ivdep
         #pragma _NEC vovertake
         #pragma _NEC novob
-        for(int i = 0; i < 256; i++)
+        #pragma _NEC vector
+        for(int ij = 0; ij < 8*32; ij++)
         {
-            const int virtual_warp_id = i >> 6;
-            const int position_in_virtual_warp = i & (4 - 1);
+            int vertex_shift = ij / 256;
+            int local_edge_pos = ij % 256;
 
-            int src_id = front_pos + 0;// virtual_warp_id;
-
+            int src_id = front_pos + vertex_shift;
             const long long int start = _vertex_pointers[src_id];
-            //const long long int end = _vertex_pointers[src_id + 1];
-            //const int connections_count = end - start;
 
-            const long long int global_edge_pos = start + i;
-            //const int vector_index = i;
+            const long long int global_edge_pos = start + local_edge_pos;
+            const int vector_index = ij;
             const int dst_id = _adjacent_ids[global_edge_pos];
 
-            reg_res[i] += dst_id;
-
-            //edge_op(src_id, dst_id, position_in_virtual_warp, global_edge_pos, vector_index, delayed_write);
+            reg_res[ij] += dst_id;
         }
     }
 
@@ -98,19 +99,24 @@ void GraphPrimitivesNEC::my_test(const long long *_vertex_pointers, const int *_
         {
             INNER_WALL_NEC_TIME += t2 - t1;
 
-            double work = _vertex_pointers[last_border] - _vertex_pointers[first_border];
+            double work = 32*(down_border-top_border);//_vertex_pointers[down_border] - _vertex_pointers[top_border];
             cout << "TEST BANDWIDTH: " << endl;
             cout << "TES work: " << work << endl;
             cout << "TEST 3) time: " << (t2 - t1)*1000.0 << " ms" << endl;
-            cout << "TEST 3) BW: " << sizeof(int)*2.0*work/((t2-t1)*1e9) << " GB/s" << endl << endl;
+            cout << "NEW kazu verc TEST 3) BW: " << sizeof(int)*2.0*work/((t2-t1)*1e9) << " GB/s" << endl << endl;
         };
         #pragma omp barrier
     #endif
-    int sum = 0;
-    for(int i = 0; i < 256; i++)
-        sum += reg_res[i];
 
-    cout << "sum " << sum << endl;
+    int res = 0;
+    for(int i = 0; i < 256; i++)
+    {
+        res += reg_res[i];
+    }
+    #pragma omp single
+    {
+        cout << "res: " << res << endl;
+    };
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

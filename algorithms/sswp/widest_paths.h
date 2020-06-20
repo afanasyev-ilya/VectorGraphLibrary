@@ -1,33 +1,45 @@
-//
-//  widest_paths.h
-//  ParallelGraphLibrary
-//
-//  Created by Elijah Afanasiev on 08/09/2019.
-//  Copyright © 2019 MSU. All rights reserved.
-//
+#pragma once
 
-#ifndef widest_paths_h
-#define widest_paths_h
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+#define SSWP WidestPaths<_TVertexValue, _TEdgeWeight>
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+#define vect_min(a,b) ((a)<(b)?(a):(b))
+#define vect_max(a,b) ((a)>(b)?(a):(b))
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template <typename _TVertexValue, typename _TEdgeWeight>
 class WidestPaths
 {
-public:
-    static void allocate_result_memory(int _vertices_count, _TEdgeWeight **_widths);
-    static void free_result_memory    (_TEdgeWeight *_widths);
+private:
+    #ifdef __USE_NEC_SX_AURORA__
+    GraphPrimitivesNEC graph_API;
+    FrontierNEC frontier;
+    _TEdgeWeight *class_old_widths;
+    #endif
 
-    static void bellman_ford(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_reversed_graph,
-                             int _source_vertex, _TEdgeWeight *_widths);
-    
-    static void bellman_ford(VectorisedCSRGraph<_TVertexValue, _TEdgeWeight> &_reversed_graph,
-                             int _source_vertex, _TEdgeWeight *_widths);
+public:
+    WidestPaths(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph);
+    ~WidestPaths();
+
+    void allocate_result_memory(int _vertices_count, _TEdgeWeight **_widths);
+    void free_result_memory    (_TEdgeWeight *_widths);
+
+    #ifdef __USE_NEC_SX_AURORA__
+    void nec_dijkstra(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph, _TEdgeWeight *_widths, int _source_vertex,
+                      TraversalDirection _traversal_direction);
+    #endif
+
+    void seq_dijkstra(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph, _TEdgeWeight *_widths, int _source_vertex);
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #include "widest_paths.hpp"
-#include "bellman_ford.hpp"
+#include "nec_widest_paths.hpp"
+#include "seq_widest_paths.hpp"
 
-#endif /* widest_paths_h */
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

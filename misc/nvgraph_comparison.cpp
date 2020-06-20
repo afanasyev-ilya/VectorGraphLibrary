@@ -1,10 +1,8 @@
-//
-//  nvgraph_comparison.cpp
-//  ParallelGraphLibrary
-//
-//  Created by Elijah Afanasiev on 16/05/2019.
-//  Copyright © 2019 MSU. All rights reserved.
-//
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+#define INT_ELEMENTS_PER_EDGE 5.0
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #include "../graph_library.h"
 #include "nvgraph.h"
@@ -25,86 +23,8 @@ void check(nvgraphStatus_t status)
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-template <typename _TVertexValue, typename _TEdgeWeight>
-void convert_and_test(VectorisedCSRGraph<_TVertexValue, _TEdgeWeight> &_vect_graph, string alg)
-{
-    LOAD_VECTORISED_CSR_GRAPH_DATA(_vect_graph)
-    
-    vector<vector<TempEdgeData<float> > > csc_tmp_graph;
-    
-    for(int i = 0; i < vertices_count; i++)
-    {
-        vector<TempEdgeData<_TEdgeWeight> > empty_vector;
-        csc_tmp_graph.push_back(empty_vector);
-    }
-    
-    for(int src_id = 0; src_id < number_of_vertices_in_first_part; src_id++)
-    {
-        long long edge_start = first_part_ptrs[src_id];
-        int connections_count = first_part_sizes[src_id];
-            
-        for(int edge_pos = 0; edge_pos < connections_count; edge_pos++)
-        {
-            int dst_id = incoming_ids[edge_start + edge_pos];
-            _TEdgeWeight weight = incoming_weights[edge_start + edge_pos];
-            csc_tmp_graph[src_id].push_back(TempEdgeData<_TEdgeWeight>(dst_id, weight));
-        }
-    }
-    
-    for(int cur_vector_segment = 0; cur_vector_segment < vector_segments_count; cur_vector_segment++)
-    {
-        int segment_first_vertex = cur_vector_segment * VECTOR_LENGTH + number_of_vertices_in_first_part;
-        long long segement_edges_start = vector_group_ptrs[cur_vector_segment];
-        int segment_connections_count  = vector_group_sizes[cur_vector_segment];
-        
-        for(int edge_pos = 0; edge_pos < segment_connections_count; edge_pos++)
-        {
-            for(int i = 0; i < VECTOR_LENGTH; i++)
-            {
-                int src_id = segment_first_vertex + i;
-                int dst_id = incoming_ids[segement_edges_start + edge_pos * VECTOR_LENGTH + i];
-                _TEdgeWeight weight = incoming_weights[segement_edges_start + edge_pos * VECTOR_LENGTH + i];
-                
-                csc_tmp_graph[src_id].push_back(TempEdgeData<_TEdgeWeight>(dst_id, weight));
-            }
-        }
-    }
-    
-    // Подготавлием структуры данных для передачи графа
-    // в библиотеку nvGRAPH
-    int *source_indices = (int*) malloc(edges_count * sizeof(int));
-    int *destination_offsets = (int*) malloc((vertices_count + 1) * sizeof(int));
-    float *weights = (float*) malloc(edges_count * sizeof(float));
-    float *result = (float*) malloc(vertices_count * sizeof(float));
-    
-    int current_pos = 0;
-    for (int i = 0; i < vertices_count; ++i)
-    {
-        destination_offsets[i] = current_pos;
-        for (unsigned j = 0; j < csc_tmp_graph[i].size(); ++j)
-        {
-            source_indices[current_pos] = csc_tmp_graph[i][j].dst_id;
-            weights[current_pos] = csc_tmp_graph[i][j].weight;
-            current_pos += 1;
-        }
-    }
-    destination_offsets[vertices_count] = edges_count;
-    
-    if(alg == string("sp"))
-        nvgraph_sssp(vertices_count, edges_count, source_indices, destination_offsets, weights, result, _vect_graph);
-    else if(alg == string("pr"))
-        nvgraph_page_rank(vertices_count, edges_count, source_indices, destination_offsets, weights, result, _vect_graph);
-    
-    free(source_indices);
-    free(destination_offsets);
-    free(weights);
-    free(result);
-}
-
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
 void nvgraph_sssp(int vertices_count, int edges_count, int *source_indices, int *destination_offsets, float *weights,
-                  float *sssp, VectorisedCSRGraph<int, float> &_vect_graph)
+                  float *sssp, ExtendedCSRGraph<int, float> &_graph)
 {
     nvgraphHandle_t handle;
     nvgraphGraphDescr_t graph;
@@ -145,25 +65,32 @@ void nvgraph_sssp(int vertices_count, int edges_count, int *source_indices, int 
     
     // Получаем результаты вычислений
     check(nvgraphGetVertexData(handle, graph, (void*)sssp, 0));
-    
-    float *pgl_result;
-    ShortestPaths<int, float>::allocate_result_memory(_vect_graph.get_vertices_count(), &pgl_result);
-    
-    ShortestPaths<int, float>::bellman_ford_cached(_vect_graph, 0, pgl_result, 12);
-    
-    int error_count = 0;
-    for(int i = 0; i < _vect_graph.get_vertices_count(); i++)
+
+    bool check_using_vgl = false;
+    if(check_using_vgl)
     {
-        if(fabs(sssp[i] - pgl_result[i]) > 0.001)
+        float *vgl_result;
+
+        ShortestPaths<int, float> sssp_operation(_graph);
+
+        sssp_operation.allocate_result_memory(_graph.get_vertices_count(), &vgl_result);
+
+        sssp_operation.seq_dijkstra(_graph, vgl_result, source_vert);
+
+        int error_count = 0;
+        for(int i = 0; i < _graph.get_vertices_count(); i++)
         {
-            if(error_count < 20)
-                cout << "Cached Error: " << sssp[i] << " vs " << pgl_result[i] << " in pos " << i << endl;
-            error_count++;
+            if(fabs(sssp[i] - vgl_result[i]) > 0.001)
+            {
+                if(error_count < 20)
+                    cout << "Cached Error: " << sssp[i] << " vs " << vgl_result[i] << " in pos " << i << endl;
+                error_count++;
+            }
         }
+        cout << "cached error count: " << error_count << endl;
+
+        sssp_operation.free_result_memory(vgl_result);
     }
-    cout << "cached error count: " << error_count << endl;
-    
-    ShortestPaths<int, float>::free_result_memory(pgl_result);
     
     // Освобождаем выделенные структуры
     check(nvgraphDestroyGraphDescr(handle, graph));
@@ -175,9 +102,9 @@ void nvgraph_sssp(int vertices_count, int edges_count, int *source_indices, int 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 void nvgraph_page_rank(int vertices_count, int edges_count, int *source_indices, int *destination_offsets, float *weights,
-                       float *sssp, VectorisedCSRGraph<int, float> &_vect_graph)
+                       float *sssp, ExtendedCSRGraph<int, float> &_graph)
 {
-    size_t vert_sets = 2, edge_sets = 1;
+    /*size_t vert_sets = 2, edge_sets = 1;
     float alpha1 = 0.85f; void *alpha1_p = (void *) &alpha1;
     
     // nvgraph variables
@@ -239,7 +166,67 @@ void nvgraph_page_rank(int vertices_count, int edges_count, int *source_indices,
     free(pr_1);
     free(vertex_dim);
     free(vertex_dimT);
-    free(CSC_input);
+    free(CSC_input);*/
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+template <typename _TVertexValue, typename _TEdgeWeight>
+void convert_and_test(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph, string alg)
+{
+    LOAD_EXTENDED_CSR_GRAPH_DATA(_graph)
+
+    vector<vector<TempEdgeData<float> > > csc_tmp_graph;
+
+    for(int i = 0; i < vertices_count; i++)
+    {
+        vector<TempEdgeData<_TEdgeWeight> > empty_vector;
+        csc_tmp_graph.push_back(empty_vector);
+    }
+
+    for(int src_id = 0; src_id < vertices_count; src_id++)
+    {
+        const long long int start = outgoing_ptrs[src_id];
+        const long long int end = outgoing_ptrs[src_id + 1];
+        int connections_count = end - start;
+
+        for(int edge_pos = 0; edge_pos < connections_count; edge_pos++)
+        {
+            int dst_id = outgoing_ids[start + edge_pos];
+            _TEdgeWeight weight = outgoing_weights[start + edge_pos];
+            csc_tmp_graph[src_id].push_back(TempEdgeData<_TEdgeWeight>(dst_id, weight));
+        }
+    }
+
+    // Подготавлием структуры данных для передачи графа
+    // в библиотеку nvGRAPH
+    int *source_indices = (int*) malloc(edges_count * sizeof(int));
+    int *destination_offsets = (int*) malloc((vertices_count + 1) * sizeof(int));
+    float *weights = (float*) malloc(edges_count * sizeof(float));
+    float *result = (float*) malloc(vertices_count * sizeof(float));
+
+    int current_pos = 0;
+    for (int i = 0; i < vertices_count; ++i)
+    {
+        destination_offsets[i] = current_pos;
+        for (unsigned j = 0; j < csc_tmp_graph[i].size(); ++j)
+        {
+            source_indices[current_pos] = csc_tmp_graph[i][j].dst_id;
+            weights[current_pos] = csc_tmp_graph[i][j].weight;
+            current_pos += 1;
+        }
+    }
+    destination_offsets[vertices_count] = edges_count;
+
+    if(alg == string("sp"))
+        nvgraph_sssp(vertices_count, edges_count, source_indices, destination_offsets, weights, result, _graph);
+    else if(alg == string("pr"))
+        nvgraph_page_rank(vertices_count, edges_count, source_indices, destination_offsets, weights, result, _graph);
+
+    free(source_indices);
+    free(destination_offsets);
+    free(weights);
+    free(result);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -251,13 +238,13 @@ int main(int argc, char **argv)
         string input_graph_name = string(argv[1]);
         cout << input_graph_name << endl;
         
-        VectorisedCSRGraph<int, float> vect_graph;
-        if(!vect_graph.load_from_binary_file(input_graph_name))
+        ExtendedCSRGraph<int, float> graph;
+        if(!graph.load_from_binary_file(input_graph_name))
             throw "ERROR: no such file " + input_graph_name + " in nvgraph test";
         
         cout << "loaded" << endl;
         
-        convert_and_test<int, float>(vect_graph, string(argv[2]));
+        convert_and_test<int, float>(graph, string(argv[2]));
     }
     catch (string error)
     {

@@ -11,3 +11,4 @@
 ./generate_test_data  -directed -push -convert ./source_graphs/wikipedia_link_ru/out.wikipedia_link_ru -file ./ext_csr_graphs/wiki_ru
 
 ./generate_test_data  -directed -push -convert ./source_graphs/twitter/out.twitter  -file ./ext_csr_graphs/twitter
+./generate_test_data  -directed -push -convert ./source_graphs/friendster/out.friendster  -file ./ext_csr_graphs/friendster

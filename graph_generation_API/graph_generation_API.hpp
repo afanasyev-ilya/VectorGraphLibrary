@@ -539,13 +539,14 @@ void GraphGenerationAPI<_TVertexValue, _TEdgeWeight>::init_from_txt_file(EdgesLi
     edges_count = i;
     
     _graph.resize(vertices_count, edges_count);
+    int seed = int(time(NULL));
     for(i = 0; i < edges_count; i++)
     {
         _graph.get_src_ids()[i] = tmp_src_ids[i];
         _graph.get_dst_ids()[i] = tmp_dst_ids[i];
 
         #ifdef __USE_WEIGHTED_GRAPHS__
-        _graph.get_weights()[i] = 0.0;
+        _graph.get_weights()[i] = (rand_r(&seed) % 10) + static_cast <float> (rand_r(&seed)) / static_cast <float> (RAND_MAX);;
         #endif
     }
     
