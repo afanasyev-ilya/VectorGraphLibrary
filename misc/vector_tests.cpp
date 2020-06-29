@@ -159,11 +159,99 @@ void test_stride()
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+#define BUFFER_SIZE 256
+
+void test_copy_if()
+{
+    int size = 1024*1024*8;
+    int *in_data = new int[size];
+    int *out_data = new int[size];
+
+    int max_buffer_size = size / (VECTOR_LENGTH * MAX_SX_AURORA_THREADS) + 1;
+
+    cout << "MAX BUFFER SIZE: " << max_buffer_size << endl;
+
+    int *buffers = new int[VECTOR_LENGTH * max_buffer_size];
+
+    #pragma omp parallel for
+    for(int i = 0; i < size; i++)
+    {
+        in_data[i] = rand()%4;
+        out_data[i] = 0;
+    }
+
+    double t1 = omp_get_wtime();
+    #pragma omp parallel
+    {
+        int reg_ptrs[VECTOR_LENGTH];
+
+        #pragma _NEC vreg(reg_ptrs)
+
+        #pragma _NEC vector
+        for (int i = 0; i < VECTOR_LENGTH; i++)
+        {
+            reg_ptrs[i] = 0;
+        }
+
+        #pragma omp for
+        for (int vec_start = 0; vec_start < size; vec_start += VECTOR_LENGTH)
+        {
+            #pragma _NEC ivdep
+            #pragma _NEC vovertake
+            #pragma _NEC novob
+            #pragma _NEC vector
+            for (int i = 0; i < VECTOR_LENGTH; i++)
+            {
+                int val = in_data[vec_start + i];
+
+                if(val == 1)
+                {
+                    int dst_idx = reg_ptrs[i] + i * max_buffer_size;
+                    buffers[dst_idx] = val;
+                    reg_ptrs[i]++;
+                }
+            }
+        }
+
+        int dump_sizes[VECTOR_LENGTH];
+
+        for (int i = 0; i < VECTOR_LENGTH; i++)
+        {
+            dump_sizes[i] = reg_ptrs[i];
+            reg_ptrs[i] = 0;
+        }
+
+        int out_pos = 0;
+        #pragma omp parallel
+        for(int reg_pos = 0; reg_pos < VECTOR_LENGTH; reg_pos++)
+        {
+            #pragma _NEC ivdep
+            #pragma _NEC vovertake
+            #pragma _NEC novob
+            #pragma _NEC vector
+            for (int i = 0; i < dump_sizes[reg_pos]; i++)
+            {
+                out_data[out_pos + i] = buffers[i + reg_pos * BUFFER_SIZE];
+            }
+            out_pos += dump_sizes[reg_pos];
+        }
+    }
+    double t2 = omp_get_wtime();
+
+    cout << "BW: " << 2.0 * size * sizeof(int) / ((t2 - t1) * 1e9) << " GB/s" << endl;
+
+    delete []in_data;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 int main(int argc, const char * argv[])
 {
-    test_vector_length();
+    /*test_vector_length();
     test_latency();
-    test_stride();
+    test_stride();*/
+
+    test_copy_if();
 
     return 0;
 }

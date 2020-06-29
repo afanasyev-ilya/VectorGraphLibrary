@@ -5,7 +5,7 @@
 #define FRONTIER_TYPE_CHANGE_THRESHOLD 0.1
 #define VE_FRONTIER_TYPE_CHANGE_THRESHOLD 0.01
 #define VC_FRONTIER_TYPE_CHANGE_THRESHOLD 0.01
-#define COLLECTIVE_FRONTIER_TYPE_CHANGE_THRESHOLD 0.05
+#define COLLECTIVE_FRONTIER_TYPE_CHANGE_THRESHOLD 0.4
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 

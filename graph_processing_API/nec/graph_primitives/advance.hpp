@@ -44,9 +44,6 @@ void GraphPrimitivesNEC::advance_worker(ExtendedCSRGraph<_TVertexValue, _TEdgeWe
 
     if(_frontier.type == ALL_ACTIVE_FRONTIER)
     {
-        my_test(vertex_pointers, adjacent_ids, 0, vertices_count, edge_op, vertex_preprocess_op,
-                vertex_postprocess_op, 0);
-
         if((vector_engine_threshold_end - vector_engine_threshold_start) > 0)
             vector_engine_per_vertex_kernel_all_active(vertex_pointers, adjacent_ids, vector_engine_threshold_start,
                                                        vector_engine_threshold_end, edge_op, vertex_preprocess_op,
@@ -64,6 +61,8 @@ void GraphPrimitivesNEC::advance_worker(ExtendedCSRGraph<_TVertexValue, _TEdgeWe
                                                               collective_edge_op, collective_vertex_preprocess_op,
                                                               collective_vertex_postprocess_op, vertices_count, _first_edge);
 
+        /*my_test(vertex_pointers, adjacent_ids, 0, vertices_count, edge_op, vertex_preprocess_op,
+                vertex_postprocess_op, 0);*/
     }
     else
     {

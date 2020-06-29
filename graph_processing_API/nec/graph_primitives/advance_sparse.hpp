@@ -193,7 +193,7 @@ void GraphPrimitivesNEC::collective_vertex_processing_kernel_sparse(const long l
     delayed_write.init();
 
     #pragma omp for schedule(static, 1)
-    for(int front_pos = 0; front_pos < _frontier_size; front_pos += VECTOR_LENGTH)
+    for(int front_pos = 0; front_pos < _frontier_size - VECTOR_LENGTH; front_pos += VECTOR_LENGTH) // TOFIX - VECTOR_LENGTH
     {
         #pragma _NEC vector
         for(int i = 0; i < VECTOR_LENGTH; i++)

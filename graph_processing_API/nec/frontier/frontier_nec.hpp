@@ -59,6 +59,8 @@ string get_status_string(FrontierType _type)
     return status;
 }
 
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 template <typename _TVertexValue, typename _TEdgeWeight>
 void FrontierNEC::print_frontier_info(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph)
 {

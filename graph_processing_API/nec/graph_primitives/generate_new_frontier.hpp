@@ -37,16 +37,20 @@ void GraphPrimitivesNEC::generate_new_frontier(ExtendedCSRGraph<_TVertexValue, _
     const int vc_threshold = _graph.get_nec_vector_core_threshold_vertex();
     const int vertices_count = _graph.get_vertices_count();
 
+    // calculate numbers of elements in different frontier parts
     _frontier.vector_engine_part_size = estimate_sorted_frontier_part_size(_frontier, 0, ve_threshold, filter_cond);
     _frontier.vector_core_part_size = estimate_sorted_frontier_part_size(_frontier, ve_threshold, vc_threshold, filter_cond);
     _frontier.collective_part_size = estimate_sorted_frontier_part_size(_frontier, vc_threshold, vertices_count, filter_cond);
+
+    // calculate total size of frontier
     _frontier.current_size = _frontier.vector_engine_part_size + _frontier.vector_core_part_size + _frontier.collective_part_size;
 
     #ifdef __PRINT_API_PERFORMANCE_STATS__
     double t2 = omp_get_wtime();
     #endif
 
-    if(_frontier.current_size == _frontier.max_size) // no checks required
+    // set type of the whole frontier
+    if(_frontier.current_size == _frontier.max_size)
     {
         _frontier.type = ALL_ACTIVE_FRONTIER;
     }
@@ -59,6 +63,7 @@ void GraphPrimitivesNEC::generate_new_frontier(ExtendedCSRGraph<_TVertexValue, _
         _frontier.type = SPARSE_FRONTIER;
     }
 
+    // estimate first (VE) part sparsity
     if(double(_frontier.vector_engine_part_size)/(ve_threshold - 0) < VE_FRONTIER_TYPE_CHANGE_THRESHOLD)
     {
         _frontier.vector_engine_part_type = SPARSE_FRONTIER;
@@ -70,6 +75,7 @@ void GraphPrimitivesNEC::generate_new_frontier(ExtendedCSRGraph<_TVertexValue, _
         _frontier.vector_engine_part_type = DENSE_FRONTIER;
     }
 
+    // estimate second (VC) part sparsity
     if(double(_frontier.vector_core_part_size)/(vc_threshold - ve_threshold) < VC_FRONTIER_TYPE_CHANGE_THRESHOLD)
     {
         _frontier.vector_core_part_type = SPARSE_FRONTIER;
@@ -81,11 +87,17 @@ void GraphPrimitivesNEC::generate_new_frontier(ExtendedCSRGraph<_TVertexValue, _
         _frontier.vector_core_part_type = DENSE_FRONTIER;
     }
 
+    // estimate third (collective) part sparsity
     if(double(_frontier.collective_part_size)/(vertices_count - vc_threshold) < COLLECTIVE_FRONTIER_TYPE_CHANGE_THRESHOLD)
     {
         _frontier.collective_part_type = SPARSE_FRONTIER;
         if(_frontier.collective_part_size > 0)
-            sparse_copy_if(_frontier.flags, &_frontier.ids[_frontier.vector_core_part_size + _frontier.vector_engine_part_size], _frontier.work_buffer, _frontier.max_size, vc_threshold, vertices_count);
+        {
+            if(double(_frontier.collective_part_size)/(vertices_count - vc_threshold) < 0.1)
+                sparse_copy_if(_frontier.flags, &_frontier.ids[_frontier.vector_core_part_size + _frontier.vector_engine_part_size], _frontier.work_buffer, _frontier.max_size, vc_threshold, vertices_count);
+            else
+                dense_copy_if(&_frontier.flags[ve_threshold + vc_threshold], &_frontier.ids[_frontier.vector_core_part_size + _frontier.vector_engine_part_size], vertices_count - (ve_threshold + vc_threshold));
+        }
     }
     else
     {

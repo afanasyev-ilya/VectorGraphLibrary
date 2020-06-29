@@ -1,4 +1,5 @@
-CXX = nc++ #-2.5.1
+CXX = nc++
+#CXX = nc++-2.5.1
 
 # Include paths...
 
@@ -46,6 +47,9 @@ generate_test_data: create_folders generate_test_data.o
 analyse_graph: create_folders analyse_graph.o
 	$(CXX) object_files/analyse_graph.o $(Library_Path) $(Libraries) $(LDFLAGS) -o ./bin/analyse_graph
 
+gather: create_folders gather.o
+	$(CXX) object_files/gather.o $(Library_Path) $(Libraries) $(LDFLAGS) -o ./bin/gather
+
 ##########
 # CPPs
 ##########
@@ -67,6 +71,9 @@ sswp.o: sswp.cpp
 
 bfs.o: bfs.cpp
 	$(CXX) $(CXXFLAGS) $(Include_Path)  -c bfs.cpp -o object_files/bfs.o -fopenmp
+
+gather.o: gather.cpp
+	$(CXX) $(CXXFLAGS) $(Include_Path)  -c gather.cpp -o object_files/gather.o -fopenmp
 	
 custom_test.o: ../misc/custom_test.cpp
 	$(CXX) $(CXXFLAGS) $(Include_Path)  -c custom_test.cpp -o object_files/custom_test.o -fopenmp
