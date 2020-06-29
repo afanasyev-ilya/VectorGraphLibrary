@@ -160,10 +160,12 @@ void test_stride()
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #define BUFFER_SIZE 256
+#define DESIRED_VALUE 1
 
-void test_copy_if()
+void test_copy_if(int k_size, int sparsity_k)
 {
-    int size = 1024*1024*8;
+    // preparation part
+    int size = 1024*1024*k_size;
     int *in_data = new int[size];
     int *out_data = new int[size];
 
@@ -171,18 +173,32 @@ void test_copy_if()
 
     cout << "MAX BUFFER SIZE: " << max_buffer_size << endl;
 
-    int *buffers = new int[VECTOR_LENGTH * max_buffer_size];
+    int *buffers = new int[VECTOR_LENGTH * max_buffer_size * MAX_SX_AURORA_THREADS];
 
-    #pragma omp parallel for
+    int check_elements_count = 0;
+    #pragma omp parallel for reduction(+: check_elements_count)
     for(int i = 0; i < size; i++)
     {
-        in_data[i] = rand()%4;
+        in_data[i] = rand()%sparsity_k;
         out_data[i] = 0;
+        if(in_data[i] == 1)
+        {
+            check_elements_count += 1;
+        }
+        if(i < VECTOR_LENGTH * max_buffer_size * MAX_SX_AURORA_THREADS)
+            buffers[i] = 5;
     }
+    cout << check_elements_count << " elements should be copied " << endl;
 
+    // copy if started
     double t1 = omp_get_wtime();
-    #pragma omp parallel
+    int output_size = 0;
+    int shifts_array[MAX_SX_AURORA_THREADS];
+    #pragma omp parallel num_threads(MAX_SX_AURORA_THREADS) shared(output_size)
     {
+        int tid = omp_get_thread_num();
+        int *private_buffer = &buffers[VECTOR_LENGTH * max_buffer_size * tid];
+
         int reg_ptrs[VECTOR_LENGTH];
 
         #pragma _NEC vreg(reg_ptrs)
@@ -193,6 +209,7 @@ void test_copy_if()
             reg_ptrs[i] = 0;
         }
 
+        // copy data to buffers
         #pragma omp for
         for (int vec_start = 0; vec_start < size; vec_start += VECTOR_LENGTH)
         {
@@ -204,25 +221,51 @@ void test_copy_if()
             {
                 int val = in_data[vec_start + i];
 
-                if(val == 1)
+                if(val == DESIRED_VALUE)
                 {
-                    int dst_idx = reg_ptrs[i] + i * max_buffer_size;
-                    buffers[dst_idx] = val;
+                    int dst_buffer_idx = reg_ptrs[i] + i * max_buffer_size;
+                    private_buffer[dst_buffer_idx] = vec_start + i;
                     reg_ptrs[i]++;
                 }
             }
         }
 
+        // calculate sizes
         int dump_sizes[VECTOR_LENGTH];
-
+        #pragma _NEC vector
         for (int i = 0; i < VECTOR_LENGTH; i++)
         {
             dump_sizes[i] = reg_ptrs[i];
-            reg_ptrs[i] = 0;
+        }
+        int private_size = 0;
+        #pragma _NEC vector
+        for(int reg_pos = 0; reg_pos < VECTOR_LENGTH; reg_pos++)
+        {
+            private_size += dump_sizes[reg_pos];
         }
 
-        int out_pos = 0;
-        #pragma omp parallel
+        // calculate output offsets
+        shifts_array[tid] = private_size;
+        #pragma omp barrier
+        #pragma omp master
+        {
+            int cur_shift = 0;
+            for(int i = 1; i < MAX_SX_AURORA_THREADS; i++)
+            {
+                shifts_array[i] += shifts_array[i - 1];
+            }
+            output_size = shifts_array[MAX_SX_AURORA_THREADS - 1];
+            for(int i = (MAX_SX_AURORA_THREADS - 1); i >= 1; i--)
+            {
+                shifts_array[i] = shifts_array[i - 1];
+            }
+            shifts_array[0] = 0;
+        }
+        #pragma omp barrier
+        int output_offset = shifts_array[tid];
+
+        // save data to output array
+        int current_pos = 0;
         for(int reg_pos = 0; reg_pos < VECTOR_LENGTH; reg_pos++)
         {
             #pragma _NEC ivdep
@@ -231,16 +274,45 @@ void test_copy_if()
             #pragma _NEC vector
             for (int i = 0; i < dump_sizes[reg_pos]; i++)
             {
-                out_data[out_pos + i] = buffers[i + reg_pos * BUFFER_SIZE];
+                int src_buffer_idx = i + reg_pos * max_buffer_size;
+                out_data[output_offset + current_pos + i] = private_buffer[src_buffer_idx];
             }
-            out_pos += dump_sizes[reg_pos];
+            current_pos += dump_sizes[reg_pos];
         }
     }
     double t2 = omp_get_wtime();
 
+    // print stats
     cout << "BW: " << 2.0 * size * sizeof(int) / ((t2 - t1) * 1e9) << " GB/s" << endl;
+    cout << "we saved " << output_size << " elements" << endl;
+
+    cout << "first 20 elements of output array: " << endl;
+    for(int i = 0; i < 20; i++)
+        cout << out_data[i] << endl;
+
+    for(int i = 0; i < MAX_SX_AURORA_THREADS; i++)
+    {
+        cout << "shift " << shifts_array[i] << endl;
+    }
+
+    // check
+    int error_count = 0;
+    for(int i = 0; i < output_size; i++)
+    {
+        int idx = out_data[i];
+        if(in_data[idx] != DESIRED_VALUE)
+        {
+            if(error_count < 20)
+                cout << in_data[idx] << " error for copied index " << idx << " in pos " << i << endl;
+            error_count++;
+        }
+    }
+    cout << "size check: " << output_size << " vs " << check_elements_count << endl;
+    cout << "error count: " << error_count << endl;
 
     delete []in_data;
+    delete []out_data;
+    delete []buffers;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -251,7 +323,7 @@ int main(int argc, const char * argv[])
     test_latency();
     test_stride();*/
 
-    test_copy_if();
+    test_copy_if(atoi(argv[1]), atoi(argv[2]));
 
     return 0;
 }
