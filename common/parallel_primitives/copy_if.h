@@ -122,11 +122,18 @@ inline int sparse_copy_if(const int *_in_data,
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+enum COPY_IF_TYPE
+{
+    SAVE_ORDER = 0,
+    DONT_SAVE_ORDER = 1
+};
+
 inline int dense_copy_if(const int * __restrict__ _in_data,
                          int *_out_data,
                          int *_tmp_buffer,
                          const int _size,
                          const int _shift,
+                         const COPY_IF_TYPE _output_order = SAVE_ORDER,
                          const int _threads_count = MAX_SX_AURORA_THREADS)
 {
     int max_buffer_size = _size / (VECTOR_LENGTH * MAX_SX_AURORA_THREADS) + 1;
@@ -150,7 +157,7 @@ inline int dense_copy_if(const int * __restrict__ _in_data,
         }
 
         // copy data to buffers
-        #pragma omp for schedule(static)
+        #pragma omp for schedule(static, 8)
         for (int vec_start = 0; vec_start < _size; vec_start += VECTOR_LENGTH)
         {
             #pragma _NEC ivdep
@@ -182,7 +189,7 @@ inline int dense_copy_if(const int * __restrict__ _in_data,
         }
         int private_size = 0;
         #pragma _NEC vector
-        for(int reg_pos = 0; reg_pos < VECTOR_LENGTH; reg_pos++)
+        for (int reg_pos = 0; reg_pos < VECTOR_LENGTH; reg_pos++)
         {
             private_size += dump_sizes[reg_pos];
         }
@@ -208,19 +215,89 @@ inline int dense_copy_if(const int * __restrict__ _in_data,
         int output_offset = shifts_array[tid];
 
         // save data to output array
-        int current_pos = 0;
-        for(int reg_pos = 0; reg_pos < VECTOR_LENGTH; reg_pos++)
+
+        if(_output_order == DONT_SAVE_ORDER)
         {
-            #pragma _NEC ivdep
-            #pragma _NEC vovertake
-            #pragma _NEC novob
-            #pragma _NEC vector
-            for (int i = 0; i < dump_sizes[reg_pos]; i++)
+            int current_pos = 0;
+            for(int reg_pos = 0; reg_pos < VECTOR_LENGTH; reg_pos++)
             {
-                int src_buffer_idx = i + reg_pos * max_buffer_size;
-                _out_data[output_offset + current_pos + i] = private_buffer[src_buffer_idx];
+                #pragma _NEC ivdep
+                #pragma _NEC vovertake
+                #pragma _NEC novob
+                #pragma _NEC vector
+                for (int i = 0; i < dump_sizes[reg_pos]; i++)
+                {
+                    int src_buffer_idx = i + reg_pos * max_buffer_size;
+                    _out_data[output_offset + current_pos + i] = private_buffer[src_buffer_idx];
+                }
+                current_pos += dump_sizes[reg_pos];
             }
-            current_pos += dump_sizes[reg_pos];
+        }
+        else if(_output_order == SAVE_ORDER)
+        {
+            int max_work = 0;
+            #pragma _NEC vector
+            for(int reg_pos = 0; reg_pos < VECTOR_LENGTH; reg_pos++)
+            {
+                if(reg_ptrs[reg_pos] > max_work)
+                    max_work = reg_ptrs[reg_pos];
+            }
+
+            int min_work = dump_sizes[0];
+            #pragma _NEC vector
+            for(int reg_pos = 0; reg_pos < VECTOR_LENGTH; reg_pos++)
+            {
+                if(reg_ptrs[reg_pos] < min_work)
+                    min_work = reg_ptrs[reg_pos];
+            }
+
+            // save large part
+            int current_pos = 0;
+            for(int work_pos = 0; work_pos < min_work; work_pos++)
+            {
+                #pragma _NEC ivdep
+                #pragma _NEC vovertake
+                #pragma _NEC novob
+                #pragma _NEC vector
+                for(int i = 0; i < VECTOR_LENGTH; i++)
+                {
+                    int src_buffer_idx = work_pos + i * max_buffer_size;
+                    _out_data[output_offset + current_pos + i] = private_buffer[src_buffer_idx];
+                }
+                current_pos += VECTOR_LENGTH;
+            }
+
+            // save reminder
+            for(int work_pos = min_work; work_pos < max_work; work_pos++)
+            {
+                #pragma _NEC vovertake
+                #pragma _NEC novob
+                #pragma _NEC vector
+                for(int i = 0; i < VECTOR_LENGTH; i++)
+                {
+                    if(work_pos < reg_ptrs[i])
+                    {
+                        int src_buffer_idx = work_pos + i * max_buffer_size;
+                        _out_data[output_offset + current_pos] = private_buffer[src_buffer_idx];
+                        current_pos++;
+                    }
+                }
+            }
+
+            // save reminder
+            /*for(int reg_pos = 0; reg_pos < VECTOR_LENGTH; reg_pos++)
+            {
+                #pragma _NEC ivdep
+                #pragma _NEC vovertake
+                #pragma _NEC novob
+                #pragma _NEC vector
+                for (int i = min_work; i < dump_sizes[reg_pos]; i++)
+                {
+                    int src_buffer_idx = i + reg_pos * max_buffer_size;
+                    _out_data[output_offset + current_pos + i - min_work] = private_buffer[src_buffer_idx];
+                }
+                current_pos += dump_sizes[reg_pos] - min_work;
+            }*/
         }
     }
 
