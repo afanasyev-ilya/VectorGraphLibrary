@@ -8,7 +8,7 @@ FrontierNEC::FrontierNEC(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph)
     max_size = _graph.get_vertices_count();
     MemoryAPI::allocate_array(&flags, max_size);
     MemoryAPI::allocate_array(&ids, max_size);
-    MemoryAPI::allocate_array(&work_buffer, max_size);
+    MemoryAPI::allocate_array(&work_buffer, max_size + VECTOR_LENGTH * MAX_SX_AURORA_THREADS);
 
     // by default frontier is all active
     type = ALL_ACTIVE_FRONTIER;

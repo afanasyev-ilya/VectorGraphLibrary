@@ -154,6 +154,8 @@ void GraphPrimitivesNEC::vector_core_per_vertex_kernel_sparse(const long long *_
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+#include <algorithm>
+
 template <typename EdgeOperation, typename VertexPreprocessOperation,
         typename VertexPostprocessOperation>
 void GraphPrimitivesNEC::collective_vertex_processing_kernel_sparse(const long long *_vertex_pointers,
@@ -192,8 +194,8 @@ void GraphPrimitivesNEC::collective_vertex_processing_kernel_sparse(const long l
     DelayedWriteNEC delayed_write;
     delayed_write.init();
 
-    #pragma omp for schedule(static, 1)
-    for(int front_pos = 0; front_pos < _frontier_size - VECTOR_LENGTH; front_pos += VECTOR_LENGTH) // TOFIX - VECTOR_LENGTH
+    #pragma omp for schedule(static, 8)
+    for(int front_pos = 0; front_pos < _frontier_size; front_pos += VECTOR_LENGTH)
     {
         #pragma _NEC vector
         for(int i = 0; i < VECTOR_LENGTH; i++)

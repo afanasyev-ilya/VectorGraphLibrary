@@ -159,7 +159,6 @@ void test_stride()
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#define BUFFER_SIZE 256
 #define DESIRED_VALUE 1
 
 void test_copy_if(int k_size, int sparsity_k)
@@ -210,7 +209,7 @@ void test_copy_if(int k_size, int sparsity_k)
         }
 
         // copy data to buffers
-        #pragma omp for
+        #pragma omp for schedule(static)
         for (int vec_start = 0; vec_start < size; vec_start += VECTOR_LENGTH)
         {
             #pragma _NEC ivdep

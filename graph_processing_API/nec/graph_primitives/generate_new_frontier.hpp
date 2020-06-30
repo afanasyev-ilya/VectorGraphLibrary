@@ -34,7 +34,7 @@ void GraphPrimitivesNEC::generate_new_frontier(ExtendedCSRGraph<_TVertexValue, _
     #endif
 
     const int ve_threshold = _graph.get_nec_vector_engine_threshold_vertex();
-    const int vc_threshold = _graph.get_nec_vector_core_threshold_vertex();
+    int vc_threshold = _graph.get_nec_vector_core_threshold_vertex();
     const int vertices_count = _graph.get_vertices_count();
 
     // calculate numbers of elements in different frontier parts
@@ -93,10 +93,108 @@ void GraphPrimitivesNEC::generate_new_frontier(ExtendedCSRGraph<_TVertexValue, _
         _frontier.collective_part_type = SPARSE_FRONTIER;
         if(_frontier.collective_part_size > 0)
         {
-            if(double(_frontier.collective_part_size)/(vertices_count - vc_threshold) < 0.1)
-                sparse_copy_if(_frontier.flags, &_frontier.ids[_frontier.vector_core_part_size + _frontier.vector_engine_part_size], _frontier.work_buffer, _frontier.max_size, vc_threshold, vertices_count);
-            else
-                dense_copy_if(&_frontier.flags[ve_threshold + vc_threshold], &_frontier.ids[_frontier.vector_core_part_size + _frontier.vector_engine_part_size], vertices_count - (ve_threshold + vc_threshold));
+            long long *outgoing_ptrs = _graph.get_outgoing_ptrs();
+            int prev_conn, max_connections, copied_elements;
+            double avg_difference = 0, work, real_work;
+            int start = _frontier.vector_core_part_size + _frontier.vector_engine_part_size;
+
+            // test new dense
+            int segment_shift = vc_threshold;
+            int segment_size = vertices_count - vc_threshold;
+            copied_elements = dense_copy_if(&_frontier.flags[segment_shift], &_frontier.ids[_frontier.vector_core_part_size + _frontier.vector_engine_part_size], _frontier.work_buffer, segment_size, segment_shift);
+
+            for(int vec_start = 0; vec_start < min(copied_elements, 256); vec_start += 256) {
+                for (int i = 0; i < VECTOR_LENGTH; i++) {
+                    if ((vec_start + i) < copied_elements) {
+                        int src_id = _frontier.ids[start + vec_start + i];
+                        cout << "after dense: " << src_id - start << endl;
+                    }
+                }
+            }
+
+            prev_conn = 0;
+            avg_difference = 0;
+            max_connections = 0;
+            work = 0;
+            real_work = 0;
+            for(int vec_start = 0; vec_start < copied_elements; vec_start += 256)
+            {
+                int sum_in_reg = 0;
+                int max_in_reg = 0;
+                for(int i = 0; i < VECTOR_LENGTH; i++)
+                {
+                    if((vec_start + i) < copied_elements)
+                    {
+                        int src_id = _frontier.ids[start + vec_start + i];
+                        int conn = outgoing_ptrs[src_id + 1] - outgoing_ptrs[src_id];
+                        if(conn > max_connections)
+                            max_connections = conn;
+
+                        if(conn > max_in_reg)
+                            max_in_reg = conn;
+
+                        sum_in_reg += conn;
+
+                        avg_difference += fabs(conn - prev_conn) / double(copied_elements);
+                        prev_conn = conn;
+                    }
+                }
+
+                work += sum_in_reg;
+                real_work += max_in_reg * VECTOR_LENGTH;
+            }
+            cout << "MAX CONNECTIONS dense: " << max_connections << endl;
+            cout << "diff dense: " << avg_difference << endl;
+            cout << "work dense: " << work << " vs " << real_work << endl;
+            cout << 100.0* real_work / work << endl;
+
+            // test sparse
+            copied_elements = sparse_copy_if(_frontier.flags, &_frontier.ids[_frontier.vector_core_part_size + _frontier.vector_engine_part_size], _frontier.work_buffer, _frontier.max_size, vc_threshold, vertices_count);
+
+            prev_conn = 0;
+            avg_difference = 0;
+            max_connections = 0;
+            work = 0;
+            real_work = 0;
+            for(int vec_start = 0; vec_start < copied_elements; vec_start += 256)
+            {
+                int sum_in_reg = 0;
+                int max_in_reg = 0;
+                for(int i = 0; i < VECTOR_LENGTH; i++)
+                {
+                    if((vec_start + i) < copied_elements)
+                    {
+                        int src_id = _frontier.ids[start + vec_start + i];
+                        int conn = outgoing_ptrs[src_id + 1] - outgoing_ptrs[src_id];
+                        if(conn > max_connections)
+                            max_connections = conn;
+
+                        if(conn > max_in_reg)
+                            max_in_reg = conn;
+
+                        sum_in_reg += conn;
+
+                        avg_difference += fabs(conn - prev_conn) / double(copied_elements);
+                        prev_conn = conn;
+                    }
+                }
+
+                work += sum_in_reg;
+                real_work += max_in_reg * VECTOR_LENGTH;
+            }
+            cout << "MAX CONNECTIONS sparse: " << max_connections << endl;
+            cout << "DIFF sparse: " << avg_difference << endl;
+            cout << "work sparse: " << work << " vs " << real_work << endl;
+            cout << 100.0* real_work / work << endl;
+
+            for(int vec_start = 0; vec_start < min(copied_elements, 256); vec_start += 256) {
+                for (int i = 0; i < VECTOR_LENGTH; i++) {
+                    if ((vec_start + i) < copied_elements) {
+                        int src_id = _frontier.ids[start + vec_start + i];
+                        cout << "after sparse: " << src_id - start<< endl;
+                    }
+                }
+            }
         }
     }
     else

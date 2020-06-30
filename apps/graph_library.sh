@@ -19,8 +19,8 @@ echo args : ${program_args[@]}
 
 echo common launch of application ${program_name}
 
-free -m
+#free -m
 
 ${program_name} ${program_args[@]}
 
-free -m
+#free -m

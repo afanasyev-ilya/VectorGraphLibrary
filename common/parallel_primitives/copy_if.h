@@ -122,80 +122,109 @@ inline int sparse_copy_if(const int *_in_data,
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-inline int dense_copy_if(int *_in_data,
+inline int dense_copy_if(const int * __restrict__ _in_data,
                          int *_out_data,
+                         int *_tmp_buffer,
                          const int _size,
+                         const int _shift,
                          const int _threads_count = MAX_SX_AURORA_THREADS)
 {
+    int max_buffer_size = _size / (VECTOR_LENGTH * MAX_SX_AURORA_THREADS) + 1;
+
+    int output_size = 0;
     int shifts_array[MAX_SX_AURORA_THREADS];
-    int pos = 0;
-    int elements_count = 0;
-    #pragma omp parallel shared(shifts_array, elements_count) num_threads(_threads_count)
+
+    #pragma omp parallel num_threads(MAX_SX_AURORA_THREADS) shared(output_size)
     {
         int tid = omp_get_thread_num();
-        int local_number_of_values = 0;
+        int *private_buffer = &_tmp_buffer[VECTOR_LENGTH * max_buffer_size * tid];
 
-        #pragma _NEC vovertake
-        #pragma _NEC novob
+        int reg_ptrs[VECTOR_LENGTH];
+
+        #pragma _NEC vreg(reg_ptrs)
+
         #pragma _NEC vector
-        #pragma omp for schedule(static)
-        for(int src_id = 0; src_id < _size; src_id++)
+        for (int i = 0; i < VECTOR_LENGTH; i++)
         {
-            #pragma _NEC sparse
-            if(_in_data[src_id] > 0)
+            reg_ptrs[i] = 0;
+        }
+
+        // copy data to buffers
+        #pragma omp for schedule(static)
+        for (int vec_start = 0; vec_start < _size; vec_start += VECTOR_LENGTH)
+        {
+            #pragma _NEC ivdep
+            #pragma _NEC vovertake
+            #pragma _NEC novob
+            #pragma _NEC vector
+            for (int i = 0; i < VECTOR_LENGTH; i++)
             {
-                local_number_of_values++;
+                int val = 0;
+
+                if((vec_start + i) < _size)
+                    val = _in_data[vec_start + i];
+
+                if(val > 0)
+                {
+                    int dst_buffer_idx = reg_ptrs[i] + i * max_buffer_size;
+                    private_buffer[dst_buffer_idx] = _shift + vec_start + i;
+                    reg_ptrs[i]++;
+                }
             }
         }
-        
-        shifts_array[tid] = local_number_of_values;
+
+        // calculate sizes
+        int dump_sizes[VECTOR_LENGTH];
+        #pragma _NEC vector
+        for (int i = 0; i < VECTOR_LENGTH; i++)
+        {
+            dump_sizes[i] = reg_ptrs[i];
+        }
+        int private_size = 0;
+        #pragma _NEC vector
+        for(int reg_pos = 0; reg_pos < VECTOR_LENGTH; reg_pos++)
+        {
+            private_size += dump_sizes[reg_pos];
+        }
+
+        // calculate output offsets
+        shifts_array[tid] = private_size;
         #pragma omp barrier
-        
         #pragma omp master
         {
             int cur_shift = 0;
-            for(int i = 1; i < _threads_count; i++)
+            for(int i = 1; i < MAX_SX_AURORA_THREADS; i++)
             {
                 shifts_array[i] += shifts_array[i - 1];
             }
-            
-            elements_count = shifts_array[_threads_count - 1];
-
-            for(int i = (_threads_count - 1); i >= 1; i--)
+            output_size = shifts_array[MAX_SX_AURORA_THREADS - 1];
+            for(int i = (MAX_SX_AURORA_THREADS - 1); i >= 1; i--)
             {
                 shifts_array[i] = shifts_array[i - 1];
             }
             shifts_array[0] = 0;
         }
-        
         #pragma omp barrier
-        
-        int tid_shift = shifts_array[tid];
-        int *private_ptr = &(_out_data[tid_shift]);
-        
-        int local_pos = 0;
-        #pragma omp for schedule(static, 8)
-        for(int src_id = 0; src_id < _size; src_id += VECTOR_LENGTH)
+        int output_offset = shifts_array[tid];
+
+        // save data to output array
+        int current_pos = 0;
+        for(int reg_pos = 0; reg_pos < VECTOR_LENGTH; reg_pos++)
         {
-            int *dst_data = &private_ptr[local_pos];
-            int j = 0;
+            #pragma _NEC ivdep
             #pragma _NEC vovertake
             #pragma _NEC novob
             #pragma _NEC vector
-            for(int i = 0; i < VECTOR_LENGTH; i++)
+            for (int i = 0; i < dump_sizes[reg_pos]; i++)
             {
-                if(_in_data[src_id + i] > 0)
-                {
-                    dst_data[j] = src_id + i;
-                    j++;
-                }
+                int src_buffer_idx = i + reg_pos * max_buffer_size;
+                _out_data[output_offset + current_pos + i] = private_buffer[src_buffer_idx];
             }
-            local_pos += j;
-
+            current_pos += dump_sizes[reg_pos];
         }
     }
-    
-    return elements_count;
+
+    return output_size;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
