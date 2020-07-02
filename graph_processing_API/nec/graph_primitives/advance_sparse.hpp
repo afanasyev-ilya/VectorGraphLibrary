@@ -146,7 +146,7 @@ void GraphPrimitivesNEC::vector_core_per_vertex_kernel_sparse(const long long *_
             }
 
             cout << "2) time: " << (t2 - t1)*1000.0 << " ms" << endl;
-            cout << "2) BF: " << sizeof(int)*INT_ELEMENTS_PER_EDGE*work/((t2-t1)*1e9) << " GB/s" << endl;
+            cout << "2) BW: " << sizeof(int)*INT_ELEMENTS_PER_EDGE*work/((t2-t1)*1e9) << " GB/s" << endl;
         };
         #pragma omp barrier
     #endif

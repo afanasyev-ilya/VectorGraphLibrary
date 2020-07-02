@@ -304,6 +304,110 @@ inline int dense_copy_if(const int * __restrict__ _in_data,
     return output_size;
 }
 
+
+inline int dense_copy_if2(const int * __restrict__ _in_data,
+                         int *_out_data,
+                         int *_tmp_buffer,
+                         const int _size)
+{
+    int max_buffer_size = _size / (VECTOR_LENGTH * MAX_SX_AURORA_THREADS) + 1;
+
+    int output_size = 0;
+    int shifts_array[MAX_SX_AURORA_THREADS];
+
+    #pragma omp parallel num_threads(MAX_SX_AURORA_THREADS) shared(output_size)
+    {
+        int tid = omp_get_thread_num();
+        int *private_buffer = &_tmp_buffer[VECTOR_LENGTH * max_buffer_size * tid];
+
+        int reg_ptrs[VECTOR_LENGTH];
+
+        #pragma _NEC vreg(reg_ptrs)
+
+        #pragma _NEC vector
+        for (int i = 0; i < VECTOR_LENGTH; i++)
+        {
+            reg_ptrs[i] = 0;
+        }
+
+        // copy data to buffers
+        #pragma omp for schedule(static, 8)
+        for (int vec_start = 0; vec_start < _size; vec_start += VECTOR_LENGTH)
+        {
+            #pragma _NEC ivdep
+            #pragma _NEC vovertake
+            #pragma _NEC novob
+            #pragma _NEC vector
+            for (int i = 0; i < VECTOR_LENGTH; i++)
+            {
+                int val = -1;
+
+                if((vec_start + i) < _size)
+                    val = _in_data[vec_start + i];
+
+                if(val > -1)
+                {
+                    int dst_buffer_idx = reg_ptrs[i] + i * max_buffer_size;
+                    private_buffer[dst_buffer_idx] = val;
+                    reg_ptrs[i]++;
+                }
+            }
+        }
+
+        // calculate sizes
+        int dump_sizes[VECTOR_LENGTH];
+        #pragma _NEC vector
+        for (int i = 0; i < VECTOR_LENGTH; i++)
+        {
+            dump_sizes[i] = reg_ptrs[i];
+        }
+        int private_size = 0;
+        #pragma _NEC vector
+        for (int reg_pos = 0; reg_pos < VECTOR_LENGTH; reg_pos++)
+        {
+            private_size += dump_sizes[reg_pos];
+        }
+
+        // calculate output offsets
+        shifts_array[tid] = private_size;
+        #pragma omp barrier
+        #pragma omp master
+        {
+            int cur_shift = 0;
+            for(int i = 1; i < MAX_SX_AURORA_THREADS; i++)
+            {
+                shifts_array[i] += shifts_array[i - 1];
+            }
+            output_size = shifts_array[MAX_SX_AURORA_THREADS - 1];
+            for(int i = (MAX_SX_AURORA_THREADS - 1); i >= 1; i--)
+            {
+                shifts_array[i] = shifts_array[i - 1];
+            }
+            shifts_array[0] = 0;
+        }
+        #pragma omp barrier
+        int output_offset = shifts_array[tid];
+
+        // save data to output array
+        int current_pos = 0;
+        for(int reg_pos = 0; reg_pos < VECTOR_LENGTH; reg_pos++)
+        {
+            #pragma _NEC ivdep
+            #pragma _NEC vovertake
+            #pragma _NEC novob
+            #pragma _NEC vector
+            for (int i = 0; i < dump_sizes[reg_pos]; i++)
+            {
+                int src_buffer_idx = i + reg_pos * max_buffer_size;
+                _out_data[output_offset + current_pos + i] = private_buffer[src_buffer_idx];
+            }
+            current_pos += dump_sizes[reg_pos];
+        }
+    }
+
+    return output_size;
+}
+
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #endif /* copy_if_h */

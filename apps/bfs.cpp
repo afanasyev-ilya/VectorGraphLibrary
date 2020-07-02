@@ -57,8 +57,16 @@ int main(int argc, const char * argv[])
         graph.move_to_device();
         #endif
 
-        int source_vertex_num = parser.get_number_of_rounds();
+        // heat run from 0 vertex
+        #ifdef __USE_NEC_SX_AURORA__
+        if(parser.get_algorithm_bfs() == DIRECTION_OPTIMIZING_BFS_ALGORITHM)
+            bfs_operation.nec_direction_optimizing(graph, bfs_levels, 0);
+        else if(parser.get_algorithm_bfs() == TOP_DOWN_BFS_ALGORITHM)
+            bfs_operation.nec_top_down(graph, bfs_levels, 0);
+        #endif
 
+        // test runs
+        int source_vertex_num = parser.get_number_of_rounds();
         double avg_perf = 0;
         double total_time = 0;
         int vertex_to_check = 0;

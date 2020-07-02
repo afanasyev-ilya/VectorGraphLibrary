@@ -187,8 +187,16 @@ void BFS<_TVertexValue, _TEdgeWeight>::nec_top_down(ExtendedCSRGraph<_TVertexVal
     int current_level = FIRST_LEVEL_VERTEX;
     while(frontier.size() > 0)
     {
-        int vis = 0, in_lvl = 0;
-        nec_top_down_compute_step(_graph, _levels, current_level, vis, in_lvl, false);
+        auto edge_op = [_levels, current_level](int src_id, int dst_id, int local_edge_pos,
+                long long int global_edge_pos, int vector_index, DelayedWriteNEC &delayed_write)
+        {
+            int src_level = _levels[src_id];
+            int dst_level = _levels[dst_id];
+            if((src_level == current_level) && (dst_level == UNVISITED_VERTEX))
+            {
+                _levels[dst_id] = current_level + 1;
+            }
+        };
 
         auto on_next_level = [_levels, current_level] (int src_id)->int
         {
@@ -198,7 +206,7 @@ void BFS<_TVertexValue, _TEdgeWeight>::nec_top_down(ExtendedCSRGraph<_TVertexVal
             return result;
         };
 
-        graph_API.generate_new_frontier(_graph, frontier, on_next_level);
+        graph_API.advance(_graph, frontier, frontier, edge_op, on_next_level);
 
         current_level++;
     }
@@ -343,8 +351,9 @@ double BFS<_TVertexValue, _TEdgeWeight>::nec_direction_optimizing(ExtendedCSRGra
     }
     double t2 = omp_get_wtime();
 
+    double compute_time = t2 - t1;
     #ifdef __PRINT_SAMPLES_PERFORMANCE_STATS__
-    double compute_time = 0;
+    compute_time = 0;
     for(int i = 0; i < step_times.size(); i++)
     {
         cout << "step " << i << " perf: " << edges_count/(step_times[i]*1e6) << " MTEPS, time: " << 1000.0 * step_times[i] << " ms, " << " % in state " << step_states[i] << endl;
