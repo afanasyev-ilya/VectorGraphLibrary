@@ -2,7 +2,7 @@
 
 #define INT_ELEMENTS_PER_EDGE 4.0
 #define NEC_VECTOR_CORE_THRESHOLD_VALUE VECTOR_LENGTH
-#define COLLECTIVE_FRONTIER_TYPE_CHANGE_THRESHOLD 0.15
+#define COLLECTIVE_FRONTIER_TYPE_CHANGE_THRESHOLD 0.3
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -55,7 +55,7 @@ int main(int argc, const char * argv[])
 
         // heat run from 0 vertex
         #ifdef __USE_NEC_SX_AURORA__
-        bfs_operation.nec_top_down(graph, bfs_levels, 0);
+        bfs_operation.nec_direction_optimizing(graph, bfs_levels, 0);
         #endif
 
         // test runs
@@ -72,7 +72,7 @@ int main(int argc, const char * argv[])
             #ifdef __PRINT_API_PERFORMANCE_STATS__
             reset_nec_debug_timers();
             #endif
-            bfs_operation.nec_top_down(graph, bfs_levels, vertex_to_check);
+            bfs_operation.nec_direction_optimizing(graph, bfs_levels, vertex_to_check);
             #ifdef __PRINT_API_PERFORMANCE_STATS__
             print_nec_debug_timers(graph);
             #endif

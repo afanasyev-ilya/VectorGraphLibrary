@@ -93,27 +93,10 @@ void GraphPrimitivesNEC::generate_new_frontier(ExtendedCSRGraph<_TVertexValue, _
         _frontier.collective_part_type = SPARSE_FRONTIER;
         if(_frontier.collective_part_size > 0)
         {
-            /*double t1_test, t2_test;
 
-            // test sparse
-            t1_test = omp_get_wtime();
-            int copied_elements = sparse_copy_if(_frontier.flags, &_frontier.ids[_frontier.vector_core_part_size + _frontier.vector_engine_part_size], _frontier.work_buffer, _frontier.max_size, vc_threshold, vertices_count);
-            t2_test = omp_get_wtime();
-            cout << "sparse time: " << 1000.0 * (t2_test - t1_test) << " ms " << copied_elements << endl;
-
-            t1_test = omp_get_wtime();
-            int segment_shift = vc_threshold;
-            int segment_size = vertices_count - vc_threshold;
-            copied_elements = dense_copy_if(&_frontier.flags[segment_shift], &_frontier.ids[_frontier.vector_core_part_size + _frontier.vector_engine_part_size], _frontier.work_buffer, segment_size, segment_shift, DONT_SAVE_ORDER);
-            t2_test = omp_get_wtime();
-            cout << "unordered dense time: " << 1000.0 * (t2_test - t1_test) << " ms " << copied_elements << endl;*/
-
-            //t1_test = omp_get_wtime();
             int segment_shift = vc_threshold;
             int segment_size = vertices_count - vc_threshold;
             int copied_elements = dense_copy_if(&_frontier.flags[segment_shift], &_frontier.ids[_frontier.vector_core_part_size + _frontier.vector_engine_part_size], _frontier.work_buffer, segment_size, segment_shift, SAVE_ORDER);
-            //t2_test = omp_get_wtime();
-            //cout << "ordered dense time: " << 1000.0 * (t2_test - t1_test) << " ms " << copied_elements << endl;
         }
     }
     else

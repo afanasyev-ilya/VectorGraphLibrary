@@ -238,7 +238,10 @@ void GraphPrimitivesNEC::advance(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &
     {
         LOAD_EXTENDED_CSR_GRAPH_DATA(_graph);
 
+        #ifdef __PRINT_API_PERFORMANCE_STATS__
         double t1 = omp_get_wtime();
+        #endif
+
         int cur_pos = 0;
         int *tmp_frontier = _in_frontier.work_buffer;
 
@@ -307,6 +310,12 @@ void GraphPrimitivesNEC::advance(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &
         {
             _out_frontier.ids[i] = tmp_frontier[i];
         }
+
+        #ifdef __PRINT_API_PERFORMANCE_STATS__
+        double t2 = omp_get_wtime();
+        cout << "SMALL GNF time: " << 1000.0*(t2 - t1) << " ms" << endl;
+        cout << "SMALL GNF BW: " << 2.0*sizeof(int)*tmp_frontier_size << " GB/s" << endl;
+        #endif
     }
 }
 

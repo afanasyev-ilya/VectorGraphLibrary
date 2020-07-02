@@ -21,7 +21,7 @@ LDFLAGS = -fopenmp -report-all -L /opt/nec/ve/nlc/2.0.0/lib -ftrace #-lasl_openm
 # binaries
 ##########
 
-all: sssp sswp bfs cc pr apsp generate_test_data
+all: sssp sswp bfs bfs_do cc pr apsp generate_test_data
 
 cc: create_folders cc.o
 	$(CXX) object_files/cc.o $(Library_Path) $(Libraries) $(LDFLAGS) -o ./bin/cc
@@ -37,6 +37,9 @@ apsp: create_folders apsp.o
 
 bfs: create_folders bfs.o
 	$(CXX) object_files/bfs.o $(Library_Path) $(Libraries) $(LDFLAGS) -o ./bin/bfs
+
+bfs_do: create_folders bfs_do.o
+	$(CXX) object_files/bfs_do.o $(Library_Path) $(Libraries) $(LDFLAGS) -o ./bin/bfs_do
 
 pr: create_folders pr.o
 	$(CXX) object_files/pr.o $(Library_Path) $(Libraries) $(LDFLAGS) -o ./bin/pr
@@ -71,6 +74,9 @@ sswp.o: sswp.cpp
 
 bfs.o: bfs.cpp
 	$(CXX) $(CXXFLAGS) $(Include_Path)  -c bfs.cpp -o object_files/bfs.o -fopenmp
+
+bfs_do.o: bfs_do.cpp
+	$(CXX) $(CXXFLAGS) $(Include_Path)  -c bfs_do.cpp -o object_files/bfs_do.o -fopenmp
 
 gather.o: gather.cpp
 	$(CXX) $(CXXFLAGS) $(Include_Path)  -c gather.cpp -o object_files/gather.o -fopenmp

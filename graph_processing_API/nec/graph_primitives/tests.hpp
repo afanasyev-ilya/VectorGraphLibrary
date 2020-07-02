@@ -1,7 +1,7 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #ifdef __USE_NEC_SX_AURORA__
-#include <ftrace.h>
+//#include <ftrace.h>
 #endif
 
 template <typename EdgeOperation, typename VertexPreprocessOperation,
@@ -14,7 +14,7 @@ void GraphPrimitivesNEC::my_test(const long long *_vertex_pointers, const int *_
                                  VertexPostprocessOperation vertex_postprocess_op,
                                  const int _first_edge)
 {
-    int first_border = 0;
+    /*int first_border = 0;
     int last_border = _last_vertex;
     int top_border = 0;
     int down_border = 0;
@@ -38,10 +38,10 @@ void GraphPrimitivesNEC::my_test(const long long *_vertex_pointers, const int *_
             top_border = src_id;
         }
 
-        /*if((next_connections_count < 8) && (connections_count >= 8))
+        if((next_connections_count < 8) && (connections_count >= 8))
         {
             down_border = src_id;
-        }*/
+        }
 
         if((next_connections_count < 128) && (connections_count >= 128))
         {

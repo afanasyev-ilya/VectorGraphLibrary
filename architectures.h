@@ -15,8 +15,31 @@
 #define VECTOR_LENGTH_POW 8
 #define MAX_SX_AURORA_THREADS 8
 
-#define NEC_VECTOR_ENGINE_THRESHOLD_VALUE  VECTOR_LENGTH * MAX_SX_AURORA_THREADS * 128
-#define NEC_VECTOR_CORE_THRESHOLD_VALUE    VECTOR_LENGTH
+// main framework settings
+// define user hasn't set any
+#ifndef NEC_VECTOR_ENGINE_THRESHOLD_VALUE
+#define NEC_VECTOR_ENGINE_THRESHOLD_VALUE VECTOR_LENGTH * MAX_SX_AURORA_THREADS * 128
+#endif
+
+#ifndef NEC_VECTOR_CORE_THRESHOLD_VALUE
+#define NEC_VECTOR_CORE_THRESHOLD_VALUE VECTOR_LENGTH
+#endif
+
+#ifndef FRONTIER_TYPE_CHANGE_THRESHOLD
+#define FRONTIER_TYPE_CHANGE_THRESHOLD 0.3
+#endif
+
+#ifndef VE_FRONTIER_TYPE_CHANGE_THRESHOLD
+#define VE_FRONTIER_TYPE_CHANGE_THRESHOLD 0.01
+#endif
+
+#ifndef VC_FRONTIER_TYPE_CHANGE_THRESHOLD
+#define VC_FRONTIER_TYPE_CHANGE_THRESHOLD 0.01
+#endif
+
+#ifndef COLLECTIVE_FRONTIER_TYPE_CHANGE_THRESHOLD
+#define COLLECTIVE_FRONTIER_TYPE_CHANGE_THRESHOLD 0.15
+#endif
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // GPU properties
@@ -41,7 +64,7 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #define __PRINT_API_PERFORMANCE_STATS__ // prints inner api detailed performance stats, causes significant delays when active
-#define __PRINT_SAMPLES_PERFORMANCE_STATS__ // prints samples stats (iterations, bandwidths, components stats)
+//#define __PRINT_SAMPLES_PERFORMANCE_STATS__ // prints samples stats (iterations, bandwidths, components stats)
 #define __SAVE_PERFORMANCE_STATS_TO_FILE__ // saves performance stats to files (useful for multiple batch launches)
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -49,4 +72,11 @@
 #define VISUALISATION_SMALL_GRAPH_VERTEX_THRESHOLD 30
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+#ifndef INT_ELEMENTS_PER_EDGE
+#define INT_ELEMENTS_PER_EDGE 3.0
+#endif
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 

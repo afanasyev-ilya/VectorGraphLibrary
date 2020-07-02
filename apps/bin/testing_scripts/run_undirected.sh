@@ -1,29 +1,56 @@
 #!/bin/bash
-#SBATCH --partition aurora
-#SBATCH --gres=ve:1
-#SBATCH --exclusive
 
-./$1 -load ./ext_csr_graphs/undir_rmat_20_32_ext_CSR.gbin $2
-./$1 -load ./ext_csr_graphs/undir_rmat_21_32_ext_CSR.gbin $2
-./$1 -load ./ext_csr_graphs/undir_rmat_22_32_ext_CSR.gbin $2
-./$1 -load ./ext_csr_graphs/undir_rmat_23_32_ext_CSR.gbin $2
-./$1 -load ./ext_csr_graphs/undir_rmat_24_32_ext_CSR.gbin $2
-./$1 -load ./ext_csr_graphs/undir_rmat_25_32_ext_CSR.gbin $2
+PROG_NAME=$1
+PROG_ARGS=$2
 
-./$1 -load ./ext_csr_graphs/dir_ru_20_32_ext_CSR.gbin $2
-./$1 -load ./ext_csr_graphs/dir_ru_21_32_ext_CSR.gbin $2
-./$1 -load ./ext_csr_graphs/dir_ru_22_32_ext_CSR.gbin $2
-./$1 -load ./ext_csr_graphs/dir_ru_23_32_ext_CSR.gbin $2
-./$1 -load ./ext_csr_graphs/dir_ru_24_32_ext_CSR.gbin $2
-./$1 -load ./ext_csr_graphs/dir_ru_25_32_ext_CSR.gbin $2
+FILE_PREFIX=" -load ./ext_csr_graphs/"
+FILE_SUFIX="_ext_CSR.gbin"
 
-./$1 -load ./ext_csr_graphs/twitter_ext_CSR.gbin $2
-./$1 -load ./ext_csr_graphs/orkut_ext_CSR.gbin $2
-./$1 -load ./ext_csr_graphs/lj_ext_CSR.gbin $2
-./$1 -load ./ext_csr_graphs/pokec_ext_CSR.gbin $2
+PERF_PATTERN="INNER perf"
 
-./$1 -load ./ext_csr_graphs/wiki_en_ext_CSR.gbin $2
-./$1 -load ./ext_csr_graphs/dbpedia_ext_CSR.gbin $2
-./$1 -load ./ext_csr_graphs/trackers_ext_CSR.gbin $2
-./$1 -load ./ext_csr_graphs/wiki_fr_ext_CSR.gbin $2
-./$1 -load ./ext_csr_graphs/wiki_ru_ext_CSR.gbin $2
+declare -a file_names=("undir_rmat_20_32"
+                       "undir_rmat_21_32"
+                       "undir_rmat_22_32"
+                       "undir_rmat_23_32"
+                       "undir_rmat_24_32"
+                       "undir_rmat_25_32"
+                       "undir_rmat_26_32"
+                       "dir_ru_20_32"
+                       "dir_ru_21_32"
+                       "dir_ru_22_32"
+                       "dir_ru_23_32"
+                       "dir_ru_24_32"
+                       "dir_ru_25_32"
+                       "friendster"
+                       "twitter"
+                       "orkut"
+                       "lj"
+                       "pokec"
+                       "wiki_en"
+                       "dbpedia"
+                       "trackers"
+                       "wiki_fr"
+                       "wiki_ru"
+                       )
+
+
+rm perf_file.txt
+rm full_perf_file.txt
+
+for name in "${file_names[@]}"
+do
+   CMD_RUN="$PROG_NAME $PROG_ARGS$FILE_PREFIX$name$FILE_SUFIX "
+   echo "running $CMD_RUN ..."
+
+   eval $CMD_RUN > tmp_file.txt
+
+   search_result=$(grep -R "$PERF_PATTERN" tmp_file.txt)
+
+   echo $search_result
+   echo $search_result | sed -r 's/^([^.]+).*$/\1/; s/^[^0-9]*([0-9]+).*$/\1/' >> perf_file.txt
+   echo "$name: " >> full_perf_file.txt
+   echo $search_result | sed -r 's/^([^.]+).*$/\1/; s/^[^0-9]*([0-9]+).*$/\1/' >> full_perf_file.txt
+   echo "---------------" >> full_perf_file.txt
+done
+
+rm tmp_file.txt

@@ -38,14 +38,31 @@ double PR::nec_page_rank(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
     graph_API.compute(_graph, frontier, init_data);
 
     auto calculate_number_of_loops = [number_of_loops](int src_id, int dst_id, int local_edge_pos,
+                    long long int global_edge_pos, int vector_index, DelayedWriteNEC &delayed_write)
+    {
+        if(src_id == dst_id)
+        {
+            delayed_write.int_vec_reg[vector_index] += 1;
+        }
+    };
+
+    auto calculate_number_of_loops_collective = [number_of_loops](int src_id, int dst_id, int local_edge_pos,
                                      long long int global_edge_pos, int vector_index, DelayedWriteNEC &delayed_write)
     {
         if(src_id == dst_id)
         {
-            number_of_loops[src_id]++;
+            number_of_loops[src_id] += 1;
         }
     };
-    graph_API.advance(_graph, frontier, calculate_number_of_loops);
+
+    auto vertex_postprocess_calculate_number_of_loops = [number_of_loops]
+                        (int src_id, int connections_count, int vector_index, DelayedWriteNEC &delayed_write)
+    {
+        delayed_write.finish_write_sum(number_of_loops, src_id);
+    };
+
+    graph_API.advance(_graph, frontier, calculate_number_of_loops, EMPTY_VERTEX_OP, vertex_postprocess_calculate_number_of_loops,
+                      calculate_number_of_loops_collective, EMPTY_VERTEX_OP, EMPTY_VERTEX_OP);
 
     auto calculate_degrees_without_loops = [incoming_degrees_without_loops, incoming_degrees, number_of_loops] (int src_id, int connections_count, int vector_index)
     {
@@ -100,12 +117,11 @@ double PR::nec_page_rank(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
 
         graph_API.advance(_graph, frontier, edge_op, EMPTY_VERTEX_OP, vertex_postprocess_op);
 
-        auto reduce_ranks_sum = [_page_ranks](int src_id, int connections_count, int vector_index)->float
+        /*auto reduce_ranks_sum = [_page_ranks](int src_id, int connections_count, int vector_index)->float
         {
             return _page_ranks[src_id];
         };
-        double ranks_sum = graph_API.reduce<double>(_graph, frontier, reduce_ranks_sum, REDUCE_SUM);
-        cout << "ranks sum: " << ranks_sum << endl;
+        double ranks_sum = graph_API.reduce<double>(_graph, frontier, reduce_ranks_sum, REDUCE_SUM);*/
     }
     double t2 = omp_get_wtime();
 
