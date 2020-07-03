@@ -85,7 +85,7 @@ gather.o: gather.cpp
 	$(CXX) $(CXXFLAGS) $(Include_Path)  -c gather.cpp -o object_files/gather.o -fopenmp
 
 mf.o: mf.cpp
-	$(CXX) $(CXXFLAGS) $(Include_Path)  -c mf.cpp -o object_files/pr.o -fopenmp
+	$(CXX) $(CXXFLAGS) $(Include_Path)  -c mf.cpp -o object_files/mf.o -fopenmp
 	
 custom_test.o: ../misc/custom_test.cpp
 	$(CXX) $(CXXFLAGS) $(Include_Path)  -c custom_test.cpp -o object_files/custom_test.o -fopenmp
