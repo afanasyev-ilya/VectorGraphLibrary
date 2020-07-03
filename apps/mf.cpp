@@ -19,13 +19,13 @@ int main(int argc, const char * argv[])
         parser.parse_args(argc, argv);
 
         // load graph
-        ExtendedCSRGraph<int, float> graph;
-        EdgesListGraph<int, float> rand_graph;
+        ExtendedCSRGraph<int, int> graph;
+        EdgesListGraph<int, int> rand_graph;
         if(parser.get_compute_mode() == GENERATE_NEW_GRAPH)
         {
             int vertices_count = pow(2.0, parser.get_scale());
             long long edges_count = vertices_count * parser.get_avg_degree();
-            GraphGenerationAPI<int, float>::R_MAT(rand_graph, vertices_count, edges_count, 57, 19, 19, 5, UNDIRECTED_GRAPH);
+            GraphGenerationAPI<int, int>::R_MAT(rand_graph, vertices_count, edges_count, 57, 19, 19, 5, UNDIRECTED_GRAPH);
             graph.import_graph(rand_graph);
         }
         else if(parser.get_compute_mode() == LOAD_GRAPH_FROM_FILE)
@@ -38,6 +38,10 @@ int main(int argc, const char * argv[])
         }
 
         cout << "MF template" << endl;
+
+        MaxFlow<int, int> mf_operation;
+
+        int flow_val = mf_operation.seq_ford_fulkerson(graph, 0, 5);
 
         //pr_operation.nec_page_rank(graph, page_ranks, 1.0e-4, iterations_count)uil
     }
