@@ -15,6 +15,11 @@ public:
     MaxFlow() {};
     ~MaxFlow() {};
 
+    #ifdef __USE_NEC_SX_AURORA__
+    _TEdgeWeight nec_ford_fulkerson(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
+                                    int _source, int _sink);
+    #endif
+
     _TEdgeWeight seq_ford_fulkerson(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
                                     int _source, int _sink);
 };
@@ -23,6 +28,7 @@ public:
 
 #include "mf.hpp"
 #include "seq_mf.hpp"
+#include "nec_mf.hpp"
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
