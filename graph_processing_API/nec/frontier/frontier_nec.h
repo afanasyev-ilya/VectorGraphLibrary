@@ -42,7 +42,12 @@ public:
     void print_frontier_info(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph);
 
     template <typename _TVertexValue, typename _TEdgeWeight>
-    void add_vertex(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph, int src_id);
+    inline void add_vertex(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph, int src_id);
+
+    template <typename _TVertexValue, typename _TEdgeWeight>
+    inline void add_vertices(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph, int *_vertex_ids, int _number_of_vertices);
+
+    inline void clear() { current_size = 0; };
 
     friend class GraphPrimitivesNEC;
 };

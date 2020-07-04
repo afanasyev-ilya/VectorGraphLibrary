@@ -1,17 +1,16 @@
 #pragma once
 
-#pragma once
-
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+#ifdef __USE_NEC_SX_AURORA__
 template <typename _TVertexValue, typename _TEdgeWeight>
-bool nec_bfs(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
-            int _source,
-            int _sink,
-            int *_parents,
-            int *_levels,
-            GraphPrimitivesNEC &_graph_API,
-            FrontierNEC &_frontier)
+bool MF::nec_bfs(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
+                 int _source,
+                 int _sink,
+                 int *_parents,
+                 int *_levels,
+                 GraphPrimitivesNEC &_graph_API,
+                 FrontierNEC &_frontier)
 {
     LOAD_EXTENDED_CSR_GRAPH_DATA(_graph);
     _frontier.set_all_active();
@@ -26,6 +25,7 @@ bool nec_bfs(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
     };
     _graph_API.compute(_graph, _frontier, init);
 
+    _frontier.clear();
     _frontier.add_vertex(_graph, _source);
 
     int current_level = FIRST_LEVEL_VERTEX;
@@ -61,6 +61,21 @@ bool nec_bfs(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
     else
         return true;
 }
+#endif
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+void construct_path(int _source, int _sink, int *_parents, int *_path, int &_path_length)
+{
+    int path_pos = 0;
+    for (int v = _sink; v != _source; v = _parents[v])
+    {
+        int u = _parents[v];
+        _path[path_pos] = v;
+        path_pos++;
+    }
+    _path_length = path_pos;
+}
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -76,8 +91,10 @@ _TEdgeWeight MF::nec_ford_fulkerson(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight
 
     int *parents;
     int *levels;
+    int *path;
     MemoryAPI::allocate_array(&parents, vertices_count);
     MemoryAPI::allocate_array(&levels, vertices_count);
+    MemoryAPI::allocate_array(&path, vertices_count);
 
     #pragma omp parallel for
     for(int i = 0; i < edges_count; i++)
@@ -87,7 +104,8 @@ _TEdgeWeight MF::nec_ford_fulkerson(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight
 
     int max_flow = 0;
     double bfs_time = 0;
-    double reminder_time = 0, reminder_time1 = 0, reminder_time2 = 0;
+    double reminder_time = 0, reminder_time1 = 0, reminder_time2 = 0, gnf_time = 0;
+    double avg_path_length = 0;
 
     int iterations_count = 0;
     while(true)
@@ -101,43 +119,63 @@ _TEdgeWeight MF::nec_ford_fulkerson(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight
             break;
 
         t1 = omp_get_wtime();
-        int path_flow = INT_MAX;
+        // construct path
         int path_length = 0;
-        for (int v = _sink; v != _source; v = parents[v])
+        construct_path(_source, _sink, parents, path, path_length);
+        avg_path_length += path_length;
+
+        // calculate current flow
+        int path_flow = INT_MAX;
+        for (int i = 0; i < path_length; i++)
         {
+            int v = path[i];
             int u = parents[v];
-            int current_weight = get_weight(_graph, u, v);
+            int current_weight = get_flow(_graph, u, v);
             path_flow = min(path_flow, current_weight);
         }
         t2 = omp_get_wtime();
         reminder_time1 += t2 - t1;
 
+        frontier.clear();
         t1 = omp_get_wtime();
-        for (int v = _sink; v != _source; v = parents[v])
+        frontier.add_vertices(_graph, path, path_length);
+        t2 = omp_get_wtime();
+        gnf_time += t2 - t1;
+
+        t1 = omp_get_wtime();
+        // update weights
+        for (int i = 0; i < path_length; i++)
         {
+            int v = path[i];
             int u = parents[v];
-            minus_weight(_graph, u, v, path_flow);
-            plus_weight(_graph, v, u, path_flow);
+            subtract_flow(_graph, u, v, path_flow);
+            add_flow(_graph, v, u, path_flow);
         }
         max_flow += path_flow;
+        iterations_count++;
+
         t2 = omp_get_wtime();
         reminder_time2 += t2 - t1;
-
-        iterations_count++;
     }
 
     reminder_time = reminder_time1 + reminder_time2;
+    avg_path_length /= iterations_count;
+
+    //print_mf_performance_stats();
 
     cout << "iterations done: " << iterations_count << endl;
     cout << "bfs time: " << bfs_time*1000.0 << " ms" << endl;
     cout << "reminder time: " << reminder_time*1000.0 << " ms" << endl;
     cout << "reminder1 time: " << reminder_time1*1000.0 << " ms" << endl;
     cout << "reminder2 time: " << reminder_time2*1000.0 << " ms" << endl;
+    cout << "gnf time: " << gnf_time * 1000.0 << " ms" << endl;
     cout << "average bfs perf: " << edges_count / ((bfs_time/iterations_count)*1e6) << " MTEPS" << endl;
+    cout << "average path length: " << avg_path_length << endl;
     cout << "wall perf: " << edges_count / ((bfs_time + reminder_time)*1e6) << " MTEPS" << endl;
 
     MemoryAPI::free_array(parents);
     MemoryAPI::free_array(levels);
+    MemoryAPI::free_array(path);
 
     // Return the overall flow
     return max_flow;

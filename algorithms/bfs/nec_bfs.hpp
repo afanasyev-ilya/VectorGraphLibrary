@@ -181,6 +181,7 @@ void BFS<_TVertexValue, _TEdgeWeight>::nec_top_down(ExtendedCSRGraph<_TVertexVal
     };
     graph_API.compute(_graph, frontier, init_levels);
 
+    frontier.clear();
     frontier.add_vertex(_graph, _source_vertex);
 
     double t1 = omp_get_wtime();
@@ -269,6 +270,7 @@ double BFS<_TVertexValue, _TEdgeWeight>::nec_direction_optimizing(ExtendedCSRGra
     };
     graph_API.compute(_graph, frontier, init_levels);
 
+    frontier.clear();
     frontier.add_vertex(_graph, _source_vertex);
 
     #ifdef __PRINT_SAMPLES_PERFORMANCE_STATS__
