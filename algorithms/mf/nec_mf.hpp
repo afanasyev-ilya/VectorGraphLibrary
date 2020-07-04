@@ -95,16 +95,16 @@ _TEdgeWeight MF::nec_ford_fulkerson(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight
     MemoryAPI::allocate_array(&parents, vertices_count);
     MemoryAPI::allocate_array(&levels, vertices_count);
     MemoryAPI::allocate_array(&path, vertices_count);
+    int *flows = outgoing_weights;
 
     #pragma omp parallel for
     for(int i = 0; i < edges_count; i++)
     {
-        outgoing_weights[i] = 10;
+        flows[i] = 10;
     }
 
     int max_flow = 0;
-    double bfs_time = 0;
-    double reminder_time = 0, reminder_time1 = 0, reminder_time2 = 0, gnf_time = 0;
+    double bfs_time = 0, reminder_time = 0;
     double avg_path_length = 0;
 
     int iterations_count = 0;
@@ -130,48 +130,37 @@ _TEdgeWeight MF::nec_ford_fulkerson(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight
         {
             int v = path[i];
             int u = parents[v];
-            int current_weight = get_flow(_graph, u, v);
-            path_flow = min(path_flow, current_weight);
+            int current_flow = _graph.get_edge_data(flows, u, v);
+            path_flow = min(path_flow, current_flow);
         }
-        t2 = omp_get_wtime();
-        reminder_time1 += t2 - t1;
 
-        frontier.clear();
-        t1 = omp_get_wtime();
-        frontier.add_vertices(_graph, path, path_length);
-        t2 = omp_get_wtime();
-        gnf_time += t2 - t1;
-
-        t1 = omp_get_wtime();
         // update weights
         for (int i = 0; i < path_length; i++)
         {
             int v = path[i];
             int u = parents[v];
-            subtract_flow(_graph, u, v, path_flow);
-            add_flow(_graph, v, u, path_flow);
+            _graph.get_edge_data(flows, u, v) -= path_flow;
+            //_graph.get_edge_data(flows, v, u) += path_flow;
         }
         max_flow += path_flow;
         iterations_count++;
 
         t2 = omp_get_wtime();
-        reminder_time2 += t2 - t1;
+        reminder_time += t2 - t1;
     }
 
-    reminder_time = reminder_time1 + reminder_time2;
     avg_path_length /= iterations_count;
-
-    //print_mf_performance_stats();
 
     cout << "iterations done: " << iterations_count << endl;
     cout << "bfs time: " << bfs_time*1000.0 << " ms" << endl;
     cout << "reminder time: " << reminder_time*1000.0 << " ms" << endl;
-    cout << "reminder1 time: " << reminder_time1*1000.0 << " ms" << endl;
-    cout << "reminder2 time: " << reminder_time2*1000.0 << " ms" << endl;
-    cout << "gnf time: " << gnf_time * 1000.0 << " ms" << endl;
     cout << "average bfs perf: " << edges_count / ((bfs_time/iterations_count)*1e6) << " MTEPS" << endl;
     cout << "average path length: " << avg_path_length << endl;
     cout << "wall perf: " << edges_count / ((bfs_time + reminder_time)*1e6) << " MTEPS" << endl;
+
+    #ifdef __PRINT_SAMPLES_PERFORMANCE_STATS__
+    PerformanceStats::print_performance_stats("MF nec_ford_fulkerson", bfs_time + reminder_time, edges_count, iterations_count);
+    #endif
 
     MemoryAPI::free_array(parents);
     MemoryAPI::free_array(levels);

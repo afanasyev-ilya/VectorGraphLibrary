@@ -4,6 +4,7 @@
 #define NEC_VECTOR_CORE_THRESHOLD_VALUE VECTOR_LENGTH
 #define COLLECTIVE_FRONTIER_TYPE_CHANGE_THRESHOLD 0.15
 #define __USE_ADDITIONAL_EDGE_ARRAYS__
+#define __PRINT_SAMPLES_PERFORMANCE_STATS__
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -38,8 +39,8 @@ int main(int argc, const char * argv[])
             cout << "file " << parser.get_graph_file_name() << " loaded in " << t2 - t1 << " sec" << endl;
         }
 
-        int source = 98;
-        int sink = 128;
+        int source = 41;
+        int sink = 512;
 
         MaxFlow<int, int> mf_operation;
 
@@ -59,8 +60,6 @@ int main(int argc, const char * argv[])
                 cout << "error!" << endl;
             }
         }
-
-        //pr_operation.nec_page_rank(graph, page_ranks, 1.0e-4, iterations_count)uil
     }
     catch (string error)
     {

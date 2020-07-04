@@ -149,18 +149,18 @@ void FrontierNEC::add_vertices(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_g
 {
     LOAD_EXTENDED_CSR_GRAPH_DATA(_graph);
 
-    if(current_size > 0)
+    /*if(current_size > 0)
     {
         throw "VGL ERROR: can not add vertices to non-empty frontier";
-    }
+    }*/
 
     // sort input array
     std::sort(&_vertex_ids[0], &_vertex_ids[_number_of_vertices]);
     //memset(flags, 0, sizeof(int)*max_size);
 
     // copy ids to frontier inner datastrcuture
-    //#pragma _NEC vector
-    //#pragma omp parallel for
+    #pragma _NEC vector
+    #pragma omp parallel for
     for(int idx = 0; idx < _number_of_vertices; idx++)
     {
         ids[idx] = _vertex_ids[idx];
@@ -168,8 +168,8 @@ void FrontierNEC::add_vertices(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_g
     }
     current_size = _number_of_vertices;
 
-    //#pragma _NEC vector
-    //#pragma omp parallel for
+    #pragma _NEC vector
+    #pragma omp parallel for
     for(int idx = 0; idx < current_size; idx++)
     {
         const int current_id = ids[idx];
