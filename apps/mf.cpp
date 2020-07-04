@@ -3,6 +3,7 @@
 #define INT_ELEMENTS_PER_EDGE 4.0
 #define NEC_VECTOR_CORE_THRESHOLD_VALUE VECTOR_LENGTH
 #define COLLECTIVE_FRONTIER_TYPE_CHANGE_THRESHOLD 0.15
+#define __USE_ADDITIONAL_EDGE_ARRAYS__
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -37,8 +38,8 @@ int main(int argc, const char * argv[])
             cout << "file " << parser.get_graph_file_name() << " loaded in " << t2 - t1 << " sec" << endl;
         }
 
-        int source = 2;
-        int sink = 1002;
+        int source = 98;
+        int sink = 128;
 
         MaxFlow<int, int> mf_operation;
 

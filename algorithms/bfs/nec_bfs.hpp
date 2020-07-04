@@ -190,9 +190,8 @@ void BFS<_TVertexValue, _TEdgeWeight>::nec_top_down(ExtendedCSRGraph<_TVertexVal
         auto edge_op = [_levels, current_level](int src_id, int dst_id, int local_edge_pos,
                 long long int global_edge_pos, int vector_index, DelayedWriteNEC &delayed_write)
         {
-            int src_level = _levels[src_id];
             int dst_level = _levels[dst_id];
-            if((src_level == current_level) && (dst_level == UNVISITED_VERTEX))
+            if(dst_level == UNVISITED_VERTEX)
             {
                 _levels[dst_id] = current_level + 1;
             }
