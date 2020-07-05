@@ -7,7 +7,8 @@ template <typename _TVertexValue, typename _TEdgeWeight>
 void PR::gpu_page_rank(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
                        float *_page_ranks,
                        float _convergence_factor,
-                       int _max_iterations)
+                       int _max_iterations,
+                       TraversalDirection _traversal_direction)
 {
     LOAD_EXTENDED_CSR_GRAPH_DATA(_graph);
 
@@ -17,7 +18,7 @@ void PR::gpu_page_rank(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
     int iterations_count = 0;
     double t1 = omp_get_wtime();
     page_rank_wrapper(_graph, device_page_ranks, _convergence_factor, _max_iterations,
-                      iterations_count);
+                      iterations_count, _traversal_direction);
     double t2 = omp_get_wtime();
 
     MemoryAPI::copy_array_to_host(_page_ranks, device_page_ranks, vertices_count);

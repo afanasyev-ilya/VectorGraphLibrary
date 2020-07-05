@@ -63,7 +63,7 @@ int main(int argc, const char * argv[])
 
         #ifdef __USE_GPU__
         graph.move_to_device();
-        pr_operation.gpu_page_rank(graph, page_ranks, 1.0e-4, iterations_count);
+        pr_operation.gpu_page_rank(graph, page_ranks, 1.0e-4, iterations_count, parser.get_traversal_direction());
         graph.move_to_host();
         #endif
 

@@ -19,15 +19,14 @@ void page_rank_wrapper(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
                        float *_page_ranks,
                        float _convergence_factor,
                        int _max_iterations,
-                       int &_iterations_count)
+                       int &_iterations_count,
+                       TraversalDirection _traversal_direction)
 {
     LOAD_EXTENDED_CSR_GRAPH_DATA(_graph);
     GraphPrimitivesGPU graph_API;
     FrontierGPU frontier(vertices_count);
 
     frontier.set_all_active();
-
-    cout << "inside test " << endl;
 
     int   *number_of_loops;
     int   *incoming_degrees_without_loops;
@@ -60,12 +59,22 @@ void page_rank_wrapper(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
 
     graph_API.advance(_graph, frontier, calculate_number_of_loops);
 
-    auto calculate_degrees_without_loops = [incoming_degrees_without_loops, incoming_degrees, number_of_loops] __device__(int src_id, int position_in_frontier, int connections_count)
+    if(_traversal_direction == PUSH_TRAVERSAL)
     {
-        //incoming_degrees_without_loops[src_id] = incoming_degrees[src_id] - number_of_loops[src_id];
-        incoming_degrees_without_loops[src_id] = connections_count - number_of_loops[src_id];
-    };
-    graph_API.compute(_graph, frontier, calculate_degrees_without_loops);
+        auto calculate_degrees_without_loops_push = [incoming_degrees_without_loops, incoming_degrees, number_of_loops] __device__(int src_id, int position_in_frontier, int connections_count)
+        {
+            incoming_degrees_without_loops[src_id] = connections_count - number_of_loops[src_id];
+        };
+        graph_API.compute(_graph, frontier, calculate_degrees_without_loops_push);
+    }
+    else if(_traversal_direction == PULL_TRAVERSAL)
+    {
+        auto calculate_degrees_without_loops_pull = [incoming_degrees_without_loops, incoming_degrees, number_of_loops] __device__(int src_id, int position_in_frontier, int connections_count)
+        {
+            incoming_degrees_without_loops[src_id] = incoming_degrees[src_id] - number_of_loops[src_id];
+        };
+        graph_API.compute(_graph, frontier, calculate_degrees_without_loops_pull);
+    }
 
     auto calculate_reversed_degrees = [reversed_degrees, incoming_degrees_without_loops] __device__(int src_id, int position_in_frontier, int connections_count)
     {
@@ -103,16 +112,32 @@ void page_rank_wrapper(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
                 atomicAdd(&_page_ranks[src_id], dst_rank * reversed_dst_links_num);
         };
 
-        auto edge_op_push = [_page_ranks, old_page_ranks, reversed_degrees]__device__(int src_id, int dst_id, int local_edge_pos, long long int global_edge_pos, int position_in_frontier)
+        if(_traversal_direction == PUSH_TRAVERSAL)
         {
-            float dst_rank = old_page_ranks[src_id];
-            float reversed_dst_links_num = reversed_degrees[src_id];
+            auto edge_op_push = [_page_ranks, old_page_ranks, reversed_degrees]__device__(int src_id, int dst_id, int local_edge_pos, long long int global_edge_pos, int position_in_frontier)
+            {
+                float src_rank = old_page_ranks[src_id];
+                float reversed_src_links_num = reversed_degrees[src_id];
 
-            if(src_id != dst_id)
-                atomicAdd(&_page_ranks[dst_id], dst_rank * reversed_dst_links_num);
-        };
+                if(src_id != dst_id)
+                    atomicAdd(&_page_ranks[dst_id], src_rank * reversed_src_links_num);
+            };
 
-        graph_API.advance(_graph, frontier, edge_op_push);
+            graph_API.advance(_graph, frontier, edge_op_push);
+        }
+        else if(_traversal_direction == PULL_TRAVERSAL)
+        {
+            auto edge_op_pull = [_page_ranks, old_page_ranks, reversed_degrees]__device__(int src_id, int dst_id, int local_edge_pos, long long int global_edge_pos, int position_in_frontier)
+            {
+                float dst_rank = old_page_ranks[dst_id];
+                float reversed_dst_links_num = reversed_degrees[dst_id];
+
+                if(src_id != dst_id)
+                    atomicAdd(&_page_ranks[src_id], dst_rank * reversed_dst_links_num);
+            };
+
+            graph_API.advance(_graph, frontier, edge_op_pull);
+        }
 
         auto reduce_ranks_sum = [_page_ranks]__device__(int src_id, int position_in_frontier, int connections_count)->double
         {
@@ -145,7 +170,8 @@ template void page_rank_wrapper<int, float>(ExtendedCSRGraph<int, float> &_graph
                                             float *_page_ranks,
                                             float _convergence_factor,
                                             int _max_iterations,
-                                            int &_iterations_count);
+                                            int &_iterations_count,
+                                            TraversalDirection _traversal_direction);
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
