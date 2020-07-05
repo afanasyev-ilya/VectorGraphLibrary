@@ -2,11 +2,29 @@
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+#if __CUDA_ARCH__ >= 700
+#define FULL_MASK 0xffffffff
+#endif
+
+template <typename _T>
+static __device__ __forceinline__ _T shfl_down( _T r, int offset )
+{
+    #if __CUDA_ARCH__ >= 700
+    return __shfl_down_sync(FULL_MASK, r, offset );
+    #elif __CUDA_ARCH__ >= 300
+    return __shfl_down( r, offset );
+    #else
+    return 0.0f;
+    #endif
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 template <typename _T>
 __inline__ __device__ _T warp_reduce_sum(_T val)
 {
     for (int offset = warpSize/2; offset > 0; offset /= 2)
-        val += __shfl_down(val, offset);
+        val += shfl_down(val, offset);
     return val;
 }
 

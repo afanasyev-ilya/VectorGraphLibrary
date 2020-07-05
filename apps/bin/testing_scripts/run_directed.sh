@@ -34,6 +34,7 @@ declare -a file_names=("dir_rmat_20_32"
                        )
 
 
+rm $PROG_NAME"_*"
 rm perf_file.txt
 rm full_perf_file.txt
 
