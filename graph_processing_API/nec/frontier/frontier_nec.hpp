@@ -105,6 +105,11 @@ void FrontierNEC::set_all_active()
 template <typename _TVertexValue, typename _TEdgeWeight>
 void FrontierNEC::add_vertex(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph, int src_id)
 {
+    if(current_size > 0)
+    {
+        throw "VGL ERROR: can not add vertex to non-empty frontier";
+    }
+
     const int ve_threshold = _graph.get_nec_vector_engine_threshold_vertex();
     const int vc_threshold = _graph.get_nec_vector_core_threshold_vertex();
     const int vertices_count = _graph.get_vertices_count();
@@ -135,6 +140,63 @@ void FrontierNEC::add_vertex(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_gra
 
     type = SPARSE_FRONTIER;
     current_size = 1;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+template <typename _TVertexValue, typename _TEdgeWeight>
+void FrontierNEC::add_vertices(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph, int *_vertex_ids, int _number_of_vertices)
+{
+    LOAD_EXTENDED_CSR_GRAPH_DATA(_graph);
+
+    /*if(current_size > 0)
+    {
+        throw "VGL ERROR: can not add vertices to non-empty frontier";
+    }*/
+
+    // sort input array
+    std::sort(&_vertex_ids[0], &_vertex_ids[_number_of_vertices]);
+    //memset(flags, 0, sizeof(int)*max_size);
+
+    // copy ids to frontier inner datastrcuture
+    #pragma _NEC vector
+    #pragma omp parallel for
+    for(int idx = 0; idx < _number_of_vertices; idx++)
+    {
+        ids[idx] = _vertex_ids[idx];
+        flags[ids[idx]] = IN_FRONTIER_FLAG;
+    }
+    current_size = _number_of_vertices;
+
+    #pragma _NEC vector
+    #pragma omp parallel for
+    for(int idx = 0; idx < current_size; idx++)
+    {
+        const int current_id = ids[idx];
+        const int next_id = ids[idx+1];
+
+        int current_size = outgoing_ptrs[current_id + 1] - outgoing_ptrs[current_id];;
+        int next_size = 0;
+        if(idx < (current_size - 1))
+        {
+            next_size = outgoing_ptrs[next_id + 1] - outgoing_ptrs[next_id];
+        }
+
+        if((current_size > NEC_VECTOR_ENGINE_THRESHOLD_VALUE) && (next_size <= NEC_VECTOR_ENGINE_THRESHOLD_VALUE))
+        {
+            vector_engine_part_size = idx + 1;
+        }
+
+        if((current_size > NEC_VECTOR_CORE_THRESHOLD_VALUE) && (next_size <= NEC_VECTOR_CORE_THRESHOLD_VALUE))
+        {
+            vector_core_part_size = idx + 1 - vector_engine_part_size;
+        }
+    }
+    collective_part_size = current_size - vector_engine_part_size - vector_core_part_size;
+
+    vector_engine_part_type = SPARSE_FRONTIER;
+    vector_core_part_type = SPARSE_FRONTIER;
+    collective_part_type = SPARSE_FRONTIER;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

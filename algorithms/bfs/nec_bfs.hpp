@@ -181,6 +181,7 @@ void BFS<_TVertexValue, _TEdgeWeight>::nec_top_down(ExtendedCSRGraph<_TVertexVal
     };
     graph_API.compute(_graph, frontier, init_levels);
 
+    frontier.clear();
     frontier.add_vertex(_graph, _source_vertex);
 
     double t1 = omp_get_wtime();
@@ -190,9 +191,8 @@ void BFS<_TVertexValue, _TEdgeWeight>::nec_top_down(ExtendedCSRGraph<_TVertexVal
         auto edge_op = [_levels, current_level](int src_id, int dst_id, int local_edge_pos,
                 long long int global_edge_pos, int vector_index, DelayedWriteNEC &delayed_write)
         {
-            int src_level = _levels[src_id];
             int dst_level = _levels[dst_id];
-            if((src_level == current_level) && (dst_level == UNVISITED_VERTEX))
+            if(dst_level == UNVISITED_VERTEX)
             {
                 _levels[dst_id] = current_level + 1;
             }
@@ -270,6 +270,7 @@ double BFS<_TVertexValue, _TEdgeWeight>::nec_direction_optimizing(ExtendedCSRGra
     };
     graph_API.compute(_graph, frontier, init_levels);
 
+    frontier.clear();
     frontier.add_vertex(_graph, _source_vertex);
 
     #ifdef __PRINT_SAMPLES_PERFORMANCE_STATS__

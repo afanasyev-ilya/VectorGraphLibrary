@@ -272,5 +272,24 @@ size_t ExtendedCSRGraph<_TVertexValue, _TEdgeWeight>::get_graph_size_in_bytes()
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+template <typename _TVertexValue, typename _TEdgeWeight>
+template <typename _T>
+_T& ExtendedCSRGraph<_TVertexValue, _TEdgeWeight>::get_edge_data(_T *_data_array, int _src_id, int _dst_id)
+{
+    const long long edge_start = outgoing_ptrs[_src_id];
+    const int connections_count = outgoing_ptrs[_src_id + 1] - outgoing_ptrs[_src_id];
 
+    for (int edge_pos = 0; edge_pos < connections_count; edge_pos++)
+    {
+        long long int global_edge_pos = edge_start + edge_pos;
+        int current_dst_id = outgoing_ids[global_edge_pos];
+
+        if (_dst_id == current_dst_id)
+            return _data_array[global_edge_pos];
+    }
+
+    return _data_array[edge_start];
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 

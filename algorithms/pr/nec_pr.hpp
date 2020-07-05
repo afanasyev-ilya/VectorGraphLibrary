@@ -103,6 +103,7 @@ double PR::nec_page_rank(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
         auto edge_op = [_page_ranks, old_page_ranks, reversed_degrees](int src_id, int dst_id, int local_edge_pos,
                                                                        long long int global_edge_pos, int vector_index, DelayedWriteNEC &delayed_write)
         {
+            //uint64_t packed = packed_data[dst_id];
             float dst_rank = old_page_ranks[dst_id];
             float reversed_dst_links_num = reversed_degrees[dst_id];
 

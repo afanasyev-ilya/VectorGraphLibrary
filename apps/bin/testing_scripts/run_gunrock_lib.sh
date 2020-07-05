@@ -1,7 +1,8 @@
 #!/bin/bash
 
-PROG_NAME="./pr "
-PROG_ARGS="--remove-self-loops=false --remove-duplicate-edges=false --graph-type market --graph-file "
+PROG_NAME=$1
+PROG_ARGS=$2
+PROG_ARGS+="--remove-self-loops=false --remove-duplicate-edges=false --graph-type market --graph-file "
 
 FILE_PREFIX=" ~/VectorGraphLibrary/apps/bin/gunrock_graphs/"
 FILE_SUFIX="_mtx.el"

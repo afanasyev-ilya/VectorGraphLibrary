@@ -103,6 +103,9 @@ public:
     inline int get_nec_vector_core_threshold_vertex(){return nec_vector_core_threshold_vertex;};
     #endif
 
+    template <typename _T>
+    _T& get_edge_data(_T *_data_array, int _src_id, int _dst_id);
+
     void set_vertex_data_from_array(_TVertexValue *_values_array);
 
     VectorExtension<_TVertexValue, _TEdgeWeight> *get_last_vertices_ve_ptr(){return &last_vertices_ve;}
