@@ -16,7 +16,7 @@ template <typename _TVertexValue, typename _TEdgeWeight>
 class PageRank
 {
 private:
-
+    double performance_per_iteration;
 public:
     void allocate_result_memory  (int _vertices_count, float **_page_ranks);
     void free_result_memory      (float *_page_ranks);
@@ -39,6 +39,8 @@ public:
                        float *_page_ranks,
                        float _convergence_factor = 1.0e-4,
                        int _max_iterations = 5);
+
+    double get_performance_per_iteration() {return performance_per_iteration;};
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

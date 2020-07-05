@@ -62,7 +62,8 @@ void page_rank_wrapper(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
 
     auto calculate_degrees_without_loops = [incoming_degrees_without_loops, incoming_degrees, number_of_loops] __device__(int src_id, int position_in_frontier, int connections_count)
     {
-        incoming_degrees_without_loops[src_id] = incoming_degrees[src_id] - number_of_loops[src_id];
+        //incoming_degrees_without_loops[src_id] = incoming_degrees[src_id] - number_of_loops[src_id];
+        incoming_degrees_without_loops[src_id] = connections_count - number_of_loops[src_id];
     };
     graph_API.compute(_graph, frontier, calculate_degrees_without_loops);
 
@@ -72,20 +73,17 @@ void page_rank_wrapper(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
     };
     graph_API.compute(_graph, frontier, calculate_reversed_degrees);
 
-    /*double t1 = omp_get_wtime();
-    int iterations_count = 0;
-    for(iterations_count = 0; iterations_count < _max_iterations; iterations_count++)
+    int current_iteration = 0;
+    for(int iterations_count = 0; iterations_count < _max_iterations; iterations_count++)
     {
-        auto save_old_ranks = [old_page_ranks, _page_ranks] (int src_id, int connections_count, int vector_index)
+        auto save_old_ranks = [old_page_ranks, _page_ranks] __device__(int src_id, int position_in_frontier, int connections_count)
         {
             old_page_ranks[src_id] = _page_ranks[src_id];
             _page_ranks[src_id] = 0;
         };
         graph_API.compute(_graph, frontier, save_old_ranks);
 
-        //pack_array_data(old_page_ranks, reversed_degrees, packed_data, vertices_count);
-
-        auto reduce_dangling_input = [incoming_degrees_without_loops, old_page_ranks, vertices_count](int src_id, int connections_count, int vector_index)->float
+        auto reduce_dangling_input = [incoming_degrees_without_loops, old_page_ranks, vertices_count] __device__(int src_id, int position_in_frontier, int connections_count)->double
         {
             float result = 0.0;
             if(incoming_degrees_without_loops[src_id] == 0)
@@ -96,37 +94,49 @@ void page_rank_wrapper(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
         };
         double dangling_input = graph_API.reduce<double>(_graph, frontier, reduce_dangling_input, REDUCE_SUM);
 
-        auto edge_op = [_page_ranks, old_page_ranks, reversed_degrees](int src_id, int dst_id, int local_edge_pos,
-                                                                       long long int global_edge_pos, int vector_index, DelayedWriteNEC &delayed_write)
+        auto edge_op_pull = [_page_ranks, old_page_ranks, reversed_degrees]__device__(int src_id, int dst_id, int local_edge_pos, long long int global_edge_pos, int position_in_frontier)
         {
-            //uint64_t packed = packed_data[dst_id];
             float dst_rank = old_page_ranks[dst_id];
             float reversed_dst_links_num = reversed_degrees[dst_id];
 
             if(src_id != dst_id)
-                _page_ranks[src_id] += dst_rank * reversed_dst_links_num;
+                atomicAdd(&_page_ranks[src_id], dst_rank * reversed_dst_links_num);
         };
 
-        auto vertex_postprocess_op = [_page_ranks, k, d, dangling_input](int src_id, int connections_count, int vector_index, DelayedWriteNEC &delayed_write)
+        auto edge_op_push = [_page_ranks, old_page_ranks, reversed_degrees]__device__(int src_id, int dst_id, int local_edge_pos, long long int global_edge_pos, int position_in_frontier)
         {
-            _page_ranks[src_id] = k + d * (_page_ranks[src_id] + dangling_input);
+            float dst_rank = old_page_ranks[src_id];
+            float reversed_dst_links_num = reversed_degrees[src_id];
+
+            if(src_id != dst_id)
+                atomicAdd(&_page_ranks[dst_id], dst_rank * reversed_dst_links_num);
         };
 
-        graph_API.advance(_graph, frontier, edge_op, EMPTY_VERTEX_OP, vertex_postprocess_op);
+        graph_API.advance(_graph, frontier, edge_op_push);
 
-        auto reduce_ranks_sum = [_page_ranks](int src_id, int connections_count, int vector_index)->float
+        auto reduce_ranks_sum = [_page_ranks]__device__(int src_id, int position_in_frontier, int connections_count)->double
         {
             return _page_ranks[src_id];
         };
         double ranks_sum = graph_API.reduce<double>(_graph, frontier, reduce_ranks_sum, REDUCE_SUM);
-    }
-    double t2 = omp_get_wtime();
-    */
+        current_iteration++;
 
-    MemoryAPI::free_array(number_of_loops);
-    MemoryAPI::free_array(incoming_degrees_without_loops);
-    MemoryAPI::free_array(old_page_ranks);
-    MemoryAPI::free_array(reversed_degrees);
+        /*auto reduce_error = [_page_ranks, old_page_ranks]__device__(int src_id, int position_in_frontier, int connections_count)->double
+        {
+            return fabs(_page_ranks[src_id] - old_page_ranks[src_id]);
+        };
+
+        double error = graph_API.reduce<double>(_graph, frontier, reduce_error, REDUCE_SUM);
+        if(error < vertices_count*_convergence_factor)
+            break;*/
+    }
+
+    _iterations_count = current_iteration;
+
+    MemoryAPI::free_device_array(number_of_loops);
+    MemoryAPI::free_device_array(incoming_degrees_without_loops);
+    MemoryAPI::free_device_array(old_page_ranks);
+    MemoryAPI::free_device_array(reversed_degrees);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

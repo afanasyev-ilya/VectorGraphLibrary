@@ -20,6 +20,28 @@ static __device__ __forceinline__ _T shfl_down( _T r, int offset )
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+#if __CUDA_ARCH__ < 600
+__device__ double atomicAdd(double* address, double val)
+{
+    unsigned long long int* address_as_ull =
+            (unsigned long long int*)address;
+    unsigned long long int old = *address_as_ull, assumed;
+
+    do {
+        assumed = old;
+        old = atomicCAS(address_as_ull, assumed,
+                        __double_as_longlong(val +
+                                             __longlong_as_double(assumed)));
+
+        // Note: uses integer comparison to avoid hang in case of NaN (since NaN != NaN)
+    } while (assumed != old);
+
+    return __longlong_as_double(old);
+}
+#endif
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 template <typename _T>
 __inline__ __device__ _T warp_reduce_sum(_T val)
 {
@@ -62,14 +84,14 @@ __global__ void reduce_kernel_sparse(const int *_frontier_ids,
                                      ReduceOperation reduce_op,
                                      _T* out)
 {
-    const int idx = blockIdx.x * blockDim.x + threadIdx.x;
+    const int frontier_pos = blockIdx.x * blockDim.x + threadIdx.x;
 
-    if(idx < _frontier_size)
+    if(frontier_pos < _frontier_size)
     {
-        int src_id = _frontier_ids[idx];
+        int src_id = _frontier_ids[frontier_pos];
         int connections_count = _vertex_pointers[src_id + 1] - _vertex_pointers[src_id];
 
-        _T sum = reduce_op(src_id, connections_count);
+        _T sum = reduce_op(src_id, frontier_pos, connections_count);
 
         sum = block_reduce_sum(sum);
         if (threadIdx.x == 0)
@@ -89,7 +111,7 @@ __global__ void reduce_kernel_all_active(const int _size,
     if(src_id < _size)
     {
         int connections_count = _vertex_pointers[src_id + 1] - _vertex_pointers[src_id];
-        _T sum = reduce_op(src_id, connections_count);
+        _T sum = reduce_op(src_id, src_id, connections_count);
 
         sum = block_reduce_sum(sum);
         if (threadIdx.x == 0)

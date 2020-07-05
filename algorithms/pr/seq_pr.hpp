@@ -99,11 +99,11 @@ void PR::seq_page_rank(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
             ranks_sum += _page_ranks[i];
         }
 
-        if(fabs(ranks_sum - 1.0) > _convergence_factor)
+        /*if(fabs(ranks_sum - 1.0) > _convergence_factor)
         {
             cout << "ranks sum: " << ranks_sum << endl;
             throw "ERROR: page rank sum is incorrect";
-        }
+        }*/
     }
 
     MemoryAPI::free_array(number_of_loops);

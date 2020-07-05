@@ -126,7 +126,9 @@ void PR::nec_page_rank(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
     }
     double t2 = omp_get_wtime();
 
+    #ifdef __PRINT_SAMPLES_PERFORMANCE_STATS__
     PerformanceStats::print_performance_stats("page ranks", t2 - t1, edges_count, iterations_count);
+    #endif
 
     MemoryAPI::free_array(number_of_loops);
     MemoryAPI::free_array(incoming_degrees_without_loops);
@@ -134,8 +136,7 @@ void PR::nec_page_rank(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
     MemoryAPI::free_array(reversed_degrees);
     //MemoryAPI::free_array(packed_data);
 
-    double inner_perf = double(iterations_count) * (edges_count/((t2 - t1)*1e6));
-    return inner_perf;
+    performance_per_iteration = double(iterations_count) * (edges_count/((t2 - t1)*1e6));
 }
 #endif
 
