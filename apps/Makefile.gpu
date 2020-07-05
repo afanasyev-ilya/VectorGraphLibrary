@@ -19,7 +19,7 @@ LDFLAGS = -fopenmp
 CUDA_FLAGS = -O2 -w -m64 -std=c++11 -Xptxas -dlcm=ca --expt-extended-lambda -gencode arch=compute_52,code=sm_52 -gencode arch=compute_60,code=sm_60 -gencode arch=compute_70,code=sm_70
 
 # Paths to gpu algorithms from current sample
-VPATH=./:../algorithms/sssp/gpu/:../algorithms/bfs/gpu/:../algorithms/cc/gpu:../graph_processing_API/gpu/:../algorithms/lp/gpu
+VPATH=./:../algorithms/sssp/gpu/:../algorithms/bfs/gpu/:../algorithms/cc/gpu:../graph_processing_API/gpu/:../algorithms/lp/gpu/:../algorithms/pr/gpu
 
 .DEFAULT_GOAL := all
 
@@ -27,7 +27,7 @@ VPATH=./:../algorithms/sssp/gpu/:../algorithms/bfs/gpu/:../algorithms/cc/gpu:../
 # binaries
 ##########
 
-all: bfs cc sssp lp generate_test_data
+all: bfs cc sssp lp pr generate_test_data
 
 sssp: create_folders sssp.o dijkstra_gpu.o
 	$(CUDA_COMPILER) $(CUDA_FLAGS) $(Include_Path) -dlink  object_files/dijkstra_gpu.o -o object_files/cuda_files_link.o -lcudadevrt -lcudart
@@ -40,6 +40,10 @@ cc: create_folders cc.o shiloach_vishkin_gpu.o
 bfs: create_folders bfs.o top_down_bfs_gpu.o
 	$(CUDA_COMPILER) $(CUDA_FLAGS) $(Include_Path) -dlink object_files/top_down_bfs_gpu.o -o object_files/cuda_files_link.o -lcudadevrt -lcudart
 	$(CXX) object_files/bfs.o object_files/top_down_bfs_gpu.o object_files/cuda_files_link.o $(Library_Path) $(Libraries) $(LDFLAGS) -o ./bin/bfs
+
+pr: create_folders pr.o pr_gpu.o
+	$(CUDA_COMPILER) $(CUDA_FLAGS) $(Include_Path) -dlink object_files/pr_gpu.o -o object_files/cuda_files_link.o -lcudadevrt -lcudart
+	$(CXX) object_files/pr.o object_files/pr_gpu.o object_files/cuda_files_link.o $(Library_Path) $(Libraries) $(LDFLAGS) -o ./bin/pr
 
 lp: create_folders install lp.o lp_gpu.o
 	$(CUDA_COMPILER) $(CUDA_FLAGS) $(Include_Path) -dlink  object_files/lp_gpu.o -o object_files/cuda_files_link.o -lcudadevrt -lcudart
@@ -72,6 +76,9 @@ bfs.o: bfs.cpp
 lp.o: lp.cpp
 	$(CXX) $(CXXFLAGS) $(Include_Path)  -c lp.cpp -o object_files/lp.o -fopenmp
 
+pr.o: pr.cpp
+	$(CXX) $(CXXFLAGS) $(Include_Path)  -c pr.cpp -o object_files/pr.o -fopenmp
+
 generate_test_data.o: generate_test_data.cpp
 	$(CXX) $(CXXFLAGS) $(Include_Path) -fopenmp $(Include_Path)  -c generate_test_data.cpp -o object_files/generate_test_data.o -fopenmp
 
@@ -102,4 +109,6 @@ top_down_bfs_gpu.o: top_down_bfs.cu
 lp_gpu.o: lp_gpu.cu
 	$(CUDA_COMPILER) $(CUDA_FLAGS) $(Include_Path) -rdc=true -c ../algorithms/lp/gpu/lp_gpu.cu -o object_files/lp_gpu.o
 
+pr_gpu.o: pr_gpu.cu
+	$(CUDA_COMPILER) $(CUDA_FLAGS) $(Include_Path) -rdc=true -c ../algorithms/pr/gpu/pr_gpu.cu -o object_files/pr_gpu.o
 

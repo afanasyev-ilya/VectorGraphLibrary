@@ -2,52 +2,55 @@
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#ifdef __USE_NEC_SX_AURORA__
+#define INT_ELEMENTS_PER_EDGE 5.0
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+#include "../../../graph_processing_API/gpu/cuda_API_include.h"
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+using namespace std;
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 template <typename _TVertexValue, typename _TEdgeWeight>
-void PR::nec_page_rank(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
+void page_rank_wrapper(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
                        float *_page_ranks,
                        float _convergence_factor,
-                       int _max_iterations)
+                       int _max_iterations,
+                       int &_iterations_count)
 {
     LOAD_EXTENDED_CSR_GRAPH_DATA(_graph);
+    GraphPrimitivesGPU graph_API;
+    FrontierGPU frontier(vertices_count);
+
+    frontier.set_all_active();
+
+    cout << "inside test " << endl;
 
     int   *number_of_loops;
     int   *incoming_degrees_without_loops;
     float *old_page_ranks;
     float *reversed_degrees;
-    //uint64_t *packed_data;
-    MemoryAPI::allocate_array(&number_of_loops, vertices_count);
-    MemoryAPI::allocate_array(&incoming_degrees_without_loops, vertices_count);
-    MemoryAPI::allocate_array(&old_page_ranks, vertices_count);
-    MemoryAPI::allocate_array(&reversed_degrees, vertices_count);
-    //MemoryAPI::allocate_array(&packed_data, vertices_count);
+    MemoryAPI::allocate_device_array(&number_of_loops, vertices_count);
+    MemoryAPI::allocate_device_array(&incoming_degrees_without_loops, vertices_count);
+    MemoryAPI::allocate_device_array(&old_page_ranks, vertices_count);
+    MemoryAPI::allocate_device_array(&reversed_degrees, vertices_count);
 
     float d = 0.85;
     float k = (1.0 - d) / ((float)vertices_count);
 
-    GraphPrimitivesNEC graph_API;
-
-    FrontierNEC frontier(vertices_count);
     frontier.set_all_active();
 
-    auto init_data = [_page_ranks, number_of_loops, vertices_count] (int src_id, int connections_count, int vector_index)
+    auto init_data = [_page_ranks, number_of_loops, vertices_count] __device__(int src_id, int position_in_frontier, int connections_count)
     {
         _page_ranks[src_id] = 1.0/vertices_count;
         number_of_loops[src_id] = 0;
     };
     graph_API.compute(_graph, frontier, init_data);
 
-    auto calculate_number_of_loops = [number_of_loops](int src_id, int dst_id, int local_edge_pos,
-                    long long int global_edge_pos, int vector_index, DelayedWriteNEC &delayed_write)
-    {
-        if(src_id == dst_id)
-        {
-            delayed_write.int_vec_reg[vector_index] += 1;
-        }
-    };
-
-    auto calculate_number_of_loops_collective = [number_of_loops](int src_id, int dst_id, int local_edge_pos,
-                                     long long int global_edge_pos, int vector_index, DelayedWriteNEC &delayed_write)
+    auto calculate_number_of_loops = [number_of_loops]__device__(int src_id, int dst_id, int local_edge_pos, long long int global_edge_pos, int position_in_frontier)
     {
         if(src_id == dst_id)
         {
@@ -55,28 +58,21 @@ void PR::nec_page_rank(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
         }
     };
 
-    auto vertex_postprocess_calculate_number_of_loops = [number_of_loops]
-                        (int src_id, int connections_count, int vector_index, DelayedWriteNEC &delayed_write)
-    {
-        delayed_write.finish_write_sum(number_of_loops, src_id);
-    };
+    graph_API.advance(_graph, frontier, calculate_number_of_loops);
 
-    graph_API.advance(_graph, frontier, calculate_number_of_loops, EMPTY_VERTEX_OP, vertex_postprocess_calculate_number_of_loops,
-                      calculate_number_of_loops_collective, EMPTY_VERTEX_OP, EMPTY_VERTEX_OP);
-
-    auto calculate_degrees_without_loops = [incoming_degrees_without_loops, incoming_degrees, number_of_loops] (int src_id, int connections_count, int vector_index)
+    auto calculate_degrees_without_loops = [incoming_degrees_without_loops, incoming_degrees, number_of_loops] __device__(int src_id, int position_in_frontier, int connections_count)
     {
         incoming_degrees_without_loops[src_id] = incoming_degrees[src_id] - number_of_loops[src_id];
     };
     graph_API.compute(_graph, frontier, calculate_degrees_without_loops);
 
-    auto calculate_reversed_degrees = [reversed_degrees, incoming_degrees_without_loops] (int src_id, int connections_count, int vector_index)
+    auto calculate_reversed_degrees = [reversed_degrees, incoming_degrees_without_loops] __device__(int src_id, int position_in_frontier, int connections_count)
     {
         reversed_degrees[src_id] = 1.0 / incoming_degrees_without_loops[src_id];
     };
     graph_API.compute(_graph, frontier, calculate_reversed_degrees);
 
-    double t1 = omp_get_wtime();
+    /*double t1 = omp_get_wtime();
     int iterations_count = 0;
     for(iterations_count = 0; iterations_count < _max_iterations; iterations_count++)
     {
@@ -118,25 +114,28 @@ void PR::nec_page_rank(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
 
         graph_API.advance(_graph, frontier, edge_op, EMPTY_VERTEX_OP, vertex_postprocess_op);
 
-        /*auto reduce_ranks_sum = [_page_ranks](int src_id, int connections_count, int vector_index)->float
+        auto reduce_ranks_sum = [_page_ranks](int src_id, int connections_count, int vector_index)->float
         {
             return _page_ranks[src_id];
         };
-        double ranks_sum = graph_API.reduce<double>(_graph, frontier, reduce_ranks_sum, REDUCE_SUM);*/
+        double ranks_sum = graph_API.reduce<double>(_graph, frontier, reduce_ranks_sum, REDUCE_SUM);
     }
     double t2 = omp_get_wtime();
-
-    PerformanceStats::print_performance_stats("page ranks", t2 - t1, edges_count, iterations_count);
+    */
 
     MemoryAPI::free_array(number_of_loops);
     MemoryAPI::free_array(incoming_degrees_without_loops);
     MemoryAPI::free_array(old_page_ranks);
     MemoryAPI::free_array(reversed_degrees);
-    //MemoryAPI::free_array(packed_data);
-
-    double inner_perf = double(iterations_count) * (edges_count/((t2 - t1)*1e6));
-    return inner_perf;
 }
-#endif
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+template void page_rank_wrapper<int, float>(ExtendedCSRGraph<int, float> &_graph,
+                                            float *_page_ranks,
+                                            float _convergence_factor,
+                                            int _max_iterations,
+                                            int &_iterations_count);
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
