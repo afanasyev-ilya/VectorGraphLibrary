@@ -39,8 +39,8 @@ int main(int argc, const char * argv[])
             cout << "file " << parser.get_graph_file_name() << " loaded in " << t2 - t1 << " sec" << endl;
         }
 
-        int source = 41;
-        int sink = 512;
+        int source = 36;
+        int sink = 128;
 
         MaxFlow<int, int> mf_operation;
 
