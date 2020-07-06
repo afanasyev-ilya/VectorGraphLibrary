@@ -3,7 +3,8 @@
 #define INT_ELEMENTS_PER_EDGE 6.0
 #define NEC_VECTOR_ENGINE_THRESHOLD_VALUE VECTOR_LENGTH * MAX_SX_AURORA_THREADS * 128
 #define NEC_VECTOR_CORE_THRESHOLD_VALUE 5*VECTOR_LENGTH
-#define __PRINT_API_PERFORMANCE_STATS__
+//#define __PRINT_API_PERFORMANCE_STATS__
+//#define __PRINT_SAMPLES_PERFORMANCE_STATS__
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -75,6 +76,10 @@ int main(int argc, const char * argv[])
 
         #ifdef __USE_GPU__
         graph.move_to_host();
+        #endif
+
+        #ifdef __SAVE_PERFORMANCE_STATS_TO_FILE__
+        PerformanceStats::save_performance_to_file("cc", parser.get_graph_file_name(), cc_operation.get_performance());
         #endif
 
         if(parser.get_check_flag())

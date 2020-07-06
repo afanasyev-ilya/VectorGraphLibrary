@@ -29,6 +29,8 @@ private:
     GraphPrimitivesNEC graph_API;
     FrontierNEC frontier;
     FrontierNEC bfs_frontier;
+
+    double performance;
 public:
     ConnectedComponents(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph): frontier(_graph.get_vertices_count()), bfs_frontier(_graph.get_vertices_count()){};
     ~ConnectedComponents() {};
@@ -49,6 +51,8 @@ public:
     #endif
 
     void seq_bfs_based(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph, int *_components);
+
+    double get_performance() { return performance; };
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

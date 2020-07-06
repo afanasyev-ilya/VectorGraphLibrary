@@ -3,5 +3,8 @@ CUDA_DIR = ~/local_cuda/
 #CUDA_DIR = /usr/local/cuda-10.2
 CUDA_COMPILER = $(CUDA_DIR)/bin/nvcc
 
+asl_tests: asl_tests.cpp
+	nc++ -fopenmp -DASL_LIB_INT64 -I/opt/nec/ve/nlc/2.1.0/include asl_tests.cpp -L/opt/nec/ve/nlc/2.1.0/ -lasl_openmp_i64
+
 nvgraph: nvgraph_comparison.cpp
 	~/local_cuda/bin/nvcc -I ~/local_cuda/include/ nvgraph_comparison.cpp -std=c++11 -lnvgraph -Xcompiler -fopenmp -o nvgraph

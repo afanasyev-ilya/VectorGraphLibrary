@@ -89,6 +89,8 @@ void CC::nec_bfs_based(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
     }
     double t2 = omp_get_wtime();
 
+    performance = edges_count / ((t2 - t1)*1e6);
+
     bfs_operation.free_result_memory(bfs_levels);
 
     #ifdef __PRINT_SAMPLES_PERFORMANCE_STATS__

@@ -3,7 +3,7 @@
 PROG_NAME=$1
 PROG_ARGS=$2
 
-FILE_PREFIX=" -load ./ext_csr_graphs/"
+FILE_PREFIX=" -load ./ext_csr_graphs/no_multiple_arks/"
 FILE_SUFIX="_ext_CSR.gbin"
 
 PERF_PATTERN="INNER perf"
@@ -15,12 +15,12 @@ declare -a file_names=("undir_rmat_20_32"
                        "undir_rmat_24_32"
                        "undir_rmat_25_32"
                        "undir_rmat_26_32"
-                       "dir_ru_20_32"
-                       "dir_ru_21_32"
-                       "dir_ru_22_32"
-                       "dir_ru_23_32"
-                       "dir_ru_24_32"
-                       "dir_ru_25_32"
+                       "undir_ru_20_32"
+                       "undir_ru_21_32"
+                       "undir_ru_22_32"
+                       "undir_ru_23_32"
+                       "undir_ru_24_32"
+                       "undir_ru_25_32"
                        "friendster"
                        "twitter"
                        "orkut"
