@@ -57,7 +57,7 @@ void CC::nec_bfs_based(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
     {
         if(_components[v] == COMPONENT_UNSET)
         {
-            bfs_operation.nec_direction_optimizing(_graph, bfs_levels, v);
+            bfs_operation.nec_top_down(_graph, bfs_levels, v);
             auto copy_levels_to_components_op = [_components, bfs_levels, current_component] (int src_id, int connections_count, int vector_index)
             {
                 if(bfs_levels[src_id] > 0)

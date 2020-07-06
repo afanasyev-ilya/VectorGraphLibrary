@@ -4,7 +4,7 @@
 #define NEC_VECTOR_ENGINE_THRESHOLD_VALUE VECTOR_LENGTH * MAX_SX_AURORA_THREADS * 128
 #define NEC_VECTOR_CORE_THRESHOLD_VALUE 5*VECTOR_LENGTH
 //#define __PRINT_API_PERFORMANCE_STATS__
-//#define __PRINT_SAMPLES_PERFORMANCE_STATS__
+#define __PRINT_SAMPLES_PERFORMANCE_STATS__
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 

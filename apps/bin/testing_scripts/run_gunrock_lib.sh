@@ -7,7 +7,7 @@ PROG_ARGS+="--remove-self-loops=false --remove-duplicate-edges=false --graph-typ
 FILE_PREFIX=" ~/VectorGraphLibrary/apps/bin/gunrock_graphs/"
 FILE_SUFIX="_mtx.el"
 
-PERF_PATTERN="perf:"
+PERF_PATTERN="perf:" # can not contain spaces!!!!!!!
 
 declare -a file_names=("dir_rmat_20_32"
                        "dir_rmat_21_32"
@@ -44,8 +44,8 @@ do
    eval $CMD_RUN > tmp_file.txt
 
    echo "$name: " >> full_perf_file.txt
-   awk '{for (I=1;I<=NF;I++) if ($I == "rate:") {print $(I+1)};}' tmp_file.txt >> perf_file.txt
-   awk '{for (I=1;I<=NF;I++) if ($I == "rate:") {print $(I+1)};}' tmp_file.txt >> full_perf_file.txt
+   awk -v PERF_PATTERN="$PERF_PATTERN" '{for (I=1;I<=NF;I++) if ($I == PERF_PATTERN) {print $(I+1)};}' tmp_file.txt >> perf_file.txt
+   awk -v PERF_PATTERN="$PERF_PATTERN" '{for (I=1;I<=NF;I++) if ($I == PERF_PATTERN) {print $(I+1)};}' tmp_file.txt >> full_perf_file.txt
    echo "---------------" >> full_perf_file.txt
 done
 
