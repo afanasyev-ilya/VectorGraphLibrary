@@ -108,6 +108,7 @@ void SSSP::nec_dijkstra_partial_active(ExtendedCSRGraph<_TVertexValue, _TEdgeWei
         iterations_count++;
     }
     double t2 = omp_get_wtime();
+    performance = edges_count / ((t2 - t1)*1e6);
 
     #ifdef __PRINT_SAMPLES_PERFORMANCE_STATS__
     PerformanceStats::print_performance_stats("partial active sssp (dijkstra)", t2 - t1, edges_count, iterations_count);
@@ -126,14 +127,12 @@ void SSSP::nec_dijkstra_all_active(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight>
                                    int _source_vertex,
                                    TraversalDirection _traversal_direction)
 {
-    #ifdef __PRINT_SAMPLES_PERFORMANCE_STATS__
-    double t1 = omp_get_wtime();
-    #endif
     LOAD_EXTENDED_CSR_GRAPH_DATA(_graph);
     _TEdgeWeight *old_distances = class_old_distances;
 
     frontier.set_all_active();
 
+    double t1 = omp_get_wtime();
     auto init_distances = [_distances, _source_vertex] (int src_id, int connections_count, int vector_index)
     {
         if(src_id == _source_vertex)
@@ -247,9 +246,10 @@ void SSSP::nec_dijkstra_all_active(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight>
 
         iterations_count++;
     }
+    double t2 = omp_get_wtime();
+    performance = edges_count / ((t2 - t1)*1e6);
 
     #ifdef __PRINT_SAMPLES_PERFORMANCE_STATS__
-    double t2 = omp_get_wtime();
     PerformanceStats::print_performance_stats("all active sssp (dijkstra)", t2 - t1, edges_count, iterations_count);
     #endif
 }

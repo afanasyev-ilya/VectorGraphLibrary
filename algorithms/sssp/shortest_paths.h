@@ -21,6 +21,8 @@ template <typename _TVertexValue, typename _TEdgeWeight>
 class ShortestPaths
 {
 private:
+    double performance;
+
     #ifdef __USE_NEC_SX_AURORA__
     GraphPrimitivesNEC graph_API;
     FrontierNEC frontier;
@@ -62,6 +64,8 @@ public:
                       AlgorithmFrontierType _frontier_type = PARTIAL_ACTIVE,
                       TraversalDirection _traversal_direction = PUSH_TRAVERSAL);
     #endif
+
+    double get_performance() { return performance; };
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

@@ -30,6 +30,8 @@ void SSSP::gpu_dijkstra(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
                                                                      iterations_count, _traversal_direction);
     }
     double t2 = omp_get_wtime();
+    
+    performance = edges_count / ((t2 - t1)*1e6);
 
     MemoryAPI::copy_array_to_host(_distances, device_distances, vertices_count);
     MemoryAPI::free_device_array(device_distances);

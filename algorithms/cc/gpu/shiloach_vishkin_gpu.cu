@@ -32,23 +32,25 @@ void shiloach_vishkin_wrapper(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_gr
     {
         hook_changes[0] = 0;
 
-        auto edge_op = [_components, hook_changes]__device__(int src_id, int dst_id, int local_edge_pos, long long int global_edge_pos)
+        auto edge_op = [_components, hook_changes] __device__(int src_id, int dst_id, int local_edge_pos, long long int global_edge_pos, int position_in_frontier)
         {
             int src_val = _components[src_id];
             int dst_val = _components[dst_id];
 
-            int dst_dst_val = -1;
             if(src_val < dst_val)
-                dst_dst_val = _components[dst_val];
-
-            if((src_val < dst_val) && (dst_val == dst_dst_val))
             {
-                _components[dst_val] = src_val;
-                hook_changes[0] = 1;
+                int dst_dst_val = _components[dst_val];
+                if (dst_val == dst_dst_val)
+                {
+                    _components[dst_val] = src_val;
+                    hook_changes[0] = 1;
+                }
             }
         };
 
         graph_API.advance(_graph, frontier, edge_op);
+
+        cout << "hook_changes[0]: " << hook_changes[0] << endl;
 
         do
         {
@@ -66,6 +68,8 @@ void shiloach_vishkin_wrapper(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_gr
             };
 
             graph_API.compute(_graph, frontier, jump_op);
+
+            cout << "jump_changes[0]: " << jump_changes[0] << endl;
         } while(jump_changes[0] > 0);
 
         _iterations_count++;
