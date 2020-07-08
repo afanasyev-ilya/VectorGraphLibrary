@@ -63,7 +63,7 @@ int main(int argc, const char * argv[])
         double avg_perf = 0.0;
         for(int i = 0; i < parser.get_number_of_rounds(); i++)
         {
-            last_src_vertex = i * 100 + 1;
+            last_src_vertex = rand()% (graph.get_vertices_count() / 100);
 
             #ifdef __USE_NEC_SX_AURORA__
             #ifdef __PRINT_API_PERFORMANCE_STATS__

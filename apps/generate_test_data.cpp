@@ -203,6 +203,14 @@ int main(int argc, char ** argv)
             cout << "save time: " << (t2 - t1) * 1000.0 << " ms" << endl;
             cout << "saved into MTX format!" << endl;
         }
+        else if(output_format.find("galois") != string::npos)
+        {
+            t1 = omp_get_wtime();
+            export_to_edges_list_weighted(rand_graph, file_name + "_galois.el", false);
+            t1 = omp_get_wtime();
+            cout << "save time: " << (t2 - t1) * 1000.0 << " ms" << endl;
+            cout << "saved into Galois format!" << endl;
+        }
         cout << " ----------------------------------------------------------------------------------------- " << endl << endl;
     }
     catch (const char * error)
