@@ -29,16 +29,15 @@ void CC::nec_shiloach_vishkin(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_gr
             auto edge_op = [_components, &reg_hook_changes](int src_id, int dst_id, int local_edge_pos,
                     long long int global_edge_pos, int vector_index, DelayedWriteNEC &delayed_write)
             {
-                int src_val = _components[src_id];
-                int dst_val = _components[dst_id];
-
-                int dst_dst_val = -1;
                 if(src_val < dst_val)
-                    dst_dst_val = _components[dst_val];
-
-                if((src_val < dst_val) && (dst_val == dst_dst_val))
                 {
-                    _components[dst_val] = src_val;
+                    _components[dst_id] = src_val;
+                    reg_hook_changes[vector_index] = 1;
+                }
+
+                if(src_val > dst_val)
+                {
+                    _components[src_id] = dst_val;
                     reg_hook_changes[vector_index] = 1;
                 }
             };
