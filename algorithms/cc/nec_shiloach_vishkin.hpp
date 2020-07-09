@@ -29,6 +29,29 @@ void CC::nec_shiloach_vishkin(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_gr
             auto edge_op = [_components, &reg_hook_changes](int src_id, int dst_id, int local_edge_pos,
                     long long int global_edge_pos, int vector_index, DelayedWriteNEC &delayed_write)
             {
+                int src_val = _components[src_id];
+                int dst_val = _components[dst_id];
+
+                if(src_val < dst_val)
+                {
+                    _components[dst_id] = src_val;
+                    reg_hook_changes[vector_index] = 1;
+                }
+
+                if(src_val > dst_val)
+                {
+                    delayed_write.start_write(_components, dst_val, vector_index);
+                    //_components[src_id] = dst_val;
+                    reg_hook_changes[vector_index] = 1;
+                }
+            };
+
+            auto edge_op_collective = [_components, &reg_hook_changes](int src_id, int dst_id, int local_edge_pos,
+                    long long int global_edge_pos, int vector_index, DelayedWriteNEC &delayed_write)
+            {
+                int src_val = _components[src_id];
+                int dst_val = _components[dst_id];
+
                 if(src_val < dst_val)
                 {
                     _components[dst_id] = src_val;
@@ -42,7 +65,21 @@ void CC::nec_shiloach_vishkin(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_gr
                 }
             };
 
-            graph_API.advance(_graph, frontier, edge_op);
+            auto vertex_preprocess_op = [_components]
+                        (int src_id, int connections_count, int vector_index, DelayedWriteNEC &delayed_write)
+            {
+                delayed_write.init(_components, _components[src_id]);
+            };
+
+            auto vertex_postprocess_op = [_components]
+                    (int src_id, int connections_count, int vector_index, DelayedWriteNEC &delayed_write)
+            {
+                delayed_write.finish_write_min(_components, src_id);
+            };
+
+            graph_API.advance(_graph, frontier, edge_op, vertex_preprocess_op, vertex_postprocess_op, edge_op_collective, EMPTY_VERTEX_OP, EMPTY_VERTEX_OP);
+
+            //graph_API.advance(_graph, frontier, edge_op);
 
             #pragma omp atomic
             hook_changes += register_sum_reduce(reg_hook_changes);
