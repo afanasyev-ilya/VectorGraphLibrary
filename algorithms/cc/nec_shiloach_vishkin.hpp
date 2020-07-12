@@ -9,7 +9,6 @@ void CC::nec_shiloach_vishkin(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_gr
 {
     LOAD_EXTENDED_CSR_GRAPH_DATA(_graph);
 
-    double t1 = omp_get_wtime();
     frontier.set_all_active();
     auto init_components_op = [&_components] (int src_id, int connections_count, int vector_index)
     {
@@ -17,6 +16,7 @@ void CC::nec_shiloach_vishkin(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_gr
     };
     graph_API.compute(_graph, frontier, init_components_op);
 
+    double t1 = omp_get_wtime();
     int hook_changes = 1, jump_changes = 1;
     int iteration = 0;
     while(hook_changes)
@@ -41,7 +41,6 @@ void CC::nec_shiloach_vishkin(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_gr
                 if(src_val > dst_val)
                 {
                     delayed_write.start_write(_components, dst_val, vector_index);
-                    //_components[src_id] = dst_val;
                     reg_hook_changes[vector_index] = 1;
                 }
             };
@@ -78,8 +77,6 @@ void CC::nec_shiloach_vishkin(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_gr
             };
 
             graph_API.advance(_graph, frontier, edge_op, vertex_preprocess_op, vertex_postprocess_op, edge_op_collective, EMPTY_VERTEX_OP, EMPTY_VERTEX_OP);
-
-            //graph_API.advance(_graph, frontier, edge_op);
 
             #pragma omp atomic
             hook_changes += register_sum_reduce(reg_hook_changes);
