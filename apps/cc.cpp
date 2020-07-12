@@ -1,10 +1,10 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #define INT_ELEMENTS_PER_EDGE 6.0
-#define NEC_VECTOR_ENGINE_THRESHOLD_VALUE VECTOR_LENGTH * MAX_SX_AURORA_THREADS * 128
+#define NEC_VECTOR_ENGINE_THRESHOLD_VALUE VECTOR_LENGTH * MAX_SX_AURORA_THREADS * 1024
 #define NEC_VECTOR_CORE_THRESHOLD_VALUE 5*VECTOR_LENGTH
 //#define __PRINT_API_PERFORMANCE_STATS__
-#define __PRINT_SAMPLES_PERFORMANCE_STATS__
+//#define __PRINT_SAMPLES_PERFORMANCE_STATS__
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -59,12 +59,8 @@ int main(int argc, const char * argv[])
         #ifdef __PRINT_API_PERFORMANCE_STATS__
         reset_nec_debug_timers();
         #endif
-
-        if(parser.get_algorithm_cc() == SHILOACH_VISHKIN_ALGORITHM)
-            cc_operation.nec_shiloach_vishkin(graph, components);
-        else if(parser.get_algorithm_cc() == BFS_BASED_ALGORITHM)
-            cc_operation.nec_bfs_based(graph, components);
-
+        cc_operation.nec_shiloach_vishkin(graph, components);
+        cout << "wall performance: " << cc_operation.get_performance() << " MTEPS" << endl;
         #ifdef __PRINT_API_PERFORMANCE_STATS__
         print_nec_debug_timers(graph);
         #endif

@@ -27,7 +27,7 @@ void GraphGenerationAPI<_TVertexValue, _TEdgeWeight>::random_uniform(EdgesListGr
     
     RandomGenerationAPI rng_api;
     int max_id_val = vertices_count;
-    rng_api.generate_array_of_random_values<_TVertexValue>(_graph.get_vertex_values(), vertices_count, 1000);
+    rng_api.generate_array_of_random_values<_TVertexValue>(_graph.get_vertex_values(), vertices_count, MAX_WEIGHT);
     rng_api.generate_array_of_random_values<int>(_graph.get_src_ids(), directed_edges_count, max_id_val);
     rng_api.generate_array_of_random_values<int>(_graph.get_dst_ids(), directed_edges_count, max_id_val);
 
@@ -83,7 +83,7 @@ void GraphGenerationAPI<_TVertexValue, _TEdgeWeight>::R_MAT(EdgesListGraph<_TVer
     _TEdgeWeight *weights = _graph.get_weights();
     
     RandomGenerationAPI rng_api;
-    rng_api.generate_array_of_random_values<_TVertexValue>(_graph.get_vertex_values(), vertices_count, 1000);
+    rng_api.generate_array_of_random_values<_TVertexValue>(_graph.get_vertex_values(), vertices_count, MAX_WEIGHT);
     
     int threads_count = omp_get_max_threads();
     
@@ -131,7 +131,7 @@ void GraphGenerationAPI<_TVertexValue, _TEdgeWeight>::R_MAT(EdgesListGraph<_TVer
             
             int from = x_middle;
             int to = y_middle;
-            _TEdgeWeight edge_weight = (rand_r(&seed) % 10) + static_cast <float> (rand_r(&seed)) / static_cast <float> (RAND_MAX);
+            _TEdgeWeight edge_weight = (rand_r(&seed) % MAX_WEIGHT) + static_cast <float> (rand_r(&seed)) / static_cast <float> (RAND_MAX);
             
             src_ids[cur_edge] = from;
             dst_ids[cur_edge] = to;
@@ -419,7 +419,7 @@ void GraphGenerationAPI<_TVertexValue, _TEdgeWeight>::SCC_uniform(EdgesListGraph
     _TEdgeWeight *weights = _graph.get_weights();
     
     RandomGenerationAPI rng_api;
-    rng_api.generate_array_of_random_values<_TVertexValue>(_graph.get_vertex_values(), vertices_count, 1000);
+    rng_api.generate_array_of_random_values<_TVertexValue>(_graph.get_vertex_values(), vertices_count, MAX_WEIGHT);
     
     int current_edges_pos = 0;
     for(int i = 0; i < SCC_count; i++)
@@ -434,7 +434,7 @@ void GraphGenerationAPI<_TVertexValue, _TEdgeWeight>::SCC_uniform(EdgesListGraph
         {
             int src_id = rand() % (end_vertex - start_vertex) + start_vertex;
             int dst_id = rand() % (end_vertex - start_vertex) + start_vertex;
-            _TEdgeWeight weight = weights[i] = ((double)(rand() % 10000)) / 10000.0;
+            _TEdgeWeight weight = ((double)(rand() % MAX_WEIGHT));
             
             src_ids[current_edges_pos] = src_id;
             dst_ids[current_edges_pos] = dst_id;
@@ -546,7 +546,7 @@ void GraphGenerationAPI<_TVertexValue, _TEdgeWeight>::init_from_txt_file(EdgesLi
         _graph.get_dst_ids()[i] = tmp_dst_ids[i];
 
         #ifdef __USE_WEIGHTED_GRAPHS__
-        _graph.get_weights()[i] = (rand_r(&seed) % 10) + static_cast <float> (rand_r(&seed)) / static_cast <float> (RAND_MAX);;
+        _graph.get_weights()[i] = (rand_r(&seed) % MAX_WEIGHT) + static_cast <float> (rand_r(&seed)) / static_cast <float> (RAND_MAX);;
         #endif
     }
     

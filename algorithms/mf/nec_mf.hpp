@@ -125,7 +125,7 @@ _TEdgeWeight MF::nec_ford_fulkerson(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight
         avg_path_length += path_length;
 
         // calculate current flow
-        int path_flow = INT_MAX;
+        int path_flow = std::numeric_limits<std::int32_t>::max();
         for (int i = 0; i < path_length; i++)
         {
             int v = path[i];

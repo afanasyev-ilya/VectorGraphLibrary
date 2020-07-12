@@ -1,21 +1,12 @@
 #!/bin/bash
 
 PROG_NAME="./PageRank "
-PROG_ARGS="-rounds 0 "
+PROG_ARGS=" -rounds 1 "
 
 FILE_PREFIX="~/VectorGraphLibrary/apps/bin/ligra_graphs/"
 FILE_SUFIX="_ligra.txt"
 
-PERF_PATTERN="perf:" # can not contain spaces!!!!!!!
-
-declare -a file_names_old=(
-                       "dir_ru_20_32"
-                       "dir_ru_21_32"
-                       "dir_ru_22_32"
-                       "dir_ru_23_32"
-                       "dir_ru_24_32"
-                       "dir_ru_25_32"
-                       )
+PERF_PATTERN="perf_per_iter:" # can not contain spaces!!!!!!!
 
 declare -a file_names=("dir_rmat_20_32"
                        "dir_rmat_21_32"

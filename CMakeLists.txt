@@ -95,7 +95,7 @@ add_executable(VectorGraphLibrary
         common/random_generator/random_generation_API.h
         common/sorting/sorting.h
         common/verify_results/verify_results.h
-        export_graphs/gapbs_export.h
+        export_graphs/edges_list_export.h
         export_graphs/ligra_export.h
         graph_analytics/graph_analytics.h
         graph_analytics/graph_analytics.hpp

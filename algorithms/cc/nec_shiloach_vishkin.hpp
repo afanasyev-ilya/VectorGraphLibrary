@@ -9,7 +9,6 @@ void CC::nec_shiloach_vishkin(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_gr
 {
     LOAD_EXTENDED_CSR_GRAPH_DATA(_graph);
 
-    double t1 = omp_get_wtime();
     frontier.set_all_active();
     auto init_components_op = [&_components] (int src_id, int connections_count, int vector_index)
     {
@@ -17,6 +16,7 @@ void CC::nec_shiloach_vishkin(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_gr
     };
     graph_API.compute(_graph, frontier, init_components_op);
 
+    double t1 = omp_get_wtime();
     int hook_changes = 1, jump_changes = 1;
     int iteration = 0;
     while(hook_changes)
@@ -32,18 +32,51 @@ void CC::nec_shiloach_vishkin(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_gr
                 int src_val = _components[src_id];
                 int dst_val = _components[dst_id];
 
-                int dst_dst_val = -1;
                 if(src_val < dst_val)
-                    dst_dst_val = _components[dst_val];
-
-                if((src_val < dst_val) && (dst_val == dst_dst_val))
                 {
-                    _components[dst_val] = src_val;
+                    _components[dst_id] = src_val;
+                    reg_hook_changes[vector_index] = 1;
+                }
+
+                if(src_val > dst_val)
+                {
+                    delayed_write.start_write(_components, dst_val, vector_index);
                     reg_hook_changes[vector_index] = 1;
                 }
             };
 
-            graph_API.advance(_graph, frontier, edge_op);
+            auto edge_op_collective = [_components, &reg_hook_changes](int src_id, int dst_id, int local_edge_pos,
+                    long long int global_edge_pos, int vector_index, DelayedWriteNEC &delayed_write)
+            {
+                int src_val = _components[src_id];
+                int dst_val = _components[dst_id];
+
+                if(src_val < dst_val)
+                {
+                    _components[dst_id] = src_val;
+                    reg_hook_changes[vector_index] = 1;
+                }
+
+                if(src_val > dst_val)
+                {
+                    _components[src_id] = dst_val;
+                    reg_hook_changes[vector_index] = 1;
+                }
+            };
+
+            auto vertex_preprocess_op = [_components]
+                        (int src_id, int connections_count, int vector_index, DelayedWriteNEC &delayed_write)
+            {
+                delayed_write.init(_components, _components[src_id]);
+            };
+
+            auto vertex_postprocess_op = [_components]
+                    (int src_id, int connections_count, int vector_index, DelayedWriteNEC &delayed_write)
+            {
+                delayed_write.finish_write_min(_components, src_id);
+            };
+
+            graph_API.advance(_graph, frontier, edge_op, vertex_preprocess_op, vertex_postprocess_op, edge_op_collective, EMPTY_VERTEX_OP, EMPTY_VERTEX_OP);
 
             #pragma omp atomic
             hook_changes += register_sum_reduce(reg_hook_changes);

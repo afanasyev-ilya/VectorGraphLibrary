@@ -2,12 +2,11 @@
 
 PROG_NAME=$1
 PROG_ARGS=$2
-PROG_ARGS+="  --random-edge-values=true --edge-value-min=10 --random-edge-values --remove-self-loops=false --remove-duplicate-edges=false --graph-type market --graph-file "
 
-FILE_PREFIX=" ~/VectorGraphLibrary/apps/bin/gunrock_graphs/"
-FILE_SUFIX="_mtx.el"
+FILE_PREFIX=" ./galois_graphs/"
+FILE_SUFIX=".gr"
 
-PERF_PATTERN="rate:" # can not contain spaces!!!!!!!
+PERF_PATTERN="perf_per_iter:" # can not contain spaces!!!!!!!
 
 declare -a file_names=("dir_rmat_20_32"
                        "dir_rmat_21_32"
