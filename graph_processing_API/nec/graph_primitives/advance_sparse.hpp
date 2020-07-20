@@ -68,7 +68,7 @@ void GraphPrimitivesNEC::vector_engine_per_vertex_kernel_sparse(const long long 
 
                 work += connections_count;
             }
-
+            INNER_WALL_WORK += work;
             cout << "1) time: " << (t2 - t1)*1000.0 << " ms" << endl;
             cout << "1) BW: " << sizeof(int)*INT_ELEMENTS_PER_EDGE*work/((t2-t1)*1e9) << " GB/s" << endl;
         };
@@ -144,6 +144,7 @@ void GraphPrimitivesNEC::vector_core_per_vertex_kernel_sparse(const long long *_
 
                 work += connections_count;
             }
+            INNER_WALL_WORK += work;
 
             cout << "2) time: " << (t2 - t1)*1000.0 << " ms" << endl;
             cout << "2) BW: " << sizeof(int)*INT_ELEMENTS_PER_EDGE*work/((t2-t1)*1e9) << " GB/s" << endl;
@@ -277,6 +278,7 @@ void GraphPrimitivesNEC::collective_vertex_processing_kernel_sparse(const long l
                 int connections_count = _vertex_pointers[src_id + 1] - _vertex_pointers[src_id];
                 work += connections_count;
             }
+            INNER_WALL_WORK += work;
             cout << "3) time: " << (t2 - t1)*1000.0 << " ms" << endl;
             cout << "3) BW: " << sizeof(int)*INT_ELEMENTS_PER_EDGE*work/((t2-t1)*1e9) << " GB/s" << endl;
             cout << "3) avg connections: " << work / _frontier_size << endl;

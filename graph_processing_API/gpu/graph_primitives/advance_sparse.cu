@@ -344,9 +344,10 @@ void GraphPrimitivesGPU::advance_sparse(ExtendedCSRGraph<_TVertexValue, _TEdgeWe
     cudaDeviceSynchronize();
 
     #ifdef __PRINT_API_PERFORMANCE_STATS__
-    // TODO if all active
     double t2 = omp_get_wtime();
     double work = edges_count;
+
+    //this->reduce(_graph, _frontier, ReduceOperation &&reduce_op, SUM_REDUCE);
     cout << "advance time: " << (t2 - t1)*1000.0 << " ms" << endl;
     cout << "advance all active BW: " << sizeof(int)*INT_ELEMENTS_PER_EDGE*work/((t2-t1)*1e9) << " GB/s" << endl << endl;
     #endif

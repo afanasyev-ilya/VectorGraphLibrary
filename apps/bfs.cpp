@@ -1,8 +1,10 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #define INT_ELEMENTS_PER_EDGE 4.0
-#define NEC_VECTOR_CORE_THRESHOLD_VALUE VECTOR_LENGTH
-#define COLLECTIVE_FRONTIER_TYPE_CHANGE_THRESHOLD 0.15
+#define NEC_VECTOR_CORE_THRESHOLD_VALUE 4.0*VECTOR_LENGTH
+#define COLLECTIVE_FRONTIER_TYPE_CHANGE_THRESHOLD 0.35
+#define __PRINT_SAMPLES_PERFORMANCE_STATS__
+#define __PRINT_API_PERFORMANCE_STATS__
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -65,7 +67,7 @@ int main(int argc, const char * argv[])
         int vertex_to_check = 0;
         for(int i = 0; i < source_vertex_num; i++)
         {
-            vertex_to_check = rand() % 100;
+            vertex_to_check = i + 1;
 
             double t1 = omp_get_wtime();
             #ifdef __USE_NEC_SX_AURORA__
