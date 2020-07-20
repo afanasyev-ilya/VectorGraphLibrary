@@ -101,8 +101,8 @@ void GraphPrimitivesNEC::partial_first_groups(const long long *_vertex_pointers,
     double t2 = omp_get_wtime();
     #pragma omp single
     {
-        INNER_WALL_NEC_TIME += t2 - t1;
-        INNER_ADVANCE_NEC_TIME += t2 - t1;
+        INNER_WALL_TIME += t2 - t1;
+        INNER_ADVANCE_TIME += t2 - t1;
         DETAILED_ADVANCE_PART_2_NEC_TIME += t2 - t1;
 
         double work = (_last_edge - _first_edge) * _last_vertex;
@@ -178,8 +178,8 @@ void GraphPrimitivesNEC::partial_last_group(const long long *_ve_vector_group_pt
     double t2 = omp_get_wtime();
     #pragma omp single
     {
-        INNER_WALL_NEC_TIME += t2 - t1;
-        INNER_ADVANCE_NEC_TIME += t2 - t1;
+        INNER_WALL_TIME += t2 - t1;
+        INNER_ADVANCE_TIME += t2 - t1;
         DETAILED_ADVANCE_PART_3_NEC_TIME += t2 - t1;
 
         double work = (_last_edge - _first_edge) * _ve_vector_segments_count * VECTOR_LENGTH;

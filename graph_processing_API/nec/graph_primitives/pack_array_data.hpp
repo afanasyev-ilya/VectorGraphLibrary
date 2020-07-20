@@ -69,7 +69,7 @@ void pack_array_data(_T1 *_first_unpacked_data, _T2 *_second_unpacked_data, uint
 
     #ifdef __PRINT_API_PERFORMANCE_STATS__
     double t2 = omp_get_wtime();
-    INNER_WALL_NEC_TIME += t2 - t1;
+    INNER_WALL_TIME += t2 - t1;
     INNER_PACK_NEC_TIME += t2 - t1;
     cout << "pack time: " << (t2 - t1)*1000.0 << " ms" << endl;
     cout << "pack BW: " << (sizeof(_T1) + sizeof(_T2) + sizeof(uint64_t))*_size/((t2-t1)*1e9) << " GB/s" << endl << endl;
@@ -97,7 +97,7 @@ void unpack_array_data(_T1 *_first_unpacked_data, _T2 *_second_unpacked_data, ui
 
     #ifdef __PRINT_API_PERFORMANCE_STATS__
     double t2 = omp_get_wtime();
-    INNER_WALL_NEC_TIME += t2 - t1;
+    INNER_WALL_TIME += t2 - t1;
     INNER_PACK_NEC_TIME += t2 - t1;
     cout << "unpack time: " << (t2 - t1)*1000.0 << " ms" << endl;
     cout << "unpack BW: " << (sizeof(_T1) + sizeof(_T2) + sizeof(uint64_t))*_size/((t2-t1)*1e9) << " GB/s" << endl << endl;

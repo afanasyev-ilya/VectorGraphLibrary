@@ -55,19 +55,21 @@ int main(int argc, const char * argv[])
         graph.move_to_device();
         #endif
 
-        #ifdef __USE_NEC_SX_AURORA__
         #ifdef __PRINT_API_PERFORMANCE_STATS__
-        reset_nec_debug_timers();
+        PerformanceStats::reset_API_performance_timers();
         #endif
+
+        #ifdef __USE_NEC_SX_AURORA__
         cc_operation.nec_shiloach_vishkin(graph, components);
         cout << "wall performance: " << cc_operation.get_performance() << " MTEPS" << endl;
-        #ifdef __PRINT_API_PERFORMANCE_STATS__
-        print_nec_debug_timers(graph);
-        #endif
         #endif
 
         #ifdef __USE_GPU__ // for now run all 3 algorithms, TODO selection later
         cc_operation.gpu_shiloach_vishkin(graph, components);
+        #endif
+
+        #ifdef __PRINT_API_PERFORMANCE_STATS__
+        PerformanceStats::print_API_performance_timers(graph.get_edges_count());
         #endif
 
         #ifdef __USE_GPU__

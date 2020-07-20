@@ -106,7 +106,7 @@ void GraphPrimitivesNEC::generate_new_frontier(ExtendedCSRGraph<_TVertexValue, _
 
     #ifdef __PRINT_API_PERFORMANCE_STATS__
     double t3 = omp_get_wtime();
-    INNER_WALL_NEC_TIME += t3 - t1;
+    INNER_WALL_TIME += t3 - t1;
     INNER_GNF_NEC_TIME += t3 - t1;
 
     cout << "GNF flags time: " << 1000*(t2 - t1) << " ms" << endl;

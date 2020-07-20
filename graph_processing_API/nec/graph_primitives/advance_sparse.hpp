@@ -56,8 +56,8 @@ void GraphPrimitivesNEC::vector_engine_per_vertex_kernel_sparse(const long long 
 
         #pragma omp master
         {
-            INNER_WALL_NEC_TIME += t2 - t1;
-            INNER_ADVANCE_NEC_TIME += t2 - t1;
+            INNER_WALL_TIME += t2 - t1;
+            INNER_ADVANCE_TIME += t2 - t1;
             DETAILED_ADVANCE_PART_1_NEC_TIME += t2 - t1;
 
             double work = 0;
@@ -132,8 +132,8 @@ void GraphPrimitivesNEC::vector_core_per_vertex_kernel_sparse(const long long *_
 
         #pragma omp master
         {
-            INNER_WALL_NEC_TIME += t2 - t1;
-            INNER_ADVANCE_NEC_TIME += t2 - t1;
+            INNER_WALL_TIME += t2 - t1;
+            INNER_ADVANCE_TIME += t2 - t1;
             DETAILED_ADVANCE_PART_2_NEC_TIME += t2 - t1;
 
             double work = 0;
@@ -267,8 +267,8 @@ void GraphPrimitivesNEC::collective_vertex_processing_kernel_sparse(const long l
         double t2 = omp_get_wtime();
         #pragma omp master
         {
-            INNER_WALL_NEC_TIME += t2 - t1;
-            INNER_ADVANCE_NEC_TIME += t2 - t1;
+            INNER_WALL_TIME += t2 - t1;
+            INNER_ADVANCE_TIME += t2 - t1;
             DETAILED_ADVANCE_PART_3_NEC_TIME += t2 - t1;
 
             double work = 0;

@@ -57,16 +57,17 @@ int main(int argc, const char * argv[])
         {
             last_src_vertex = i * 100 + 1;
 
-            #ifdef __USE_NEC_SX_AURORA__
             #ifdef __PRINT_API_PERFORMANCE_STATS__
-            reset_nec_debug_timers();
-            #endif
-            sswp_operation.nec_dijkstra(graph, widths, last_src_vertex, parser.get_traversal_direction());
-            #ifdef __PRINT_API_PERFORMANCE_STATS__
-            print_nec_debug_timers(graph);
-            #endif
+            PerformanceStats::reset_API_performance_timers();
             #endif
 
+            #ifdef __USE_NEC_SX_AURORA__
+            sswp_operation.nec_dijkstra(graph, widths, last_src_vertex, parser.get_traversal_direction());
+            #endif
+
+            #ifdef __PRINT_API_PERFORMANCE_STATS__
+            PerformanceStats::print_API_performance_timers(graph.get_edges_count());
+            #endif
         }
         double t2 = omp_get_wtime();
         double avg_perf = parser.get_number_of_rounds() * (((double)graph.get_edges_count()) / ((t2 - t1) * 1e6));

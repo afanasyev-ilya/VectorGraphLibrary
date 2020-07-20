@@ -65,20 +65,22 @@ int main(int argc, const char * argv[])
         {
             last_src_vertex = rand()% (graph.get_vertices_count() / 100);
 
-            #ifdef __USE_NEC_SX_AURORA__
             #ifdef __PRINT_API_PERFORMANCE_STATS__
-            reset_nec_debug_timers();
+            PerformanceStats::reset_API_performance_timers();
             #endif
+
+            #ifdef __USE_NEC_SX_AURORA__
             sssp_operation.nec_dijkstra(graph, distances, last_src_vertex, parser.get_algorithm_frontier_type(),
                                         parser.get_traversal_direction());
-            #ifdef __PRINT_API_PERFORMANCE_STATS__
-            print_nec_debug_timers(graph);
-            #endif
             #endif
             
             #ifdef __USE_GPU__
             sssp_operation.gpu_dijkstra(graph, distances, last_src_vertex, parser.get_algorithm_frontier_type(),
                                         parser.get_traversal_direction());
+            #endif
+
+            #ifdef __PRINT_API_PERFORMANCE_STATS__
+            PerformanceStats::print_API_performance_timers(graph.get_edges_count());
             #endif
 
             avg_perf += sssp_operation.get_performance()/parser.get_number_of_rounds();

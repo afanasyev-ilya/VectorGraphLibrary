@@ -57,14 +57,16 @@ int main(int argc, const char * argv[])
         double t1 = omp_get_wtime();
         for(int current_vertex = 0; current_vertex < vertices_count; current_vertex++)
         {
+            #ifdef __PRINT_API_PERFORMANCE_STATS__
+            PerformanceStats::reset_API_performance_timers();
+            #endif
+
             #ifdef __USE_NEC_SX_AURORA__
-            #ifdef __PRINT_API_PERFORMANCE_STATS__
-            reset_nec_debug_timers();
-            #endif
             sssp_operation.nec_dijkstra(graph, distances, current_vertex, ALL_ACTIVE, PUSH_TRAVERSAL);
-            #ifdef __PRINT_API_PERFORMANCE_STATS__
-            print_nec_debug_timers(graph);
             #endif
+
+            #ifdef __PRINT_API_PERFORMANCE_STATS__
+            PerformanceStats::print_API_performance_timers(graph.get_edges_count());
             #endif
 
             if(current_vertex % vertices_per_percent == 0)

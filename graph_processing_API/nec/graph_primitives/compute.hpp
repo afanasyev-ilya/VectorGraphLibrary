@@ -56,7 +56,7 @@ void GraphPrimitivesNEC::compute_worker(ExtendedCSRGraph<_TVertexValue, _TEdgeWe
     double t2 = omp_get_wtime();
     #pragma omp master
     {
-        INNER_WALL_NEC_TIME += t2 - t1;
+        INNER_WALL_TIME += t2 - t1;
         INNER_COMPUTE_NEC_TIME += t2 - t1;
 
         double work = max_frontier_size;

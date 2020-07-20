@@ -150,7 +150,7 @@ void GraphPrimitivesNEC::my_test(const long long *_vertex_pointers, const int *_
     double t2 = omp_get_wtime();
     #pragma omp master
     {
-        INNER_WALL_NEC_TIME += t2 - t1;
+        INNER_WALL_TIME += t2 - t1;
 
         double work = _vertex_pointers[down_border] - _vertex_pointers[top_border];
         cout << "TEST BANDWIDTH: " << endl;
@@ -191,7 +191,7 @@ void GraphPrimitivesNEC::my_test(const long long *_vertex_pointers, const int *_
     t2 = omp_get_wtime();
     #pragma omp master
     {
-        INNER_WALL_NEC_TIME += t2 - t1;
+        INNER_WALL_TIME += t2 - t1;
 
         double work = 32*(border_32 - border_64);
         cout << "TEST BANDWIDTH: " << endl;

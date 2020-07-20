@@ -21,13 +21,11 @@ void GraphPrimitivesGPU::advance(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &
 
     #ifdef __PRINT_API_PERFORMANCE_STATS__
     double t2 = omp_get_wtime();
-    double max_work = _graph.get_edges_count();
     auto compute_work_size = []__device__(int src_id, int position_in_frontier, int connections_count)->int
     {
         return connections_count;
     };
-    double work = this->reduce<int>(_graph, _frontier, compute_work_size, REDUCE_SUM);
-    cout << "real work: " << work << " vs max work: " << max_work << endl;
+    int work = this->reduce<int>(_graph, _frontier, compute_work_size, REDUCE_SUM);
     cout << "advance time: " << (t2 - t1)*1000.0 << " ms" << endl;
     cout << "advance sparse BW: " << sizeof(int)*INT_ELEMENTS_PER_EDGE*work/((t2-t1)*1e9) << " GB/s" << endl << endl;
     #endif
@@ -49,13 +47,11 @@ void GraphPrimitivesGPU::advance(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &
 
     #ifdef __PRINT_API_PERFORMANCE_STATS__
     double t2 = omp_get_wtime();
-    double max_work = _graph.get_edges_count();
     auto compute_work_size = []__device__(int src_id, int position_in_frontier, int connections_count)->int
     {
         return connections_count;
     };
-    double work = this->reduce<int>(_graph, _frontier, compute_work_size, REDUCE_SUM);
-    cout << "real work: " << work << " vs max work: " << max_work << endl;
+    int work = this->reduce<int>(_graph, _frontier, compute_work_size, REDUCE_SUM);
     cout << "advance time: " << (t2 - t1)*1000.0 << " ms" << endl;
     cout << "advance sparse BW: " << sizeof(int)*INT_ELEMENTS_PER_EDGE*work/((t2-t1)*1e9) << " GB/s" << endl << endl;
     #endif

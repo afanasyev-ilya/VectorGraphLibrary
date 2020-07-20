@@ -69,20 +69,23 @@ int main(int argc, const char * argv[])
         {
             vertex_to_check = i + 1;
 
+            #ifdef __PRINT_API_PERFORMANCE_STATS__
+            PerformanceStats::reset_API_performance_timers();
+            #endif
+
             double t1 = omp_get_wtime();
             #ifdef __USE_NEC_SX_AURORA__
-            #ifdef __PRINT_API_PERFORMANCE_STATS__
-            reset_nec_debug_timers();
-            #endif
             bfs_operation.nec_top_down(graph, bfs_levels, vertex_to_check);
-            #ifdef __PRINT_API_PERFORMANCE_STATS__
-            print_nec_debug_timers(graph);
-            #endif
             #endif
 
             #ifdef __USE_GPU__
             bfs_operation.gpu_top_down(graph, device_bfs_levels, vertex_to_check);
             #endif
+
+            #ifdef __PRINT_API_PERFORMANCE_STATS__
+            PerformanceStats::print_API_performance_timers(graph.get_edges_count());
+            #endif
+
             double t2 = omp_get_wtime();
             total_time += t2 - t1;
 
