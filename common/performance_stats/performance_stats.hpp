@@ -95,7 +95,7 @@ void PerformanceStats::print_API_performance_timers(long long _edges_count)
     cout << "INNER_ADVANCE_TIME: " << int(100.0 * INNER_ADVANCE_TIME / INNER_WALL_TIME) << " %" << endl;
 
     double advance_bw = sizeof(int)*INT_ELEMENTS_PER_EDGE*INNER_WALL_WORK / (1e9*INNER_ADVANCE_TIME);
-    cout << "ADVANCE_BANDWIDTH: " << advance_bw << " GB/s, " << 100.0*advance_bw/1200 << "% of peak" << endl;
+    cout << "ADVANCE_BANDWIDTH: " << advance_bw << " GB/s" << endl;
     #ifdef __USE_NEC_SX_AURORA__
     cout << "         DETAILED_ADVANCE_PART_1_NEC_TIME: " << int(100.0 * DETAILED_ADVANCE_PART_1_NEC_TIME / INNER_WALL_TIME) << " %" << endl;
     cout << "         DETAILED_ADVANCE_PART_2_NEC_TIME: " << int(100.0 * DETAILED_ADVANCE_PART_2_NEC_TIME / INNER_WALL_TIME) << " %" << endl;
