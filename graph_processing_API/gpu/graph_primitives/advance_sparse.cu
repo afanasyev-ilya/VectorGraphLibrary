@@ -239,10 +239,6 @@ void GraphPrimitivesGPU::advance_sparse(ExtendedCSRGraph<_TVertexValue, _TEdgeWe
                                         VertexPostprocessOperation vertex_postprocess_op,
                                         bool _generate_frontier)
 {
-    #ifdef __PRINT_API_PERFORMANCE_STATS__
-    double t1 = omp_get_wtime();
-    #endif
-
     LOAD_EXTENDED_CSR_GRAPH_DATA(_graph);
 
     int grid_threshold_start = 0;
@@ -342,15 +338,6 @@ void GraphPrimitivesGPU::advance_sparse(ExtendedCSRGraph<_TVertexValue, _TEdgeWe
                                                                                                           thread_threshold_end, edge_op, vertex_preprocess_op, vertex_postprocess_op, tmp_new_frontier_buffer, _generate_frontier, new_frontier_size);
     }
     cudaDeviceSynchronize();
-
-    #ifdef __PRINT_API_PERFORMANCE_STATS__
-    double t2 = omp_get_wtime();
-    double work = edges_count;
-
-    //this->reduce(_graph, _frontier, ReduceOperation &&reduce_op, SUM_REDUCE);
-    cout << "advance time: " << (t2 - t1)*1000.0 << " ms" << endl;
-    cout << "advance all active BW: " << sizeof(int)*INT_ELEMENTS_PER_EDGE*work/((t2-t1)*1e9) << " GB/s" << endl << endl;
-    #endif
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
