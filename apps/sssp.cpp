@@ -4,6 +4,7 @@
 #define NEC_VECTOR_ENGINE_THRESHOLD_VALUE VECTOR_LENGTH * MAX_SX_AURORA_THREADS * 4096
 #define NEC_VECTOR_CORE_THRESHOLD_VALUE 5*VECTOR_LENGTH
 #define __PRINT_API_PERFORMANCE_STATS__
+#define __PRINT_SAMPLES_PERFORMANCE_STATS__
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -59,10 +60,10 @@ int main(int argc, const char * argv[])
         #endif
 
         cout << "Doing " << parser.get_number_of_rounds() << " SSSP iterations..." << endl;
-        double t1 = omp_get_wtime();
+        double avg_perf = 0.0;
         for(int i = 0; i < parser.get_number_of_rounds(); i++)
         {
-            last_src_vertex = i * 100 + 1;
+            last_src_vertex = rand()% (graph.get_vertices_count() / 100);
 
             #ifdef __USE_NEC_SX_AURORA__
             #ifdef __PRINT_API_PERFORMANCE_STATS__
@@ -79,20 +80,18 @@ int main(int argc, const char * argv[])
             sssp_operation.gpu_dijkstra(graph, distances, last_src_vertex, parser.get_algorithm_frontier_type(),
                                         parser.get_traversal_direction());
             #endif
+
+            avg_perf += sssp_operation.get_performance()/parser.get_number_of_rounds();
         }
-        double t2 = omp_get_wtime();
         
         #ifdef __USE_GPU__
         graph.move_to_host();
         #endif
 
-        double avg_perf = parser.get_number_of_rounds() * (((double)graph.get_edges_count()) / ((t2 - t1) * 1e6));
-        
-        cout << "SSSP wall time: " << 1000.0 * (t2 - t1) << " ms" << endl;
-        cout << "SSSP average performance: " << avg_perf << " MFLOPS" << endl << endl;
+        cout << "SSSP average performance: " << int(avg_perf) << " MFLOPS" << endl << endl;
 
         #ifdef __SAVE_PERFORMANCE_STATS_TO_FILE__
-        PerformanceStats::save_performance_to_file("sssp", parser.get_graph_file_name(), avg_perf);
+        PerformanceStats::save_performance_to_file("sssp", parser.get_graph_file_name(), int(avg_perf));
         #endif
 
         // check if required

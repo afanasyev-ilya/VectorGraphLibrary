@@ -72,6 +72,7 @@ void GraphPrimitivesNEC::vector_engine_per_vertex_kernel_dense(const long long *
                     work += _vertex_pointers[src_id + 1] - _vertex_pointers[src_id];
                 }
             }
+            INNER_WALL_WORK += work;
             cout << "1) time: " << (t2 - t1)*1000.0 << " ms" << endl;
             cout << "1) BW: " << sizeof(int)*INT_ELEMENTS_PER_EDGE*work/((t2-t1)*1e9) << " GB/s" << endl;
         };
@@ -151,6 +152,7 @@ void GraphPrimitivesNEC::vector_core_per_vertex_kernel_dense(const long long *_v
                     work += _vertex_pointers[src_id + 1] - _vertex_pointers[src_id];
                 }
             }
+            INNER_WALL_WORK += work;
             cout << "2) time: " << (t2 - t1)*1000.0 << " ms" << endl;
             cout << "2) BW: " << sizeof(int)*INT_ELEMENTS_PER_EDGE*work/((t2-t1)*1e9) << " GB/s" << endl;
         };
@@ -282,6 +284,7 @@ void GraphPrimitivesNEC::ve_collective_vertex_processing_kernel_dense(const long
                     work += connections_count;
                 }
             }
+            INNER_WALL_WORK += work;
 
             cout << "3) (ve) time: " << (t2 - t1)*1000.0 << " ms" << endl;
             cout << "3) (ve) BW: " << sizeof(int)*INT_ELEMENTS_PER_EDGE*work/((t2-t1)*1e9) << " GB/s" << endl;

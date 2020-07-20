@@ -133,7 +133,7 @@ _TEdgeWeight MF::seq_ford_fulkerson(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight
         // Find minimum residual capacity of the edges along the
         // path filled by BFS. Or we can say find the maximum flow
         // through the path found.
-        int path_flow = INT_MAX;
+        int path_flow = std::numeric_limits<std::int32_t>::max();
         int path_length = 0;
         for (int v = _sink; v != _source; v = parents[v])
         {

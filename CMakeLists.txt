@@ -95,7 +95,7 @@ add_executable(VectorGraphLibrary
         common/random_generator/random_generation_API.h
         common/sorting/sorting.h
         common/verify_results/verify_results.h
-        export_graphs/gapbs_export.h
+        export_graphs/edges_list_export.h
         export_graphs/ligra_export.h
         graph_analytics/graph_analytics.h
         graph_analytics/graph_analytics.hpp
@@ -147,4 +147,3 @@ add_executable(VectorGraphLibrary
         verification/page_rank_verification.hpp
         verification/shortest_paths_verification.hpp
         architectures.h
-        graph_library.h graph_processing_API/framework_types.h algorithms/lp/lp_constants.h algorithms/lp/gpu/active_conditions.cuh misc/memory_access_patterns.cpp misc/memory_access_patterns.cu algorithms/sswp/nec_widest_paths.hpp algorithms/sswp/seq_widest_paths.hpp apps/gather.cpp apps/mf.cpp algorithms/pr/gpu/pr_gpu.cu algorithms/pr/gpu/pr_gpu.cuh)
