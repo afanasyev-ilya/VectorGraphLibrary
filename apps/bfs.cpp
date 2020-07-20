@@ -81,10 +81,7 @@ int main(int argc, const char * argv[])
             #endif
 
             #ifdef __USE_GPU__
-            if(parser.get_algorithm_bfs() == TOP_DOWN_BFS_ALGORITHM)
-                bfs_operation.gpu_top_down(graph, device_bfs_levels, vertex_to_check);
-            else if(parser.get_algorithm_bfs() == DIRECTION_OPTIMIZING_BFS_ALGORITHM)
-                bfs_operation.gpu_direction_optimizing(graph, device_bfs_levels, vertex_to_check);
+            bfs_operation.gpu_top_down(graph, device_bfs_levels, vertex_to_check);
             #endif
             double t2 = omp_get_wtime();
             total_time += t2 - t1;

@@ -252,7 +252,7 @@ void direction_optimizing_wrapper(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> 
         vis[0] = 0;
 
         t1 = omp_get_wtime();
-        auto reduce_op = [] __device__ (int src_id, int connections_count)->int
+        auto reduce_op = [] __device__(int src_id, int position_in_frontier, int connections_count)->int
         {
             return connections_count;
         };

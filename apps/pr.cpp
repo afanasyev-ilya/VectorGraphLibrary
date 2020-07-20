@@ -52,20 +52,23 @@ int main(int argc, const char * argv[])
         pr_operation.allocate_result_memory(graph.get_vertices_count(), &page_ranks);
 
         #ifdef __USE_NEC_SX_AURORA__
-
         #ifdef __PRINT_API_PERFORMANCE_STATS__
         reset_nec_debug_timers();
         #endif
-
-        double perf_per_iter = pr_operation.nec_page_rank(graph, page_ranks, 1.0e-4, iterations_count);
-
-        #ifdef __SAVE_PERFORMANCE_STATS_TO_FILE__
-        PerformanceStats::save_performance_to_file("pr", parser.get_graph_file_name(), perf_per_iter);
-        #endif
-
+        pr_operation.nec_page_rank(graph, page_ranks, 1.0e-4, iterations_count);
         #ifdef __PRINT_API_PERFORMANCE_STATS__
         print_nec_debug_timers(graph);
         #endif
+        #endif
+
+        #ifdef __USE_GPU__
+        graph.move_to_device();
+        pr_operation.gpu_page_rank(graph, page_ranks, 1.0e-4, iterations_count, parser.get_traversal_direction());
+        graph.move_to_host();
+        #endif
+
+        #ifdef __SAVE_PERFORMANCE_STATS_TO_FILE__
+        PerformanceStats::save_performance_to_file("pr", parser.get_graph_file_name(), pr_operation.get_performance_per_iteration());
         #endif
 
         if(parser.get_check_flag())
