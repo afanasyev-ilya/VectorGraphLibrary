@@ -57,7 +57,7 @@ void GraphPrimitivesNEC::compute_worker(ExtendedCSRGraph<_TVertexValue, _TEdgeWe
     #pragma omp master
     {
         INNER_WALL_TIME += t2 - t1;
-        INNER_COMPUTE_NEC_TIME += t2 - t1;
+        INNER_COMPUTE_TIME += t2 - t1;
 
         double work = max_frontier_size;
         cout << "compute time: " << (t2 - t1)*1000.0 << " ms" << endl;

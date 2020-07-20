@@ -55,7 +55,7 @@ _T GraphPrimitivesNEC::reduce_sum(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> 
     #ifdef __PRINT_API_PERFORMANCE_STATS__
     double t2 = omp_get_wtime();
     INNER_WALL_TIME += t2 - t1;
-    INNER_REDUCE_NEC_TIME += t2 - t1;
+    INNER_REDUCE_TIME += t2 - t1;
     double work = max_frontier_size;
     cout << "reduce time: " << (t2 - t1)*1000.0 << " ms" << endl;
     cout << "reduce BW: " << sizeof(int)*2.0*work/((t2-t1)*1e9) << " GB/s" << endl << endl;

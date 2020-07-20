@@ -87,7 +87,7 @@ void GraphPrimitivesNEC::filter(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_
     double t2 = omp_get_wtime();
 
     INNER_WALL_TIME += t2 - t1;
-    INNER_FILTER_NEC_TIME += t2 - t1;
+    INNER_FILTER_TIME += t2 - t1;
     double work = _frontier.max_size;
     cout << "filter time: " << (t2 - t1)*1000.0 << " ms" << endl;
     cout << "filter BW: " << sizeof(int)*2.0*work/((t2-t1)*1e9) << " GB/s" << endl << endl;

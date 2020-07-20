@@ -28,6 +28,10 @@ private:
                         VertexPreprocessOperation vertex_preprocess_op,
                         VertexPostprocessOperation vertex_postprocess_op,
                         bool _generate_frontier = false);
+
+    template <typename _TVertexValue, typename _TEdgeWeight>
+    int estimate_advance_work(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
+                              FrontierGPU &_frontier);
 public:
     GraphPrimitivesGPU();
 
@@ -82,5 +86,6 @@ public:
 #include "reduce.cu"
 #include "generate_new_frontier.cu"
 #include "graph_primitives_gpu.cu"
+#include "helpers.cu"
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

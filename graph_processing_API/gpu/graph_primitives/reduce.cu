@@ -127,6 +127,10 @@ _T GraphPrimitivesGPU::reduce(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_gr
                               ReduceOperation &&reduce_op,
                               REDUCE_TYPE _reduce_type)
 {
+    #ifdef __PRINT_API_PERFORMANCE_STATS__
+    double t1 = omp_get_wtime();
+    #endif
+
     LOAD_EXTENDED_CSR_GRAPH_DATA(_graph);
     long long *vertex_pointers = outgoing_ptrs;
 
@@ -150,7 +154,16 @@ _T GraphPrimitivesGPU::reduce(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_gr
     cudaDeviceSynchronize();
     _T reduce_result = managed_reduced_result[0];
 
-    //MemoryAPI::free_array(managed_reduced_result);
+    #ifdef __PRINT_API_PERFORMANCE_STATS__
+    double t2 = omp_get_wtime();
+    INNER_WALL_TIME += t2 - t1;
+    INNER_REDUCE_TIME += t2 - t1;
+    double work = _frontier.size();
+    cout << "REDUCE time: " << (t2 - t1)*1000.0 << " ms" << endl;
+    cout << "REDUCE BW: " << sizeof(int)*2.0*work/((t2-t1)*1e9) << " GB/s" << endl << endl;
+    #endif
+
+    MemoryAPI::free_device_array(managed_reduced_result);
 
     return reduce_result;
 }

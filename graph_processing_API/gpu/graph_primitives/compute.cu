@@ -58,6 +58,10 @@ void GraphPrimitivesGPU::compute(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &
                                  FrontierGPU &_frontier,
                                  ComputeOperation &&compute_op)
 {
+    #ifdef __PRINT_API_PERFORMANCE_STATS__
+    double t1 = omp_get_wtime();
+    #endif
+
     LOAD_EXTENDED_CSR_GRAPH_DATA(_graph);
 
     long long *vertex_pointers = outgoing_ptrs;
@@ -80,6 +84,15 @@ void GraphPrimitivesGPU::compute(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &
     }
 
     cudaDeviceSynchronize();
+
+    #ifdef __PRINT_API_PERFORMANCE_STATS__
+    double t2 = omp_get_wtime();
+    INNER_WALL_TIME += t2 - t1;
+    INNER_COMPUTE_TIME += t2 - t1;
+    double work = _frontier.size();
+    cout << "compute time: " << (t2 - t1)*1000.0 << " ms" << endl;
+    cout << "compute BW: " << sizeof(int)*2.0*work/((t2-t1)*1e9) << " GB/s" << endl << endl;
+    #endif
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

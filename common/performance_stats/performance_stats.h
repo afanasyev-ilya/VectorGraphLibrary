@@ -12,11 +12,11 @@ double INNER_ADVANCE_TIME = 0;
 double DETAILED_ADVANCE_PART_1_NEC_TIME = 0;
 double DETAILED_ADVANCE_PART_2_NEC_TIME = 0;
 double DETAILED_ADVANCE_PART_3_NEC_TIME = 0;
-double INNER_COMPUTE_NEC_TIME = 0;
-double INNER_GNF_NEC_TIME = 0;
-double INNER_FILTER_NEC_TIME = 0;
-double INNER_REDUCE_NEC_TIME = 0;
-double INNER_PACK_NEC_TIME = 0;
+double INNER_COMPUTE_TIME = 0;
+double INNER_GNF_TIME = 0;
+double INNER_FILTER_TIME = 0;
+double INNER_REDUCE_TIME = 0;
+double INNER_PACK_TIME = 0;
 double INNER_WALL_WORK = 0;
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

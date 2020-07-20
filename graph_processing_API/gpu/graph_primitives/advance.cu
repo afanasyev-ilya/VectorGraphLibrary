@@ -10,25 +10,10 @@ void GraphPrimitivesGPU::advance(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &
                                  VertexPreprocessOperation vertex_preprocess_op,
                                  VertexPostprocessOperation vertex_postprocess_op)
 {
-    #ifdef __PRINT_API_PERFORMANCE_STATS__
-    double t1 = omp_get_wtime();
-    #endif
-
     if(_frontier.type == SPARSE_FRONTIER || _frontier.type == ALL_ACTIVE_FRONTIER || _frontier.type == DENSE_FRONTIER)
     {
         advance_sparse(_graph, _frontier, edge_op, vertex_preprocess_op, vertex_postprocess_op);
     }
-
-    #ifdef __PRINT_API_PERFORMANCE_STATS__
-    double t2 = omp_get_wtime();
-    auto compute_work_size = []__device__(int src_id, int position_in_frontier, int connections_count)->int
-    {
-        return connections_count;
-    };
-    int work = this->reduce<int>(_graph, _frontier, compute_work_size, REDUCE_SUM);
-    cout << "advance time: " << (t2 - t1)*1000.0 << " ms" << endl;
-    cout << "advance sparse BW: " << sizeof(int)*INT_ELEMENTS_PER_EDGE*work/((t2-t1)*1e9) << " GB/s" << endl << endl;
-    #endif
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -38,23 +23,8 @@ void GraphPrimitivesGPU::advance(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &
                                  FrontierGPU &_frontier,
                                  EdgeOperation edge_op)
 {
-    #ifdef __PRINT_API_PERFORMANCE_STATS__
-    double t1 = omp_get_wtime();
-    #endif
-
     auto EMPTY_VERTEX_OP = [] __device__(int src_id, int position_in_frontier, int connections_count){};
     advance_sparse(_graph, _frontier, edge_op, EMPTY_VERTEX_OP, EMPTY_VERTEX_OP);
-
-    #ifdef __PRINT_API_PERFORMANCE_STATS__
-    double t2 = omp_get_wtime();
-    auto compute_work_size = []__device__(int src_id, int position_in_frontier, int connections_count)->int
-    {
-        return connections_count;
-    };
-    int work = this->reduce<int>(_graph, _frontier, compute_work_size, REDUCE_SUM);
-    cout << "advance time: " << (t2 - t1)*1000.0 << " ms" << endl;
-    cout << "advance sparse BW: " << sizeof(int)*INT_ELEMENTS_PER_EDGE*work/((t2-t1)*1e9) << " GB/s" << endl << endl;
-    #endif
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

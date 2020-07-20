@@ -53,6 +53,10 @@ void GraphPrimitivesGPU::generate_new_frontier(ExtendedCSRGraph<_TVertexValue, _
                                                FrontierGPU &_frontier,
                                                Condition &&cond)
 {
+    #ifdef __PRINT_API_PERFORMANCE_STATS__
+    double t1 = omp_get_wtime();
+    #endif
+
     int vertices_count = _graph.get_vertices_count();
     _frontier.type = SPARSE_FRONTIER;
 
@@ -61,6 +65,15 @@ void GraphPrimitivesGPU::generate_new_frontier(ExtendedCSRGraph<_TVertexValue, _
                                                                                                 vertices_count, cond)));
     int *new_end = thrust::remove_if(thrust::device, _frontier.ids, _frontier.ids + vertices_count, is_not_active());
     _frontier.current_size = new_end - _frontier.ids;
+
+    #ifdef __PRINT_API_PERFORMANCE_STATS__
+    double t2 = omp_get_wtime();
+    INNER_WALL_TIME += t2 - t1;
+    INNER_GNF_TIME += t2 - t1;
+    double work = _frontier.size();
+    cout << "GNF time: " << (t2 - t1)*1000.0 << " ms" << endl;
+    cout << "GNF BW: " << sizeof(int)*2.0*work/((t2-t1)*1e9) << " GB/s" << endl << endl;
+    #endif
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
