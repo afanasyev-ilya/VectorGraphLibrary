@@ -21,7 +21,7 @@ LDFLAGS = -fopenmp -report-all -L /opt/nec/ve/nlc/2.0.0/lib -ftrace #-lasl_openm
 # binaries
 ##########
 
-all: sssp sswp bfs bfs_do cc pr apsp mf generate_test_data
+all: sssp sswp bfs_td bfs_do cc pr apsp mf generate_test_data
 
 cc: create_folders cc.o
 	$(CXX) object_files/cc.o $(Library_Path) $(Libraries) $(LDFLAGS) -o ./bin/cc
@@ -35,8 +35,8 @@ sswp: create_folders sswp.o
 apsp: create_folders apsp.o
 	$(CXX) object_files/apsp.o $(Library_Path) $(Libraries) $(LDFLAGS) -o ./bin/apsp
 
-bfs: create_folders bfs.o
-	$(CXX) object_files/bfs.o $(Library_Path) $(Libraries) $(LDFLAGS) -o ./bin/bfs
+bfs_td: create_folders bfs_td.o
+	$(CXX) object_files/bfs_td.o $(Library_Path) $(Libraries) $(LDFLAGS) -o ./bin/bfs_td
 
 bfs_do: create_folders bfs_do.o
 	$(CXX) object_files/bfs_do.o $(Library_Path) $(Libraries) $(LDFLAGS) -o ./bin/bfs_do
@@ -75,7 +75,7 @@ apsp.o: apsp.cpp
 sswp.o: sswp.cpp
 	$(CXX) $(CXXFLAGS) $(Include_Path)  -c sswp.cpp -o object_files/sswp.o -fopenmp
 
-bfs.o: bfs.cpp
+bfs.o: bfs_td.cpp
 	$(CXX) $(CXXFLAGS) $(Include_Path)  -c bfs.cpp -o object_files/bfs.o -fopenmp
 
 bfs_do.o: bfs_do.cpp

@@ -64,7 +64,7 @@ sssp.o: sssp.cpp
 cc.o: cc.cpp
 	$(CXX) $(CXXFLAGS) $(Include_Path)  -c cc.cpp -o object_files/cc.o -fopenmp
 
-bfs.o: bfs.cpp
+bfs.o: bfs_td.cpp
 	$(CXX) $(CXXFLAGS) $(Include_Path)  -c bfs.cpp -o object_files/bfs.o -fopenmp
 
 lp.o: lp.cpp

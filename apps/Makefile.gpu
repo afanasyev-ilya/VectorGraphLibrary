@@ -27,7 +27,7 @@ VPATH=./:../algorithms/sssp/gpu/:../algorithms/bfs/gpu/:../algorithms/cc/gpu:../
 # binaries
 ##########
 
-all: bfs cc sssp pr generate_test_data
+all: bfs_td bfs_do cc sssp pr generate_test_data
 
 sssp: create_folders sssp.o dijkstra_gpu.o
 	$(CUDA_COMPILER) $(CUDA_FLAGS) $(Include_Path) -dlink  object_files/dijkstra_gpu.o -o object_files/cuda_files_link.o -lcudadevrt -lcudart
@@ -37,9 +37,13 @@ cc: create_folders cc.o shiloach_vishkin_gpu.o
 	$(CUDA_COMPILER) $(CUDA_FLAGS) $(Include_Path) -dlink  object_files/shiloach_vishkin_gpu.o -o object_files/cuda_files_link.o -lcudadevrt -lcudart
 	$(CXX) object_files/cc.o object_files/shiloach_vishkin_gpu.o object_files/cuda_files_link.o $(Library_Path) $(Libraries) $(LDFLAGS) -o ./bin/cc
 	
-bfs: create_folders bfs.o top_down_bfs_gpu.o
-	$(CUDA_COMPILER) $(CUDA_FLAGS) $(Include_Path) -dlink object_files/top_down_bfs_gpu.o -o object_files/cuda_files_link.o -lcudadevrt -lcudart
-	$(CXX) object_files/bfs.o object_files/top_down_bfs_gpu.o object_files/cuda_files_link.o $(Library_Path) $(Libraries) $(LDFLAGS) -o ./bin/bfs
+bfs_td: create_folders bfs_td.o bfs_td_gpu.o
+	$(CUDA_COMPILER) $(CUDA_FLAGS) $(Include_Path) -dlink object_files/bfs_td_gpu.o -o object_files/cuda_files_link.o -lcudadevrt -lcudart
+	$(CXX) object_files/bfs_td.o object_files/bfs_td_gpu.o object_files/cuda_files_link.o $(Library_Path) $(Libraries) $(LDFLAGS) -o ./bin/bfs_td
+
+bfs_do: create_folders bfs_do.o bfs_do_gpu.o
+	$(CUDA_COMPILER) $(CUDA_FLAGS) $(Include_Path) -dlink object_files/bfs_do_gpu.o -o object_files/cuda_files_link.o -lcudadevrt -lcudart
+	$(CXX) object_files/bfs_do.o object_files/bfs_do_gpu.o object_files/cuda_files_link.o $(Library_Path) $(Libraries) $(LDFLAGS) -o ./bin/bfs_do
 
 pr: create_folders pr.o pr_gpu.o
 	$(CUDA_COMPILER) $(CUDA_FLAGS) $(Include_Path) -dlink object_files/pr_gpu.o -o object_files/cuda_files_link.o -lcudadevrt -lcudart
@@ -70,8 +74,11 @@ sssp.o: sssp.cpp
 cc.o: cc.cpp
 	$(CXX) $(CXXFLAGS) $(Include_Path)  -c cc.cpp -o object_files/cc.o -fopenmp
 	
-bfs.o: bfs.cpp
-	$(CXX) $(CXXFLAGS) $(Include_Path)  -c bfs.cpp -o object_files/bfs.o -fopenmp
+bfs_td.o: bfs_td.cpp
+	$(CXX) $(CXXFLAGS) $(Include_Path)  -c bfs_td.cpp -o object_files/bfs_td.o -fopenmp
+
+bfs_do.o: bfs_do.cpp
+	$(CXX) $(CXXFLAGS) $(Include_Path)  -c bfs_do.cpp -o object_files/bfs_do.o -fopenmp
 
 lp.o: lp.cpp
 	$(CXX) $(CXXFLAGS) $(Include_Path)  -c lp.cpp -o object_files/lp.o -fopenmp
@@ -103,8 +110,11 @@ dijkstra_gpu.o: dijkstra_gpu.cu
 shiloach_vishkin_gpu.o: shiloach_vishkin_gpu.cu
 	$(CUDA_COMPILER) $(CUDA_FLAGS) $(Include_Path) -rdc=true -c ../algorithms/cc/gpu/shiloach_vishkin_gpu.cu -o object_files/shiloach_vishkin_gpu.o
 
-top_down_bfs_gpu.o: top_down_bfs.cu
-	$(CUDA_COMPILER) $(CUDA_FLAGS) $(Include_Path) -rdc=true -c ../algorithms/bfs/gpu/top_down_bfs.cu -o object_files/top_down_bfs_gpu.o
+bfs_td_gpu.o: bfs_td_gpu.cu
+	$(CUDA_COMPILER) $(CUDA_FLAGS) $(Include_Path) -rdc=true -c ../algorithms/bfs/gpu/bfs_td_gpu.cu -o object_files/bfs_td_gpu.o
+
+bfs_do_gpu.o: bfs_do_gpu.cu
+	$(CUDA_COMPILER) $(CUDA_FLAGS) $(Include_Path) -rdc=true -c ../algorithms/bfs/gpu/bfs_do_gpu.cu -o object_files/bfs_do_gpu.o
 
 lp_gpu.o: lp_gpu.cu
 	$(CUDA_COMPILER) $(CUDA_FLAGS) $(Include_Path) -rdc=true -c ../algorithms/lp/gpu/lp_gpu.cu -o object_files/lp_gpu.o

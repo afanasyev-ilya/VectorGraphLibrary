@@ -68,7 +68,7 @@ sssp.o: sssp.cpp
 sswp.o: sswp.cpp
 	$(CXX) $(CXXFLAGS) $(Include_Path)  -c sswp.cpp -o object_files/sswp.o -fopenmp
 
-bfs.o: bfs.cpp
+bfs.o: bfs_td.cpp
 	$(CXX) $(CXXFLAGS) $(Include_Path)  -c bfs.cpp -o object_files/bfs.o -fopenmp
 	
 custom_test.o: ../misc/custom_test.cpp

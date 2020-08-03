@@ -3,6 +3,8 @@
 #define INT_ELEMENTS_PER_EDGE 4.0
 #define NEC_VECTOR_CORE_THRESHOLD_VALUE VECTOR_LENGTH
 #define COLLECTIVE_FRONTIER_TYPE_CHANGE_THRESHOLD 0.3
+//#define __PRINT_SAMPLES_PERFORMANCE_STATS__
+//#define __PRINT_API_PERFORMANCE_STATS__
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -77,10 +79,7 @@ int main(int argc, const char * argv[])
             #endif
 
             #ifdef __USE_GPU__
-            if(parser.get_algorithm_bfs() == TOP_DOWN_BFS_ALGORITHM)
-                bfs_operation.gpu_top_down(graph, device_bfs_levels, vertex_to_check);
-            else if(parser.get_algorithm_bfs() == DIRECTION_OPTIMIZING_BFS_ALGORITHM)
-                bfs_operation.gpu_direction_optimizing(graph, device_bfs_levels, vertex_to_check);
+            bfs_operation.gpu_direction_optimizing(graph, device_bfs_levels, vertex_to_check);
             #endif
 
             #ifdef __PRINT_API_PERFORMANCE_STATS__
@@ -96,7 +95,7 @@ int main(int argc, const char * argv[])
         cout << "AVG Performance: " << avg_perf << " MTEPS" << endl << endl;
 
         #ifdef __SAVE_PERFORMANCE_STATS_TO_FILE__
-        PerformanceStats::save_performance_to_file("bfs", parser.get_graph_file_name(), avg_perf);
+        PerformanceStats::save_performance_to_file("bfs_do", parser.get_graph_file_name(), avg_perf);
         #endif
 
         #ifdef __USE_GPU__

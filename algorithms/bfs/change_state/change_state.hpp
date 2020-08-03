@@ -143,8 +143,8 @@ StateOfBFS gpu_change_state(int _current_queue_size, int _next_queue_size, int _
         }
     }
 
-    if(_current_level == 1)
-        new_state = BOTTOM_UP;
+    //if(_current_level == 1)
+    //    new_state = BOTTOM_UP;
     
     //cout << "ch: " << _current_queue_size << " -> " << _next_queue_size << endl;
     

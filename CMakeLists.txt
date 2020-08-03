@@ -69,7 +69,7 @@ add_executable(VectorGraphLibrary
         algorithms/sswp/widest_paths.h
         algorithms/sswp/widest_paths.hpp
         apps/analyse_graph.cpp
-        apps/bfs.cpp
+        apps/bfs_td.cpp
         apps/cc.cpp
         apps/generate_test_data.cpp
         apps/graph_library.sh

@@ -123,7 +123,6 @@ void FrontierGPU::add_vertex(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_gra
 
     if(current_size < (max_size - 1))
     {
-        cout << "current size: " << current_size << endl;
         MemoryAPI::copy_array_to_device(ids + current_size, &src_id, 1);
         current_size++;
     }
