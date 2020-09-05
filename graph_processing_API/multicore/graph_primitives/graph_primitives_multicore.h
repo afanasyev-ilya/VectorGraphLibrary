@@ -1,0 +1,23 @@
+#pragma once
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+class GraphPrimitivesMulticore
+{
+private:
+
+public:
+    GraphPrimitivesMulticore() {};
+
+    ~GraphPrimitivesMulticore() {};
+
+    // performs user-defined "compute_op" operation for each element in the given frontier
+    template <typename _TVertexValue, typename _TEdgeWeight, typename ComputeOperation>
+    void compute(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph, FrontierMulticore &_frontier, ComputeOperation &&compute_op);
+};
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+#include "graph_primitives_multicore.hpp"
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

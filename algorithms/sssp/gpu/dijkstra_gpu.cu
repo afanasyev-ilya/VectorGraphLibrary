@@ -96,45 +96,6 @@ void gpu_dijkstra_partial_active_wrapper(ExtendedCSRGraph<_TVertexValue, _TEdgeW
     FrontierGPU frontier(vertices_count);
     frontier.set_all_active();
 
-    auto test_edge_op = [outgoing_weights, _distances] __device__(int src_id, int dst_id, int local_edge_pos, long long int global_edge_pos, int frontier_pos){
-        _TEdgeWeight weight = outgoing_weights[global_edge_pos];
-        _TEdgeWeight src_weight = __ldg(&_distances[src_id]);
-        _TEdgeWeight dst_weight = __ldg(&_distances[dst_id]);
-
-        if(dst_weight > src_weight + weight)
-        {
-            _distances[dst_id] = src_weight + weight;
-        }
-    };
-
-    auto test_condition = [_source_vertex] __device__(int src_id)->int{
-            if(src_id % 3 == 0)
-            return IN_FRONTIER_FLAG;
-            else
-            return NOT_IN_FRONTIER_FLAG;
-    };
-
-    graph_API.generate_new_frontier(_graph, frontier, test_condition);
-    graph_API.advance(_graph, frontier, test_edge_op);
-    cout << " __________ " << endl;
-
-    auto init_op = [_distances, _source_vertex] __device__ (int src_id, int position_in_frontier, int connections_count) {
-        _distances[src_id] = src_id % 100 - 50;
-    };
-
-    frontier.set_all_active();
-    graph_API.compute(_graph, frontier, init_op);
-    //
-    auto reduce_dangling_input = [_distances] __device__(int src_id, int position_in_frontier, int connections_count)->float
-    {
-        float result = _distances[src_id];
-        return result;
-    };
-    float dangling_input = graph_API.reduce<float>(_graph, frontier, reduce_dangling_input, REDUCE_SUM);
-    cout << " TEST: " << dangling_input << endl;
-    //
-
-    /*
     auto init_op = [_distances, _source_vertex] __device__ (int src_id, int position_in_frontier, int connections_count) {
         if(src_id == _source_vertex)
             _distances[_source_vertex] = 0;
@@ -181,7 +142,7 @@ void gpu_dijkstra_partial_active_wrapper(ExtendedCSRGraph<_TVertexValue, _TEdgeW
         _iterations_count++;
     }
 
-    cudaFree(was_updated);*/
+    cudaFree(was_updated);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
