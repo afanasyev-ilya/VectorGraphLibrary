@@ -9,7 +9,7 @@ Include_Path = -I $(CUDA_DIR)/include
 # Library paths...
 Libraries =  -fopenmp -fpermissive
 Library_Path = -L $(CUDA_DIR)/lib -L $(CUDA_DIR)/lib64
-Libraries += -lcudart -lcudadevrt -lnvgraph -lcublas -lcudadevrt
+Libraries += -lcudart -lcudadevrt -lcublas -lcudadevrt
 
 # CPU Compiler flags...
 CXXFLAGS = -O2 -fopenmp -std=c++11 -fpermissive

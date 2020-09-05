@@ -54,6 +54,7 @@ void GraphPrimitivesGPU::generate_new_frontier(ExtendedCSRGraph<_TVertexValue, _
                                                Condition &&cond)
 {
     #ifdef __PRINT_API_PERFORMANCE_STATS__
+    cudaDeviceSynchronize();
     double t1 = omp_get_wtime();
     #endif
 
@@ -68,17 +69,18 @@ void GraphPrimitivesGPU::generate_new_frontier(ExtendedCSRGraph<_TVertexValue, _
     _frontier.current_size = new_end - _frontier.ids;
 
     #ifdef __PRINT_API_PERFORMANCE_STATS__
+    cudaDeviceSynchronize();
     double t2 = omp_get_wtime();
     INNER_WALL_TIME += t2 - t1;
     INNER_GNF_TIME += t2 - t1;
     double work = vertices_count;
     double kernel_time = t3 - t1;
     double thrust_time = t2 - t3;
-    cout << "size: " << _frontier.size() << " vs " << _graph.get_vertices_count() << endl;
+    cout << "generated size: " << _frontier.size() << " vs " << _graph.get_vertices_count() << ", " << 100.0*_frontier.size()/vertices_count << "%" << endl;
     cout << "GNF time: " << (t2 - t1)*1000.0 << " ms" << endl;
-    cout << "kernel BW: " << sizeof(int)*2.0*work/(kernel_time*1e9) << " GB/s" << endl;
+    cout << "kernel BW: " << sizeof(int)*GNF_INT_ELEMENTS*work/(kernel_time*1e9) << " GB/s" << endl;
     cout << "thrust BW: " << sizeof(int)*2.0*work/(thrust_time*1e9) << " GB/s" << endl;
-    cout << "GNF BW: " << sizeof(int)*4.0*work/((t2-t1)*1e9) << " GB/s" << endl << endl;
+    cout << "GNF BW: " << sizeof(int)*(GNF_INT_ELEMENTS + 2.0)*work/((t2-t1)*1e9) << " GB/s" << endl << endl;
     #endif
 }
 

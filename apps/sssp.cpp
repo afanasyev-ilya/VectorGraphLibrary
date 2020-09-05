@@ -56,6 +56,7 @@ int main(int argc, const char * argv[])
         sssp_operation.allocate_result_memory(graph.get_vertices_count(), &distances);
         
         #ifdef __USE_GPU__
+        cudaSetDevice(1); // TODO
         graph.move_to_device();
         #endif
 

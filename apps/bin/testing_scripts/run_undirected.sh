@@ -3,7 +3,8 @@
 PROG_NAME=$1
 PROG_ARGS=$2
 
-FILE_PREFIX=" -load ./ext_csr_graphs/no_multiple_arks/"
+#FILE_PREFIX=" -load ./ext_csr_graphs/no_multiple_arks/"
+FILE_PREFIX=" -load ./ext_csr_graphs/"
 FILE_SUFIX="_ext_CSR.gbin"
 
 PERF_PATTERN="INNER perf"
