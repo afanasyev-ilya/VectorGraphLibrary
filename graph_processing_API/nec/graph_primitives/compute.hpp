@@ -59,9 +59,9 @@ void GraphPrimitivesNEC::compute_worker(ExtendedCSRGraph<_TVertexValue, _TEdgeWe
         INNER_WALL_TIME += t2 - t1;
         INNER_COMPUTE_TIME += t2 - t1;
 
-        double work = max_frontier_size;
+        double work = _frontier.size();
         cout << "compute time: " << (t2 - t1)*1000.0 << " ms" << endl;
-        cout << "compute BW: " << sizeof(int)*2.0*work/((t2-t1)*1e9) << " GB/s" << endl << endl;
+        cout << "compute BW: " << sizeof(int)*(COMPUTE_INT_ELEMENTS)*work/((t2-t1)*1e9) << " GB/s" << endl << endl;
     }
     #endif
 }

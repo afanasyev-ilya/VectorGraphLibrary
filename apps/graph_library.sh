@@ -21,6 +21,7 @@ echo common launch of application ${program_name}
 
 #free -m
 
+lscpu
 ${program_name} ${program_args[@]}
 
 #free -m

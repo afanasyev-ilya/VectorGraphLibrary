@@ -207,8 +207,8 @@ void GraphPrimitivesNEC::partial_advance_worker(ExtendedCSRGraph<_TVertexValue, 
     int *frontier_flags = _frontier.flags;
     int *frontier_ids = _frontier.ids;
 
-    const int vector_core_threshold_end = _graph.get_nec_vector_core_threshold_vertex();
-    const int collective_threshold_start = _graph.get_nec_vector_core_threshold_vertex();
+    const int vector_core_threshold_end = _graph.get_vector_core_threshold_vertex();
+    const int collective_threshold_start = _graph.get_vector_core_threshold_vertex();
     const int collective_threshold_end = _graph.get_vertices_count();
 
     partial_first_groups(vertex_pointers, adjacent_ids, frontier_flags, vector_core_threshold_end,

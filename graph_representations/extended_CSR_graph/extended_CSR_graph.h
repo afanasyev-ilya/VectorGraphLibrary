@@ -42,10 +42,10 @@ VerticesState vertices_state;
     int gpu_warp_threshold_vertex;
     #endif
 
-    #ifdef __USE_NEC_SX_AURORA__
-    int nec_vector_engine_threshold_vertex;
-    int nec_vector_core_threshold_vertex;
-    #endif
+    //#ifdef __USE_NEC_SX_AURORA__
+    int vector_engine_threshold_vertex;
+    int vector_core_threshold_vertex;
+    //#endif
     
     int *incoming_degrees;
     
@@ -58,9 +58,9 @@ VerticesState vertices_state;
     void estimate_gpu_thresholds();
     #endif
 
-    #ifdef __USE_NEC_SX_AURORA__
+    //#ifdef __USE_NEC_SX_AURORA__
     void estimate_nec_thresholds();
-    #endif
+    //#endif
 public:
     ExtendedCSRGraph(int _vertices_count = 1, long long _edges_count = 1);
     ~ExtendedCSRGraph();
@@ -98,10 +98,10 @@ public:
     inline int get_gpu_warp_threshold_vertex(){return gpu_warp_threshold_vertex;};
     #endif
 
-    #ifdef __USE_NEC_SX_AURORA__
-    inline int get_nec_vector_engine_threshold_vertex(){return nec_vector_engine_threshold_vertex;};
-    inline int get_nec_vector_core_threshold_vertex(){return nec_vector_core_threshold_vertex;};
-    #endif
+    //#ifdef __USE_NEC_SX_AURORA__
+    inline int get_vector_engine_threshold_vertex(){return vector_engine_threshold_vertex;};
+    inline int get_vector_core_threshold_vertex(){return vector_core_threshold_vertex;};
+    //#endif
 
     template <typename _T>
     _T& get_edge_data(_T *_data_array, int _src_id, int _dst_id);

@@ -9,8 +9,8 @@ void GraphPrimitivesNEC::filter(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_
     double t1 = omp_get_wtime();
     #endif
 
-    const int ve_threshold = _graph.get_nec_vector_engine_threshold_vertex();
-    const int vc_threshold = _graph.get_nec_vector_core_threshold_vertex();
+    const int ve_threshold = _graph.get_vector_engine_threshold_vertex();
+    const int vc_threshold = _graph.get_vector_core_threshold_vertex();
     const int vertices_count = _graph.get_vertices_count();
 
     // fill flags

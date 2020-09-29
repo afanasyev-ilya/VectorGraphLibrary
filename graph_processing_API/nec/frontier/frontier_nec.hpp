@@ -46,28 +46,13 @@ FrontierNEC::~FrontierNEC()
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-string get_status_string(FrontierType _type)
-{
-    string status;
-    if(_type == ALL_ACTIVE_FRONTIER)
-        status = "all active";
-    if(_type == SPARSE_FRONTIER)
-        status = "sparse";
-    if(_type == DENSE_FRONTIER)
-        status = "dense";
-
-    return status;
-}
-
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
 template <typename _TVertexValue, typename _TEdgeWeight>
 void FrontierNEC::print_frontier_info(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph)
 {
     #pragma omp master
     {
-        const int ve_threshold = _graph.get_nec_vector_engine_threshold_vertex();
-        const int vc_threshold = _graph.get_nec_vector_core_threshold_vertex();
+        const int ve_threshold = _graph.get_vector_engine_threshold_vertex();
+        const int vc_threshold = _graph.get_vector_core_threshold_vertex();
         const int vertices_count = _graph.get_vertices_count();
 
         string status;
@@ -78,14 +63,17 @@ void FrontierNEC::print_frontier_info(ExtendedCSRGraph<_TVertexValue, _TEdgeWeig
         if(type == DENSE_FRONTIER)
             status = "dense";
 
-        cout << "frontier status: " << get_status_string(type) << ":" << get_status_string(vector_engine_part_type) << "/" <<
-                 get_status_string(vector_core_part_type) << "/" << get_status_string(collective_part_type) << endl;
-        cout << "frontier size: " << current_size << " from " << max_size << ", " <<
-        (100.0 * current_size) / max_size << " %" << endl;
-        if(ve_threshold > 0)
-            cout << 100.0 * vector_engine_part_size / (ve_threshold) << " % active first part" << endl;
-        cout << 100.0 * vector_core_part_size / (vc_threshold - ve_threshold) << " % active second part" << endl;
-        cout << 100.0 * collective_part_size / (vertices_count - vc_threshold) << " % active third part" << endl;
+        if(type != ALL_ACTIVE_FRONTIER)
+        {
+            cout << "frontier status: " << get_frontier_status_string(type) << ": " << get_frontier_status_string(vector_engine_part_type) << "/" <<
+                 get_frontier_status_string(vector_core_part_type) << "/" << get_frontier_status_string(collective_part_type) << endl;
+            cout << "frontier size: " << current_size << " from " << max_size << ", " <<
+                 (100.0 * current_size) / max_size << " %" << endl;
+            if(ve_threshold > 0)
+                cout << 100.0 * vector_engine_part_size / (ve_threshold) << " % active first part" << endl;
+            cout << 100.0 * vector_core_part_size / (vc_threshold - ve_threshold) << " % active second part" << endl;
+            cout << 100.0 * collective_part_size / (vertices_count - vc_threshold) << " % active third part" << endl;
+        }
     }
 }
 
@@ -110,8 +98,8 @@ void FrontierNEC::add_vertex(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_gra
         throw "VGL ERROR: can not add vertex to non-empty frontier";
     }
 
-    const int ve_threshold = _graph.get_nec_vector_engine_threshold_vertex();
-    const int vc_threshold = _graph.get_nec_vector_core_threshold_vertex();
+    const int ve_threshold = _graph.get_vector_engine_threshold_vertex();
+    const int vc_threshold = _graph.get_vector_core_threshold_vertex();
     const int vertices_count = _graph.get_vertices_count();
 
     ids[0] = src_id;
@@ -182,12 +170,12 @@ void FrontierNEC::add_vertices(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_g
             next_size = outgoing_ptrs[next_id + 1] - outgoing_ptrs[next_id];
         }
 
-        if((current_size > NEC_VECTOR_ENGINE_THRESHOLD_VALUE) && (next_size <= NEC_VECTOR_ENGINE_THRESHOLD_VALUE))
+        if((current_size > VECTOR_ENGINE_THRESHOLD_VALUE) && (next_size <= VECTOR_ENGINE_THRESHOLD_VALUE))
         {
             vector_engine_part_size = idx + 1;
         }
 
-        if((current_size > NEC_VECTOR_CORE_THRESHOLD_VALUE) && (next_size <= NEC_VECTOR_CORE_THRESHOLD_VALUE))
+        if((current_size > VECTOR_CORE_THRESHOLD_VALUE) && (next_size <= VECTOR_CORE_THRESHOLD_VALUE))
         {
             vector_core_part_size = idx + 1 - vector_engine_part_size;
         }

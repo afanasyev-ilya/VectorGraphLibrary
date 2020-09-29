@@ -40,10 +40,10 @@ void GraphPrimitivesNEC::advance_worker(ExtendedCSRGraph<_TVertexValue, _TEdgeWe
     int *frontier_flags = _frontier.flags;
 
     const int vector_engine_threshold_start = 0;
-    const int vector_engine_threshold_end = _graph.get_nec_vector_engine_threshold_vertex();
-    const int vector_core_threshold_start = _graph.get_nec_vector_engine_threshold_vertex();
-    const int vector_core_threshold_end = _graph.get_nec_vector_core_threshold_vertex();
-    const int collective_threshold_start = _graph.get_nec_vector_core_threshold_vertex();
+    const int vector_engine_threshold_end = _graph.get_vector_engine_threshold_vertex();
+    const int vector_core_threshold_start = _graph.get_vector_engine_threshold_vertex();
+    const int vector_core_threshold_end = _graph.get_vector_core_threshold_vertex();
+    const int collective_threshold_start = _graph.get_vector_core_threshold_vertex();
     const int collective_threshold_end = _graph.get_vertices_count();
 
     if(_frontier.type == ALL_ACTIVE_FRONTIER)

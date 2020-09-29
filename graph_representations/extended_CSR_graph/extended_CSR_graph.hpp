@@ -231,7 +231,7 @@ bool ExtendedCSRGraph<_TVertexValue, _TEdgeWeight>::load_from_binary_file(string
     double t1 = omp_get_wtime();
     estimate_nec_thresholds();
     last_vertices_ve.init_from_graph(this->outgoing_ptrs, this->outgoing_ids, this->outgoing_weights,
-                                     nec_vector_core_threshold_vertex, this->vertices_count);
+                                     vector_core_threshold_vertex, this->vertices_count);
     double t2 = omp_get_wtime();
     cout << "NEC preprocess time: " << t2 - t1 << " sec" << endl;
     #endif

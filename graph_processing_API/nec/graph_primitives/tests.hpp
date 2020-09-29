@@ -33,7 +33,7 @@ void GraphPrimitivesNEC::my_test(const long long *_vertex_pointers, const int *_
         const long long int next_end = _vertex_pointers[src_id + 2];
         const int next_connections_count = next_end - next_start;
 
-        if((next_connections_count < NEC_VECTOR_CORE_THRESHOLD_VALUE) && (connections_count >= NEC_VECTOR_CORE_THRESHOLD_VALUE))
+        if((next_connections_count < VECTOR_CORE_THRESHOLD_VALUE) && (connections_count >= VECTOR_CORE_THRESHOLD_VALUE))
         {
             top_border = src_id;
         }

@@ -155,9 +155,9 @@ void GraphAnalytics::analyse_graph_thresholds(ExtendedCSRGraph<_TVertexValue, _T
 {
     #ifdef __USE_NEC_SX_AURORA__
     cout << endl;
-    cout << "large interval: (" << 0 << " ," << _graph.get_nec_vector_engine_threshold_vertex() << ")" << endl;
-    cout << "medium interval: (" << _graph.get_nec_vector_engine_threshold_vertex() << " ," << _graph.get_nec_vector_core_threshold_vertex() << ")" << endl;
-    cout << "small interval: (" << _graph.get_nec_vector_core_threshold_vertex() << " ," << _graph.get_vertices_count() << ")" << endl << endl;
+    cout << "large interval: (" << 0 << " ," << _graph.get_vector_engine_threshold_vertex() << ")" << endl;
+    cout << "medium interval: (" << _graph.get_vector_engine_threshold_vertex() << " ," << _graph.get_vector_core_threshold_vertex() << ")" << endl;
+    cout << "small interval: (" << _graph.get_vector_core_threshold_vertex() << " ," << _graph.get_vertices_count() << ")" << endl << endl;
     #endif
 }
 

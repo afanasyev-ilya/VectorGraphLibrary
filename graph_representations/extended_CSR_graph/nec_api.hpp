@@ -2,12 +2,12 @@
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#ifdef __USE_NEC_SX_AURORA__
+//#ifdef __USE_NEC_SX_AURORA__
 template <typename _TVertexValue, typename _TEdgeWeight>
 void ExtendedCSRGraph<_TVertexValue, _TEdgeWeight>::estimate_nec_thresholds()
 {
-    nec_vector_engine_threshold_vertex = 0;
-    nec_vector_core_threshold_vertex = 0;
+    vector_engine_threshold_vertex = 0;
+    vector_core_threshold_vertex = 0;
 
     #pragma _NEC ivdep
     #pragma _NEC vovertake
@@ -32,16 +32,16 @@ void ExtendedCSRGraph<_TVertexValue, _TEdgeWeight>::estimate_nec_thresholds()
             next_size = outgoing_ptrs[next_id + 1] - outgoing_ptrs[next_id];
         }
 
-        if((current_size >= NEC_VECTOR_ENGINE_THRESHOLD_VALUE) && (next_size < NEC_VECTOR_ENGINE_THRESHOLD_VALUE))
+        if((current_size >= VECTOR_ENGINE_THRESHOLD_VALUE) && (next_size < VECTOR_ENGINE_THRESHOLD_VALUE))
         {
-            nec_vector_engine_threshold_vertex = idx + 1;
+            vector_engine_threshold_vertex = idx + 1;
         }
-        else if((current_size >= NEC_VECTOR_CORE_THRESHOLD_VALUE) && (next_size < NEC_VECTOR_CORE_THRESHOLD_VALUE))
+        else if((current_size >= VECTOR_CORE_THRESHOLD_VALUE) && (next_size < VECTOR_CORE_THRESHOLD_VALUE))
         {
-            nec_vector_core_threshold_vertex = idx + 1;
+            vector_core_threshold_vertex = idx + 1;
         }
     }
 }
-#endif
+//#endif
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

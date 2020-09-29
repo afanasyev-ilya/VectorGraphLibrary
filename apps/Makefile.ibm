@@ -6,12 +6,11 @@ CUDA_DIR = /opt/cuda/cuda-8.0/
 Include_Path = -I $(CUDA_DIR)/include
 
 # Library paths...
-Libraries =  -fopenmp -fpermissive
+Libraries = -fopenmp
 Library_Path = -L $(CUDA_DIR)/lib -L $(CUDA_DIR)/lib64
-Libraries +=
 
 # CPU Compiler flags...
-CXXFLAGS = -O3 -fopenmp -fopt-info-vec -fpermissive
+CXXFLAGS = -m64 -O3 -mcpu=power8 -mtune=power8 -mcmodel=large -fopenmp -fpermissive
 LDFLAGS = -fopenmp
 
 # CUDA Compiler flags

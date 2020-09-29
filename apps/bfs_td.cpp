@@ -1,7 +1,7 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #define INT_ELEMENTS_PER_EDGE 4.0
-#define NEC_VECTOR_CORE_THRESHOLD_VALUE 4.0*VECTOR_LENGTH
+#define VECTOR_CORE_THRESHOLD_VALUE 4.0*VECTOR_LENGTH
 #define COLLECTIVE_FRONTIER_TYPE_CHANGE_THRESHOLD 0.35
 //#define __PRINT_SAMPLES_PERFORMANCE_STATS__
 //#define __PRINT_API_PERFORMANCE_STATS__
