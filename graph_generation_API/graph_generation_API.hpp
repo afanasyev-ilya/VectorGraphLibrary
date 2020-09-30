@@ -24,15 +24,36 @@ void GraphGenerationAPI<_TVertexValue, _TEdgeWeight>::random_uniform(EdgesListGr
         edges_count *= 2;
     
     _graph.resize(vertices_count, edges_count);
-    
+
+    // get pointers
+    int *src_ids = _graph.get_src_ids();
+    int *dst_ids = _graph.get_dst_ids();
+    #ifdef __USE_WEIGHTED_GRAPHS__
+    _TEdgeWeight *weights = _graph.get_weights();
+    #endif
+
+    #pragma omp parallel
+    {};
+
+    double t1 = omp_get_wtime();
     RandomGenerationAPI rng_api;
     int max_id_val = vertices_count;
     rng_api.generate_array_of_random_values<_TVertexValue>(_graph.get_vertex_values(), vertices_count, MAX_WEIGHT);
-    rng_api.generate_array_of_random_values<int>(_graph.get_src_ids(), directed_edges_count, max_id_val);
-    rng_api.generate_array_of_random_values<int>(_graph.get_dst_ids(), directed_edges_count, max_id_val);
+    rng_api.generate_array_of_random_values<int>(src_ids, directed_edges_count, max_id_val);
+    rng_api.generate_array_of_random_values<int>(dst_ids, directed_edges_count, max_id_val);
 
     #ifdef __USE_WEIGHTED_GRAPHS__
-    rng_api.generate_array_of_random_values<_TEdgeWeight>(_graph.get_weights(), directed_edges_count, 1.0);
+    rng_api.generate_array_of_random_values<_TEdgeWeight>(weights, directed_edges_count, 1.0);
+    #endif
+    double t2 = omp_get_wtime();
+
+    #ifdef __PRINT_API_PERFORMANCE_STATS__
+    double work_per_edge = sizeof(int)*2.0;
+    #ifdef __USE_WEIGHTED_GRAPHS__
+    work_per_edge += sizeof(_TEdgeWeight);
+    #endif
+    cout << "random_uniform gen time: " << t2 - t1 << " sec" << endl;
+    cout << "random_uniform gen bandwidth: " << work_per_edge*directed_edges_count / ((t2 - t1)*1e9) << " GB/s" << endl;
     #endif
     
     if(!_direction_type)
@@ -40,17 +61,15 @@ void GraphGenerationAPI<_TVertexValue, _TEdgeWeight>::random_uniform(EdgesListGr
         #pragma omp parallel for
         for(long long i = 0; i < directed_edges_count; i++)
         {
-            int src_id = (_graph.get_src_ids())[i];
-            int dst_id = (_graph.get_dst_ids())[i];
             #ifdef __USE_WEIGHTED_GRAPHS__
-            _TEdgeWeight weight = (_graph.get_weights())[i];
+            _TEdgeWeight weight = weights[i];
             #endif
             
-            (_graph.get_src_ids())[i + directed_edges_count] = dst_id;
-            (_graph.get_dst_ids())[i + directed_edges_count] = src_id;
+            src_ids[i + directed_edges_count] = dst_ids[i];
+            dst_ids[i + directed_edges_count] = src_ids[i];
 
             #ifdef __USE_WEIGHTED_GRAPHS__
-            (_graph.get_weights())[i + directed_edges_count] = weight;
+            weights[i + directed_edges_count] = weight;
             #endif
         }
     }

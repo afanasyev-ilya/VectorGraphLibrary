@@ -301,19 +301,23 @@ void edges_list_gather(EdgesListGraph<_TVertexValue, _TEdgeWeight> &_rand_graph,
     LOAD_EDGES_LIST_GRAPH_DATA(_rand_graph);
 
     double t1 = omp_get_wtime();
-    #pragma _NEC ivdep
-    #pragma _NEC vovertake
-    #pragma _NEC novob
-    #pragma _NEC vector
-    #pragma _NEC gather_reorder
-    #pragma omp parallel for
-    for(int i = 0; i < edges_count; i++)
+    #pragma _NEC novector
+    #pragma omp parallel for schedule(static, 1)
+    for(int vec_start = 0; vec_start < edges_count; vec_start += VECTOR_LENGTH)
     {
-        int src_id = src_ids[i];
-        int dst_id = dst_ids[i];
-        int src_data = _data[src_id];
-        int dst_data = _data[dst_id];
-        _result[i] = src_data + dst_data;
+        #pragma _NEC ivdep
+        #pragma _NEC vovertake
+        #pragma _NEC novob
+        #pragma _NEC vector
+        #pragma _NEC gather_reorder
+        for(int i = 0; i < VECTOR_LENGTH; i ++)
+        {
+            int src_id = src_ids[vec_start + i];
+            int dst_id = dst_ids[vec_start + i];
+            int src_data = _data[src_id];
+            int dst_data = _data[dst_id];
+            _result[vec_start + i] = src_data + dst_data;
+        }
     }
     double t2 = omp_get_wtime();
     cout << edges_count * (sizeof(int)*5.0) / ((t2 - t1)*1e9) << " GB/s" << endl;
@@ -371,21 +375,26 @@ int main(int argc, const char * argv[])
         //run_nec_synthetic_test(graph)
         // #endif
 
-        EdgesListGraph<int, float> rand_graph;
-        int vertices_count = pow(2.0, parser.get_scale());
-        long long edges_count = vertices_count * parser.get_avg_degree();
+        EdgesListGraph<int, float> graph;
 
-        double t1 = omp_get_wtime();
-        GraphGenerationAPI<int, float>::random_uniform(rand_graph, vertices_count, edges_count, DIRECTED_GRAPH);
-        double t2 = omp_get_wtime();
-        cout << "ASL graph generation time: " << t2 - t1 << " sec" << endl;
+        int v = pow(2.0, parser.get_scale());
+        GraphGenerationAPI<int, float>::random_uniform(graph, v, v * parser.get_avg_degree(), DIRECTED_GRAPH);
 
-        int *data = new int[vertices_count];
-        int *result = new int[edges_count];
+        int *data = new int[graph.get_vertices_count()];
+        int *result = new int[graph.get_edges_count()];
 
-        edges_list_gather(rand_graph, data, result);
-        edges_list_gather(rand_graph, data, result);
-        edges_list_gather(rand_graph, data, result);
+        #pragma omp parallel
+        {};
+
+        cout << "before preprocess" << endl;
+        edges_list_gather(graph, data, result);
+        edges_list_gather(graph, data, result);
+
+        graph.preprocess();
+
+        cout << "after preprocess" << endl;
+        edges_list_gather(graph, data, result);
+        edges_list_gather(graph, data, result);
 
         delete[]result;
         delete[]data;
