@@ -37,6 +37,7 @@ void GraphGenerationAPI<_TVertexValue, _TEdgeWeight>::random_uniform(EdgesListGr
     
     if(!_direction_type)
     {
+        #pragma omp parallel for
         for(long long i = 0; i < directed_edges_count; i++)
         {
             int src_id = (_graph.get_src_ids())[i];

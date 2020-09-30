@@ -287,10 +287,52 @@ void run_cpu_synthetic_test(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_grap
 
     delete[]a;
     delete[]b;
-    delete[]c;
+    delete[]c\
     delete[]a_e;
     delete[]b_e;
     delete[]levels;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+template <typename _TVertexValue, typename _TEdgeWeight>
+void edges_list_gather(EdgesListGraph<_TVertexValue, _TEdgeWeight> &_rand_graph, int *_data, int *_result)
+{
+    LOAD_EDGES_LIST_GRAPH_DATA(_rand_graph);
+
+    double t1 = omp_get_wtime();
+    #pragma _NEC ivdep
+    #pragma _NEC vovertake
+    #pragma _NEC novob
+    #pragma _NEC vector
+    #pragma _NEC gather_reorder
+    #pragma omp parallel for
+    for(int i = 0; i < edges_count; i++)
+    {
+        int src_id = src_ids[i];
+        int dst_id = dst_ids[i];
+        int src_data = _data[src_id];
+        int dst_data = _data[dst_id];
+        _result[i] = src_data + dst_data;
+    }
+    double t2 = omp_get_wtime();
+    cout << edges_count * (sizeof(int)*5.0) / ((t2 - t1)*1e9) << " GB/s" << endl;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+template <typename _TVertexValue, typename _TEdgeWeight>
+void print_first_edges(EdgesListGraph<_TVertexValue, _TEdgeWeight> &_rand_graph)
+{
+    int *src_ids = _rand_graph.get_src_ids();
+    int *dst_ids = _rand_graph.get_dst_ids();
+
+    int len = min((int)15, (int)_rand_graph.get_edges_count());
+    for(int i = 0; i < len; i++)
+    {
+        cout << src_ids[i] << " " << dst_ids[i] << endl;
+    }
+    cout << endl;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -305,7 +347,7 @@ int main(int argc, const char * argv[])
         AlgorithmCommandOptionsParser parser;
         parser.parse_args(argc, argv);
 
-        ExtendedCSRGraph<int, float> graph;
+        /*ExtendedCSRGraph<int, float> graph;
         if(parser.get_compute_mode() == GENERATE_NEW_GRAPH)
         {
             EdgesListGraph<int, float> rand_graph;
@@ -321,56 +363,32 @@ int main(int argc, const char * argv[])
                 throw "ERROR: graph file not found";
             double t2 = omp_get_wtime();
             cout << "file " << parser.get_graph_file_name() << " loaded in " << t2 - t1 << " sec" << endl;
-        }
+        }*/
 
-        run_cpu_synthetic_test(graph);
+        //run_cpu_synthetic_test(graph);
 
-        #ifdef __USE_NEC_SX_AURORA__
-        run_nec_synthetic_test(graph);
-        #endif
+        //#ifdef __USE_NEC_SX_AURORA__
+        //run_nec_synthetic_test(graph)
+        // #endif
 
-        int size = graph.get_vertices_count();
-        float *a = new float[size];
-        float *b = new float[size];
-        float *c = new float[size];
+        EdgesListGraph<int, float> rand_graph;
+        int vertices_count = pow(2.0, parser.get_scale());
+        long long edges_count = vertices_count * parser.get_avg_degree();
 
-        double t1, t2;
+        double t1 = omp_get_wtime();
+        GraphGenerationAPI<int, float>::random_uniform(rand_graph, vertices_count, edges_count, DIRECTED_GRAPH);
+        double t2 = omp_get_wtime();
+        cout << "ASL graph generation time: " << t2 - t1 << " sec" << endl;
 
-        std::random_device rd; // obtain a random number from hardware
-        std::mt19937 gen(rd()); // seed the generator
-        std::uniform_int_distribution<> distr(-50, 50);
+        int *data = new int[vertices_count];
+        int *result = new int[edges_count];
 
-        for(int it = 0; it < 5; it++)
-        {
-            #pragma omp parallel for
-            for(int i = 0; i < size; i++)
-            {
-                b[i] = distr(gen);
-                c[i] = distr(gen);
-            }
+        edges_list_gather(rand_graph, data, result);
+        edges_list_gather(rand_graph, data, result);
+        edges_list_gather(rand_graph, data, result);
 
-            t1 = omp_get_wtime();
-            #pragma omp parallel for
-            for(int i = 0; i < size; i++)
-            {
-                a[i] = b[i] + c[i];
-            }
-            t2 = omp_get_wtime();
-            cout << "time: " << 1000.0*(t2-t1) << " ms" << endl;
-            cout << " BW: " << double(size)*sizeof(float) * 3.0/((t2-t1)*1e9) << " GB/s" << endl;
-
-            float avg = 0;
-            for(int i = 0; i < size; i++)
-            {
-                avg += a[i];
-            }
-
-            cout << "avg " << avg << endl << endl;
-        }
-
-        delete[]a;
-        delete[]b;
-        delete[]c;
+        delete[]result;
+        delete[]data;
 
         //test_gather(graph);
     }
