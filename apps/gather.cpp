@@ -372,7 +372,10 @@ int main(int argc, const char * argv[])
 
         sssp_operation.nec_bellamn_ford(graph, distances, 0);
 
+        double t1 = omp_get_wtime();
         graph.preprocess();
+        double t2 = omp_get_wtime();
+        cout << "outer preproecess time: " << t2 - t1 << " sec" << endl;
 
         sssp_operation.nec_bellamn_ford(graph, distances_preprocessed, 0);
 
