@@ -13,6 +13,17 @@ frontier(_graph.get_vertices_count())
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+#ifdef __USE_NEC_SX_AURORA__
+template <typename _TVertexValue, typename _TEdgeWeight>
+SSSP::ShortestPaths(EdgesListGraph<_TVertexValue, _TEdgeWeight> &_graph):
+frontier(_graph.get_vertices_count())
+{
+    MemoryAPI::allocate_array(&class_old_distances, _graph.get_vertices_count());
+}
+#endif
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 #ifdef __USE_GPU__
 template <typename _TVertexValue, typename _TEdgeWeight>
 SSSP::ShortestPaths(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph)

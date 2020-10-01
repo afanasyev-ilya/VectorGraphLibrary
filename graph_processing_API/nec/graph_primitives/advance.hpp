@@ -324,3 +324,24 @@ void GraphPrimitivesNEC::advance(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+template <typename _TVertexValue, typename _TEdgeWeight, typename EdgeOperation>
+void GraphPrimitivesNEC::advance(EdgesListGraph<_TVertexValue, _TEdgeWeight> &_graph,
+                                 EdgeOperation &&edge_op)
+{
+    if(omp_in_parallel())
+    {
+        #pragma omp barrier
+        advance_worker(_graph, edge_op);
+        #pragma omp barrier
+    }
+    else
+    {
+        #pragma omp parallel
+        {
+            advance_worker(_graph, edge_op);
+        }
+    }
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

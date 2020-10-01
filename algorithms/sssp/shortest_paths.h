@@ -42,6 +42,7 @@ private:
     #endif
 public:
     ShortestPaths(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph);
+    ShortestPaths(EdgesListGraph<_TVertexValue, _TEdgeWeight> &_graph);
     ~ShortestPaths();
 
     void allocate_result_memory(int _vertices_count, _TEdgeWeight **_distances);
@@ -56,6 +57,11 @@ public:
     void nec_dijkstra(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph, _TEdgeWeight *_distances,
                       int _source_vertex, AlgorithmFrontierType _frontier_type = ALL_ACTIVE,
                       TraversalDirection _traversal_direction = PUSH_TRAVERSAL);
+    #endif
+
+    #ifdef __USE_NEC_SX_AURORA__
+    void nec_bellamn_ford(EdgesListGraph<_TVertexValue, _TEdgeWeight> &_graph, _TEdgeWeight *_distances,
+                          int _source_vertex);
     #endif
 
     #ifdef __USE_GPU__

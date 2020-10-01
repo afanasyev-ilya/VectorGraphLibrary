@@ -1,6 +1,11 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#define INT_ELEMENTS_PER_EDGE 5.0
+#define INT_ELEMENTS_PER_EDGE 6.0
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+//#define __PRINT_API_PERFORMANCE_STATS__
+#define __PRINT_SAMPLES_PERFORMANCE_STATS__
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -351,55 +356,27 @@ int main(int argc, const char * argv[])
         AlgorithmCommandOptionsParser parser;
         parser.parse_args(argc, argv);
 
-        /*ExtendedCSRGraph<int, float> graph;
-        if(parser.get_compute_mode() == GENERATE_NEW_GRAPH)
-        {
-            EdgesListGraph<int, float> rand_graph;
-            int vertices_count = pow(2.0, parser.get_scale());
-            long long edges_count = vertices_count * parser.get_avg_degree();
-            GraphGenerationAPI<int, float>::R_MAT(rand_graph, vertices_count, edges_count, 57, 19, 19, 5, DIRECTED_GRAPH);
-            graph.import_graph(rand_graph, VERTICES_SORTED, EDGES_SORTED, VECTOR_LENGTH, PULL_TRAVERSAL);
-        }
-        else if(parser.get_compute_mode() == LOAD_GRAPH_FROM_FILE)
-        {
-            double t1 = omp_get_wtime();
-            if(!graph.load_from_binary_file(parser.get_graph_file_name()))
-                throw "ERROR: graph file not found";
-            double t2 = omp_get_wtime();
-            cout << "file " << parser.get_graph_file_name() << " loaded in " << t2 - t1 << " sec" << endl;
-        }*/
-
-        //run_cpu_synthetic_test(graph);
-
-        //#ifdef __USE_NEC_SX_AURORA__
-        //run_nec_synthetic_test(graph)
-        // #endif
-
         EdgesListGraph<int, float> graph;
 
         int v = pow(2.0, parser.get_scale());
         GraphGenerationAPI<int, float>::random_uniform(graph, v, v * parser.get_avg_degree(), DIRECTED_GRAPH);
 
-        int *data = new int[graph.get_vertices_count()];
-        int *result = new int[graph.get_edges_count()];
+
+        ShortestPaths<int, float> sssp_operation(graph);
+
+        float *distances;
+        sssp_operation.allocate_result_memory(graph.get_vertices_count(), &distances);
 
         #pragma omp parallel
         {};
 
-        cout << "before preprocess" << endl;
-        edges_list_gather(graph, data, result);
-        edges_list_gather(graph, data, result);
+        sssp_operation.nec_bellamn_ford(graph, distances, 0);
 
         graph.preprocess();
 
-        cout << "after preprocess" << endl;
-        edges_list_gather(graph, data, result);
-        edges_list_gather(graph, data, result);
+        sssp_operation.nec_bellamn_ford(graph, distances, 0);
 
-        delete[]result;
-        delete[]data;
-
-        //test_gather(graph);
+        sssp_operation.free_result_memory(distances);
     }
     catch (string error)
     {

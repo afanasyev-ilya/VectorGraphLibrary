@@ -273,3 +273,55 @@ void SSSP::nec_dijkstra(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
 #endif
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+#ifdef __USE_NEC_SX_AURORA__
+template <typename _TVertexValue, typename _TEdgeWeight>
+void SSSP::nec_bellamn_ford(EdgesListGraph<_TVertexValue, _TEdgeWeight> &_graph,
+                            _TEdgeWeight *_distances,
+                            int _source_vertex)
+{
+    LOAD_EDGES_LIST_GRAPH_DATA(_graph);
+
+    double t1 = omp_get_wtime();
+    #pragma omp parallel for
+    for(int i = 0; i < vertices_count; i++)
+    {
+        _distances[i] = FLT_MAX;
+    }
+    _distances[0] = 0;
+
+    int iterations_count = 0;
+    int changes_count = 0;
+    do
+    {
+        NEC_REGISTER_INT(changes, 0);
+
+        auto edge_op = [_distances, weights, &reg_changes](int src_id, int dst_id, long long int global_edge_pos, int vector_index)
+        {
+            float weight = weights[global_edge_pos];
+            float dst_weight = _distances[dst_id];
+            float src_weight = _distances[src_id];
+            if(dst_weight > src_weight + weight)
+            {
+                _distances[dst_id] = src_weight + weight;
+                reg_changes[vector_index] = 1;
+            }
+        };
+
+        graph_API.advance(_graph, edge_op);
+
+        changes_count = register_sum_reduce(reg_changes);
+        iterations_count++;
+    } while(changes_count > 0);
+
+    double t2 = omp_get_wtime();
+    performance = edges_count / ((t2 - t1)*1e6);
+
+    #ifdef __PRINT_SAMPLES_PERFORMANCE_STATS__
+    PerformanceStats::print_performance_stats("sssp (bellman-ford)", t2 - t1, edges_count, iterations_count);
+    #endif
+}
+#endif
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+

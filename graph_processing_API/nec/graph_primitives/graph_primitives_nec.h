@@ -170,6 +170,10 @@ private:
                         int _first_edge = 0);
 
     template <typename _TVertexValue, typename _TEdgeWeight, typename EdgeOperation>
+    void advance_worker(EdgesListGraph<_TVertexValue, _TEdgeWeight> &_graph,
+                        EdgeOperation &&edge_op);
+
+    template <typename _TVertexValue, typename _TEdgeWeight, typename EdgeOperation>
     void partial_advance_worker(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
                                 FrontierNEC &_frontier,
                                 EdgeOperation &&edge_op,
@@ -246,12 +250,15 @@ public:
                  Condition &&cond);
 
     template <typename _TVertexValue, typename _TEdgeWeight, typename EdgeOperation>
+    void advance(EdgesListGraph<_TVertexValue, _TEdgeWeight> &_graph,
+                 EdgeOperation &&edge_op);
+
+    template <typename _TVertexValue, typename _TEdgeWeight, typename EdgeOperation>
     void partial_advance(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
                          FrontierNEC &_frontier,
                          EdgeOperation &&edge_op,
                          int _first_edge,
                          int _last_edge);
-
     // creates new frontier, which satisfy user-defined "cond" condition
     template <typename _TVertexValue, typename _TEdgeWeight, typename Condition>
     void generate_new_frontier(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph, FrontierNEC &_frontier, Condition &&cond);
@@ -276,6 +283,7 @@ public:
 #include "filter.hpp"
 #include "compute.hpp"
 #include "advance.hpp"
+#include "advance_edges_list.hpp"
 #include "advance_all_active.hpp"
 #include "advance_dense.hpp"
 #include "advance_sparse.hpp"
