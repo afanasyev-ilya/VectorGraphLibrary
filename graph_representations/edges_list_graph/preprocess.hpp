@@ -137,16 +137,47 @@ struct VectorSegment
 template <typename _TEdgeWeight>
 struct VectorData
 {
+    int *counts;
     VectorSegment<_TEdgeWeight> *segments;
+    int segments_count;
 
     VectorData(int _segments_count)
     {
+        segments_count = _segments_count;
         segments = new VectorSegment<_TEdgeWeight>[_segments_count*_segments_count];
+
+        counts = new int[segments_count*segments_count*VECTOR_LENGTH];
     }
 
     ~VectorData()
     {
         delete[] segments;
+        delete[] counts;
+    }
+
+    inline void reset_counts()
+    {
+        #pragma omp for
+        for(int j = 0; j < segments_count*segments_count; j++)
+            #pragma _NEC vector
+            for(int i = 0; i < VECTOR_LENGTH; i++)
+                counts[j * VECTOR_LENGTH + i] = 0; // i * segments_count*segments_count + j]
+    }
+
+    inline void increase_count(int _vector_pos, int _seg_pos)
+    {
+        counts[_seg_pos * VECTOR_LENGTH + _vector_pos]++;
+    }
+
+    inline long long total_count()
+    {
+        long long sum = 0;
+        #pragma _NEC novector
+        for(int j = 0; j < segments_count*segments_count; j++)
+            #pragma _NEC vector
+            for(int i = 0; i < VECTOR_LENGTH; i++)
+                sum += counts[j * VECTOR_LENGTH + i];
+        return sum;
     }
 
     inline void add(/*int *_segment_positions, int *_src_ids, int *_dst_ids, _TEdgeWeight *_weights*/)
@@ -179,9 +210,9 @@ void EdgesListGraph<_TVertexValue, _TEdgeWeight>::preprocess()
     // new vector part here
 
     VectorData<_TEdgeWeight> *vector_data[MAX_SX_AURORA_THREADS];
-    for(int i = 0; i < MAX_SX_AURORA_THREADS; i++)
+    for(int core = 0; core < MAX_SX_AURORA_THREADS; core++)
     {
-        vector_data[i] = new VectorData<_TEdgeWeight>(segments_count);
+        vector_data[core] = new VectorData<_TEdgeWeight>(segments_count);
     }
 
     #pragma omp parallel
@@ -193,40 +224,42 @@ void EdgesListGraph<_TVertexValue, _TEdgeWeight>::preprocess()
     {
         int tid = omp_get_thread_num();
         VectorData<_TEdgeWeight> *local_vector_data = vector_data[tid];
+
         long long edges_count = this->edges_count;
+
+        local_vector_data->reset_counts();
 
         #pragma omp for
         for(long long vec_start = 0; vec_start < edges_count; vec_start += VECTOR_LENGTH)
         {
-            int src_ids_reg[VECTOR_LENGTH];
-            int dst_ids_reg[VECTOR_LENGTH];
-            _TEdgeWeight weights_reg[VECTOR_LENGTH];
-            int seg_reg[VECTOR_LENGTH];
-
             #pragma _NEC ivdep
+            //#pragma _NEC vovertake
+            #pragma _NEC novob
             #pragma _NEC vector
+            #pragma _NEC gather_reorder
             for(int i = 0; i < VECTOR_LENGTH; i++)
             {
                 long long edge_pos = vec_start + i;
 
-                src_ids_reg[i] = src_ids[edge_pos];
-                dst_ids_reg[i] = dst_ids[edge_pos];
-                weights_reg[i] = dst_ids[edge_pos];
+                int src_id = src_ids[edge_pos];
+                int dst_id = dst_ids[edge_pos];
 
-                int src_segment = get_segment_num(src_ids_reg[i], segment_size);
-                int dst_segment = get_segment_num(weights_reg[i], segment_size);
+                int src_segment = get_segment_num(src_id, segment_size);
+                int dst_segment = get_segment_num(dst_id, segment_size);
 
-                seg_reg[i] = get_linear_segment_index(src_segment, dst_segment, segments_count);
+                int seg = get_linear_segment_index(src_segment, dst_segment, segments_count);
+
+                local_vector_data->increase_count(i, seg);
             }
 
-            #pragma _NEC ivdep
+            /*#pragma _NEC ivdep
             #pragma _NEC vector
             for(int i = 0; i < VECTOR_LENGTH; i++)
             {
                 int seg_pos = seg_reg[i];
                 local_vector_data->segments[seg_pos].current_ptrs[i]++;
                 //segments[seg_pos].add(_src_ids[i], _dst_ids[i], _weights[i], i);
-            }
+            }*/
 
             //local_vector_data->add(/*seg_reg, src_ids_reg, dst_ids_reg, weights_reg*/);
         }
@@ -236,10 +269,16 @@ void EdgesListGraph<_TVertexValue, _TEdgeWeight>::preprocess()
     cout << "split time: " << t2 - t1 << " sec" << endl;
     cout << "split BW: " << 3.0*sizeof(int)*this->edges_count/((t2 - t1)*1e9) << " GB/s" << endl;
 
-
-    for(int i = 0; i < MAX_SX_AURORA_THREADS; i++)
+    long long check_sum = 0;
+    for(int core = 0; core < MAX_SX_AURORA_THREADS; core++)
     {
-        delete vector_data[i];
+        check_sum += vector_data[core]->total_count();
+    }
+    cout << check_sum << " vs " << this->edges_count << endl;
+
+    for(int core = 0; core < MAX_SX_AURORA_THREADS; core++)
+    {
+        delete vector_data[core];
     }
 
         /*SegmentData<_TEdgeWeight> *segment_data = new SegmentData<_TEdgeWeight>[segments_count*segments_count];
