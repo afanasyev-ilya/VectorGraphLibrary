@@ -361,11 +361,11 @@ int main(int argc, const char * argv[])
         int v = pow(2.0, parser.get_scale());
         GraphGenerationAPI<int, float>::random_uniform(graph, v, v * parser.get_avg_degree(), DIRECTED_GRAPH);
 
-
         ShortestPaths<int, float> sssp_operation(graph);
 
-        float *distances;
+        float *distances, *distances_preprocessed;
         sssp_operation.allocate_result_memory(graph.get_vertices_count(), &distances);
+        sssp_operation.allocate_result_memory(graph.get_vertices_count(), &distances_preprocessed);
 
         #pragma omp parallel
         {};
@@ -374,9 +374,12 @@ int main(int argc, const char * argv[])
 
         graph.preprocess();
 
-        sssp_operation.nec_bellamn_ford(graph, distances, 0);
+        sssp_operation.nec_bellamn_ford(graph, distances_preprocessed, 0);
+
+        verify_results(distances, distances_preprocessed, graph.get_vertices_count());
 
         sssp_operation.free_result_memory(distances);
+        sssp_operation.free_result_memory(distances_preprocessed);
     }
     catch (string error)
     {
