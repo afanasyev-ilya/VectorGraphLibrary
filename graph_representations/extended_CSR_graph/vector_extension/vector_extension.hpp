@@ -53,6 +53,7 @@ void VectorExtension<_TVertexValue, _TEdgeWeight>::init_from_graph(long long *_c
                                                                    int _first_vertex,
                                                                    int _last_vertex)
 {
+    double t1 = omp_get_wtime();
     vertices_count = _last_vertex - _first_vertex;
     starting_vertex = _first_vertex;
     vector_segments_count = (vertices_count - 1) / VECTOR_LENGTH + 1;
@@ -99,6 +100,8 @@ void VectorExtension<_TVertexValue, _TEdgeWeight>::init_from_graph(long long *_c
             current_edge += VECTOR_LENGTH;
         }
     }
+    double t2 = omp_get_wtime();
+    cout << "VE creation time: " << t2 - t1 << " sec" << endl;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

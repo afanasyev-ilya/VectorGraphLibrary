@@ -28,6 +28,19 @@ void MemoryAPI::free_array(_T *_ptr)
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+template <typename _T>
+void MemoryAPI::copy(_T *_dst, _T *_src, size_t _size)
+{
+    #pragma _NEC ivdep
+    #pragma omp parallel
+    for(long long i = 0; i < _size; i++)
+    {
+        _dst[i] = _src[i];
+    }
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 #ifdef __USE_GPU__
 template <typename _T>
 void MemoryAPI::allocate_device_array(_T **_ptr, size_t _size)

@@ -1,13 +1,6 @@
-//
-//  edges_list_graph.h
-//  ParallelGraphLibrary
-//
-//  Created by Elijah Afanasiev on 14/04/2019.
-//  Copyright © 2019 MSU. All rights reserved.
-//
+#pragma once
 
-#ifndef edges_list_graph_h
-#define edges_list_graph_h
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #include <fstream>
 
@@ -40,6 +33,9 @@ public:
     bool save_to_binary_file(string file_name);
     bool load_from_binary_file(string file_name);
 
+    // allow to renumber vertices based on indexes provided in conversion array
+    void renumber_vertices(int *_conversion_array, int *_work_buffer = NULL);
+
     void preprocess_into_segmented();
 
     #ifdef __USE_ASL__
@@ -68,5 +64,3 @@ int *dst_ids          = input_graph.get_dst_ids       (); \
 _TEdgeWeight *weights = input_graph.get_weights       (); \
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-#endif /* edges_list_graph_h */

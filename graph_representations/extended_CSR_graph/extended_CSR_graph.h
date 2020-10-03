@@ -24,15 +24,13 @@ private:
     VerticesState vertices_state;
     EdgesState edges_state;
     int supported_vector_length;
-    
-    int           *reordered_vertex_ids;
+
     long long     *outgoing_ptrs;
     int           *outgoing_ids;
     _TEdgeWeight  *outgoing_weights;
 
-    long long     *incoming_ptrs;
-    int           *incoming_ids;
-    _TEdgeWeight  *incoming_weights;
+    int *forward_conversion;
+    int *backward_conversion;
 
     VectorExtension<_TVertexValue, _TEdgeWeight> last_vertices_ve;
     
@@ -42,25 +40,21 @@ private:
     int gpu_warp_threshold_vertex;
     #endif
 
-    //#ifdef __USE_NEC_SX_AURORA__
+    #ifdef __USE_NEC_SX_AURORA__
     int vector_engine_threshold_vertex;
     int vector_core_threshold_vertex;
-    //#endif
-    
-    int *incoming_degrees;
-    
+    #endif
+
     void alloc(int _vertices_count, long long _edges_count);
     void free();
-    
-    void calculate_incoming_degrees();
-    
+
     #ifdef __USE_GPU__
     void estimate_gpu_thresholds();
     #endif
 
-    //#ifdef __USE_NEC_SX_AURORA__
+    #ifdef __USE_NEC_SX_AURORA__
     void estimate_nec_thresholds();
-    //#endif
+    #endif
 
     void extract_connection_count(EdgesListGraph<_TVertexValue, _TEdgeWeight> &_el_graph,
                                   int *_work_buffer, int *_connections_count);
@@ -68,10 +62,6 @@ private:
     void sort_vertices_by_degree(int *_connections_array, asl_int_t *_asl_indexes,
                                  int _el_vertices_count, int *_forward_conversion,
                                  int *_backward_conversion);
-
-    void reorder_vertices_in_old_graph(EdgesListGraph<_TVertexValue, _TEdgeWeight> &_el_graph,
-                                       int *_work_buffer,
-                                       int *_conversion_array);
 
     void construct_CSR(EdgesListGraph<_TVertexValue, _TEdgeWeight> &_el_graph);
 public:
@@ -100,7 +90,10 @@ public:
     inline long long     *get_outgoing_ptrs()        {return outgoing_ptrs;};
     inline int           *get_outgoing_ids()         {return outgoing_ids;};
     inline _TEdgeWeight  *get_outgoing_weights()     {return outgoing_weights;};
-    inline int           *get_incoming_degrees()     {return incoming_degrees;};
+
+    // renumber API
+    int renumber_vertex_id(int _id);
+    void renumber_vertex_array(float *_input_array, float *_output_array);
     
     #ifdef __USE_GPU__
     void move_to_device();
@@ -113,10 +106,10 @@ public:
     inline int get_gpu_warp_threshold_vertex(){return gpu_warp_threshold_vertex;};
     #endif
 
-    //#ifdef __USE_NEC_SX_AURORA__
+    #ifdef __USE_NEC_SX_AURORA__
     inline int get_vector_engine_threshold_vertex(){return vector_engine_threshold_vertex;};
     inline int get_vector_core_threshold_vertex(){return vector_core_threshold_vertex;};
-    //#endif
+    #endif
 
     template <typename _T>
     _T& get_edge_data(_T *_data_array, int _src_id, int _dst_id);
@@ -146,8 +139,6 @@ long long *ve_vector_group_ptrs = (_graph.get_last_vertices_ve_ptr())->get_vecto
 int *ve_vector_group_sizes = (_graph.get_last_vertices_ve_ptr())->get_vector_group_sizes();\
 int *ve_outgoing_ids = (_graph.get_last_vertices_ve_ptr())->get_adjacent_ids();\
 _TEdgeWeight *ve_outgoing_weights = (_graph.get_last_vertices_ve_ptr())->get_adjacent_weights();\
-\
-int *incoming_degrees = input_graph.get_incoming_degrees();\
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -155,6 +146,7 @@ int *incoming_degrees = input_graph.get_incoming_degrees();\
 #include "preprocess.hpp"
 #include "gpu_api.hpp"
 #include "nec_api.hpp"
+#include "renumber.hpp"
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 

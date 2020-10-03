@@ -100,57 +100,6 @@ void ExtendedCSRGraph<_TVertexValue, _TEdgeWeight>::sort_vertices_by_degree(int 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template <typename _TVertexValue, typename _TEdgeWeight>
-void ExtendedCSRGraph<_TVertexValue, _TEdgeWeight>::reorder_vertices_in_old_graph(EdgesListGraph<_TVertexValue, _TEdgeWeight> &_el_graph,
-                                                                                  int *_work_buffer,
-                                                                                  int *_conversion_array)
-{
-    double t1 = omp_get_wtime();
-    long long el_edges_count = _el_graph.get_edges_count();
-
-    int *el_src_ids = _el_graph.get_src_ids();
-    int *el_dst_ids = _el_graph.get_dst_ids();
-
-    #pragma _NEC ivdep
-    #pragma _NEC novob
-    #pragma _NEC vector
-    #pragma _NEC gather_reorder
-    #pragma omp parallel for
-    for(long long edge_pos = 0; edge_pos <  el_edges_count; edge_pos++)
-    {
-        _work_buffer[edge_pos] = _conversion_array[el_src_ids[edge_pos]];
-    }
-
-    #pragma _NEC ivdep
-    #pragma omp parallel for
-    for(long long edge_pos = 0; edge_pos <  el_edges_count; edge_pos++)
-    {
-         el_src_ids[edge_pos] = _work_buffer[edge_pos];
-    }
-
-    #pragma _NEC ivdep
-    #pragma _NEC novob
-    #pragma _NEC vector
-    #pragma _NEC gather_reorder
-    #pragma omp parallel for
-    for(long long edge_pos = 0; edge_pos < el_edges_count; edge_pos++)
-    {
-        _work_buffer[edge_pos] = _conversion_array[el_dst_ids[edge_pos]];
-    }
-
-    #pragma _NEC ivdep
-    #pragma omp parallel for
-    for(long long edge_pos = 0; edge_pos < el_edges_count; edge_pos++)
-    {
-        el_dst_ids[edge_pos] = _work_buffer[edge_pos];
-    }
-    double t2 = omp_get_wtime();
-    cout << "edges list graph reorder (to optimized) time: " << t2 - t1 << " sec" << endl;
-    cout << "BW: " << el_edges_count*sizeof(int)*(2*2 + 3*2)/((t2 - t1)*1e9) << " GB/s" << endl;
-}
-
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-template <typename _TVertexValue, typename _TEdgeWeight>
 void ExtendedCSRGraph<_TVertexValue, _TEdgeWeight>::construct_CSR(EdgesListGraph<_TVertexValue, _TEdgeWeight> &_el_graph)
 {
     double t1 = omp_get_wtime();
@@ -192,9 +141,6 @@ void ExtendedCSRGraph<_TVertexValue, _TEdgeWeight>::construct_CSR(EdgesListGraph
         }
     }
 
-    for(int i = 0; i < el_vertices_count + 1; i++)
-        cout << outgoing_ptrs[i] << endl;
-
     #pragma _NEC ivdep
     #pragma omp parallel
     for(long long cur_edge = 0; cur_edge < el_edges_count; cur_edge++)
@@ -212,56 +158,37 @@ void ExtendedCSRGraph<_TVertexValue, _TEdgeWeight>::construct_CSR(EdgesListGraph
 template <typename _TVertexValue, typename _TEdgeWeight>
 void ExtendedCSRGraph<_TVertexValue, _TEdgeWeight>::import_and_preprocess(EdgesListGraph<_TVertexValue, _TEdgeWeight> &_el_graph)
 {
-    bool print = true;
-
     // get size of edges list graph
     int el_vertices_count = _el_graph.get_vertices_count();
     long long el_edges_count = _el_graph.get_edges_count();
 
     // reorder buffers
-    int *forward_conversion, *backward_conversion;
-    MemoryAPI::allocate_array(&forward_conversion, el_vertices_count);
-    MemoryAPI::allocate_array(&backward_conversion, el_vertices_count);
+    int *loc_forward_conversion, *loc_backward_conversion;
+    MemoryAPI::allocate_array(&loc_forward_conversion, el_vertices_count);
+    MemoryAPI::allocate_array(&loc_backward_conversion, el_vertices_count);
 
     // allocate buffers
     int *connections_array;
     int *work_buffer;
     asl_int_t *asl_indexes;
     MemoryAPI::allocate_array(&connections_array, el_vertices_count);
-    MemoryAPI::allocate_array(&work_buffer, max(el_edges_count, (long long)el_vertices_count*MAX_SX_AURORA_THREADS));
     MemoryAPI::allocate_array(&asl_indexes, el_edges_count);
+    MemoryAPI::allocate_array(&work_buffer, max(el_edges_count, (long long)el_vertices_count*MAX_SX_AURORA_THREADS));
 
     // obtain connections array from edges list graph
     extract_connection_count(_el_graph, work_buffer, connections_array);
 
-    /*if(print)
-    {
-        for (int i = 0; i < min(int(15), (int) el_vertices_count); i++)
-            cout << "vertex " << i << " has " << connections_array[i] << " connections" << endl;
-        cout << endl;
-    }*/
-
     // get reorder data (sort by vertex degree)
-    sort_vertices_by_degree(connections_array, asl_indexes, el_vertices_count, forward_conversion, backward_conversion);
-
-    /*if(print)
-    {
-        cout << "forward conversion" << endl;
-        for(int i = 0; i < min(int(50), (int)el_vertices_count); i++)
-            cout << i << " -> " << forward_conversion[i] << endl;
-        cout << endl;
-
-        cout << "backward conversion" << endl;
-        for(int i = 0; i < min(int(50), (int)el_vertices_count); i++)
-            cout << i << " -> " << backward_conversion[i] << endl;
-        cout << endl;
-    }*/
+    sort_vertices_by_degree(connections_array, asl_indexes, el_vertices_count, loc_forward_conversion,
+                            loc_backward_conversion);
+    MemoryAPI::free_array(connections_array);
 
     // reorder ids in edges list graph
-    reorder_vertices_in_old_graph(_el_graph, work_buffer, forward_conversion);
+    _el_graph.renumber_vertices(loc_forward_conversion, work_buffer);
 
     // sorting preprocessed edges list graph
-    _el_graph.preprocess_into_csr_based();
+    _el_graph.preprocess_into_csr_based(work_buffer, asl_indexes);
+    MemoryAPI::allocate_array(&asl_indexes, el_edges_count);
 
     // resize constructed graph
     this->resize(el_vertices_count, el_edges_count);
@@ -269,167 +196,29 @@ void ExtendedCSRGraph<_TVertexValue, _TEdgeWeight>::import_and_preprocess(EdgesL
     // construct CSR representation
     this->construct_CSR(_el_graph);
 
-    reorder_vertices_in_old_graph(_el_graph, work_buffer, backward_conversion);
+    // save conversion arrays into graph
+    MemoryAPI::copy(forward_conversion, loc_forward_conversion, this->vertices_count);
+    MemoryAPI::copy(backward_conversion, loc_backward_conversion, this->vertices_count);
 
-    cout << "------------------------" << endl;
-    _el_graph.print();
-
-    // free memory buffers
-    MemoryAPI::free_array(connections_array);
-    MemoryAPI::free_array(work_buffer);
-    MemoryAPI::free_array(asl_indexes);
+    // return edges list graph to original state
+    _el_graph.renumber_vertices(loc_backward_conversion, work_buffer);
 
     // free conversion arrays
-    MemoryAPI::free_array(forward_conversion);
-    MemoryAPI::free_array(backward_conversion);
+    MemoryAPI::free_array(loc_forward_conversion);
+    MemoryAPI::free_array(loc_backward_conversion);
 
+    // free buffer
+    MemoryAPI::free_array(work_buffer);
 
-    /*
-    ASL_CALL(asl_library_initialize());
-    asl_sort_t hnd;
-    ASL_CALL(asl_sort_create_i32(&hnd, ASL_SORTORDER_ASCENDING, ASL_SORTALGORITHM_AUTO));
+    #ifdef __USE_GPU__
+    estimate_gpu_thresholds();
+    #endif
 
-
-    int *el_src_ids = _old_graph.get_src_ids(); // if reversed change this
-    int *el_dst_ids = _old_graph.get_dst_ids();
-    _TEdgeWeight *el_weights = _old_graph.get_weights();
-
-    t1 = omp_get_wtime();
-    asl_int_t *el_sort_indexes;
-    int *sorted_ids;
-    MemoryAPI::allocate_array(&sorted_ids, el_edges_count);
-    MemoryAPI::allocate_array(&el_sort_indexes, el_edges_count);
-    #pragma omp parallel
-    {};
-    t2 = omp_get_wtime();
-    cout << "alloc time: " << t2 - t1 << " sec" << endl;
-
-    t1 = omp_get_wtime();
-    ASL_CALL(asl_sort_execute_i32(hnd, el_edges_count, el_src_ids, el_sort_indexes, sorted_ids, el_sort_indexes));
-    t2 = omp_get_wtime();
-    cout << "sort time: " << t2 - t1 << " sec" << endl;
-    cout << "sort BW: " << sizeof(int)*4.0*el_edges_count/((t2-t1)*1e9) << " GB/s" << endl;
-
-    for(int i = 0; i < 60; i++)
-        cout << sorted_ids[i] << " ";
-    cout << endl;
-
-    int *el_connections_count;
-    MemoryAPI::allocate_array(&el_connections_count, el_vertices_count + 1);
-
-    #pragma omp parallel
-    {};
-
-    t1 = omp_get_wtime();
-    el_connections_count[0] = 0;
-    #pragma _NEC ivdep
-    #pragma omp parallel
-    for(long long cur_edge = 1; cur_edge < (el_edges_count - 1); cur_edge++) // TODO FIX holes for zero-degree
-    {
-        int prev_id = sorted_ids[cur_edge - 1];
-        int src_id = sorted_ids[cur_edge];
-        if(src_id != prev_id)
-            el_connections_count[src_id] = cur_edge;
-    }
-    el_connections_count[el_vertices_count] = el_edges_count;
-    t2 = omp_get_wtime();
-    cout << "after sort time: " << t2 - t1 << " sec" << endl;
-    cout << "after sort BW: " << sizeof(int)*2.0*el_edges_count/((t2-t1)*1e9) << " GB/s" << endl;
-
-    for(int i = 0; i < 20; i++)
-        cout << el_connections_count[i + 1] - el_connections_count[i] << " ";
-    cout << endl;
-
-    MemoryAPI::free_array(sorted_ids);
-    MemoryAPI::free_array(el_sort_indexes);
-
-    int *connections_count;
-    MemoryAPI::allocate_array(&connections_count, el_vertices_count);
-
-    t1 = omp_get_wtime();
-    memset(connections_count, 0, el_vertices_count*sizeof(int));
-    for(long long cur_edge = 0; cur_edge < el_edges_count; cur_edge++)
-    {
-        int src_id = el_src_ids[cur_edge];
-        connections_count[src_id]++;
-    }
-    t2 = omp_get_wtime();
-    cout << "count time: " << t2 - t1 << " sec" << endl;
-    cout << "count BW: " << sizeof(int)*2.0*el_edges_count/((t2-t1)*1e9) << " GB/s" << endl;
-
-    for(int i = 0; i < 20; i++)
-        cout << connections_count[i] << " ";
-    cout << endl;
-
-    int error_count = 0;
-    for(int i = 0; i < el_vertices_count; i++)
-    {
-        if (connections_count[i] != (el_connections_count[i + 1] - el_connections_count[i]))
-        {
-            if(error_count < 20)
-            {
-                cout << "ERROR at " << i << " pos: " << connections_count[i] << " vs " << (el_connections_count[i + 1] - el_connections_count[i]) << endl;
-            }
-            error_count++;
-        }
-    }
-    cout << "ERROR COUNT SEQ: " << error_count << endl;
-
-    // TODO check parallel perf with memory allocations inside
-
-
-    for(int i = 0; i < 20; i++)
-        cout << connections_count[i] << " ";
-    cout << endl;
-
-    error_count = 0;
-    for(int i = 0; i < el_vertices_count; i++)
-    {
-        if (connections_count[i] != (el_connections_count[i + 1] - el_connections_count[i]))
-        {
-            if(error_count < 20)
-            {
-                cout << "ERROR at " << i << " pos: " << connections_count[i] << " vs " << (el_connections_count[i + 1] - el_connections_count[i]) << endl;
-            }
-            error_count++;
-        }
-    }
-    cout << "ERROR COUNT PAR: " << error_count << endl;
-
-    MemoryAPI::free_array(freq_buffer);
-
-    MemoryAPI::free_array(connections_count);
-    MemoryAPI::free_array(el_connections_count);
-
-    ASL_CALL(asl_sort_destroy(hnd));
-    ASL_CALL(asl_library_finalize());
-
-
-    // EL algorithm
-
-    // obtain connections count
-    // (from sorting or vector count of src/dst ids for original/reverse graph)
-
-    // sort vertices by connections count for further renumerate
-    // get renumerate array (function)
-
-    // renumerate ids inside EL
-    // just a parallel loop
-
-    // convert EL to CSR
-    // 1. sort all 3 arrays
-    // 2. calculate offsets (implemented)
-    // 3. done????
-
-    // CSR algorithm
-    // obtain connections count (from array)
-
-    // (!) sort vertices by connections count for further renumerate
-    // (!) get renumerate array (function)
-
-    // renumerate adjacnet ids in original CSR
-
-    // move pointers to construct new CSR*/
+    #ifdef __USE_NEC_SX_AURORA__
+    estimate_nec_thresholds();
+    last_vertices_ve.init_from_graph(this->outgoing_ptrs, this->outgoing_ids, this->outgoing_weights,
+                                     vector_core_threshold_vertex, this->vertices_count);
+    #endif
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -615,29 +404,6 @@ void ExtendedCSRGraph<_TVertexValue, _TEdgeWeight>::import_graph(EdgesListGraph<
 
     //t2 = omp_get_wtime();
     //cout << "final time: " << t2 - t1 << " sec" << endl << endl;
-}
-
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-template <typename _TVertexValue, typename _TEdgeWeight>
-void ExtendedCSRGraph<_TVertexValue, _TEdgeWeight>::calculate_incoming_degrees()
-{
-    int vertices_count = this->vertices_count;
-    for(int i = 0; i < vertices_count; i++)
-    {
-        incoming_degrees[i] = 0;
-    }
-    
-    for(int src_id = 0; src_id < vertices_count; src_id++)
-    {
-        long long edge_start = outgoing_ptrs[src_id];
-        int connections_count = outgoing_ptrs[src_id + 1] - outgoing_ptrs[src_id];
-        for(int edge_pos = 0; edge_pos < connections_count; edge_pos++)
-        {
-            int dst_id = outgoing_ids[edge_start + edge_pos];
-            incoming_degrees[dst_id]++;
-        }
-    }
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

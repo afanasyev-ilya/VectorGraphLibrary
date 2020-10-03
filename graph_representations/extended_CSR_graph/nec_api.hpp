@@ -2,10 +2,12 @@
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-//#ifdef __USE_NEC_SX_AURORA__
+#ifdef __USE_NEC_SX_AURORA__
 template <typename _TVertexValue, typename _TEdgeWeight>
 void ExtendedCSRGraph<_TVertexValue, _TEdgeWeight>::estimate_nec_thresholds()
 {
+    double t1 = omp_get_wtime();
+
     vector_engine_threshold_vertex = 0;
     vector_core_threshold_vertex = 0;
 
@@ -41,7 +43,10 @@ void ExtendedCSRGraph<_TVertexValue, _TEdgeWeight>::estimate_nec_thresholds()
             vector_core_threshold_vertex = idx + 1;
         }
     }
+
+    double t2 = omp_get_wtime();
+    cout << "estimate thresholds time: " << t2 - t1 << " sec" << endl;
 }
-//#endif
+#endif
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

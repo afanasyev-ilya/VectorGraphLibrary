@@ -30,11 +30,12 @@ void ExtendedCSRGraph<_TVertexValue, _TEdgeWeight>::alloc(int _vertices_count, l
     this->vertices_count = _vertices_count;
     this->edges_count = _edges_count;
 
-    MemoryAPI::allocate_array(&reordered_vertex_ids, this->vertices_count);
     MemoryAPI::allocate_array(&outgoing_ptrs, this->vertices_count + 1);
     MemoryAPI::allocate_array(&outgoing_ids, this->edges_count);
-    MemoryAPI::allocate_array(&incoming_degrees, this->vertices_count);
     MemoryAPI::allocate_array(&(this->vertex_values), this->vertices_count);
+
+    MemoryAPI::allocate_array(&forward_conversion, this->vertices_count);
+    MemoryAPI::allocate_array(&backward_conversion, this->vertices_count);
     
     #ifdef __USE_WEIGHTED_GRAPHS__
     MemoryAPI::allocate_array(&outgoing_weights, this->edges_count);
@@ -48,11 +49,12 @@ void ExtendedCSRGraph<_TVertexValue, _TEdgeWeight>::alloc(int _vertices_count, l
 template <typename _TVertexValue, typename _TEdgeWeight>
 void ExtendedCSRGraph<_TVertexValue, _TEdgeWeight>::free()
 {
-    MemoryAPI::free_array(reordered_vertex_ids);
     MemoryAPI::free_array(outgoing_ptrs);
     MemoryAPI::free_array(outgoing_ids);
-    MemoryAPI::free_array(incoming_degrees);
     MemoryAPI::free_array(this->vertex_values);
+
+    MemoryAPI::free_array(forward_conversion);
+    MemoryAPI::free_array(backward_conversion);
 
     #ifdef __USE_WEIGHTED_GRAPHS__
     MemoryAPI::free_array(outgoing_weights);
@@ -178,7 +180,7 @@ bool ExtendedCSRGraph<_TVertexValue, _TEdgeWeight>::save_to_binary_file(string _
     fwrite(reinterpret_cast<const void*>(&supported_vector_length), sizeof(int), 1, graph_file);
     
     fwrite(reinterpret_cast<const char*>(this->vertex_values), sizeof(_TVertexValue), vertices_count, graph_file);
-    fwrite(reinterpret_cast<const char*>(reordered_vertex_ids), sizeof(int), vertices_count, graph_file);
+    //fwrite(reinterpret_cast<const char*>(reordered_vertex_ids), sizeof(int), vertices_count, graph_file);
     fwrite(reinterpret_cast<const char*>(outgoing_ptrs), sizeof(long long), vertices_count + 1, graph_file);
     
     fwrite(reinterpret_cast<const char*>(outgoing_ids), sizeof(int), edges_count, graph_file);
@@ -214,15 +216,14 @@ bool ExtendedCSRGraph<_TVertexValue, _TEdgeWeight>::load_from_binary_file(string
     fread(reinterpret_cast<void*>(&supported_vector_length), sizeof(int), 1, graph_file);
     
     fread(reinterpret_cast<char*>(this->vertex_values), sizeof(_TVertexValue), this->vertices_count, graph_file);
-    fread(reinterpret_cast<char*>(reordered_vertex_ids), sizeof(int), this->vertices_count, graph_file);
+    //fread(reinterpret_cast<char*>(reordered_vertex_ids), sizeof(int), this->vertices_count, graph_file);
     fread(reinterpret_cast<char*>(outgoing_ptrs), sizeof(long long), (this->vertices_count + 1), graph_file);
     
     fread(reinterpret_cast<char*>(outgoing_ids), sizeof(int), this->edges_count, graph_file);
     #ifdef __USE_WEIGHTED_GRAPHS__
     fread(reinterpret_cast<char*>(outgoing_weights), sizeof(_TEdgeWeight), this->edges_count, graph_file);
     #endif
-    
-    calculate_incoming_degrees();
+
     #ifdef __USE_GPU__
     estimate_gpu_thresholds();
     #endif

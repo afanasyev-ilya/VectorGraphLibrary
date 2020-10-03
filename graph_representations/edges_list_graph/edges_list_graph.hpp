@@ -1,13 +1,4 @@
-//
-//  edges_list_graph.hpp
-//  ParallelGraphLibrary
-//
-//  Created by Elijah Afanasiev on 14/04/2019.
-//  Copyright © 2019 MSU. All rights reserved.
-//
-
-#ifndef edges_list_graph_hpp
-#define edges_list_graph_hpp
+#pragma once
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -74,7 +65,10 @@ void EdgesListGraph<_TVertexValue, _TEdgeWeight>::resize(int _vertices_count, lo
 template <typename _TVertexValue, typename _TEdgeWeight>
 void EdgesListGraph<_TVertexValue, _TEdgeWeight>::print()
 {
+    cout << endl;
     cout << "Graph in edges list format" << endl;
+    cout << "|V|=" << this->vertices_count << endl;
+    cout << "|E|=" << this->edges_count << endl;
     cout << "Vertices data: " << endl;
     for(int i = 0; i < this->vertices_count; i++)
         cout << this->vertex_values[i] << " ";
@@ -158,4 +152,63 @@ bool EdgesListGraph<_TVertexValue, _TEdgeWeight>::load_from_binary_file(string _
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#endif /* edges_list_graph_hpp */
+template <typename _TVertexValue, typename _TEdgeWeight>
+void EdgesListGraph<_TVertexValue, _TEdgeWeight>::renumber_vertices(int *_conversion_array, int *_work_buffer)
+{
+    double t1 = omp_get_wtime();
+
+    // TODO reorder vertex values
+    // TODO save conversion arrays
+
+    bool work_buffer_was_allocated = false;
+    if(_work_buffer == NULL)
+    {
+        work_buffer_was_allocated = true;
+        MemoryAPI::allocate_array(&_work_buffer, this->edges_count);
+    }
+
+    #pragma _NEC ivdep
+    #pragma _NEC novob
+    #pragma _NEC vector
+    #pragma _NEC gather_reorder
+    #pragma omp parallel for
+    for(long long edge_pos = 0; edge_pos < this->edges_count; edge_pos++)
+    {
+        _work_buffer[edge_pos] = _conversion_array[src_ids[edge_pos]];
+    }
+
+    #pragma _NEC ivdep
+    #pragma omp parallel for
+    for(long long edge_pos = 0; edge_pos < this->edges_count; edge_pos++)
+    {
+        src_ids[edge_pos] = _work_buffer[edge_pos];
+    }
+
+    #pragma _NEC ivdep
+    #pragma _NEC novob
+    #pragma _NEC vector
+    #pragma _NEC gather_reorder
+    #pragma omp parallel for
+    for(long long edge_pos = 0; edge_pos < this->edges_count; edge_pos++)
+    {
+        _work_buffer[edge_pos] = _conversion_array[dst_ids[edge_pos]];
+    }
+
+    #pragma _NEC ivdep
+    #pragma omp parallel for
+    for(long long edge_pos = 0; edge_pos < this->edges_count; edge_pos++)
+    {
+        dst_ids[edge_pos] = _work_buffer[edge_pos];
+    }
+
+    if(work_buffer_was_allocated)
+    {
+        MemoryAPI::free_array(_work_buffer);
+    }
+
+    double t2 = omp_get_wtime();
+    cout << "edges list graph reorder (to optimized) time: " << t2 - t1 << " sec" << endl;
+    cout << "BW: " << this->edges_count*sizeof(int)*(2*2 + 3*2)/((t2 - t1)*1e9) << " GB/s" << endl;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

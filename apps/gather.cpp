@@ -50,34 +50,48 @@ int main(int argc, const char * argv[])
         GraphGenerationAPI<int, float>::random_uniform(graph, v, v * parser.get_avg_degree(), DIRECTED_GRAPH);
         cout << "graph generated!" << endl;
 
-        /*ShortestPaths<int, float> sssp_operation(graph);
+        ShortestPaths<int, float> sssp_operation(graph);
 
-        float *distances, *distances_preprocessed;
+        float *distances, *distances_preprocessed, *csr_distances;
         sssp_operation.allocate_result_memory(graph.get_vertices_count(), &distances);
         sssp_operation.allocate_result_memory(graph.get_vertices_count(), &distances_preprocessed);
+        sssp_operation.allocate_result_memory(graph.get_vertices_count(), &csr_distances);
 
         #pragma omp parallel
         {};
 
         sssp_operation.nec_bellamn_ford(graph, distances, 0);
 
-        double t1 = omp_get_wtime();
+        /*double t1 = omp_get_wtime();
         graph.preprocess();
         double t2 = omp_get_wtime();
-        cout << "outer preprocess time: " << t2 - t1 << " sec" << endl;
+        cout << "outer preprocess time: " << t2 - t1 << " sec" << endl;*/
+
+        VectCSRGraph<int, float> vect_csr_graph;
+        vect_csr_graph.import_graph(graph);
 
         sssp_operation.nec_bellamn_ford(graph, distances_preprocessed, 0);
 
         verify_results(distances, distances_preprocessed, graph.get_vertices_count());
 
+        cout << "starting final check!!!! ----------------- " << endl;
+
+        ExtendedCSRGraph<int, float> *ext_csr_graph = vect_csr_graph.outgoing_edges;
+
+        int new_source = ext_csr_graph->renumber_vertex_id(0);
+        sssp_operation.seq_dijkstra(*ext_csr_graph, csr_distances, new_source);
+
+        ext_csr_graph->renumber_vertex_array(csr_distances, distances_preprocessed);
+
+        for(int i = 0; i < graph.get_vertices_count(); i++)
+        {
+            cout << distances[i] << " " << distances_preprocessed[i] << " " << endl;
+        }
+
         sssp_operation.free_result_memory(distances);
-        sssp_operation.free_result_memory(distances_preprocessed);*/
+        sssp_operation.free_result_memory(distances_preprocessed);
+        sssp_operation.free_result_memory(csr_distances);
 
-        /////////////////////
-
-        VectCSRGraph<int, float> vect_csr_graph;
-
-        vect_csr_graph.import_graph(graph);
     }
     catch (string error)
     {

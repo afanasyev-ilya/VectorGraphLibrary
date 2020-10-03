@@ -18,12 +18,14 @@ template <typename _TVertexValue, typename _TEdgeWeight>
 class VectCSRGraph : public BaseGraph<_TVertexValue, _TEdgeWeight>
 {
 private:
-    ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> *outgoing_edges;
-    ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> *incoming_edges;
+
 
     int *out_to_inc_conversion;
     int *in_to_out_conversion;
 public:
+    ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> *outgoing_edges;
+    ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> *incoming_edges;
+
     VectCSRGraph(int _vertices_count = 1, long long _edges_count = 1);
     ~VectCSRGraph();
 
