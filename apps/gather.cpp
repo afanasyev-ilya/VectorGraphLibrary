@@ -48,8 +48,9 @@ int main(int argc, const char * argv[])
 
         int v = pow(2.0, parser.get_scale());
         GraphGenerationAPI<int, float>::random_uniform(graph, v, v * parser.get_avg_degree(), DIRECTED_GRAPH);
+        cout << "graph generated!" << endl;
 
-        ShortestPaths<int, float> sssp_operation(graph);
+        /*ShortestPaths<int, float> sssp_operation(graph);
 
         float *distances, *distances_preprocessed;
         sssp_operation.allocate_result_memory(graph.get_vertices_count(), &distances);
@@ -70,7 +71,7 @@ int main(int argc, const char * argv[])
         verify_results(distances, distances_preprocessed, graph.get_vertices_count());
 
         sssp_operation.free_result_memory(distances);
-        sssp_operation.free_result_memory(distances_preprocessed);
+        sssp_operation.free_result_memory(distances_preprocessed);*/
 
         /////////////////////
 

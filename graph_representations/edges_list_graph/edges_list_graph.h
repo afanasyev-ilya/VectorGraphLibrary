@@ -40,7 +40,11 @@ public:
     bool save_to_binary_file(string file_name);
     bool load_from_binary_file(string file_name);
 
-    void preprocess();
+    void preprocess_into_segmented();
+
+    #ifdef __USE_ASL__
+    void preprocess_into_csr_based(int *_work_buffer = NULL, asl_int_t *_asl_buffer = NULL);
+    #endif
     
     #ifdef __USE_GPU__
     void move_to_device() {throw "not implemented yet";};
@@ -51,7 +55,8 @@ public:
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #include "edges_list_graph.hpp"
-#include "preprocess.hpp"
+#include "preprocess_into_segmented.hpp"
+#include "preprocess_into_csr_based.hpp"
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 

@@ -61,6 +61,19 @@ private:
     //#ifdef __USE_NEC_SX_AURORA__
     void estimate_nec_thresholds();
     //#endif
+
+    void extract_connection_count(EdgesListGraph<_TVertexValue, _TEdgeWeight> &_el_graph,
+                                  int *_work_buffer, int *_connections_count);
+
+    void sort_vertices_by_degree(int *_connections_array, asl_int_t *_asl_indexes,
+                                 int _el_vertices_count, int *_forward_conversion,
+                                 int *_backward_conversion);
+
+    void reorder_vertices_in_old_graph(EdgesListGraph<_TVertexValue, _TEdgeWeight> &_el_graph,
+                                       int *_work_buffer,
+                                       int *_conversion_array);
+
+    void construct_CSR(EdgesListGraph<_TVertexValue, _TEdgeWeight> &_el_graph);
 public:
     ExtendedCSRGraph(int _vertices_count = 1, long long _edges_count = 1);
     ~ExtendedCSRGraph();
@@ -81,7 +94,7 @@ public:
                       TraversalDirection _traversal_type = PULL_TRAVERSAL,
                       MultipleArcsState _multiple_arcs_state = MULTIPLE_ARCS_PRESENT);
 
-    void new_import_graph(EdgesListGraph<_TVertexValue, _TEdgeWeight> &_old_graph);
+    void import_and_preprocess(EdgesListGraph<_TVertexValue, _TEdgeWeight> &_old_graph);
     
     inline int           *get_reordered_vertex_ids() {return reordered_vertex_ids;};
     inline long long     *get_outgoing_ptrs()        {return outgoing_ptrs;};
@@ -139,7 +152,7 @@ int *incoming_degrees = input_graph.get_incoming_degrees();\
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #include "extended_CSR_graph.hpp"
-#include "import_graph.hpp"
+#include "preprocess.hpp"
 #include "gpu_api.hpp"
 #include "nec_api.hpp"
 

@@ -350,7 +350,7 @@ struct VectorData
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template <typename _TVertexValue, typename _TEdgeWeight>
-void EdgesListGraph<_TVertexValue, _TEdgeWeight>::preprocess()
+void EdgesListGraph<_TVertexValue, _TEdgeWeight>::preprocess_into_segmented()
 {
     int segment_size_in_bytes = LLC_CACHE_SIZE/4;
     long long edges_count = this->edges_count;
@@ -400,6 +400,8 @@ void EdgesListGraph<_TVertexValue, _TEdgeWeight>::preprocess()
 
                 local_vector_data->increase_count(i, seg);
             }
+
+            // TODO reminder
         }
     }
     double t2 = omp_get_wtime();
@@ -449,6 +451,8 @@ void EdgesListGraph<_TVertexValue, _TEdgeWeight>::preprocess()
 
                 seg_reg[i] = get_linear_segment_index(src_segment, dst_segment, segments_count);
             }
+
+            // TODO reminder
 
             local_vector_data->add(seg_reg, src_ids_reg, dst_ids_reg, weights_reg);
         }
