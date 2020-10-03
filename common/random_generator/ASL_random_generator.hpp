@@ -16,6 +16,10 @@
             error_str = "ASL_ERROR_ARGUMENT";\
         else if(res == ASL_ERROR_MEMORY)\
             error_str = "ASL_ERROR_MEMORY";\
+        else if(res == ASL_ERROR_SORT_INVALID)\
+            error_str = "ASL_ERROR_SORT_INVALID";\
+        else if(res == ASL_ERROR_SORT_INCOMPATIBLE_CALL)\
+        	error_str = "ASL_ERROR_SORT_INCOMPATIBLE_CALL";\
         else \
             error_str = "unknown";\
         printf("ASL error: %s at call \"" #CallInstruction "\"\n", error_str.c_str()); \

@@ -3,6 +3,125 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template <typename _TVertexValue, typename _TEdgeWeight>
+void ExtendedCSRGraph<_TVertexValue, _TEdgeWeight>::new_import_graph(EdgesListGraph<_TVertexValue, _TEdgeWeight> &_old_graph)
+{
+    double t1, t2;
+
+    ASL_CALL(asl_library_initialize());
+    asl_sort_t hnd;
+    ASL_CALL(asl_sort_create_i32(&hnd, ASL_SORTORDER_ASCENDING, ASL_SORTALGORITHM_AUTO));
+
+    int el_vertices_count = _old_graph.get_vertices_count();
+    long long el_edges_count = _old_graph.get_edges_count();
+    int *el_src_ids = _old_graph.get_src_ids(); // if reversed change this
+    int *el_dst_ids = _old_graph.get_dst_ids();
+    _TEdgeWeight *el_weights = _old_graph.get_weights();
+
+    t1 = omp_get_wtime();
+    asl_int_t *el_sort_indexes;
+    int *sorted_ids;
+    MemoryAPI::allocate_array(&sorted_ids, el_edges_count);
+    MemoryAPI::allocate_array(&el_sort_indexes, el_edges_count);
+    #pragma omp parallel
+    {};
+    t2 = omp_get_wtime();
+    cout << "alloc time: " << t2 - t1 << " sec" << endl;
+
+    t1 = omp_get_wtime();
+    ASL_CALL(asl_sort_execute_i32(hnd, el_edges_count, el_src_ids, el_sort_indexes, sorted_ids, el_sort_indexes));
+    t2 = omp_get_wtime();
+    cout << "sort time: " << t2 - t1 << " sec" << endl;
+    cout << "sort BW: " << sizeof(int)*4.0*el_edges_count/((t2-t1)*1e9) << " GB/s" << endl;
+
+    for(int i = 0; i < 60; i++)
+        cout << sorted_ids[i] << " ";
+    cout << endl;
+
+    int *el_connections_count;
+    MemoryAPI::allocate_array(&el_connections_count, el_vertices_count);
+
+    t1 = omp_get_wtime();
+    #pragma _NEC ivdep
+    #pragma omp parallel
+    for(long long cur_edge = 0; cur_edge < (el_edges_count - 1); cur_edge++)
+    {
+        int src_id = sorted_ids[cur_edge];
+        int next_id = sorted_ids[cur_edge + 1];
+        if(src_id != next_id)
+            el_connections_count[src_id] = cur_edge;
+    }
+    el_connections_count[el_vertices_count] = el_edges_count;
+    t2 = omp_get_wtime();
+    cout << "after sort time: " << t2 - t1 << " sec" << endl;
+    cout << "after sort BW: " << sizeof(int)*2.0*el_edges_count/((t2-t1)*1e9) << " GB/s" << endl;
+    // TODO last
+
+    MemoryAPI::free_array(sorted_ids);
+    MemoryAPI::free_array(el_sort_indexes);
+
+    int *connections_count;
+    MemoryAPI::allocate_array(&connections_count, el_vertices_count);
+
+    t1 = omp_get_wtime();
+    memset(connections_count, 0, el_vertices_count*sizeof(int));
+    for(long long cur_edge = 0; cur_edge < el_edges_count; cur_edge++)
+    {
+        int src_id = el_src_ids[cur_edge];
+        connections_count[src_id]++;
+    }
+    t2 = omp_get_wtime();
+    cout << "count time: " << t2 - t1 << " sec" << endl;
+    cout << "count BW: " << sizeof(int)*2.0*el_edges_count/((t2-t1)*1e9) << " GB/s" << endl;
+
+    for(int i = 0; i < 20; i++)
+        cout << connections_count[i] << " ";
+    cout << endl;
+
+    t1 = omp_get_wtime();
+    memset(connections_count, 0, el_vertices_count*sizeof(int));
+    for(long long cur_edge = 0; cur_edge < el_edges_count; cur_edge++)
+    {
+        int src_id = el_src_ids[cur_edge];
+        connections_count[src_id]++;
+    }
+    t2 = omp_get_wtime();
+    cout << "par count time: " << t2 - t1 << " sec" << endl;
+    cout << "par count BW: " << sizeof(int)*2.0*el_edges_count/((t2-t1)*1e9) << " GB/s" << endl;
+
+    for(int i = 0; i < 20; i++)
+        cout << connections_count[i] << " ";
+    cout << endl;
+
+    MemoryAPI::free_array(connections_count);
+
+    /*double t1 = omp_get_wtime();
+    outgoing_edges->new_import_graph(_copy_graph);
+    double t2 = omp_get_wtime();
+    cout << "outgoing conversion time: " << t2 - t1 << " sec" << endl;
+
+    t1 = omp_get_wtime();
+    incoming_edges->new_import_graph(_copy_graph);
+    t2 = omp_get_wtime();
+    cout << "incoming conversion time: " << t2 - t1 << " sec" << endl;*/
+
+    ASL_CALL(asl_sort_destroy(hnd));
+    ASL_CALL(asl_library_finalize());
+
+
+    // obtain connections count
+    // (from sorting or vector count of src/dst ids for original/reverse graph)
+
+    // sort vertices by connections count for further renumerate
+    // get renumerate array (function)
+
+    // renumerate EL
+
+    // convert EL to CSR
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+template <typename _TVertexValue, typename _TEdgeWeight>
 void ExtendedCSRGraph<_TVertexValue, _TEdgeWeight>::import_graph(EdgesListGraph<_TVertexValue, _TEdgeWeight> &_old_graph,
                                                                  VerticesState _vertices_state,
                                                                  EdgesState _edges_state,

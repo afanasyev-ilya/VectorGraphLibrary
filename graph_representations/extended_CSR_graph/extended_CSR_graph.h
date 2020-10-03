@@ -21,7 +21,7 @@ template <typename _TVertexValue, typename _TEdgeWeight>
 class ExtendedCSRGraph : public BaseGraph<_TVertexValue, _TEdgeWeight>
 {
 private:
-VerticesState vertices_state;
+    VerticesState vertices_state;
     EdgesState edges_state;
     int supported_vector_length;
     
@@ -80,6 +80,8 @@ public:
                       int _supported_vector_length = 1,
                       TraversalDirection _traversal_type = PULL_TRAVERSAL,
                       MultipleArcsState _multiple_arcs_state = MULTIPLE_ARCS_PRESENT);
+
+    void new_import_graph(EdgesListGraph<_TVertexValue, _TEdgeWeight> &_old_graph);
     
     inline int           *get_reordered_vertex_ids() {return reordered_vertex_ids;};
     inline long long     *get_outgoing_ptrs()        {return outgoing_ptrs;};
@@ -137,7 +139,7 @@ int *incoming_degrees = input_graph.get_incoming_degrees();\
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #include "extended_CSR_graph.hpp"
-#include "init_graph.hpp"
+#include "import_graph.hpp"
 #include "gpu_api.hpp"
 #include "nec_api.hpp"
 

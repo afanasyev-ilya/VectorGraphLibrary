@@ -14,6 +14,7 @@
 #define VECTOR_LENGTH 256
 #define VECTOR_LENGTH_POW 8
 #define MAX_SX_AURORA_THREADS 8
+#define LLC_CACHE_SIZE 16*1024*1024
 
 // main framework settings
 // define user hasn't set any

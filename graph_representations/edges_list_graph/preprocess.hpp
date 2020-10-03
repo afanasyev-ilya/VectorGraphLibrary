@@ -352,11 +352,14 @@ struct VectorData
 template <typename _TVertexValue, typename _TEdgeWeight>
 void EdgesListGraph<_TVertexValue, _TEdgeWeight>::preprocess()
 {
-    int segment_size_in_bytes = 4*1024*1024; //TODO fix from LLC
+    int segment_size_in_bytes = LLC_CACHE_SIZE/4;
     long long edges_count = this->edges_count;
     int segment_size = segment_size_in_bytes/sizeof(int);
     int segments_count = (this->vertices_count - 1) / segment_size + 1;
     cout << "segments count: " << segments_count << endl;
+
+    if(segments_count <= 2) // TODO problem at 2 segments
+        return;
 
     VectorData<_TEdgeWeight> *vector_data[MAX_SX_AURORA_THREADS];
     for(int core = 0; core < MAX_SX_AURORA_THREADS; core++)

@@ -71,6 +71,12 @@ int main(int argc, const char * argv[])
 
         sssp_operation.free_result_memory(distances);
         sssp_operation.free_result_memory(distances_preprocessed);
+
+        /////////////////////
+
+        VectCSRGraph<int, float> vect_csr_graph;
+
+        vect_csr_graph.import_graph(graph);
     }
     catch (string error)
     {
