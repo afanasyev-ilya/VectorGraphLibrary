@@ -18,8 +18,6 @@ template <typename _TVertexValue, typename _TEdgeWeight>
 class VectCSRGraph : public BaseGraph<_TVertexValue, _TEdgeWeight>
 {
 private:
-
-
     int *out_to_inc_conversion;
     int *in_to_out_conversion;
 public:

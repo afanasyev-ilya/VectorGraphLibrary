@@ -32,14 +32,14 @@ void VectCSRGraph<_TVertexValue, _TEdgeWeight>::import_graph(EdgesListGraph<_TVe
     t2 = omp_get_wtime();
     cout << "outgoing conversion time: " << t2 - t1 << " sec" << endl;
 
-    /*_el_graph.transpose();
+    _el_graph.transpose();
 
     t1 = omp_get_wtime();
-    incoming_edges->new_import_graph(_el_graph);
+    incoming_edges->import_and_preprocess(_el_graph);
     t2 = omp_get_wtime();
     cout << "incoming conversion time: " << t2 - t1 << " sec" << endl;
 
-    _el_graph.transpose();*/
+    _el_graph.transpose();
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
