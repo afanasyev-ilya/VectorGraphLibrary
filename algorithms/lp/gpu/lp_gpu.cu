@@ -125,7 +125,7 @@ void print_active_percentages(int *_node_states, int _vertices_count)
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void print_active_ids(int *_node_states, int *_shifts, long long *_outgoing_ptrs, int _vertices_count)
+void print_active_ids(int *_node_states, int *_shifts, long long *_vertex_pointers, int _vertices_count)
 {
     if(_vertices_count < 30)
     {
@@ -133,7 +133,7 @@ void print_active_ids(int *_node_states, int *_shifts, long long *_outgoing_ptrs
         for (int src_id = 0; src_id < _vertices_count; src_id++)
         {
             if (_node_states[src_id] == LP_BOUNDARY_ACTIVE)
-                printf("id=%d(CC=%ld, shift=%d) ", src_id, _outgoing_ptrs[src_id + 1] - _outgoing_ptrs[src_id], _shifts[src_id]);
+                printf("id=%d(CC=%ld, shift=%d) ", src_id, _vertex_pointers[src_id + 1] - _vertex_pointers[src_id], _shifts[src_id]);
         }
         cout << endl;
     }

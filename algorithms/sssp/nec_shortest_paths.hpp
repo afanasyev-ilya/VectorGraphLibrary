@@ -47,7 +47,7 @@ void SSSP::nec_dijkstra_partial_active(ExtendedCSRGraph<_TVertexValue, _TEdgeWei
     int iterations_count = 0;
     while(frontier.size() > 0)
     {
-        float *collective_outgoing_weights = graph_API.get_collective_weights(_graph, frontier);
+        float *collective_adjacent_weights = graph_API.get_collective_weights(_graph, frontier);
         auto reset_changes = [was_changes] (int src_id, int connections_count, int vector_index)
         {
             was_changes[src_id] = 0;
@@ -58,11 +58,11 @@ void SSSP::nec_dijkstra_partial_active(ExtendedCSRGraph<_TVertexValue, _TEdgeWei
         {
             NEC_REGISTER_INT(was_changes, 0);
 
-            auto edge_op_push = [outgoing_weights, _distances, was_changes]
+            auto edge_op_push = [adjacent_weights, _distances, was_changes]
                (int src_id, int dst_id, int local_edge_pos, long long int global_edge_pos,
                 int vector_index, DelayedWriteNEC &delayed_write)
             {
-                float weight = outgoing_weights[global_edge_pos];
+                float weight = adjacent_weights[global_edge_pos];
                 float dst_weight = _distances[dst_id];
                 float src_weight = _distances[src_id];
                 if(dst_weight > src_weight + weight)
@@ -73,11 +73,11 @@ void SSSP::nec_dijkstra_partial_active(ExtendedCSRGraph<_TVertexValue, _TEdgeWei
                 }
             };
 
-            auto edge_op_collective_push = [collective_outgoing_weights, _distances, was_changes]
+            auto edge_op_collective_push = [collective_adjacent_weights, _distances, was_changes]
                     (int src_id, int dst_id, int local_edge_pos, long long int global_edge_pos,
                             int vector_index, DelayedWriteNEC &delayed_write)
             {
-                float weight = collective_outgoing_weights[global_edge_pos];
+                float weight = collective_adjacent_weights[global_edge_pos];
                 float dst_weight = _distances[dst_id];
                 float src_weight = _distances[src_id];
                 if(dst_weight > src_weight + weight)
@@ -147,7 +147,7 @@ void SSSP::nec_dijkstra_all_active(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight>
     while(changes)
     {
         changes = 0;
-        float *collective_outgoing_weights = graph_API.get_collective_weights(_graph, frontier);
+        float *collective_adjacent_weights = graph_API.get_collective_weights(_graph, frontier);
 
         auto save_old_distances = [_distances, old_distances] (int src_id, int connections_count, int vector_index)
         {
@@ -161,10 +161,10 @@ void SSSP::nec_dijkstra_all_active(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight>
 
             if(_traversal_direction == PUSH_TRAVERSAL) // PUSH PART
             {
-                auto edge_op_push = [outgoing_weights, _distances](int src_id, int dst_id, int local_edge_pos,
+                auto edge_op_push = [adjacent_weights, _distances](int src_id, int dst_id, int local_edge_pos,
                     long long int global_edge_pos, int vector_index, DelayedWriteNEC &delayed_write)
                 {
-                    float weight = outgoing_weights[global_edge_pos];
+                    float weight = adjacent_weights[global_edge_pos];
                     float dst_weight = _distances[dst_id];
                     float src_weight = _distances[src_id];
                     if(dst_weight > src_weight + weight)
@@ -173,11 +173,11 @@ void SSSP::nec_dijkstra_all_active(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight>
                     }
                 };
 
-                auto edge_op_collective_push = [collective_outgoing_weights, _distances]
+                auto edge_op_collective_push = [collective_adjacent_weights, _distances]
                         (int src_id, int dst_id, int local_edge_pos, long long int global_edge_pos,
                                 int vector_index, DelayedWriteNEC &delayed_write)
                 {
-                    float weight = collective_outgoing_weights[global_edge_pos];
+                    float weight = collective_adjacent_weights[global_edge_pos];
                     float dst_weight = _distances[dst_id];
                     float src_weight = _distances[src_id];
                     if(dst_weight > src_weight + weight)
@@ -192,10 +192,10 @@ void SSSP::nec_dijkstra_all_active(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight>
 
             if(_traversal_direction == PULL_TRAVERSAL) // PULL PART
             {
-                auto edge_op_pull = [outgoing_weights, _distances](int src_id, int dst_id, int local_edge_pos,
+                auto edge_op_pull = [adjacent_weights, _distances](int src_id, int dst_id, int local_edge_pos,
                     long long int global_edge_pos, int vector_index, DelayedWriteNEC &delayed_write)
                 {
-                    float weight = outgoing_weights[global_edge_pos];
+                    float weight = adjacent_weights[global_edge_pos];
                     float dst_weight = _distances[dst_id];
                     if(_distances[src_id] > dst_weight + weight)
                     {
@@ -203,11 +203,11 @@ void SSSP::nec_dijkstra_all_active(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight>
                     }
                 };
 
-                auto edge_op_collective_pull = [collective_outgoing_weights, _distances, &reg_distances]
+                auto edge_op_collective_pull = [collective_adjacent_weights, _distances, &reg_distances]
                         (int src_id, int dst_id, int local_edge_pos, long long int global_edge_pos,
                                 int vector_index, DelayedWriteNEC &delayed_write)
                 {
-                    float weight = collective_outgoing_weights[global_edge_pos];
+                    float weight = collective_adjacent_weights[global_edge_pos];
                     float dst_weight = _distances[dst_id];
                     if(reg_distances[vector_index] > dst_weight + weight)
                     {

@@ -29,13 +29,13 @@ void SSWP::seq_dijkstra(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
 
         container.pop();
 
-        long long edge_start = outgoing_ptrs[src_id];
-        int connections_count = outgoing_ptrs[src_id + 1] - outgoing_ptrs[src_id];
+        long long edge_start = vertex_pointers[src_id];
+        int connections_count = vertex_pointers[src_id + 1] - vertex_pointers[src_id];
 
         for(int edge_pos = 0; edge_pos < connections_count; edge_pos++)
         {
-            int dst_id = outgoing_ids[edge_start + edge_pos];
-            _TEdgeWeight weight = outgoing_weights[edge_start + edge_pos];
+            int dst_id = adjacent_ids[edge_start + edge_pos];
+            _TEdgeWeight weight = adjacent_weights[edge_start + edge_pos];
 
             // Finding the widest distance to the vertex
             // using current_source vertex's widest distance

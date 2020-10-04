@@ -163,11 +163,11 @@ void FrontierNEC::add_vertices(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_g
         const int current_id = ids[idx];
         const int next_id = ids[idx+1];
 
-        int current_size = outgoing_ptrs[current_id + 1] - outgoing_ptrs[current_id];;
+        int current_size = vertex_pointers[current_id + 1] - vertex_pointers[current_id];;
         int next_size = 0;
         if(idx < (current_size - 1))
         {
-            next_size = outgoing_ptrs[next_id + 1] - outgoing_ptrs[next_id];
+            next_size = vertex_pointers[next_id + 1] - vertex_pointers[next_id];
         }
 
         if((current_size > VECTOR_ENGINE_THRESHOLD_VALUE) && (next_size <= VECTOR_ENGINE_THRESHOLD_VALUE))

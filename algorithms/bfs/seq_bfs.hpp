@@ -31,13 +31,13 @@ void BFS<_TVertexValue, _TEdgeWeight>::seq_top_down(ExtendedCSRGraph<_TVertexVal
         int s = queue.front();
         queue.pop_front();
 
-        const long long edge_start = outgoing_ptrs[s];
-        const int connections_count = outgoing_ptrs[s + 1] - outgoing_ptrs[s];
+        const long long edge_start = vertex_pointers[s];
+        const int connections_count = vertex_pointers[s + 1] - vertex_pointers[s];
 
         for(int edge_pos = 0; edge_pos < connections_count; edge_pos++)
         {
             long long int global_edge_pos = edge_start + edge_pos;
-            int v = outgoing_ids[global_edge_pos];
+            int v = adjacent_ids[global_edge_pos];
             if (_levels[v] == UNVISITED_VERTEX)
             {
                 _levels[v] = _levels[s] + 1;

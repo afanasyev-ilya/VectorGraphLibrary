@@ -45,8 +45,8 @@ void gpu_dijkstra_all_active_wrapper(ExtendedCSRGraph<_TVertexValue, _TEdgeWeigh
     {
         changes[0] = 0;
 
-        auto edge_op_push = [outgoing_weights, _distances, changes] __device__(int src_id, int dst_id, int local_edge_pos, long long int global_edge_pos, int frontier_pos){
-            _TEdgeWeight weight = outgoing_weights[global_edge_pos];
+        auto edge_op_push = [adjacent_weights, _distances, changes] __device__(int src_id, int dst_id, int local_edge_pos, long long int global_edge_pos, int frontier_pos){
+            _TEdgeWeight weight = adjacent_weights[global_edge_pos];
             _TEdgeWeight src_weight = __ldg(&_distances[src_id]);
             _TEdgeWeight dst_weight = __ldg(&_distances[dst_id]);
 
@@ -57,8 +57,8 @@ void gpu_dijkstra_all_active_wrapper(ExtendedCSRGraph<_TVertexValue, _TEdgeWeigh
             }
         };
 
-        auto edge_op_pull = [outgoing_weights, _distances, changes] __device__(int src_id, int dst_id, int local_edge_pos, long long int global_edge_pos, int frontier_pos){
-            _TEdgeWeight weight = outgoing_weights[global_edge_pos];
+        auto edge_op_pull = [adjacent_weights, _distances, changes] __device__(int src_id, int dst_id, int local_edge_pos, long long int global_edge_pos, int frontier_pos){
+            _TEdgeWeight weight = adjacent_weights[global_edge_pos];
             _TEdgeWeight src_weight = __ldg(&_distances[src_id]);
             _TEdgeWeight dst_weight = __ldg(&_distances[dst_id]);
 
@@ -105,8 +105,8 @@ void gpu_dijkstra_partial_active_wrapper(ExtendedCSRGraph<_TVertexValue, _TEdgeW
 
     graph_API.compute(_graph, frontier, init_op);
 
-    auto edge_op = [outgoing_weights, _distances, was_updated] __device__(int src_id, int dst_id, int local_edge_pos, long long int global_edge_pos, int frontier_pos){
-        _TEdgeWeight weight = outgoing_weights[global_edge_pos];
+    auto edge_op = [adjacent_weights, _distances, was_updated] __device__(int src_id, int dst_id, int local_edge_pos, long long int global_edge_pos, int frontier_pos){
+        _TEdgeWeight weight = adjacent_weights[global_edge_pos];
         _TEdgeWeight src_weight = __ldg(&_distances[src_id]);
         _TEdgeWeight dst_weight = __ldg(&_distances[dst_id]);
 

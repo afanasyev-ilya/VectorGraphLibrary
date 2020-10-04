@@ -83,7 +83,7 @@ void CC::nec_bfs_based(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
         else if(_components[v] == DUO_VERTEX_COMPONENT)
         {
             _components[v] = current_component;
-            _components[outgoing_ids[outgoing_ptrs[v]]] = current_component;
+            _components[adjacent_ids[vertex_pointers[v]]] = current_component;
             current_component++;
         }
     }

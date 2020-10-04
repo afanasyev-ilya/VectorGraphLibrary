@@ -39,19 +39,19 @@ void LP::seq_lp(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph, int *_lab
             //Getting real vertice id
             int vertice_id = seq_vector[bypass_i];
             //Getting neighbour borders of a vertice
-            long long int begin = outgoing_ptrs[vertice_id];
-            long long int end = outgoing_ptrs[vertice_id + 1];
+            long long int begin = vertex_pointers[vertice_id];
+            long long int end = vertex_pointers[vertice_id + 1];
             //Map contains label and its frequency
             std::map<int, int> mp;
             //Filling up a map
             for (long long int neighbour = begin; neighbour< end; neighbour++)
             {
-                if (mp.count(_labels[outgoing_ids[neighbour]]))
+                if (mp.count(_labels[adjacent_ids[neighbour]]))
                 {
-                    mp[_labels[outgoing_ids[neighbour]]]++;
+                    mp[_labels[adjacent_ids[neighbour]]]++;
                 }
                 else {
-                    mp[_labels[outgoing_ids[neighbour]]] = 1;
+                    mp[_labels[adjacent_ids[neighbour]]] = 1;
                 }
             }
 

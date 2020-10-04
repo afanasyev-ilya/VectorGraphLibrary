@@ -34,9 +34,9 @@ void GraphPrimitivesNEC::advance_worker(ExtendedCSRGraph<_TVertexValue, _TEdgeWe
     #pragma omp barrier
     #endif
 
-    const long long int *vertex_pointers = outgoing_ptrs;
-    const int *adjacent_ids = outgoing_ids;
-    const int *ve_adjacent_ids = ve_outgoing_ids;
+    const long long int *vertex_pointers = vertex_pointers;
+    const int *adjacent_ids = adjacent_ids;
+    const int *ve_adjacent_ids = ve_adjacent_ids;
     int *frontier_flags = _frontier.flags;
 
     const int vector_engine_threshold_start = 0;
@@ -256,8 +256,8 @@ void GraphPrimitivesNEC::advance(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &
         for(int i = 0; i < _in_frontier.current_size; i++)
         {
             int src_id = _in_frontier.ids[i];
-            const long long int start = outgoing_ptrs[src_id];
-            const long long int end = outgoing_ptrs[src_id + 1];
+            const long long int start = vertex_pointers[src_id];
+            const long long int end = vertex_pointers[src_id + 1];
             const int connections_count = end - start;
             reg_connections[i] = connections_count;
             reg_shifts[i] = 0;
@@ -273,7 +273,7 @@ void GraphPrimitivesNEC::advance(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &
         for(int front_pos = 0; front_pos < _in_frontier.current_size; front_pos++)
         {
             int src_id = _in_frontier.ids[front_pos];
-            const long long int start = outgoing_ptrs[src_id];
+            const long long int start = vertex_pointers[src_id];
 
             #pragma _NEC ivdep
             #pragma _NEC vovertake
@@ -282,7 +282,7 @@ void GraphPrimitivesNEC::advance(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &
             for (int local_edge_pos = 0; local_edge_pos < reg_connections[front_pos]; local_edge_pos++)
             {
                 const long long int global_edge_pos = start + local_edge_pos;
-                const int dst_id = outgoing_ids[global_edge_pos];
+                const int dst_id = adjacent_ids[global_edge_pos];
                 if(cond(dst_id))
                 {
                     tmp_frontier[local_edge_pos + reg_shifts[front_pos]] = dst_id;

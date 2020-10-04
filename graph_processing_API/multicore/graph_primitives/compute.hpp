@@ -8,7 +8,7 @@ void GraphPrimitivesMulticore::compute(ExtendedCSRGraph<_TVertexValue, _TEdgeWei
                                        ComputeOperation compute_op)
 {
     LOAD_EXTENDED_CSR_GRAPH_DATA(_graph);
-    const long long int *vertex_pointers = outgoing_ptrs;
+    const long long int *vertex_pointers = vertex_pointers;
 
     int max_frontier_size = _frontier.max_size;
 

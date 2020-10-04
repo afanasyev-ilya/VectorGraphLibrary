@@ -25,17 +25,17 @@ void ExtendedCSRGraph<_TVertexValue, _TEdgeWeight>::alloc(int _vertices_count, l
     this->vertices_count = _vertices_count;
     this->edges_count = _edges_count;
 
-    MemoryAPI::allocate_array(&outgoing_ptrs, this->vertices_count + 1);
-    MemoryAPI::allocate_array(&outgoing_ids, this->edges_count);
+    MemoryAPI::allocate_array(&vertex_pointers, this->vertices_count + 1);
+    MemoryAPI::allocate_array(&adjacent_ids, this->edges_count);
     MemoryAPI::allocate_array(&(this->vertex_values), this->vertices_count);
 
     MemoryAPI::allocate_array(&forward_conversion, this->vertices_count);
     MemoryAPI::allocate_array(&backward_conversion, this->vertices_count);
     
     #ifdef __USE_WEIGHTED_GRAPHS__
-    MemoryAPI::allocate_array(&outgoing_weights, this->edges_count);
+    MemoryAPI::allocate_array(&adjacent_weights, this->edges_count);
     #else
-    outgoing_weights = NULL;
+    adjacent_weights = NULL;
     #endif
 }
 
@@ -44,15 +44,15 @@ void ExtendedCSRGraph<_TVertexValue, _TEdgeWeight>::alloc(int _vertices_count, l
 template <typename _TVertexValue, typename _TEdgeWeight>
 void ExtendedCSRGraph<_TVertexValue, _TEdgeWeight>::free()
 {
-    MemoryAPI::free_array(outgoing_ptrs);
-    MemoryAPI::free_array(outgoing_ids);
+    MemoryAPI::free_array(vertex_pointers);
+    MemoryAPI::free_array(adjacent_ids);
     MemoryAPI::free_array(this->vertex_values);
 
     MemoryAPI::free_array(forward_conversion);
     MemoryAPI::free_array(backward_conversion);
 
     #ifdef __USE_WEIGHTED_GRAPHS__
-    MemoryAPI::free_array(outgoing_weights);
+    MemoryAPI::free_array(adjacent_weights);
     #endif
 }
 
@@ -84,13 +84,13 @@ void ExtendedCSRGraph<_TVertexValue, _TEdgeWeight>::print()
     for(int cur_vertex = 0; cur_vertex < this->vertices_count; cur_vertex++)
     {
         cout << "vertex " << cur_vertex << " connected to: ";
-        for(long long edge_pos = outgoing_ptrs[cur_vertex]; edge_pos < outgoing_ptrs[cur_vertex + 1]; edge_pos++)
+        for(long long edge_pos = vertex_pointers[cur_vertex]; edge_pos < vertex_pointers[cur_vertex + 1]; edge_pos++)
         {
             _TEdgeWeight weight = 0;
             #ifdef __USE_WEIGHTED_GRAPHS__
-            weight = outgoing_weights[edge_pos];
+            weight = adjacent_weights[edge_pos];
             #endif
-            cout << "(" << outgoing_ids[edge_pos] << "," << outgoing_weights[edge_pos] << ")" << " ";
+            cout << "(" << adjacent_ids[edge_pos] << "," << adjacent_weights[edge_pos] << ")" << " ";
         }
         cout << endl;
     }
@@ -133,12 +133,12 @@ void ExtendedCSRGraph<_TVertexValue, _TEdgeWeight>::save_to_graphviz_file(string
     for(int cur_vertex = 0; cur_vertex < this->vertices_count; cur_vertex++)
     {
         int src_id = cur_vertex;
-        for(long long edge_pos = outgoing_ptrs[cur_vertex]; edge_pos < outgoing_ptrs[cur_vertex + 1]; edge_pos++)
+        for(long long edge_pos = vertex_pointers[cur_vertex]; edge_pos < vertex_pointers[cur_vertex + 1]; edge_pos++)
         {
-            int dst_id = outgoing_ids[edge_pos];
+            int dst_id = adjacent_ids[edge_pos];
             _TEdgeWeight weight = 0;
             #ifdef __USE_WEIGHTED_GRAPHS__
-            weight = outgoing_weights[edge_pos];
+            weight = adjacent_weights[edge_pos];
             #endif
             if(src_id != dst_id)
             {
@@ -178,11 +178,11 @@ bool ExtendedCSRGraph<_TVertexValue, _TEdgeWeight>::save_to_binary_file(string _
     
     fwrite(reinterpret_cast<const char*>(this->vertex_values), sizeof(_TVertexValue), vertices_count, graph_file);
     //fwrite(reinterpret_cast<const char*>(reordered_vertex_ids), sizeof(int), vertices_count, graph_file);
-    fwrite(reinterpret_cast<const char*>(outgoing_ptrs), sizeof(long long), vertices_count + 1, graph_file);
+    fwrite(reinterpret_cast<const char*>(vertex_pointers), sizeof(long long), vertices_count + 1, graph_file);
     
-    fwrite(reinterpret_cast<const char*>(outgoing_ids), sizeof(int), edges_count, graph_file);
+    fwrite(reinterpret_cast<const char*>(adjacent_ids), sizeof(int), edges_count, graph_file);
     #ifdef __USE_WEIGHTED_GRAPHS__
-    fwrite(reinterpret_cast<const char*>(outgoing_weights), sizeof(_TEdgeWeight), edges_count, graph_file);
+    fwrite(reinterpret_cast<const char*>(adjacent_weights), sizeof(_TEdgeWeight), edges_count, graph_file);
     #endif*/
     
     fclose(graph_file);
@@ -214,11 +214,11 @@ bool ExtendedCSRGraph<_TVertexValue, _TEdgeWeight>::load_from_binary_file(string
     
     fread(reinterpret_cast<char*>(this->vertex_values), sizeof(_TVertexValue), this->vertices_count, graph_file);
     //fread(reinterpret_cast<char*>(reordered_vertex_ids), sizeof(int), this->vertices_count, graph_file);
-    fread(reinterpret_cast<char*>(outgoing_ptrs), sizeof(long long), (this->vertices_count + 1), graph_file);
+    fread(reinterpret_cast<char*>(vertex_pointers), sizeof(long long), (this->vertices_count + 1), graph_file);
     
-    fread(reinterpret_cast<char*>(outgoing_ids), sizeof(int), this->edges_count, graph_file);
+    fread(reinterpret_cast<char*>(adjacent_ids), sizeof(int), this->edges_count, graph_file);
     #ifdef __USE_WEIGHTED_GRAPHS__
-    fread(reinterpret_cast<char*>(outgoing_weights), sizeof(_TEdgeWeight), this->edges_count, graph_file);
+    fread(reinterpret_cast<char*>(adjacent_weights), sizeof(_TEdgeWeight), this->edges_count, graph_file);
     #endif
 
     #ifdef __USE_GPU__
@@ -228,7 +228,7 @@ bool ExtendedCSRGraph<_TVertexValue, _TEdgeWeight>::load_from_binary_file(string
     #ifdef __USE_NEC_SX_AURORA__
     double t1 = omp_get_wtime();
     estimate_nec_thresholds();
-    last_vertices_ve.init_from_graph(this->outgoing_ptrs, this->outgoing_ids, this->outgoing_weights,
+    last_vertices_ve.init_from_graph(this->vertex_pointers, this->adjacent_ids, this->adjacent_weights,
                                      vector_core_threshold_vertex, this->vertices_count);
     double t2 = omp_get_wtime();
     cout << "NEC preprocess time: " << t2 - t1 << " sec" << endl;
@@ -274,13 +274,13 @@ template <typename _TVertexValue, typename _TEdgeWeight>
 template <typename _T>
 _T& ExtendedCSRGraph<_TVertexValue, _TEdgeWeight>::get_edge_data(_T *_data_array, int _src_id, int _dst_id)
 {
-    const long long edge_start = outgoing_ptrs[_src_id];
-    const int connections_count = outgoing_ptrs[_src_id + 1] - outgoing_ptrs[_src_id];
+    const long long edge_start = vertex_pointers[_src_id];
+    const int connections_count = vertex_pointers[_src_id + 1] - vertex_pointers[_src_id];
 
     for (int edge_pos = 0; edge_pos < connections_count; edge_pos++)
     {
         long long int global_edge_pos = edge_start + edge_pos;
-        int current_dst_id = outgoing_ids[global_edge_pos];
+        int current_dst_id = adjacent_ids[global_edge_pos];
 
         if (_dst_id == current_dst_id)
             return _data_array[global_edge_pos];

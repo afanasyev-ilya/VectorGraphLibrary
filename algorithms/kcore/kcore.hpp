@@ -37,8 +37,8 @@ void KCore<_TVertexValue, _TEdgeWeight>::kcore_subgraph(ExtendedCSRGraph<_TVerte
 {
     int vertices_count    = _graph.get_vertices_count();
     long long edges_count = _graph.get_edges_count   ();
-    long long *outgoing_ptrs    = _graph.get_outgoing_ptrs   ();
-    int       *outgoing_ids     = _graph.get_outgoing_ids    ();
+    long long *vertex_pointers    = _graph.get_vertex_pointers   ();
+    int       *adjacent_ids     = _graph.get_adjacent_ids    ();
     int       *incoming_degrees = _graph.get_incoming_degrees();
     
     int *remove_status = new int[vertices_count];
@@ -54,11 +54,11 @@ void KCore<_TVertexValue, _TEdgeWeight>::kcore_subgraph(ExtendedCSRGraph<_TVerte
     // remove loops
     for(int src_id = vertices_count - 1; src_id >= 0; src_id--)
     {
-        long long edge_start = outgoing_ptrs[src_id];
-        int connections_count = outgoing_ptrs[src_id + 1] - outgoing_ptrs[src_id];
+        long long edge_start = vertex_pointers[src_id];
+        int connections_count = vertex_pointers[src_id + 1] - vertex_pointers[src_id];
         for(int edge_pos = 0; edge_pos < connections_count; edge_pos++)
         {
-            int dst_id = outgoing_ids[edge_start + edge_pos];
+            int dst_id = adjacent_ids[edge_start + edge_pos];
             if(src_id == dst_id)
                 _kcore_degrees[src_id]--;
         }
@@ -72,11 +72,11 @@ void KCore<_TVertexValue, _TEdgeWeight>::kcore_subgraph(ExtendedCSRGraph<_TVerte
         {
             remove_status[src_id] = REMOVE_VERTEX;
                 
-            long long edge_start = outgoing_ptrs[src_id];
-            int connections_count = outgoing_ptrs[src_id + 1] - outgoing_ptrs[src_id];
+            long long edge_start = vertex_pointers[src_id];
+            int connections_count = vertex_pointers[src_id + 1] - vertex_pointers[src_id];
             for(int edge_pos = 0; edge_pos < connections_count; edge_pos++)
             {
-                int dst_id = outgoing_ids[edge_start + edge_pos];
+                int dst_id = adjacent_ids[edge_start + edge_pos];
                 //_kcore_degrees[dst_id]--;
                 _kcore_degrees[src_id]--;
             }
@@ -133,7 +133,7 @@ void KCore<_TVertexValue, _TEdgeWeight>::kcore_subgraph(VectorisedCSRGraph<_TVer
         //#pragma omp parallel for schedule(static, 1)
         for(int edge_pos = 0; edge_pos < connections_count; edge_pos++)
         {
-            int dst_id = outgoing_ids[edge_start + edge_pos];
+            int dst_id = adjacent_ids[edge_start + edge_pos];
             if(src_id == dst_id)
                 _kcore_degrees[dst_id]--;
         }
@@ -152,7 +152,7 @@ void KCore<_TVertexValue, _TEdgeWeight>::kcore_subgraph(VectorisedCSRGraph<_TVer
             for(int i = 0; i < VECTOR_LENGTH; i++)
             {
                 int src_id = segment_first_vertex + i;
-                int dst_id = outgoing_ids[segement_edges_start + edge_pos * VECTOR_LENGTH + i];
+                int dst_id = adjacent_ids[segement_edges_start + edge_pos * VECTOR_LENGTH + i];
                 if(src_id == dst_id)
                     _kcore_degrees[dst_id]--;
             }
@@ -193,7 +193,7 @@ void KCore<_TVertexValue, _TEdgeWeight>::kcore_subgraph(VectorisedCSRGraph<_TVer
                 for(int i = 0; i < VECTOR_LENGTH; i++)
                 {
                     int src_id = segment_first_vertex + i;
-                    int dst_id = outgoing_ids[segement_edges_start + edge_pos * VECTOR_LENGTH + i];
+                    int dst_id = adjacent_ids[segement_edges_start + edge_pos * VECTOR_LENGTH + i];
                     
                     if(update_required[i] == 1)
                     {
@@ -236,8 +236,8 @@ void KCore<_TVertexValue, _TEdgeWeight>::maximal_kcore(ExtendedCSRGraph<_TVertex
     
     int vertices_count    = _graph.get_vertices_count();
     long long edges_count = _graph.get_edges_count   ();
-    long long    *outgoing_ptrs = _graph.get_outgoing_ptrs   ();
-    int          *outgoing_ids  = _graph.get_outgoing_ids    ();
+    long long    *vertex_pointers = _graph.get_vertex_pointers   ();
+    int          *adjacent_ids  = _graph.get_adjacent_ids    ();
     
     int *flag = new int[vertices_count];
     
@@ -248,7 +248,7 @@ void KCore<_TVertexValue, _TEdgeWeight>::maximal_kcore(ExtendedCSRGraph<_TVertex
     for(int src_id = 0; src_id < vertices_count; src_id++)
     {
         flag[src_id] = 0;
-        _kcore_degrees[src_id] = outgoing_ptrs[src_id + 1] - outgoing_ptrs[src_id];
+        _kcore_degrees[src_id] = vertex_pointers[src_id + 1] - vertex_pointers[src_id];
     }
     
     int last_active_vertex = (vertices_count - 1);
@@ -290,11 +290,11 @@ void KCore<_TVertexValue, _TEdgeWeight>::maximal_kcore(ExtendedCSRGraph<_TVertex
             {
                 if(flag[src_id] == peel)
                 {
-                    long long edge_start = outgoing_ptrs[src_id];
-                    int connections_count = outgoing_ptrs[src_id + 1] - outgoing_ptrs[src_id];
+                    long long edge_start = vertex_pointers[src_id];
+                    int connections_count = vertex_pointers[src_id + 1] - vertex_pointers[src_id];
                     for(int edge_pos = 0; edge_pos < connections_count; edge_pos++)
                     {
-                        int dst_id = outgoing_ids[edge_start + edge_pos];
+                        int dst_id = adjacent_ids[edge_start + edge_pos];
                         _kcore_degrees[dst_id]--;
                         _kcore_degrees[src_id]--;
                     }
@@ -305,7 +305,7 @@ void KCore<_TVertexValue, _TEdgeWeight>::maximal_kcore(ExtendedCSRGraph<_TVertex
     }
     
     for(int i = 0; i < vertices_count; i++)
-        cout << i << ") " << _kcore_degrees[i] << ", flag = " << flag[i] << " | old val = " << (outgoing_ptrs[i + 1] - outgoing_ptrs[i]) << endl;
+        cout << i << ") " << _kcore_degrees[i] << ", flag = " << flag[i] << " | old val = " << (vertex_pointers[i + 1] - vertex_pointers[i]) << endl;
     
     double t2 = omp_get_wtime();
     cout << "iterations_count: " << iterations_count << endl;
@@ -321,8 +321,8 @@ void KCore<_TVertexValue, _TEdgeWeight>::calculate_kcore_sizes(ExtendedCSRGraph<
                                                                long long &_kcore_edges_count)
 {
     int vertices_count       = _graph.get_vertices_count();
-    long long *outgoing_ptrs = _graph.get_outgoing_ptrs ();
-    int       *outgoing_ids  = _graph.get_outgoing_ids  ();
+    long long *vertex_pointers = _graph.get_vertex_pointers ();
+    int       *adjacent_ids  = _graph.get_adjacent_ids  ();
     
     int vertices_in_kcore = 0;
     long long edges_in_kcore = 0;
@@ -331,11 +331,11 @@ void KCore<_TVertexValue, _TEdgeWeight>::calculate_kcore_sizes(ExtendedCSRGraph<
     {
         if(_kcore_data[src_id] > 0)
             vertices_in_kcore++;
-        long long edge_start = outgoing_ptrs[src_id];
-        int connections_count = outgoing_ptrs[src_id + 1] - outgoing_ptrs[src_id];
+        long long edge_start = vertex_pointers[src_id];
+        int connections_count = vertex_pointers[src_id + 1] - vertex_pointers[src_id];
         for(int edge_pos = 0; edge_pos < connections_count; edge_pos++)
         {
-            int dst_id = outgoing_ids[edge_start + edge_pos];
+            int dst_id = adjacent_ids[edge_start + edge_pos];
             if((_kcore_data[src_id] > 0) && (_kcore_data[dst_id] > 0))
             {
                 edges_in_kcore++;

@@ -201,9 +201,9 @@ void GraphPrimitivesNEC::partial_advance_worker(ExtendedCSRGraph<_TVertexValue, 
                                                 int _last_edge)
 {
     LOAD_EXTENDED_CSR_GRAPH_DATA(_graph);
-    const long long int *vertex_pointers = outgoing_ptrs;
-    const int *adjacent_ids = outgoing_ids;
-    const int *ve_adjacent_ids = ve_outgoing_ids;
+    const long long int *vertex_pointers = vertex_pointers;
+    const int *adjacent_ids = adjacent_ids;
+    const int *ve_adjacent_ids = ve_adjacent_ids;
     int *frontier_flags = _frontier.flags;
     int *frontier_ids = _frontier.ids;
 

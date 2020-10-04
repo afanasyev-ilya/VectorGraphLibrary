@@ -65,7 +65,7 @@ void GraphPrimitivesGPU::compute(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &
 
     LOAD_EXTENDED_CSR_GRAPH_DATA(_graph);
 
-    long long *vertex_pointers = outgoing_ptrs;
+    long long *vertex_pointers = vertex_pointers;
 
     if(_frontier.type == ALL_ACTIVE_FRONTIER)
     {

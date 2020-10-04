@@ -21,9 +21,9 @@ template <typename _TVertexValue, typename _TEdgeWeight>
 class ExtendedCSRGraph : public BaseGraph<_TVertexValue, _TEdgeWeight>
 {
 private:
-    long long     *outgoing_ptrs;
-    int           *outgoing_ids;
-    _TEdgeWeight  *outgoing_weights;
+    long long     *vertex_pointers;
+    int           *adjacent_ids;
+    _TEdgeWeight  *adjacent_weights;
 
     int *forward_conversion;
     int *backward_conversion;
@@ -83,9 +83,9 @@ public:
     void import_and_preprocess(EdgesListGraph<_TVertexValue, _TEdgeWeight> &_old_graph);
     
     inline int           *get_reordered_vertex_ids() {return reordered_vertex_ids;};
-    inline long long     *get_outgoing_ptrs()        {return outgoing_ptrs;};
-    inline int           *get_outgoing_ids()         {return outgoing_ids;};
-    inline _TEdgeWeight  *get_outgoing_weights()     {return outgoing_weights;};
+    inline long long     *get_vertex_pointers()        {return vertex_pointers;};
+    inline int           *get_adjacent_ids()         {return adjacent_ids;};
+    inline _TEdgeWeight  *get_adjacent_weights()     {return adjacent_weights;};
 
     // renumber API
     int renumber_vertex_id(int _id);
@@ -123,9 +123,9 @@ public:
 int vertices_count                   = input_graph.get_vertices_count(); \
 long long int edges_count            = input_graph.get_edges_count   (); \
 \
-long long    *outgoing_ptrs           = _graph.get_outgoing_ptrs   ();\
-int          *outgoing_ids            = _graph.get_outgoing_ids    ();\
-_TEdgeWeight *outgoing_weights        = _graph.get_outgoing_weights();\
+long long    *vertex_pointers           = _graph.get_vertex_pointers   ();\
+int          *adjacent_ids            = _graph.get_adjacent_ids    ();\
+_TEdgeWeight *adjacent_weights        = _graph.get_adjacent_weights();\
 \
 int ve_vertices_count = (_graph.get_last_vertices_ve_ptr())->get_vertices_count();\
 int ve_starting_vertex = (_graph.get_last_vertices_ve_ptr())->get_starting_vertex();\
@@ -133,8 +133,8 @@ int ve_vector_segments_count = (_graph.get_last_vertices_ve_ptr())->get_vector_s
 \
 long long *ve_vector_group_ptrs = (_graph.get_last_vertices_ve_ptr())->get_vector_group_ptrs();\
 int *ve_vector_group_sizes = (_graph.get_last_vertices_ve_ptr())->get_vector_group_sizes();\
-int *ve_outgoing_ids = (_graph.get_last_vertices_ve_ptr())->get_adjacent_ids();\
-_TEdgeWeight *ve_outgoing_weights = (_graph.get_last_vertices_ve_ptr())->get_adjacent_weights();\
+int *ve_adjacent_ids = (_graph.get_last_vertices_ve_ptr())->get_adjacent_ids();\
+_TEdgeWeight *ve_adjacent_weights = (_graph.get_last_vertices_ve_ptr())->get_adjacent_weights();\
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 

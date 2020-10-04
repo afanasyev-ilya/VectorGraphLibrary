@@ -275,14 +275,14 @@ void convert_and_test(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph, str
 
     for(int src_id = 0; src_id < vertices_count; src_id++)
     {
-        const long long int start = outgoing_ptrs[src_id];
-        const long long int end = outgoing_ptrs[src_id + 1];
+        const long long int start = vertex_pointers[src_id];
+        const long long int end = vertex_pointers[src_id + 1];
         int connections_count = end - start;
 
         for(int edge_pos = 0; edge_pos < connections_count; edge_pos++)
         {
-            int dst_id = outgoing_ids[start + edge_pos];
-            _TEdgeWeight weight = outgoing_weights[start + edge_pos];
+            int dst_id = adjacent_ids[start + edge_pos];
+            _TEdgeWeight weight = adjacent_weights[start + edge_pos];
             csc_tmp_graph[src_id].push_back(TempEdgeData<_TEdgeWeight>(dst_id, weight));
         }
     }

@@ -49,7 +49,7 @@ template <typename _TVertexValue, typename _TEdgeWeight>
 void GraphAnalytics::analyse_graph_stats(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph, string _graph_name)
 {
     LOAD_EXTENDED_CSR_GRAPH_DATA(_graph);
-    long long *adjacent_ptrs = outgoing_ptrs;
+    long long *adjacent_ptrs = vertex_pointers;
 
     cout << "------------------------------------- graph stats -----------------------------------------" << endl;
     auto vertex_power_range = calculate_power_range(vertices_count);

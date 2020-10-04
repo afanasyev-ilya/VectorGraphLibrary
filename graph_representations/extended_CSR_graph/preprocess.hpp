@@ -115,11 +115,11 @@ void ExtendedCSRGraph<_TVertexValue, _TEdgeWeight>::construct_CSR(EdgesListGraph
     #pragma omp parallel
     for(long long cur_vertex = 0; cur_vertex < el_vertices_count; cur_vertex++)
     {
-        this->outgoing_ptrs[cur_vertex] = -1;
+        this->vertex_pointers[cur_vertex] = -1;
         this->vertex_values[cur_vertex] = el_vertex_values[cur_vertex]; // TODO fix with reorder????
     }
 
-    outgoing_ptrs[0] = 0;
+    vertex_pointers[0] = 0;
     #pragma _NEC ivdep
     #pragma omp parallel
     for(long long cur_edge = 1; cur_edge < el_edges_count; cur_edge++)
@@ -127,17 +127,17 @@ void ExtendedCSRGraph<_TVertexValue, _TEdgeWeight>::construct_CSR(EdgesListGraph
         int prev_id = el_src_ids[cur_edge - 1];
         int src_id = el_src_ids[cur_edge];
         if(src_id != prev_id)
-            outgoing_ptrs[src_id] = cur_edge;
+            vertex_pointers[src_id] = cur_edge;
     }
-    outgoing_ptrs[el_vertices_count] = el_edges_count;
+    vertex_pointers[el_vertices_count] = el_edges_count;
 
     #pragma _NEC ivdep
     #pragma omp parallel // this can be done in parallel only because graph is sorted
     for(long long cur_vertex = el_vertices_count; cur_vertex >= 0; cur_vertex--)
     {
-        if(this->outgoing_ptrs[cur_vertex] == -1) // if vertex has zero degree
+        if(this->vertex_pointers[cur_vertex] == -1) // if vertex has zero degree
         {
-            this->outgoing_ptrs[cur_vertex] = el_edges_count; // since graph is sorted
+            this->vertex_pointers[cur_vertex] = el_edges_count; // since graph is sorted
         }
     }
 
@@ -145,8 +145,8 @@ void ExtendedCSRGraph<_TVertexValue, _TEdgeWeight>::construct_CSR(EdgesListGraph
     #pragma omp parallel
     for(long long cur_edge = 0; cur_edge < el_edges_count; cur_edge++)
     {
-        this->outgoing_ids[cur_edge] = el_dst_ids[cur_edge];
-        this->outgoing_weights[cur_edge] = el_weights[cur_edge];
+        this->adjacent_ids[cur_edge] = el_dst_ids[cur_edge];
+        this->adjacent_weights[cur_edge] = el_weights[cur_edge];
     }
 
     double t2 = omp_get_wtime();
@@ -216,7 +216,7 @@ void ExtendedCSRGraph<_TVertexValue, _TEdgeWeight>::import_and_preprocess(EdgesL
 
     #ifdef __USE_NEC_SX_AURORA__
     estimate_nec_thresholds();
-    last_vertices_ve.init_from_graph(this->outgoing_ptrs, this->outgoing_ids, this->outgoing_weights,
+    last_vertices_ve.init_from_graph(this->vertex_pointers, this->adjacent_ids, this->adjacent_weights,
                                      vector_core_threshold_vertex, this->vertices_count);
     #endif
 }
@@ -372,7 +372,7 @@ void ExtendedCSRGraph<_TVertexValue, _TEdgeWeight>::import_graph(EdgesListGraph<
     
     // save optimised graph
     long long current_edge = 0;
-    this->outgoing_ptrs[0] = current_edge;
+    this->vertex_pointers[0] = current_edge;
     for(int cur_vertex = 0; cur_vertex < this->vertices_count; cur_vertex++)
     {
         int src_id = cur_vertex;
@@ -381,11 +381,11 @@ void ExtendedCSRGraph<_TVertexValue, _TEdgeWeight>::import_graph(EdgesListGraph<
         
         for(int i = 0; i < tmp_graph[src_id].size(); i++)
         {
-            this->outgoing_ids[current_edge] = tmp_graph[src_id][i].dst_id;
-            this->outgoing_weights[current_edge] = tmp_graph[src_id][i].weight;
+            this->adjacent_ids[current_edge] = tmp_graph[src_id][i].dst_id;
+            this->adjacent_weights[current_edge] = tmp_graph[src_id][i].weight;
             current_edge++;
         }
-        this->outgoing_ptrs[cur_vertex + 1] = current_edge;
+        this->vertex_pointers[cur_vertex + 1] = current_edge;
     }
 
     MemoryAPI::free_array(tmp_reordered_vertex_ids);
@@ -398,7 +398,7 @@ void ExtendedCSRGraph<_TVertexValue, _TEdgeWeight>::import_graph(EdgesListGraph<
 
     //#ifdef __USE_NEC_SX_AURORA__
     estimate_nec_thresholds();
-    last_vertices_ve.init_from_graph(this->outgoing_ptrs, this->outgoing_ids, this->outgoing_weights,
+    last_vertices_ve.init_from_graph(this->vertex_pointers, this->adjacent_ids, this->adjacent_weights,
                                      vector_core_threshold_vertex, this->vertices_count);
     //#endif
 

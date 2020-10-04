@@ -24,14 +24,14 @@ bool MF::seq_bfs(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph, int _sou
         int src_id = q.front();
         q.pop();
 
-        const long long edge_start = outgoing_ptrs[src_id];
-        const int connections_count = outgoing_ptrs[src_id + 1] - outgoing_ptrs[src_id];
+        const long long edge_start = vertex_pointers[src_id];
+        const int connections_count = vertex_pointers[src_id + 1] - vertex_pointers[src_id];
 
         for(int edge_pos = 0; edge_pos < connections_count; edge_pos++)
         {
             long long int global_edge_pos = edge_start + edge_pos;
-            int dst_id = outgoing_ids[global_edge_pos];
-            _TEdgeWeight weight = outgoing_weights[global_edge_pos];
+            int dst_id = adjacent_ids[global_edge_pos];
+            _TEdgeWeight weight = adjacent_weights[global_edge_pos];
 
             if (visited[dst_id] == false && weight > 0)
             {
@@ -54,16 +54,16 @@ _TEdgeWeight MF::get_flow(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
 {
     LOAD_EXTENDED_CSR_GRAPH_DATA(_graph);
 
-    const long long edge_start = outgoing_ptrs[_src_id];
-    const int connections_count = outgoing_ptrs[_src_id + 1] - outgoing_ptrs[_src_id];
+    const long long edge_start = vertex_pointers[_src_id];
+    const int connections_count = vertex_pointers[_src_id + 1] - vertex_pointers[_src_id];
 
     for (int edge_pos = 0; edge_pos < connections_count; edge_pos++)
     {
         long long int global_edge_pos = edge_start + edge_pos;
-        int dst_id = outgoing_ids[global_edge_pos];
+        int dst_id = adjacent_ids[global_edge_pos];
 
         if (_dst_id == dst_id)
-            return outgoing_weights[global_edge_pos];
+            return adjacent_weights[global_edge_pos];
     }
     return 0;
 }
@@ -75,16 +75,16 @@ void MF::add_flow(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph, int _sr
 {
     LOAD_EXTENDED_CSR_GRAPH_DATA(_graph);
 
-    const long long edge_start = outgoing_ptrs[_src_id];
-    const int connections_count = outgoing_ptrs[_src_id + 1] - outgoing_ptrs[_src_id];
+    const long long edge_start = vertex_pointers[_src_id];
+    const int connections_count = vertex_pointers[_src_id + 1] - vertex_pointers[_src_id];
 
     for (int edge_pos = 0; edge_pos < connections_count; edge_pos++)
     {
         long long int global_edge_pos = edge_start + edge_pos;
-        int dst_id = outgoing_ids[global_edge_pos];
+        int dst_id = adjacent_ids[global_edge_pos];
 
         if (_dst_id == dst_id)
-            outgoing_weights[global_edge_pos] += update_val;
+            adjacent_weights[global_edge_pos] += update_val;
     }
 }
 
@@ -95,16 +95,16 @@ void MF::subtract_flow(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph, in
 {
     LOAD_EXTENDED_CSR_GRAPH_DATA(_graph);
 
-    const long long edge_start = outgoing_ptrs[_src_id];
-    const int connections_count = outgoing_ptrs[_src_id + 1] - outgoing_ptrs[_src_id];
+    const long long edge_start = vertex_pointers[_src_id];
+    const int connections_count = vertex_pointers[_src_id + 1] - vertex_pointers[_src_id];
 
     for (int edge_pos = 0; edge_pos < connections_count; edge_pos++)
     {
         long long int global_edge_pos = edge_start + edge_pos;
-        int dst_id = outgoing_ids[global_edge_pos];
+        int dst_id = adjacent_ids[global_edge_pos];
 
         if (_dst_id == dst_id)
-            outgoing_weights[global_edge_pos] -= update_val;
+            adjacent_weights[global_edge_pos] -= update_val;
     }
 }
 
@@ -121,7 +121,7 @@ _TEdgeWeight MF::seq_ford_fulkerson(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight
 
     for(int i = 0; i < edges_count; i++)
     {
-        outgoing_weights[i] = 10;
+        adjacent_weights[i] = 10;
     }
 
     int max_flow = 0;  // There is no flow initially

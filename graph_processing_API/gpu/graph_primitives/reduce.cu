@@ -133,7 +133,7 @@ _T GraphPrimitivesGPU::reduce(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_gr
     MemoryAPI::allocate_managed_array(&managed_reduced_result, 1);
 
     LOAD_EXTENDED_CSR_GRAPH_DATA(_graph);
-    long long *vertex_pointers = outgoing_ptrs;
+    long long *vertex_pointers = vertex_pointers;
 
     if(_frontier.type == ALL_ACTIVE_FRONTIER)
     {

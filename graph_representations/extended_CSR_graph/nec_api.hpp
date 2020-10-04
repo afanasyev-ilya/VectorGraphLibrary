@@ -19,7 +19,7 @@ void ExtendedCSRGraph<_TVertexValue, _TEdgeWeight>::estimate_nec_thresholds()
     for(int idx = 0; idx < this->vertices_count; idx++)
     {
         const int current_id = idx;
-        const int current_size = outgoing_ptrs[current_id + 1] - outgoing_ptrs[current_id];
+        const int current_size = vertex_pointers[current_id + 1] - vertex_pointers[current_id];
 
         int next_id = 0;
         int next_size = 0;
@@ -31,7 +31,7 @@ void ExtendedCSRGraph<_TVertexValue, _TEdgeWeight>::estimate_nec_thresholds()
         else
         {
             next_id = idx + 1;
-            next_size = outgoing_ptrs[next_id + 1] - outgoing_ptrs[next_id];
+            next_size = vertex_pointers[next_id + 1] - vertex_pointers[next_id];
         }
 
         if((current_size >= VECTOR_ENGINE_THRESHOLD_VALUE) && (next_size < VECTOR_ENGINE_THRESHOLD_VALUE))

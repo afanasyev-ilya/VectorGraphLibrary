@@ -12,7 +12,7 @@ _T GraphPrimitivesNEC::reduce_sum(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> 
     #endif
 
     LOAD_EXTENDED_CSR_GRAPH_DATA(_graph);
-    const long long int *vertex_pointers = outgoing_ptrs;
+    const long long int *vertex_pointers = vertex_pointers;
 
     _T reduce_result = 0.0;
 

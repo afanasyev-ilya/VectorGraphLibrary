@@ -20,11 +20,11 @@ GraphStructure check_graph_structure(ExtendedCSRGraph<_TVertexValue, _TEdgeWeigh
 {
     int vertices_count    = _graph.get_vertices_count();
     long long edges_count = _graph.get_edges_count   ();
-    long long    *outgoing_ptrs    = _graph.get_outgoing_ptrs   ();
-    int          *outgoing_ids     = _graph.get_outgoing_ids    ();
+    long long    *vertex_pointers    = _graph.get_vertex_pointers   ();
+    int          *adjacent_ids     = _graph.get_adjacent_ids    ();
     
     int portion_of_first_vertices = 0.01 * vertices_count + 1;
-    long long number_of_edges_in_first_portion = outgoing_ptrs[portion_of_first_vertices];
+    long long number_of_edges_in_first_portion = vertex_pointers[portion_of_first_vertices];
     
     if((100.0 * number_of_edges_in_first_portion) / edges_count > POWER_LAW_EDGES_THRESHOLD)
         return POWER_LAW_GRAPH;

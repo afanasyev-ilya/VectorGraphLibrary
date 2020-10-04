@@ -29,7 +29,7 @@ int GraphPrimitivesGPU::estimate_advance_work(ExtendedCSRGraph<_TVertexValue, _T
                                               FrontierGPU &_frontier)
 {
     LOAD_EXTENDED_CSR_GRAPH_DATA(_graph);
-    long long *vertex_pointers = outgoing_ptrs;
+    long long *vertex_pointers = vertex_pointers;
 
     int *managed_reduced_result;
     MemoryAPI::allocate_managed_array(&managed_reduced_result, 1);

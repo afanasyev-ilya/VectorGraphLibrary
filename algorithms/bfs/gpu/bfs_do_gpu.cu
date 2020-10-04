@@ -200,7 +200,7 @@ void direction_optimizing_wrapper(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> 
     // unroll here - 4-5x
     int *vector_extension;
     /*MemoryAPI::allocate_device_array(&vector_extension, vertices_count * VERTICES_IN_VECTOR_EXTENSION);
-    init_vector_extension(_graph.get_outgoing_ptrs(), _graph.get_outgoing_ids(), vertices_count, vector_extension);*/
+    init_vector_extension(_graph.get_vertex_pointers(), _graph.get_adjacent_ids(), vertices_count, vector_extension);*/
 
     int *next_frontier_size;
     MemoryAPI::allocate_managed_array(&next_frontier_size, 1);
@@ -271,7 +271,7 @@ void direction_optimizing_wrapper(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> 
         {
             bool _use_vector_extension = false;
             //_use_vector_extension = true;
-            bottom_up_step(_graph, frontier, graph_API, _graph.get_outgoing_ptrs(), _graph.get_outgoing_ids(), vertices_count, vector_extension, _levels, current_level, vis, _use_vector_extension);
+            bottom_up_step(_graph, frontier, graph_API, _graph.get_vertex_pointers(), _graph.get_adjacent_ids(), vertices_count, vector_extension, _levels, current_level, vis, _use_vector_extension);
         }
 
         if(vis[0] == 0)

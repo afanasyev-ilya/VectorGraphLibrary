@@ -31,11 +31,11 @@ bool MF::nec_bfs(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
     int current_level = FIRST_LEVEL_VERTEX;
     while(_frontier.size() > 0)
     {
-        auto edge_op = [_levels, _parents, current_level, outgoing_weights](int src_id, int dst_id, int local_edge_pos,
+        auto edge_op = [_levels, _parents, current_level, adjacent_weights](int src_id, int dst_id, int local_edge_pos,
                                  long long int global_edge_pos, int vector_index, DelayedWriteNEC &delayed_write)
         {
             int dst_level = _levels[dst_id];
-            _TEdgeWeight weight = outgoing_weights[global_edge_pos];
+            _TEdgeWeight weight = adjacent_weights[global_edge_pos];
             if((dst_level == UNVISITED_VERTEX) && (weight > 0))
             {
                 _levels[dst_id] = current_level + 1;
@@ -95,7 +95,7 @@ _TEdgeWeight MF::nec_ford_fulkerson(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight
     MemoryAPI::allocate_array(&parents, vertices_count);
     MemoryAPI::allocate_array(&levels, vertices_count);
     MemoryAPI::allocate_array(&path, vertices_count);
-    int *flows = outgoing_weights;
+    int *flows = adjacent_weights;
 
     #pragma omp parallel for
     for(int i = 0; i < edges_count; i++)

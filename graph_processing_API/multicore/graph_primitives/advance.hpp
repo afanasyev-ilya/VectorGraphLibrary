@@ -9,9 +9,9 @@ void GraphPrimitivesMulticore::advance(ExtendedCSRGraph<_TVertexValue, _TEdgeWei
 {
     LOAD_EXTENDED_CSR_GRAPH_DATA(_graph);
 
-    const long long int *_vertex_pointers = outgoing_ptrs;
-    const int *_adjacent_ids = outgoing_ids;
-    const int *_ve_adjacent_ids = ve_outgoing_ids;
+    const long long int *_vertex_pointers = vertex_pointers;
+    const int *_adjacent_ids = adjacent_ids;
+    const int *_ve_adjacent_ids = ve_adjacent_ids;
     int *_frontier_flags = _frontier.flags;
 
     const int vector_engine_threshold_start = 0;

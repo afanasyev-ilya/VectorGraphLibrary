@@ -41,14 +41,14 @@ void SSSP::seq_dijkstra(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
         int src_id = pq.top().second;
         pq.pop();
 
-        const long long edge_start = outgoing_ptrs[src_id];
-        const int connections_count = outgoing_ptrs[src_id + 1] - outgoing_ptrs[src_id];
+        const long long edge_start = vertex_pointers[src_id];
+        const int connections_count = vertex_pointers[src_id + 1] - vertex_pointers[src_id];
 
         for(int edge_pos = 0; edge_pos < connections_count; edge_pos++)
         {
             long long int global_edge_pos = edge_start + edge_pos;
-            int dst_id = outgoing_ids[global_edge_pos];
-            _TEdgeWeight weight = outgoing_weights[global_edge_pos];
+            int dst_id = adjacent_ids[global_edge_pos];
+            _TEdgeWeight weight = adjacent_weights[global_edge_pos];
 
             if (_distances[dst_id] > _distances[src_id] + weight)
             {

@@ -23,7 +23,7 @@ void CC::seq_bfs_based(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
     {
         if(_components[v] == COMPONENT_UNSET)
         {
-            int connections_count = outgoing_ptrs[v + 1] - outgoing_ptrs[v];
+            int connections_count = vertex_pointers[v + 1] - vertex_pointers[v];
 
             if(connections_count >= 1)
             {

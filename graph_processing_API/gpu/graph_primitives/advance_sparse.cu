@@ -264,7 +264,7 @@ void GraphPrimitivesGPU::advance_sparse(ExtendedCSRGraph<_TVertexValue, _TEdgeWe
     int thread_threshold_start = 0;
     int thread_threshold_end = 0;
 
-    _frontier.split_sorted_frontier(outgoing_ptrs, grid_threshold_start, grid_threshold_end, block_threshold_start,
+    _frontier.split_sorted_frontier(vertex_pointers, grid_threshold_start, grid_threshold_end, block_threshold_start,
                                     block_threshold_end, warp_threshold_start, warp_threshold_end,
                                     vwp_16_threshold_start, vwp_16_threshold_end,
                                     vwp_8_threshold_start, vwp_8_threshold_end,
@@ -282,7 +282,7 @@ void GraphPrimitivesGPU::advance_sparse(ExtendedCSRGraph<_TVertexValue, _TEdgeWe
     if (grid_vertices_count > 0)
     {
         grid_per_vertex_kernel <<< grid_vertices_count, 1, 0, grid_processing_stream >>>
-                (outgoing_ptrs, outgoing_ids, _frontier.ids, vertices_count, grid_threshold_start,
+                (vertex_pointers, adjacent_ids, _frontier.ids, vertices_count, grid_threshold_start,
                  grid_threshold_end, edge_op, vertex_preprocess_op, vertex_postprocess_op, tmp_new_frontier_buffer, _generate_frontier, new_frontier_size);
     }
 
@@ -290,7 +290,7 @@ void GraphPrimitivesGPU::advance_sparse(ExtendedCSRGraph<_TVertexValue, _TEdgeWe
     if (block_vertices_count > 0)
     {
         block_per_vertex_kernel <<< block_vertices_count, BLOCK_SIZE, 0, block_processing_stream >>>
-                (outgoing_ptrs, outgoing_ids, _frontier.ids, vertices_count, block_threshold_start,
+                (vertex_pointers, adjacent_ids, _frontier.ids, vertices_count, block_threshold_start,
                  block_threshold_end, edge_op, vertex_preprocess_op, vertex_postprocess_op, tmp_new_frontier_buffer, _generate_frontier, new_frontier_size);
     }
 
@@ -298,7 +298,7 @@ void GraphPrimitivesGPU::advance_sparse(ExtendedCSRGraph<_TVertexValue, _TEdgeWe
     if (warp_vertices_count > 0)
     {
         warp_per_vertex_kernel <<< WARP_SIZE*(warp_vertices_count - 1)/BLOCK_SIZE + 1, BLOCK_SIZE, 0, warp_processing_stream >>>
-                (outgoing_ptrs, outgoing_ids, _frontier.ids, vertices_count, warp_threshold_start,
+                (vertex_pointers, adjacent_ids, _frontier.ids, vertices_count, warp_threshold_start,
                  warp_threshold_end, edge_op, vertex_preprocess_op, vertex_postprocess_op, tmp_new_frontier_buffer, _generate_frontier, new_frontier_size);
     }
 
@@ -306,7 +306,7 @@ void GraphPrimitivesGPU::advance_sparse(ExtendedCSRGraph<_TVertexValue, _TEdgeWe
     if(vwp_16_vertices_count > 0)
     {
         virtual_warp_per_vertex_kernel<16> <<< 16*(vwp_16_vertices_count - 1) / BLOCK_SIZE + 1, BLOCK_SIZE, 0, vwp_16_processing_stream >>>
-                (outgoing_ptrs, outgoing_ids, _frontier.ids, vertices_count, vwp_16_threshold_start,
+                (vertex_pointers, adjacent_ids, _frontier.ids, vertices_count, vwp_16_threshold_start,
                  vwp_16_threshold_end, edge_op, vertex_preprocess_op, vertex_postprocess_op, tmp_new_frontier_buffer, _generate_frontier, new_frontier_size);
     }
 
@@ -314,7 +314,7 @@ void GraphPrimitivesGPU::advance_sparse(ExtendedCSRGraph<_TVertexValue, _TEdgeWe
     if(vwp_8_vertices_count > 0)
     {
         virtual_warp_per_vertex_kernel<8> <<< 8*(vwp_8_vertices_count - 1) / BLOCK_SIZE + 1, BLOCK_SIZE, 0, vwp_8_processing_stream >>>
-                (outgoing_ptrs, outgoing_ids, _frontier.ids, vertices_count, vwp_8_threshold_start,
+                (vertex_pointers, adjacent_ids, _frontier.ids, vertices_count, vwp_8_threshold_start,
                  vwp_8_threshold_end, edge_op, vertex_preprocess_op, vertex_postprocess_op, tmp_new_frontier_buffer, _generate_frontier, new_frontier_size);
     }
 
@@ -322,7 +322,7 @@ void GraphPrimitivesGPU::advance_sparse(ExtendedCSRGraph<_TVertexValue, _TEdgeWe
     if(vwp_4_vertices_count > 0)
     {
         virtual_warp_per_vertex_kernel<4> <<< 4*(vwp_4_vertices_count - 1) / BLOCK_SIZE + 1, BLOCK_SIZE, 0, vwp_4_processing_stream >>>
-                (outgoing_ptrs, outgoing_ids, _frontier.ids, vertices_count, vwp_4_threshold_start,
+                (vertex_pointers, adjacent_ids, _frontier.ids, vertices_count, vwp_4_threshold_start,
                  vwp_4_threshold_end, edge_op, vertex_preprocess_op, vertex_postprocess_op, tmp_new_frontier_buffer, _generate_frontier, new_frontier_size);
     }
 
@@ -330,7 +330,7 @@ void GraphPrimitivesGPU::advance_sparse(ExtendedCSRGraph<_TVertexValue, _TEdgeWe
     if(vwp_2_vertices_count > 0)
     {
         virtual_warp_per_vertex_kernel<2> <<< 2*(vwp_2_vertices_count - 1) / BLOCK_SIZE + 1, BLOCK_SIZE, 0, vwp_2_processing_stream >>>
-                (outgoing_ptrs, outgoing_ids, _frontier.ids, vertices_count, vwp_2_threshold_start,
+                (vertex_pointers, adjacent_ids, _frontier.ids, vertices_count, vwp_2_threshold_start,
                  vwp_2_threshold_end, edge_op, vertex_preprocess_op, vertex_postprocess_op, tmp_new_frontier_buffer, _generate_frontier, new_frontier_size);
     }
 
@@ -338,7 +338,7 @@ void GraphPrimitivesGPU::advance_sparse(ExtendedCSRGraph<_TVertexValue, _TEdgeWe
     if (thread_vertices_count > 0)
     {
         thread_per_vertex_kernel <<< (thread_vertices_count - 1) / BLOCK_SIZE + 1, BLOCK_SIZE, 0, thread_processing_stream >>>
-                                                                                                  (outgoing_ptrs, outgoing_ids, _frontier.ids, vertices_count, thread_threshold_start,
+                                                                                                  (vertex_pointers, adjacent_ids, _frontier.ids, vertices_count, thread_threshold_start,
                                                                                                           thread_threshold_end, edge_op, vertex_preprocess_op, vertex_postprocess_op, tmp_new_frontier_buffer, _generate_frontier, new_frontier_size);
     }
     cudaDeviceSynchronize();
