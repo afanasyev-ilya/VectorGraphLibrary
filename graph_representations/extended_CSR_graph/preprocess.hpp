@@ -122,7 +122,7 @@ void ExtendedCSRGraph<_TVertexValue, _TEdgeWeight>::construct_CSR(EdgesListGraph
     outgoing_ptrs[0] = 0;
     #pragma _NEC ivdep
     #pragma omp parallel
-    for(long long cur_edge = 1; cur_edge < (el_edges_count - 1); cur_edge++)
+    for(long long cur_edge = 1; cur_edge < el_edges_count; cur_edge++)
     {
         int prev_id = el_src_ids[cur_edge - 1];
         int src_id = el_src_ids[cur_edge];

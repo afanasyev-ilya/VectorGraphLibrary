@@ -5,7 +5,7 @@
 template <typename _TVertexValue, typename _TEdgeWeight>
 int ExtendedCSRGraph<_TVertexValue, _TEdgeWeight>::renumber_vertex_id(int _id)
 {
-    return forward_conversion[_id];
+    return forward_conversion[_id]; // id (old) -> id (current)
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -17,7 +17,7 @@ void ExtendedCSRGraph<_TVertexValue, _TEdgeWeight>::renumber_vertex_array(float 
     #pragma omp parallel for
     for(int i = 0; i < this->vertices_count; i++)
     {
-        _output_array[i] = _input_array[forward_conversion[i]];
+        _output_array[i] = _input_array[forward_conversion[i]]; // data(current) -> data(old)
     }
 }
 

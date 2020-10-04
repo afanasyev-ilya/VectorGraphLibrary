@@ -25,9 +25,12 @@ public:
     inline _TEdgeWeight *get_weights() {return weights;};
     
     void resize(int _vertices_count, long long _edges_count);
+
+    void transpose();
     
     void print();
-    void print_stats() {};
+    void print_in_csr_format();
+    void print_stats();
     
     void save_to_graphviz_file(string file_name, VisualisationMode _visualisation_mode = VISUALISE_AS_DIRECTED);
     bool save_to_binary_file(string file_name);
@@ -53,6 +56,7 @@ public:
 #include "edges_list_graph.hpp"
 #include "preprocess_into_segmented.hpp"
 #include "preprocess_into_csr_based.hpp"
+#include "print.hpp"
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 

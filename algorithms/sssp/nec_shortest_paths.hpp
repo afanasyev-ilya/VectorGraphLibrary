@@ -288,7 +288,7 @@ void SSSP::nec_bellamn_ford(EdgesListGraph<_TVertexValue, _TEdgeWeight> &_graph,
     {
         _distances[i] = FLT_MAX;
     }
-    _distances[0] = 0;
+    _distances[_source_vertex] = 0;
 
     int iterations_count = 0;
     int changes_count = 0;

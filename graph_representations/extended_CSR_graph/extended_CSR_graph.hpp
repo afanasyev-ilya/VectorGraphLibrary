@@ -6,11 +6,6 @@ template <typename _TVertexValue, typename _TEdgeWeight>
 ExtendedCSRGraph<_TVertexValue, _TEdgeWeight>::ExtendedCSRGraph(int _vertices_count, long long _edges_count)
 {
     this->graph_type = GraphTypeExtendedCSR;
-    
-    supported_vector_length = VECTOR_LENGTH;
-    vertices_state = VERTICES_UNSORTED;
-    edges_state = EDGES_UNSORTED;
-    
     alloc(_vertices_count, _edges_count);
 }
 
@@ -75,12 +70,11 @@ void ExtendedCSRGraph<_TVertexValue, _TEdgeWeight>::resize(int _vertices_count, 
 template <typename _TVertexValue, typename _TEdgeWeight>
 void ExtendedCSRGraph<_TVertexValue, _TEdgeWeight>::print()
 {
+    cout << endl;
     cout << "ExtendedCSRGraph format" << endl;
-    
-    cout << "VerticesState: " << this->vertices_state << endl;
-    cout << "EdgesState: " << this->edges_state << endl;
-    cout << "SupportedVectorLength: " << this->supported_vector_length << endl << endl;
-    
+
+    cout << "|V|=" << this->vertices_count << endl;
+    cout << "|E|=" << this->edges_count << endl;
     cout << "Vertices data: " << endl;
     for(int i = 0; i < this->vertices_count; i++)
         cout << this->vertex_values[i] << " ";
@@ -101,6 +95,13 @@ void ExtendedCSRGraph<_TVertexValue, _TEdgeWeight>::print()
         cout << endl;
     }
     cout << endl;
+
+    cout << "conversion array (original <--> current):" << endl;
+    for(int i = 0; i < this->vertices_count; i++)
+    {
+        cout << i << " <--> " << forward_conversion[i] << endl;
+    }
+    cout << endl << endl;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -171,13 +172,9 @@ bool ExtendedCSRGraph<_TVertexValue, _TEdgeWeight>::save_to_binary_file(string _
     
     int vertices_count = this->vertices_count;
     long long edges_count = this->edges_count;
+    /*fwrite(reinterpret_cast<const void*>(&(this->graph_type)), sizeof(GraphType), 1, graph_file);
     fwrite(reinterpret_cast<const void*>(&vertices_count), sizeof(int), 1, graph_file);
     fwrite(reinterpret_cast<const void*>(&edges_count), sizeof(long long), 1, graph_file);
-    
-    fwrite(reinterpret_cast<const void*>(&(this->graph_type)), sizeof(GraphType), 1, graph_file);
-    fwrite(reinterpret_cast<const void*>(&vertices_state), sizeof(VerticesState), 1, graph_file);
-    fwrite(reinterpret_cast<const void*>(&edges_state), sizeof(EdgesState), 1, graph_file);
-    fwrite(reinterpret_cast<const void*>(&supported_vector_length), sizeof(int), 1, graph_file);
     
     fwrite(reinterpret_cast<const char*>(this->vertex_values), sizeof(_TVertexValue), vertices_count, graph_file);
     //fwrite(reinterpret_cast<const char*>(reordered_vertex_ids), sizeof(int), vertices_count, graph_file);
@@ -186,7 +183,7 @@ bool ExtendedCSRGraph<_TVertexValue, _TEdgeWeight>::save_to_binary_file(string _
     fwrite(reinterpret_cast<const char*>(outgoing_ids), sizeof(int), edges_count, graph_file);
     #ifdef __USE_WEIGHTED_GRAPHS__
     fwrite(reinterpret_cast<const char*>(outgoing_weights), sizeof(_TEdgeWeight), edges_count, graph_file);
-    #endif
+    #endif*/
     
     fclose(graph_file);
     return true;
@@ -201,7 +198,7 @@ bool ExtendedCSRGraph<_TVertexValue, _TEdgeWeight>::load_from_binary_file(string
     if(graph_file == NULL)
         return false;
     
-    fread(reinterpret_cast<void*>(&this->vertices_count), sizeof(int), 1, graph_file);
+    /*fread(reinterpret_cast<void*>(&this->vertices_count), sizeof(int), 1, graph_file);
     fread(reinterpret_cast<void*>(&this->edges_count), sizeof(long long), 1, graph_file);
     
     this->resize(this->vertices_count, this->edges_count);
@@ -235,7 +232,7 @@ bool ExtendedCSRGraph<_TVertexValue, _TEdgeWeight>::load_from_binary_file(string
                                      vector_core_threshold_vertex, this->vertices_count);
     double t2 = omp_get_wtime();
     cout << "NEC preprocess time: " << t2 - t1 << " sec" << endl;
-    #endif
+    #endif*/
     
     fclose(graph_file);
     return true;

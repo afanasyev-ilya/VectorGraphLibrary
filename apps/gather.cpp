@@ -45,23 +45,11 @@ int main(int argc, const char * argv[])
         parser.parse_args(argc, argv);
 
         EdgesListGraph<int, float> graph;
-
         int v = pow(2.0, parser.get_scale());
         GraphGenerationAPI<int, float>::random_uniform(graph, v, v * parser.get_avg_degree(), DIRECTED_GRAPH);
         cout << "graph generated!" << endl;
 
-        ShortestPaths<int, float> sssp_operation(graph);
-
-        float *distances, *distances_preprocessed, *csr_distances;
-        sssp_operation.allocate_result_memory(graph.get_vertices_count(), &distances);
-        sssp_operation.allocate_result_memory(graph.get_vertices_count(), &distances_preprocessed);
-        sssp_operation.allocate_result_memory(graph.get_vertices_count(), &csr_distances);
-
-        #pragma omp parallel
-        {};
-
-        sssp_operation.nec_bellamn_ford(graph, distances, 0);
-
+        // EDGES LIST PREPROCESS
         /*double t1 = omp_get_wtime();
         graph.preprocess();
         double t2 = omp_get_wtime();
@@ -70,12 +58,17 @@ int main(int argc, const char * argv[])
         VectCSRGraph<int, float> vect_csr_graph;
         vect_csr_graph.import_graph(graph);
 
-        sssp_operation.nec_bellamn_ford(graph, distances_preprocessed, 0);
-
-        verify_results(distances, distances_preprocessed, graph.get_vertices_count());
+        // EDGES LIST SSSP
+        ShortestPaths<int, float> sssp_operation(graph);
+        float *distances, *distances_preprocessed, *csr_distances;
+        sssp_operation.allocate_result_memory(graph.get_vertices_count(), &distances);
+        sssp_operation.allocate_result_memory(graph.get_vertices_count(), &distances_preprocessed);
+        sssp_operation.allocate_result_memory(graph.get_vertices_count(), &csr_distances);
+        #pragma omp parallel
+        {};
+        sssp_operation.nec_bellamn_ford(graph, distances, 0);
 
         cout << "starting final check!!!! ----------------- " << endl;
-
         ExtendedCSRGraph<int, float> *ext_csr_graph = vect_csr_graph.outgoing_edges;
 
         int new_source = ext_csr_graph->renumber_vertex_id(0);
@@ -83,10 +76,7 @@ int main(int argc, const char * argv[])
 
         ext_csr_graph->renumber_vertex_array(csr_distances, distances_preprocessed);
 
-        for(int i = 0; i < graph.get_vertices_count(); i++)
-        {
-            cout << distances[i] << " " << distances_preprocessed[i] << " " << endl;
-        }
+        verify_results(distances, distances_preprocessed, graph.get_vertices_count());
 
         sssp_operation.free_result_memory(distances);
         sssp_operation.free_result_memory(distances_preprocessed);

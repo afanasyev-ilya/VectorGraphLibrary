@@ -21,10 +21,6 @@ template <typename _TVertexValue, typename _TEdgeWeight>
 class ExtendedCSRGraph : public BaseGraph<_TVertexValue, _TEdgeWeight>
 {
 private:
-    VerticesState vertices_state;
-    EdgesState edges_state;
-    int supported_vector_length;
-
     long long     *outgoing_ptrs;
     int           *outgoing_ids;
     _TEdgeWeight  *outgoing_weights;
