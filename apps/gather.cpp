@@ -62,6 +62,7 @@ int main(int argc, const char * argv[])
         ShortestPaths<int, float> sssp_operation(graph);
         float *el_distances, *vect_csr_distances;
         sssp_operation.allocate_result_memory(graph.get_vertices_count(), &el_distances);
+        sssp_operation.allocate_result_memory(graph.get_vertices_count(), &vect_csr_distances);
         #pragma omp parallel
         {};
         sssp_operation.nec_bellamn_ford(graph, el_distances, 0);

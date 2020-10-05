@@ -32,6 +32,9 @@ public:
     int renumber_to_vectCSR(int _id); // original -> vectCSR
     int renumber_to_original(int _id); // vectCSR -> original
 
+    inline long long get_edges_count_in_outgoing_ve() {return outgoing_edges->get_edges_count_in_ve();};
+    inline long long get_edges_count_in_incoming_ve() {return incoming_edges->get_edges_count_in_ve();};
+
     template <typename _T>
     void convert_to_inner_representation(_T* _per_vertex_data); // original -> vectCSR
 

@@ -87,9 +87,11 @@ public:
     inline int           *get_adjacent_ids()         {return adjacent_ids;};
     inline _TEdgeWeight  *get_adjacent_weights()     {return adjacent_weights;};
 
+    inline long long get_edges_count_in_ve() {return last_vertices_ve.get_edges_count_in_ve();}
+
     // renumber API
-    int renumber_vertex_id(int _id);
-    void renumber_vertex_array(float *_input_array, float *_output_array);
+    int renumber_vertex_id(int _id); // TODO rename/rework
+    void renumber_vertex_array(float *_input_array, float *_output_array); // TODO rename/rework
     
     #ifdef __USE_GPU__
     void move_to_device();
@@ -108,7 +110,7 @@ public:
     #endif
 
     template <typename _T>
-    _T& get_edge_data(_T *_data_array, int _src_id, int _dst_id);
+    _T& get_edge_data(_T *_data_array, int _src_id, int _dst_id); // TODO remove
 
     void set_vertex_data_from_array(_TVertexValue *_values_array);
 

@@ -8,13 +8,12 @@ void GraphAbstractionsNEC<_TVertexValue, _TEdgeWeight>::compute_worker(ExtendedC
                                                                        FrontierNEC<_TVertexValue, _TEdgeWeight> &_frontier,
                                                                        ComputeOperation &&compute_op)
 {
-    /*#ifdef __PRINT_API_PERFORMANCE_STATS__
+    #ifdef __PRINT_API_PERFORMANCE_STATS__
     double t1 = omp_get_wtime();
     #pragma omp barrier
     #endif
 
     LOAD_EXTENDED_CSR_GRAPH_DATA(_graph);
-    const long long int *vertex_pointers = vertex_pointers;
 
     int max_frontier_size = _frontier.max_size;
 
@@ -64,7 +63,7 @@ void GraphAbstractionsNEC<_TVertexValue, _TEdgeWeight>::compute_worker(ExtendedC
         cout << "compute time: " << (t2 - t1)*1000.0 << " ms" << endl;
         cout << "compute BW: " << sizeof(int)*(COMPUTE_INT_ELEMENTS)*work/((t2-t1)*1e9) << " GB/s" << endl << endl;
     }
-    #endif*/
+    #endif
 }
 
 
@@ -80,11 +79,11 @@ void GraphAbstractionsNEC<_TVertexValue, _TEdgeWeight>::compute(VectCSRGraph<_TV
 
     // TODO is frontier direction correct?
 
-    if(_traversal_direction == SCATTER_TRAVERSAL)
+    if(traversal_direction == SCATTER_TRAVERSAL)
     {
         current_direction_graph = _graph.get_outgoing_graph_ptr();
     }
-    else if(_traversal_direction == GATHER_TRAVERSAL)
+    else if(traversal_direction == GATHER_TRAVERSAL)
     {
         current_direction_graph = _graph.get_incoming_graph_ptr();
     }

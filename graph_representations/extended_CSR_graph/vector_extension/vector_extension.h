@@ -13,6 +13,7 @@ private:
     int vertices_count;
     int starting_vertex;
     int vector_segments_count;
+    long long edges_count_in_ve;
 
     // vector segments data
     long long *vector_group_ptrs;
@@ -28,9 +29,11 @@ public:
     VectorExtension();
     ~VectorExtension();
 
-    int get_vertices_count() {return vertices_count;};
-    int get_starting_vertex() {return starting_vertex;};
-    int get_vector_segments_count() {return vector_segments_count;};
+    inline int get_vertices_count() {return vertices_count;};
+    inline int get_starting_vertex() {return starting_vertex;};
+    inline int get_vector_segments_count() {return vector_segments_count;};
+
+    inline long long get_edges_count_in_ve() {return edges_count_in_ve;};
 
     long long *get_vector_group_ptrs() {return vector_group_ptrs;};
     int *get_vector_group_sizes() {return vector_group_sizes;};

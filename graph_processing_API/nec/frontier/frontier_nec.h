@@ -52,6 +52,9 @@ public:
     inline void clear() { current_size = 0; };
 
     friend class GraphPrimitivesNEC;
+
+    template <typename _TVertexValue, typename _TEdgeWeight>
+    friend class GraphAbstractionsNEC;
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

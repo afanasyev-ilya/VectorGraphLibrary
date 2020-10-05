@@ -373,9 +373,13 @@ void SSSP::nec_dijkstra(VectCSRGraph<_TVertexValue, _TEdgeWeight> &_graph, _TEdg
     }
     while(changes);*/
 
-    GraphAbstractionsNEC<_TVertexValue, _TEdgeWeight> graph_API(_graph); // attaches API into current graph -- ? really needed?
+    EdgesArrayNec<float> weights(_graph);
 
+    GraphAbstractionsNEC<_TVertexValue, _TEdgeWeight> graph_API(_graph, SCATTER_TRAVERSAL);
     FrontierNEC<_TVertexValue, _TEdgeWeight> frontier(_graph);
+
+    graph_API.change_traversal_direction(SCATTER_TRAVERSAL);
+    frontier.set_all_active();
 
     int vect_csr_source_vertex = _source_vertex;
     auto init_distances = [_distances, vect_csr_source_vertex] (int src_id, int connections_count, int vector_index)
@@ -386,6 +390,29 @@ void SSSP::nec_dijkstra(VectCSRGraph<_TVertexValue, _TEdgeWeight> &_graph, _TEdg
             _distances[src_id] = FLT_MAX;
     };
     graph_API.compute(_graph, frontier, init_distances);
+
+    cout << "!!!!!" << endl;
+
+    for(int i = 0; i < 20; i++)
+        cout << _distances[i] << endl;
+
+    auto edge_op_push = [_distances, &weights](int src_id, int dst_id, int local_edge_pos,
+                    long long int global_edge_pos, int vector_index, DelayedWriteNEC &delayed_write)
+    {
+        float weight = 1; //weights.get(global_edge_pos, src_id);
+        float dst_weight = _distances[dst_id];
+        float src_weight = _distances[src_id];
+        if(dst_weight > src_weight + weight)
+        {
+            _distances[dst_id] = src_weight + weight;
+        }
+    };
+
+    graph_API.scatter(_graph, frontier, edge_op_push, EMPTY_VERTEX_OP, EMPTY_VERTEX_OP,
+                      edge_op_push, EMPTY_VERTEX_OP, EMPTY_VERTEX_OP);
+
+    for(int i = 0; i < 20; i++)
+        cout << _distances[i] << endl;
 }
 #endif
 

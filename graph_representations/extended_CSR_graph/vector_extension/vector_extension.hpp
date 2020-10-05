@@ -9,6 +9,7 @@ VectorExtension<_TVertexValue, _TEdgeWeight>::VectorExtension()
     starting_vertex = 0;
     vector_segments_count = 1;
 
+    edges_count_in_ve = VECTOR_LENGTH;
     alloc(VECTOR_LENGTH);
 }
 
@@ -65,6 +66,7 @@ void VectorExtension<_TVertexValue, _TEdgeWeight>::init_from_graph(long long *_c
         int cur_max_connections_count = _csr_adjacent_ptrs[vec_start + 1] - _csr_adjacent_ptrs[vec_start];
         edges_count += cur_max_connections_count * VECTOR_LENGTH;
     }
+    edges_count_in_ve = edges_count;
 
     free();
     alloc(edges_count + VECTOR_LENGTH);
