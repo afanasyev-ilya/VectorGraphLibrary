@@ -50,7 +50,7 @@ void ShardedGraph<_TVertexValue, _TEdgeWeight>::clear()
 
 template <typename _TVertexValue, typename _TEdgeWeight>
 void ShardedGraph<_TVertexValue, _TEdgeWeight>::import_graph(EdgesListGraph<_TVertexValue, _TEdgeWeight> &_old_graph,
-                                                             TraversalDirection _traversal_type)
+                                                             AlgorithmTraversalType _traversal_type)
 {
     LOAD_EDGES_LIST_GRAPH_DATA(_old_graph);
     this->vertices_count = vertices_count;

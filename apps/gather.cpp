@@ -60,28 +60,18 @@ int main(int argc, const char * argv[])
 
         // EDGES LIST SSSP
         ShortestPaths<int, float> sssp_operation(graph);
-        float *distances, *distances_preprocessed, *csr_distances;
-        sssp_operation.allocate_result_memory(graph.get_vertices_count(), &distances);
-        sssp_operation.allocate_result_memory(graph.get_vertices_count(), &distances_preprocessed);
-        sssp_operation.allocate_result_memory(graph.get_vertices_count(), &csr_distances);
+        float *el_distances, *vect_csr_distances;
+        sssp_operation.allocate_result_memory(graph.get_vertices_count(), &el_distances);
         #pragma omp parallel
         {};
-        sssp_operation.nec_bellamn_ford(graph, distances, 0);
+        sssp_operation.nec_bellamn_ford(graph, el_distances, 0);
 
         cout << "starting final check!!!! ----------------- " << endl;
-        ExtendedCSRGraph<int, float> *ext_csr_graph = vect_csr_graph.outgoing_edges;
 
-        int new_source = ext_csr_graph->renumber_vertex_id(0);
-        sssp_operation.seq_dijkstra(*ext_csr_graph, csr_distances, new_source);
+        sssp_operation.nec_dijkstra(vect_csr_graph, vect_csr_distances, 0);
 
-        ext_csr_graph->renumber_vertex_array(csr_distances, distances_preprocessed);
-
-        verify_results(distances, distances_preprocessed, graph.get_vertices_count());
-
-        sssp_operation.free_result_memory(distances);
-        sssp_operation.free_result_memory(distances_preprocessed);
-        sssp_operation.free_result_memory(csr_distances);
-
+        sssp_operation.free_result_memory(el_distances);
+        sssp_operation.free_result_memory(vect_csr_distances);
     }
     catch (string error)
     {

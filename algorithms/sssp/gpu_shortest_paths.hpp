@@ -8,7 +8,7 @@ void SSSP::gpu_dijkstra(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
                         _TEdgeWeight *_distances,
                         int _source_vertex,
                         AlgorithmFrontierType _frontier_type,
-                        TraversalDirection _traversal_direction)
+                        AlgorithmTraversalType _traversal_direction)
 {
     //_graph.move_to_device();
 

@@ -9,7 +9,7 @@ void SSSP::nec_dijkstra_partial_active(ExtendedCSRGraph<_TVertexValue, _TEdgeWei
                                        int _source_vertex)
 {
     LOAD_EXTENDED_CSR_GRAPH_DATA(_graph);
-    FrontierNEC all_active_frontier(vertices_count);
+    FrontierNEC<_TVertexValue, _TEdgeWeight> all_active_frontier(vertices_count);
 
     int *was_changes;
     MemoryAPI::allocate_array(&was_changes, vertices_count);
@@ -125,7 +125,7 @@ template <typename _TVertexValue, typename _TEdgeWeight>
 void SSSP::nec_dijkstra_all_active(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
                                    _TEdgeWeight *_distances,
                                    int _source_vertex,
-                                   TraversalDirection _traversal_direction)
+                                   AlgorithmTraversalType _traversal_direction)
 {
     LOAD_EXTENDED_CSR_GRAPH_DATA(_graph);
     _TEdgeWeight *old_distances = class_old_distances;
@@ -263,7 +263,7 @@ void SSSP::nec_dijkstra(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
                         _TEdgeWeight *_distances,
                         int _source_vertex,
                         AlgorithmFrontierType _frontier_type,
-                        TraversalDirection _traversal_direction)
+                        AlgorithmTraversalType _traversal_direction)
 {
     if(_frontier_type == PARTIAL_ACTIVE)
         nec_dijkstra_partial_active(_graph, _distances, _source_vertex);
@@ -280,15 +280,17 @@ void SSSP::nec_bellamn_ford(EdgesListGraph<_TVertexValue, _TEdgeWeight> &_graph,
                             _TEdgeWeight *_distances,
                             int _source_vertex)
 {
+    double t1 = omp_get_wtime();
     LOAD_EDGES_LIST_GRAPH_DATA(_graph);
 
-    double t1 = omp_get_wtime();
-    #pragma omp parallel for
-    for(int i = 0; i < vertices_count; i++)
+    auto init_distances = [_distances, _source_vertex] (int src_id, int connections_count, int vector_index)
     {
-        _distances[i] = FLT_MAX;
-    }
-    _distances[_source_vertex] = 0;
+        if(src_id == _source_vertex)
+            _distances[_source_vertex] = 0;
+        else
+            _distances[src_id] = FLT_MAX;
+    };
+    graph_API.compute(_graph, init_distances);
 
     int iterations_count = 0;
     int changes_count = 0;
@@ -325,3 +327,66 @@ void SSSP::nec_bellamn_ford(EdgesListGraph<_TVertexValue, _TEdgeWeight> &_graph,
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+#ifdef __USE_NEC_SX_AURORA__
+template <typename _TVertexValue, typename _TEdgeWeight>
+void SSSP::nec_dijkstra(VectCSRGraph<_TVertexValue, _TEdgeWeight> &_graph, _TEdgeWeight *_distances,
+                        int _source_vertex)
+{
+    /*GraphPrimitivesNEC graph_API(_graph); // here API connects to graph in order to process traversal type
+    FrontierNEC<_TVertexValue, _TEdgeWeight> frontier(_graph);
+
+    frontier.set_all_active();
+
+    int vect_csr_source_vertex = 0; //_graph.convert_to(_source_vertex); // ??? TODO
+
+    auto init_distances = [_distances, vect_csr_source_vertex] (int src_id, int connections_count, int vector_index)
+    {
+        if(src_id == vect_csr_source_vertex)
+            _distances[src_id] = 0;
+        else
+            _distances[src_id] = FLT_MAX;
+    };
+    graph_API.compute(_graph, frontier, init_distances);
+
+    int changes = 0;
+    do
+    {
+        changes = 0;
+
+        auto edge_op_push = [adjacent_weights, _distances](int src_id, int dst_id, int local_edge_pos,
+                    long long int global_edge_pos, int vector_index, DelayedWriteNEC &delayed_write)
+        {
+            float weight = weights.get(global_edge_pos, src_id);
+            float dst_weight = _distances[dst_id];
+            float src_weight = _distances[src_id];
+            if(dst_weight > src_weight + weight)
+            {
+                _distances[dst_id] = src_weight + weight;
+            }
+        };
+
+
+
+        graph_API.scatter(_graph, frontier, edge_op_push, EMPTY_VERTEX_OP, EMPTY_VERTEX_OP,
+                          edge_op_push, EMPTY_VERTEX_OP, EMPTY_VERTEX_OP);
+
+    }
+    while(changes);*/
+
+    GraphAbstractionsNEC<_TVertexValue, _TEdgeWeight> graph_API(_graph); // attaches API into current graph -- ? really needed?
+
+    FrontierNEC<_TVertexValue, _TEdgeWeight> frontier(_graph);
+
+    int vect_csr_source_vertex = _source_vertex;
+    auto init_distances = [_distances, vect_csr_source_vertex] (int src_id, int connections_count, int vector_index)
+    {
+        if(src_id == vect_csr_source_vertex)
+            _distances[src_id] = 0;
+        else
+            _distances[src_id] = FLT_MAX;
+    };
+    graph_API.compute(_graph, frontier, init_distances);
+}
+#endif
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

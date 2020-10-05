@@ -33,7 +33,7 @@ public:
                        float *_page_ranks,
                        float _convergence_factor = 1.0e-4,
                        int _max_iterations = 5,
-                       TraversalDirection _traversal_direction = PULL_TRAVERSAL);
+                       AlgorithmTraversalType _traversal_direction = PULL_TRAVERSAL);
     #endif
 
     void seq_page_rank(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,

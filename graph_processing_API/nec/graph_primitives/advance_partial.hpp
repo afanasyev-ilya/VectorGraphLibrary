@@ -195,7 +195,7 @@ void GraphPrimitivesNEC::partial_last_group(const long long *_ve_vector_group_pt
 
 template <typename _TVertexValue, typename _TEdgeWeight, typename EdgeOperation>
 void GraphPrimitivesNEC::partial_advance_worker(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
-                                                FrontierNEC &_frontier,
+                                                FrontierNEC<_TVertexValue, _TEdgeWeight> &_frontier,
                                                 EdgeOperation &&edge_op,
                                                 int _first_edge,
                                                 int _last_edge)
@@ -224,7 +224,7 @@ void GraphPrimitivesNEC::partial_advance_worker(ExtendedCSRGraph<_TVertexValue, 
 
 template <typename _TVertexValue, typename _TEdgeWeight, typename EdgeOperation>
 void GraphPrimitivesNEC::partial_advance(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
-                                         FrontierNEC &_frontier,
+                                         FrontierNEC<_TVertexValue, _TEdgeWeight> &_frontier,
                                          EdgeOperation &&edge_op,
                                          int _first_edge,
                                          int _last_edge)

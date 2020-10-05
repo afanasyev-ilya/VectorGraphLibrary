@@ -25,11 +25,12 @@ VectCSRGraph<_TVertexValue, _TEdgeWeight>::~VectCSRGraph()
 template <typename _TVertexValue, typename _TEdgeWeight>
 void VectCSRGraph<_TVertexValue, _TEdgeWeight>::import_graph(EdgesListGraph<_TVertexValue, _TEdgeWeight> &_el_graph)
 {
-    double t1, t2;
+    this->vertices_count = _el_graph.get_vertices_count();
+    this->edges_count = _el_graph.get_edges_count();
 
-    t1 = omp_get_wtime();
+    double t1 = omp_get_wtime();
     outgoing_edges->import_and_preprocess(_el_graph);
-    t2 = omp_get_wtime();
+    double t2 = omp_get_wtime();
     cout << "outgoing conversion time: " << t2 - t1 << " sec" << endl;
 
     _el_graph.transpose();

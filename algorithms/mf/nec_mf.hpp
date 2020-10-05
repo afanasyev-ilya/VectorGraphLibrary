@@ -10,7 +10,7 @@ bool MF::nec_bfs(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
                  int *_parents,
                  int *_levels,
                  GraphPrimitivesNEC &_graph_API,
-                 FrontierNEC &_frontier)
+                 FrontierNEC<_TVertexValue, _TEdgeWeight> &_frontier)
 {
     LOAD_EXTENDED_CSR_GRAPH_DATA(_graph);
     _frontier.set_all_active();
@@ -85,7 +85,7 @@ _TEdgeWeight MF::nec_ford_fulkerson(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight
                                     int _source, int _sink)
 {
     GraphPrimitivesNEC graph_API;
-    FrontierNEC frontier(_graph);
+    FrontierNEC<_TVertexValue, _TEdgeWeight> frontier(_graph);
 
     LOAD_EXTENDED_CSR_GRAPH_DATA(_graph);
 

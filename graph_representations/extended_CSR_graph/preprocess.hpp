@@ -228,7 +228,7 @@ void ExtendedCSRGraph<_TVertexValue, _TEdgeWeight>::import_graph(EdgesListGraph<
                                                                  VerticesState _vertices_state,
                                                                  EdgesState _edges_state,
                                                                  int _supported_vector_length,
-                                                                 TraversalDirection _traversal_type,
+                                                                 AlgorithmTraversalType _traversal_type,
                                                                  MultipleArcsState _multiple_arcs_state)
 {
     double t1, t2;

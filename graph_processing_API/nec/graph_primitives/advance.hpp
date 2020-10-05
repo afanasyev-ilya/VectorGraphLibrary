@@ -14,7 +14,7 @@ template <typename _TVertexValue, typename _TEdgeWeight, typename EdgeOperation,
         typename VertexPostprocessOperation, typename CollectiveEdgeOperation, typename CollectiveVertexPreprocessOperation,
         typename CollectiveVertexPostprocessOperation >
 void GraphPrimitivesNEC::advance_worker(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
-                                        FrontierNEC &_frontier,
+                                        FrontierNEC<_TVertexValue, _TEdgeWeight> &_frontier,
                                         EdgeOperation &&edge_op,
                                         VertexPreprocessOperation &&vertex_preprocess_op,
                                         VertexPostprocessOperation &&vertex_postprocess_op,
@@ -139,7 +139,7 @@ template <typename _TVertexValue, typename _TEdgeWeight, typename EdgeOperation,
         typename VertexPostprocessOperation, typename CollectiveEdgeOperation, typename CollectiveVertexPreprocessOperation,
         typename CollectiveVertexPostprocessOperation >
 void GraphPrimitivesNEC::advance(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
-                                 FrontierNEC &_frontier,
+                                 FrontierNEC<_TVertexValue, _TEdgeWeight> &_frontier,
                                  EdgeOperation &&edge_op,
                                  VertexPreprocessOperation &&vertex_preprocess_op,
                                  VertexPostprocessOperation &&vertex_postprocess_op,
@@ -170,7 +170,7 @@ void GraphPrimitivesNEC::advance(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &
 template <typename _TVertexValue, typename _TEdgeWeight, typename EdgeOperation, typename VertexPreprocessOperation,
         typename VertexPostprocessOperation>
 void GraphPrimitivesNEC::advance(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
-                                 FrontierNEC &_frontier,
+                                 FrontierNEC<_TVertexValue, _TEdgeWeight> &_frontier,
                                  EdgeOperation &&edge_op,
                                  VertexPreprocessOperation &&vertex_preprocess_op,
                                  VertexPostprocessOperation &&vertex_postprocess_op)
@@ -196,7 +196,7 @@ void GraphPrimitivesNEC::advance(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &
 
 template <typename _TVertexValue, typename _TEdgeWeight, typename EdgeOperation>
 void GraphPrimitivesNEC::advance(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
-                                 FrontierNEC &_frontier,
+                                 FrontierNEC<_TVertexValue, _TEdgeWeight> &_frontier,
                                  EdgeOperation &&edge_op)
 {
     if(omp_in_parallel())
@@ -220,8 +220,8 @@ void GraphPrimitivesNEC::advance(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &
 
 template <typename _TVertexValue, typename _TEdgeWeight, typename EdgeOperation, typename Condition>
 void GraphPrimitivesNEC::advance(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
-                                 FrontierNEC &_in_frontier,
-                                 FrontierNEC &_out_frontier,
+                                 FrontierNEC<_TVertexValue, _TEdgeWeight> &_in_frontier,
+                                 FrontierNEC<_TVertexValue, _TEdgeWeight> &_out_frontier,
                                  EdgeOperation &&edge_op,
                                  Condition &&cond)
 {

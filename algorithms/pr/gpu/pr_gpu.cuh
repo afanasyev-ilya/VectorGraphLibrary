@@ -8,6 +8,6 @@ void page_rank_wrapper(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
                        float _convergence_factor,
                        int _max_iterations,
                        int &_iterations_count,
-                       TraversalDirection _traversal_direction);
+                       AlgorithmTraversalType _traversal_direction);
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

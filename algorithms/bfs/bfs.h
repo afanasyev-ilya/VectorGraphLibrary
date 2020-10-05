@@ -16,7 +16,7 @@ class BFS
 {
 private:
     GraphPrimitivesNEC graph_API;
-    FrontierNEC frontier;
+    FrontierNEC<_TVertexValue, _TEdgeWeight> frontier;
 
     #ifdef __USE_NEC_SX_AURORA__
     void nec_top_down_compute_step(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph, int *_levels,

@@ -21,7 +21,7 @@ void page_rank_wrapper(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
                        float _convergence_factor,
                        int _max_iterations,
                        int &_iterations_count,
-                       TraversalDirection _traversal_direction)
+                       AlgorithmTraversalType _traversal_direction)
 {
     LOAD_EXTENDED_CSR_GRAPH_DATA(_graph);
     GraphPrimitivesGPU graph_API;
@@ -172,7 +172,7 @@ template void page_rank_wrapper<int, float>(ExtendedCSRGraph<int, float> &_graph
                                             float _convergence_factor,
                                             int _max_iterations,
                                             int &_iterations_count,
-                                            TraversalDirection _traversal_direction);
+                                            AlgorithmTraversalType _traversal_direction);
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 

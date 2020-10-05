@@ -16,7 +16,7 @@ private:
 
     #ifdef __USE_NEC_SX_AURORA__
     bool nec_bfs(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph, int _source, int _sink,
-                 int *_parents, int *_levels, GraphPrimitivesNEC &_graph_API, FrontierNEC &_frontier);
+                 int *_parents, int *_levels, GraphPrimitivesNEC &_graph_API, FrontierNEC<_TVertexValue, _TEdgeWeight> &_frontier);
     #endif
 
     bool seq_bfs(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph, int _source, int _sink, int *_parents);

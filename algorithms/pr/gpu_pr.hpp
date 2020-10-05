@@ -8,7 +8,7 @@ void PR::gpu_page_rank(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
                        float *_page_ranks,
                        float _convergence_factor,
                        int _max_iterations,
-                       TraversalDirection _traversal_direction)
+                       AlgorithmTraversalType _traversal_direction)
 {
     LOAD_EXTENDED_CSR_GRAPH_DATA(_graph);
 

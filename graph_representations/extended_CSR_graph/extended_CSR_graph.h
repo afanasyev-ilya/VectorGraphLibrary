@@ -77,7 +77,7 @@ public:
                       VerticesState _vertices_state = VERTICES_SORTED,
                       EdgesState _edges_state = EDGES_SORTED,
                       int _supported_vector_length = 1,
-                      TraversalDirection _traversal_type = PULL_TRAVERSAL,
+                      AlgorithmTraversalType _traversal_type = PULL_TRAVERSAL,
                       MultipleArcsState _multiple_arcs_state = MULTIPLE_ARCS_PRESENT);
 
     void import_and_preprocess(EdgesListGraph<_TVertexValue, _TEdgeWeight> &_old_graph);

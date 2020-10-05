@@ -25,14 +25,14 @@ private:
 
     #ifdef __USE_NEC_SX_AURORA__
     GraphPrimitivesNEC graph_API;
-    FrontierNEC frontier;
+    FrontierNEC<_TVertexValue, _TEdgeWeight> frontier;
     _TEdgeWeight *class_old_distances;
     #endif
 
     #ifdef __USE_NEC_SX_AURORA__
     void nec_dijkstra_all_active(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
                                  _TEdgeWeight *_distances, int _source_vertex,
-                                 TraversalDirection _traversal_direction);
+                                 AlgorithmTraversalType _traversal_direction);
     #endif
 
     #ifdef __USE_NEC_SX_AURORA__
@@ -56,7 +56,12 @@ public:
     #ifdef __USE_NEC_SX_AURORA__
     void nec_dijkstra(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph, _TEdgeWeight *_distances,
                       int _source_vertex, AlgorithmFrontierType _frontier_type = ALL_ACTIVE,
-                      TraversalDirection _traversal_direction = PUSH_TRAVERSAL);
+                      AlgorithmTraversalType _traversal_direction = PUSH_TRAVERSAL);
+    #endif
+
+    #ifdef __USE_NEC_SX_AURORA__
+    void nec_dijkstra(VectCSRGraph<_TVertexValue, _TEdgeWeight> &_graph, _TEdgeWeight *_distances,
+                      int _source_vertex);
     #endif
 
     #ifdef __USE_NEC_SX_AURORA__
@@ -68,7 +73,7 @@ public:
     void gpu_dijkstra(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
                       _TEdgeWeight *_distances, int _source_vertex,
                       AlgorithmFrontierType _frontier_type = PARTIAL_ACTIVE,
-                      TraversalDirection _traversal_direction = PUSH_TRAVERSAL);
+                      AlgorithmTraversalType _traversal_direction = PUSH_TRAVERSAL);
     #endif
 
     double get_performance() { return performance; };

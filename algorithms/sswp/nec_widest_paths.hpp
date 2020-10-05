@@ -7,7 +7,7 @@ template <typename _TVertexValue, typename _TEdgeWeight>
 void SSWP::nec_dijkstra(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
                         _TEdgeWeight *_widths,
                         int _source_vertex,
-                        TraversalDirection _traversal_direction)
+                        AlgorithmTraversalType _traversal_direction)
 {
     #ifdef __PRINT_SAMPLES_PERFORMANCE_STATS__
     double t1 = omp_get_wtime();

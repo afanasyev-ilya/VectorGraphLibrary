@@ -21,7 +21,7 @@ void gpu_dijkstra_all_active_wrapper(ExtendedCSRGraph<_TVertexValue, _TEdgeWeigh
                                      _TEdgeWeight *_distances,
                                      int _source_vertex,
                                      int &_iterations_count,
-                                     TraversalDirection _traversal_direction)
+                                     AlgorithmTraversalType _traversal_direction)
 {
     LOAD_EXTENDED_CSR_GRAPH_DATA(_graph);
     GraphPrimitivesGPU graph_API;
@@ -148,7 +148,7 @@ void gpu_dijkstra_partial_active_wrapper(ExtendedCSRGraph<_TVertexValue, _TEdgeW
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template void gpu_dijkstra_all_active_wrapper<int, float>(ExtendedCSRGraph<int, float> &_graph, float *_distances, int _source_vertex,
-                                                          int &_iterations_count, TraversalDirection _traversal_direction);
+                                                          int &_iterations_count, AlgorithmTraversalType _traversal_direction);
 template void gpu_dijkstra_partial_active_wrapper<int, float>(ExtendedCSRGraph<int, float> &_graph, float *_distances, int _source_vertex,
                                                               int &_iterations_count);
 

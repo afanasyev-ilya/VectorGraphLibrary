@@ -11,7 +11,7 @@ class AlgorithmCommandOptionsParser
 private:
     ComputeMode compute_mode;
     AlgorithmFrontierType algorithm_frontier_type;
-    TraversalDirection traversal_direction;
+    AlgorithmTraversalType traversal_direction;
     
     int scale;
     int avg_degree;
@@ -35,7 +35,7 @@ public:
     int get_number_of_rounds() { return number_of_rounds; };
 
     AlgorithmFrontierType get_algorithm_frontier_type() {return algorithm_frontier_type;};
-    TraversalDirection get_traversal_direction() {return traversal_direction;};
+    AlgorithmTraversalType get_traversal_direction() {return traversal_direction;};
 
     AlgorithmBFS get_algorithm_bfs() {return algorithm_bfs;};
     AlgorithmCC get_algorithm_cc() {return algorithm_cc;};

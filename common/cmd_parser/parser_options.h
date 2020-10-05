@@ -14,9 +14,9 @@ enum AlgorithmFrontierType {
     PARTIAL_ACTIVE = 0
 };
 
-enum TraversalDirection {
+enum AlgorithmTraversalType {
     PUSH_TRAVERSAL = 1,
-    PULL_TRAVERSAL = 0
+    PULL_TRAVERSAL = 0,
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

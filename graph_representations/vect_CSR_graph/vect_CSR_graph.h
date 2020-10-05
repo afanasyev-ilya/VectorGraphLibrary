@@ -18,16 +18,25 @@ template <typename _TVertexValue, typename _TEdgeWeight>
 class VectCSRGraph : public BaseGraph<_TVertexValue, _TEdgeWeight>
 {
 private:
-    int *out_to_inc_conversion;
-    int *in_to_out_conversion;
-public:
     ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> *outgoing_edges;
     ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> *incoming_edges;
-
+public:
     VectCSRGraph(int _vertices_count = 1, long long _edges_count = 1);
     ~VectCSRGraph();
 
     void import_graph(EdgesListGraph<_TVertexValue, _TEdgeWeight> &_copy_graph);
+
+    ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> *get_outgoing_graph_ptr() {return outgoing_edges;};
+    ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> *get_incoming_graph_ptr() {return incoming_edges;};
+
+    int renumber_to_vectCSR(int _id); // original -> vectCSR
+    int renumber_to_original(int _id); // vectCSR -> original
+
+    template <typename _T>
+    void convert_to_inner_representation(_T* _per_vertex_data); // original -> vectCSR
+
+    template <typename _T>
+    void convert_from_inner_representation(_T* _per_vertex_data); // vectCSR -> original
 
     void print() {};
     void print_stats() {};

@@ -17,7 +17,7 @@ class WidestPaths
 private:
     #ifdef __USE_NEC_SX_AURORA__
     GraphPrimitivesNEC graph_API;
-    FrontierNEC frontier;
+    FrontierNEC<_TVertexValue, _TEdgeWeight> frontier;
     _TEdgeWeight *class_old_widths;
     #endif
 
@@ -30,7 +30,7 @@ public:
 
     #ifdef __USE_NEC_SX_AURORA__
     void nec_dijkstra(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph, _TEdgeWeight *_widths, int _source_vertex,
-                      TraversalDirection _traversal_direction);
+                      AlgorithmTraversalType _traversal_direction);
     #endif
 
     void seq_dijkstra(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph, _TEdgeWeight *_widths, int _source_vertex);

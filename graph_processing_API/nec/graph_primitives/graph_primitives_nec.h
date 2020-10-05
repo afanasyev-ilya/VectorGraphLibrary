@@ -160,7 +160,7 @@ private:
             typename VertexPostprocessOperation, typename CollectiveEdgeOperation, typename CollectiveVertexPreprocessOperation,
             typename CollectiveVertexPostprocessOperation >
     void advance_worker(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
-                        FrontierNEC &_frontier,
+                        FrontierNEC<_TVertexValue, _TEdgeWeight> &_frontier,
                         EdgeOperation &&edge_op,
                         VertexPreprocessOperation &&vertex_preprocess_op,
                         VertexPostprocessOperation &&vertex_postprocess_op,
@@ -175,15 +175,19 @@ private:
 
     template <typename _TVertexValue, typename _TEdgeWeight, typename EdgeOperation>
     void partial_advance_worker(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
-                                FrontierNEC &_frontier,
+                                FrontierNEC<_TVertexValue, _TEdgeWeight> &_frontier,
                                 EdgeOperation &&edge_op,
                                 int _first_edge,
                                 int _last_edge);
 
-    // performs user-defined "compute_op" operation for each element in given frontier
     template <typename _TVertexValue, typename _TEdgeWeight, typename ComputeOperation>
     void compute_worker(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
-                        FrontierNEC &_frontier,
+                        FrontierNEC<_TVertexValue, _TEdgeWeight> &_frontier,
+                        ComputeOperation &&compute_op);
+
+    // performs user-defined "compute_op" operation for each element in given frontier
+    template <typename _TVertexValue, typename _TEdgeWeight, typename ComputeOperation>
+    void compute_worker(EdgesListGraph<_TVertexValue, _TEdgeWeight> &_graph,
                         ComputeOperation &&compute_op);
 
     template <typename EdgeOperation, typename VertexPreprocessOperation,
@@ -197,30 +201,45 @@ private:
                         VertexPostprocessOperation vertex_postprocess_op,
                         const int _first_edge);
 
-    template <typename FilterCondition>
-    int estimate_sorted_frontier_part_size(FrontierNEC &_frontier,
+    template <typename _TVertexValue, typename _TEdgeWeight, typename FilterCondition>
+    int estimate_sorted_frontier_part_size(FrontierNEC<_TVertexValue, _TEdgeWeight> &_frontier,
                                            int _first_vertex,
                                            int _last_vertex,
                                            FilterCondition &&filter_cond);
 
     template <typename _T, typename _TVertexValue, typename _TEdgeWeight, typename ReduceOperation>
     _T reduce_sum(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
-                  FrontierNEC &_frontier,
+                  FrontierNEC<_TVertexValue, _TEdgeWeight> &_frontier,
                   ReduceOperation &&reduce_op);
 public:
     GraphPrimitivesNEC() {};
 
+    template <typename _TVertexValue, typename _TEdgeWeight>
+    GraphPrimitivesNEC(VectCSRGraph<_TVertexValue, _TEdgeWeight> &_graph);
+
     ~GraphPrimitivesNEC() {};
+
+    template <typename _TVertexValue, typename _TEdgeWeight, typename EdgeOperation, typename VertexPreprocessOperation,
+            typename VertexPostprocessOperation, typename CollectiveEdgeOperation, typename CollectiveVertexPreprocessOperation,
+            typename CollectiveVertexPostprocessOperation>
+    void scatter(VectCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
+                 FrontierNEC<_TVertexValue, _TEdgeWeight> &_frontier,
+                 EdgeOperation &&edge_op,
+                 VertexPreprocessOperation &&vertex_preprocess_op,
+                 VertexPostprocessOperation &&vertex_postprocess_op,
+                 CollectiveEdgeOperation &&collective_edge_op,
+                 CollectiveVertexPreprocessOperation &&collective_vertex_preprocess_op,
+                 CollectiveVertexPostprocessOperation &&collective_vertex_postprocess_op);
 
     template <typename _TVertexValue, typename _TEdgeWeight>
     _TEdgeWeight* get_collective_weights(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
-                                         FrontierNEC &_frontier);
+                                         FrontierNEC<_TVertexValue, _TEdgeWeight> &_frontier);
 
     template <typename _TVertexValue, typename _TEdgeWeight, typename EdgeOperation, typename VertexPreprocessOperation,
             typename VertexPostprocessOperation, typename CollectiveEdgeOperation, typename CollectiveVertexPreprocessOperation,
             typename CollectiveVertexPostprocessOperation >
     void advance(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
-                 FrontierNEC &_frontier,
+                 FrontierNEC<_TVertexValue, _TEdgeWeight> &_frontier,
                  EdgeOperation &&edge_op,
                  VertexPreprocessOperation &&vertex_preprocess_op,
                  VertexPostprocessOperation &&vertex_postprocess_op,
@@ -232,20 +251,20 @@ public:
     template <typename _TVertexValue, typename _TEdgeWeight, typename EdgeOperation, typename VertexPreprocessOperation,
             typename VertexPostprocessOperation>
     void advance(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
-                 FrontierNEC &_frontier,
+                 FrontierNEC<_TVertexValue, _TEdgeWeight> &_frontier,
                  EdgeOperation &&edge_op,
                  VertexPreprocessOperation &&vertex_preprocess_op = EMPTY_VERTEX_OP,
                  VertexPostprocessOperation &&vertex_postprocess_op = EMPTY_VERTEX_OP);
 
     template <typename _TVertexValue, typename _TEdgeWeight, typename EdgeOperation>
     void advance(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
-                 FrontierNEC &_frontier,
+                 FrontierNEC<_TVertexValue, _TEdgeWeight> &_frontier,
                  EdgeOperation &&edge_op);
 
     template <typename _TVertexValue, typename _TEdgeWeight, typename EdgeOperation, typename Condition>
     void advance(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
-                 FrontierNEC &_in_frontier,
-                 FrontierNEC &_out_frontier,
+                 FrontierNEC<_TVertexValue, _TEdgeWeight> &_in_frontier,
+                 FrontierNEC<_TVertexValue, _TEdgeWeight> &_out_frontier,
                  EdgeOperation &&edge_op,
                  Condition &&cond);
 
@@ -255,25 +274,33 @@ public:
 
     template <typename _TVertexValue, typename _TEdgeWeight, typename EdgeOperation>
     void partial_advance(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
-                         FrontierNEC &_frontier,
+                         FrontierNEC<_TVertexValue, _TEdgeWeight> &_frontier,
                          EdgeOperation &&edge_op,
                          int _first_edge,
                          int _last_edge);
     // creates new frontier, which satisfy user-defined "cond" condition
     template <typename _TVertexValue, typename _TEdgeWeight, typename Condition>
-    void generate_new_frontier(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph, FrontierNEC &_frontier, Condition &&cond);
+    void generate_new_frontier(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph, FrontierNEC<_TVertexValue, _TEdgeWeight> &_frontier, Condition &&cond);
 
     // removes elements from current frontier, which satisfy user-defined "filter_cond" condition
     template <typename _TVertexValue, typename _TEdgeWeight, typename FilterCondition>
-    void filter(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph, FrontierNEC &_frontier, FilterCondition &&filter_cond);
+    void filter(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph, FrontierNEC<_TVertexValue, _TEdgeWeight> &_frontier, FilterCondition &&filter_cond);
 
     // performs user-defined "compute_op" operation for each element in the given frontier
     template <typename _TVertexValue, typename _TEdgeWeight, typename ComputeOperation>
-    void compute(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph, FrontierNEC &_frontier, ComputeOperation &&compute_op);
+    void compute(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph, FrontierNEC<_TVertexValue, _TEdgeWeight> &_frontier, ComputeOperation &&compute_op);
+
+    // performs user-defined "compute_op" operation for each element in the given frontier
+    template <typename _TVertexValue, typename _TEdgeWeight, typename ComputeOperation>
+    void compute(VectCSRGraph<_TVertexValue, _TEdgeWeight> &_graph, FrontierNEC<_TVertexValue, _TEdgeWeight> &_frontier, ComputeOperation &&compute_op);
+
+    // performs user-defined "compute_op" operation for TODO
+    template <typename _TVertexValue, typename _TEdgeWeight, typename ComputeOperation>
+    void compute(EdgesListGraph<_TVertexValue, _TEdgeWeight> &_graph, ComputeOperation &&compute_op);
 
     // performs reduction using user-defined "reduce_op" operation for each element in the given frontier
     template <typename _T, typename _TVertexValue, typename _TEdgeWeight, typename ReduceOperation>
-    _T reduce(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph, FrontierNEC &_frontier, ReduceOperation &&reduce_op, REDUCE_TYPE _reduce_type);
+    _T reduce(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph, FrontierNEC<_TVertexValue, _TEdgeWeight> &_frontier, ReduceOperation &&reduce_op, REDUCE_TYPE _reduce_type);
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -292,5 +319,6 @@ public:
 #include "reduce.hpp"
 #include "pack_array_data.hpp"
 #include "tests.hpp"
+#include "scatter.hpp"
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

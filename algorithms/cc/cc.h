@@ -27,8 +27,8 @@ class ConnectedComponents
 {
 private:
     GraphPrimitivesNEC graph_API;
-    FrontierNEC frontier;
-    FrontierNEC bfs_frontier;
+    FrontierNEC<_TVertexValue, _TEdgeWeight> frontier;
+    FrontierNEC<_TVertexValue, _TEdgeWeight> bfs_frontier;
 
     double performance;
 public:
