@@ -3,8 +3,7 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #ifdef __USE_NEC_SX_AURORA__
-template <typename _TVertexValue, typename _TEdgeWeight>
-void ExtendedCSRGraph<_TVertexValue, _TEdgeWeight>::estimate_nec_thresholds()
+void ExtendedCSRGraph::estimate_nec_thresholds()
 {
     double t1 = omp_get_wtime();
 

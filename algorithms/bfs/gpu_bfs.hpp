@@ -1,8 +1,8 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #ifdef __USE_GPU__
-template <typename _TVertexValue, typename _TEdgeWeight>
-void BFS<_TVertexValue, _TEdgeWeight>::allocate_device_result_memory(int _vertices_count, int **_device_levels)
+
+void BFS::allocate_device_result_memory(int _vertices_count, int **_device_levels)
 {
     MemoryAPI::allocate_non_managed_array(_device_levels, _vertices_count);
 }
@@ -11,8 +11,8 @@ void BFS<_TVertexValue, _TEdgeWeight>::allocate_device_result_memory(int _vertic
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #ifdef __USE_GPU__
-template <typename _TVertexValue, typename _TEdgeWeight>
-void BFS<_TVertexValue, _TEdgeWeight>::free_device_result_memory(int *_device_levels)
+
+void BFS::free_device_result_memory(int *_device_levels)
 {
     MemoryAPI::free_device_array(_device_levels);
 }
@@ -21,8 +21,8 @@ void BFS<_TVertexValue, _TEdgeWeight>::free_device_result_memory(int *_device_le
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #ifdef __USE_GPU__
-template <typename _TVertexValue, typename _TEdgeWeight>
-void BFS<_TVertexValue, _TEdgeWeight>::copy_result_to_host(int *_host_levels, int *_device_levels, int _vertices_count)
+
+void BFS::copy_result_to_host(int *_host_levels, int *_device_levels, int _vertices_count)
 {
     cudaMemcpy(_host_levels, _device_levels, _vertices_count * sizeof(int), cudaMemcpyDeviceToHost);
 }
@@ -31,8 +31,8 @@ void BFS<_TVertexValue, _TEdgeWeight>::copy_result_to_host(int *_host_levels, in
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #ifdef __USE_GPU__
-template <typename _TVertexValue, typename _TEdgeWeight>
-void BFS<_TVertexValue, _TEdgeWeight>::gpu_top_down(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
+
+void BFS::gpu_top_down(ExtendedCSRGraph &_graph,
                                          int *_device_levels,
                                          int _source_vertex)
 {
@@ -42,7 +42,7 @@ void BFS<_TVertexValue, _TEdgeWeight>::gpu_top_down(ExtendedCSRGraph<_TVertexVal
 
     int iterations_count = 0;
     double t1 = omp_get_wtime();
-    top_down_wrapper<_TVertexValue, _TEdgeWeight>(_graph, _device_levels, _source_vertex, iterations_count);
+    top_down_wrapper(_graph, _device_levels, _source_vertex, iterations_count);
     double t2 = omp_get_wtime();
 
     #ifdef __PRINT_SAMPLES_PERFORMANCE_STATS__
@@ -54,8 +54,8 @@ void BFS<_TVertexValue, _TEdgeWeight>::gpu_top_down(ExtendedCSRGraph<_TVertexVal
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #ifdef __USE_GPU__
-template <typename _TVertexValue, typename _TEdgeWeight>
-void BFS<_TVertexValue, _TEdgeWeight>::gpu_direction_optimizing(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
+
+void BFS::gpu_direction_optimizing(ExtendedCSRGraph &_graph,
                                                                 int *_device_levels,
                                                                 int _source_vertex)
 {
@@ -65,7 +65,7 @@ void BFS<_TVertexValue, _TEdgeWeight>::gpu_direction_optimizing(ExtendedCSRGraph
 
     int iterations_count = 0;
     double t1 = omp_get_wtime();
-    direction_optimizing_wrapper<_TVertexValue, _TEdgeWeight>(_graph, _device_levels, _source_vertex, iterations_count);
+    direction_optimizing_wrapper(_graph, _device_levels, _source_vertex, iterations_count);
     double t2 = omp_get_wtime();
 
     #ifdef __PRINT_SAMPLES_PERFORMANCE_STATS__

@@ -2,8 +2,8 @@
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-template <typename _TVertexValue, typename _TEdgeWeight>
-FrontierNEC<_TVertexValue, _TEdgeWeight>::FrontierNEC(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph)
+
+FrontierNEC::FrontierNEC(ExtendedCSRGraph &_graph)
 {
     max_size = _graph.get_vertices_count();
     MemoryAPI::allocate_array(&flags, max_size);
@@ -20,8 +20,8 @@ FrontierNEC<_TVertexValue, _TEdgeWeight>::FrontierNEC(ExtendedCSRGraph<_TVertexV
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-template <typename _TVertexValue, typename _TEdgeWeight>
-FrontierNEC<_TVertexValue, _TEdgeWeight>::FrontierNEC(VectCSRGraph<_TVertexValue, _TEdgeWeight> &_graph)
+
+FrontierNEC::FrontierNEC(VectCSRGraph &_graph)
 {
     max_size = _graph.get_vertices_count();
     MemoryAPI::allocate_array(&flags, max_size);
@@ -38,8 +38,8 @@ FrontierNEC<_TVertexValue, _TEdgeWeight>::FrontierNEC(VectCSRGraph<_TVertexValue
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-template <typename _TVertexValue, typename _TEdgeWeight>
-FrontierNEC<_TVertexValue, _TEdgeWeight>::FrontierNEC(int _vertices_count)
+
+FrontierNEC::FrontierNEC(int _vertices_count)
 {
     max_size = _vertices_count;
     MemoryAPI::allocate_array(&flags, max_size);
@@ -56,8 +56,8 @@ FrontierNEC<_TVertexValue, _TEdgeWeight>::FrontierNEC(int _vertices_count)
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-template <typename _TVertexValue, typename _TEdgeWeight>
-FrontierNEC<_TVertexValue, _TEdgeWeight>::~FrontierNEC()
+
+FrontierNEC::~FrontierNEC()
 {
     MemoryAPI::free_array(flags);
     MemoryAPI::free_array(ids);
@@ -66,8 +66,8 @@ FrontierNEC<_TVertexValue, _TEdgeWeight>::~FrontierNEC()
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-template <typename _TVertexValue, typename _TEdgeWeight>
-void FrontierNEC<_TVertexValue, _TEdgeWeight>::print_frontier_info(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph)
+
+void FrontierNEC::print_frontier_info(ExtendedCSRGraph &_graph)
 {
     #pragma omp master
     {
@@ -99,8 +99,8 @@ void FrontierNEC<_TVertexValue, _TEdgeWeight>::print_frontier_info(ExtendedCSRGr
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-template <typename _TVertexValue, typename _TEdgeWeight>
-void FrontierNEC<_TVertexValue, _TEdgeWeight>::set_all_active()
+
+void FrontierNEC::set_all_active()
 {
     type = ALL_ACTIVE_FRONTIER;
     current_size = max_size;
@@ -111,8 +111,8 @@ void FrontierNEC<_TVertexValue, _TEdgeWeight>::set_all_active()
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-template <typename _TVertexValue, typename _TEdgeWeight>
-void FrontierNEC<_TVertexValue, _TEdgeWeight>::add_vertex(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph, int src_id)
+
+void FrontierNEC::add_vertex(ExtendedCSRGraph &_graph, int src_id)
 {
     if(current_size > 0)
     {
@@ -153,8 +153,8 @@ void FrontierNEC<_TVertexValue, _TEdgeWeight>::add_vertex(ExtendedCSRGraph<_TVer
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-template <typename _TVertexValue, typename _TEdgeWeight>
-void FrontierNEC<_TVertexValue, _TEdgeWeight>::add_vertices(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph, int *_vertex_ids, int _number_of_vertices)
+
+void FrontierNEC::add_vertices(ExtendedCSRGraph &_graph, int *_vertex_ids, int _number_of_vertices)
 {
     LOAD_EXTENDED_CSR_GRAPH_DATA(_graph);
 

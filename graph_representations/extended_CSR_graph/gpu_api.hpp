@@ -3,8 +3,7 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #ifdef __USE_GPU__
-template <typename _TVertexValue, typename _TEdgeWeight>
-void ExtendedCSRGraph<_TVertexValue, _TEdgeWeight>::move_to_device()
+void ExtendedCSRGraph::move_to_device()
 {
     if(this->graph_on_device)
     {
@@ -12,25 +11,13 @@ void ExtendedCSRGraph<_TVertexValue, _TEdgeWeight>::move_to_device()
     }
     
     this->graph_on_device = true;
-    
-    MemoryAPI::move_array_to_device<_TVertexValue>(&(this->vertex_values), this->vertices_count);
-    MemoryAPI::move_array_to_device<int>(&reordered_vertex_ids, this->vertices_count);
+
     MemoryAPI::move_array_to_device<long long>(&vertex_pointers, this->vertices_count + 1);
     MemoryAPI::move_array_to_device<int>(&adjacent_ids, this->edges_count);
-
-    MemoryAPI::move_array_to_device<int>(&incoming_degrees, this->vertices_count);
-    
-    #ifdef __USE_WEIGHTED_GRAPHS__
-    MemoryAPI::move_array_to_device<_TEdgeWeight>(&adjacent_weights, this->edges_count);
-    #endif
 
     #ifdef __USE_MANAGED_MEMORY__
     MemoryAPI::prefetch_managed_array(vertex_pointers, this->vertices_count + 1);
     MemoryAPI::prefetch_managed_array(adjacent_ids, this->edges_count);
-
-    #ifdef __USE_WEIGHTED_GRAPHS__
-    MemoryAPI::prefetch_managed_array(adjacent_weights, this->edges_count);
-    #endif
     #endif
 }
 #endif
@@ -38,8 +25,7 @@ void ExtendedCSRGraph<_TVertexValue, _TEdgeWeight>::move_to_device()
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #ifdef __USE_GPU__
-template <typename _TVertexValue, typename _TEdgeWeight>
-void ExtendedCSRGraph<_TVertexValue, _TEdgeWeight>::move_to_host()
+void ExtendedCSRGraph::move_to_host()
 {
     if(!this->graph_on_device)
     {
@@ -47,27 +33,16 @@ void ExtendedCSRGraph<_TVertexValue, _TEdgeWeight>::move_to_host()
     }
     
     this->graph_on_device = false;
-    
-    MemoryAPI::move_array_to_host<_TVertexValue>(&(this->vertex_values), this->vertices_count);
-    MemoryAPI::move_array_to_host<int>(&reordered_vertex_ids, this->vertices_count);
+
     MemoryAPI::move_array_to_host<long long>(&vertex_pointers, this->vertices_count + 1);
     MemoryAPI::move_array_to_host<int>(&adjacent_ids, this->edges_count);
-
-    MemoryAPI::move_array_to_host<int>(&incoming_degrees, this->vertices_count);
-    
-    #ifdef __USE_WEIGHTED_GRAPHS__
-    MemoryAPI::move_array_to_host<_TEdgeWeight>(&adjacent_weights, this->edges_count);
-    #endif
-    
-    // TODO VE MOVE
 }
 #endif
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #ifdef __USE_GPU__
-template <typename _TVertexValue, typename _TEdgeWeight>
-void ExtendedCSRGraph<_TVertexValue, _TEdgeWeight>::estimate_gpu_thresholds()
+void ExtendedCSRGraph::estimate_gpu_thresholds()
 {
     gpu_grid_threshold_vertex = 0;
     gpu_block_threshold_vertex = 0;

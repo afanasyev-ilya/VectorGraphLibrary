@@ -2,8 +2,8 @@
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-template <typename _TVertexValue, typename _TEdgeWeight>
-void SSWP::seq_dijkstra(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
+
+void SSWP::seq_dijkstra(ExtendedCSRGraph &_graph,
                         _TEdgeWeight *_widths,
                         int _source_vertex)
 {

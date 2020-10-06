@@ -20,8 +20,8 @@ using namespace std;
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-template <typename _TVertexValue, typename _TEdgeWeight>
-void top_down_wrapper(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
+
+void top_down_wrapper(ExtendedCSRGraph &_graph,
                       int *_levels,
                       int _source_vertex,
                       int &_iterations_count)

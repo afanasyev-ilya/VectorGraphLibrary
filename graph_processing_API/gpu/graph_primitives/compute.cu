@@ -54,7 +54,7 @@ void __global__ compute_kernel_sparse(const int *_frontier_ids,
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template <typename _TVertexValue, typename _TEdgeWeight, typename ComputeOperation>
-void GraphPrimitivesGPU::compute(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
+void GraphPrimitivesGPU::compute(ExtendedCSRGraph &_graph,
                                  FrontierGPU &_frontier,
                                  ComputeOperation &&compute_op)
 {

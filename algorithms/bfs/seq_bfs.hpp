@@ -9,8 +9,8 @@ using namespace std;
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-template <typename _TVertexValue, typename _TEdgeWeight>
-void BFS<_TVertexValue, _TEdgeWeight>::seq_top_down(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph, int *_levels, int _source_vertex)
+
+void BFS::seq_top_down(ExtendedCSRGraph &_graph, int *_levels, int _source_vertex)
 {
     LOAD_EXTENDED_CSR_GRAPH_DATA(_graph);
 

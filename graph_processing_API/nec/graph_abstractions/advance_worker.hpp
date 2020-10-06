@@ -4,12 +4,12 @@
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-template <typename _TVertexValue, typename _TEdgeWeight>
+
 template <typename EdgeOperation, typename VertexPreprocessOperation,
         typename VertexPostprocessOperation, typename CollectiveEdgeOperation, typename CollectiveVertexPreprocessOperation,
         typename CollectiveVertexPostprocessOperation>
-void GraphAbstractionsNEC<_TVertexValue, _TEdgeWeight>::advance_worker(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
-                                        FrontierNEC<_TVertexValue, _TEdgeWeight> &_frontier,
+void GraphAbstractionsNEC::advance_worker(ExtendedCSRGraph &_graph,
+                                        FrontierNEC &_frontier,
                                         EdgeOperation &&edge_op,
                                         VertexPreprocessOperation &&vertex_preprocess_op,
                                         VertexPostprocessOperation &&vertex_postprocess_op,

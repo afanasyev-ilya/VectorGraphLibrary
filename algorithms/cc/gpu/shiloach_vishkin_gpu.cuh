@@ -2,8 +2,8 @@
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-template <typename _TVertexValue, typename _TEdgeWeight>
-void shiloach_vishkin_wrapper(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
+
+void shiloach_vishkin_wrapper(ExtendedCSRGraph &_graph,
                               int *_components,
                               int &_iterations_count);
 

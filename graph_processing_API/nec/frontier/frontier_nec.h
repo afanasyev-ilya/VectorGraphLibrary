@@ -6,7 +6,7 @@
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-template <typename _TVertexValue, typename _TEdgeWeight>
+
 class FrontierNEC
 {
 private:
@@ -28,9 +28,9 @@ private:
     int max_size;
 public:
 
-    FrontierNEC(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph);
+    FrontierNEC(ExtendedCSRGraph &_graph);
 
-    FrontierNEC(VectCSRGraph<_TVertexValue, _TEdgeWeight> &_graph);
+    FrontierNEC(VectCSRGraph &_graph);
 
     FrontierNEC(int _vertices_count);
 
@@ -43,17 +43,17 @@ public:
 
     void change_size(int _size) {max_size = _size;};
 
-    void print_frontier_info(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph);
+    void print_frontier_info(ExtendedCSRGraph &_graph);
 
-    inline void add_vertex(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph, int src_id);
+    inline void add_vertex(ExtendedCSRGraph &_graph, int src_id);
 
-    inline void add_vertices(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph, int *_vertex_ids, int _number_of_vertices);
+    inline void add_vertices(ExtendedCSRGraph &_graph, int *_vertex_ids, int _number_of_vertices);
 
     inline void clear() { current_size = 0; };
 
     friend class GraphPrimitivesNEC;
 
-    template <typename _TVertexValue, typename _TEdgeWeight>
+
     friend class GraphAbstractionsNEC;
 };
 

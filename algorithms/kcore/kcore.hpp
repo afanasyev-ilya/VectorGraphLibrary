@@ -14,24 +14,24 @@
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-template <typename _TVertexValue, typename _TEdgeWeight>
-void KCore<_TVertexValue, _TEdgeWeight>::allocate_result_memory(int _vertices_count, int **_kcore_data)
+
+void KCore::allocate_result_memory(int _vertices_count, int **_kcore_data)
 {
     *_kcore_data = new int[_vertices_count];
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-template <typename _TVertexValue, typename _TEdgeWeight>
-void KCore<_TVertexValue, _TEdgeWeight>::free_result_memory(int *_kcore_data)
+
+void KCore::free_result_memory(int *_kcore_data)
 {
     delete[] _kcore_data;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-template <typename _TVertexValue, typename _TEdgeWeight>
-void KCore<_TVertexValue, _TEdgeWeight>::kcore_subgraph(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
+
+void KCore::kcore_subgraph(ExtendedCSRGraph &_graph,
                                                         int *_kcore_degrees,
                                                         int _k)
 {
@@ -105,8 +105,8 @@ void KCore<_TVertexValue, _TEdgeWeight>::kcore_subgraph(ExtendedCSRGraph<_TVerte
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-template <typename _TVertexValue, typename _TEdgeWeight>
-void KCore<_TVertexValue, _TEdgeWeight>::kcore_subgraph(VectorisedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
+
+void KCore::kcore_subgraph(VectorisedCSRGraph &_graph,
                                                         int *_kcore_degrees,
                                                         int _k)
 {
@@ -228,8 +228,8 @@ void KCore<_TVertexValue, _TEdgeWeight>::kcore_subgraph(VectorisedCSRGraph<_TVer
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-template <typename _TVertexValue, typename _TEdgeWeight>
-void KCore<_TVertexValue, _TEdgeWeight>::maximal_kcore(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
+
+void KCore::maximal_kcore(ExtendedCSRGraph &_graph,
                                                        int *_kcore_degrees)
 {
     int peel = 1;
@@ -314,8 +314,8 @@ void KCore<_TVertexValue, _TEdgeWeight>::maximal_kcore(ExtendedCSRGraph<_TVertex
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-template <typename _TVertexValue, typename _TEdgeWeight>
-void KCore<_TVertexValue, _TEdgeWeight>::calculate_kcore_sizes(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
+
+void KCore::calculate_kcore_sizes(ExtendedCSRGraph &_graph,
                                                                int *_kcore_data,
                                                                int &_kcore_vertices_count,
                                                                long long &_kcore_edges_count)

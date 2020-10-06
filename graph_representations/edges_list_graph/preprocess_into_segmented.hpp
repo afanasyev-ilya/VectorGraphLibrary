@@ -16,12 +16,10 @@ inline int get_linear_segment_index(int _src_segment, int _dst_segment, int _seg
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-template <typename _TEdgeWeight>
 struct SegmentData
 {
     vector<int> src_ids;
     vector<int> dst_ids;
-    vector<_TEdgeWeight> weights;
 
     int size;
 
@@ -35,32 +33,11 @@ struct SegmentData
 
     }
 
-    void add_edge(int _src_id, int _dst_id, _TEdgeWeight _weight)
-    {
-        src_ids.push_back(_src_id);
-        dst_ids.push_back(_dst_id);
-        weights.push_back(_weight);
-        size++;
-    }
-
     void add_edge(int _src_id, int _dst_id)
     {
         src_ids.push_back(_src_id);
         dst_ids.push_back(_dst_id);
         size++;
-    }
-
-    void merge_to_graph(int *_src_ids, int *_dst_ids, _TEdgeWeight *_weights, int &_merge_pos)
-    {
-        #pragma _NEC ivdep
-        #pragma omp parallel for
-        for(int i = 0; i < size; i++)
-        {
-            _src_ids[_merge_pos + i] = src_ids[i];
-            _dst_ids[_merge_pos + i] = dst_ids[i];
-            _weights[_merge_pos + i] = weights[i];
-        }
-        _merge_pos += size;
     }
 
     void merge_to_graph(int *_src_ids, int *_dst_ids, int &_merge_pos)
@@ -98,19 +75,15 @@ _T* merge_arrays(_T *_first, int _first_size, _T *_second, int _second_size)
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-
-template <typename _TEdgeWeight>
 struct VectorSegment
 {
     int *src_ids[VECTOR_LENGTH];
     int *dst_ids[VECTOR_LENGTH];
-    _TEdgeWeight *weights[VECTOR_LENGTH];
 
     int current_ptrs[VECTOR_LENGTH];
 
     int *merged_src_ids;
     int *merged_dst_ids;
-    _TEdgeWeight *merged_weights;
     long long merged_size;
 
     VectorSegment()
@@ -130,7 +103,6 @@ struct VectorSegment
             current_ptrs[i] = 0;
             MemoryAPI::allocate_array(&(src_ids[i]), _new_sizes[i]);
             MemoryAPI::allocate_array(&(dst_ids[i]), _new_sizes[i]);
-            MemoryAPI::allocate_array(&(weights[i]), _new_sizes[i]);
         }
     }
 
@@ -145,20 +117,16 @@ struct VectorSegment
             MemoryAPI::free_array(merged_src_ids);
         if(merged_dst_ids != NULL)
             MemoryAPI::free_array(merged_dst_ids);
-        if(merged_weights != NULL)
-            MemoryAPI::free_array(merged_weights);
         merged_src_ids = NULL;
         merged_dst_ids = NULL;
-        merged_weights = NULL;
     }
 
-    inline void add(int _src_id, int _dst_id, _TEdgeWeight _weight, int _vector_index)
+    inline void add(int _src_id, int _dst_id, int _vector_index)
     {
         int pos = current_ptrs[_vector_index];
 
         src_ids[_vector_index][pos] = _src_id;
         dst_ids[_vector_index][pos] = _dst_id;
-        weights[_vector_index][pos] = _weight;
 
         current_ptrs[_vector_index]++;
     }
@@ -174,7 +142,6 @@ struct VectorSegment
 
         MemoryAPI::allocate_array(&merged_src_ids, new_size);
         MemoryAPI::allocate_array(&merged_dst_ids, new_size);
-        MemoryAPI::allocate_array(&merged_weights, new_size);
 
         int shift = 0;
         #pragma _NEC novector
@@ -187,7 +154,6 @@ struct VectorSegment
             {
                 merged_src_ids[shift + i] = src_ids[vec][i];
                 merged_dst_ids[shift + i] = dst_ids[vec][i];
-                merged_weights[shift + i] = weights[vec][i];
             }
             shift += size;
         }
@@ -197,11 +163,10 @@ struct VectorSegment
         {
             MemoryAPI::free_array(src_ids[i]);
             MemoryAPI::free_array(dst_ids[i]);
-            MemoryAPI::free_array(weights[i]);
         }
     }
 
-    void thread_merge(VectorSegment<_TEdgeWeight> &_other_segment)
+    void thread_merge(VectorSegment &_other_segment)
     {
         int new_size = this->merged_size + _other_segment.merged_size;
 
@@ -209,20 +174,17 @@ struct VectorSegment
                                         _other_segment.merged_src_ids, _other_segment.merged_size);
         int *new_dst_ids = merge_arrays(this->merged_dst_ids, this->merged_size,
                                         _other_segment.merged_dst_ids, _other_segment.merged_size);
-        _TEdgeWeight *new_weights = merge_arrays(this->merged_weights, this->merged_size,
-                                                 _other_segment.merged_weights, _other_segment.merged_size);
 
         this->free();
         _other_segment.free();
 
         this->merged_src_ids = new_src_ids;
         this->merged_dst_ids = new_dst_ids;
-        this->merged_weights = new_weights;
         this->merged_size = new_size;
         _other_segment.merged_size = 0;
     }
 
-    void merge_to_graph(int *_graph_src_ids, int *_graph_dst_ids, _TEdgeWeight *_graph_weights, long long &_merge_pos)
+    void merge_to_graph(int *_graph_src_ids, int *_graph_dst_ids, long long &_merge_pos)
     {
         #pragma _NEC vector
         #pragma _NEC ivdep
@@ -231,7 +193,6 @@ struct VectorSegment
         {
             _graph_src_ids[_merge_pos + i] = merged_src_ids[i];
             _graph_dst_ids[_merge_pos + i] = merged_dst_ids[i];
-            _graph_weights[_merge_pos + i] = merged_weights[i];
         }
         _merge_pos += merged_size;
     }
@@ -239,13 +200,12 @@ struct VectorSegment
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-template <typename _TEdgeWeight>
 struct VectorData
 {
     int *counts;
     int segments_count;
 
-    VectorSegment<_TEdgeWeight> *segments;
+    VectorSegment *segments;
 
     VectorData(int _segments_count)
     {
@@ -299,14 +259,14 @@ struct VectorData
         }
     }
 
-    inline void add(int *_segment_positions, int *_src_ids, int *_dst_ids, _TEdgeWeight *_weights)
+    inline void add(int *_segment_positions, int *_src_ids, int *_dst_ids)
     {
         #pragma _NEC ivdep
         #pragma _NEC vector
         for(int i = 0; i < VECTOR_LENGTH; i++)
         {
             int seg = _segment_positions[i];
-            segments[seg].add(_src_ids[i], _dst_ids[i], _weights[i], i);
+            segments[seg].add(_src_ids[i], _dst_ids[i], i);
         }
     }
 
@@ -318,7 +278,7 @@ struct VectorData
         }
     }
 
-    inline void thread_merge(VectorData<_TEdgeWeight> *_other_data)
+    inline void thread_merge(VectorData *_other_data)
     {
         for(int seg = 0; seg < segments_count*segments_count; seg++)
         {
@@ -326,12 +286,12 @@ struct VectorData
         }
     }
 
-    void merge_to_graph(int *_src_ids, int *_dst_ids, _TEdgeWeight *_weights)
+    void merge_to_graph(int *_src_ids, int *_dst_ids)
     {
         long long merge_pos = 0;
         for(int seg = 0; seg < segments_count*segments_count; seg++)
         {
-            segments[seg].merge_to_graph(_src_ids, _dst_ids, _weights, merge_pos);
+            segments[seg].merge_to_graph(_src_ids, _dst_ids, merge_pos);
         }
     }
 
@@ -349,8 +309,7 @@ struct VectorData
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-template <typename _TVertexValue, typename _TEdgeWeight>
-void EdgesListGraph<_TVertexValue, _TEdgeWeight>::preprocess_into_segmented()
+void EdgesListGraph::preprocess_into_segmented()
 {
     int segment_size_in_bytes = LLC_CACHE_SIZE/4;
     long long edges_count = this->edges_count;
@@ -361,10 +320,10 @@ void EdgesListGraph<_TVertexValue, _TEdgeWeight>::preprocess_into_segmented()
     if(segments_count <= 2) // TODO problem at 2 segments
         return;
 
-    VectorData<_TEdgeWeight> *vector_data[MAX_SX_AURORA_THREADS];
+    VectorData *vector_data[MAX_SX_AURORA_THREADS];
     for(int core = 0; core < MAX_SX_AURORA_THREADS; core++)
     {
-        vector_data[core] = new VectorData<_TEdgeWeight>(segments_count);
+        vector_data[core] = new VectorData(segments_count);
     }
 
     #pragma omp parallel
@@ -375,7 +334,7 @@ void EdgesListGraph<_TVertexValue, _TEdgeWeight>::preprocess_into_segmented()
     #pragma omp parallel num_threads(MAX_SX_AURORA_THREADS)
     {
         int tid = omp_get_thread_num();
-        VectorData<_TEdgeWeight> *local_vector_data = vector_data[tid];
+        VectorData *local_vector_data = vector_data[tid];
 
         local_vector_data->reset_counts();
 
@@ -387,21 +346,23 @@ void EdgesListGraph<_TVertexValue, _TEdgeWeight>::preprocess_into_segmented()
             #pragma _NEC novob
             #pragma _NEC vector
             #pragma _NEC gather_reorder
-            for (int i = 0; i < VECTOR_LENGTH; i++) {
+            for (int i = 0; i < VECTOR_LENGTH; i++)
+            {
                 long long edge_pos = vec_start + i;
 
-                int src_id = src_ids[edge_pos];
-                int dst_id = dst_ids[edge_pos];
+                if(edge_pos < edges_count)
+                {
+                    int src_id = src_ids[edge_pos];
+                    int dst_id = dst_ids[edge_pos];
 
-                int src_segment = get_segment_num(src_id, segment_size);
-                int dst_segment = get_segment_num(dst_id, segment_size);
+                    int src_segment = get_segment_num(src_id, segment_size);
+                    int dst_segment = get_segment_num(dst_id, segment_size);
 
-                int seg = get_linear_segment_index(src_segment, dst_segment, segments_count);
+                    int seg = get_linear_segment_index(src_segment, dst_segment, segments_count);
 
-                local_vector_data->increase_count(i, seg);
+                    local_vector_data->increase_count(i, seg);
+                }
             }
-
-            // TODO reminder
         }
     }
     double t2 = omp_get_wtime();
@@ -413,7 +374,7 @@ void EdgesListGraph<_TVertexValue, _TEdgeWeight>::preprocess_into_segmented()
     #pragma omp parallel num_threads(MAX_SX_AURORA_THREADS)
     {
         int tid = omp_get_thread_num();
-        VectorData<_TEdgeWeight> *local_vector_data = vector_data[tid];
+        VectorData *local_vector_data = vector_data[tid];
         local_vector_data->resize_segments();
     }
     t2 = omp_get_wtime();
@@ -424,14 +385,13 @@ void EdgesListGraph<_TVertexValue, _TEdgeWeight>::preprocess_into_segmented()
     #pragma omp parallel num_threads(MAX_SX_AURORA_THREADS)
     {
         int tid = omp_get_thread_num();
-        VectorData<_TEdgeWeight> *local_vector_data = vector_data[tid];
+        VectorData *local_vector_data = vector_data[tid];
 
         #pragma omp for
         for(long long vec_start = 0; vec_start < edges_count; vec_start += VECTOR_LENGTH)
         {
             int src_ids_reg[VECTOR_LENGTH];
             int dst_ids_reg[VECTOR_LENGTH];
-            _TEdgeWeight weights_reg[VECTOR_LENGTH];
             int seg_reg[VECTOR_LENGTH];
 
             #pragma _NEC ivdep
@@ -442,19 +402,19 @@ void EdgesListGraph<_TVertexValue, _TEdgeWeight>::preprocess_into_segmented()
             {
                 long long edge_pos = vec_start + i;
 
-                src_ids_reg[i] = src_ids[edge_pos];
-                dst_ids_reg[i] = dst_ids[edge_pos];
-                weights_reg[i] = weights[edge_pos];
+                if(edge_pos < edges_count)
+                {
+                    src_ids_reg[i] = src_ids[edge_pos];
+                    dst_ids_reg[i] = dst_ids[edge_pos];
 
-                int src_segment = get_segment_num(src_ids_reg[i], segment_size);
-                int dst_segment = get_segment_num(dst_ids_reg[i], segment_size);
+                    int src_segment = get_segment_num(src_ids_reg[i], segment_size);
+                    int dst_segment = get_segment_num(dst_ids_reg[i], segment_size);
 
-                seg_reg[i] = get_linear_segment_index(src_segment, dst_segment, segments_count);
+                    seg_reg[i] = get_linear_segment_index(src_segment, dst_segment, segments_count);
+                }
             }
 
-            // TODO reminder
-
-            local_vector_data->add(seg_reg, src_ids_reg, dst_ids_reg, weights_reg);
+            local_vector_data->add(seg_reg, src_ids_reg, dst_ids_reg);
         }
 
         local_vector_data->vector_merge();
@@ -479,10 +439,10 @@ void EdgesListGraph<_TVertexValue, _TEdgeWeight>::preprocess_into_segmented()
 
     int merge_pos = 0;
     t1 = omp_get_wtime();
-    vector_data[0]->merge_to_graph(src_ids, dst_ids, weights);
+    vector_data[0]->merge_to_graph(src_ids, dst_ids);
     t2 = omp_get_wtime();
     cout << "copy time: " << t2 - t1 << " sec" << endl;
-    cout << "copy BW: " << 6.0*sizeof(int)*this->edges_count/((t2 - t1)*1e9) << " GB/s" << endl;
+    cout << "copy BW: " << 4.0*sizeof(int)*this->edges_count/((t2 - t1)*1e9) << " GB/s" << endl;
 
     for(int core = 0; core < MAX_SX_AURORA_THREADS; core++)
     {

@@ -3,13 +3,13 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #ifdef __USE_NEC_SX_AURORA__
-template <typename _TVertexValue, typename _TEdgeWeight>
-void SSSP::nec_dijkstra_partial_active(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
+
+void SSSP::nec_dijkstra_partial_active(ExtendedCSRGraph &_graph,
                                        _TEdgeWeight *_distances,
                                        int _source_vertex)
 {
     LOAD_EXTENDED_CSR_GRAPH_DATA(_graph);
-    FrontierNEC<_TVertexValue, _TEdgeWeight> all_active_frontier(vertices_count);
+    FrontierNEC all_active_frontier(vertices_count);
 
     int *was_changes;
     MemoryAPI::allocate_array(&was_changes, vertices_count);
@@ -121,8 +121,8 @@ void SSSP::nec_dijkstra_partial_active(ExtendedCSRGraph<_TVertexValue, _TEdgeWei
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #ifdef __USE_NEC_SX_AURORA__
-template <typename _TVertexValue, typename _TEdgeWeight>
-void SSSP::nec_dijkstra_all_active(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
+
+void SSSP::nec_dijkstra_all_active(ExtendedCSRGraph &_graph,
                                    _TEdgeWeight *_distances,
                                    int _source_vertex,
                                    AlgorithmTraversalType _traversal_direction)
@@ -258,8 +258,8 @@ void SSSP::nec_dijkstra_all_active(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight>
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #ifdef __USE_NEC_SX_AURORA__
-template <typename _TVertexValue, typename _TEdgeWeight>
-void SSSP::nec_dijkstra(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
+
+void SSSP::nec_dijkstra(ExtendedCSRGraph &_graph,
                         _TEdgeWeight *_distances,
                         int _source_vertex,
                         AlgorithmFrontierType _frontier_type,
@@ -275,8 +275,8 @@ void SSSP::nec_dijkstra(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #ifdef __USE_NEC_SX_AURORA__
-template <typename _TVertexValue, typename _TEdgeWeight>
-void SSSP::nec_bellamn_ford(EdgesListGraph<_TVertexValue, _TEdgeWeight> &_graph,
+
+void SSSP::nec_bellamn_ford(EdgesListGraph &_graph,
                             _TEdgeWeight *_distances,
                             int _source_vertex)
 {
@@ -328,14 +328,14 @@ void SSSP::nec_bellamn_ford(EdgesListGraph<_TVertexValue, _TEdgeWeight> &_graph,
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #ifdef __USE_NEC_SX_AURORA__
-template <typename _TVertexValue, typename _TEdgeWeight>
-void SSSP::nec_dijkstra(VectCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
+
+void SSSP::nec_dijkstra(VectCSRGraph &_graph,
                         EdgesArrayNec<_TVertexValue, _TEdgeWeight, _TEdgeWeight> &_weights,
                         _TEdgeWeight *_distances,
                         int _source_vertex)
 {
-    GraphAbstractionsNEC<_TVertexValue, _TEdgeWeight> graph_API(_graph, SCATTER_TRAVERSAL);
-    FrontierNEC<_TVertexValue, _TEdgeWeight> frontier(_graph);
+    GraphAbstractionsNEC graph_API(_graph, SCATTER_TRAVERSAL);
+    FrontierNEC frontier(_graph);
 
     graph_API.change_traversal_direction(SCATTER_TRAVERSAL);
     frontier.set_all_active();

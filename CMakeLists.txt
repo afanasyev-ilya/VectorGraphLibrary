@@ -119,7 +119,6 @@ add_executable(VectorGraphLibrary
         graph_processing_API/nec/graph_primitives/tests.hpp
         graph_processing_API/nec/vector_register/vector_registers.h
         graph_representations/common/graph_types.h
-        graph_representations/common/tmp_edge_data.h
         graph_representations/edges_list_graph/edges_list_graph.h
         graph_representations/edges_list_graph/edges_list_graph.hpp
         graph_representations/extended_CSR_graph/vector_extension/vector_extension.h

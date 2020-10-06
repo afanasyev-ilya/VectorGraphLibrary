@@ -2,10 +2,10 @@
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-template <typename _TVertexValue, typename _TEdgeWeight>
+
 template <typename EdgeOperation, typename VertexPreprocessOperation,
         typename VertexPostprocessOperation>
-void GraphAbstractionsNEC<_TVertexValue, _TEdgeWeight>::vector_engine_per_vertex_kernel_all_active(const long long *_vertex_pointers,
+void GraphAbstractionsNEC::vector_engine_per_vertex_kernel_all_active(const long long *_vertex_pointers,
                                                                     const int *_adjacent_ids,
                                                                     const int _first_vertex,
                                                                     const int _last_vertex,
@@ -77,10 +77,10 @@ void GraphAbstractionsNEC<_TVertexValue, _TEdgeWeight>::vector_engine_per_vertex
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-template <typename _TVertexValue, typename _TEdgeWeight>
+
 template <typename EdgeOperation, typename VertexPreprocessOperation,
         typename VertexPostprocessOperation>
-void GraphAbstractionsNEC<_TVertexValue, _TEdgeWeight>::vector_core_per_vertex_kernel_all_active(const long long *_vertex_pointers,
+void GraphAbstractionsNEC::vector_core_per_vertex_kernel_all_active(const long long *_vertex_pointers,
                                                                   const int *_adjacent_ids,
                                                                   const int _first_vertex,
                                                                   const int _last_vertex,
@@ -150,10 +150,10 @@ void GraphAbstractionsNEC<_TVertexValue, _TEdgeWeight>::vector_core_per_vertex_k
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-template <typename _TVertexValue, typename _TEdgeWeight>
+
 template <typename EdgeOperation, typename VertexPreprocessOperation,
         typename VertexPostprocessOperation>
-void GraphAbstractionsNEC<_TVertexValue, _TEdgeWeight>::ve_collective_vertex_processing_kernel_all_active(const long long *_ve_vector_group_ptrs,
+void GraphAbstractionsNEC::ve_collective_vertex_processing_kernel_all_active(const long long *_ve_vector_group_ptrs,
                                                                            const int *_ve_vector_group_sizes,
                                                                            const int *_ve_adjacent_ids,
                                                                            const int _ve_vertices_count,

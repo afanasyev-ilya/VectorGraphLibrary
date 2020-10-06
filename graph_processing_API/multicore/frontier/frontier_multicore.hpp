@@ -2,8 +2,8 @@
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-template <typename _TVertexValue, typename _TEdgeWeight>
-FrontierMulticore::FrontierMulticore(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph)
+
+FrontierMulticore::FrontierMulticore(ExtendedCSRGraph &_graph)
 {
     max_size = _graph.get_vertices_count();
     MemoryAPI::allocate_array(&flags, max_size);
@@ -43,8 +43,8 @@ FrontierMulticore::~FrontierMulticore()
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-template <typename _TVertexValue, typename _TEdgeWeight>
-void FrontierMulticore::print_frontier_info(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph)
+
+void FrontierMulticore::print_frontier_info(ExtendedCSRGraph &_graph)
 {
     // TODO
     throw "multicore TODO";
@@ -63,8 +63,8 @@ void FrontierMulticore::set_all_active()
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-template <typename _TVertexValue, typename _TEdgeWeight>
-void FrontierMulticore::add_vertex(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph, int src_id)
+
+void FrontierMulticore::add_vertex(ExtendedCSRGraph &_graph, int src_id)
 {
     //TODO
     throw "multicore TODO";
@@ -72,8 +72,8 @@ void FrontierMulticore::add_vertex(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight>
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-template <typename _TVertexValue, typename _TEdgeWeight>
-void FrontierMulticore::add_vertices(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph, int *_vertex_ids, int _number_of_vertices)
+
+void FrontierMulticore::add_vertices(ExtendedCSRGraph &_graph, int *_vertex_ids, int _number_of_vertices)
 {
     throw "multicore TODO";
 }

@@ -53,8 +53,8 @@ public:
 
     FrontierType get_type() {return type;};
 
-    template <typename _TVertexValue, typename _TEdgeWeight>
-    void add_vertex(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph, int src_id);
+
+    void add_vertex(ExtendedCSRGraph &_graph, int src_id);
 
     friend class GraphPrimitivesGPU;
 };

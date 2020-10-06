@@ -3,8 +3,7 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #ifdef __USE_ASL__
-template <typename _TVertexValue, typename _TEdgeWeight>
-void EdgesListGraph<_TVertexValue, _TEdgeWeight>::preprocess_into_csr_based(int *_work_buffer, asl_int_t *_asl_buffer)
+void EdgesListGraph::preprocess_into_csr_based(int *_work_buffer, asl_int_t *_asl_buffer)
 {
     bool work_buffer_was_allocated = false;
     if(_work_buffer == NULL)
@@ -61,43 +60,6 @@ void EdgesListGraph<_TVertexValue, _TEdgeWeight>::preprocess_into_csr_based(int 
         dst_ids[edge_pos] = _work_buffer[edge_pos];
     }
 
-    // allocate weights buffer if work_buffer has smaller size
-    _TEdgeWeight *weights_buffer;
-    bool weights_buffer_was_allocated = false;
-    if(sizeof(int) < sizeof(_TEdgeWeight))
-    {
-        weights_buffer_was_allocated = true;
-        MemoryAPI::allocate_array(&weights_buffer, this->edges_count);
-    }
-    else
-    {
-        weights_buffer = (_TEdgeWeight *)_work_buffer;
-    }
-
-    // reorder weights
-    #pragma _NEC ivdep
-    #pragma _NEC vovertake
-    #pragma _NEC novob
-    #pragma _NEC vector
-    #pragma _NEC gather_reorder
-    #pragma omp parallel for
-    for(long long edge_pos = 0; edge_pos < this->edges_count; edge_pos++)
-    {
-        weights_buffer[edge_pos] = weights[_asl_buffer[edge_pos]];
-    }
-
-    #pragma _NEC ivdep
-    #pragma omp parallel for
-    for(long long edge_pos = 0; edge_pos < this->edges_count; edge_pos++)
-    {
-        weights[edge_pos] = weights_buffer[edge_pos];
-    }
-
-    // free all buffers if needed
-    if(weights_buffer_was_allocated)
-    {
-        MemoryAPI::free_array(weights_buffer);
-    }
     if(work_buffer_was_allocated)
     {
         MemoryAPI::free_array(_work_buffer);

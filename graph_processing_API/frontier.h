@@ -24,14 +24,14 @@ public:
 
     void change_size(int _size) {max_size = _size;};
 
-    template <typename _TVertexValue, typename _TEdgeWeight>
-    void print_frontier_info(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph) {};
 
-    template <typename _TVertexValue, typename _TEdgeWeight>
-    inline void add_vertex(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph, int src_id) {};
+    void print_frontier_info(ExtendedCSRGraph &_graph) {};
 
-    template <typename _TVertexValue, typename _TEdgeWeight>
-    inline void add_vertices(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
+
+    inline void add_vertex(ExtendedCSRGraph &_graph, int src_id) {};
+
+
+    inline void add_vertices(ExtendedCSRGraph &_graph,
                                      int *_vertex_ids,
                                      int _number_of_vertices) {};
 

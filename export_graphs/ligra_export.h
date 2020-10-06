@@ -11,8 +11,8 @@
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-template <typename _TVertexValue, typename _TEdgeWeight>
-void export_to_ligra_text_unweighted(EdgesListGraph<_TVertexValue, _TEdgeWeight> &_graph, string _ligra_file_name)
+
+void export_to_ligra_text_unweighted(EdgesListGraph &_graph, string _ligra_file_name)
 {
     int vertices_count = _graph.get_vertices_count();
     long long edges_count = _graph.get_edges_count();

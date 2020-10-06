@@ -6,7 +6,7 @@
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-template <typename _TVertexValue, typename _TEdgeWeight>
+
 class VectorExtension
 {
 private:
@@ -26,7 +26,6 @@ private:
 
     // outgoing edges data
     int *adjacent_ids;
-    _TEdgeWeight *adjacent_weights;
 
     void alloc(long long _edges_count);
     void free();
@@ -43,9 +42,8 @@ public:
     long long *get_vector_group_ptrs() {return vector_group_ptrs;};
     int *get_vector_group_sizes() {return vector_group_sizes;};
     int *get_adjacent_ids() {return adjacent_ids;};
-    _TEdgeWeight *get_adjacent_weights() {return adjacent_weights;};
 
-    void init_from_graph(long long *_csr_adjacent_ptrs, int *_csr_adjacent_ids, _TEdgeWeight *_csr_adjacent_weights,
+    void init_from_graph(long long *_csr_adjacent_ptrs, int *_csr_adjacent_ids,
                          int _first_vertex, int _last_vertex);
 
     inline long long get_ve_edge_id(int _src_id, int _dst_id);

@@ -3,7 +3,7 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template <typename _TVertexValue, typename _TEdgeWeight, typename EdgeOperation>
-void GraphPrimitivesMulticore::advance(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
+void GraphPrimitivesMulticore::advance(ExtendedCSRGraph &_graph,
                                        FrontierMulticore &_frontier,
                                        EdgeOperation &&edge_op)
 {

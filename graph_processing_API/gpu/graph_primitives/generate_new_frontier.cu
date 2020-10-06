@@ -49,7 +49,7 @@ void __global__ copy_frontier_ids_kernel(int *_frontier_ids,
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template <typename _TVertexValue, typename _TEdgeWeight, typename Condition>
-void GraphPrimitivesGPU::generate_new_frontier(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
+void GraphPrimitivesGPU::generate_new_frontier(ExtendedCSRGraph &_graph,
                                                FrontierGPU &_frontier,
                                                Condition &&cond)
 {

@@ -3,8 +3,8 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #ifdef __USE_NEC_SX_AURORA__
-template <typename _TVertexValue, typename _TEdgeWeight>
-void CC::nec_shiloach_vishkin(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
+
+void CC::nec_shiloach_vishkin(ExtendedCSRGraph &_graph,
                               int *_components)
 {
     LOAD_EXTENDED_CSR_GRAPH_DATA(_graph);

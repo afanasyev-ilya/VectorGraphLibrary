@@ -2,19 +2,19 @@
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-template <typename _TVertexValue, typename _TEdgeWeight>
-VectCSRGraph<_TVertexValue, _TEdgeWeight>::VectCSRGraph(int _vertices_count, long long _edges_count)
+
+VectCSRGraph::VectCSRGraph(int _vertices_count, long long _edges_count)
 {
     this->vertices_count = _vertices_count;
     this->edges_count = _edges_count;
-    outgoing_edges = new ExtendedCSRGraph<_TVertexValue, _TEdgeWeight>(_vertices_count, _edges_count);
-    incoming_edges = new ExtendedCSRGraph<_TVertexValue, _TEdgeWeight>(_vertices_count, _edges_count);
+    outgoing_edges = new ExtendedCSRGraph(_vertices_count, _edges_count);
+    incoming_edges = new ExtendedCSRGraph(_vertices_count, _edges_count);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-template <typename _TVertexValue, typename _TEdgeWeight>
-VectCSRGraph<_TVertexValue, _TEdgeWeight>::~VectCSRGraph()
+
+VectCSRGraph::~VectCSRGraph()
 {
     delete outgoing_edges;
     delete incoming_edges;
@@ -22,8 +22,8 @@ VectCSRGraph<_TVertexValue, _TEdgeWeight>::~VectCSRGraph()
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-template <typename _TVertexValue, typename _TEdgeWeight>
-void VectCSRGraph<_TVertexValue, _TEdgeWeight>::import_graph(EdgesListGraph<_TVertexValue, _TEdgeWeight> &_el_graph)
+
+void VectCSRGraph::import_graph(EdgesListGraph &_el_graph)
 {
     this->vertices_count = _el_graph.get_vertices_count();
     this->edges_count = _el_graph.get_edges_count();
@@ -45,8 +45,8 @@ void VectCSRGraph<_TVertexValue, _TEdgeWeight>::import_graph(EdgesListGraph<_TVe
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-template <typename _TVertexValue, typename _TEdgeWeight>
-ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> *VectCSRGraph<_TVertexValue, _TEdgeWeight>::get_direction_graph_ptr(TraversalDirection _direction)
+
+ExtendedCSRGraph *VectCSRGraph::get_direction_graph_ptr(TraversalDirection _direction)
 {
     if(_direction == SCATTER_TRAVERSAL)
     {
@@ -65,8 +65,8 @@ ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> *VectCSRGraph<_TVertexValue, _TEdg
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-template <typename _TVertexValue, typename _TEdgeWeight>
-void VectCSRGraph<_TVertexValue, _TEdgeWeight>::print()
+
+void VectCSRGraph::print()
 {
     outgoing_edges->print();
     incoming_edges->print();
@@ -74,8 +74,8 @@ void VectCSRGraph<_TVertexValue, _TEdgeWeight>::print()
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /*
-template <typename _TVertexValue, typename _TEdgeWeight>
-void VectCSRGraph<_TVertexValue, _TEdgeWeight>::print_with_weights(EdgesArrayNec<_TVertexValue, _TEdgeWeight, _TEdgeWeight> &_weights)
+
+void VectCSRGraph::print_with_weights(EdgesArrayNec<_TVertexValue, _TEdgeWeight, _TEdgeWeight> &_weights)
 {
     outgoing_edges->print(_weights, SCATTER_TRAVERSAL);
     incoming_edges->print(_weights, GATHER_TRAVERSAL);

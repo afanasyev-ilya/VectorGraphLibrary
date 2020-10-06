@@ -11,8 +11,8 @@
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-template <typename _TVertexValue, typename _TEdgeWeight>
-ShardedGraph<_TVertexValue, _TEdgeWeight>::ShardedGraph(ShardType _type_of_shard, int _cache_size)
+
+ShardedGraph::ShardedGraph(ShardType _type_of_shard, int _cache_size)
 {
     shards_data = NULL;
     type_of_shard = _type_of_shard;
@@ -23,16 +23,16 @@ ShardedGraph<_TVertexValue, _TEdgeWeight>::ShardedGraph(ShardType _type_of_shard
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-template <typename _TVertexValue, typename _TEdgeWeight>
-ShardedGraph<_TVertexValue, _TEdgeWeight>::~ShardedGraph()
+
+ShardedGraph::~ShardedGraph()
 {
     clear();
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-template <typename _TVertexValue, typename _TEdgeWeight>
-void ShardedGraph<_TVertexValue, _TEdgeWeight>::clear()
+
+void ShardedGraph::clear()
 {
     if(shards_data != NULL)
     {
@@ -48,8 +48,8 @@ void ShardedGraph<_TVertexValue, _TEdgeWeight>::clear()
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-template <typename _TVertexValue, typename _TEdgeWeight>
-void ShardedGraph<_TVertexValue, _TEdgeWeight>::import_graph(EdgesListGraph<_TVertexValue, _TEdgeWeight> &_old_graph,
+
+void ShardedGraph::import_graph(EdgesListGraph &_old_graph,
                                                              AlgorithmTraversalType _traversal_type)
 {
     LOAD_EDGES_LIST_GRAPH_DATA(_old_graph);
@@ -120,8 +120,8 @@ void ShardedGraph<_TVertexValue, _TEdgeWeight>::import_graph(EdgesListGraph<_TVe
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-template <typename _TVertexValue, typename _TEdgeWeight>
-void ShardedGraph<_TVertexValue, _TEdgeWeight>::print()
+
+void ShardedGraph::print()
 {
     cout << "vertices in each shard: " << max_cached_vertices << endl;
     cout << "shards number: " << number_of_shards << endl;
@@ -134,8 +134,8 @@ void ShardedGraph<_TVertexValue, _TEdgeWeight>::print()
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-template <typename _TVertexValue, typename _TEdgeWeight>
-void ShardedGraph<_TVertexValue, _TEdgeWeight>::print_stats()
+
+void ShardedGraph::print_stats()
 {
     cout << "NUMBER OF SHARDS: " << number_of_shards << endl;
     for(int i = 0; i < number_of_shards; i++)
@@ -165,9 +165,9 @@ void ShardedGraph<_TVertexValue, _TEdgeWeight>::print_stats()
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-template <typename _TVertexValue, typename _TEdgeWeight>
+
 template<typename _T>
-_T *ShardedGraph<_TVertexValue, _TEdgeWeight>::allocate_local_shard_data()
+_T *ShardedGraph::allocate_local_shard_data()
 {
     int max_vertices_in_shard = 0;
     for(int i = 0; i < number_of_shards; i++)
@@ -183,8 +183,8 @@ _T *ShardedGraph<_TVertexValue, _TEdgeWeight>::allocate_local_shard_data()
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #ifdef __USE_GPU__
-template <typename _TVertexValue, typename _TEdgeWeight>
-void ShardedGraph<_TVertexValue, _TEdgeWeight>::move_to_device()
+
+void ShardedGraph::move_to_device()
 {
     for(int i = 0; i < number_of_shards; i++)
     {
@@ -196,8 +196,8 @@ void ShardedGraph<_TVertexValue, _TEdgeWeight>::move_to_device()
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #ifdef __USE_GPU__
-template <typename _TVertexValue, typename _TEdgeWeight>
-void ShardedGraph<_TVertexValue, _TEdgeWeight>::move_to_host()
+
+void ShardedGraph::move_to_host()
 {
     for(int i = 0; i < number_of_shards; i++)
     {
@@ -208,8 +208,8 @@ void ShardedGraph<_TVertexValue, _TEdgeWeight>::move_to_host()
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-template <typename _TVertexValue, typename _TEdgeWeight>
-bool ShardedGraph<_TVertexValue, _TEdgeWeight>::save_to_binary_file(string _file_name)
+
+bool ShardedGraph::save_to_binary_file(string _file_name)
 {
     // write header
     FILE * graph_file = fopen(_file_name.c_str(), "wb");
@@ -237,8 +237,8 @@ bool ShardedGraph<_TVertexValue, _TEdgeWeight>::save_to_binary_file(string _file
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-template <typename _TVertexValue, typename _TEdgeWeight>
-bool ShardedGraph<_TVertexValue, _TEdgeWeight>::load_from_binary_file(string _file_name)
+
+bool ShardedGraph::load_from_binary_file(string _file_name)
 {
     FILE * graph_file = fopen(_file_name.c_str(), "rb");
     if(graph_file == NULL)

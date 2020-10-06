@@ -2,16 +2,16 @@
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-template <typename _TVertexValue, typename _TEdgeWeight>
-void ConnectedComponents<_TVertexValue, _TEdgeWeight>::allocate_result_memory(int _vertices_count, int **_components)
+
+void ConnectedComponents::allocate_result_memory(int _vertices_count, int **_components)
 {
     MemoryAPI::allocate_array(_components, _vertices_count);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-template <typename _TVertexValue, typename _TEdgeWeight>
-void ConnectedComponents<_TVertexValue, _TEdgeWeight>::free_result_memory(int *_components)
+
+void ConnectedComponents::free_result_memory(int *_components)
 {
     MemoryAPI::free_array(_components);
 }

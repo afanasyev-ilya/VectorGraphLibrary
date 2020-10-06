@@ -3,8 +3,8 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #ifdef __USE_GPU__
-template <typename _TVertexValue, typename _TEdgeWeight>
-void LP::gpu_lp(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
+
+void LP::gpu_lp(ExtendedCSRGraph &_graph,
                 int *_labels,
                 GpuActiveConditionType _gpu_active_condition_type,
                 int _max_iterations)

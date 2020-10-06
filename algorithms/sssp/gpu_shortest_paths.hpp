@@ -3,8 +3,8 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #ifdef __USE_GPU__
-template <typename _TVertexValue, typename _TEdgeWeight>
-void SSSP::gpu_dijkstra(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
+
+void SSSP::gpu_dijkstra(ExtendedCSRGraph &_graph,
                         _TEdgeWeight *_distances,
                         int _source_vertex,
                         AlgorithmFrontierType _frontier_type,
@@ -21,12 +21,12 @@ void SSSP::gpu_dijkstra(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
     double t1 = omp_get_wtime();
     if(_frontier_type == PARTIAL_ACTIVE)
     {
-        gpu_dijkstra_partial_active_wrapper<_TVertexValue, _TEdgeWeight>(_graph, device_distances, _source_vertex,
+        gpu_dijkstra_partial_active_wrapper(_graph, device_distances, _source_vertex,
                                                                          iterations_count);
     }
     else if(_frontier_type == ALL_ACTIVE)
     {
-        gpu_dijkstra_all_active_wrapper<_TVertexValue, _TEdgeWeight>(_graph, device_distances, _source_vertex,
+        gpu_dijkstra_all_active_wrapper(_graph, device_distances, _source_vertex,
                                                                      iterations_count, _traversal_direction);
     }
     double t2 = omp_get_wtime();

@@ -126,8 +126,8 @@ void __global__ ve_bottom_up_kernel(const long long *_vertex_pointers,
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-template <typename _TVertexValue, typename _TEdgeWeight>
-void bottom_up_step(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
+
+void bottom_up_step(ExtendedCSRGraph &_graph,
                     FrontierGPU &_frontier,
                     GraphPrimitivesGPU &_graph_API,
                     const long long *_vertex_pointers,
@@ -188,8 +188,8 @@ void init_vector_extension(const long long *_vertex_pointers,
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-template <typename _TVertexValue, typename _TEdgeWeight>
-void direction_optimizing_wrapper(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
+
+void direction_optimizing_wrapper(ExtendedCSRGraph &_graph,
                                   int *_levels,
                                   int _source_vertex, int &_iterations_count)
 {

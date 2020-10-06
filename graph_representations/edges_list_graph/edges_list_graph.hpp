@@ -2,8 +2,7 @@
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-template <typename _TVertexValue, typename _TEdgeWeight>
-EdgesListGraph<_TVertexValue, _TEdgeWeight>::EdgesListGraph(int _vertices_count, long long _edges_count)
+EdgesListGraph::EdgesListGraph(int _vertices_count, long long _edges_count)
 {
     this->graph_type = GraphTypeEdgesList;
     
@@ -12,49 +11,37 @@ EdgesListGraph<_TVertexValue, _TEdgeWeight>::EdgesListGraph(int _vertices_count,
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-template <typename _TVertexValue, typename _TEdgeWeight>
-EdgesListGraph<_TVertexValue, _TEdgeWeight>::~EdgesListGraph()
+EdgesListGraph::~EdgesListGraph()
 {
     free();
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-template <typename _TVertexValue, typename _TEdgeWeight>
-void EdgesListGraph<_TVertexValue, _TEdgeWeight>::alloc(int _vertices_count, long long _edges_count)
+void EdgesListGraph::alloc(int _vertices_count, long long _edges_count)
 {
     this->vertices_count = _vertices_count;
     this->edges_count    = _edges_count;
-    this->vertex_values  = new _TVertexValue[this->vertices_count];
-    src_ids              = new int[this->edges_count];
+    src_ids              = new int[this->edges_count]; // TODO correct alloc
     dst_ids              = new int[this->edges_count];
-    weights              = new _TEdgeWeight[this->edges_count];
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-template <typename _TVertexValue, typename _TEdgeWeight>
-void EdgesListGraph<_TVertexValue, _TEdgeWeight>::free()
+void EdgesListGraph::free()
 {
-    if(this->vertex_values != NULL)
-        delete []this->vertex_values;
     if(src_ids != NULL)
         delete []src_ids;
     if(dst_ids != NULL)
         delete []dst_ids;
-    if(weights != NULL)
-        delete []weights;
-    
-    this->vertex_values = NULL;
+
     src_ids = NULL;
     dst_ids = NULL;
-    weights = NULL;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-template <typename _TVertexValue, typename _TEdgeWeight>
-void EdgesListGraph<_TVertexValue, _TEdgeWeight>::resize(int _vertices_count, long long _edges_count)
+void EdgesListGraph::resize(int _vertices_count, long long _edges_count)
 {
     this->free();
     this->alloc(_vertices_count, _edges_count);
@@ -62,8 +49,8 @@ void EdgesListGraph<_TVertexValue, _TEdgeWeight>::resize(int _vertices_count, lo
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-template <typename _TVertexValue, typename _TEdgeWeight>
-void EdgesListGraph<_TVertexValue, _TEdgeWeight>::save_to_graphviz_file(string _file_name, VisualisationMode _visualisation_mode)
+
+void EdgesListGraph::save_to_graphviz_file(string _file_name, VisualisationMode _visualisation_mode)
 {
     ofstream dot_output(_file_name.c_str());
     
@@ -71,18 +58,11 @@ void EdgesListGraph<_TVertexValue, _TEdgeWeight>::save_to_graphviz_file(string _
     dot_output << "digraph G {" << endl;
     connection = " -> ";
     
-    for(int i = 0; i < this->vertices_count; i++)
-    {
-        dot_output << i << " [label= \"id=" << i << ", value=" << this->vertex_values[i] << "\"] "<< endl;
-        //dot_output << i << " [label=" << this->vertex_values[i] << "]"<< endl;
-    }
-    
     for(long long i = 0; i < this->edges_count; i++)
     {
         int src_id = src_ids[i];
         int dst_id = dst_ids[i];
-        _TEdgeWeight weight = weights[i];
-        dot_output << src_id << connection << dst_id << " [label = \" " << weight << " \"];" << endl;
+        dot_output << src_id << connection << dst_id << " [label = \" " << " TODO weight " << " \"];" << endl;
     }
     
     dot_output << "}";
@@ -91,13 +71,13 @@ void EdgesListGraph<_TVertexValue, _TEdgeWeight>::save_to_graphviz_file(string _
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-template <typename _TVertexValue, typename _TEdgeWeight>
-bool EdgesListGraph<_TVertexValue, _TEdgeWeight>::save_to_binary_file(string _file_name)
+bool EdgesListGraph::save_to_binary_file(string _file_name)
 {
     FILE * graph_file = fopen(_file_name.c_str(), "wb");
     if(graph_file == NULL)
         return false;
-    
+
+    // TODO graph type
     int vertices_count = this->vertices_count;
     long long edges_count = this->edges_count;
     fwrite(reinterpret_cast<const void*>(&vertices_count), sizeof(int), 1, graph_file);
@@ -105,7 +85,6 @@ bool EdgesListGraph<_TVertexValue, _TEdgeWeight>::save_to_binary_file(string _fi
 
     fwrite(reinterpret_cast<const void*>(src_ids), sizeof(int), this->edges_count, graph_file);
     fwrite(reinterpret_cast<const void*>(dst_ids), sizeof(int), this->edges_count, graph_file);
-    fwrite(reinterpret_cast<const void*>(weights), sizeof(_TEdgeWeight), this->edges_count, graph_file);
 
     fclose(graph_file);
     return true;
@@ -113,8 +92,7 @@ bool EdgesListGraph<_TVertexValue, _TEdgeWeight>::save_to_binary_file(string _fi
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-template <typename _TVertexValue, typename _TEdgeWeight>
-bool EdgesListGraph<_TVertexValue, _TEdgeWeight>::load_from_binary_file(string _file_name)
+bool EdgesListGraph::load_from_binary_file(string _file_name)
 {
     FILE * graph_file = fopen(_file_name.c_str(), "rb");
     if(graph_file == NULL)
@@ -125,7 +103,6 @@ bool EdgesListGraph<_TVertexValue, _TEdgeWeight>::load_from_binary_file(string _
     
     fread(reinterpret_cast<void*>(src_ids), sizeof(int), this->edges_count, graph_file);
     fread(reinterpret_cast<void*>(dst_ids), sizeof(int), this->edges_count, graph_file);
-    fread(reinterpret_cast<void*>(weights), sizeof(_TEdgeWeight), this->edges_count, graph_file);
     
     fclose(graph_file);
     return true;
@@ -133,8 +110,7 @@ bool EdgesListGraph<_TVertexValue, _TEdgeWeight>::load_from_binary_file(string _
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-template <typename _TVertexValue, typename _TEdgeWeight>
-void EdgesListGraph<_TVertexValue, _TEdgeWeight>::transpose()
+void EdgesListGraph::transpose()
 {
     int *tmp_ptr = src_ids;
     src_ids = dst_ids;
@@ -143,8 +119,7 @@ void EdgesListGraph<_TVertexValue, _TEdgeWeight>::transpose()
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-template <typename _TVertexValue, typename _TEdgeWeight>
-void EdgesListGraph<_TVertexValue, _TEdgeWeight>::renumber_vertices(int *_conversion_array, int *_work_buffer)
+void EdgesListGraph::renumber_vertices(int *_conversion_array, int *_work_buffer)
 {
     double t1 = omp_get_wtime();
 

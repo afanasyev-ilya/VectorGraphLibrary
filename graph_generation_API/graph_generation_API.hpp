@@ -1,20 +1,10 @@
-//
-//  graph_generation_API.hpp
-//  ParallelGraphLibrary
-//
-//  Created by Elijah Afanasiev on 14/04/2019.
-//  Copyright © 2019 MSU. All rights reserved.
-//
-
-#ifndef graph_generation_API_hpp
-#define graph_generation_API_hpp
+#pragma once
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-template <typename _TVertexValue, typename _TEdgeWeight>
-void GraphGenerationAPI<_TVertexValue, _TEdgeWeight>::random_uniform(EdgesListGraph<_TVertexValue, _TEdgeWeight> &_graph,
-                                                                     int _vertices_count, long long _edges_count,
-                                                                     DirectionType _direction_type)
+void GraphGenerationAPI::random_uniform(EdgesListGraph &_graph,
+                                        int _vertices_count, long long _edges_count,
+                                        DirectionType _direction_type)
 {
     int vertices_count = _vertices_count;
     long long edges_count = _edges_count;
@@ -28,9 +18,6 @@ void GraphGenerationAPI<_TVertexValue, _TEdgeWeight>::random_uniform(EdgesListGr
     // get pointers
     int *src_ids = _graph.get_src_ids();
     int *dst_ids = _graph.get_dst_ids();
-    #ifdef __USE_WEIGHTED_GRAPHS__
-    _TEdgeWeight *weights = _graph.get_weights();
-    #endif
 
     #pragma omp parallel
     {};
@@ -38,20 +25,13 @@ void GraphGenerationAPI<_TVertexValue, _TEdgeWeight>::random_uniform(EdgesListGr
     double t1 = omp_get_wtime();
     RandomGenerationAPI rng_api;
     int max_id_val = vertices_count;
-    rng_api.generate_array_of_random_values<_TVertexValue>(_graph.get_vertex_values(), vertices_count, MAX_WEIGHT);
     rng_api.generate_array_of_random_values<int>(src_ids, directed_edges_count, max_id_val);
     rng_api.generate_array_of_random_values<int>(dst_ids, directed_edges_count, max_id_val);
 
-    #ifdef __USE_WEIGHTED_GRAPHS__
-    rng_api.generate_array_of_random_values<_TEdgeWeight>(weights, directed_edges_count, 1.0);
-    #endif
     double t2 = omp_get_wtime();
 
     #ifdef __PRINT_API_PERFORMANCE_STATS__
     double work_per_edge = sizeof(int)*2.0;
-    #ifdef __USE_WEIGHTED_GRAPHS__
-    work_per_edge += sizeof(_TEdgeWeight);
-    #endif
     cout << "random_uniform gen time: " << t2 - t1 << " sec" << endl;
     cout << "random_uniform gen bandwidth: " << work_per_edge*directed_edges_count / ((t2 - t1)*1e9) << " GB/s" << endl;
     #endif
@@ -61,27 +41,18 @@ void GraphGenerationAPI<_TVertexValue, _TEdgeWeight>::random_uniform(EdgesListGr
         #pragma omp parallel for
         for(long long i = 0; i < directed_edges_count; i++)
         {
-            #ifdef __USE_WEIGHTED_GRAPHS__
-            _TEdgeWeight weight = weights[i];
-            #endif
-            
             src_ids[i + directed_edges_count] = dst_ids[i];
             dst_ids[i + directed_edges_count] = src_ids[i];
-
-            #ifdef __USE_WEIGHTED_GRAPHS__
-            weights[i + directed_edges_count] = weight;
-            #endif
         }
     }
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-template <typename _TVertexValue, typename _TEdgeWeight>
-void GraphGenerationAPI<_TVertexValue, _TEdgeWeight>::R_MAT(EdgesListGraph<_TVertexValue, _TEdgeWeight> &_graph,
-                                                            int _vertices_count, long long _edges_count,
-                                                            int _a_prob, int _b_prob, int _c_prob,
-                                                            int _d_prob, DirectionType _direction_type)
+void GraphGenerationAPI::R_MAT(EdgesListGraph &_graph,
+                               int _vertices_count, long long _edges_count,
+                               int _a_prob, int _b_prob, int _c_prob,
+                               int _d_prob, DirectionType _direction_type)
 {
     int n = (int)log2(_vertices_count);
     int vertices_count = _vertices_count;
@@ -100,11 +71,9 @@ void GraphGenerationAPI<_TVertexValue, _TEdgeWeight>::R_MAT(EdgesListGraph<_TVer
     
     int *src_ids = _graph.get_src_ids();
     int *dst_ids = _graph.get_dst_ids();
-    _TEdgeWeight *weights = _graph.get_weights();
     
     RandomGenerationAPI rng_api;
-    rng_api.generate_array_of_random_values<_TVertexValue>(_graph.get_vertex_values(), vertices_count, MAX_WEIGHT);
-    
+
     int threads_count = omp_get_max_threads();
     
     // generate and add edges to graph
@@ -151,247 +120,17 @@ void GraphGenerationAPI<_TVertexValue, _TEdgeWeight>::R_MAT(EdgesListGraph<_TVer
             
             int from = x_middle;
             int to = y_middle;
-            _TEdgeWeight edge_weight = (rand_r(&seed) % MAX_WEIGHT) + static_cast <float> (rand_r(&seed)) / static_cast <float> (RAND_MAX);
-            
+
             src_ids[cur_edge] = from;
             dst_ids[cur_edge] = to;
-
-            #ifdef __USE_WEIGHTED_GRAPHS__
-            weights[cur_edge] = edge_weight;
-            #endif
             
             if(!_direction_type)
             {
                 src_ids[cur_edge + 1] = to;
                 dst_ids[cur_edge + 1] = from;
-
-                #ifdef __USE_WEIGHTED_GRAPHS__
-                weights[cur_edge + 1] = edge_weight;
-                #endif
             }
         }
     }
-}
-
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-#ifndef uint32_t
-#define uint32_t int
-#endif
-
-template <typename _TVertexValue, typename _TEdgeWeight>
-void GraphGenerationAPI<_TVertexValue, _TEdgeWeight>::SSCA2(EdgesListGraph<_TVertexValue, _TEdgeWeight> &_graph,
-                                                            int _vertices_count, int _max_clique_size)
-{
-    uint32_t TotVertices;
-    uint32_t* clusterSizes;
-    uint32_t* firstVsInCluster;
-    uint32_t estTotClusters, totClusters;
-    
-    uint32_t *startVertex, *endVertex;
-    long long numEdges;
-    long long numIntraClusterEdges, numInterClusterEdges;
-    _TEdgeWeight* weights;
-    _TEdgeWeight MinWeight, MaxWeight;
-    uint32_t MaxCliqueSize;
-    uint32_t MaxParallelEdges = 1;
-    double ProbUnidirectional = 1.0;
-    double ProbIntercliqueEdges = 0.6;
-    uint32_t i_cluster, currCluster;
-    uint32_t *startV, *endV, *d;
-    long long estNumEdges, edgeNum;
-    
-    long long i, j, k, t, t1, t2, dsize;
-    double p;
-    uint32_t* permV;
-    
-    // initialize RNG
-    
-    MinWeight = 0.0;
-    MaxWeight = 1.0;
-    TotVertices = _vertices_count;
-    
-    // generate clusters
-    MaxCliqueSize = _max_clique_size;
-    estTotClusters = 1.25 * TotVertices / (MaxCliqueSize/2);
-    clusterSizes = (uint32_t *) malloc(estTotClusters*sizeof(uint32_t));
-    
-    for(i = 0; i < estTotClusters; i++)
-    {
-        clusterSizes[i] = 1 + (((double)(rand() % 10000)) / 10000.0 *MaxCliqueSize);
-    }
-    
-    totClusters = 0;
-    
-    firstVsInCluster = (uint32_t *) malloc(estTotClusters*sizeof(uint32_t));
-    
-    firstVsInCluster[0] = 0;
-    for (i=1; i<estTotClusters; i++)
-    {
-        firstVsInCluster[i] = firstVsInCluster[i-1] + clusterSizes[i-1];
-        if (firstVsInCluster[i] > TotVertices-1)
-            break;
-    }
-    
-    totClusters = i;
-    
-    clusterSizes[totClusters-1] = TotVertices - firstVsInCluster[totClusters-1];
-    
-    // generate intra-cluster edges
-    estNumEdges = (uint32_t) ((TotVertices * (double) MaxCliqueSize * (2-ProbUnidirectional)/2) +
-                              (TotVertices * (double) ProbIntercliqueEdges/(1-ProbIntercliqueEdges))) * (1+MaxParallelEdges/2);
-    
-    if ((estNumEdges > ((1<<30) - 1)) && (sizeof(uint32_t*) < 8))
-    {
-        fprintf(stderr, "ERROR: long* should be 8 bytes for this problem size\n");
-        fprintf(stderr, "\tPlease recompile the code in 64-bit mode\n");
-        exit(-1);
-    }
-    
-    edgeNum = 0;
-    p = ProbUnidirectional;
-    
-    fprintf (stderr, "[allocating %3.3f GB memory ... ", (double) 2*estNumEdges*8/(1<<30));
-    
-    cout << "alloc of " << sizeof(uint32_t)*estNumEdges / (1024*1024) << " MB memory" << endl;
-    startV = (uint32_t *) malloc(estNumEdges*sizeof(uint32_t));
-    endV = (uint32_t *) malloc(estNumEdges*sizeof(uint32_t));
-    
-    fprintf(stderr, "done] ");
-    
-    for (i_cluster=0; i_cluster < totClusters; i_cluster++)
-    {
-        for (i = 0; i < clusterSizes[i_cluster]; i++)
-        {
-            for (j = 0; j < i; j++)
-            {
-                for (k = 0; k<1 + ((uint32_t)(MaxParallelEdges - 1) * ((double)(rand() % 10000)) / 10000.0); k++)
-                {
-                    startV[edgeNum] = j + \
-                    firstVsInCluster[i_cluster];
-                    endV[edgeNum] = i + \
-                    firstVsInCluster[i_cluster];
-                    edgeNum++;
-                }
-            }
-            
-        }
-    }
-    numIntraClusterEdges = edgeNum;
-    
-    //connect the clusters
-    dsize = (uint32_t) (log((double)TotVertices)/log(2));
-    d = (uint32_t *) malloc(dsize * sizeof(uint32_t));
-    for (i = 0; i < dsize; i++) {
-        d[i] = (uint32_t) pow(2, (double) i);
-    }
-    
-    currCluster = 0;
-    
-    for (i = 0; i < TotVertices; i++)
-    {
-        p = ProbIntercliqueEdges;
-        for (j = currCluster; j<totClusters; j++)
-        {
-            if ((i >= firstVsInCluster[j]) && (i < firstVsInCluster[j] + clusterSizes[j]))
-            {
-                currCluster = j;
-                break;
-            }
-        }
-        for (t = 1; t < dsize; t++)
-        {
-            j = (i + d[t] + (uint32_t)(((double)(rand() % 10000)) / 10000.0 * (d[t] - d[t - 1]))) % TotVertices;
-            if ((j<firstVsInCluster[currCluster]) || (j>=firstVsInCluster[currCluster] + clusterSizes[currCluster]))
-            {
-                for (k = 0; k<1 + ((uint32_t)(MaxParallelEdges - 1)* ((double)(rand() % 10000)) / 10000.0); k++)
-                {
-                    if (p >  ((double)(rand() % 10000)) / 10000.0)
-                    {
-                        startV[edgeNum] = i;
-                        endV[edgeNum] = j;
-                        edgeNum++;
-                    }
-                }
-            }
-            p = p/2;
-        }
-    }
-    
-    numEdges = edgeNum;
-    numInterClusterEdges = numEdges - numIntraClusterEdges;
-    
-    free(clusterSizes);
-    free(firstVsInCluster);
-    free(d);
-    
-    fprintf(stderr, "done\n");
-    fprintf(stderr, "\tNo. of inter-cluster edges - %d\n", numInterClusterEdges);
-    fprintf(stderr, "\tTotal no. of edges - %d\n", numEdges);
-    
-    // shuffle vertices to remove locality
-    fprintf(stderr, "Shuffling vertices to remove locality ... ");
-    fprintf(stderr, "[allocating %3.3f GB memory ... ", (double)(TotVertices + 2 * numEdges) * 8 / (1 << 30));
-    
-    permV = (uint32_t *)malloc(TotVertices*sizeof(uint32_t));
-    startVertex = (uint32_t *)malloc(numEdges*sizeof(uint32_t));
-    endVertex = (uint32_t *)malloc(numEdges*sizeof(uint32_t));
-    
-    for (i = 0; i<TotVertices; i++)
-    {
-        permV[i] = i;
-    }
-    
-    for (i = 0; i<TotVertices; i++)
-    {
-        t1 = i + ((double)(rand() % 10000)) / 10000.0 * (TotVertices - i);
-        if (t1 != i)
-        {
-            t2 = permV[t1];
-            permV[t1] = permV[i];
-            permV[i] = t2;
-        }
-    }
-    
-    for (i = 0; i<numEdges; i++)
-    {
-        startVertex[i] = permV[startV[i]];
-        endVertex[i] = permV[endV[i]];
-    }
-    
-    free(startV);
-    free(endV);
-    free(permV);
-    
-    // generate edge weights
-    
-    fprintf(stderr, "Generating edge weights ... ");
-    weights = (_TEdgeWeight *)malloc(numEdges*sizeof(_TEdgeWeight));
-    for (i = 0; i<numEdges; i++)
-    {
-        weights[i] = MinWeight + (_TEdgeWeight)(MaxWeight - MinWeight) * ((double)(rand() % 10000)) / 10000.0;
-    }
-    
-    vector<vector<uint32_t> > dests(TotVertices);
-    vector<vector<_TEdgeWeight> > weight_vect(TotVertices);
-    
-    // add data to vertices to graph
-    _graph.resize(TotVertices, numEdges);
-    
-    RandomGenerationAPI rng_api;
-    rng_api.generate_array_of_random_values<_TVertexValue>(_graph.get_vertex_values(), _graph.get_vertices_count(), 1000);
-    
-    // add edges to graph
-    for (uint32_t i = 0; i < numEdges; i++)
-    {
-        _graph.get_src_ids()[i] = startVertex[i];
-        _graph.get_dst_ids()[i] = endVertex[i];
-
-        #ifdef __USE_WEIGHTED_GRAPHS__
-        _graph.get_weights()[i] = weights[i];
-        #endif
-    }
-    fprintf(stderr, "done\n");
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -403,9 +142,9 @@ struct GenSCCdata
     int edges_count;
 };
 
-template <typename _TVertexValue, typename _TEdgeWeight>
-void GraphGenerationAPI<_TVertexValue, _TEdgeWeight>::SCC_uniform(EdgesListGraph<_TVertexValue, _TEdgeWeight> &_graph,
-                                                                  int _vertices_count, int _min_scc_size, int _max_scc_size)
+
+void GraphGenerationAPI::SCC_uniform(EdgesListGraph &_graph,
+                                     int _vertices_count, int _min_scc_size, int _max_scc_size)
 {
     int vertices_count = _vertices_count;
     vector<GenSCCdata> SCC_data;
@@ -436,11 +175,9 @@ void GraphGenerationAPI<_TVertexValue, _TEdgeWeight>::SCC_uniform(EdgesListGraph
     
     int *src_ids = _graph.get_src_ids();
     int *dst_ids = _graph.get_dst_ids();
-    _TEdgeWeight *weights = _graph.get_weights();
     
     RandomGenerationAPI rng_api;
-    rng_api.generate_array_of_random_values<_TVertexValue>(_graph.get_vertex_values(), vertices_count, MAX_WEIGHT);
-    
+
     int current_edges_pos = 0;
     for(int i = 0; i < SCC_count; i++)
     {
@@ -454,14 +191,9 @@ void GraphGenerationAPI<_TVertexValue, _TEdgeWeight>::SCC_uniform(EdgesListGraph
         {
             int src_id = rand() % (end_vertex - start_vertex) + start_vertex;
             int dst_id = rand() % (end_vertex - start_vertex) + start_vertex;
-            _TEdgeWeight weight = ((double)(rand() % MAX_WEIGHT));
             
             src_ids[current_edges_pos] = src_id;
             dst_ids[current_edges_pos] = dst_id;
-
-            #ifdef __USE_WEIGHTED_GRAPHS__
-            weights[current_edges_pos] = weight;
-            #endif
             current_edges_pos++;
         }
     }
@@ -469,10 +201,9 @@ void GraphGenerationAPI<_TVertexValue, _TEdgeWeight>::SCC_uniform(EdgesListGraph
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-template <typename _TVertexValue, typename _TEdgeWeight>
-void GraphGenerationAPI<_TVertexValue, _TEdgeWeight>::init_from_txt_file(EdgesListGraph<_TVertexValue, _TEdgeWeight>
-                                                                         &_graph, string _txt_file_name,
-                                                                         bool _append_with_reverse_edges)
+
+void GraphGenerationAPI::init_from_txt_file(EdgesListGraph &_graph, string _txt_file_name,
+                                            bool _append_with_reverse_edges)
 {
     ifstream infile(_txt_file_name.c_str());
     if (!infile.is_open())
@@ -564,10 +295,6 @@ void GraphGenerationAPI<_TVertexValue, _TEdgeWeight>::init_from_txt_file(EdgesLi
     {
         _graph.get_src_ids()[i] = tmp_src_ids[i];
         _graph.get_dst_ids()[i] = tmp_dst_ids[i];
-
-        #ifdef __USE_WEIGHTED_GRAPHS__
-        _graph.get_weights()[i] = (rand_r(&seed) % MAX_WEIGHT) + static_cast <float> (rand_r(&seed)) / static_cast <float> (RAND_MAX);;
-        #endif
     }
     
     // validate
@@ -591,5 +318,3 @@ void GraphGenerationAPI<_TVertexValue, _TEdgeWeight>::init_from_txt_file(EdgesLi
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-#endif /* graph_generation_API_hpp */

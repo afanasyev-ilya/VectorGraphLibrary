@@ -15,8 +15,8 @@ using namespace std;
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-template <typename _TVertexValue, typename _TEdgeWeight>
-void page_rank_wrapper(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
+
+void page_rank_wrapper(ExtendedCSRGraph &_graph,
                        float *_page_ranks,
                        float _convergence_factor,
                        int _max_iterations,

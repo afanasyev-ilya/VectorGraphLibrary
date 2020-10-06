@@ -3,8 +3,8 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #ifdef __USE_NEC_SX_AURORA__
-template <typename _TVertexValue, typename _TEdgeWeight>
-void SSWP::nec_dijkstra(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
+
+void SSWP::nec_dijkstra(ExtendedCSRGraph &_graph,
                         _TEdgeWeight *_widths,
                         int _source_vertex,
                         AlgorithmTraversalType _traversal_direction)

@@ -2,10 +2,10 @@
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-template <typename _TVertexValue, typename _TEdgeWeight>
+
 template <typename ComputeOperation>
-void GraphAbstractionsNEC<_TVertexValue, _TEdgeWeight>::compute_worker(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
-                                                                       FrontierNEC<_TVertexValue, _TEdgeWeight> &_frontier,
+void GraphAbstractionsNEC::compute_worker(ExtendedCSRGraph &_graph,
+                                                                       FrontierNEC &_frontier,
                                                                        ComputeOperation &&compute_op)
 {
     #ifdef __PRINT_API_PERFORMANCE_STATS__
@@ -69,13 +69,13 @@ void GraphAbstractionsNEC<_TVertexValue, _TEdgeWeight>::compute_worker(ExtendedC
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-template <typename _TVertexValue, typename _TEdgeWeight>
+
 template <typename ComputeOperation>
-void GraphAbstractionsNEC<_TVertexValue, _TEdgeWeight>::compute(VectCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
-                                                                FrontierNEC<_TVertexValue, _TEdgeWeight> &_frontier,
+void GraphAbstractionsNEC::compute(VectCSRGraph &_graph,
+                                                                FrontierNEC &_frontier,
                                                                 ComputeOperation &&compute_op)
 {
-    ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> *current_direction_graph;
+    ExtendedCSRGraph *current_direction_graph;
 
     // TODO is frontier direction correct?
 

@@ -2,8 +2,8 @@
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-template <typename _TVertexValue, typename _TEdgeWeight>
-void PR::seq_page_rank(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
+
+void PR::seq_page_rank(ExtendedCSRGraph &_graph,
                        float *_page_ranks,
                        float _convergence_factor,
                        int _max_iterations)

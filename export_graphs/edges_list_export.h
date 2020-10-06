@@ -2,8 +2,8 @@
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-template <typename _TVertexValue, typename _TEdgeWeight>
-void export_to_edges_list_unweighted(EdgesListGraph<_TVertexValue, _TEdgeWeight> &_graph, string _gapbs_file_name, bool _use_mtx_header)
+
+void export_to_edges_list_unweighted(EdgesListGraph &_graph, string _gapbs_file_name, bool _use_mtx_header)
 {
     int vertices_count = _graph.get_vertices_count();
     long long edges_count = _graph.get_edges_count();
@@ -43,8 +43,8 @@ void export_to_edges_list_unweighted(EdgesListGraph<_TVertexValue, _TEdgeWeight>
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-template <typename _TVertexValue, typename _TEdgeWeight>
-void export_to_edges_list_weighted(EdgesListGraph<_TVertexValue, _TEdgeWeight> &_graph, string _gapbs_file_name, bool _use_mtx_header)
+
+void export_to_edges_list_weighted(EdgesListGraph &_graph, string _gapbs_file_name, bool _use_mtx_header)
 {
     int vertices_count = _graph.get_vertices_count();
     long long edges_count = _graph.get_edges_count();

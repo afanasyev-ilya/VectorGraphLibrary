@@ -31,8 +31,8 @@ enum ShardType {
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-template <typename _TVertexValue, typename _TEdgeWeight>
-class ShardedGraph : public BaseGraph<_TVertexValue, _TEdgeWeight>
+
+class ShardedGraph : public BaseGraph
 {
 private:
     int cache_size;
@@ -58,7 +58,7 @@ public:
     bool save_to_binary_file(string file_name);
     bool load_from_binary_file(string file_name);
     
-    void import_graph(EdgesListGraph<_TVertexValue, _TEdgeWeight> &_old_graph,
+    void import_graph(EdgesListGraph &_old_graph,
                       AlgorithmTraversalType _traversal_type = PULL_TRAVERSAL);
     
     int get_number_of_shards() { return number_of_shards; };

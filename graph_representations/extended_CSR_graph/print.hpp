@@ -2,28 +2,19 @@
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-template <typename _TVertexValue, typename _TEdgeWeight>
-void ExtendedCSRGraph<_TVertexValue, _TEdgeWeight>::print()
+void ExtendedCSRGraph::print()
 {
     cout << endl;
     cout << "ExtendedCSRGraph format" << endl;
 
     cout << "|V|=" << this->vertices_count << endl;
     cout << "|E|=" << this->edges_count << endl;
-    cout << "Vertices data: " << endl;
-    for(int i = 0; i < this->vertices_count; i++)
-        cout << this->vertex_values[i] << " ";
-    cout << endl;
-
-    cout << "Edges data: " << endl;
     for(int cur_vertex = 0; cur_vertex < this->vertices_count; cur_vertex++)
     {
         cout << "vertex " << cur_vertex << " connected to: ";
         for(long long edge_pos = vertex_pointers[cur_vertex]; edge_pos < vertex_pointers[cur_vertex + 1]; edge_pos++)
         {
-            _TEdgeWeight weight = 0;
-
-            cout << "(" << adjacent_ids[edge_pos] << "," << adjacent_weights[edge_pos] << ")" << " ";
+            cout << "(" << adjacent_ids[edge_pos] << ")" << " ";
         }
         cout << endl;
     }
@@ -39,8 +30,8 @@ void ExtendedCSRGraph<_TVertexValue, _TEdgeWeight>::print()
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /*
-template <typename _TVertexValue, typename _TEdgeWeight>
-void ExtendedCSRGraph<_TVertexValue, _TEdgeWeight>::print_with_weights(EdgesArrayNec<_TVertexValue, _TEdgeWeight, _TEdgeWeight> &_weights,
+
+void ExtendedCSRGraph::print_with_weights(EdgesArrayNec<_TVertexValue, _TEdgeWeight, _TEdgeWeight> &_weights,
                                                                        TraversalDirection _direction)
 {
     cout << endl;
@@ -48,10 +39,6 @@ void ExtendedCSRGraph<_TVertexValue, _TEdgeWeight>::print_with_weights(EdgesArra
 
     cout << "|V|=" << this->vertices_count << endl;
     cout << "|E|=" << this->edges_count << endl;
-    cout << "Vertices data: " << endl;
-    for(int i = 0; i < this->vertices_count; i++)
-        cout << this->vertex_values[i] << " ";
-    cout << endl;
 
     cout << "Edges data: " << endl;
     for(int cur_vertex = 0; cur_vertex < this->vertices_count; cur_vertex++)
@@ -60,7 +47,7 @@ void ExtendedCSRGraph<_TVertexValue, _TEdgeWeight>::print_with_weights(EdgesArra
         for(long long edge_pos = vertex_pointers[cur_vertex]; edge_pos < vertex_pointers[cur_vertex + 1]; edge_pos++)
         {
             int dst_id = adjacent_ids[edge_pos];
-            _TEdgeWeight weight = weights.get(cur_vertex, dst_id, _direction);
+            _TEdgeWeight weight = 0; //TODO
 
             cout << "(" << dst_id << "," << weight << ")" << " "; // TODO fix incoming case
         }
@@ -76,4 +63,5 @@ void ExtendedCSRGraph<_TVertexValue, _TEdgeWeight>::print_with_weights(EdgesArra
     cout << endl << endl;
 }
 */
+
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

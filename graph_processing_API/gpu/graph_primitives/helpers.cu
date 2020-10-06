@@ -24,8 +24,8 @@ __global__ void estimate_advance_work_kernel(const int *_frontier_ids,
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-template <typename _TVertexValue, typename _TEdgeWeight>
-int GraphPrimitivesGPU::estimate_advance_work(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
+
+int GraphPrimitivesGPU::estimate_advance_work(ExtendedCSRGraph &_graph,
                                               FrontierGPU &_frontier)
 {
     LOAD_EXTENDED_CSR_GRAPH_DATA(_graph);

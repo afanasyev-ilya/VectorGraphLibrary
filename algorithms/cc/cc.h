@@ -18,39 +18,39 @@
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#define CC ConnectedComponents<_TVertexValue, _TEdgeWeight>
+#define CC ConnectedComponents
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-template <typename _TVertexValue, typename _TEdgeWeight>
+
 class ConnectedComponents
 {
 private:
     GraphPrimitivesNEC graph_API;
-    FrontierNEC<_TVertexValue, _TEdgeWeight> frontier;
-    FrontierNEC<_TVertexValue, _TEdgeWeight> bfs_frontier;
+    FrontierNEC frontier;
+    FrontierNEC bfs_frontier;
 
     double performance;
 public:
-    ConnectedComponents(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph): frontier(_graph.get_vertices_count()), bfs_frontier(_graph.get_vertices_count()){};
+    ConnectedComponents(ExtendedCSRGraph &_graph): frontier(_graph.get_vertices_count()), bfs_frontier(_graph.get_vertices_count()){};
     ~ConnectedComponents() {};
 
     void allocate_result_memory(int _vertices_count, int **_components);
     void free_result_memory    (int *_components);
 
     #ifdef __USE_NEC_SX_AURORA__
-    void nec_shiloach_vishkin(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph, int *_components);
+    void nec_shiloach_vishkin(ExtendedCSRGraph &_graph, int *_components);
     #endif
 
     #ifdef __USE_NEC_SX_AURORA__
-    void nec_bfs_based(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph, int *_components);
+    void nec_bfs_based(ExtendedCSRGraph &_graph, int *_components);
     #endif
 
     #ifdef __USE_GPU__
-    void gpu_shiloach_vishkin(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph, int *_components);
+    void gpu_shiloach_vishkin(ExtendedCSRGraph &_graph, int *_components);
     #endif
 
-    void seq_bfs_based(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph, int *_components);
+    void seq_bfs_based(ExtendedCSRGraph &_graph, int *_components);
 
     double get_performance() { return performance; };
 };

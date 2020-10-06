@@ -3,7 +3,7 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template <typename _TVertexValue, typename _TEdgeWeight, typename ComputeOperation>
-void GraphPrimitivesMulticore::compute(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
+void GraphPrimitivesMulticore::compute(ExtendedCSRGraph &_graph,
                                        FrontierMulticore &_frontier,
                                        ComputeOperation compute_op)
 {

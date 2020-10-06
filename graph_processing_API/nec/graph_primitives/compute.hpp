@@ -3,8 +3,8 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template <typename _TVertexValue, typename _TEdgeWeight, typename ComputeOperation>
-void GraphPrimitivesNEC::compute_worker(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
-                                        FrontierNEC<_TVertexValue, _TEdgeWeight> &_frontier,
+void GraphPrimitivesNEC::compute_worker(ExtendedCSRGraph &_graph,
+                                        FrontierNEC &_frontier,
                                         ComputeOperation &&compute_op)
 {
     #ifdef __PRINT_API_PERFORMANCE_STATS__
@@ -69,8 +69,8 @@ void GraphPrimitivesNEC::compute_worker(ExtendedCSRGraph<_TVertexValue, _TEdgeWe
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template <typename _TVertexValue, typename _TEdgeWeight, typename ComputeOperation>
-void GraphPrimitivesNEC::compute(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
-                                 FrontierNEC<_TVertexValue, _TEdgeWeight> &_frontier,
+void GraphPrimitivesNEC::compute(ExtendedCSRGraph &_graph,
+                                 FrontierNEC &_frontier,
                                  ComputeOperation &&compute_op)
 {
     if(omp_in_parallel())
@@ -91,8 +91,8 @@ void GraphPrimitivesNEC::compute(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template <typename _TVertexValue, typename _TEdgeWeight, typename ComputeOperation>
-void GraphPrimitivesNEC::compute(VectCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
-                                 FrontierNEC<_TVertexValue, _TEdgeWeight> &_frontier,
+void GraphPrimitivesNEC::compute(VectCSRGraph &_graph,
+                                 FrontierNEC &_frontier,
                                  ComputeOperation &&compute_op)
 {
     cout << "TODO me from compute" << endl;
@@ -114,7 +114,7 @@ void GraphPrimitivesNEC::compute(VectCSRGraph<_TVertexValue, _TEdgeWeight> &_gra
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template <typename _TVertexValue, typename _TEdgeWeight, typename ComputeOperation>
-void GraphPrimitivesNEC::compute_worker(EdgesListGraph<_TVertexValue, _TEdgeWeight> &_graph,
+void GraphPrimitivesNEC::compute_worker(EdgesListGraph &_graph,
                                         ComputeOperation &&compute_op)
 {
     #ifdef __PRINT_API_PERFORMANCE_STATS__
@@ -151,7 +151,7 @@ void GraphPrimitivesNEC::compute_worker(EdgesListGraph<_TVertexValue, _TEdgeWeig
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template <typename _TVertexValue, typename _TEdgeWeight, typename ComputeOperation>
-void GraphPrimitivesNEC::compute(EdgesListGraph<_TVertexValue, _TEdgeWeight> &_graph,
+void GraphPrimitivesNEC::compute(EdgesListGraph &_graph,
                                  ComputeOperation &&compute_op)
 {
     if(omp_in_parallel())

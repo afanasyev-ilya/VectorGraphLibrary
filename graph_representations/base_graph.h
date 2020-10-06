@@ -24,7 +24,6 @@ enum VisualisationMode
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-template <typename _TVertexValue, typename _TEdgeWeight>
 class BaseGraph
 {
 protected:
@@ -34,26 +33,12 @@ protected:
     long long edges_count;
     
     bool graph_on_device;
-    
-    _TVertexValue *vertex_values;
 public:
     BaseGraph() {this->graph_on_device = false;};
     ~BaseGraph() {};
     
     inline int get_vertices_count() {return vertices_count;};
     inline long long get_edges_count() {return edges_count;};
-    
-    inline _TVertexValue *get_vertex_values() {return vertex_values;};
-    
-    template <typename _T>
-    void set_vertex_values(_T *_data)
-    {
-        #pragma omp parallel for
-        for(int i = 0; i < vertices_count; i++)
-        {
-            vertex_values[i] = (_TVertexValue)(_data[i]);
-        }
-    }
     
     virtual void print() = 0;
     virtual void print_stats() = 0;

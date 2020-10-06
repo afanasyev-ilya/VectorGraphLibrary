@@ -9,7 +9,6 @@
 #include <stdio.h>
 
 #include "../../common/cmd_parser/parser_options.h"
-#include "../common/tmp_edge_data.h"
 #include "vector_extension/vector_extension.h"
 #include "../../common/memory_API/memory_API.h"
 
@@ -19,18 +18,16 @@
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-template <typename _TVertexValue, typename _TEdgeWeight>
-class ExtendedCSRGraph : public BaseGraph<_TVertexValue, _TEdgeWeight>
+class ExtendedCSRGraph: public BaseGraph
 {
 private:
     long long     *vertex_pointers;
     int           *adjacent_ids;
-    _TEdgeWeight  *adjacent_weights;
 
     int *forward_conversion;
     int *backward_conversion;
 
-    VectorExtension<_TVertexValue, _TEdgeWeight> last_vertices_ve;
+    VectorExtension last_vertices_ve;
     
     #ifdef __USE_GPU__
     int gpu_grid_threshold_vertex;
@@ -54,14 +51,14 @@ private:
     void estimate_nec_thresholds();
     #endif
 
-    void extract_connection_count(EdgesListGraph<_TVertexValue, _TEdgeWeight> &_el_graph,
+    void extract_connection_count(EdgesListGraph &_el_graph,
                                   int *_work_buffer, int *_connections_count);
 
     void sort_vertices_by_degree(int *_connections_array, asl_int_t *_asl_indexes,
                                  int _el_vertices_count, int *_forward_conversion,
                                  int *_backward_conversion);
 
-    void construct_CSR(EdgesListGraph<_TVertexValue, _TEdgeWeight> &_el_graph);
+    void construct_CSR(EdgesListGraph &_el_graph);
 public:
     ExtendedCSRGraph(int _vertices_count = 1, long long _edges_count = 1);
     ~ExtendedCSRGraph();
@@ -75,24 +72,15 @@ public:
     void save_to_graphviz_file(string _file_name, VisualisationMode _visualisation_mode = VISUALISE_AS_DIRECTED);
     bool save_to_binary_file(string file_name);
     bool load_from_binary_file(string file_name);
-    
-    void import_graph(EdgesListGraph<_TVertexValue, _TEdgeWeight> &_copy_graph,
-                      VerticesState _vertices_state = VERTICES_SORTED,
-                      EdgesState _edges_state = EDGES_SORTED,
-                      int _supported_vector_length = 1,
-                      AlgorithmTraversalType _traversal_type = PULL_TRAVERSAL,
-                      MultipleArcsState _multiple_arcs_state = MULTIPLE_ARCS_PRESENT);
 
-    void import_and_preprocess(EdgesListGraph<_TVertexValue, _TEdgeWeight> &_old_graph);
-    
-    inline int           *get_reordered_vertex_ids() {return reordered_vertex_ids;};
+    void import_and_preprocess(EdgesListGraph &_old_graph);
+
     inline long long     *get_vertex_pointers()        {return vertex_pointers;};
     inline int           *get_adjacent_ids()         {return adjacent_ids;};
-    inline _TEdgeWeight  *get_adjacent_weights()     {return adjacent_weights;};
 
     inline long long get_edges_count_in_ve() {return last_vertices_ve.get_edges_count_in_ve();}
 
-    inline VectorExtension<_TVertexValue, _TEdgeWeight>* get_ve_ptr() {return &last_vertices_ve;};
+    inline VectorExtension* get_ve_ptr() {return &last_vertices_ve;};
 
     inline long long get_csr_edge_id(int _src_id, int _dst_id);
     inline long long get_ve_edge_id(int _src_id, int _dst_id) { return last_vertices_ve.get_ve_edge_id(_src_id, _dst_id); };
@@ -120,8 +108,6 @@ public:
     template <typename _T>
     _T& get_edge_data(_T *_data_array, int _src_id, int _dst_id); // TODO remove
 
-    void set_vertex_data_from_array(_TVertexValue *_values_array);
-
     size_t get_graph_size_in_bytes();
 };
 
@@ -133,7 +119,6 @@ long long int edges_count            = input_graph.get_edges_count   (); \
 \
 long long    *vertex_pointers           = input_graph.get_vertex_pointers   ();\
 int          *adjacent_ids            = input_graph.get_adjacent_ids    ();\
-_TEdgeWeight *adjacent_weights        = input_graph.get_adjacent_weights();\
 \
 int ve_vertices_count = (input_graph.get_ve_ptr())->get_vertices_count();\
 int ve_starting_vertex = (input_graph.get_ve_ptr())->get_starting_vertex();\
@@ -142,7 +127,6 @@ int ve_vector_segments_count = (input_graph.get_ve_ptr())->get_vector_segments_c
 long long *ve_vector_group_ptrs = (input_graph.get_ve_ptr())->get_vector_group_ptrs();\
 int *ve_vector_group_sizes = (input_graph.get_ve_ptr())->get_vector_group_sizes();\
 int *ve_adjacent_ids = (input_graph.get_ve_ptr())->get_adjacent_ids();\
-_TEdgeWeight *ve_adjacent_weights = (input_graph.get_ve_ptr())->get_adjacent_weights();\
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 

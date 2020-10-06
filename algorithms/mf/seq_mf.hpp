@@ -2,8 +2,8 @@
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-template <typename _TVertexValue, typename _TEdgeWeight>
-bool MF::seq_bfs(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph, int _source, int _sink, int *_parents)
+
+bool MF::seq_bfs(ExtendedCSRGraph &_graph, int _source, int _sink, int *_parents)
 {
     // Create a visited array and mark all vertices as not visited
     LOAD_EXTENDED_CSR_GRAPH_DATA(_graph);
@@ -49,8 +49,8 @@ bool MF::seq_bfs(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph, int _sou
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-template <typename _TVertexValue, typename _TEdgeWeight>
-_TEdgeWeight MF::get_flow(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph, int _src_id, int _dst_id)
+
+_TEdgeWeight MF::get_flow(ExtendedCSRGraph &_graph, int _src_id, int _dst_id)
 {
     LOAD_EXTENDED_CSR_GRAPH_DATA(_graph);
 
@@ -70,8 +70,8 @@ _TEdgeWeight MF::get_flow(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-template <typename _TVertexValue, typename _TEdgeWeight>
-void MF::add_flow(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph, int _src_id, int _dst_id, _TEdgeWeight update_val)
+
+void MF::add_flow(ExtendedCSRGraph &_graph, int _src_id, int _dst_id, _TEdgeWeight update_val)
 {
     LOAD_EXTENDED_CSR_GRAPH_DATA(_graph);
 
@@ -90,8 +90,8 @@ void MF::add_flow(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph, int _sr
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-template <typename _TVertexValue, typename _TEdgeWeight>
-void MF::subtract_flow(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph, int _src_id, int _dst_id, _TEdgeWeight update_val)
+
+void MF::subtract_flow(ExtendedCSRGraph &_graph, int _src_id, int _dst_id, _TEdgeWeight update_val)
 {
     LOAD_EXTENDED_CSR_GRAPH_DATA(_graph);
 
@@ -110,8 +110,8 @@ void MF::subtract_flow(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph, in
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-template <typename _TVertexValue, typename _TEdgeWeight>
-_TEdgeWeight MF::seq_ford_fulkerson(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
+
+_TEdgeWeight MF::seq_ford_fulkerson(ExtendedCSRGraph &_graph,
                                     int _source, int _sink)
 {
     LOAD_EXTENDED_CSR_GRAPH_DATA(_graph);

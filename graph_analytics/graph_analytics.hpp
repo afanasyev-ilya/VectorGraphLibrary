@@ -45,8 +45,8 @@ void GraphAnalytics::analyse_component_stats(int *_components, int _vertices_cou
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-template <typename _TVertexValue, typename _TEdgeWeight>
-void GraphAnalytics::analyse_graph_stats(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph, string _graph_name)
+
+void GraphAnalytics::analyse_graph_stats(ExtendedCSRGraph &_graph, string _graph_name)
 {
     LOAD_EXTENDED_CSR_GRAPH_DATA(_graph);
     long long *adjacent_ptrs = vertex_pointers;
@@ -132,8 +132,8 @@ map<int, int> GraphAnalytics::calculate_degree_distribution(long long *_adjacent
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-template <typename _TVertexValue, typename _TEdgeWeight>
-void GraphAnalytics::print_graph_memory_consumption(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph)
+
+void GraphAnalytics::print_graph_memory_consumption(ExtendedCSRGraph &_graph)
 {
     LOAD_EXTENDED_CSR_GRAPH_DATA(_graph);
 
@@ -150,8 +150,8 @@ void GraphAnalytics::print_graph_memory_consumption(ExtendedCSRGraph<_TVertexVal
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-template <typename _TVertexValue, typename _TEdgeWeight>
-void GraphAnalytics::analyse_graph_thresholds(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph)
+
+void GraphAnalytics::analyse_graph_thresholds(ExtendedCSRGraph &_graph)
 {
     #ifdef __USE_NEC_SX_AURORA__
     cout << endl;

@@ -2,7 +2,7 @@
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-template <typename _TVertexValue, typename _TEdgeWeight>
+
 void PR::allocate_result_memory(int _vertices_count, float **_page_ranks)
 {
     MemoryAPI::allocate_array(_page_ranks, _vertices_count);
@@ -10,7 +10,7 @@ void PR::allocate_result_memory(int _vertices_count, float **_page_ranks)
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-template <typename _TVertexValue, typename _TEdgeWeight>
+
 void PR::free_result_memory(float *_page_ranks)
 {
     MemoryAPI::free_array(_page_ranks);

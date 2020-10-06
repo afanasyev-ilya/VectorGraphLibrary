@@ -2,12 +2,12 @@
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-template <typename _TVertexValue, typename _TEdgeWeight>
+
 template <typename EdgeOperation, typename VertexPreprocessOperation,
         typename VertexPostprocessOperation, typename CollectiveEdgeOperation, typename CollectiveVertexPreprocessOperation,
         typename CollectiveVertexPostprocessOperation>
-void GraphAbstractionsNEC<_TVertexValue, _TEdgeWeight>::scatter(VectCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
-                                   FrontierNEC<_TVertexValue, _TEdgeWeight> &_frontier,
+void GraphAbstractionsNEC::scatter(VectCSRGraph &_graph,
+                                   FrontierNEC &_frontier,
                                    EdgeOperation &&edge_op,
                                    VertexPreprocessOperation &&vertex_preprocess_op,
                                    VertexPostprocessOperation &&vertex_postprocess_op,
@@ -15,7 +15,7 @@ void GraphAbstractionsNEC<_TVertexValue, _TEdgeWeight>::scatter(VectCSRGraph<_TV
                                    CollectiveVertexPreprocessOperation &&collective_vertex_preprocess_op,
                                    CollectiveVertexPostprocessOperation &&collective_vertex_postprocess_op)
 {
-    ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> *current_direction_graph;
+    ExtendedCSRGraph *current_direction_graph;
 
     // TODO is frontier direction correct?
 

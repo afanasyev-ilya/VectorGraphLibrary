@@ -3,7 +3,7 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template <typename _TVertexValue, typename _TEdgeWeight, typename EdgeOperation>
-void GraphPrimitivesNEC::advance_worker(EdgesListGraph<_TVertexValue, _TEdgeWeight> &_graph,
+void GraphPrimitivesNEC::advance_worker(EdgesListGraph &_graph,
                                         EdgeOperation &&edge_op)
 {
     #ifdef __PRINT_API_PERFORMANCE_STATS__

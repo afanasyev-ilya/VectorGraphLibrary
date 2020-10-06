@@ -30,7 +30,7 @@ using namespace std;
 #include "graph_representations/edges_list_graph/edges_list_graph.h"
 #include "graph_representations/extended_CSR_graph/extended_CSR_graph.h"
 #include "graph_representations/vect_CSR_graph/vect_CSR_graph.h"
-#include "graph_representations/sharded_graph/sharded_graph.h"
+//#include "graph_representations/sharded_graph/sharded_graph.h"
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -38,12 +38,13 @@ using namespace std;
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#include "graph_processing_API/graph_abstractions.h"
-#include "graph_processing_API/frontier.h"
+#include "graph_processing_API/edges_array.h"
+//#include "graph_processing_API/graph_abstractions.h"
+//#include "graph_processing_API/frontier.h"
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#include "algorithms/sssp/shortest_paths.h"
+//#include "algorithms/sssp/shortest_paths.h"
 /*#include "algorithms/sswp/widest_paths.h"
 #include "algorithms/bfs/bfs.h"
 #include "algorithms/cc/cc.h"
@@ -53,12 +54,12 @@ using namespace std;
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#include "export_graphs/ligra_export.h"
-#include "export_graphs/edges_list_export.h"
+//#include "export_graphs/ligra_export.h"
+//#include "export_graphs/edges_list_export.h"
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#include "graph_analytics/graph_analytics.h"
+//#include "graph_analytics/graph_analytics.h"
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 

@@ -2,8 +2,8 @@
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-template <typename _TVertexValue, typename _TEdgeWeight>
-void CC::seq_bfs_based(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
+
+void CC::seq_bfs_based(ExtendedCSRGraph &_graph,
                        int *_components)
 {
     LOAD_EXTENDED_CSR_GRAPH_DATA(_graph);

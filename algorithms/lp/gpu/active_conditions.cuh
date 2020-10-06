@@ -3,7 +3,7 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template<typename _TVertexValue, typename _TEdgeWeight>
-void always_active(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
+void always_active(ExtendedCSRGraph &_graph,
                    GraphPrimitivesGPU &graph_API,
                    FrontierGPU &frontier,
                    int *new_ptr,
@@ -36,7 +36,7 @@ void always_active(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template<typename _TVertexValue, typename _TEdgeWeight>
-void active_passive_inner(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
+void active_passive_inner(ExtendedCSRGraph &_graph,
                           GraphPrimitivesGPU &graph_API,
                           FrontierGPU &frontier,
                           int *new_ptr,
@@ -135,7 +135,7 @@ void active_passive_inner(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template<typename _TVertexValue, typename _TEdgeWeight>
-void label_changed_on_previous_iteration(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
+void label_changed_on_previous_iteration(ExtendedCSRGraph &_graph,
                                          GraphPrimitivesGPU &graph_API,
                                          FrontierGPU &frontier,
                                          int *new_ptr,
@@ -174,7 +174,7 @@ void label_changed_on_previous_iteration(ExtendedCSRGraph<_TVertexValue, _TEdgeW
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template<typename _TVertexValue, typename _TEdgeWeight>
-void label_changed_recently(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
+void label_changed_recently(ExtendedCSRGraph &_graph,
                             GraphPrimitivesGPU &graph_API,
                             FrontierGPU &frontier,
                             int *new_ptr,

@@ -3,14 +3,14 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #ifdef __USE_NEC_SX_AURORA__
-template <typename _TVertexValue, typename _TEdgeWeight>
-bool MF::nec_bfs(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
+
+bool MF::nec_bfs(ExtendedCSRGraph &_graph,
                  int _source,
                  int _sink,
                  int *_parents,
                  int *_levels,
                  GraphPrimitivesNEC &_graph_API,
-                 FrontierNEC<_TVertexValue, _TEdgeWeight> &_frontier)
+                 FrontierNEC &_frontier)
 {
     LOAD_EXTENDED_CSR_GRAPH_DATA(_graph);
     _frontier.set_all_active();
@@ -80,12 +80,12 @@ void construct_path(int _source, int _sink, int *_parents, int *_path, int &_pat
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #ifdef __USE_NEC_SX_AURORA__
-template <typename _TVertexValue, typename _TEdgeWeight>
-_TEdgeWeight MF::nec_ford_fulkerson(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
+
+_TEdgeWeight MF::nec_ford_fulkerson(ExtendedCSRGraph &_graph,
                                     int _source, int _sink)
 {
     GraphPrimitivesNEC graph_API;
-    FrontierNEC<_TVertexValue, _TEdgeWeight> frontier(_graph);
+    FrontierNEC frontier(_graph);
 
     LOAD_EXTENDED_CSR_GRAPH_DATA(_graph);
 

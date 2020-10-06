@@ -2,8 +2,8 @@
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-template <typename _TVertexValue, typename _TEdgeWeight, typename _T>
-EdgesArrayNec<_TVertexValue, _TEdgeWeight, _T>::EdgesArrayNec(VectCSRGraph<_TVertexValue, _TEdgeWeight> &_graph)
+template <typename _T>
+EdgesArrayNec<_T>::EdgesArrayNec(VectCSRGraph &_graph)
 {
     edges_count = _graph.get_edges_count();
     edges_count_in_outgoing_ve = _graph.get_edges_count_in_outgoing_ve();
@@ -22,16 +22,16 @@ EdgesArrayNec<_TVertexValue, _TEdgeWeight, _T>::EdgesArrayNec(VectCSRGraph<_TVer
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-template <typename _TVertexValue, typename _TEdgeWeight, typename _T>
-EdgesArrayNec<_TVertexValue, _TEdgeWeight, _T>::~EdgesArrayNec()
+template <typename _T>
+EdgesArrayNec<_T>::~EdgesArrayNec()
 {
     MemoryAPI::free_array(edges_data);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-template <typename _TVertexValue, typename _TEdgeWeight, typename _T>
-void EdgesArrayNec<_TVertexValue, _TEdgeWeight, _T>::set_all_constant(_T _const)
+template <typename _T>
+void EdgesArrayNec<_T>::set_all_constant(_T _const)
 {
     #pragma _NEC ivdep
     #pragma omp parallel for
@@ -42,8 +42,8 @@ void EdgesArrayNec<_TVertexValue, _TEdgeWeight, _T>::set_all_constant(_T _const)
 }
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-template <typename _TVertexValue, typename _TEdgeWeight, typename _T>
-void EdgesArrayNec<_TVertexValue, _TEdgeWeight, _T>::set_all_random(_T _max_rand)
+template <typename _T>
+void EdgesArrayNec<_T>::set_all_random(_T _max_rand)
 {
     // init CSR parts
     RandomGenerationAPI rng_api;
@@ -57,11 +57,8 @@ void EdgesArrayNec<_TVertexValue, _TEdgeWeight, _T>::set_all_random(_T _max_rand
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-template <typename _TVertexValue, typename _TEdgeWeight, typename _T>
-void EdgesArrayNec<_TVertexValue, _TEdgeWeight, _T>::set(int _src_id,
-                                                         int _dst_id,
-                                                         _T _val,
-                                                         TraversalDirection _direction)
+template <typename _T>
+void EdgesArrayNec<_T>::set(int _src_id, int _dst_id, _T _val, TraversalDirection _direction)
 {
     // set into both CSR and VE for Advance API
     _T *target_csr_buffer, *target_ve_buffer;
@@ -76,7 +73,7 @@ void EdgesArrayNec<_TVertexValue, _TEdgeWeight, _T>::set(int _src_id,
         target_ve_buffer = incoming_ve_ptr;
     }
 
-    ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> *direction_graph_ptr = graph_ptr->get_direction_graph_ptr(_direction);
+    ExtendedCSRGraph *direction_graph_ptr = graph_ptr->get_direction_graph_ptr(_direction);
 
     long long csr_edge_pos = direction_graph_ptr->get_csr_edge_id(_src_id, _dst_id);
     target_csr_buffer[csr_edge_pos] = _val;
@@ -87,10 +84,8 @@ void EdgesArrayNec<_TVertexValue, _TEdgeWeight, _T>::set(int _src_id,
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-template <typename _TVertexValue, typename _TEdgeWeight, typename _T>
-_T EdgesArrayNec<_TVertexValue, _TEdgeWeight, _T>::get(int _src_id,
-                                                       int _dst_id,
-                                                       TraversalDirection _direction)
+template <typename _T>
+_T EdgesArrayNec<_T>::get(int _src_id, int _dst_id, TraversalDirection _direction)
 {
     // always get from CSR since it's faster
     _T *answer_csr_buffer_ptr;
@@ -106,21 +101,18 @@ _T EdgesArrayNec<_TVertexValue, _TEdgeWeight, _T>::get(int _src_id,
         answer_ve_buffer_ptr = incoming_ve_ptr;
     }
 
-    ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> *direction_graph_ptr = graph_ptr->get_direction_graph_ptr(_direction);
+    ExtendedCSRGraph *direction_graph_ptr = graph_ptr->get_direction_graph_ptr(_direction);
 
     long long csr_edge_pos = direction_graph_ptr->get_csr_edge_id(_src_id, _dst_id);
     long long ve_edge_pos = direction_graph_ptr->get_ve_edge_id(_src_id, _dst_id);
-
-    cout << "chek! " << answer_csr_buffer_ptr[csr_edge_pos] << " vs " << answer_ve_buffer_ptr[ve_edge_pos] << endl;
-    cout << "id: " << csr_edge_pos << " " << ve_edge_pos << endl;
 
     return answer_csr_buffer_ptr[csr_edge_pos];
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-template <typename _TVertexValue, typename _TEdgeWeight, typename _T>
-void EdgesArrayNec<_TVertexValue, _TEdgeWeight, _T>::print()
+template <typename _T>
+void EdgesArrayNec<_T>::print()
 {
     cout << "outgoing_csr_ptr: ";
     for(long long i = 0; i < edges_count; i++)

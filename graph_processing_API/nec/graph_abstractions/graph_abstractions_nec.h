@@ -2,23 +2,23 @@
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-template <typename _TVertexValue, typename _TEdgeWeight>
+
 class GraphAbstractionsNEC
 {
 private:
-    VectCSRGraph<_TVertexValue, _TEdgeWeight> *processed_graph_ptr;
+    VectCSRGraph *processed_graph_ptr;
     TraversalDirection traversal_direction;
 
     template <typename ComputeOperation>
-    void compute_worker(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
-                        FrontierNEC<_TVertexValue, _TEdgeWeight> &_frontier,
+    void compute_worker(ExtendedCSRGraph &_graph,
+                        FrontierNEC &_frontier,
                         ComputeOperation &&compute_op);
 
     template <typename EdgeOperation, typename VertexPreprocessOperation,
             typename VertexPostprocessOperation, typename CollectiveEdgeOperation, typename CollectiveVertexPreprocessOperation,
             typename CollectiveVertexPostprocessOperation>
-    void advance_worker(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
-                        FrontierNEC<_TVertexValue, _TEdgeWeight> &_frontier,
+    void advance_worker(ExtendedCSRGraph &_graph,
+                        FrontierNEC &_frontier,
                         EdgeOperation &&edge_op,
                         VertexPreprocessOperation &&vertex_preprocess_op,
                         VertexPostprocessOperation &&vertex_postprocess_op,
@@ -70,7 +70,7 @@ private:
                                                                   const int _first_edge);
 public:
     // attaches graph-processing API to the specific graph
-    GraphAbstractionsNEC(VectCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
+    GraphAbstractionsNEC(VectCSRGraph &_graph,
                          TraversalDirection _initial_traversal = SCATTER_TRAVERSAL);
 
     // change graph traversal direction (from GATHER to SCATTER or vice versa)
@@ -80,8 +80,8 @@ public:
     template <typename EdgeOperation, typename VertexPreprocessOperation, typename VertexPostprocessOperation,
             typename CollectiveEdgeOperation, typename CollectiveVertexPreprocessOperation,
             typename CollectiveVertexPostprocessOperation>
-    void scatter(VectCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
-                 FrontierNEC<_TVertexValue, _TEdgeWeight> &_frontier,
+    void scatter(VectCSRGraph &_graph,
+                 FrontierNEC &_frontier,
                  EdgeOperation &&edge_op,
                  VertexPreprocessOperation &&vertex_preprocess_op,
                  VertexPostprocessOperation &&vertex_postprocess_op,
@@ -91,8 +91,8 @@ public:
 
     // performs user-defined "compute_op" operation for each element in the given frontier
     template <typename ComputeOperation>
-    void compute(VectCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
-                 FrontierNEC<_TVertexValue, _TEdgeWeight> &_frontier,
+    void compute(VectCSRGraph &_graph,
+                 FrontierNEC &_frontier,
                  ComputeOperation &&compute_op);
 };
 

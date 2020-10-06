@@ -232,7 +232,7 @@ void __global__ virtual_warp_per_vertex_kernel(const long long *_vertex_pointers
 
 template <typename _TVertexValue, typename _TEdgeWeight, typename EdgeOperation, typename VertexPreprocessOperation,
         typename VertexPostprocessOperation>
-void GraphPrimitivesGPU::advance_sparse(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
+void GraphPrimitivesGPU::advance_sparse(ExtendedCSRGraph &_graph,
                                         FrontierGPU &_frontier,
                                         EdgeOperation edge_op,
                                         VertexPreprocessOperation vertex_preprocess_op,

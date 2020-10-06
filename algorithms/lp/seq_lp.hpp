@@ -8,8 +8,8 @@
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-template <typename _TVertexValue, typename _TEdgeWeight>
-void LP::seq_lp(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph, int *_labels, int _max_iterations)
+
+void LP::seq_lp(ExtendedCSRGraph &_graph, int *_labels, int _max_iterations)
 {
     LOAD_EXTENDED_CSR_GRAPH_DATA(_graph);
 

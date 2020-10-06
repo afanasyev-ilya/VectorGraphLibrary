@@ -18,8 +18,7 @@ using namespace std;
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-template <typename _TVertexValue, typename _TEdgeWeight>
-void print_first_edges(EdgesListGraph<_TVertexValue, _TEdgeWeight> &_rand_graph)
+void print_first_edges(EdgesListGraph &_rand_graph)
 {
     int *src_ids = _rand_graph.get_src_ids();
     int *dst_ids = _rand_graph.get_dst_ids();
@@ -44,19 +43,26 @@ int main(int argc, const char * argv[])
         AlgorithmCommandOptionsParser parser;
         parser.parse_args(argc, argv);
 
-        EdgesListGraph<int, float> graph;
+        // generate random graph
+        EdgesListGraph el_graph;
         int v = pow(2.0, parser.get_scale());
-        GraphGenerationAPI<int, float>::random_uniform(graph, v, v * parser.get_avg_degree(), DIRECTED_GRAPH);
+        GraphGenerationAPI::random_uniform(el_graph, v, v * parser.get_avg_degree(), DIRECTED_GRAPH);
         cout << "graph generated!" << endl;
 
-        VectCSRGraph<int, float> vect_csr_graph;
-        vect_csr_graph.import_graph(graph);
-        //vect_csr_graph.print();
+        // preprocess it
+        el_graph.preprocess_into_csr_based();
+        el_graph.print_in_csr_format();
 
-        EdgesArrayNec<int, float, float> weights(vect_csr_graph);
-        weights.set_all_random(10);
+        // create vect CSR graph
+        VectCSRGraph graph;
+        graph.import_graph(el_graph);
+        graph.print();
 
-        ShortestPaths<int, float> sssp_operation(graph);
+        // create graph weights and set them random
+        EdgesArrayNec<float> weights(graph);
+        weights.set_all_random(MAX_WEIGHT);
+
+        /*ShortestPaths sssp_operation(graph);
         float *seq_distances, *vect_csr_distances;
         sssp_operation.allocate_result_memory(graph.get_vertices_count(), &seq_distances);
         sssp_operation.allocate_result_memory(graph.get_vertices_count(), &vect_csr_distances);
@@ -70,7 +76,7 @@ int main(int argc, const char * argv[])
         verify_results(seq_distances, vect_csr_distances, vect_csr_graph.get_vertices_count());
 
         sssp_operation.free_result_memory(seq_distances);
-        sssp_operation.free_result_memory(vect_csr_distances);
+        sssp_operation.free_result_memory(vect_csr_distances);*/
     }
     catch (string error)
     {

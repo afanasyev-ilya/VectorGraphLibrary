@@ -2,8 +2,7 @@
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-template <typename _TVertexValue, typename _TEdgeWeight>
-VectorExtension<_TVertexValue, _TEdgeWeight>::VectorExtension()
+VectorExtension::VectorExtension()
 {
     vertices_count = VECTOR_LENGTH;
     starting_vertex = 0;
@@ -15,44 +14,37 @@ VectorExtension<_TVertexValue, _TEdgeWeight>::VectorExtension()
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-template <typename _TVertexValue, typename _TEdgeWeight>
-VectorExtension<_TVertexValue, _TEdgeWeight>::~VectorExtension()
+VectorExtension::~VectorExtension()
 {
     free();
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-template <typename _TVertexValue, typename _TEdgeWeight>
-void VectorExtension<_TVertexValue, _TEdgeWeight>::alloc(long long _edges_count)
+void VectorExtension::alloc(long long _edges_count)
 {
     MemoryAPI::allocate_array(&vector_group_ptrs, vector_segments_count);
     MemoryAPI::allocate_array(&vector_group_sizes, vector_segments_count);
 
     MemoryAPI::allocate_array(&adjacent_ids, _edges_count);
-    MemoryAPI::allocate_array(&adjacent_weights, _edges_count);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-template <typename _TVertexValue, typename _TEdgeWeight>
-void VectorExtension<_TVertexValue, _TEdgeWeight>::free()
+void VectorExtension::free()
 {
     MemoryAPI::free_array(vector_group_ptrs);
     MemoryAPI::free_array(vector_group_sizes);
 
     MemoryAPI::free_array(adjacent_ids);
-    MemoryAPI::free_array(adjacent_weights);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-template <typename _TVertexValue, typename _TEdgeWeight>
-void VectorExtension<_TVertexValue, _TEdgeWeight>::init_from_graph(long long *_csr_adjacent_ptrs,
-                                                                   int *_csr_adjacent_ids,
-                                                                   _TEdgeWeight *_csr_adjacent_weights,
-                                                                   int _first_vertex,
-                                                                   int _last_vertex)
+void VectorExtension::init_from_graph(long long *_csr_adjacent_ptrs,
+                                      int *_csr_adjacent_ids,
+                                      int _first_vertex,
+                                      int _last_vertex)
 {
     double t1 = omp_get_wtime();
     vertices_count = _last_vertex - _first_vertex;
@@ -96,12 +88,10 @@ void VectorExtension<_TVertexValue, _TEdgeWeight>::init_from_graph(long long *_c
                 if((src_id < _last_vertex) && (edge_pos < connections_count))
                 {
                     adjacent_ids[current_edge + i] = _csr_adjacent_ids[global_edge_pos];
-                    adjacent_weights[current_edge + i] = _csr_adjacent_weights[global_edge_pos];
                 }
                 else
                 {
                     adjacent_ids[current_edge + i] = src_id;
-                    adjacent_weights[current_edge + i] = 0.0;
                 }
             }
             current_edge += VECTOR_LENGTH;
@@ -113,9 +103,9 @@ void VectorExtension<_TVertexValue, _TEdgeWeight>::init_from_graph(long long *_c
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-template <typename _TVertexValue, typename _TEdgeWeight>
+
 template <typename _T>
-void VectorExtension<_TVertexValue, _TEdgeWeight>::copy_array_from_csr_to_ve(_T *_dst_ve_array, _T *_src_csr_array)
+void VectorExtension::copy_array_from_csr_to_ve(_T *_dst_ve_array, _T *_src_csr_array)
 {
     #pragma omp parallel for
     for(int cur_vector_segment = 0; cur_vector_segment < vector_segments_count; cur_vector_segment++)
@@ -150,8 +140,8 @@ void VectorExtension<_TVertexValue, _TEdgeWeight>::copy_array_from_csr_to_ve(_T 
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-template <typename _TVertexValue, typename _TEdgeWeight>
-inline long long VectorExtension<_TVertexValue, _TEdgeWeight>::get_ve_edge_id(int _src_id, int _dst_id)
+
+inline long long VectorExtension::get_ve_edge_id(int _src_id, int _dst_id)
 {
     int cur_vector_segment = (_src_id - first_vertex)/VECTOR_LENGTH;
     int vec_start = cur_vector_segment * VECTOR_LENGTH + first_vertex;

@@ -3,8 +3,7 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #ifdef __USE_NEC_SX_AURORA__
-template <typename _TVertexValue, typename _TEdgeWeight>
-SSSP::ShortestPaths(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph):
+SSSP::ShortestPaths(ExtendedCSRGraph &_graph):
 frontier(_graph.get_vertices_count())
 {
     MemoryAPI::allocate_array(&class_old_distances, _graph.get_vertices_count());
@@ -14,8 +13,7 @@ frontier(_graph.get_vertices_count())
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #ifdef __USE_NEC_SX_AURORA__
-template <typename _TVertexValue, typename _TEdgeWeight>
-SSSP::ShortestPaths(EdgesListGraph<_TVertexValue, _TEdgeWeight> &_graph):
+SSSP::ShortestPaths(EdgesListGraph &_graph):
 frontier(_graph.get_vertices_count())
 {
     MemoryAPI::allocate_array(&class_old_distances, _graph.get_vertices_count());
@@ -25,8 +23,7 @@ frontier(_graph.get_vertices_count())
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #ifdef __USE_GPU__
-template <typename _TVertexValue, typename _TEdgeWeight>
-SSSP::ShortestPaths(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph)
+SSSP::ShortestPaths(ExtendedCSRGraph &_graph)
 {
 
 }
@@ -35,7 +32,6 @@ SSSP::ShortestPaths(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph)
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #ifdef __USE_NEC_SX_AURORA__
-template <typename _TVertexValue, typename _TEdgeWeight>
 SSSP::~ShortestPaths()
 {
     MemoryAPI::free_array(class_old_distances);
@@ -45,7 +41,6 @@ SSSP::~ShortestPaths()
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #ifdef __USE_GPU__
-template <typename _TVertexValue, typename _TEdgeWeight>
 SSSP::~ShortestPaths()
 {
 
@@ -54,7 +49,6 @@ SSSP::~ShortestPaths()
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-template <typename _TVertexValue, typename _TEdgeWeight>
 void SSSP::allocate_result_memory(int _vertices_count, _TEdgeWeight **_distances)
 {
     MemoryAPI::allocate_array(_distances, _vertices_count);
@@ -64,7 +58,6 @@ void SSSP::allocate_result_memory(int _vertices_count, _TEdgeWeight **_distances
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-template <typename _TVertexValue, typename _TEdgeWeight>
 void SSSP::free_result_memory(_TEdgeWeight *_distances)
 {
     MemoryAPI::free_array(_distances);
@@ -72,8 +65,7 @@ void SSSP::free_result_memory(_TEdgeWeight *_distances)
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-template <typename _TVertexValue, typename _TEdgeWeight>
-void SSSP::reorder_result(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
+void SSSP::reorder_result(ExtendedCSRGraph &_graph,
                           _TEdgeWeight *_distances)
 {
     int vertices_count = _graph.get_vertices_count();

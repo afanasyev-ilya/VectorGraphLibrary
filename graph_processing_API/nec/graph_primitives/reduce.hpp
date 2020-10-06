@@ -3,8 +3,8 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template <typename _T, typename _TVertexValue, typename _TEdgeWeight, typename ReduceOperation>
-_T GraphPrimitivesNEC::reduce_sum(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
-                                  FrontierNEC<_TVertexValue, _TEdgeWeight> &_frontier,
+_T GraphPrimitivesNEC::reduce_sum(ExtendedCSRGraph &_graph,
+                                  FrontierNEC &_frontier,
                                   ReduceOperation &&reduce_op)
 {
     #ifdef __PRINT_API_PERFORMANCE_STATS__
@@ -67,8 +67,8 @@ _T GraphPrimitivesNEC::reduce_sum(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template <typename _T, typename _TVertexValue, typename _TEdgeWeight, typename ReduceOperation>
-_T GraphPrimitivesNEC::reduce(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
-                              FrontierNEC<_TVertexValue, _TEdgeWeight> &_frontier,
+_T GraphPrimitivesNEC::reduce(ExtendedCSRGraph &_graph,
+                              FrontierNEC &_frontier,
                               ReduceOperation &&reduce_op,
                               REDUCE_TYPE _reduce_type)
 {

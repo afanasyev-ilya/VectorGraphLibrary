@@ -2,11 +2,11 @@
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-template <typename _TVertexValue, typename _TEdgeWeight, typename _T>
+template <typename _T>
 class EdgesArrayNec
 {
 private:
-    VectCSRGraph<_TVertexValue, _TEdgeWeight> *graph_ptr;
+    VectCSRGraph *graph_ptr;
 
     _T *edges_data;
 
@@ -21,7 +21,7 @@ private:
     long long edges_count_in_incoming_ve;
     long long wall_array_size;
 public:
-    EdgesArrayNec(VectCSRGraph<_TVertexValue, _TEdgeWeight> &_graph);
+    EdgesArrayNec(VectCSRGraph &_graph);
 
     inline _T get(long long _global_idx) {return edges_data[_global_idx];};
     inline _T set(long long _global_idx, _T _val) {edges_data[_global_idx] = _val;};
@@ -39,6 +39,6 @@ public:
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#include "edges_array.hpp"
+#include "edges_array_nec.hpp"
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

@@ -113,8 +113,8 @@ void FrontierGPU::split_sorted_frontier(const long long *_vertex_pointers,
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-template <typename _TVertexValue, typename _TEdgeWeight>
-void FrontierGPU::add_vertex(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph, int src_id)
+
+void FrontierGPU::add_vertex(ExtendedCSRGraph &_graph, int src_id)
 {
     if(type == ALL_ACTIVE_FRONTIER)
     {

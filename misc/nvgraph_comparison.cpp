@@ -260,8 +260,8 @@ void nvgraph_bfs(int vertices_count, int edges_count, int *source_indices, int *
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-template <typename _TVertexValue, typename _TEdgeWeight>
-void convert_and_test(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph, string alg)
+
+void convert_and_test(ExtendedCSRGraph &_graph, string alg)
 {
     LOAD_EXTENDED_CSR_GRAPH_DATA(_graph)
 

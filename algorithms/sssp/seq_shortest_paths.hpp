@@ -7,8 +7,8 @@
 
 typedef pair<float, int> iPair;
 
-template <typename _TVertexValue, typename _TEdgeWeight>
-void SSSP::seq_dijkstra(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
+
+void SSSP::seq_dijkstra(ExtendedCSRGraph &_graph,
                         _TEdgeWeight *_distances,
                         int _source_vertex)
 {
@@ -62,13 +62,13 @@ void SSSP::seq_dijkstra(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-template <typename _TVertexValue, typename _TEdgeWeight>
-void SSSP::seq_dijkstra(VectCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
+
+void SSSP::seq_dijkstra(VectCSRGraph &_graph,
                         EdgesArrayNec<_TVertexValue, _TEdgeWeight, _TEdgeWeight> &_weights,
                         _TEdgeWeight *_distances,
                         int _source_vertex)
 {
-    ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> *outgoing_graph_ptr = _graph.get_outgoing_graph_ptr();
+    ExtendedCSRGraph *outgoing_graph_ptr = _graph.get_outgoing_graph_ptr();
     LOAD_EXTENDED_CSR_GRAPH_DATA((*outgoing_graph_ptr));
 
     // Create a priority queue to store vertices that

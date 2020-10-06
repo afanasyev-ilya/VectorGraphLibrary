@@ -5,8 +5,8 @@
 template <typename _TVertexValue, typename _TEdgeWeight, typename EdgeOperation, typename VertexPreprocessOperation,
         typename VertexPostprocessOperation, typename CollectiveEdgeOperation, typename CollectiveVertexPreprocessOperation,
         typename CollectiveVertexPostprocessOperation>
-void GraphPrimitivesNEC::scatter(VectCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
-                                 FrontierNEC<_TVertexValue, _TEdgeWeight> &_frontier,
+void GraphPrimitivesNEC::scatter(VectCSRGraph &_graph,
+                                 FrontierNEC &_frontier,
                                  EdgeOperation &&edge_op,
                                  VertexPreprocessOperation &&vertex_preprocess_op,
                                  VertexPostprocessOperation &&vertex_postprocess_op,

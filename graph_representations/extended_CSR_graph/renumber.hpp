@@ -2,16 +2,14 @@
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-template <typename _TVertexValue, typename _TEdgeWeight>
-int ExtendedCSRGraph<_TVertexValue, _TEdgeWeight>::renumber_vertex_id(int _id)
+int ExtendedCSRGraph::renumber_vertex_id(int _id)
 {
     return forward_conversion[_id]; // id (old) -> id (current)
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-template <typename _TVertexValue, typename _TEdgeWeight>
-void ExtendedCSRGraph<_TVertexValue, _TEdgeWeight>::renumber_vertex_array(float *_input_array, float *_output_array)
+void ExtendedCSRGraph::renumber_vertex_array(float *_input_array, float *_output_array)
 {
     #pragma _NEC ivdep
     #pragma omp parallel for

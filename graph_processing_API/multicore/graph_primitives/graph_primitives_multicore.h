@@ -16,13 +16,13 @@ public:
     ~GraphPrimitivesMulticore() {};
 
     template <typename _TVertexValue, typename _TEdgeWeight, typename EdgeOperation>
-    void advance(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
+    void advance(ExtendedCSRGraph &_graph,
                  FrontierMulticore &_frontier,
                  EdgeOperation &&edge_op);
 
     // performs user-defined "compute_op" operation for each element in the given frontier
     template <typename _TVertexValue, typename _TEdgeWeight, typename ComputeOperation>
-    void compute(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph, FrontierMulticore &_frontier, ComputeOperation compute_op);
+    void compute(ExtendedCSRGraph &_graph, FrontierMulticore &_frontier, ComputeOperation compute_op);
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

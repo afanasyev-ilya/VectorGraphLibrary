@@ -6,13 +6,11 @@
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-template <typename _TVertexValue, typename _TEdgeWeight>
-class EdgesListGraph : public BaseGraph<_TVertexValue, _TEdgeWeight>
+class EdgesListGraph : public BaseGraph
 {
 private:
     int *src_ids;
     int *dst_ids;
-    _TEdgeWeight *weights;
     
     void alloc(int _vertices_count, long long _edges_count);
     void free();
@@ -22,7 +20,6 @@ public:
     
     inline int *get_src_ids() {return src_ids;};
     inline int *get_dst_ids() {return dst_ids;};
-    inline _TEdgeWeight *get_weights() {return weights;};
     
     void resize(int _vertices_count, long long _edges_count);
 
@@ -39,8 +36,8 @@ public:
     // allow to renumber vertices based on indexes provided in conversion array
     void renumber_vertices(int *_conversion_array, int *_work_buffer = NULL);
 
+    // preprocess functions
     void preprocess_into_segmented();
-
     #ifdef __USE_ASL__
     void preprocess_into_csr_based(int *_work_buffer = NULL, asl_int_t *_asl_buffer = NULL);
     #endif
@@ -65,6 +62,5 @@ int vertices_count    = input_graph.get_vertices_count(); \
 int edges_count       = input_graph.get_edges_count   (); \
 int *src_ids          = input_graph.get_src_ids       (); \
 int *dst_ids          = input_graph.get_dst_ids       (); \
-_TEdgeWeight *weights = input_graph.get_weights       (); \
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
