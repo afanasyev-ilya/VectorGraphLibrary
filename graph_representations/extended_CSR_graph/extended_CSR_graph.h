@@ -91,6 +91,9 @@ public:
 
     inline VectorExtension<_TVertexValue, _TEdgeWeight>* get_ve_ptr() {return &last_vertices_ve;};
 
+    inline long long get_csr_edge_id(int _src_id, int _dst_id);
+    inline long long get_ve_edge_id(int _src_id, int _dst_id) { return last_vertices_ve.get_ve_edge_id(_src_id, _dst_id); };
+
     // renumber API
     int renumber_vertex_id(int _id); // TODO rename/rework
     void renumber_vertex_array(float *_input_array, float *_output_array); // TODO rename/rework

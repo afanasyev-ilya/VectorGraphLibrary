@@ -117,7 +117,6 @@ template <typename _TVertexValue, typename _TEdgeWeight>
 template <typename _T>
 void VectorExtension<_TVertexValue, _TEdgeWeight>::copy_array_from_csr_to_ve(_T *_dst_ve_array, _T *_src_csr_array)
 {
-    long long current_edge = 0;
     #pragma omp parallel for
     for(int cur_vector_segment = 0; cur_vector_segment < vector_segments_count; cur_vector_segment++)
     {
@@ -134,19 +133,49 @@ void VectorExtension<_TVertexValue, _TEdgeWeight>::copy_array_from_csr_to_ve(_T 
             {
                 int src_id = vec_start + i;
                 int connections_count = csr_adjacent_ptrs_ptr[src_id + 1] - csr_adjacent_ptrs_ptr[src_id];
-                long long global_edge_pos = csr_adjacent_ptrs_ptr[src_id] + edge_pos;
+                long long csr_edge_pos = csr_adjacent_ptrs_ptr[src_id] + edge_pos;
 
                 if((src_id < last_vertex) && (edge_pos < connections_count))
                 {
-                    _dst_ve_array[current_edge + i] = _src_csr_array[global_edge_pos];
+                    _dst_ve_array[edge_ptr + edge_pos*VECTOR_LENGTH + i] = _src_csr_array[csr_edge_pos];
                 }
                 else
                 {
-                    _dst_ve_array[current_edge + i] = 0.0;
+                    _dst_ve_array[edge_ptr + edge_pos*VECTOR_LENGTH + i] = 0.0;
                 }
             }
         }
     }
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+template <typename _TVertexValue, typename _TEdgeWeight>
+inline long long VectorExtension<_TVertexValue, _TEdgeWeight>::get_ve_edge_id(int _src_id, int _dst_id)
+{
+    int cur_vector_segment = (_src_id - first_vertex)/VECTOR_LENGTH;
+    int vec_start = cur_vector_segment * VECTOR_LENGTH + first_vertex;
+
+    long long edge_ptr = vector_group_ptrs[cur_vector_segment];
+    int cur_max_connections_count = vector_group_sizes[cur_vector_segment];
+
+    #pragma _NEC novector
+    for(int edge_pos = 0; edge_pos < cur_max_connections_count; edge_pos++)
+    {
+        #pragma _NEC novector
+        for(int i = 0; i < VECTOR_LENGTH; i++)
+        {
+            int src_id = vec_start + i;
+            if(src_id == _src_id)
+            {
+                int dst_id = adjacent_ids[edge_ptr + edge_pos*VECTOR_LENGTH + i];
+                if(dst_id == _dst_id)
+                    return edge_ptr + edge_pos*VECTOR_LENGTH + i;
+            }
+        }
+    }
+    throw "Error in VectorExtension::get_csr_edge_id(): specified dst_id not found for current src vertex";
+    return -1;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

@@ -375,13 +375,14 @@ void SSSP::nec_dijkstra(VectCSRGraph<_TVertexValue, _TEdgeWeight> &_graph, _TEdg
 
     EdgesArrayNec<_TVertexValue, _TEdgeWeight, float> weights(_graph);
 
-    weights.set_all_random(10);
+    _graph.print();
 
-    // how to init weights?
-    // set from file weights.load_from_file(); // - как?
-    // to constant weights.set_to_consatant();
-    // set random weights.init_random();
-    // set specific weights.set(src_id, dst_id, val, incoming?);
+    weights.set_all_random(10);
+    weights.print();
+
+    cout << "weight: " << weights.get(0, 1, SCATTER_TRAVERSAL) << endl;
+    cout << "weight: " << weights.get(3, 7, SCATTER_TRAVERSAL) << endl;
+    cout << "weight: " << weights.get(6, 8, SCATTER_TRAVERSAL) << endl;
 
     GraphAbstractionsNEC<_TVertexValue, _TEdgeWeight> graph_API(_graph, SCATTER_TRAVERSAL);
     FrontierNEC<_TVertexValue, _TEdgeWeight> frontier(_graph);

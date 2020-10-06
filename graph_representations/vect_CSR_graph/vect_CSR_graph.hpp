@@ -44,3 +44,27 @@ void VectCSRGraph<_TVertexValue, _TEdgeWeight>::import_graph(EdgesListGraph<_TVe
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+template <typename _TVertexValue, typename _TEdgeWeight>
+ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> *VectCSRGraph<_TVertexValue, _TEdgeWeight>::get_direction_graph_ptr(TraversalDirection _direction)
+{
+    if(_direction == SCATTER_TRAVERSAL)
+    {
+        return get_outgoing_graph_ptr();
+    }
+    else// if(_direction == GATHER_DIRECTION)
+    {
+        return get_incoming_graph_ptr();
+    }
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+template <typename _TVertexValue, typename _TEdgeWeight>
+void VectCSRGraph<_TVertexValue, _TEdgeWeight>::print()
+{
+    outgoing_edges->print();
+    incoming_edges->print();
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

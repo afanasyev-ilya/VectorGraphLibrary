@@ -291,3 +291,26 @@ _T& ExtendedCSRGraph<_TVertexValue, _TEdgeWeight>::get_edge_data(_T *_data_array
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+template <typename _TVertexValue, typename _TEdgeWeight>
+long long ExtendedCSRGraph<_TVertexValue, _TEdgeWeight>::get_csr_edge_id(int _src_id, int _dst_id)
+{
+    const long long int start = vertex_pointers[_src_id];
+    const long long int end = vertex_pointers[_src_id + 1];
+    const int connections_count = end - start;
+
+    for (int local_edge_pos = 0; local_edge_pos < connections_count; local_edge_pos++)
+    {
+        const long long global_edge_pos = start + local_edge_pos;
+        const int dst_id = adjacent_ids[global_edge_pos];
+        if(dst_id == _dst_id)
+        {
+            return global_edge_pos;
+        }
+    }
+    throw "Error in ExtendedCSRGraph::get_csr_edge_id(): specified dst_id not found for current src vertex";
+    return -1;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+

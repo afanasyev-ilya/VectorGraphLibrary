@@ -29,6 +29,11 @@ public:
     void set_all_constant(_T _const);
     void set_all_random(_T _max_rand);
 
+    void set(int _src_id, int _dst_id, _T _val, TraversalDirection _direction);
+    _T get(int _src_id, int _dst_id, TraversalDirection _direction);
+
+    void print();
+
     ~EdgesArrayNec();
 };
 

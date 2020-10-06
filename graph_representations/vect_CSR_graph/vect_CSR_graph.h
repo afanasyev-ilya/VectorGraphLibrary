@@ -11,6 +11,7 @@
 #include "../../common/cmd_parser/parser_options.h"
 #include "../common/tmp_edge_data.h"
 #include "../../common/memory_API/memory_API.h"
+#include "../../graph_processing_API/framework_types.h"
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -29,6 +30,8 @@ public:
     ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> *get_outgoing_graph_ptr() {return outgoing_edges;};
     ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> *get_incoming_graph_ptr() {return incoming_edges;};
 
+    ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> *get_direction_graph_ptr(TraversalDirection _direction);
+
     int renumber_to_vectCSR(int _id); // original -> vectCSR
     int renumber_to_original(int _id); // vectCSR -> original
 
@@ -41,7 +44,7 @@ public:
     template <typename _T>
     void convert_from_inner_representation(_T* _per_vertex_data); // vectCSR -> original
 
-    void print() {};
+    void print();
     void print_stats() {};
     void save_to_graphviz_file(string file_name, VisualisationMode _visualisation_mode = VISUALISE_AS_DIRECTED) {};
     bool save_to_binary_file(string file_name) {};
