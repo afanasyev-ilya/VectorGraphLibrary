@@ -23,6 +23,11 @@ void GraphAbstractionsNEC<_TVertexValue, _TEdgeWeight>::vector_engine_per_vertex
     DelayedWriteNEC delayed_write;
     delayed_write.init();
 
+    long long edges_count = processed_graph_ptr->get_edges_count();
+    long long direction_shift = edges_count + processed_graph_ptr->get_edges_count_in_outgoing_ve();
+    int traversal = traversal_direction;
+    int storage = CSR_STORAGE;
+
     for(int front_pos = _first_vertex; front_pos < _last_vertex; front_pos++)
     {
         const int src_id = front_pos;
@@ -41,11 +46,12 @@ void GraphAbstractionsNEC<_TVertexValue, _TEdgeWeight>::vector_engine_per_vertex
         #pragma omp for schedule(static)
         for (int local_edge_pos = 0; local_edge_pos < connections_count; local_edge_pos++)
         {
-            const long long int global_edge_pos = start + local_edge_pos;
-            const int vector_index = get_vector_index(local_edge_pos);
-            const int dst_id = _adjacent_ids[global_edge_pos];
+            const long long internal_edge_pos = start + local_edge_pos;
+            const int vector_index = get_vector_index(internal_edge_pos);
+            const int dst_id = _adjacent_ids[internal_edge_pos];
+            const long long external_edge_pos = traversal * direction_shift + storage * edges_count + internal_edge_pos;
 
-            edge_op(src_id, dst_id, local_edge_pos, global_edge_pos, vector_index, delayed_write);
+            edge_op(src_id, dst_id, local_edge_pos, external_edge_pos, vector_index, delayed_write);
         }
 
         vertex_postprocess_op(src_id, connections_count, 0, delayed_write);
@@ -92,6 +98,11 @@ void GraphAbstractionsNEC<_TVertexValue, _TEdgeWeight>::vector_core_per_vertex_k
     DelayedWriteNEC delayed_write;
     delayed_write.init();
 
+    long long edges_count = processed_graph_ptr->get_edges_count();
+    long long direction_shift = edges_count + processed_graph_ptr->get_edges_count_in_outgoing_ve();
+    int traversal = traversal_direction;
+    int storage = CSR_STORAGE;
+
     #pragma omp for schedule(static, 1)
     for (int src_id = _first_vertex; src_id < _last_vertex; src_id++)
     {
@@ -108,11 +119,12 @@ void GraphAbstractionsNEC<_TVertexValue, _TEdgeWeight>::vector_core_per_vertex_k
         #pragma _NEC gather_reorder
         for (int local_edge_pos = 0; local_edge_pos < connections_count; local_edge_pos++)
         {
-            const long long int global_edge_pos = start + local_edge_pos;
-            const int vector_index = get_vector_index(local_edge_pos);
-            const int dst_id = _adjacent_ids[global_edge_pos];
+            const long long internal_edge_pos = start + local_edge_pos;
+            const int vector_index = get_vector_index(internal_edge_pos);
+            const int dst_id = _adjacent_ids[internal_edge_pos];
+            const long long external_edge_pos = traversal * direction_shift + storage * edges_count + internal_edge_pos;
 
-            edge_op(src_id, dst_id, local_edge_pos, global_edge_pos, vector_index, delayed_write);
+            edge_op(src_id, dst_id, local_edge_pos, external_edge_pos, vector_index, delayed_write);
         }
 
         vertex_postprocess_op(src_id, connections_count, 0, delayed_write);
@@ -165,6 +177,11 @@ void GraphAbstractionsNEC<_TVertexValue, _TEdgeWeight>::ve_collective_vertex_pro
     DelayedWriteNEC delayed_write;
     delayed_write.init();
 
+    long long edges_count = processed_graph_ptr->get_edges_count();
+    long long direction_shift = edges_count + processed_graph_ptr->get_edges_count_in_outgoing_ve();
+    int traversal = traversal_direction;
+    int storage = VE_STORAGE;
+
     long long reg_real_start[VECTOR_LENGTH];
     int reg_real_connections_count[VECTOR_LENGTH];
     #pragma _NEC vreg(reg_real_connections_count)
@@ -212,16 +229,13 @@ void GraphAbstractionsNEC<_TVertexValue, _TEdgeWeight>::ve_collective_vertex_pro
                 const int src_id = segment_first_vertex + i;
 
                 const int vector_index = i;
-                long long int global_edge_pos = segment_edges_start + edge_pos * VECTOR_LENGTH + i;
+                const long long internal_edge_pos = segment_edges_start + edge_pos * VECTOR_LENGTH + i;
                 const int local_edge_pos = edge_pos;
-                const int dst_id = _ve_adjacent_ids[global_edge_pos];
-
-                #ifdef __USE_ADDITIONAL_EDGE_ARRAYS__
-                global_edge_pos = reg_real_start[i] + edge_pos;
-                #endif
+                const int dst_id = _ve_adjacent_ids[internal_edge_pos];
+                const long long external_edge_pos = traversal * direction_shift + storage * edges_count + internal_edge_pos;
 
                 if(edge_pos < reg_real_connections_count[i])
-                    edge_op(src_id, dst_id, local_edge_pos, global_edge_pos, vector_index, delayed_write);
+                    edge_op(src_id, dst_id, local_edge_pos, internal_edge_pos, vector_index, delayed_write);
             }
         }
 

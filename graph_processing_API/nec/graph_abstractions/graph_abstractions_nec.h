@@ -6,7 +6,7 @@ template <typename _TVertexValue, typename _TEdgeWeight>
 class GraphAbstractionsNEC
 {
 private:
-    VectCSRGraph<_TVertexValue, _TEdgeWeight> *_processed_graph_ptr;
+    VectCSRGraph<_TVertexValue, _TEdgeWeight> *processed_graph_ptr;
     TraversalDirection traversal_direction;
 
     template <typename ComputeOperation>

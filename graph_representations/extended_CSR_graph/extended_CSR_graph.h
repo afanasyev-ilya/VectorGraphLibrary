@@ -89,6 +89,8 @@ public:
 
     inline long long get_edges_count_in_ve() {return last_vertices_ve.get_edges_count_in_ve();}
 
+    inline VectorExtension<_TVertexValue, _TEdgeWeight>* get_ve_ptr() {return &last_vertices_ve;};
+
     // renumber API
     int renumber_vertex_id(int _id); // TODO rename/rework
     void renumber_vertex_array(float *_input_array, float *_output_array); // TODO rename/rework

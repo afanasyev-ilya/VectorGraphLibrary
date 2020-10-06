@@ -6,7 +6,7 @@ template <typename _TVertexValue, typename _TEdgeWeight>
 GraphAbstractionsNEC<_TVertexValue, _TEdgeWeight>::GraphAbstractionsNEC(VectCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
                                                                         TraversalDirection _initial_traversal)
 {
-    _processed_graph_ptr = &_graph;
+    processed_graph_ptr = &_graph;
     traversal_direction = _initial_traversal;
 }
 

@@ -213,10 +213,6 @@ void GraphPrimitivesNEC::ve_collective_vertex_processing_kernel_all_active(const
                 const int local_edge_pos = edge_pos;
                 const int dst_id = _ve_adjacent_ids[global_edge_pos];
 
-                #ifdef __USE_ADDITIONAL_EDGE_ARRAYS__
-                global_edge_pos = reg_real_start[i] + edge_pos;
-                #endif
-
                 if(edge_pos < reg_real_connections_count[i])
                     edge_op(src_id, dst_id, local_edge_pos, global_edge_pos, vector_index, delayed_write);
             }

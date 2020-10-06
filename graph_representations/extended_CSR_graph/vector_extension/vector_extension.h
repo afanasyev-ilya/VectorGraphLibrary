@@ -15,9 +15,14 @@ private:
     int vector_segments_count;
     long long edges_count_in_ve;
 
+    int first_vertex, last_vertex;
+
     // vector segments data
     long long *vector_group_ptrs;
     int *vector_group_sizes;
+
+    // CSR ptrs required for fast conversions
+    long long *csr_adjacent_ptrs_ptr;
 
     // outgoing edges data
     int *adjacent_ids;
@@ -42,6 +47,9 @@ public:
 
     void init_from_graph(long long *_csr_adjacent_ptrs, int *_csr_adjacent_ids, _TEdgeWeight *_csr_adjacent_weights,
                          int _first_vertex, int _last_vertex);
+
+    template <typename _T>
+    void copy_array_from_csr_to_ve(_T *_dst_ve_array, _T *_src_csr_array);
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

@@ -138,6 +138,7 @@ void GraphPrimitivesNEC::compute_worker(EdgesListGraph<_TVertexValue, _TEdgeWeig
 
     #ifdef __PRINT_API_PERFORMANCE_STATS__
     #pragma omp barrier
+    double t2 = omp_get_wtime();
     double work = vertices_count;
     cout << "compute time: " << (t2 - t1)*1000.0 << " ms" << endl;
     cout << "compute BW: " << sizeof(int)*(COMPUTE_INT_ELEMENTS)*work/((t2-t1)*1e9) << " GB/s" << endl << endl;

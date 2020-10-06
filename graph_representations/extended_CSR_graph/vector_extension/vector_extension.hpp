@@ -71,6 +71,10 @@ void VectorExtension<_TVertexValue, _TEdgeWeight>::init_from_graph(long long *_c
     free();
     alloc(edges_count + VECTOR_LENGTH);
 
+    this->csr_adjacent_ptrs_ptr = _csr_adjacent_ptrs;
+    this->first_vertex = _first_vertex;
+    this->last_vertex = _last_vertex;
+
     long long current_edge = 0;
     for(int cur_vector_segment = 0; cur_vector_segment < vector_segments_count; cur_vector_segment++)
     {
@@ -82,7 +86,8 @@ void VectorExtension<_TVertexValue, _TEdgeWeight>::init_from_graph(long long *_c
 
         for(int edge_pos = 0; edge_pos < cur_max_connections_count; edge_pos++)
         {
-            #pragma unroll
+            #pragma _NEC ivdep
+            #pragma _NEC vector
             for(int i = 0; i < VECTOR_LENGTH; i++)
             {
                 int src_id = vec_start + i;
@@ -107,3 +112,42 @@ void VectorExtension<_TVertexValue, _TEdgeWeight>::init_from_graph(long long *_c
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+template <typename _TVertexValue, typename _TEdgeWeight>
+template <typename _T>
+void VectorExtension<_TVertexValue, _TEdgeWeight>::copy_array_from_csr_to_ve(_T *_dst_ve_array, _T *_src_csr_array)
+{
+    long long current_edge = 0;
+    #pragma omp parallel for
+    for(int cur_vector_segment = 0; cur_vector_segment < vector_segments_count; cur_vector_segment++)
+    {
+        int vec_start = cur_vector_segment * VECTOR_LENGTH + first_vertex;
+        long long edge_ptr = vector_group_ptrs[cur_vector_segment];
+        int cur_max_connections_count = vector_group_sizes[cur_vector_segment];
+
+        #pragma _NEC novector
+        for(int edge_pos = 0; edge_pos < cur_max_connections_count; edge_pos++)
+        {
+            #pragma _NEC ivdep
+            #pragma _NEC vector
+            for(int i = 0; i < VECTOR_LENGTH; i++)
+            {
+                int src_id = vec_start + i;
+                int connections_count = csr_adjacent_ptrs_ptr[src_id + 1] - csr_adjacent_ptrs_ptr[src_id];
+                long long global_edge_pos = csr_adjacent_ptrs_ptr[src_id] + edge_pos;
+
+                if((src_id < last_vertex) && (edge_pos < connections_count))
+                {
+                    _dst_ve_array[current_edge + i] = _src_csr_array[global_edge_pos];
+                }
+                else
+                {
+                    _dst_ve_array[current_edge + i] = 0.0;
+                }
+            }
+        }
+    }
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
