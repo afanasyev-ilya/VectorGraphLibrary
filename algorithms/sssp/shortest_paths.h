@@ -53,6 +53,11 @@ public:
     void seq_dijkstra(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph, _TEdgeWeight *_distances,
                       int _source_vertex);
 
+    void seq_dijkstra(VectCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
+                      EdgesArrayNec<_TVertexValue, _TEdgeWeight, _TEdgeWeight> &_weights,
+                      _TEdgeWeight *_distances,
+                      int _source_vertex);
+
     #ifdef __USE_NEC_SX_AURORA__
     void nec_dijkstra(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph, _TEdgeWeight *_distances,
                       int _source_vertex, AlgorithmFrontierType _frontier_type = ALL_ACTIVE,
@@ -60,7 +65,9 @@ public:
     #endif
 
     #ifdef __USE_NEC_SX_AURORA__
-    void nec_dijkstra(VectCSRGraph<_TVertexValue, _TEdgeWeight> &_graph, _TEdgeWeight *_distances,
+    void nec_dijkstra(VectCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
+                      EdgesArrayNec<_TVertexValue, _TEdgeWeight, _TEdgeWeight> &_weights,
+                      _TEdgeWeight *_distances,
                       int _source_vertex);
     #endif
 

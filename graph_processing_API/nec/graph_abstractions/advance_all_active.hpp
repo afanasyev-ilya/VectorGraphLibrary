@@ -234,8 +234,8 @@ void GraphAbstractionsNEC<_TVertexValue, _TEdgeWeight>::ve_collective_vertex_pro
                 const int dst_id = _ve_adjacent_ids[internal_edge_pos];
                 const long long external_edge_pos = traversal * direction_shift + storage * edges_count + internal_edge_pos;
 
-                if(edge_pos < reg_real_connections_count[i])
-                    edge_op(src_id, dst_id, local_edge_pos, internal_edge_pos, vector_index, delayed_write);
+                if((src_id < _vertices_count) && (edge_pos < reg_real_connections_count[i]))
+                    edge_op(src_id, dst_id, local_edge_pos, external_edge_pos, vector_index, delayed_write);
             }
         }
 

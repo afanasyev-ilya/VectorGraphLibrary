@@ -49,29 +49,27 @@ int main(int argc, const char * argv[])
         GraphGenerationAPI<int, float>::random_uniform(graph, v, v * parser.get_avg_degree(), DIRECTED_GRAPH);
         cout << "graph generated!" << endl;
 
-        // EDGES LIST PREPROCESS
-        /*double t1 = omp_get_wtime();
-        graph.preprocess();
-        double t2 = omp_get_wtime();
-        cout << "outer preprocess time: " << t2 - t1 << " sec" << endl;*/
-
         VectCSRGraph<int, float> vect_csr_graph;
         vect_csr_graph.import_graph(graph);
+        //vect_csr_graph.print();
 
-        // EDGES LIST SSSP
+        EdgesArrayNec<int, float, float> weights(vect_csr_graph);
+        weights.set_all_random(10);
+
         ShortestPaths<int, float> sssp_operation(graph);
-        float *el_distances, *vect_csr_distances;
-        sssp_operation.allocate_result_memory(graph.get_vertices_count(), &el_distances);
+        float *seq_distances, *vect_csr_distances;
+        sssp_operation.allocate_result_memory(graph.get_vertices_count(), &seq_distances);
         sssp_operation.allocate_result_memory(graph.get_vertices_count(), &vect_csr_distances);
-        #pragma omp parallel
-        {};
-        sssp_operation.nec_bellamn_ford(graph, el_distances, 0);
+
+        sssp_operation.seq_dijkstra(vect_csr_graph, weights, seq_distances, 0);
 
         cout << "starting final check!!!! ----------------- " << endl;
 
-        sssp_operation.nec_dijkstra(vect_csr_graph, vect_csr_distances, 0);
+        sssp_operation.nec_dijkstra(vect_csr_graph, weights, vect_csr_distances, 0);
 
-        sssp_operation.free_result_memory(el_distances);
+        verify_results(seq_distances, vect_csr_distances, vect_csr_graph.get_vertices_count());
+
+        sssp_operation.free_result_memory(seq_distances);
         sssp_operation.free_result_memory(vect_csr_distances);
     }
     catch (string error)

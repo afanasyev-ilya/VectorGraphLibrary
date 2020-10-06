@@ -13,6 +13,8 @@
 #include "vector_extension/vector_extension.h"
 #include "../../common/memory_API/memory_API.h"
 
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 #define VECTOR_EXTENSION_SIZE 7
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -67,6 +69,7 @@ public:
     void resize(int _vertices_count, long long _edges_count);
     
     void print();
+    //void print_with_weights(EdgesArrayNec<_TVertexValue, _TEdgeWeight, _TEdgeWeight> &_weights, TraversalDirection _direction);
     void print_stats() {};
     
     void save_to_graphviz_file(string _file_name, VisualisationMode _visualisation_mode = VISUALISE_AS_DIRECTED);
@@ -119,8 +122,6 @@ public:
 
     void set_vertex_data_from_array(_TVertexValue *_values_array);
 
-    VectorExtension<_TVertexValue, _TEdgeWeight> *get_last_vertices_ve_ptr(){return &last_vertices_ve;}
-
     size_t get_graph_size_in_bytes();
 };
 
@@ -130,18 +131,18 @@ public:
 int vertices_count                   = input_graph.get_vertices_count(); \
 long long int edges_count            = input_graph.get_edges_count   (); \
 \
-long long    *vertex_pointers           = _graph.get_vertex_pointers   ();\
-int          *adjacent_ids            = _graph.get_adjacent_ids    ();\
-_TEdgeWeight *adjacent_weights        = _graph.get_adjacent_weights();\
+long long    *vertex_pointers           = input_graph.get_vertex_pointers   ();\
+int          *adjacent_ids            = input_graph.get_adjacent_ids    ();\
+_TEdgeWeight *adjacent_weights        = input_graph.get_adjacent_weights();\
 \
-int ve_vertices_count = (_graph.get_last_vertices_ve_ptr())->get_vertices_count();\
-int ve_starting_vertex = (_graph.get_last_vertices_ve_ptr())->get_starting_vertex();\
-int ve_vector_segments_count = (_graph.get_last_vertices_ve_ptr())->get_vector_segments_count();\
+int ve_vertices_count = (input_graph.get_ve_ptr())->get_vertices_count();\
+int ve_starting_vertex = (input_graph.get_ve_ptr())->get_starting_vertex();\
+int ve_vector_segments_count = (input_graph.get_ve_ptr())->get_vector_segments_count();\
 \
-long long *ve_vector_group_ptrs = (_graph.get_last_vertices_ve_ptr())->get_vector_group_ptrs();\
-int *ve_vector_group_sizes = (_graph.get_last_vertices_ve_ptr())->get_vector_group_sizes();\
-int *ve_adjacent_ids = (_graph.get_last_vertices_ve_ptr())->get_adjacent_ids();\
-_TEdgeWeight *ve_adjacent_weights = (_graph.get_last_vertices_ve_ptr())->get_adjacent_weights();\
+long long *ve_vector_group_ptrs = (input_graph.get_ve_ptr())->get_vector_group_ptrs();\
+int *ve_vector_group_sizes = (input_graph.get_ve_ptr())->get_vector_group_sizes();\
+int *ve_adjacent_ids = (input_graph.get_ve_ptr())->get_adjacent_ids();\
+_TEdgeWeight *ve_adjacent_weights = (input_graph.get_ve_ptr())->get_adjacent_weights();\
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -150,6 +151,7 @@ _TEdgeWeight *ve_adjacent_weights = (_graph.get_last_vertices_ve_ptr())->get_adj
 #include "gpu_api.hpp"
 #include "nec_api.hpp"
 #include "renumber.hpp"
+#include "print.hpp"
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 

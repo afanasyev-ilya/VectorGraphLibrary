@@ -44,12 +44,12 @@ using namespace std;
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #include "algorithms/sssp/shortest_paths.h"
-#include "algorithms/sswp/widest_paths.h"
+/*#include "algorithms/sswp/widest_paths.h"
 #include "algorithms/bfs/bfs.h"
 #include "algorithms/cc/cc.h"
 #include "algorithms/pr/pr.h"
 #include "algorithms/lp/lp.h"
-#include "algorithms/mf/mf.h"
+#include "algorithms/mf/mf.h"*/
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 

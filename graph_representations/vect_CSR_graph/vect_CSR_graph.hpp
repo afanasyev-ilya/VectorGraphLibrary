@@ -52,9 +52,14 @@ ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> *VectCSRGraph<_TVertexValue, _TEdg
     {
         return get_outgoing_graph_ptr();
     }
-    else// if(_direction == GATHER_DIRECTION)
+    else if(_direction == GATHER_TRAVERSAL)
     {
         return get_incoming_graph_ptr();
+    }
+    else
+    {
+        throw "Error in ExtendedCSRGraph::get_direction_graph_ptr, incorrect _direction type";
+        return NULL;
     }
 }
 
@@ -67,4 +72,13 @@ void VectCSRGraph<_TVertexValue, _TEdgeWeight>::print()
     incoming_edges->print();
 }
 
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+template <typename _TVertexValue, typename _TEdgeWeight>
+void VectCSRGraph<_TVertexValue, _TEdgeWeight>::print_with_weights(EdgesArrayNec<_TVertexValue, _TEdgeWeight, _TEdgeWeight> &_weights)
+{
+    outgoing_edges->print(_weights, SCATTER_TRAVERSAL);
+    incoming_edges->print(_weights, GATHER_TRAVERSAL);
+}
+*/
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

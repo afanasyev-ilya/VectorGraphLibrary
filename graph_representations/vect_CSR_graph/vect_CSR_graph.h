@@ -45,6 +45,8 @@ public:
     void convert_from_inner_representation(_T* _per_vertex_data); // vectCSR -> original
 
     void print();
+    //void print_with_weights(EdgesArrayNec<_TVertexValue, _TEdgeWeight, _TEdgeWeight> &_weights);
+
     void print_stats() {};
     void save_to_graphviz_file(string file_name, VisualisationMode _visualisation_mode = VISUALISE_AS_DIRECTED) {};
     bool save_to_binary_file(string file_name) {};

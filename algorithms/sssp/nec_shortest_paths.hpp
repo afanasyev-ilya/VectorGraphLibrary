@@ -329,61 +329,11 @@ void SSSP::nec_bellamn_ford(EdgesListGraph<_TVertexValue, _TEdgeWeight> &_graph,
 
 #ifdef __USE_NEC_SX_AURORA__
 template <typename _TVertexValue, typename _TEdgeWeight>
-void SSSP::nec_dijkstra(VectCSRGraph<_TVertexValue, _TEdgeWeight> &_graph, _TEdgeWeight *_distances,
+void SSSP::nec_dijkstra(VectCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
+                        EdgesArrayNec<_TVertexValue, _TEdgeWeight, _TEdgeWeight> &_weights,
+                        _TEdgeWeight *_distances,
                         int _source_vertex)
 {
-    /*GraphPrimitivesNEC graph_API(_graph); // here API connects to graph in order to process traversal type
-    FrontierNEC<_TVertexValue, _TEdgeWeight> frontier(_graph);
-
-    frontier.set_all_active();
-
-    int vect_csr_source_vertex = 0; //_graph.convert_to(_source_vertex); // ??? TODO
-
-    auto init_distances = [_distances, vect_csr_source_vertex] (int src_id, int connections_count, int vector_index)
-    {
-        if(src_id == vect_csr_source_vertex)
-            _distances[src_id] = 0;
-        else
-            _distances[src_id] = FLT_MAX;
-    };
-    graph_API.compute(_graph, frontier, init_distances);
-
-    int changes = 0;
-    do
-    {
-        changes = 0;
-
-        auto edge_op_push = [adjacent_weights, _distances](int src_id, int dst_id, int local_edge_pos,
-                    long long int global_edge_pos, int vector_index, DelayedWriteNEC &delayed_write)
-        {
-            float weight = weights.get(global_edge_pos, src_id);
-            float dst_weight = _distances[dst_id];
-            float src_weight = _distances[src_id];
-            if(dst_weight > src_weight + weight)
-            {
-                _distances[dst_id] = src_weight + weight;
-            }
-        };
-
-
-
-        graph_API.scatter(_graph, frontier, edge_op_push, EMPTY_VERTEX_OP, EMPTY_VERTEX_OP,
-                          edge_op_push, EMPTY_VERTEX_OP, EMPTY_VERTEX_OP);
-
-    }
-    while(changes);*/
-
-    EdgesArrayNec<_TVertexValue, _TEdgeWeight, float> weights(_graph);
-
-    _graph.print();
-
-    weights.set_all_random(10);
-    weights.print();
-
-    cout << "weight: " << weights.get(0, 1, SCATTER_TRAVERSAL) << endl;
-    cout << "weight: " << weights.get(3, 7, SCATTER_TRAVERSAL) << endl;
-    cout << "weight: " << weights.get(6, 8, SCATTER_TRAVERSAL) << endl;
-
     GraphAbstractionsNEC<_TVertexValue, _TEdgeWeight> graph_API(_graph, SCATTER_TRAVERSAL);
     FrontierNEC<_TVertexValue, _TEdgeWeight> frontier(_graph);
 
@@ -400,23 +350,28 @@ void SSSP::nec_dijkstra(VectCSRGraph<_TVertexValue, _TEdgeWeight> &_graph, _TEdg
     };
     graph_API.compute(_graph, frontier, init_distances);
 
-    auto edge_op_push = [_distances, &weights](int src_id, int dst_id, int local_edge_pos,
-                    long long int global_edge_pos, int vector_index, DelayedWriteNEC &delayed_write)
+    int changes = 0;
+    do
     {
-        float weight = weights.get(global_edge_pos);
-        float dst_weight = _distances[dst_id];
-        float src_weight = _distances[src_id];
-        if(dst_weight > src_weight + weight)
+        changes = 0;
+
+        auto edge_op_push = [_distances, &_weights, &changes](int src_id, int dst_id, int local_edge_pos,
+                        long long int global_edge_pos, int vector_index, DelayedWriteNEC &delayed_write)
         {
-            _distances[dst_id] = src_weight + weight;
-        }
-    };
+            float weight = _weights.get(global_edge_pos);
+            float dst_weight = _distances[dst_id];
+            float src_weight = _distances[src_id];
+            if(dst_weight > src_weight + weight)
+            {
+                _distances[dst_id] = src_weight + weight;
+                changes = 1;
+            }
+        };
 
-    graph_API.scatter(_graph, frontier, edge_op_push, EMPTY_VERTEX_OP, EMPTY_VERTEX_OP,
-                      edge_op_push, EMPTY_VERTEX_OP, EMPTY_VERTEX_OP);
-
-    for(int i = 0; i < 20; i++)
-        cout << _distances[i] << endl;
+        graph_API.scatter(_graph, frontier, edge_op_push, EMPTY_VERTEX_OP, EMPTY_VERTEX_OP,
+                          edge_op_push, EMPTY_VERTEX_OP, EMPTY_VERTEX_OP);
+    }
+    while(changes);
 }
 #endif
 

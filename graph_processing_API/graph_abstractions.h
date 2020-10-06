@@ -2,6 +2,7 @@
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+#include "framework_types.h"
 #include "frontier.h"
 #include "nec/edges_array/edges_array.h"
 #include "nec/graph_abstractions/graph_abstractions_nec.h"
