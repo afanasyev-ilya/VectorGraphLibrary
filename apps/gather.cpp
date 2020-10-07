@@ -3,7 +3,7 @@
 #define INT_ELEMENTS_PER_EDGE 5.0
 #define VECTOR_ENGINE_THRESHOLD_VALUE VECTOR_LENGTH * MAX_SX_AURORA_THREADS * 4096
 #define VECTOR_CORE_THRESHOLD_VALUE 5*VECTOR_LENGTH
-//#define __PRINT_API_PERFORMANCE_STATS__
+#define __PRINT_API_PERFORMANCE_STATS__
 #define __PRINT_SAMPLES_PERFORMANCE_STATS__
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -45,9 +45,10 @@ int main(int argc, const char * argv[])
         // generate random graph
         EdgesListGraph el_graph;
         int v = pow(2.0, parser.get_scale());
-        //GraphGenerationAPI::random_uniform(el_graph, v, v * parser.get_avg_degree(), DIRECTED_GRAPH);
-        GraphGenerationAPI::R_MAT(el_graph, v, v * parser.get_avg_degree(), 57, 19, 19, 5, DIRECTED_GRAPH);
-        cout << "graph generated!" << endl;
+        if(parser.get_graph_type() == RMAT)
+            GraphGenerationAPI::R_MAT(el_graph, v, v * parser.get_avg_degree(), 57, 19, 19, 5, DIRECTED_GRAPH);
+        else if(parser.get_graph_type() == RANDOM_UNIFORM)
+            GraphGenerationAPI::random_uniform(el_graph, v, v * parser.get_avg_degree(), DIRECTED_GRAPH);
 
         // create vect CSR graph
         VectCSRGraph graph;
@@ -59,14 +60,22 @@ int main(int argc, const char * argv[])
 
         // allocate vertices array
         VerticesArrayNec<float> seq_distances(graph);
-        VerticesArrayNec<float> vect_csr_distances(graph);
+        VerticesArrayNec<float> push_distances(graph);
+        VerticesArrayNec<float> pull_distances(graph);
 
         // run SSSP algorithms
-        ShortestPaths::seq_dijkstra(graph, weights, seq_distances, 1);
-        ShortestPaths::nec_dijkstra(graph, weights, vect_csr_distances, 1);
+        ShortestPaths::nec_dijkstra(graph, weights, push_distances, 0, ALL_ACTIVE, PUSH_TRAVERSAL);
+
+        // run SSSP algorithms
+        ShortestPaths::nec_dijkstra(graph, weights, pull_distances, 0, ALL_ACTIVE, PULL_TRAVERSAL);
 
         // check results
-        verify_results(seq_distances.get_ptr(), vect_csr_distances.get_ptr(), graph.get_vertices_count());
+        ShortestPaths::seq_dijkstra(graph, weights, seq_distances, 0);
+        cout << "push check" << endl;
+        verify_results(push_distances.get_ptr(), seq_distances.get_ptr(), graph.get_vertices_count());
+
+        cout << "pull check" << endl;
+        verify_results(pull_distances.get_ptr(), seq_distances.get_ptr(), graph.get_vertices_count());
     }
     catch (string error)
     {

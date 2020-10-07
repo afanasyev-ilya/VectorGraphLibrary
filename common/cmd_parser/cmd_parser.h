@@ -15,6 +15,7 @@ private:
     
     int scale;
     int avg_degree;
+    SyntheticGraphType graph_type;
 
     string graph_file_name;
 
@@ -33,6 +34,8 @@ public:
     string get_graph_file_name() { return graph_file_name; };
     bool get_check_flag() { return check_flag; };
     int get_number_of_rounds() { return number_of_rounds; };
+
+    SyntheticGraphType get_graph_type() {return graph_type;};
 
     AlgorithmFrontierType get_algorithm_frontier_type() {return algorithm_frontier_type;};
     AlgorithmTraversalType get_traversal_direction() {return traversal_direction;};

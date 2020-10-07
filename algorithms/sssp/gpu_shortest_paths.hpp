@@ -3,7 +3,6 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #ifdef __USE_GPU__
-
 void SSSP::gpu_dijkstra(ExtendedCSRGraph &_graph,
                         _TEdgeWeight *_distances,
                         int _source_vertex,

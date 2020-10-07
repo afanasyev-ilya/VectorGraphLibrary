@@ -56,6 +56,7 @@ void SSSP::seq_dijkstra(VectCSRGraph &_graph, EdgesArrayNec<_T> &_weights, Verti
             {
                 // Updating distance of dst_id
                 _distances[dst_id] = _distances[src_id] + weight;
+
                 pq.push(make_pair(_distances[dst_id], dst_id));
             }
         }

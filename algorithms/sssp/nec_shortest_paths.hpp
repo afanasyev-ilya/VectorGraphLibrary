@@ -258,24 +258,6 @@ void SSSP::nec_dijkstra_all_active(ExtendedCSRGraph &_graph,
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #ifdef __USE_NEC_SX_AURORA__
-
-void SSSP::nec_dijkstra(ExtendedCSRGraph &_graph,
-                        _TEdgeWeight *_distances,
-                        int _source_vertex,
-                        AlgorithmFrontierType _frontier_type,
-                        AlgorithmTraversalType _traversal_direction)
-{
-    if(_frontier_type == PARTIAL_ACTIVE)
-        nec_dijkstra_partial_active(_graph, _distances, _source_vertex);
-    else if(_frontier_type == ALL_ACTIVE)
-        nec_dijkstra_all_active(_graph, _distances, _source_vertex, _traversal_direction);
-}
-#endif
-
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-#ifdef __USE_NEC_SX_AURORA__
-
 void SSSP::nec_bellamn_ford(EdgesListGraph &_graph,
                             _TEdgeWeight *_distances,
                             int _source_vertex)
@@ -330,8 +312,10 @@ void SSSP::nec_bellamn_ford(EdgesListGraph &_graph,
 
 #ifdef __USE_NEC_SX_AURORA__
 template <typename _T>
-void SSSP::nec_dijkstra(VectCSRGraph &_graph, EdgesArrayNec<_T> &_weights, VerticesArrayNec<_T> &_distances,
-                        int _source_vertex)
+void SSSP::nec_dijkstra_all_active_push(VectCSRGraph &_graph,
+                                        EdgesArrayNec<_T> &_weights,
+                                        VerticesArrayNec<_T> &_distances,
+                                        int _source_vertex)
 {
     GraphAbstractionsNEC graph_API(_graph, SCATTER_TRAVERSAL);
     FrontierNEC frontier(_graph);
@@ -364,6 +348,7 @@ void SSSP::nec_dijkstra(VectCSRGraph &_graph, EdgesArrayNec<_T> &_weights, Verti
                 _T weight = _weights.get(global_edge_pos);
                 _T dst_weight = _distances[dst_id];
                 _T src_weight = _distances[src_id];
+
                 if(dst_weight > src_weight + weight)
                 {
                     _distances[dst_id] = src_weight + weight;
@@ -378,6 +363,55 @@ void SSSP::nec_dijkstra(VectCSRGraph &_graph, EdgesArrayNec<_T> &_weights, Verti
         }
     }
     while(changes);
+}
+#endif
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+#ifdef __USE_NEC_SX_AURORA__
+template <typename _T>
+void SSSP::nec_dijkstra_all_active_pull(VectCSRGraph &_graph,
+                                        EdgesArrayNec<_T> &_weights,
+                                        VerticesArrayNec<_T> &_distances,
+                                        int _source_vertex)
+{
+    GraphAbstractionsNEC graph_API(_graph, GATHER_TRAVERSAL);
+    FrontierNEC frontier(_graph);
+
+    graph_API.change_traversal_direction(GATHER_TRAVERSAL);
+    frontier.set_all_active();
+
+    int vect_csr_source_vertex = _source_vertex;
+    auto init_distances = [&_distances, vect_csr_source_vertex] (int src_id, int connections_count, int vector_index)
+    {
+        if(src_id == vect_csr_source_vertex)
+            _distances[src_id] = 0;
+        else
+            _distances[src_id] = FLT_MAX;
+    };
+    graph_API.compute(_graph, frontier, init_distances);
+}
+#endif
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+#ifdef __USE_NEC_SX_AURORA__
+template <typename _T>
+void SSSP::nec_dijkstra(VectCSRGraph &_graph,
+                        EdgesArrayNec<_T> &_weights,
+                        VerticesArrayNec<_T> &_distances,
+                        int _source_vertex,
+                        AlgorithmFrontierType _frontier_type,
+                        AlgorithmTraversalType _traversal_direction)
+{
+    if(_frontier_type == ALL_ACTIVE)
+    {
+        if(_traversal_direction == PUSH_TRAVERSAL)
+            nec_dijkstra_all_active_push(_graph, _weights, _distances, _source_vertex);
+        else if(_traversal_direction == PULL_TRAVERSAL)
+            nec_dijkstra_all_active_pull(_graph, _weights, _distances, _source_vertex);
+    }
+
 }
 #endif
 

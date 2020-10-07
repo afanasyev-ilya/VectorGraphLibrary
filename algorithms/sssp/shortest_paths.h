@@ -22,13 +22,21 @@ class ShortestPaths
 private:
     double performance;
 
-    /*#ifdef __USE_NEC_SX_AURORA__
-    void nec_dijkstra_all_active(ExtendedCSRGraph &_graph,
-                                 _TEdgeWeight *_distances, int _source_vertex,
-                                 AlgorithmTraversalType _traversal_direction);
+    #ifdef __USE_NEC_SX_AURORA__
+    template <typename _T>
+    static void nec_dijkstra_all_active_push(VectCSRGraph &_graph, EdgesArrayNec<_T> &_weights,
+                                             VerticesArrayNec<_T> &_distances,
+                                             int _source_vertex);
     #endif
 
     #ifdef __USE_NEC_SX_AURORA__
+    template <typename _T>
+    static void nec_dijkstra_all_active_pull(VectCSRGraph &_graph, EdgesArrayNec<_T> &_weights,
+                                             VerticesArrayNec<_T> &_distances,
+                                             int _source_vertex);
+    #endif
+
+    /*#ifdef __USE_NEC_SX_AURORA__
     void nec_dijkstra_partial_active(ExtendedCSRGraph &_graph,
                                      _TEdgeWeight *_distances,
                                      int _source_vertex);
@@ -47,7 +55,8 @@ public:
     #ifdef __USE_NEC_SX_AURORA__
     template <typename _T>
     static void nec_dijkstra(VectCSRGraph &_graph, EdgesArrayNec<_T> &_weights, VerticesArrayNec<_T> &_distances,
-                             int _source_vertex);
+                             int _source_vertex, AlgorithmFrontierType _frontier_type = ALL_ACTIVE,
+                             AlgorithmTraversalType _traversal_direction = PUSH_TRAVERSAL);
     #endif
 
     /*#ifdef __USE_NEC_SX_AURORA__

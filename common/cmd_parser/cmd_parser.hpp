@@ -6,6 +6,7 @@ AlgorithmCommandOptionsParser::AlgorithmCommandOptionsParser()
 {
     scale = 10;
     avg_degree = 5;
+    graph_type = RANDOM_UNIFORM;
     compute_mode = GENERATE_NEW_GRAPH;
     algorithm_frontier_type = ALL_ACTIVE;
     traversal_direction = PUSH_TRAVERSAL;
@@ -40,7 +41,17 @@ void AlgorithmCommandOptionsParser::parse_args(int _argc, const char * _argv[])
         {
             scale = atoi(_argv[++i]);
         }
-        
+
+        if ((option.compare("-random_uniform") == 0) || (option.compare("-ru") == 0))
+        {
+            graph_type = RANDOM_UNIFORM;
+        }
+
+        if ((option.compare("-rmat") == 0) || (option.compare("-RMAT") == 0))
+        {
+            graph_type = RMAT;
+        }
+
         if ((option.compare("-edges") == 0) || (option.compare("-e") == 0))
         {
             avg_degree = atoi(_argv[++i]);
