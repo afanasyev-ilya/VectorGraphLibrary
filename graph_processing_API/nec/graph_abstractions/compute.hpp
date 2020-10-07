@@ -2,7 +2,6 @@
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-
 template <typename ComputeOperation>
 void GraphAbstractionsNEC::compute_worker(ExtendedCSRGraph &_graph,
                                                                        FrontierNEC &_frontier,
@@ -66,9 +65,7 @@ void GraphAbstractionsNEC::compute_worker(ExtendedCSRGraph &_graph,
     #endif
 }
 
-
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
 
 template <typename ComputeOperation>
 void GraphAbstractionsNEC::compute(VectCSRGraph &_graph,

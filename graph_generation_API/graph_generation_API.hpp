@@ -49,14 +49,61 @@ void GraphGenerationAPI::random_uniform(EdgesListGraph &_graph,
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+struct BatchedRand
+{
+    int rand_buffer_size;
+    int *rand_buffer;
+    int rand_pos;
+
+    BatchedRand()
+    {
+        rand_buffer_size = 100000;
+        MemoryAPI::allocate_array(&rand_buffer, rand_buffer_size);
+        rand_pos = 0;
+        generate_new_portion();
+    }
+
+    ~BatchedRand()
+    {
+        MemoryAPI::free_array(rand_buffer);
+    }
+
+    void generate_new_portion()
+    {
+        cout << "gen " << omp_get_thread_num() << endl;
+        RandomGenerationAPI rng_api;
+        rng_api.generate_array_of_random_values<int>(rand_buffer, rand_buffer_size, 100);
+    }
+
+    inline int rand()
+    {
+        if(rand_pos >= rand_buffer_size)
+        {
+            generate_new_portion();
+            rand_pos = 0;
+        }
+
+        int rand_val = rand_buffer[rand_pos];
+        rand_pos++;
+        return rand_val;
+    }
+};
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 void GraphGenerationAPI::R_MAT(EdgesListGraph &_graph,
                                int _vertices_count, long long _edges_count,
                                int _a_prob, int _b_prob, int _c_prob,
                                int _d_prob, DirectionType _direction_type)
 {
+    double t1 = omp_get_wtime();
     int n = (int)log2(_vertices_count);
     int vertices_count = _vertices_count;
     long long edges_count = _edges_count;
+
+    int directed_edges_count = edges_count;
+    if(!_direction_type)
+        edges_count *= 2;
     
     int step = 1;
     if(_direction_type)
@@ -71,8 +118,6 @@ void GraphGenerationAPI::R_MAT(EdgesListGraph &_graph,
     
     int *src_ids = _graph.get_src_ids();
     int *dst_ids = _graph.get_dst_ids();
-    
-    RandomGenerationAPI rng_api;
 
     int threads_count = omp_get_max_threads();
     
@@ -131,6 +176,14 @@ void GraphGenerationAPI::R_MAT(EdgesListGraph &_graph,
             }
         }
     }
+
+    double t2 = omp_get_wtime();
+
+    #ifdef __PRINT_API_PERFORMANCE_STATS__
+    double work_per_edge = sizeof(int)*2.0;
+    cout << "rmat gen time: " << t2 - t1 << " sec" << endl;
+    cout << "rmat gen bandwidth: " << work_per_edge*directed_edges_count / ((t2 - t1)*1e9) << " GB/s" << endl;
+    #endif
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -142,6 +195,7 @@ struct GenSCCdata
     int edges_count;
 };
 
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 void GraphGenerationAPI::SCC_uniform(EdgesListGraph &_graph,
                                      int _vertices_count, int _min_scc_size, int _max_scc_size)

@@ -2,7 +2,6 @@
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-
 template <typename EdgeOperation, typename VertexPreprocessOperation,
         typename VertexPostprocessOperation>
 void GraphAbstractionsNEC::vector_engine_per_vertex_kernel_all_active(const long long *_vertex_pointers,
@@ -77,7 +76,6 @@ void GraphAbstractionsNEC::vector_engine_per_vertex_kernel_all_active(const long
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-
 template <typename EdgeOperation, typename VertexPreprocessOperation,
         typename VertexPostprocessOperation>
 void GraphAbstractionsNEC::vector_core_per_vertex_kernel_all_active(const long long *_vertex_pointers,
@@ -149,7 +147,6 @@ void GraphAbstractionsNEC::vector_core_per_vertex_kernel_all_active(const long l
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
 
 template <typename EdgeOperation, typename VertexPreprocessOperation,
         typename VertexPostprocessOperation>

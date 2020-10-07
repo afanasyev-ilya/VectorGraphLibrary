@@ -2,6 +2,23 @@
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+#include "../vector_register/vector_registers.h"
+#include "../delayed_write/delayed_write_nec.h"
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+auto EMPTY_EDGE_OP = [] (int src_id, int dst_id, int local_edge_pos, long long int global_edge_pos, int vector_index,
+                         DelayedWriteNEC &delayed_write) {};
+auto EMPTY_VERTEX_OP = [] (int src_id, int connections_count, int vector_index, DelayedWriteNEC &delayed_write){};
+
+auto ALL_ACTIVE_FRONTIER_CONDITION = [] (int src_id)->int
+{
+    return IN_FRONTIER_FLAG;
+};
+
+auto EMPTY_COMPUTE_OP = [] (int src_id, int connections_count, int vector_index) {};
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 class GraphAbstractionsNEC
 {
@@ -70,8 +87,7 @@ private:
                                                                   const int _first_edge);
 public:
     // attaches graph-processing API to the specific graph
-    GraphAbstractionsNEC(VectCSRGraph &_graph,
-                         TraversalDirection _initial_traversal = SCATTER_TRAVERSAL);
+    GraphAbstractionsNEC(VectCSRGraph &_graph, TraversalDirection _initial_traversal = SCATTER_TRAVERSAL);
 
     // change graph traversal direction (from GATHER to SCATTER or vice versa)
     void change_traversal_direction(TraversalDirection _new_direction);
@@ -96,6 +112,12 @@ public:
                  ComputeOperation &&compute_op);
 };
 
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+inline int get_vector_index(int index)
+{
+    return index - VECTOR_LENGTH*(index >> VECTOR_LENGTH_POW);
+}
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 

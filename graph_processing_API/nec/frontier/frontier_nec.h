@@ -6,8 +6,7 @@
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-
-class FrontierNEC
+class FrontierNEC // TODO inheritance
 {
 private:
     int *flags;
@@ -27,7 +26,6 @@ private:
     int current_size;
     int max_size;
 public:
-
     FrontierNEC(ExtendedCSRGraph &_graph);
 
     FrontierNEC(VectCSRGraph &_graph);
@@ -50,9 +48,6 @@ public:
     inline void add_vertices(ExtendedCSRGraph &_graph, int *_vertex_ids, int _number_of_vertices);
 
     inline void clear() { current_size = 0; };
-
-    friend class GraphPrimitivesNEC;
-
 
     friend class GraphAbstractionsNEC;
 };

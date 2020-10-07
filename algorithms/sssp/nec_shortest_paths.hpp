@@ -1,7 +1,7 @@
 #pragma once
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
+/*
 #ifdef __USE_NEC_SX_AURORA__
 
 void SSSP::nec_dijkstra_partial_active(ExtendedCSRGraph &_graph,
@@ -326,12 +326,11 @@ void SSSP::nec_bellamn_ford(EdgesListGraph &_graph,
 #endif
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+*/
 
 #ifdef __USE_NEC_SX_AURORA__
-
-void SSSP::nec_dijkstra(VectCSRGraph &_graph,
-                        EdgesArrayNec<_TVertexValue, _TEdgeWeight, _TEdgeWeight> &_weights,
-                        _TEdgeWeight *_distances,
+template <typename _T>
+void SSSP::nec_dijkstra(VectCSRGraph &_graph, EdgesArrayNec<_T> &_weights, VerticesArrayNec<_T> &_distances,
                         int _source_vertex)
 {
     GraphAbstractionsNEC graph_API(_graph, SCATTER_TRAVERSAL);
@@ -341,7 +340,7 @@ void SSSP::nec_dijkstra(VectCSRGraph &_graph,
     frontier.set_all_active();
 
     int vect_csr_source_vertex = _source_vertex;
-    auto init_distances = [_distances, vect_csr_source_vertex] (int src_id, int connections_count, int vector_index)
+    auto init_distances = [&_distances, vect_csr_source_vertex] (int src_id, int connections_count, int vector_index)
     {
         if(src_id == vect_csr_source_vertex)
             _distances[src_id] = 0;
@@ -355,21 +354,28 @@ void SSSP::nec_dijkstra(VectCSRGraph &_graph,
     {
         changes = 0;
 
-        auto edge_op_push = [_distances, &_weights, &changes](int src_id, int dst_id, int local_edge_pos,
-                        long long int global_edge_pos, int vector_index, DelayedWriteNEC &delayed_write)
+        #pragma omp parallel shared(changes)
         {
-            float weight = _weights.get(global_edge_pos);
-            float dst_weight = _distances[dst_id];
-            float src_weight = _distances[src_id];
-            if(dst_weight > src_weight + weight)
-            {
-                _distances[dst_id] = src_weight + weight;
-                changes = 1;
-            }
-        };
+            NEC_REGISTER_INT(was_changes, 0);
 
-        graph_API.scatter(_graph, frontier, edge_op_push, EMPTY_VERTEX_OP, EMPTY_VERTEX_OP,
-                          edge_op_push, EMPTY_VERTEX_OP, EMPTY_VERTEX_OP);
+            auto edge_op_push = [&_distances, &_weights, &reg_was_changes](int src_id, int dst_id, int local_edge_pos,
+                            long long int global_edge_pos, int vector_index, DelayedWriteNEC &delayed_write)
+            {
+                _T weight = _weights.get(global_edge_pos);
+                _T dst_weight = _distances[dst_id];
+                _T src_weight = _distances[src_id];
+                if(dst_weight > src_weight + weight)
+                {
+                    _distances[dst_id] = src_weight + weight;
+                    reg_was_changes[vector_index] = 1;
+                }
+            };
+
+            graph_API.scatter(_graph, frontier, edge_op_push, EMPTY_VERTEX_OP, EMPTY_VERTEX_OP,
+                              edge_op_push, EMPTY_VERTEX_OP, EMPTY_VERTEX_OP);
+
+            changes += register_sum_reduce(reg_was_changes);
+        }
     }
     while(changes);
 }

@@ -38,13 +38,14 @@ using namespace std;
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+#include "graph_processing_API/vertices_array.h"
 #include "graph_processing_API/edges_array.h"
-//#include "graph_processing_API/graph_abstractions.h"
-//#include "graph_processing_API/frontier.h"
+#include "graph_processing_API/frontier.h"
+#include "graph_processing_API/graph_abstractions.h"
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-//#include "algorithms/sssp/shortest_paths.h"
+#include "algorithms/sssp/shortest_paths.h"
 /*#include "algorithms/sswp/widest_paths.h"
 #include "algorithms/bfs/bfs.h"
 #include "algorithms/cc/cc.h"
