@@ -7,12 +7,14 @@ template <typename _T>
 class VerticesArrayNec
 {
 private:
+    DataDirection direction;
+
     VectCSRGraph *graph_ptr;
 
     _T *vertices_data;
     int vertices_count;
 public:
-    VerticesArrayNec(VectCSRGraph &_graph);
+    VerticesArrayNec(VectCSRGraph &_graph, DataDirection _direction = SCATTER);
 
     VerticesArrayNec(const VerticesArrayNec<_T> &_copy_obj);
 
@@ -21,6 +23,9 @@ public:
 
     inline _T& operator[](int _idx) { return vertices_data[_idx]; }
     const inline _T& operator[] (int _idx) const { return vertices_data[_idx]; };
+
+    DataDirection get_direction() {return direction;};
+    void set_direction(DataDirection _direction) {direction = _direction;};
 
     _T *get_ptr() {return vertices_data;};
 

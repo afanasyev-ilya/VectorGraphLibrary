@@ -57,11 +57,15 @@ int main(int argc, const char * argv[])
         // create graph weights and set them random
         EdgesArrayNec<float> weights(graph);
         weights.set_all_random(MAX_WEIGHT);
+        //weights.set_all_constant(1.0);
+
+        //graph.print();
+        graph.print_with_weights(weights);
 
         // allocate vertices array
-        VerticesArrayNec<float> seq_distances(graph);
-        VerticesArrayNec<float> push_distances(graph);
-        VerticesArrayNec<float> pull_distances(graph);
+        VerticesArrayNec<float> seq_distances(graph, SCATTER);
+        VerticesArrayNec<float> push_distances(graph, SCATTER);
+        VerticesArrayNec<float> pull_distances(graph, GATHER);
 
         // run SSSP algorithms
         ShortestPaths::nec_dijkstra(graph, weights, push_distances, 0, ALL_ACTIVE, PUSH_TRAVERSAL);
@@ -71,6 +75,22 @@ int main(int argc, const char * argv[])
 
         // check results
         ShortestPaths::seq_dijkstra(graph, weights, seq_distances, 0);
+
+        cout << "push" << endl;
+        push_distances.print();
+        graph.reorder_to_original(push_distances);
+        push_distances.print();
+
+        cout << "pull" << endl;
+        pull_distances.print();
+        graph.reorder_to_original(pull_distances);
+        pull_distances.print();
+
+        cout << "seq" << endl;
+        seq_distances.print();
+        graph.reorder_to_original(seq_distances);
+        seq_distances.print();
+
         cout << "push check" << endl;
         verify_results(push_distances.get_ptr(), seq_distances.get_ptr(), graph.get_vertices_count());
 

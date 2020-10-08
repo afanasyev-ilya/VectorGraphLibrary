@@ -2,26 +2,23 @@
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-
 VectCSRGraph::VectCSRGraph(int _vertices_count, long long _edges_count)
 {
     this->vertices_count = _vertices_count;
     this->edges_count = _edges_count;
-    outgoing_edges = new ExtendedCSRGraph(_vertices_count, _edges_count);
-    incoming_edges = new ExtendedCSRGraph(_vertices_count, _edges_count);
+    outgoing_graph = new ExtendedCSRGraph(_vertices_count, _edges_count);
+    incoming_graph = new ExtendedCSRGraph(_vertices_count, _edges_count);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
 
 VectCSRGraph::~VectCSRGraph()
 {
-    delete outgoing_edges;
-    delete incoming_edges;
+    delete outgoing_graph;
+    delete incoming_graph;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
 
 void VectCSRGraph::import_graph(EdgesListGraph &_el_graph)
 {
@@ -29,14 +26,14 @@ void VectCSRGraph::import_graph(EdgesListGraph &_el_graph)
     this->edges_count = _el_graph.get_edges_count();
 
     double t1 = omp_get_wtime();
-    outgoing_edges->import_and_preprocess(_el_graph);
+    outgoing_graph->import_and_preprocess(_el_graph);
     double t2 = omp_get_wtime();
     cout << "outgoing conversion time: " << t2 - t1 << " sec" << endl;
 
     _el_graph.transpose();
 
     t1 = omp_get_wtime();
-    incoming_edges->import_and_preprocess(_el_graph);
+    incoming_graph->import_and_preprocess(_el_graph);
     t2 = omp_get_wtime();
     cout << "incoming conversion time: " << t2 - t1 << " sec" << endl;
 
@@ -44,7 +41,6 @@ void VectCSRGraph::import_graph(EdgesListGraph &_el_graph)
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
 
 ExtendedCSRGraph *VectCSRGraph::get_direction_graph_ptr(TraversalDirection _direction)
 {
@@ -63,22 +59,4 @@ ExtendedCSRGraph *VectCSRGraph::get_direction_graph_ptr(TraversalDirection _dire
     }
 }
 
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-
-void VectCSRGraph::print()
-{
-    outgoing_edges->print();
-    incoming_edges->print();
-}
-
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-
-void VectCSRGraph::print_with_weights(EdgesArrayNec<_TVertexValue, _TEdgeWeight, _TEdgeWeight> &_weights)
-{
-    outgoing_edges->print(_weights, SCATTER_TRAVERSAL);
-    incoming_edges->print(_weights, GATHER_TRAVERSAL);
-}
-*/
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

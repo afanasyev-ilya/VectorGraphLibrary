@@ -11,10 +11,19 @@
 #include "../../common/cmd_parser/parser_options.h"
 #include "vector_extension/vector_extension.h"
 #include "../../common/memory_API/memory_API.h"
+#include "../../graph_processing_API/framework_types.h"
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #define VECTOR_EXTENSION_SIZE 7
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+template <typename _T>
+class VerticesArrayNec;
+
+template <typename _T>
+class EdgesArrayNec;
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -24,8 +33,8 @@ private:
     long long     *vertex_pointers;
     int           *adjacent_ids;
 
-    int *forward_conversion;
-    int *backward_conversion;
+    int *forward_conversion; // forward = to sorted, forward(i) = sorted
+    int *backward_conversion; // backward = to original, backward(i) = original
 
     VectorExtension last_vertices_ve;
     
@@ -66,7 +75,8 @@ public:
     void resize(int _vertices_count, long long _edges_count);
     
     void print();
-    //void print_with_weights(EdgesArrayNec<_TVertexValue, _TEdgeWeight, _TEdgeWeight> &_weights, TraversalDirection _direction);
+    template <typename _T>
+    void print_with_weights(EdgesArrayNec<_T> &_weights, TraversalDirection _direction);
     void print_stats() {};
     
     void save_to_graphviz_file(string _file_name, VisualisationMode _visualisation_mode = VISUALISE_AS_DIRECTED);
@@ -85,9 +95,15 @@ public:
     inline long long get_csr_edge_id(int _src_id, int _dst_id);
     inline long long get_ve_edge_id(int _src_id, int _dst_id) { return last_vertices_ve.get_ve_edge_id(_src_id, _dst_id); };
 
-    // renumber API
-    int renumber_vertex_id(int _id); // TODO rename/rework
-    void renumber_vertex_array(float *_input_array, float *_output_array); // TODO rename/rework
+    int reorder_to_sorted(int _vertex_id);
+
+    int reorder_to_original(int _vertex_id);
+
+    template <typename _T>
+    void reorder_to_sorted(_T *_data, _T *_buffer);
+
+    template <typename _T>
+    void reorder_to_original(_T *_data, _T *_buffer);
     
     #ifdef __USE_GPU__
     void move_to_device();
@@ -134,7 +150,7 @@ int *ve_adjacent_ids = (input_graph.get_ve_ptr())->get_adjacent_ids();\
 #include "preprocess.hpp"
 #include "gpu_api.hpp"
 #include "nec_api.hpp"
-#include "renumber.hpp"
+#include "reorder.hpp"
 #include "print.hpp"
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

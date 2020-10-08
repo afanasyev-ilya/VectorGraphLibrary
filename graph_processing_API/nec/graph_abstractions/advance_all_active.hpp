@@ -5,13 +5,13 @@
 template <typename EdgeOperation, typename VertexPreprocessOperation,
         typename VertexPostprocessOperation>
 void GraphAbstractionsNEC::vector_engine_per_vertex_kernel_all_active(const long long *_vertex_pointers,
-                                                                    const int *_adjacent_ids,
-                                                                    const int _first_vertex,
-                                                                    const int _last_vertex,
-                                                                    EdgeOperation edge_op,
-                                                                    VertexPreprocessOperation vertex_preprocess_op,
-                                                                    VertexPostprocessOperation vertex_postprocess_op,
-                                                                    const int _first_edge)
+                                                                      const int *_adjacent_ids,
+                                                                      const int _first_vertex,
+                                                                      const int _last_vertex,
+                                                                      EdgeOperation edge_op,
+                                                                      VertexPreprocessOperation vertex_preprocess_op,
+                                                                      VertexPostprocessOperation vertex_postprocess_op,
+                                                                      const int _first_edge)
 {
     #ifdef __PRINT_API_PERFORMANCE_STATS__
         #pragma omp barrier
@@ -46,7 +46,7 @@ void GraphAbstractionsNEC::vector_engine_per_vertex_kernel_all_active(const long
         for (int local_edge_pos = 0; local_edge_pos < connections_count; local_edge_pos++)
         {
             const long long internal_edge_pos = start + local_edge_pos;
-            const int vector_index = get_vector_index(internal_edge_pos);
+            const int vector_index = get_vector_index(local_edge_pos);
             const int dst_id = _adjacent_ids[internal_edge_pos];
             const long long external_edge_pos = traversal * direction_shift + storage * edges_count + internal_edge_pos;
 
@@ -79,13 +79,13 @@ void GraphAbstractionsNEC::vector_engine_per_vertex_kernel_all_active(const long
 template <typename EdgeOperation, typename VertexPreprocessOperation,
         typename VertexPostprocessOperation>
 void GraphAbstractionsNEC::vector_core_per_vertex_kernel_all_active(const long long *_vertex_pointers,
-                                                                  const int *_adjacent_ids,
-                                                                  const int _first_vertex,
-                                                                  const int _last_vertex,
-                                                                  EdgeOperation edge_op,
-                                                                  VertexPreprocessOperation vertex_preprocess_op,
-                                                                  VertexPostprocessOperation vertex_postprocess_op,
-                                                                  const int _first_edge)
+                                                                    const int *_adjacent_ids,
+                                                                    const int _first_vertex,
+                                                                    const int _last_vertex,
+                                                                    EdgeOperation edge_op,
+                                                                    VertexPreprocessOperation vertex_preprocess_op,
+                                                                    VertexPostprocessOperation vertex_postprocess_op,
+                                                                    const int _first_edge)
 {
     #ifdef __PRINT_API_PERFORMANCE_STATS__
         #pragma omp barrier
@@ -118,7 +118,7 @@ void GraphAbstractionsNEC::vector_core_per_vertex_kernel_all_active(const long l
         for (int local_edge_pos = 0; local_edge_pos < connections_count; local_edge_pos++)
         {
             const long long internal_edge_pos = start + local_edge_pos;
-            const int vector_index = get_vector_index(internal_edge_pos);
+            const int vector_index = get_vector_index(local_edge_pos);
             const int dst_id = _adjacent_ids[internal_edge_pos];
             const long long external_edge_pos = traversal * direction_shift + storage * edges_count + internal_edge_pos;
 
@@ -151,19 +151,19 @@ void GraphAbstractionsNEC::vector_core_per_vertex_kernel_all_active(const long l
 template <typename EdgeOperation, typename VertexPreprocessOperation,
         typename VertexPostprocessOperation>
 void GraphAbstractionsNEC::ve_collective_vertex_processing_kernel_all_active(const long long *_ve_vector_group_ptrs,
-                                                                           const int *_ve_vector_group_sizes,
-                                                                           const int *_ve_adjacent_ids,
-                                                                           const int _ve_vertices_count,
-                                                                           const int _ve_starting_vertex,
-                                                                           const int _ve_vector_segments_count,
-                                                                           const long long *_vertex_pointers,
-                                                                           const int _first_vertex,
-                                                                           const int _last_vertex,
-                                                                           EdgeOperation edge_op,
-                                                                           VertexPreprocessOperation vertex_preprocess_op,
-                                                                           VertexPostprocessOperation vertex_postprocess_op,
-                                                                           int _vertices_count,
-                                                                           const int _first_edge)
+                                                                             const int *_ve_vector_group_sizes,
+                                                                             const int *_ve_adjacent_ids,
+                                                                             const int _ve_vertices_count,
+                                                                             const int _ve_starting_vertex,
+                                                                             const int _ve_vector_segments_count,
+                                                                             const long long *_vertex_pointers,
+                                                                             const int _first_vertex,
+                                                                             const int _last_vertex,
+                                                                             EdgeOperation edge_op,
+                                                                             VertexPreprocessOperation vertex_preprocess_op,
+                                                                             VertexPostprocessOperation vertex_postprocess_op,
+                                                                             int _vertices_count,
+                                                                             const int _first_edge)
 {
     #ifdef __PRINT_API_PERFORMANCE_STATS__
         #pragma omp barrier

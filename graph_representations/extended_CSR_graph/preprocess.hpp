@@ -52,12 +52,11 @@ void ExtendedCSRGraph::extract_connection_count(EdgesListGraph &_el_graph,
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-
 void ExtendedCSRGraph::sort_vertices_by_degree(int *_connections_array,
-                                                                            asl_int_t *_asl_indexes,
-                                                                            int _el_vertices_count,
-                                                                            int *_forward_conversion,
-                                                                            int *_backward_conversion)
+                                               asl_int_t *_asl_indexes,
+                                               int _el_vertices_count,
+                                               int *_forward_conversion,
+                                               int *_backward_conversion)
 {
     double t1 = omp_get_wtime();
     // prepare indexes
@@ -97,7 +96,6 @@ void ExtendedCSRGraph::sort_vertices_by_degree(int *_connections_array,
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
 
 void ExtendedCSRGraph::construct_CSR(EdgesListGraph &_el_graph)
 {
@@ -149,7 +147,6 @@ void ExtendedCSRGraph::construct_CSR(EdgesListGraph &_el_graph)
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
 
 void ExtendedCSRGraph::import_and_preprocess(EdgesListGraph &_el_graph)
 {

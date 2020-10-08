@@ -16,6 +16,9 @@ void SSSP::seq_dijkstra(VectCSRGraph &_graph, EdgesArrayNec<_T> &_weights, Verti
     ExtendedCSRGraph *outgoing_graph_ptr = _graph.get_outgoing_graph_ptr();
     LOAD_EXTENDED_CSR_GRAPH_DATA((*outgoing_graph_ptr));
 
+    _source_vertex = _graph.reorder(_source_vertex, ORIGINAL, SCATTER);
+    cout << "new source: " << _source_vertex << endl;
+
     // Create a priority queue to store vertices that
     // are being preprocessed. This is weird syntax in C++.
     std::priority_queue< iPair, vector <iPair> , greater<iPair> > pq;

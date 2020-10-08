@@ -8,14 +8,14 @@ template <typename EdgeOperation, typename VertexPreprocessOperation,
         typename VertexPostprocessOperation, typename CollectiveEdgeOperation, typename CollectiveVertexPreprocessOperation,
         typename CollectiveVertexPostprocessOperation>
 void GraphAbstractionsNEC::advance_worker(ExtendedCSRGraph &_graph,
-                                        FrontierNEC &_frontier,
-                                        EdgeOperation &&edge_op,
-                                        VertexPreprocessOperation &&vertex_preprocess_op,
-                                        VertexPostprocessOperation &&vertex_postprocess_op,
-                                        CollectiveEdgeOperation &&collective_edge_op,
-                                        CollectiveVertexPreprocessOperation &&collective_vertex_preprocess_op,
-                                        CollectiveVertexPostprocessOperation &&collective_vertex_postprocess_op,
-                                        int _first_edge)
+                                          FrontierNEC &_frontier,
+                                          EdgeOperation &&edge_op,
+                                          VertexPreprocessOperation &&vertex_preprocess_op,
+                                          VertexPostprocessOperation &&vertex_postprocess_op,
+                                          CollectiveEdgeOperation &&collective_edge_op,
+                                          CollectiveVertexPreprocessOperation &&collective_vertex_preprocess_op,
+                                          CollectiveVertexPostprocessOperation &&collective_vertex_postprocess_op,
+                                          int _first_edge)
 {
     LOAD_EXTENDED_CSR_GRAPH_DATA(_graph);
 
@@ -58,7 +58,7 @@ void GraphAbstractionsNEC::advance_worker(ExtendedCSRGraph &_graph,
     }
     else
     {
-        /*if(_frontier.vector_engine_part_size > 0)
+        if(_frontier.vector_engine_part_size > 0)
         {
             if (_frontier.vector_engine_part_type == DENSE_FRONTIER)
             {
@@ -67,14 +67,14 @@ void GraphAbstractionsNEC::advance_worker(ExtendedCSRGraph &_graph,
                                                       edge_op, vertex_preprocess_op, vertex_postprocess_op,
                                                       _first_edge);
             }
-            else if (_frontier.vector_engine_part_type == SPARSE_FRONTIER)
+            /*else if (_frontier.vector_engine_part_type == SPARSE_FRONTIER)
             {
                 int *frontier_ids = &(_frontier.ids[0]);
                 vector_engine_per_vertex_kernel_sparse(vertex_pointers, adjacent_ids, frontier_ids,
                                                        _frontier.vector_engine_part_size,
                                                        edge_op, vertex_preprocess_op, vertex_postprocess_op,
                                                        _first_edge);
-            }
+            }*/
         }
 
         if(_frontier.vector_core_part_size > 0)
@@ -85,13 +85,13 @@ void GraphAbstractionsNEC::advance_worker(ExtendedCSRGraph &_graph,
                                                     vector_core_threshold_start, vector_core_threshold_end, edge_op,
                                                     vertex_preprocess_op, vertex_postprocess_op, _first_edge);
             }
-            else if(_frontier.vector_core_part_type == SPARSE_FRONTIER)
+            /*else if(_frontier.vector_core_part_type == SPARSE_FRONTIER)
             {
                 int *frontier_ids = &(_frontier.ids[_frontier.vector_engine_part_size]);
                 vector_core_per_vertex_kernel_sparse(vertex_pointers, adjacent_ids, frontier_ids,
                                                      _frontier.vector_core_part_size,
                                                      edge_op, vertex_preprocess_op, vertex_postprocess_op, _first_edge);
-            }
+            }*/
         }
 
         if(_frontier.collective_part_size > 0)
@@ -104,7 +104,7 @@ void GraphAbstractionsNEC::advance_worker(ExtendedCSRGraph &_graph,
                                                              collective_edge_op, collective_vertex_preprocess_op,
                                                              collective_vertex_postprocess_op, vertices_count, _first_edge);
             }
-            else if(_frontier.collective_part_type == SPARSE_FRONTIER)
+            /*else if(_frontier.collective_part_type == SPARSE_FRONTIER)
             {
                 int *frontier_ids = &(_frontier.ids[_frontier.vector_core_part_size + _frontier.vector_engine_part_size]);
                 collective_vertex_processing_kernel_sparse(vertex_pointers, adjacent_ids, frontier_ids, _frontier.collective_part_size,
@@ -112,8 +112,8 @@ void GraphAbstractionsNEC::advance_worker(ExtendedCSRGraph &_graph,
                                                            collective_threshold_end, collective_edge_op,
                                                            collective_vertex_preprocess_op,
                                                            collective_vertex_postprocess_op, _first_edge);
-            }
-        }*/
+            }*/
+        }
     }
 
     #ifdef __PRINT_API_PERFORMANCE_STATS__

@@ -3,8 +3,9 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template <typename _T>
-VerticesArrayNec<_T>::VerticesArrayNec(VectCSRGraph &_graph)
+VerticesArrayNec<_T>::VerticesArrayNec(VectCSRGraph &_graph, DataDirection _direction)
 {
+    direction = _direction;
     vertices_count = _graph.get_vertices_count();
     MemoryAPI::allocate_array(&vertices_data, vertices_count);
 }
@@ -16,6 +17,7 @@ VerticesArrayNec<_T>::VerticesArrayNec(const VerticesArrayNec<_T> &_copy_obj)
 {
     this->graph_ptr = _copy_obj.graph_ptr;
     this->vertices_count = _copy_obj.vertices_count;
+    this->direction = _copy_obj.direction;
     MemoryAPI::allocate_array(&this->vertices_data, vertices_count);
     MemoryAPI::copy(this->vertices_data, _copy_obj.vertices_data, vertices_count);
 }
