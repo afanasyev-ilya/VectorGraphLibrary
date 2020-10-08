@@ -24,23 +24,27 @@ private:
 
     #ifdef __USE_NEC_SX_AURORA__
     template <typename _T>
-    static void nec_dijkstra_all_active_push(VectCSRGraph &_graph, EdgesArrayNec<_T> &_weights,
+    static void nec_dijkstra_all_active_push(VectCSRGraph &_graph,
+                                             EdgesArrayNec<_T> &_weights,
                                              VerticesArrayNec<_T> &_distances,
                                              int _source_vertex);
     #endif
 
     #ifdef __USE_NEC_SX_AURORA__
     template <typename _T>
-    static void nec_dijkstra_all_active_pull(VectCSRGraph &_graph, EdgesArrayNec<_T> &_weights,
+    static void nec_dijkstra_all_active_pull(VectCSRGraph &_graph,
+                                             EdgesArrayNec<_T> &_weights,
                                              VerticesArrayNec<_T> &_distances,
                                              int _source_vertex);
     #endif
 
-    /*#ifdef __USE_NEC_SX_AURORA__
-    void nec_dijkstra_partial_active(ExtendedCSRGraph &_graph,
-                                     _TEdgeWeight *_distances,
-                                     int _source_vertex);
-    #endif*/
+    #ifdef __USE_NEC_SX_AURORA__
+    template <typename _T>
+    static void nec_dijkstra_partial_active(VectCSRGraph &_graph,
+                                            EdgesArrayNec<_T> &_weights,
+                                            VerticesArrayNec<_T> &_distances,
+                                            int _source_vertex);
+    #endif
 public:
     template <typename _T>
     static void seq_dijkstra(VectCSRGraph &_graph, EdgesArrayNec<_T> &_weights, VerticesArrayNec<_T> &_distances,
@@ -76,7 +80,6 @@ public:
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#include "shortest_paths.hpp"
 #include "gpu_shortest_paths.hpp"
 #include "seq_shortest_paths.hpp"
 #include "nec_shortest_paths.hpp"

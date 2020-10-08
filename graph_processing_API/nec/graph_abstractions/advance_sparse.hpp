@@ -4,20 +4,25 @@
 
 template <typename EdgeOperation, typename VertexPreprocessOperation,
         typename VertexPostprocessOperation>
-void GraphPrimitivesNEC::vector_engine_per_vertex_kernel_sparse(const long long *_vertex_pointers,
-                                                                const int *_adjacent_ids,
-                                                                const int *_frontier_ids,
-                                                                const int _frontier_segment_size,
-                                                                EdgeOperation edge_op,
-                                                                VertexPreprocessOperation vertex_preprocess_op,
-                                                                VertexPostprocessOperation vertex_postprocess_op,
-                                                                const int _first_edge)
+void GraphAbstractionsNEC::vector_engine_per_vertex_kernel_sparse(const long long *_vertex_pointers,
+                                                                  const int *_adjacent_ids,
+                                                                  const int *_frontier_ids,
+                                                                  const int _frontier_segment_size,
+                                                                  EdgeOperation edge_op,
+                                                                  VertexPreprocessOperation vertex_preprocess_op,
+                                                                  VertexPostprocessOperation vertex_postprocess_op,
+                                                                  const int _first_edge)
 {
     #ifdef __PRINT_API_PERFORMANCE_STATS__
-        #pragma omp barrier
-        double t1 = omp_get_wtime();
-        #pragma omp barrier
+    #pragma omp barrier
+    double t1 = omp_get_wtime();
+    #pragma omp barrier
     #endif
+
+    long long edges_count = processed_graph_ptr->get_edges_count();
+    long long direction_shift = edges_count + processed_graph_ptr->get_edges_count_in_outgoing_ve();
+    int traversal = traversal_direction;
+    int storage = CSR_STORAGE;
 
     DelayedWriteNEC delayed_write;
     delayed_write.init();
@@ -40,11 +45,12 @@ void GraphPrimitivesNEC::vector_engine_per_vertex_kernel_sparse(const long long 
         #pragma omp for schedule(static)
         for (int local_edge_pos = 0; local_edge_pos < connections_count; local_edge_pos++)
         {
-            const long long int global_edge_pos = start + local_edge_pos;
+            const long long int internal_edge_pos = start + local_edge_pos;
             const int vector_index = get_vector_index(local_edge_pos);
-            const int dst_id = _adjacent_ids[global_edge_pos];
+            const int dst_id = _adjacent_ids[internal_edge_pos];
+            const long long external_edge_pos = traversal * direction_shift + storage * edges_count + internal_edge_pos;
 
-            edge_op(src_id, dst_id, local_edge_pos, global_edge_pos, vector_index, delayed_write);
+            edge_op(src_id, dst_id, local_edge_pos, external_edge_pos, vector_index, delayed_write);
         }
 
         vertex_postprocess_op(src_id, connections_count, 0, delayed_write);
@@ -80,20 +86,25 @@ void GraphPrimitivesNEC::vector_engine_per_vertex_kernel_sparse(const long long 
 
 template <typename EdgeOperation, typename VertexPreprocessOperation,
         typename VertexPostprocessOperation>
-void GraphPrimitivesNEC::vector_core_per_vertex_kernel_sparse(const long long *_vertex_pointers,
-                                                              const int *_adjacent_ids,
-                                                              const int *_frontier_ids,
-                                                              const int _frontier_segment_size,
-                                                              EdgeOperation edge_op,
-                                                              VertexPreprocessOperation vertex_preprocess_op,
-                                                              VertexPostprocessOperation vertex_postprocess_op,
-                                                              const int _first_edge)
+void GraphAbstractionsNEC::vector_core_per_vertex_kernel_sparse(const long long *_vertex_pointers,
+                                                                const int *_adjacent_ids,
+                                                                const int *_frontier_ids,
+                                                                const int _frontier_segment_size,
+                                                                EdgeOperation edge_op,
+                                                                VertexPreprocessOperation vertex_preprocess_op,
+                                                                VertexPostprocessOperation vertex_postprocess_op,
+                                                                const int _first_edge)
 {
     #ifdef __PRINT_API_PERFORMANCE_STATS__
-        #pragma omp barrier
-        double t1 = omp_get_wtime();
-        #pragma omp barrier
+    #pragma omp barrier
+    double t1 = omp_get_wtime();
+    #pragma omp barrier
     #endif
+
+    long long edges_count = processed_graph_ptr->get_edges_count();
+    long long direction_shift = edges_count + processed_graph_ptr->get_edges_count_in_outgoing_ve();
+    int traversal = traversal_direction;
+    int storage = CSR_STORAGE;
 
     DelayedWriteNEC delayed_write;
     delayed_write.init();
@@ -116,11 +127,12 @@ void GraphPrimitivesNEC::vector_core_per_vertex_kernel_sparse(const long long *_
         #pragma _NEC gather_reorder
         for (int local_edge_pos = 0; local_edge_pos < connections_count; local_edge_pos++)
         {
-            const long long int global_edge_pos = start + local_edge_pos;
+            const long long int internal_edge_pos = start + local_edge_pos;
             const int vector_index = get_vector_index(local_edge_pos);
-            const int dst_id = _adjacent_ids[global_edge_pos];
+            const int dst_id = _adjacent_ids[internal_edge_pos];
+            const long long external_edge_pos = traversal * direction_shift + storage * edges_count + internal_edge_pos;
 
-            edge_op(src_id, dst_id, local_edge_pos, global_edge_pos, vector_index, delayed_write);
+            edge_op(src_id, dst_id, local_edge_pos, external_edge_pos, vector_index, delayed_write);
         }
 
         vertex_postprocess_op(src_id, connections_count, 0, delayed_write);
@@ -159,22 +171,27 @@ void GraphPrimitivesNEC::vector_core_per_vertex_kernel_sparse(const long long *_
 
 template <typename EdgeOperation, typename VertexPreprocessOperation,
         typename VertexPostprocessOperation>
-void GraphPrimitivesNEC::collective_vertex_processing_kernel_sparse(const long long *_vertex_pointers,
-                                                                    const int *_adjacent_ids,
-                                                                    const int *_frontier_ids,
-                                                                    const int _frontier_size,
-                                                                    const int _first_vertex,
-                                                                    const int _last_vertex,
-                                                                    EdgeOperation edge_op,
-                                                                    VertexPreprocessOperation vertex_preprocess_op,
-                                                                    VertexPostprocessOperation vertex_postprocess_op,
-                                                                    const int _first_edge)
+void GraphAbstractionsNEC::collective_vertex_processing_kernel_sparse(const long long *_vertex_pointers,
+                                                                      const int *_adjacent_ids,
+                                                                      const int *_frontier_ids,
+                                                                      const int _frontier_size,
+                                                                      const int _first_vertex,
+                                                                      const int _last_vertex,
+                                                                      EdgeOperation edge_op,
+                                                                      VertexPreprocessOperation vertex_preprocess_op,
+                                                                      VertexPostprocessOperation vertex_postprocess_op,
+                                                                      const int _first_edge)
 {
     #ifdef __PRINT_API_PERFORMANCE_STATS__
     #pragma omp barrier
     double t1 = omp_get_wtime();
     #pragma omp barrier
     #endif
+
+    long long edges_count = processed_graph_ptr->get_edges_count();
+    long long direction_shift = edges_count + processed_graph_ptr->get_edges_count_in_outgoing_ve();
+    int traversal = traversal_direction;
+    int storage = CSR_STORAGE;
 
     long long int reg_start[VECTOR_LENGTH];
     long long int reg_end[VECTOR_LENGTH];
@@ -241,11 +258,12 @@ void GraphPrimitivesNEC::collective_vertex_processing_kernel_sparse(const long l
                     {
                         const int src_id = _frontier_ids[front_pos + i];
                         const int vector_index = i;
-                        const long long int global_edge_pos = reg_start[i] + edge_pos;
+                        const long long int internal_edge_pos = reg_start[i] + edge_pos;
                         const int local_edge_pos = edge_pos;
-                        const int dst_id = _adjacent_ids[global_edge_pos];
+                        const int dst_id = _adjacent_ids[internal_edge_pos];
+                        const long long external_edge_pos = traversal * direction_shift + storage * edges_count + internal_edge_pos;
 
-                        edge_op(src_id, dst_id, local_edge_pos, global_edge_pos, vector_index, delayed_write);
+                        edge_op(src_id, dst_id, local_edge_pos, external_edge_pos, vector_index, delayed_write);
                     }
                 }
             }

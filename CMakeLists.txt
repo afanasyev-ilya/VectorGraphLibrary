@@ -65,7 +65,6 @@ add_executable(VectorGraphLibrary
         algorithms/sssp/nec_shortest_paths.hpp
         algorithms/sssp/seq_shortest_paths.hpp
         algorithms/sssp/shortest_paths.h
-        algorithms/sssp/shortest_paths.hpp
         algorithms/sswp/widest_paths.h
         algorithms/sswp/widest_paths.hpp
         apps/analyse_graph.cpp

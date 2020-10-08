@@ -23,6 +23,7 @@ using namespace std;
 #include "common/parallel_primitives/copy_if.h"
 #include "common/parallel_primitives/get_elements_count.h"
 #include "common/performance_stats/performance_stats.h"
+#include "common/timer/timer.h"
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 

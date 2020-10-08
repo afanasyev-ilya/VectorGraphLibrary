@@ -1,14 +1,15 @@
 #pragma once
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-#ifdef __USE_NEC_SX_AURORA__
 
-void SSSP::nec_dijkstra_partial_active(ExtendedCSRGraph &_graph,
-                                       _TEdgeWeight *_distances,
+#ifdef __USE_NEC_SX_AURORA__
+template <typename _T>
+void SSSP::nec_dijkstra_partial_active(VectCSRGraph &_graph,
+                                       EdgesArrayNec<_T> &_weights,
+                                       VerticesArrayNec<_T> &_distances,
                                        int _source_vertex)
 {
-    LOAD_EXTENDED_CSR_GRAPH_DATA(_graph);
+    /*LOAD_EXTENDED_CSR_GRAPH_DATA(_graph);
     FrontierNEC all_active_frontier(vertices_count);
 
     int *was_changes;
@@ -114,146 +115,9 @@ void SSSP::nec_dijkstra_partial_active(ExtendedCSRGraph &_graph,
     PerformanceStats::print_performance_stats("partial active sssp (dijkstra)", t2 - t1, edges_count, iterations_count);
     #endif
 
-    MemoryAPI::free_array(was_changes);
+    MemoryAPI::free_array(was_changes);*/
 }
 #endif
-
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-#ifdef __USE_NEC_SX_AURORA__
-
-void SSSP::nec_dijkstra_all_active(ExtendedCSRGraph &_graph,
-                                   _TEdgeWeight *_distances,
-                                   int _source_vertex,
-                                   AlgorithmTraversalType _traversal_direction)
-{
-    LOAD_EXTENDED_CSR_GRAPH_DATA(_graph);
-    _TEdgeWeight *old_distances = class_old_distances;
-
-    frontier.set_all_active();
-
-    double t1 = omp_get_wtime();
-    auto init_distances = [_distances, _source_vertex] (int src_id, int connections_count, int vector_index)
-    {
-        if(src_id == _source_vertex)
-            _distances[_source_vertex] = 0;
-        else
-            _distances[src_id] = FLT_MAX;
-    };
-    graph_API.compute(_graph, frontier, init_distances);
-
-    int iterations_count = 0;
-    int changes = 1;
-    while(changes)
-    {
-        changes = 0;
-        float *collective_adjacent_weights = graph_API.get_collective_weights(_graph, frontier);
-
-        auto save_old_distances = [_distances, old_distances] (int src_id, int connections_count, int vector_index)
-        {
-            old_distances[src_id] = _distances[src_id];
-        };
-        graph_API.compute(_graph, frontier, save_old_distances);
-
-        #pragma omp parallel shared(changes)
-        {
-            NEC_REGISTER_FLT(distances, 0);
-
-            if(_traversal_direction == PUSH_TRAVERSAL) // PUSH PART
-            {
-                auto edge_op_push = [adjacent_weights, _distances](int src_id, int dst_id, int local_edge_pos,
-                    long long int global_edge_pos, int vector_index, DelayedWriteNEC &delayed_write)
-                {
-                    float weight = adjacent_weights[global_edge_pos];
-                    float dst_weight = _distances[dst_id];
-                    float src_weight = _distances[src_id];
-                    if(dst_weight > src_weight + weight)
-                    {
-                        _distances[dst_id] = src_weight + weight;
-                    }
-                };
-
-                auto edge_op_collective_push = [collective_adjacent_weights, _distances]
-                        (int src_id, int dst_id, int local_edge_pos, long long int global_edge_pos,
-                                int vector_index, DelayedWriteNEC &delayed_write)
-                {
-                    float weight = collective_adjacent_weights[global_edge_pos];
-                    float dst_weight = _distances[dst_id];
-                    float src_weight = _distances[src_id];
-                    if(dst_weight > src_weight + weight)
-                    {
-                        _distances[dst_id] = src_weight + weight;
-                    }
-                };
-
-                graph_API.advance(_graph, frontier, edge_op_push, EMPTY_VERTEX_OP, EMPTY_VERTEX_OP,
-                                  edge_op_collective_push, EMPTY_VERTEX_OP, EMPTY_VERTEX_OP);
-            }
-
-            if(_traversal_direction == PULL_TRAVERSAL) // PULL PART
-            {
-                auto edge_op_pull = [adjacent_weights, _distances](int src_id, int dst_id, int local_edge_pos,
-                    long long int global_edge_pos, int vector_index, DelayedWriteNEC &delayed_write)
-                {
-                    float weight = adjacent_weights[global_edge_pos];
-                    float dst_weight = _distances[dst_id];
-                    if(_distances[src_id] > dst_weight + weight)
-                    {
-                        _distances[src_id] = dst_weight + weight;
-                    }
-                };
-
-                auto edge_op_collective_pull = [collective_adjacent_weights, _distances, &reg_distances]
-                        (int src_id, int dst_id, int local_edge_pos, long long int global_edge_pos,
-                                int vector_index, DelayedWriteNEC &delayed_write)
-                {
-                    float weight = collective_adjacent_weights[global_edge_pos];
-                    float dst_weight = _distances[dst_id];
-                    if(reg_distances[vector_index] > dst_weight + weight)
-                    {
-                        reg_distances[vector_index] = dst_weight + weight;
-                    }
-                };
-
-                auto vertex_preprocess_op_collective_pull = [_distances, &reg_distances]
-                        (int src_id, int connections_count, int vector_index, DelayedWriteNEC &delayed_write)
-                {
-                    reg_distances[vector_index] = _distances[src_id];
-                };
-
-                auto vertex_postprocess_op_collective_pull = [_distances, &reg_distances]
-                        (int src_id, int connections_count, int vector_index, DelayedWriteNEC &delayed_write)
-                {
-                    if(_distances[src_id] > reg_distances[vector_index])
-                    {
-                         _distances[src_id] = reg_distances[vector_index];
-                    }
-                };
-
-                graph_API.advance(_graph, frontier, edge_op_pull, EMPTY_VERTEX_OP, EMPTY_VERTEX_OP,
-                                   edge_op_collective_pull, vertex_preprocess_op_collective_pull, vertex_postprocess_op_collective_pull);
-            }
-        }
-
-        auto calculate_changes_count = [_distances, old_distances] (int src_id, int connections_count, int vector_index)->int
-        {
-            int result = 0;
-            if(old_distances[src_id] != _distances[src_id])
-                result = 1;
-            return result;
-        };
-        changes = graph_API.reduce<int>(_graph, frontier, calculate_changes_count, REDUCE_SUM);
-
-        iterations_count++;
-    }
-    double t2 = omp_get_wtime();
-    performance = edges_count / ((t2 - t1)*1e6);
-
-    #ifdef __PRINT_SAMPLES_PERFORMANCE_STATS__
-    PerformanceStats::print_performance_stats("all active sssp (dijkstra)", t2 - t1, edges_count, iterations_count);
-    #endif
-}
-#endif*/
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -323,9 +187,9 @@ void SSSP::nec_dijkstra_all_active_push(VectCSRGraph &_graph,
     frontier.set_all_active();
 
     _source_vertex = _graph.reorder(_source_vertex, ORIGINAL, SCATTER);
-    cout << "new source: " << _source_vertex << endl;
 
-    double t1 = omp_get_wtime();
+    Timer tm;
+    tm.start();
 
     int vect_csr_source_vertex = _source_vertex;
     auto init_distances = [&_distances, vect_csr_source_vertex] (int src_id, int connections_count, int vector_index)
@@ -371,10 +235,10 @@ void SSSP::nec_dijkstra_all_active_push(VectCSRGraph &_graph,
     }
     while(changes);
 
-    double t2 = omp_get_wtime();
+    tm.end();
 
     #ifdef __PRINT_SAMPLES_PERFORMANCE_STATS__
-    PerformanceStats::print_performance_stats("sssp (dijkstra, all-active, push)", t2 - t1, _graph.get_edges_count(),
+    PerformanceStats::print_performance_stats("sssp (dijkstra, all-active, push)", tm.get_time(), _graph.get_edges_count(),
                                               iterations_count);
     #endif
 }
@@ -396,9 +260,9 @@ void SSSP::nec_dijkstra_all_active_pull(VectCSRGraph &_graph,
     frontier.set_all_active();
 
     _source_vertex = _graph.reorder(_source_vertex, ORIGINAL, GATHER);
-    cout << "new source: " << _source_vertex << endl;
 
-    double t1 = omp_get_wtime();
+    Timer tm;
+    tm.start();
 
     int vect_csr_source_vertex = _source_vertex;
     auto init_distances = [&_distances, vect_csr_source_vertex] (int src_id, int connections_count, int vector_index)
@@ -469,10 +333,10 @@ void SSSP::nec_dijkstra_all_active_pull(VectCSRGraph &_graph,
     }
     while(changes);
 
-    double t2 = omp_get_wtime();
+    tm.end();
 
     #ifdef __PRINT_SAMPLES_PERFORMANCE_STATS__
-    PerformanceStats::print_performance_stats("sssp (dijkstra, all-active, pull)", t2 - t1, _graph.get_edges_count(),
+    PerformanceStats::print_performance_stats("sssp (dijkstra, all-active, pull)", tm.get_time(), _graph.get_edges_count(),
                                               iterations_count);
     #endif
 }
@@ -496,7 +360,10 @@ void SSSP::nec_dijkstra(VectCSRGraph &_graph,
         else if(_traversal_direction == PULL_TRAVERSAL)
             nec_dijkstra_all_active_pull(_graph, _weights, _distances, _source_vertex);
     }
-
+    else if(_frontier_type == PARTIAL_ACTIVE)
+    {
+        nec_dijkstra_partial_active(_graph, _weights, _distances, _source_vertex);
+    }
 }
 #endif
 

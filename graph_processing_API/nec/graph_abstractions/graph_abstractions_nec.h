@@ -123,6 +123,44 @@ private:
                                                              VertexPostprocessOperation vertex_postprocess_op,
                                                              int _vertices_count,
                                                              const int _first_edge);
+
+    // sparse advance implementation
+    template <typename EdgeOperation, typename VertexPreprocessOperation,
+            typename VertexPostprocessOperation>
+    inline void vector_engine_per_vertex_kernel_sparse(const long long *_vertex_pointers,
+                                                       const int *_adjacent_ids,
+                                                       const int *_frontier_ids,
+                                                       const int _frontier_segment_size,
+                                                       EdgeOperation edge_op,
+                                                       VertexPreprocessOperation vertex_preprocess_op,
+                                                       VertexPostprocessOperation vertex_postprocess_op,
+                                                       const int _first_edge);
+
+    // sparse advance implementation
+    template <typename EdgeOperation, typename VertexPreprocessOperation,
+            typename VertexPostprocessOperation>
+    inline void vector_core_per_vertex_kernel_sparse(const long long *_vertex_pointers,
+                                                     const int *_adjacent_ids,
+                                                     const int *_frontier_ids,
+                                                     const int _frontier_segment_size,
+                                                     EdgeOperation edge_op,
+                                                     VertexPreprocessOperation vertex_preprocess_op,
+                                                     VertexPostprocessOperation vertex_postprocess_op,
+                                                     const int _first_edge);
+
+    // sparse advance implementation
+    template <typename EdgeOperation, typename VertexPreprocessOperation,
+            typename VertexPostprocessOperation>
+    inline void collective_vertex_processing_kernel_sparse(const long long *_vertex_pointers,
+                                                           const int *_adjacent_ids,
+                                                           const int *_frontier_ids,
+                                                           const int _frontier_size,
+                                                           const int _first_vertex,
+                                                           const int _last_vertex,
+                                                           EdgeOperation edge_op,
+                                                           VertexPreprocessOperation vertex_preprocess_op,
+                                                           VertexPostprocessOperation vertex_postprocess_op,
+                                                           const int _first_edge);
 public:
     // attaches graph-processing API to the specific graph
     GraphAbstractionsNEC(VectCSRGraph &_graph, TraversalDirection _initial_traversal = SCATTER_TRAVERSAL);
@@ -173,5 +211,6 @@ public:
 #include "advance_worker.hpp"
 #include "advance_all_active.hpp"
 #include "advance_dense.hpp"
+#include "advance_sparse.hpp"
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

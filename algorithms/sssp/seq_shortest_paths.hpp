@@ -17,7 +17,9 @@ void SSSP::seq_dijkstra(VectCSRGraph &_graph, EdgesArrayNec<_T> &_weights, Verti
     LOAD_EXTENDED_CSR_GRAPH_DATA((*outgoing_graph_ptr));
 
     _source_vertex = _graph.reorder(_source_vertex, ORIGINAL, SCATTER);
-    cout << "new source: " << _source_vertex << endl;
+
+    Timer tm;
+    tm.start();
 
     // Create a priority queue to store vertices that
     // are being preprocessed. This is weird syntax in C++.
@@ -64,6 +66,9 @@ void SSSP::seq_dijkstra(VectCSRGraph &_graph, EdgesArrayNec<_T> &_weights, Verti
             }
         }
     }
+
+    tm.end();
+    cout << "seq dijkstra SSSP time: " << tm.get_time() << " sec" << endl;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

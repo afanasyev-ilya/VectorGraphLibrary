@@ -45,6 +45,9 @@ int VectCSRGraph::reorder(int _vertex_id, DataDirection _input_dir, DataDirectio
 template <typename _T>
 void VectCSRGraph::reorder_to_original(VerticesArrayNec<_T> &_data)
 {
+    Timer tm;
+    tm.start();
+
     _T *buffer;
     MemoryAPI::allocate_array(&buffer, this->vertices_count);
 
@@ -65,6 +68,11 @@ void VectCSRGraph::reorder_to_original(VerticesArrayNec<_T> &_data)
     _data.set_direction(ORIGINAL);
 
     MemoryAPI::free_array(buffer);
+
+    tm.end();
+    #ifdef __PRINT_API_PERFORMANCE_STATS__
+    tm.print_bandwidth_stats("vertices reorder", this->vertices_count, sizeof(_T)*2 + sizeof(int));
+    #endif
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -72,6 +80,9 @@ void VectCSRGraph::reorder_to_original(VerticesArrayNec<_T> &_data)
 template <typename _T>
 void VectCSRGraph::reorder_to_scatter(VerticesArrayNec<_T> &_data)
 {
+    Timer tm;
+    tm.start();
+
     _T *buffer;
     MemoryAPI::allocate_array(&buffer, this->vertices_count);
 
@@ -93,6 +104,11 @@ void VectCSRGraph::reorder_to_scatter(VerticesArrayNec<_T> &_data)
     _data.set_direction(ORIGINAL);
 
     MemoryAPI::free_array(buffer);
+
+    tm.end();
+    #ifdef __PRINT_API_PERFORMANCE_STATS__
+    tm.print_bandwidth_stats("vertices reorder", this->vertices_count, sizeof(_T)*2 + sizeof(int));
+    #endif
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -100,6 +116,9 @@ void VectCSRGraph::reorder_to_scatter(VerticesArrayNec<_T> &_data)
 template <typename _T>
 void VectCSRGraph::reorder_to_gather(VerticesArrayNec<_T> &_data)
 {
+    Timer tm;
+    tm.start();
+
     _T *buffer;
     MemoryAPI::allocate_array(&buffer, this->vertices_count);
 
@@ -121,6 +140,11 @@ void VectCSRGraph::reorder_to_gather(VerticesArrayNec<_T> &_data)
     _data.set_direction(ORIGINAL);
 
     MemoryAPI::free_array(buffer);
+
+    tm.end();
+    #ifdef __PRINT_API_PERFORMANCE_STATS__
+    tm.print_bandwidth_stats("vertices reorder", this->vertices_count, sizeof(_T)*2 + sizeof(int));
+    #endif
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -128,6 +152,9 @@ void VectCSRGraph::reorder_to_gather(VerticesArrayNec<_T> &_data)
 template <typename _T>
 void VectCSRGraph::reorder_edges_to_gather(_T *_incoming_csr_ptr, _T *_outgoing_csr_ptr)
 {
+    Timer tm;
+    tm.start();
+
     #pragma _NEC ivdep
     #pragma _NEC vovertake
     #pragma _NEC novob
@@ -137,6 +164,11 @@ void VectCSRGraph::reorder_edges_to_gather(_T *_incoming_csr_ptr, _T *_outgoing_
     {
         _incoming_csr_ptr[i] = _outgoing_csr_ptr[edges_reorder_buffer[i]];
     }
+
+    tm.end();
+    #ifdef __PRINT_API_PERFORMANCE_STATS__
+    tm.print_bandwidth_stats("vertices reorder", this->vertices_count, sizeof(_T)*2 + sizeof(_outgoing_csr_ptr[0]));
+    #endif
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
