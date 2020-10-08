@@ -148,7 +148,22 @@ void ExtendedCSRGraph::construct_CSR(EdgesListGraph &_el_graph)
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void ExtendedCSRGraph::import_and_preprocess(EdgesListGraph &_el_graph)
+void ExtendedCSRGraph::copy_edges_indexes(long long *_edges_reorder_buffer, asl_int_t *_asl_indexes, long long _edges_count)
+{
+    if(_edges_reorder_buffer != NULL)
+    {
+        #pragma _NEC ivdep
+        #pragma omp parallel for
+        for(long long i = 0; i < _edges_count; i++)
+        {
+            _edges_reorder_buffer[i] = _asl_indexes[i];
+        }
+    }
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+void ExtendedCSRGraph::import_and_preprocess(EdgesListGraph &_el_graph, long long *_edges_reorder_buffer)
 {
     // get size of edges list graph
     int el_vertices_count = _el_graph.get_vertices_count();
@@ -180,7 +195,10 @@ void ExtendedCSRGraph::import_and_preprocess(EdgesListGraph &_el_graph)
 
     // sorting preprocessed edges list graph
     _el_graph.preprocess_into_csr_based(work_buffer, asl_indexes);
-    MemoryAPI::allocate_array(&asl_indexes, el_edges_count);
+
+    // save reordering information and free ASL array
+    this->copy_edges_indexes(_edges_reorder_buffer, asl_indexes, el_edges_count);
+    MemoryAPI::free_array(asl_indexes);
 
     // resize constructed graph
     this->resize(el_vertices_count, el_edges_count);

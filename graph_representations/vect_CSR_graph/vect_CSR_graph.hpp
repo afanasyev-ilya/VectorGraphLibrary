@@ -8,6 +8,8 @@ VectCSRGraph::VectCSRGraph(int _vertices_count, long long _edges_count)
     this->edges_count = _edges_count;
     outgoing_graph = new ExtendedCSRGraph(_vertices_count, _edges_count);
     incoming_graph = new ExtendedCSRGraph(_vertices_count, _edges_count);
+
+    edges_reorder_buffer = NULL;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -16,28 +18,9 @@ VectCSRGraph::~VectCSRGraph()
 {
     delete outgoing_graph;
     delete incoming_graph;
-}
 
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-void VectCSRGraph::import_graph(EdgesListGraph &_el_graph)
-{
-    this->vertices_count = _el_graph.get_vertices_count();
-    this->edges_count = _el_graph.get_edges_count();
-
-    double t1 = omp_get_wtime();
-    outgoing_graph->import_and_preprocess(_el_graph);
-    double t2 = omp_get_wtime();
-    cout << "outgoing conversion time: " << t2 - t1 << " sec" << endl;
-
-    _el_graph.transpose();
-
-    t1 = omp_get_wtime();
-    incoming_graph->import_and_preprocess(_el_graph);
-    t2 = omp_get_wtime();
-    cout << "incoming conversion time: " << t2 - t1 << " sec" << endl;
-
-    _el_graph.transpose();
+    if(edges_reorder_buffer != NULL)
+        MemoryAPI::free_array(edges_reorder_buffer);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

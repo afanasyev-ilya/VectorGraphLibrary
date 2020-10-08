@@ -33,12 +33,7 @@ EdgesArrayNec<_T>::~EdgesArrayNec()
 template <typename _T>
 void EdgesArrayNec<_T>::set_all_constant(_T _const)
 {
-    #pragma _NEC ivdep
-    #pragma omp parallel for
-    for(long long i = 0; i < wall_array_size; i++)
-    {
-        edges_data[i] = _const;
-    }
+    MemoryAPI::set(edges_data, _const, wall_array_size);
 }
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -48,7 +43,8 @@ void EdgesArrayNec<_T>::set_all_random(_T _max_rand)
     // init CSR parts
     RandomGenerationAPI rng_api;
     rng_api.generate_array_of_random_values<_T>(outgoing_csr_ptr, edges_count, _max_rand);
-    rng_api.generate_array_of_random_values<_T>(incoming_csr_ptr, edges_count, _max_rand);
+
+    graph_ptr->reorder_edges_to_gather(incoming_csr_ptr, outgoing_csr_ptr);
 
     // copy data from CSR parts to VE parts
     graph_ptr->get_outgoing_graph_ptr()->get_ve_ptr()->copy_array_from_csr_to_ve(outgoing_ve_ptr, outgoing_csr_ptr);

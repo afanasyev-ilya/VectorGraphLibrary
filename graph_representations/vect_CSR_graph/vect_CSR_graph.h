@@ -18,6 +18,10 @@ class VectCSRGraph : public BaseGraph
 private:
     ExtendedCSRGraph *outgoing_graph;
     ExtendedCSRGraph *incoming_graph;
+
+    long long *edges_reorder_buffer;
+
+    void resize_edges_reorder_buffer();
 public:
     VectCSRGraph(int _vertices_count = 1, long long _edges_count = 1);
     ~VectCSRGraph();
@@ -41,6 +45,9 @@ public:
     template <typename _T>
     void reorder_to_gather(VerticesArrayNec<_T> &_data);
 
+    template <typename _T>
+    void reorder_edges_to_gather(_T *_incoming_csr_ptr, _T *_outgoing_csr_ptr);
+
     void print();
     template <typename _T>
     void print_with_weights(EdgesArrayNec<_T> &_weights);
@@ -56,6 +63,7 @@ public:
 #include "vect_CSR_graph.hpp"
 #include "reorder.hpp"
 #include "print.hpp"
+#include "preprocess.hpp"
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 

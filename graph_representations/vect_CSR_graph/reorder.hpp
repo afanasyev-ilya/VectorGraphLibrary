@@ -124,3 +124,20 @@ void VectCSRGraph::reorder_to_gather(VerticesArrayNec<_T> &_data)
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+template <typename _T>
+void VectCSRGraph::reorder_edges_to_gather(_T *_incoming_csr_ptr, _T *_outgoing_csr_ptr)
+{
+    #pragma _NEC ivdep
+    #pragma _NEC vovertake
+    #pragma _NEC novob
+    #pragma _NEC vector
+    #pragma omp parallel for
+    for(long long i = 0; i < this->edges_count; i++)
+    {
+        _incoming_csr_ptr[i] = _outgoing_csr_ptr[edges_reorder_buffer[i]];
+    }
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+

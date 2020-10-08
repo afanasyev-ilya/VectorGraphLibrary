@@ -35,12 +35,7 @@ VerticesArrayNec<_T>::~VerticesArrayNec()
 template <typename _T>
 void VerticesArrayNec<_T>::set_all_constant(_T _const)
 {
-    #pragma _NEC ivdep
-    #pragma omp parallel for
-    for(int i = 0; i < vertices_count; i++)
-    {
-        vertices_data[i] = _const;
-    }
+    MemoryAPI::set(vertices_data, _const, vertices_count);
 }
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 

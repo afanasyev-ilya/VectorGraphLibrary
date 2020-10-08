@@ -20,6 +20,9 @@ template <typename _T>
 void ExtendedCSRGraph::reorder_to_original(_T *_data, _T *_buffer)
 {
     #pragma _NEC ivdep
+    #pragma _NEC vovertake
+    #pragma _NEC novob
+    #pragma _NEC vector
     #pragma omp parallel for
     for(int i = 0; i < this->vertices_count; i++)
     {
@@ -42,6 +45,9 @@ template <typename _T>
 void ExtendedCSRGraph::reorder_to_sorted(_T *_data, _T *_buffer)
 {
     #pragma _NEC ivdep
+    #pragma _NEC vovertake
+    #pragma _NEC novob
+    #pragma _NEC vector
     #pragma omp parallel for
     for(int i = 0; i < this->vertices_count; i++)
     {
