@@ -27,7 +27,6 @@ public:
     
     void print();
     void print_in_csr_format();
-    void print_stats();
     
     void save_to_graphviz_file(string file_name, VisualisationMode _visualisation_mode = VISUALISE_AS_DIRECTED);
     bool save_to_binary_file(string file_name);

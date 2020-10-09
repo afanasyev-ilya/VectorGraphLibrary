@@ -38,15 +38,8 @@ void SSSP::nec_dijkstra_partial_active(VectCSRGraph &_graph,
 
     graph_API.compute(_graph, all_active_frontier, init_distances); // init distances with all-active frontier
 
-    auto is_source = [_source_vertex] (int src_id)->int
-    {
-        int result = NOT_IN_FRONTIER_FLAG;
-        if(src_id == _source_vertex)
-            result = IN_FRONTIER_FLAG;
-        return result;
-    };
-
-    graph_API.generate_new_frontier(_graph, work_frontier, is_source);
+    work_frontier.clear();
+    work_frontier.add_vertex(_source_vertex);
 
     int iterations_count = 0;
     while(work_frontier.size() > 0)

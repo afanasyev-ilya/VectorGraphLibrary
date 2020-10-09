@@ -41,7 +41,6 @@ public:
     inline long long get_edges_count() {return edges_count;};
     
     virtual void print() = 0;
-    virtual void print_stats() = 0;
     virtual void save_to_graphviz_file(string file_name, VisualisationMode _visualisation_mode = VISUALISE_AS_DIRECTED) = 0;
     virtual bool save_to_binary_file(string file_name) = 0;
     virtual bool load_from_binary_file(string file_name) = 0;

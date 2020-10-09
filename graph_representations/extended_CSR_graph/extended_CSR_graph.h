@@ -80,7 +80,6 @@ public:
     void print();
     template <typename _T>
     void print_with_weights(EdgesArrayNec<_T> &_weights, TraversalDirection _direction);
-    void print_stats() {};
 
     // load/store API
     void save_to_graphviz_file(string _file_name, VisualisationMode _visualisation_mode = VISUALISE_AS_DIRECTED);

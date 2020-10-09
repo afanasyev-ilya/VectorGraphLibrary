@@ -42,7 +42,7 @@ template<typename _T, typename ... _Types>
 bool GraphAbstractionsNEC::have_correct_direction(_T _first_arg, _Types ... _args)
 {
     bool check_result = same_direction(_first_arg.get_direction(), current_traversal_direction);
-    return check_result || have_correct_direction(_args...);
+    return (check_result && have_correct_direction(_args...));
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

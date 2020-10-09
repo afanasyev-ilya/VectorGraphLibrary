@@ -45,9 +45,9 @@ void GraphAnalytics::analyse_component_stats(int *_components, int _vertices_cou
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-
-void GraphAnalytics::analyse_graph_stats(ExtendedCSRGraph &_graph, string _graph_name)
+void GraphAnalytics::analyse_graph_stats(VectCSRGraph &_graph, string _graph_name)
 {
+    /*
     LOAD_EXTENDED_CSR_GRAPH_DATA(_graph);
     long long *adjacent_ptrs = vertex_pointers;
 
@@ -94,9 +94,9 @@ void GraphAnalytics::analyse_graph_stats(ExtendedCSRGraph &_graph, string _graph
 
     analyse_component_stats(check_components, _graph.get_vertices_count());
 
-    cc_operation.free_result_memory(check_components);*/
+    cc_operation.free_result_memory(check_components);
 
-    cout << "---------------------------------------------------------------------------------------------" << endl << endl;
+    cout << "---------------------------------------------------------------------------------------------" << endl << endl;*/
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -133,9 +133,9 @@ map<int, int> GraphAnalytics::calculate_degree_distribution(long long *_adjacent
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-void GraphAnalytics::print_graph_memory_consumption(ExtendedCSRGraph &_graph)
+void GraphAnalytics::print_graph_memory_consumption(VectCSRGraph &_graph)
 {
-    LOAD_EXTENDED_CSR_GRAPH_DATA(_graph);
+    /*LOAD_EXTENDED_CSR_GRAPH_DATA(_graph);
 
     double no_wights_size_in_bytes = sizeof(_TVertexValue)*vertices_count + sizeof(long long)*(vertices_count + 1) + sizeof(int)*edges_count;
     double weights_size_in_bytes = sizeof(_TEdgeWeight)*edges_count;
@@ -145,20 +145,19 @@ void GraphAnalytics::print_graph_memory_consumption(ExtendedCSRGraph &_graph)
     cout << "no-weights size (CSR): " << no_wights_size_in_bytes / 1e9 << " GB" << endl;
     cout << "size with weights (CSR): " << (no_wights_size_in_bytes + weights_size_in_bytes) / 1e9 << " GB" << endl;
     cout << "ve size: " << ve_size_in_bytes / 1e9 << " GB" << endl;
-    cout << "indirectly accessed array size: " << sizeof(int)*vertices_count / 1e6 << " MB" << endl;
+    cout << "indirectly accessed array size: " << sizeof(int)*vertices_count / 1e6 << " MB" << endl;*/
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-
-void GraphAnalytics::analyse_graph_thresholds(ExtendedCSRGraph &_graph)
+void GraphAnalytics::analyse_graph_thresholds(VectCSRGraph &_graph)
 {
-    #ifdef __USE_NEC_SX_AURORA__
+    /*#ifdef __USE_NEC_SX_AURORA__
     cout << endl;
     cout << "large interval: (" << 0 << " ," << _graph.get_vector_engine_threshold_vertex() << ")" << endl;
     cout << "medium interval: (" << _graph.get_vector_engine_threshold_vertex() << " ," << _graph.get_vector_core_threshold_vertex() << ")" << endl;
     cout << "small interval: (" << _graph.get_vector_core_threshold_vertex() << " ," << _graph.get_vertices_count() << ")" << endl << endl;
-    #endif
+    #endif*/
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

@@ -98,7 +98,7 @@ void VectCSRGraph::reorder_to_scatter(VerticesArrayNec<_T> &_data)
     else if(_data.get_direction() == GATHER)
     {
         incoming_graph->reorder_to_original(_data.get_ptr(), buffer);
-        outgoing_graph->reorder_sorted(_data.get_ptr(), buffer);
+        outgoing_graph->reorder_to_sorted(_data.get_ptr(), buffer);
     }
 
     _data.set_direction(ORIGINAL);
@@ -134,7 +134,7 @@ void VectCSRGraph::reorder_to_gather(VerticesArrayNec<_T> &_data)
     else if(_data.get_direction() == SCATTER)
     {
         outgoing_graph->reorder_to_original(_data.get_ptr(), buffer);
-        incoming_graph->reorder_sorted(_data.get_ptr(), buffer);
+        incoming_graph->reorder_to_sorted(_data.get_ptr(), buffer);
     }
 
     _data.set_direction(ORIGINAL);
@@ -145,6 +145,25 @@ void VectCSRGraph::reorder_to_gather(VerticesArrayNec<_T> &_data)
     #ifdef __PRINT_API_PERFORMANCE_STATS__
     tm.print_bandwidth_stats("vertices reorder", this->vertices_count, sizeof(_T)*2 + sizeof(int));
     #endif
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+template <typename _T>
+void VectCSRGraph::reorder(VerticesArrayNec<_T> &_data, TraversalDirection _output_dir)
+{
+    if(_output_dir == SCATTER)
+    {
+        reorder_to_scatter(_data);
+    }
+    if(_output_dir == GATHER)
+    {
+        reorder_to_gather(_data);
+    }
+    if(_output_dir == ORIGINAL)
+    {
+        reorder_to_original(_data);
+    }
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

@@ -62,8 +62,6 @@ int main(int argc, const char * argv[])
         //graph.print();
         //graph.print_with_weights(weights);
 
-        // allocate vertices array
-
         // run different SSSP algorithms
         VerticesArrayNec<float> push_distances(graph, SCATTER);
         ShortestPaths::nec_dijkstra(graph, weights, push_distances, 0, ALL_ACTIVE, PUSH_TRAVERSAL);
@@ -71,27 +69,21 @@ int main(int argc, const char * argv[])
         VerticesArrayNec<float> pull_distances(graph, GATHER);
         ShortestPaths::nec_dijkstra(graph, weights, pull_distances, 0, ALL_ACTIVE, PULL_TRAVERSAL);
 
-        VerticesArrayNec<float> partial_active_distances(graph, GATHER);
+        VerticesArrayNec<float> partial_active_distances(graph, SCATTER);
         ShortestPaths::nec_dijkstra(graph, weights, partial_active_distances, 0, PARTIAL_ACTIVE, PUSH_TRAVERSAL);
 
         // compute reference result
         VerticesArrayNec<float> seq_distances(graph, SCATTER);
         ShortestPaths::seq_dijkstra(graph, weights, seq_distances, 0);
 
-        // reorder obtained arrays
-        graph.reorder_to_original(push_distances);
-        graph.reorder_to_original(pull_distances);
-        graph.reorder_to_original(seq_distances);
-        graph.reorder_to_original(partial_active_distances);
-
         cout << "push check" << endl;
-        verify_results(push_distances.get_ptr(), seq_distances.get_ptr(), graph.get_vertices_count());
+        verify_results(graph, push_distances, seq_distances);
 
         cout << "pull check" << endl;
-        verify_results(pull_distances.get_ptr(), seq_distances.get_ptr(), graph.get_vertices_count());
+        verify_results(graph, pull_distances, seq_distances);
 
         cout << "partial check" << endl;
-        verify_results(partial_active_distances.get_ptr(), seq_distances.get_ptr(), graph.get_vertices_count());
+        verify_results(graph, partial_active_distances, seq_distances);
     }
     catch (string error)
     {

@@ -20,9 +20,9 @@ void GraphAbstractionsNEC::advance_worker(ExtendedCSRGraph &_graph,
     LOAD_EXTENDED_CSR_GRAPH_DATA(_graph);
 
     #ifdef __PRINT_API_PERFORMANCE_STATS__
-    _frontier.print_frontier_info(_graph);
     #pragma omp master
     {
+        _frontier.print_frontier_info();
         cout << "ADVANCE stats: " << endl;
     }
     #pragma omp barrier

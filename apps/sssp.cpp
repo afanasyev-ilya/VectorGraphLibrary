@@ -27,14 +27,17 @@ int main(int argc, const char * argv[])
         AlgorithmCommandOptionsParser parser;
         parser.parse_args(argc, argv);
 
-        ExtendedCSRGraph<int, float> graph;
+        VectCSRGraph graph;
         if(parser.get_compute_mode() == GENERATE_NEW_GRAPH)
         {
-            EdgesListGraph<int, float> rand_graph;
-            int vertices_count = pow(2.0, parser.get_scale());
+            EdgesListGraph el_graph;
+            int v = pow(2.0, parser.get_scale());
             long long edges_count = vertices_count * parser.get_avg_degree();
-            GraphGenerationAPI<int, float>::R_MAT(rand_graph, vertices_count, edges_count, 57, 19, 19, 5, DIRECTED_GRAPH);
-            graph.import_graph(rand_graph, VERTICES_SORTED, EDGES_SORTED, VECTOR_LENGTH, PULL_TRAVERSAL);
+            if(parser.get_graph_type() == RMAT)
+                GraphGenerationAPI::R_MAT(el_graph, v, v * parser.get_avg_degree(), 57, 19, 19, 5, DIRECTED_GRAPH);
+            else if(parser.get_graph_type() == RANDOM_UNIFORM)
+                GraphGenerationAPI::random_uniform(el_graph, v, v * parser.get_avg_degree(), DIRECTED_GRAPH);
+            graph.import_graph(el_graph);
         }
         else if(parser.get_compute_mode() == LOAD_GRAPH_FROM_FILE)
         {
@@ -45,38 +48,36 @@ int main(int argc, const char * argv[])
             cout << "file " << parser.get_graph_file_name() << " loaded in " << t2 - t1 << " sec" << endl;
         }
 
+        // add weights to graph
+        EdgesArrayNec<float> weights(graph);
+        weights.set_all_random(MAX_WEIGHT);
+
+        // print graph statistics
         GraphAnalytics graph_analytics;
         graph_analytics.analyse_graph_stats(graph, parser.get_graph_file_name());
-        
-        // compute SSSP
-        int last_src_vertex = 0;
-        cout << "Computations started..." << endl;
-        ShortestPaths<int, float> sssp_operation(graph);
-        float *distances;
-        sssp_operation.allocate_result_memory(graph.get_vertices_count(), &distances);
-        
+
+        // move graph to GPU if required
         #ifdef __USE_GPU__
-        cudaSetDevice(1); // TODO
         graph.move_to_device();
         #endif
 
+        // compute SSSP
+        cout << "Computations started..." << endl;
         cout << "Doing " << parser.get_number_of_rounds() << " SSSP iterations..." << endl;
         double avg_perf = 0.0;
         for(int i = 0; i < parser.get_number_of_rounds(); i++)
         {
-            last_src_vertex = rand()% (graph.get_vertices_count() / 100);
+            VerticesArrayNec<float> distances(graph, convert_direction_names(parser.get_traversal_direction()));
+
+            int source_vertex = rand()% (graph.get_vertices_count() / 100);
 
             #ifdef __PRINT_API_PERFORMANCE_STATS__
             PerformanceStats::reset_API_performance_timers();
             #endif
 
             #ifdef __USE_NEC_SX_AURORA__
-            sssp_operation.nec_dijkstra(graph, distances, last_src_vertex, parser.get_algorithm_frontier_type(),
-                                        parser.get_traversal_direction());
-            #endif
-            
-            #ifdef __USE_GPU__
-            sssp_operation.gpu_dijkstra(graph, distances, last_src_vertex, parser.get_algorithm_frontier_type(),
+            ShortestPaths::nec_dijkstra(graph, weights, distances, source_vertex,
+                                        parser.get_algorithm_frontier_type(),
                                         parser.get_traversal_direction());
             #endif
 
@@ -85,6 +86,14 @@ int main(int argc, const char * argv[])
             #endif
 
             avg_perf += sssp_operation.get_performance()/parser.get_number_of_rounds();
+
+            // check if required
+            if(parser.get_check_flag())
+            {
+                VerticesArrayNec<float> seq_distances(graph, SCATTER);
+                ShortestPaths::seq_dijkstra(graph, weights, seq_distances, sourc_vertex);
+                verify_results(graph, distances, check_distances);
+            }
         }
         
         #ifdef __USE_GPU__
@@ -96,18 +105,6 @@ int main(int argc, const char * argv[])
         #ifdef __SAVE_PERFORMANCE_STATS_TO_FILE__
         PerformanceStats::save_performance_to_file("sssp", parser.get_graph_file_name(), int(avg_perf));
         #endif
-
-        // check if required
-        if(parser.get_check_flag())
-        {
-            float *check_distances;
-            sssp_operation.allocate_result_memory(graph.get_vertices_count(), &check_distances);
-            sssp_operation.seq_dijkstra(graph, check_distances, last_src_vertex);
-            
-            verify_results(distances, check_distances, graph.get_vertices_count());
-
-            sssp_operation.free_result_memory(check_distances);
-        }
 
         sssp_operation.free_result_memory(distances);
     }

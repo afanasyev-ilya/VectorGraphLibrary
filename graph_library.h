@@ -18,7 +18,6 @@ using namespace std;
 #include "common/memory_API/memory_API.h"
 #include "common/random_generator/random_generation_API.h"
 #include "common/sorting/sorting.h"
-#include "common/verify_results/verify_results.h"
 #include "common/cmd_parser/cmd_parser.h"
 #include "common/parallel_primitives/copy_if.h"
 #include "common/parallel_primitives/get_elements_count.h"
@@ -62,7 +61,9 @@ using namespace std;
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 //#include "graph_analytics/graph_analytics.h"
+#include "common/verify_results/verify_results.h"
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 
 

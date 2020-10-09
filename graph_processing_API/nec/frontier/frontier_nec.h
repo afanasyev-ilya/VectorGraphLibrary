@@ -9,7 +9,9 @@
 class FrontierNEC // TODO inheritance
 {
 private:
-    TraversalDirection frontier_direction;
+    // pointer to base graph
+    VectCSRGraph *graph_ptr;
+    TraversalDirection direction;
 
     int *flags;
     int *ids;
@@ -28,26 +30,25 @@ private:
     int current_size;
     int max_size;
 public:
-    FrontierNEC(VectCSRGraph &_graph, TraversalDirection _frontier_direction);
+    FrontierNEC(VectCSRGraph &_graph, TraversalDirection _direction);
     ~FrontierNEC();
 
+    // get information about frontier API
     int size() {return current_size;};
     FrontierType get_type() {return type;};
 
-    void set_all_active();
+    // printing API
+    void print_frontier_info();
 
-    void change_size(int _size) {max_size = _size;};
-
-    void print_frontier_info(ExtendedCSRGraph &_graph);
-
-    inline void add_vertex(ExtendedCSRGraph &_graph, int src_id);
-
-    inline void add_vertices(ExtendedCSRGraph &_graph, int *_vertex_ids, int _number_of_vertices);
-
+    // frontier modification API
+    inline void set_all_active();
+    inline void add_vertex(int src_id);
+    inline void add_vertices(int *_vertex_ids, int _number_of_vertices);
     inline void clear() { current_size = 0; };
 
-    TraversalDirection get_direction() {return frontier_direction;};
-    void set_direction(TraversalDirection _new_direction) {frontier_direction = _new_direction;};
+    // frontier direction API
+    TraversalDirection get_direction() {return direction;};
+    void set_direction(TraversalDirection _direction) {direction = _direction;};
 
     friend class GraphAbstractionsNEC;
 };
@@ -55,5 +56,6 @@ public:
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #include "frontier_nec.hpp"
+#include "modification.hpp"
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
