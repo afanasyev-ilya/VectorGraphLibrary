@@ -16,11 +16,11 @@ void GraphAbstractionsNEC::scatter(VectCSRGraph &_graph,
 {
     ExtendedCSRGraph *current_direction_graph;
 
-    if(current_traversal_direction != SCATTER_TRAVERSAL)
+    if(current_traversal_direction != SCATTER)
     {
         throw "Error in GraphAbstractionsNEC::scatter : wrong traversal direction";
     }
-    if(_frontier.get_direction() != SCATTER_TRAVERSAL)
+    if(_frontier.get_direction() != current_traversal_direction)
     {
         throw "Error in GraphAbstractionsNEC::scatter : wrong frontier direction";
     }

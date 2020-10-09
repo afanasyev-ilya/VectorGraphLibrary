@@ -58,12 +58,12 @@ void EdgesArrayNec<_T>::set(int _src_id, int _dst_id, _T _val, TraversalDirectio
 {
     // set into both CSR and VE for Advance API
     _T *target_csr_buffer, *target_ve_buffer;
-    if(_direction == SCATTER_TRAVERSAL)
+    if(_direction == SCATTER)
     {
         target_csr_buffer = outgoing_csr_ptr;
         target_ve_buffer = outgoing_ve_ptr;
     }
-    else if(_direction == GATHER_TRAVERSAL)
+    else if(_direction == GATHER)
     {
         target_csr_buffer = incoming_csr_ptr;
         target_ve_buffer = incoming_ve_ptr;
@@ -86,12 +86,12 @@ _T EdgesArrayNec<_T>::get(int _src_id, int _dst_id, TraversalDirection _directio
     // always get from CSR since it's faster
     _T *answer_csr_buffer_ptr;
     _T *answer_ve_buffer_ptr;
-    if(_direction == SCATTER_TRAVERSAL)
+    if(_direction == SCATTER)
     {
         answer_csr_buffer_ptr = outgoing_csr_ptr;
         answer_ve_buffer_ptr = outgoing_ve_ptr;
     }
-    else if(_direction == GATHER_TRAVERSAL)
+    else if(_direction == GATHER)
     {
         answer_csr_buffer_ptr = incoming_csr_ptr;
         answer_ve_buffer_ptr = incoming_ve_ptr;

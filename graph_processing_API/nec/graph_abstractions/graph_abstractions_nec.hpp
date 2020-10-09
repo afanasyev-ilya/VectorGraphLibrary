@@ -13,8 +13,36 @@ GraphAbstractionsNEC::GraphAbstractionsNEC(VectCSRGraph &_graph, TraversalDirect
 void GraphAbstractionsNEC::change_traversal_direction(TraversalDirection _new_direction)
 {
     current_traversal_direction = _new_direction;
+}
 
-    // TODO what other changes are required?
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+bool GraphAbstractionsNEC::same_direction(TraversalDirection _first, TraversalDirection _second)
+{
+    if(_first != _second)
+    {
+        return false;
+    }
+    else
+    {
+        return true;
+    }
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+bool GraphAbstractionsNEC::have_correct_direction()
+{
+    return true;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+template<typename _T, typename ... _Types>
+bool GraphAbstractionsNEC::have_correct_direction(_T _first_arg, _Types ... _args)
+{
+    bool check_result = same_direction(_first_arg.get_direction(), current_traversal_direction);
+    return check_result || have_correct_direction(_args...);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

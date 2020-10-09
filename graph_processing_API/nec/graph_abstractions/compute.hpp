@@ -69,18 +69,20 @@ void GraphAbstractionsNEC::compute_worker(ExtendedCSRGraph &_graph,
 
 template <typename ComputeOperation>
 void GraphAbstractionsNEC::compute(VectCSRGraph &_graph,
-                                                                FrontierNEC &_frontier,
-                                                                ComputeOperation &&compute_op)
+                                   FrontierNEC &_frontier,
+                                   ComputeOperation &&compute_op)
 {
+    if(_frontier.get_direction() != current_traversal_direction)
+    {
+        throw "Error in GraphAbstractionsNEC::compute : wrong frontier direction";
+    }
+
     ExtendedCSRGraph *current_direction_graph;
-
-    // TODO is frontier direction correct?
-
-    if(current_traversal_direction == SCATTER_TRAVERSAL)
+    if(current_traversal_direction == SCATTER)
     {
         current_direction_graph = _graph.get_outgoing_graph_ptr();
     }
-    else if(current_traversal_direction == GATHER_TRAVERSAL)
+    else if(current_traversal_direction == GATHER)
     {
         current_direction_graph = _graph.get_incoming_graph_ptr();
     }

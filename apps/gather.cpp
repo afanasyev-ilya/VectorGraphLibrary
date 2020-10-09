@@ -63,19 +63,19 @@ int main(int argc, const char * argv[])
         //graph.print_with_weights(weights);
 
         // allocate vertices array
-        VerticesArrayNec<float> seq_distances(graph, SCATTER);
-        VerticesArrayNec<float> push_distances(graph, SCATTER);
-        VerticesArrayNec<float> pull_distances(graph, GATHER);
-        VerticesArrayNec<float> partial_active_distances(graph, SCATTER);
 
         // run different SSSP algorithms
+        VerticesArrayNec<float> push_distances(graph, SCATTER);
         ShortestPaths::nec_dijkstra(graph, weights, push_distances, 0, ALL_ACTIVE, PUSH_TRAVERSAL);
 
+        VerticesArrayNec<float> pull_distances(graph, GATHER);
         ShortestPaths::nec_dijkstra(graph, weights, pull_distances, 0, ALL_ACTIVE, PULL_TRAVERSAL);
 
+        VerticesArrayNec<float> partial_active_distances(graph, GATHER);
         ShortestPaths::nec_dijkstra(graph, weights, partial_active_distances, 0, PARTIAL_ACTIVE, PUSH_TRAVERSAL);
 
         // compute reference result
+        VerticesArrayNec<float> seq_distances(graph, SCATTER);
         ShortestPaths::seq_dijkstra(graph, weights, seq_distances, 0);
 
         // reorder obtained arrays

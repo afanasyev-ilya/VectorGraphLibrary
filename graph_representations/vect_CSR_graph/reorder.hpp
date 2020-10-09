@@ -2,7 +2,7 @@
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-int VectCSRGraph::reorder(int _vertex_id, DataDirection _input_dir, DataDirection _output_dir)
+int VectCSRGraph::reorder(int _vertex_id, TraversalDirection _input_dir, TraversalDirection _output_dir)
 {
     if(_input_dir == ORIGINAL)
     {

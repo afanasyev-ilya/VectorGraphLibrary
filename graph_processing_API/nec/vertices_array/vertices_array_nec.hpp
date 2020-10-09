@@ -3,7 +3,7 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template <typename _T>
-VerticesArrayNec<_T>::VerticesArrayNec(VectCSRGraph &_graph, DataDirection _direction)
+VerticesArrayNec<_T>::VerticesArrayNec(VectCSRGraph &_graph, TraversalDirection _direction)
 {
     direction = _direction;
     vertices_count = _graph.get_vertices_count();

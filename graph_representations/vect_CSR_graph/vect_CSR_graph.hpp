@@ -27,11 +27,11 @@ VectCSRGraph::~VectCSRGraph()
 
 ExtendedCSRGraph *VectCSRGraph::get_direction_graph_ptr(TraversalDirection _direction)
 {
-    if(_direction == SCATTER_TRAVERSAL)
+    if(_direction == SCATTER)
     {
         return get_outgoing_graph_ptr();
     }
-    else if(_direction == GATHER_TRAVERSAL)
+    else if(_direction == GATHER)
     {
         return get_incoming_graph_ptr();
     }

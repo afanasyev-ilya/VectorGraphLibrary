@@ -4,6 +4,7 @@
 
 #include "../vector_register/vector_registers.h"
 #include "../delayed_write/delayed_write_nec.h"
+#include <cstdarg>
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -26,10 +27,19 @@ private:
     VectCSRGraph *processed_graph_ptr;
     TraversalDirection current_traversal_direction;
 
+    bool same_direction(TraversalDirection _first, TraversalDirection _second);
+
+    // compute inner implementation
     template <typename ComputeOperation>
     void compute_worker(ExtendedCSRGraph &_graph,
                         FrontierNEC &_frontier,
                         ComputeOperation &&compute_op);
+
+    // reduce inner implementation
+    template <typename _T, typename ReduceOperation>
+    _T reduce_sum(ExtendedCSRGraph &_graph,
+                  FrontierNEC &_frontier,
+                  ReduceOperation &&reduce_op);
 
     template <typename EdgeOperation, typename VertexPreprocessOperation,
             typename VertexPostprocessOperation, typename CollectiveEdgeOperation, typename CollectiveVertexPreprocessOperation,
@@ -169,7 +179,7 @@ private:
                                            FilterCondition &&filter_cond);
 public:
     // attaches graph-processing API to the specific graph
-    GraphAbstractionsNEC(VectCSRGraph &_graph, TraversalDirection _initial_traversal = SCATTER_TRAVERSAL);
+    GraphAbstractionsNEC(VectCSRGraph &_graph, TraversalDirection _initial_traversal = SCATTER);
 
     // change graph traversal direction (from GATHER to SCATTER or vice versa)
     void change_traversal_direction(TraversalDirection _new_direction);
@@ -206,11 +216,23 @@ public:
                  FrontierNEC &_frontier,
                  ComputeOperation &&compute_op);
 
+    // performs reduction using user-defined "reduce_op" operation for each element in the given frontier
+    template <typename _T, typename ReduceOperation>
+    _T reduce(VectCSRGraph &_graph,
+              FrontierNEC &_frontier,
+              ReduceOperation &&reduce_op,
+              REDUCE_TYPE _reduce_type);
+
     // creates new frontier, which satisfy user-defined "cond" condition
     template <typename FilterCondition>
     void generate_new_frontier(VectCSRGraph &_graph,
                                FrontierNEC &_frontier,
                                FilterCondition &&filter_cond);
+
+    // allows to check if multiple arrays (vertexArrays, frontiers) have correct direction
+    bool have_correct_direction();
+    template<typename _T, typename ... Types>
+    bool have_correct_direction(_T _first_arg, Types ... _args);
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -225,5 +247,6 @@ public:
 #include "advance_dense.hpp"
 #include "advance_sparse.hpp"
 #include "generate_new_frontier.hpp"
+#include "reduce.hpp"
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

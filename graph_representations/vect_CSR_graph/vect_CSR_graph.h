@@ -36,7 +36,7 @@ public:
     inline long long get_edges_count_in_outgoing_ve() {return outgoing_graph->get_edges_count_in_ve();};
     inline long long get_edges_count_in_incoming_ve() {return incoming_graph->get_edges_count_in_ve();};
 
-    int reorder(int _vertex_id, DataDirection _input_dir, DataDirection _output_dir);
+    int reorder(int _vertex_id, TraversalDirection _input_dir, TraversalDirection _output_dir);
 
     template <typename _T>
     void reorder_to_original(VerticesArrayNec<_T> &_data);
