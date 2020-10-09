@@ -164,17 +164,6 @@ bool UndirectedGraph::load_from_binary_file(string _file_name)
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-size_t UndirectedGraph::get_graph_size_in_bytes()
-{
-    size_t graph_size = 0;
-    graph_size += this->vertices_count * sizeof(int);
-    graph_size += (this->vertices_count + 1) * sizeof(long long);
-    graph_size += this->edges_count * sizeof(int);
-    return graph_size;
-}
-
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
 template <typename _T>
 _T& UndirectedGraph::get_edge_data(_T *_data_array, int _src_id, int _dst_id)
 {

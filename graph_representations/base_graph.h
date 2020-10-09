@@ -36,15 +36,21 @@ protected:
 public:
     BaseGraph() {this->graph_on_device = false;};
     ~BaseGraph() {};
-    
+
+    /* get API */
     inline int get_vertices_count() {return vertices_count;};
     inline long long get_edges_count() {return edges_count;};
-    
+
+    /* print API */
     virtual void print() = 0;
+    virtual void print_size() = 0;
+
+    /* file load/store API */
     virtual void save_to_graphviz_file(string file_name, VisualisationMode _visualisation_mode = VISUALISE_AS_DIRECTED) = 0;
     virtual bool save_to_binary_file(string file_name) = 0;
     virtual bool load_from_binary_file(string file_name) = 0;
-    
+
+    /* GPU specific (copy) API */
     #ifdef __USE_GPU__
     virtual void move_to_device() = 0;
     virtual void move_to_host() = 0;

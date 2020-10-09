@@ -17,34 +17,46 @@ private:
 public:
     EdgesListGraph(int _vertices_count = 1, long long _edges_count = 1);
     ~EdgesListGraph();
-    
+
+    /* get API */
     inline int *get_src_ids() {return src_ids;};
     inline int *get_dst_ids() {return dst_ids;};
-    
-    void resize(int _vertices_count, long long _edges_count);
 
-    void transpose();
-    
+    /* print API */
     void print();
     void print_in_csr_format();
-    
+    void print_size() {};
+
+    /* file load/store API */
     void save_to_graphviz_file(string file_name, VisualisationMode _visualisation_mode = VISUALISE_AS_DIRECTED);
     bool save_to_binary_file(string file_name);
     bool load_from_binary_file(string file_name);
 
-    // allow to renumber vertices based on indexes provided in conversion array
-    void renumber_vertices(int *_conversion_array, int *_work_buffer = NULL);
-
-    // preprocess functions
-    void preprocess_into_segmented();
-    #ifdef __USE_ASL__
-    void preprocess_into_csr_based(int *_work_buffer = NULL, asl_int_t *_asl_buffer = NULL);
-    #endif
-    
+    /* GPU specific (copy) API */
     #ifdef __USE_GPU__
     void move_to_device() {throw "not implemented yet";};
     void move_to_host() {throw "not implemented yet";};
     #endif
+
+    /* Further - VectCSRGraph specific API : reorder, working with double-directions, etc.*/
+    // resize graph
+    void resize(int _vertices_count, long long _edges_count);
+
+    // transpose edges list graph (implemented as fast pointer swap)
+    void transpose(); // TODO should it be in base Graph? basic graph operations API
+
+    // allow to renumber vertices based on indexes provided in conversion array
+    void renumber_vertices(int *_conversion_array, int *_work_buffer = NULL);
+
+    /* preprocess API */
+    // 2D segmenting preprocessing (each segment fits into LLC cache)
+    void preprocess_into_segmented();
+
+    // CSR-based preprocessing (vertices are sorted based on src_ids)
+    #ifdef __USE_ASL__
+    void preprocess_into_csr_based(int *_work_buffer = NULL, asl_int_t *_asl_buffer = NULL); // TODO non-ASL
+    #endif
+
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
