@@ -54,7 +54,7 @@ void __global__ compute_kernel_sparse(const int *_frontier_ids,
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template <typename _TVertexValue, typename _TEdgeWeight, typename ComputeOperation>
-void GraphPrimitivesGPU::compute(ExtendedCSRGraph &_graph,
+void GraphPrimitivesGPU::compute(UndirectedGraph &_graph,
                                  FrontierGPU &_frontier,
                                  ComputeOperation &&compute_op)
 {
@@ -63,7 +63,7 @@ void GraphPrimitivesGPU::compute(ExtendedCSRGraph &_graph,
     double t1 = omp_get_wtime();
     #endif
 
-    LOAD_EXTENDED_CSR_GRAPH_DATA(_graph);
+    LOAD_UNDIRECTED_CSR_GRAPH_DATA(_graph);
 
     long long *vertex_pointers = vertex_pointers;
 

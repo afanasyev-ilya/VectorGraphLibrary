@@ -11,7 +11,6 @@
 #include "../../common/cmd_parser/parser_options.h"
 #include "vector_extension/vector_extension.h"
 #include "../../common/memory_API/memory_API.h"
-#include "../../graph_processing_API/framework_types.h"
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -28,7 +27,7 @@ class EdgesArrayNec;
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-class ExtendedCSRGraph: public BaseGraph
+class UndirectedGraph: public BaseGraph
 {
 private:
     long long     *vertex_pointers;
@@ -70,10 +69,10 @@ private:
 
     void construct_CSR(EdgesListGraph &_el_graph);
 
-    void copy_edges_indexes(long long *_edges_reorder_buffer, asl_int_t *_asl_indexes, long long _edges_count);
+    void copy_edges_indexes(long long *_edges_reorder_indexes, asl_int_t *_asl_indexes, long long _edges_count);
 public:
-    ExtendedCSRGraph(int _vertices_count = 1, long long _edges_count = 1);
-    ~ExtendedCSRGraph();
+    UndirectedGraph(int _vertices_count = 1, long long _edges_count = 1);
+    ~UndirectedGraph();
     
     void resize(int _vertices_count, long long _edges_count);
 
@@ -88,7 +87,7 @@ public:
     bool load_from_binary_file(string file_name);
 
     // main function to create vector CSR format
-    void import_and_preprocess(EdgesListGraph &_old_graph, long long *_edges_reorder_buffer);
+    void import_and_preprocess(EdgesListGraph &_old_graph, long long *_edges_reorder_indexes);
 
     // get API
     inline long long       *get_vertex_pointers()        {return vertex_pointers;};
@@ -100,7 +99,7 @@ public:
     inline int get_connections_count(int _vertex_id) {return (vertex_pointers[_vertex_id+1] - vertex_pointers[_vertex_id]);};
 
     inline long long get_csr_edge_id(int _src_id, int _dst_id);
-    inline long long get_ve_edge_id(int _src_id, int _dst_id) { return last_vertices_ve.get_ve_edge_id(_src_id, _dst_id); };
+    inline long long get_ve_edge_id (int _src_id, int _dst_id) { return last_vertices_ve.get_ve_edge_id(_src_id, _dst_id); };
 
     // reorder API
     int reorder_to_sorted(int _vertex_id);
@@ -138,7 +137,7 @@ public:
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#define LOAD_EXTENDED_CSR_GRAPH_DATA(input_graph)                        \
+#define LOAD_UNDIRECTED_CSR_GRAPH_DATA(input_graph)                        \
 int vertices_count                   = input_graph.get_vertices_count(); \
 long long int edges_count            = input_graph.get_edges_count   (); \
 \
@@ -155,7 +154,7 @@ int *ve_adjacent_ids = (input_graph.get_ve_ptr())->get_adjacent_ids();\
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#include "extended_CSR_graph.hpp"
+#include "undirected_graph.hpp"
 #include "preprocess.hpp"
 #include "gpu_api.hpp"
 #include "nec_api.hpp"

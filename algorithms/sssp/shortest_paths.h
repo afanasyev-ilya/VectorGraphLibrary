@@ -51,7 +51,7 @@ public:
                              int _source_vertex);
 
     /*#ifdef __USE_NEC_SX_AURORA__
-    void nec_dijkstra(ExtendedCSRGraph &_graph, _TEdgeWeight *_distances,
+    void nec_dijkstra(UndirectedGraph &_graph, _TEdgeWeight *_distances,
                       int _source_vertex, AlgorithmFrontierType _frontier_type = ALL_ACTIVE,
                       AlgorithmTraversalType _traversal_direction = PUSH_TRAVERSAL);
     #endif*/
@@ -69,7 +69,7 @@ public:
     #endif*/
 
     /*#ifdef __USE_GPU__
-    void gpu_dijkstra(ExtendedCSRGraph &_graph,
+    void gpu_dijkstra(UndirectedGraph &_graph,
                       _TEdgeWeight *_distances, int _source_vertex,
                       AlgorithmFrontierType _frontier_type = PARTIAL_ACTIVE,
                       AlgorithmTraversalType _traversal_direction = PUSH_TRAVERSAL);

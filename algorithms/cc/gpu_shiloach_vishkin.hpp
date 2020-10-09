@@ -4,10 +4,10 @@
 
 #ifdef __USE_GPU__
 
-void CC::gpu_shiloach_vishkin(ExtendedCSRGraph &_graph,
+void CC::gpu_shiloach_vishkin(UndirectedGraph &_graph,
                               int *_components)
 {
-    LOAD_EXTENDED_CSR_GRAPH_DATA(_graph);
+    LOAD_UNDIRECTED_CSR_GRAPH_DATA(_graph);
 
     int *device_components;
     MemoryAPI::allocate_device_array(&device_components, vertices_count);

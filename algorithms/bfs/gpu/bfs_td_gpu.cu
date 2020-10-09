@@ -21,12 +21,12 @@ using namespace std;
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-void top_down_wrapper(ExtendedCSRGraph &_graph,
+void top_down_wrapper(UndirectedGraph &_graph,
                       int *_levels,
                       int _source_vertex,
                       int &_iterations_count)
 {
-    LOAD_EXTENDED_CSR_GRAPH_DATA(_graph);
+    LOAD_UNDIRECTED_CSR_GRAPH_DATA(_graph);
     GraphPrimitivesGPU graph_API;
     FrontierGPU frontier(_graph.get_vertices_count());
 
@@ -82,7 +82,7 @@ void top_down_wrapper(ExtendedCSRGraph &_graph,
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-template void top_down_wrapper<int, float>(ExtendedCSRGraph<int, float> &_graph, int *_levels,
+template void top_down_wrapper<int, float>(UndirectedGraph<int, float> &_graph, int *_levels,
                                            int _source_vertex, int &_iterations_count);
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

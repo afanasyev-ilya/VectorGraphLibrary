@@ -232,7 +232,7 @@ void __global__ virtual_warp_per_vertex_kernel(const long long *_vertex_pointers
 
 template <typename _TVertexValue, typename _TEdgeWeight, typename EdgeOperation, typename VertexPreprocessOperation,
         typename VertexPostprocessOperation>
-void GraphPrimitivesGPU::advance_sparse(ExtendedCSRGraph &_graph,
+void GraphPrimitivesGPU::advance_sparse(UndirectedGraph &_graph,
                                         FrontierGPU &_frontier,
                                         EdgeOperation edge_op,
                                         VertexPreprocessOperation vertex_preprocess_op,
@@ -243,7 +243,7 @@ void GraphPrimitivesGPU::advance_sparse(ExtendedCSRGraph &_graph,
     cudaDeviceSynchronize();
     double t1 = omp_get_wtime();
     #endif
-    LOAD_EXTENDED_CSR_GRAPH_DATA(_graph);
+    LOAD_UNDIRECTED_CSR_GRAPH_DATA(_graph);
 
     int grid_threshold_start = 0;
     int grid_threshold_end = 0;

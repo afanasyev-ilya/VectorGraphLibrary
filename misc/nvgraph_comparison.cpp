@@ -33,7 +33,7 @@ void check_status(nvgraphStatus_t status)
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 void nvgraph_sssp(int vertices_count, int edges_count, int *source_indices, int *destination_offsets, float *weights,
-                  float *sssp, ExtendedCSRGraph<int, float> &_graph)
+                  float *sssp, UndirectedGraph<int, float> &_graph)
 {
     nvgraphHandle_t handle;
     nvgraphGraphDescr_t graph;
@@ -111,7 +111,7 @@ void nvgraph_sssp(int vertices_count, int edges_count, int *source_indices, int 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 void nvgraph_page_rank(int vertices_count, int edges_count, int *source_indices, int *destination_offsets, float *weights,
-                       float *sssp, ExtendedCSRGraph<int, float> &_graph)
+                       float *sssp, UndirectedGraph<int, float> &_graph)
 {
     size_t vert_sets = 2, edge_sets = 1;
     float alpha1 = 0.85f; void *alpha1_p = (void *) &alpha1;
@@ -184,7 +184,7 @@ void nvgraph_page_rank(int vertices_count, int edges_count, int *source_indices,
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 void nvgraph_bfs(int vertices_count, int edges_count, int *source_indices, int *destination_offsets,
-                 ExtendedCSRGraph<int, float> &_graph)
+                 UndirectedGraph<int, float> &_graph)
 {
     const size_t  n = vertices_count, nnz = edges_count, vertex_numsets = 2, edge_numset = 0;
     int *source_offsets_h = destination_offsets;
@@ -261,9 +261,9 @@ void nvgraph_bfs(int vertices_count, int edges_count, int *source_indices, int *
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-void convert_and_test(ExtendedCSRGraph &_graph, string alg)
+void convert_and_test(UndirectedGraph &_graph, string alg)
 {
-    LOAD_EXTENDED_CSR_GRAPH_DATA(_graph)
+    LOAD_UNDIRECTED_CSR_GRAPH_DATA(_graph)
 
     vector<vector<TempEdgeData<float> > > csc_tmp_graph;
 
@@ -329,7 +329,7 @@ int main(int argc, char **argv)
         string input_graph_name = string(argv[1]);
         cout << input_graph_name << endl;
         
-        ExtendedCSRGraph<int, float> graph;
+        UndirectedGraph<int, float> graph;
         if(!graph.load_from_binary_file(input_graph_name))
             throw "ERROR: no such file " + input_graph_name + " in nvgraph test";
         

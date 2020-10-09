@@ -10,9 +10,9 @@ using namespace std;
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-void BFS::seq_top_down(ExtendedCSRGraph &_graph, int *_levels, int _source_vertex)
+void BFS::seq_top_down(UndirectedGraph &_graph, int *_levels, int _source_vertex)
 {
-    LOAD_EXTENDED_CSR_GRAPH_DATA(_graph);
+    LOAD_UNDIRECTED_CSR_GRAPH_DATA(_graph);
 
     // Mark all the vertices as not visited
     for(int i = 0; i < vertices_count; i++)

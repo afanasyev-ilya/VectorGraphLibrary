@@ -3,7 +3,7 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #ifdef __USE_NEC_SX_AURORA__
-void ExtendedCSRGraph::estimate_nec_thresholds()
+void UndirectedGraph::estimate_nec_thresholds()
 {
     double t1 = omp_get_wtime();
 

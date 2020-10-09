@@ -31,7 +31,7 @@ void KCore::free_result_memory(int *_kcore_data)
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-void KCore::kcore_subgraph(ExtendedCSRGraph &_graph,
+void KCore::kcore_subgraph(UndirectedGraph &_graph,
                                                         int *_kcore_degrees,
                                                         int _k)
 {
@@ -229,7 +229,7 @@ void KCore::kcore_subgraph(VectorisedCSRGraph &_graph,
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-void KCore::maximal_kcore(ExtendedCSRGraph &_graph,
+void KCore::maximal_kcore(UndirectedGraph &_graph,
                                                        int *_kcore_degrees)
 {
     int peel = 1;
@@ -315,7 +315,7 @@ void KCore::maximal_kcore(ExtendedCSRGraph &_graph,
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-void KCore::calculate_kcore_sizes(ExtendedCSRGraph &_graph,
+void KCore::calculate_kcore_sizes(UndirectedGraph &_graph,
                                                                int *_kcore_data,
                                                                int &_kcore_vertices_count,
                                                                long long &_kcore_edges_count)

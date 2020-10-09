@@ -35,22 +35,6 @@ enum FrontierType {
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-string get_frontier_status_string(FrontierType _type)
-{
-    string status;
-    if(_type == ALL_ACTIVE_FRONTIER)
-        status = "all active";
-    if(_type == SPARSE_FRONTIER)
-        status = "sparse";
-    if(_type == DENSE_FRONTIER)
-        status = "dense";
-
-    return status;
-}
-
-
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
 #define IN_FRONTIER_FLAG 1
 #define NOT_IN_FRONTIER_FLAG 0
 

@@ -23,7 +23,7 @@ int main(int argc, const char * argv[])
         AlgorithmCommandOptionsParser parser;
         parser.parse_args(argc, argv);
 
-        ExtendedCSRGraph<int, float> graph;
+        UndirectedGraph<int, float> graph;
         if(parser.get_compute_mode() == GENERATE_NEW_GRAPH)
         {
             EdgesListGraph<int, float> rand_graph;

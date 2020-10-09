@@ -7,7 +7,7 @@
 template <typename EdgeOperation, typename VertexPreprocessOperation,
         typename VertexPostprocessOperation, typename CollectiveEdgeOperation, typename CollectiveVertexPreprocessOperation,
         typename CollectiveVertexPostprocessOperation>
-void GraphAbstractionsNEC::advance_worker(ExtendedCSRGraph &_graph,
+void GraphAbstractionsNEC::advance_worker(UndirectedGraph &_graph,
                                           FrontierNEC &_frontier,
                                           EdgeOperation &&edge_op,
                                           VertexPreprocessOperation &&vertex_preprocess_op,
@@ -17,7 +17,7 @@ void GraphAbstractionsNEC::advance_worker(ExtendedCSRGraph &_graph,
                                           CollectiveVertexPostprocessOperation &&collective_vertex_postprocess_op,
                                           int _first_edge)
 {
-    LOAD_EXTENDED_CSR_GRAPH_DATA(_graph);
+    LOAD_UNDIRECTED_CSR_GRAPH_DATA(_graph);
 
     #ifdef __PRINT_API_PERFORMANCE_STATS__
     #pragma omp master

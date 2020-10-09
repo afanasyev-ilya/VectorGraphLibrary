@@ -18,7 +18,7 @@ int main(int argc, const char * argv[])
         parser.parse_args(argc, argv);
 
         // load graph
-        ExtendedCSRGraph<int, float> graph;
+        UndirectedGraph<int, float> graph;
         if(parser.get_compute_mode() == LOAD_GRAPH_FROM_FILE)
         {
             double t1 = omp_get_wtime();

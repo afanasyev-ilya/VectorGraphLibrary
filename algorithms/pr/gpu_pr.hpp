@@ -4,13 +4,13 @@
 
 #ifdef __USE_GPU__
 
-void PR::gpu_page_rank(ExtendedCSRGraph &_graph,
+void PR::gpu_page_rank(UndirectedGraph &_graph,
                        float *_page_ranks,
                        float _convergence_factor,
                        int _max_iterations,
                        AlgorithmTraversalType _traversal_direction)
 {
-    LOAD_EXTENDED_CSR_GRAPH_DATA(_graph);
+    LOAD_UNDIRECTED_CSR_GRAPH_DATA(_graph);
 
     float *device_page_ranks;
     MemoryAPI::allocate_device_array(&device_page_ranks, vertices_count);

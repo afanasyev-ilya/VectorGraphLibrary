@@ -3,7 +3,7 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #ifdef __USE_NEC_SX_AURORA__
-void BFS::nec_top_down_compute_step(ExtendedCSRGraph &_graph,
+void BFS::nec_top_down_compute_step(UndirectedGraph &_graph,
                                                                  int *_levels,
                                                                  int _current_level,
                                                                  int &_vis,
@@ -64,7 +64,7 @@ void BFS::nec_top_down_compute_step(ExtendedCSRGraph &_graph,
 
 #ifdef __USE_NEC_SX_AURORA__
 
-void BFS::nec_bottom_up_compute_step(ExtendedCSRGraph &_graph,
+void BFS::nec_bottom_up_compute_step(UndirectedGraph &_graph,
                                                                   int *_levels,
                                                                   int *_connections_array,
                                                                   int _current_level,
@@ -164,11 +164,11 @@ void BFS::nec_bottom_up_compute_step(ExtendedCSRGraph &_graph,
 
 #ifdef __USE_NEC_SX_AURORA__
 
-void BFS::nec_top_down(ExtendedCSRGraph &_graph,
+void BFS::nec_top_down(UndirectedGraph &_graph,
                                                     int *_levels,
                                                     int _source_vertex)
 {
-    LOAD_EXTENDED_CSR_GRAPH_DATA(_graph);
+    LOAD_UNDIRECTED_CSR_GRAPH_DATA(_graph);
     frontier.set_all_active();
 
     auto init_levels = [_levels, _source_vertex] (int src_id, int connections_count, int vector_index)
@@ -221,11 +221,11 @@ void BFS::nec_top_down(ExtendedCSRGraph &_graph,
 
 #ifdef __USE_NEC_SX_AURORA__
 
-double BFS::nec_direction_optimizing(ExtendedCSRGraph &_graph,
+double BFS::nec_direction_optimizing(UndirectedGraph &_graph,
                                                                   int *_levels,
                                                                   int _source_vertex)
 {
-    LOAD_EXTENDED_CSR_GRAPH_DATA(_graph);
+    LOAD_UNDIRECTED_CSR_GRAPH_DATA(_graph);
     GraphStructure graph_structure = check_graph_structure(_graph);
     int *connections_array;
     MemoryAPI::allocate_array(&connections_array, vertices_count);

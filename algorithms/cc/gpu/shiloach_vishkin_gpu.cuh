@@ -3,7 +3,7 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-void shiloach_vishkin_wrapper(ExtendedCSRGraph &_graph,
+void shiloach_vishkin_wrapper(UndirectedGraph &_graph,
                               int *_components,
                               int &_iterations_count);
 

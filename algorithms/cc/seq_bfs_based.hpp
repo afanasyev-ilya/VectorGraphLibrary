@@ -3,10 +3,10 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-void CC::seq_bfs_based(ExtendedCSRGraph &_graph,
+void CC::seq_bfs_based(UndirectedGraph &_graph,
                        int *_components)
 {
-    LOAD_EXTENDED_CSR_GRAPH_DATA(_graph);
+    LOAD_UNDIRECTED_CSR_GRAPH_DATA(_graph);
 
     BFS<int, float> bfs_operation(_graph);
 

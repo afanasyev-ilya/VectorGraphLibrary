@@ -2,10 +2,10 @@
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void ExtendedCSRGraph::print()
+void UndirectedGraph::print()
 {
     cout << endl;
-    cout << "ExtendedCSRGraph format" << endl;
+    cout << "UndirectedGraph format" << endl;
 
     cout << "|V|=" << this->vertices_count << endl;
     cout << "|E|=" << this->edges_count << endl;
@@ -38,10 +38,10 @@ void ExtendedCSRGraph::print()
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template <typename _T>
-void ExtendedCSRGraph::print_with_weights(EdgesArrayNec<_T> &_weights, TraversalDirection _direction)
+void UndirectedGraph::print_with_weights(EdgesArrayNec<_T> &_weights, TraversalDirection _direction)
 {
     cout << endl;
-    cout << "ExtendedCSRGraph format" << endl;
+    cout << "UndirectedGraph format" << endl;
 
     cout << "|V|=" << this->vertices_count << endl;
     cout << "|E|=" << this->edges_count << endl;

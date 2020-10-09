@@ -14,7 +14,7 @@ void GraphAbstractionsNEC::gather(VectCSRGraph &_graph,
                                   CollectiveVertexPreprocessOperation &&collective_vertex_preprocess_op,
                                   CollectiveVertexPostprocessOperation &&collective_vertex_postprocess_op)
 {
-    ExtendedCSRGraph *current_direction_graph;
+    UndirectedGraph *current_direction_graph;
 
     if(current_traversal_direction != GATHER)
     {

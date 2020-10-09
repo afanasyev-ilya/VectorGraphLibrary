@@ -3,11 +3,11 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template <typename _TVertexValue, typename _TEdgeWeight, typename ComputeOperation>
-void GraphPrimitivesMulticore::compute(ExtendedCSRGraph &_graph,
+void GraphPrimitivesMulticore::compute(UndirectedGraph &_graph,
                                        FrontierMulticore &_frontier,
                                        ComputeOperation compute_op)
 {
-    LOAD_EXTENDED_CSR_GRAPH_DATA(_graph);
+    LOAD_UNDIRECTED_CSR_GRAPH_DATA(_graph);
     const long long int *vertex_pointers = vertex_pointers;
 
     int max_frontier_size = _frontier.max_size;

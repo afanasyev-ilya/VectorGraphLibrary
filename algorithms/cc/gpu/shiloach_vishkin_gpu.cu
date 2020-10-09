@@ -8,11 +8,11 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-void shiloach_vishkin_wrapper(ExtendedCSRGraph &_graph,
+void shiloach_vishkin_wrapper(UndirectedGraph &_graph,
                               int *_components,
                               int &_iterations_count)
 {
-    LOAD_EXTENDED_CSR_GRAPH_DATA(_graph);
+    LOAD_UNDIRECTED_CSR_GRAPH_DATA(_graph);
 
     GraphPrimitivesGPU graph_API;
     FrontierGPU frontier(_graph.get_vertices_count());
@@ -80,7 +80,7 @@ void shiloach_vishkin_wrapper(ExtendedCSRGraph &_graph,
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-template void shiloach_vishkin_wrapper<int, float>(ExtendedCSRGraph<int, float> &_graph, int *_components,
+template void shiloach_vishkin_wrapper<int, float>(UndirectedGraph<int, float> &_graph, int *_components,
                                                    int &_iterations_count);
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

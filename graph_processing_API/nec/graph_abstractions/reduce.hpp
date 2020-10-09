@@ -3,11 +3,11 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template <typename _T, typename ReduceOperation>
-_T GraphAbstractionsNEC::reduce_sum(ExtendedCSRGraph &_graph,
+_T GraphAbstractionsNEC::reduce_sum(UndirectedGraph &_graph,
                                     FrontierNEC &_frontier,
                                     ReduceOperation &&reduce_op)
 {
-    LOAD_EXTENDED_CSR_GRAPH_DATA(_graph);
+    LOAD_UNDIRECTED_CSR_GRAPH_DATA(_graph);
 
     _T reduce_result = 0.0;
 
@@ -66,7 +66,7 @@ _T GraphAbstractionsNEC::reduce(VectCSRGraph &_graph,
         throw "Error in GraphAbstractionsNEC::reduce : wrong frontier direction";
     }
 
-    ExtendedCSRGraph *current_direction_graph;
+    UndirectedGraph *current_direction_graph;
     if(current_traversal_direction == SCATTER)
     {
         current_direction_graph = _graph.get_outgoing_graph_ptr();

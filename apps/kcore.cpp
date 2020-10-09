@@ -21,7 +21,7 @@ int main(int argc, const char * argv[])
         int edges_count = vertices_count * atoi(argv[2]);
         GraphGenerationAPI<int, float>::R_MAT(rand_graph, vertices_count, edges_count, 57, 19, 19, 5, UNDIRECTED_GRAPH);
         
-        ExtendedCSRGraph<int, float> graph;
+        UndirectedGraph<int, float> graph;
         graph.import_graph(rand_graph, VERTICES_SORTED, EDGES_UNSORTED, VECTOR_LENGTH, PUSH_TRAVERSAL);
         
         //graph.save_to_graphviz_file("TEST.gv", VISUALISE_AS_UNDIRECTED);

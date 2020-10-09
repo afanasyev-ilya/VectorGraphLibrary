@@ -48,10 +48,21 @@ void VectCSRGraph::reorder_to_original(VerticesArrayNec<_T> &_data)
     Timer tm;
     tm.start();
 
-    _T *buffer;
-    MemoryAPI::allocate_array(&buffer, this->vertices_count);
-
     // allocate buffer if not enough space
+    bool buffer_was_allocated = false;
+    _T *buffer;
+    if(vertices_buffer_can_be_used(_data))
+    {
+        buffer = (_T *) vertices_reorder_buffer;
+        buffer_was_allocated = false;
+    }
+    else
+    {
+        MemoryAPI::allocate_array(&buffer, this->vertices_count);
+        buffer_was_allocated = true;
+    }
+
+    // do reorder
     if(_data.get_direction() == ORIGINAL)
     {
         return;
@@ -67,7 +78,8 @@ void VectCSRGraph::reorder_to_original(VerticesArrayNec<_T> &_data)
 
     _data.set_direction(ORIGINAL);
 
-    MemoryAPI::free_array(buffer);
+    if(buffer_was_allocated)
+        MemoryAPI::free_array(buffer);
 
     tm.end();
     #ifdef __PRINT_API_PERFORMANCE_STATS__
@@ -83,10 +95,21 @@ void VectCSRGraph::reorder_to_scatter(VerticesArrayNec<_T> &_data)
     Timer tm;
     tm.start();
 
-    _T *buffer;
-    MemoryAPI::allocate_array(&buffer, this->vertices_count);
-
     // allocate buffer if not enough space
+    bool buffer_was_allocated = false;
+    _T *buffer;
+    if(vertices_buffer_can_be_used(_data))
+    {
+        buffer = (_T *) vertices_reorder_buffer;
+        buffer_was_allocated = false;
+    }
+    else
+    {
+        MemoryAPI::allocate_array(&buffer, this->vertices_count);
+        buffer_was_allocated = true;
+    }
+
+    // do reorder
     if(_data.get_direction() == SCATTER)
     {
         return;
@@ -101,9 +124,10 @@ void VectCSRGraph::reorder_to_scatter(VerticesArrayNec<_T> &_data)
         outgoing_graph->reorder_to_sorted(_data.get_ptr(), buffer);
     }
 
-    _data.set_direction(ORIGINAL);
+    _data.set_direction(SCATTER);
 
-    MemoryAPI::free_array(buffer);
+    if(buffer_was_allocated)
+        MemoryAPI::free_array(buffer);
 
     tm.end();
     #ifdef __PRINT_API_PERFORMANCE_STATS__
@@ -119,10 +143,21 @@ void VectCSRGraph::reorder_to_gather(VerticesArrayNec<_T> &_data)
     Timer tm;
     tm.start();
 
-    _T *buffer;
-    MemoryAPI::allocate_array(&buffer, this->vertices_count);
-
     // allocate buffer if not enough space
+    bool buffer_was_allocated = false;
+    _T *buffer;
+    if(vertices_buffer_can_be_used(_data))
+    {
+        buffer = (_T *) vertices_reorder_buffer;
+        buffer_was_allocated = false;
+    }
+    else
+    {
+        MemoryAPI::allocate_array(&buffer, this->vertices_count);
+        buffer_was_allocated = true;
+    }
+
+    // do reorder
     if(_data.get_direction() == GATHER)
     {
         return;
@@ -137,9 +172,10 @@ void VectCSRGraph::reorder_to_gather(VerticesArrayNec<_T> &_data)
         incoming_graph->reorder_to_sorted(_data.get_ptr(), buffer);
     }
 
-    _data.set_direction(ORIGINAL);
+    _data.set_direction(GATHER);
 
-    MemoryAPI::free_array(buffer);
+    if(buffer_was_allocated)
+        MemoryAPI::free_array(buffer);
 
     tm.end();
     #ifdef __PRINT_API_PERFORMANCE_STATS__
@@ -181,7 +217,7 @@ void VectCSRGraph::reorder_edges_to_gather(_T *_incoming_csr_ptr, _T *_outgoing_
     #pragma omp parallel for
     for(long long i = 0; i < this->edges_count; i++)
     {
-        _incoming_csr_ptr[i] = _outgoing_csr_ptr[edges_reorder_buffer[i]];
+        _incoming_csr_ptr[i] = _outgoing_csr_ptr[edges_reorder_indexes[i]];
     }
 
     tm.end();
@@ -191,4 +227,16 @@ void VectCSRGraph::reorder_edges_to_gather(_T *_incoming_csr_ptr, _T *_outgoing_
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+template <typename _T>
+bool VectCSRGraph::vertices_buffer_can_be_used(VerticesArrayNec<_T> &_data)
+{
+    if(sizeof(_T) <= sizeof(vertices_reorder_buffer[0]))
+        return true;
+    else
+        return false;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 

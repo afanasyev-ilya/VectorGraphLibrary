@@ -19,16 +19,16 @@ private:
     FrontierNEC frontier;
 
     #ifdef __USE_NEC_SX_AURORA__
-    void nec_top_down_compute_step(ExtendedCSRGraph &_graph, int *_levels,
+    void nec_top_down_compute_step(UndirectedGraph &_graph, int *_levels,
                                    int _current_level, int &_vis, int &_in_lvl, bool _compute_stats);
     #endif
 
     #ifdef __USE_NEC_SX_AURORA__
-    void nec_bottom_up_compute_step(ExtendedCSRGraph &_graph, int *_levels, int *_connections_array,
+    void nec_bottom_up_compute_step(UndirectedGraph &_graph, int *_levels, int *_connections_array,
                                     int _current_level, int &_vis, int &_in_lvl, bool _use_vector_extension);
     #endif
 public:
-    BFS(ExtendedCSRGraph &_graph);
+    BFS(UndirectedGraph &_graph);
     ~BFS();
     
     void allocate_result_memory(int _vertices_count, int **_levels);
@@ -42,23 +42,23 @@ public:
     #endif
 
     #ifdef __USE_GPU__
-    void gpu_top_down(ExtendedCSRGraph &_graph, int *_levels, int _source_vertex);
+    void gpu_top_down(UndirectedGraph &_graph, int *_levels, int _source_vertex);
     #endif
 
     #ifdef __USE_GPU__
-    void gpu_direction_optimizing(ExtendedCSRGraph &_graph, int *_levels, int _source_vertex);
+    void gpu_direction_optimizing(UndirectedGraph &_graph, int *_levels, int _source_vertex);
     #endif
 
     #ifdef __USE_NEC_SX_AURORA__
-    void nec_top_down(ExtendedCSRGraph &_graph, int *_levels, int _source_vertex);
+    void nec_top_down(UndirectedGraph &_graph, int *_levels, int _source_vertex);
     #endif
 
     #ifdef __USE_NEC_SX_AURORA__
-    double nec_direction_optimizing(ExtendedCSRGraph &_graph, int *_levels,
+    double nec_direction_optimizing(UndirectedGraph &_graph, int *_levels,
                                   int _source_vertex);
     #endif
 
-    void seq_top_down(ExtendedCSRGraph &_graph, int *_levels, int _source_vertex);
+    void seq_top_down(UndirectedGraph &_graph, int *_levels, int _source_vertex);
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

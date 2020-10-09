@@ -4,10 +4,10 @@
 
 #ifdef __USE_NEC_SX_AURORA__
 
-void CC::nec_shiloach_vishkin(ExtendedCSRGraph &_graph,
+void CC::nec_shiloach_vishkin(UndirectedGraph &_graph,
                               int *_components)
 {
-    LOAD_EXTENDED_CSR_GRAPH_DATA(_graph);
+    LOAD_UNDIRECTED_CSR_GRAPH_DATA(_graph);
 
     frontier.set_all_active();
     auto init_components_op = [&_components] (int src_id, int connections_count, int vector_index)

@@ -32,7 +32,6 @@ int main(int argc, const char * argv[])
         {
             EdgesListGraph el_graph;
             int v = pow(2.0, parser.get_scale());
-            long long edges_count = vertices_count * parser.get_avg_degree();
             if(parser.get_graph_type() == RMAT)
                 GraphGenerationAPI::R_MAT(el_graph, v, v * parser.get_avg_degree(), 57, 19, 19, 5, DIRECTED_GRAPH);
             else if(parser.get_graph_type() == RANDOM_UNIFORM)
@@ -67,7 +66,7 @@ int main(int argc, const char * argv[])
         double avg_perf = 0.0;
         for(int i = 0; i < parser.get_number_of_rounds(); i++)
         {
-            VerticesArrayNec<float> distances(graph, convert_direction_names(parser.get_traversal_direction()));
+            VerticesArrayNec<float> distances(graph, convert_traversal_type(parser.get_traversal_direction()));
 
             int source_vertex = rand()% (graph.get_vertices_count() / 100);
 
@@ -85,13 +84,11 @@ int main(int argc, const char * argv[])
             PerformanceStats::print_API_performance_timers(graph.get_edges_count());
             #endif
 
-            avg_perf += sssp_operation.get_performance()/parser.get_number_of_rounds();
-
             // check if required
             if(parser.get_check_flag())
             {
-                VerticesArrayNec<float> seq_distances(graph, SCATTER);
-                ShortestPaths::seq_dijkstra(graph, weights, seq_distances, sourc_vertex);
+                VerticesArrayNec<float> check_distances(graph, SCATTER);
+                ShortestPaths::seq_dijkstra(graph, weights, check_distances, source_vertex);
                 verify_results(graph, distances, check_distances);
             }
         }
@@ -105,8 +102,6 @@ int main(int argc, const char * argv[])
         #ifdef __SAVE_PERFORMANCE_STATS_TO_FILE__
         PerformanceStats::save_performance_to_file("sssp", parser.get_graph_file_name(), int(avg_perf));
         #endif
-
-        sssp_operation.free_result_memory(distances);
     }
     catch (string error)
     {

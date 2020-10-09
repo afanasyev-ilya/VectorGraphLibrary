@@ -3,7 +3,7 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-FrontierMulticore::FrontierMulticore(ExtendedCSRGraph &_graph)
+FrontierMulticore::FrontierMulticore(UndirectedGraph &_graph)
 {
     max_size = _graph.get_vertices_count();
     MemoryAPI::allocate_array(&flags, max_size);
@@ -44,7 +44,7 @@ FrontierMulticore::~FrontierMulticore()
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-void FrontierMulticore::print_frontier_info(ExtendedCSRGraph &_graph)
+void FrontierMulticore::print_frontier_info(UndirectedGraph &_graph)
 {
     // TODO
     throw "multicore TODO";
@@ -64,7 +64,7 @@ void FrontierMulticore::set_all_active()
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-void FrontierMulticore::add_vertex(ExtendedCSRGraph &_graph, int src_id)
+void FrontierMulticore::add_vertex(UndirectedGraph &_graph, int src_id)
 {
     //TODO
     throw "multicore TODO";
@@ -73,7 +73,7 @@ void FrontierMulticore::add_vertex(ExtendedCSRGraph &_graph, int src_id)
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-void FrontierMulticore::add_vertices(ExtendedCSRGraph &_graph, int *_vertex_ids, int _number_of_vertices)
+void FrontierMulticore::add_vertices(UndirectedGraph &_graph, int *_vertex_ids, int _number_of_vertices)
 {
     throw "multicore TODO";
 }

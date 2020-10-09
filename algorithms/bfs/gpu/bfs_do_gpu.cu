@@ -127,7 +127,7 @@ void __global__ ve_bottom_up_kernel(const long long *_vertex_pointers,
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-void bottom_up_step(ExtendedCSRGraph &_graph,
+void bottom_up_step(UndirectedGraph &_graph,
                     FrontierGPU &_frontier,
                     GraphPrimitivesGPU &_graph_API,
                     const long long *_vertex_pointers,
@@ -189,11 +189,11 @@ void init_vector_extension(const long long *_vertex_pointers,
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-void direction_optimizing_wrapper(ExtendedCSRGraph &_graph,
+void direction_optimizing_wrapper(UndirectedGraph &_graph,
                                   int *_levels,
                                   int _source_vertex, int &_iterations_count)
 {
-    LOAD_EXTENDED_CSR_GRAPH_DATA(_graph);
+    LOAD_UNDIRECTED_CSR_GRAPH_DATA(_graph);
     GraphPrimitivesGPU graph_API;
     FrontierGPU frontier(_graph.get_vertices_count());
 
@@ -310,7 +310,7 @@ void direction_optimizing_wrapper(ExtendedCSRGraph &_graph,
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-template void direction_optimizing_wrapper<int, float>(ExtendedCSRGraph<int, float> &_graph, int *_levels,
+template void direction_optimizing_wrapper<int, float>(UndirectedGraph<int, float> &_graph, int *_levels,
                                                        int _source_vertex, int &_iterations_count);
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

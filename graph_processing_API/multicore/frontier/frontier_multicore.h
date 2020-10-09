@@ -2,10 +2,6 @@
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#include "../../framework_types.h"
-
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
 class FrontierMulticore
 {
 private:
@@ -18,7 +14,7 @@ private:
     int max_size;
 public:
 
-    FrontierMulticore(ExtendedCSRGraph &_graph);
+    FrontierMulticore(UndirectedGraph &_graph);
     FrontierMulticore(int _vertices_count);
     ~FrontierMulticore();
 
@@ -30,13 +26,13 @@ public:
     void change_size(int _size) {max_size = _size;};
 
 
-    void print_frontier_info(ExtendedCSRGraph &_graph);
+    void print_frontier_info(UndirectedGraph &_graph);
 
 
-    inline void add_vertex(ExtendedCSRGraph &_graph, int src_id);
+    inline void add_vertex(UndirectedGraph &_graph, int src_id);
 
 
-    inline void add_vertices(ExtendedCSRGraph &_graph, int *_vertex_ids, int _number_of_vertices);
+    inline void add_vertices(UndirectedGraph &_graph, int *_vertex_ids, int _number_of_vertices);
 
     inline void clear() { current_size = 0; };
 

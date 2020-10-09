@@ -3,12 +3,12 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-void PR::seq_page_rank(ExtendedCSRGraph &_graph,
+void PR::seq_page_rank(UndirectedGraph &_graph,
                        float *_page_ranks,
                        float _convergence_factor,
                        int _max_iterations)
 {
-    LOAD_EXTENDED_CSR_GRAPH_DATA(_graph);
+    LOAD_UNDIRECTED_CSR_GRAPH_DATA(_graph);
 
     // set PR parameters
     float d = 0.85;

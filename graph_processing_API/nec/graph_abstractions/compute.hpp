@@ -3,7 +3,7 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template <typename ComputeOperation>
-void GraphAbstractionsNEC::compute_worker(ExtendedCSRGraph &_graph,
+void GraphAbstractionsNEC::compute_worker(UndirectedGraph &_graph,
                                                                        FrontierNEC &_frontier,
                                                                        ComputeOperation &&compute_op)
 {
@@ -12,7 +12,7 @@ void GraphAbstractionsNEC::compute_worker(ExtendedCSRGraph &_graph,
     #pragma omp barrier
     #endif
 
-    LOAD_EXTENDED_CSR_GRAPH_DATA(_graph);
+    LOAD_UNDIRECTED_CSR_GRAPH_DATA(_graph);
 
     int max_frontier_size = _frontier.max_size;
 
@@ -77,7 +77,7 @@ void GraphAbstractionsNEC::compute(VectCSRGraph &_graph,
         throw "Error in GraphAbstractionsNEC::compute : wrong frontier direction";
     }
 
-    ExtendedCSRGraph *current_direction_graph;
+    UndirectedGraph *current_direction_graph;
     if(current_traversal_direction == SCATTER)
     {
         current_direction_graph = _graph.get_outgoing_graph_ptr();

@@ -48,7 +48,7 @@ void GraphAnalytics::analyse_component_stats(int *_components, int _vertices_cou
 void GraphAnalytics::analyse_graph_stats(VectCSRGraph &_graph, string _graph_name)
 {
     /*
-    LOAD_EXTENDED_CSR_GRAPH_DATA(_graph);
+    LOAD_UNDIRECTED_CSR_GRAPH_DATA(_graph);
     long long *adjacent_ptrs = vertex_pointers;
 
     cout << "------------------------------------- graph stats -----------------------------------------" << endl;
@@ -135,7 +135,7 @@ map<int, int> GraphAnalytics::calculate_degree_distribution(long long *_adjacent
 
 void GraphAnalytics::print_graph_memory_consumption(VectCSRGraph &_graph)
 {
-    /*LOAD_EXTENDED_CSR_GRAPH_DATA(_graph);
+    /*LOAD_UNDIRECTED_CSR_GRAPH_DATA(_graph);
 
     double no_wights_size_in_bytes = sizeof(_TVertexValue)*vertices_count + sizeof(long long)*(vertices_count + 1) + sizeof(int)*edges_count;
     double weights_size_in_bytes = sizeof(_TEdgeWeight)*edges_count;

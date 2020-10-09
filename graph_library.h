@@ -12,6 +12,7 @@ using namespace std;
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #include "architectures.h"
+#include "framework_types.h"
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -28,7 +29,7 @@ using namespace std;
 
 #include "graph_representations/base_graph.h"
 #include "graph_representations/edges_list_graph/edges_list_graph.h"
-#include "graph_representations/extended_CSR_graph/extended_CSR_graph.h"
+#include "graph_representations/undirected_graph/undirected_graph.h"
 #include "graph_representations/vect_CSR_graph/vect_CSR_graph.h"
 //#include "graph_representations/sharded_graph/sharded_graph.h"
 

@@ -16,12 +16,16 @@
 class VectCSRGraph : public BaseGraph
 {
 private:
-    ExtendedCSRGraph *outgoing_graph;
-    ExtendedCSRGraph *incoming_graph;
+    UndirectedGraph *outgoing_graph;
+    UndirectedGraph *incoming_graph;
 
-    long long *edges_reorder_buffer;
+    long long *vertices_reorder_buffer;
+    long long *edges_reorder_indexes;
 
-    void resize_edges_reorder_buffer();
+    void resize_helper_arrays();
+
+    template <typename _T>
+    bool vertices_buffer_can_be_used(VerticesArrayNec<_T> &_data);
 public:
     VectCSRGraph(int _vertices_count = 1, long long _edges_count = 1);
     ~VectCSRGraph();
@@ -30,9 +34,9 @@ public:
     void import_graph(EdgesListGraph &_copy_graph);
 
     // get pointers to the specific undirected part of graph (incoming or outgoing ids)
-    ExtendedCSRGraph *get_outgoing_graph_ptr() {return outgoing_graph;};
-    ExtendedCSRGraph *get_incoming_graph_ptr() {return incoming_graph;};
-    ExtendedCSRGraph *get_direction_graph_ptr(TraversalDirection _direction);
+    UndirectedGraph *get_outgoing_graph_ptr() {return outgoing_graph;};
+    UndirectedGraph *get_incoming_graph_ptr() {return incoming_graph;};
+    UndirectedGraph *get_direction_graph_ptr(TraversalDirection _direction);
 
     // allows to get vector engine size
     inline long long get_edges_count_in_outgoing_ve() {return outgoing_graph->get_edges_count_in_ve();};
@@ -41,7 +45,7 @@ public:
     // allows to reorder a single vertex ID
     int reorder(int _vertex_id, TraversalDirection _input_dir, TraversalDirection _output_dir);
 
-    // allows to reorder verticesArrayw
+    // allows to reorder verticesArray
     template <typename _T>
     void reorder_to_original(VerticesArrayNec<_T> &_data);
     template <typename _T>

@@ -3,7 +3,7 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #ifdef __USE_GPU__
-void SSSP::gpu_dijkstra(ExtendedCSRGraph &_graph,
+void SSSP::gpu_dijkstra(UndirectedGraph &_graph,
                         _TEdgeWeight *_distances,
                         int _source_vertex,
                         AlgorithmFrontierType _frontier_type,
@@ -11,7 +11,7 @@ void SSSP::gpu_dijkstra(ExtendedCSRGraph &_graph,
 {
     //_graph.move_to_device();
 
-    LOAD_EXTENDED_CSR_GRAPH_DATA(_graph);
+    LOAD_UNDIRECTED_CSR_GRAPH_DATA(_graph);
 
     _TEdgeWeight *device_distances;
     MemoryAPI::allocate_non_managed_array(&device_distances, vertices_count);

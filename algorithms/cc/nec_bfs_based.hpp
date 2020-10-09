@@ -18,10 +18,10 @@ int calculate_remaining_count(int *_components, int _vertices_count)
 
 #ifdef __USE_NEC_SX_AURORA__
 
-void CC::nec_bfs_based(ExtendedCSRGraph &_graph,
+void CC::nec_bfs_based(UndirectedGraph &_graph,
                        int *_components)
 {
-    LOAD_EXTENDED_CSR_GRAPH_DATA(_graph);
+    LOAD_UNDIRECTED_CSR_GRAPH_DATA(_graph);
 
     int *bfs_levels;
     BFS<_TVertexValue,_TEdgeWeight> bfs_operation(_graph);

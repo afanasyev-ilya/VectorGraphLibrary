@@ -33,8 +33,8 @@ include_directories(graph_processing_API/nec/vector_register)
 include_directories(graph_representations)
 include_directories(graph_representations/common)
 include_directories(graph_representations/edges_list_graph)
-include_directories(graph_representations/extended_CSR_graph)
-include_directories(graph_representations/extended_CSR_graph/vector_extension)
+include_directories(graph_representations/undirected_graph)
+include_directories(graph_representations/undirected_graph/vector_extension)
 include_directories(graph_representations/sharded_graph)
 include_directories(graph_representations/sharded_graph/shard_base)
 include_directories(graph_representations/sharded_graph/shard_CSR)
@@ -120,13 +120,13 @@ add_executable(VectorGraphLibrary
         graph_representations/common/graph_types.h
         graph_representations/edges_list_graph/edges_list_graph.h
         graph_representations/edges_list_graph/edges_list_graph.hpp
-        graph_representations/extended_CSR_graph/vector_extension/vector_extension.h
-        graph_representations/extended_CSR_graph/vector_extension/vector_extension.hpp
-        graph_representations/extended_CSR_graph/extended_CSR_graph.h
-        graph_representations/extended_CSR_graph/extended_CSR_graph.hpp
-        graph_representations/extended_CSR_graph/gpu_api.hpp
-        graph_representations/extended_CSR_graph/preprocess.hpp
-        graph_representations/extended_CSR_graph/nec_api.hpp
+        graph_representations/undirected_graph/vector_extension/vector_extension.h
+        graph_representations/undirected_graph/vector_extension/vector_extension.hpp
+        graph_representations/undirected_graph/undirected_graph.h
+        graph_representations/undirected_graph/undirected_graph.hpp
+        graph_representations/undirected_graph/gpu_api.hpp
+        graph_representations/undirected_graph/preprocess.hpp
+        graph_representations/undirected_graph/nec_api.hpp
         graph_representations/sharded_graph/shard_base/shard_base.h
         graph_representations/sharded_graph/shard_base/shard_base.hpp
         graph_representations/sharded_graph/shard_CSR/shard_CSR.h

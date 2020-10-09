@@ -16,14 +16,14 @@ using namespace std;
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-void page_rank_wrapper(ExtendedCSRGraph &_graph,
+void page_rank_wrapper(UndirectedGraph &_graph,
                        float *_page_ranks,
                        float _convergence_factor,
                        int _max_iterations,
                        int &_iterations_count,
                        AlgorithmTraversalType _traversal_direction)
 {
-    LOAD_EXTENDED_CSR_GRAPH_DATA(_graph);
+    LOAD_UNDIRECTED_CSR_GRAPH_DATA(_graph);
     GraphPrimitivesGPU graph_API;
     FrontierGPU frontier(vertices_count);
 
@@ -167,7 +167,7 @@ void page_rank_wrapper(ExtendedCSRGraph &_graph,
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-template void page_rank_wrapper<int, float>(ExtendedCSRGraph<int, float> &_graph,
+template void page_rank_wrapper<int, float>(UndirectedGraph<int, float> &_graph,
                                             float *_page_ranks,
                                             float _convergence_factor,
                                             int _max_iterations,

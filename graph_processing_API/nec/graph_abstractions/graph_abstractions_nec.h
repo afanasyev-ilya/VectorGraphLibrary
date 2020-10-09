@@ -31,20 +31,20 @@ private:
 
     // compute inner implementation
     template <typename ComputeOperation>
-    void compute_worker(ExtendedCSRGraph &_graph,
+    void compute_worker(UndirectedGraph &_graph,
                         FrontierNEC &_frontier,
                         ComputeOperation &&compute_op);
 
     // reduce inner implementation
     template <typename _T, typename ReduceOperation>
-    _T reduce_sum(ExtendedCSRGraph &_graph,
+    _T reduce_sum(UndirectedGraph &_graph,
                   FrontierNEC &_frontier,
                   ReduceOperation &&reduce_op);
 
     template <typename EdgeOperation, typename VertexPreprocessOperation,
             typename VertexPostprocessOperation, typename CollectiveEdgeOperation, typename CollectiveVertexPreprocessOperation,
             typename CollectiveVertexPostprocessOperation>
-    void advance_worker(ExtendedCSRGraph &_graph,
+    void advance_worker(UndirectedGraph &_graph,
                         FrontierNEC &_frontier,
                         EdgeOperation &&edge_op,
                         VertexPreprocessOperation &&vertex_preprocess_op,

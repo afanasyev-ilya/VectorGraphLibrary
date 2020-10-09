@@ -69,7 +69,7 @@ void EdgesArrayNec<_T>::set(int _src_id, int _dst_id, _T _val, TraversalDirectio
         target_ve_buffer = incoming_ve_ptr;
     }
 
-    ExtendedCSRGraph *direction_graph_ptr = graph_ptr->get_direction_graph_ptr(_direction);
+    UndirectedGraph *direction_graph_ptr = graph_ptr->get_direction_graph_ptr(_direction);
 
     long long csr_edge_pos = direction_graph_ptr->get_csr_edge_id(_src_id, _dst_id);
     target_csr_buffer[csr_edge_pos] = _val;
@@ -97,7 +97,7 @@ _T EdgesArrayNec<_T>::get(int _src_id, int _dst_id, TraversalDirection _directio
         answer_ve_buffer_ptr = incoming_ve_ptr;
     }
 
-    ExtendedCSRGraph *direction_graph_ptr = graph_ptr->get_direction_graph_ptr(_direction);
+    UndirectedGraph *direction_graph_ptr = graph_ptr->get_direction_graph_ptr(_direction);
 
     long long csr_edge_pos = direction_graph_ptr->get_csr_edge_id(_src_id, _dst_id);
     long long ve_edge_pos = direction_graph_ptr->get_ve_edge_id(_src_id, _dst_id);

@@ -3,11 +3,11 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template <typename _TVertexValue, typename _TEdgeWeight, typename EdgeOperation>
-void GraphPrimitivesMulticore::advance(ExtendedCSRGraph &_graph,
+void GraphPrimitivesMulticore::advance(UndirectedGraph &_graph,
                                        FrontierMulticore &_frontier,
                                        EdgeOperation &&edge_op)
 {
-    LOAD_EXTENDED_CSR_GRAPH_DATA(_graph);
+    LOAD_UNDIRECTED_CSR_GRAPH_DATA(_graph);
 
     const long long int *_vertex_pointers = vertex_pointers;
     const int *_adjacent_ids = adjacent_ids;

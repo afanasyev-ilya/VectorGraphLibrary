@@ -6,10 +6,11 @@ VectCSRGraph::VectCSRGraph(int _vertices_count, long long _edges_count)
 {
     this->vertices_count = _vertices_count;
     this->edges_count = _edges_count;
-    outgoing_graph = new ExtendedCSRGraph(_vertices_count, _edges_count);
-    incoming_graph = new ExtendedCSRGraph(_vertices_count, _edges_count);
+    outgoing_graph = new UndirectedGraph(this->vertices_count, this->edges_count );
+    incoming_graph = new UndirectedGraph(this->vertices_count, this->edges_count );
 
-    edges_reorder_buffer = NULL;
+    edges_reorder_indexes = NULL;
+    vertices_reorder_buffer = NULL;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -19,13 +20,15 @@ VectCSRGraph::~VectCSRGraph()
     delete outgoing_graph;
     delete incoming_graph;
 
-    if(edges_reorder_buffer != NULL)
-        MemoryAPI::free_array(edges_reorder_buffer);
+    if(edges_reorder_indexes != NULL)
+        MemoryAPI::free_array(edges_reorder_indexes);
+    if(vertices_reorder_buffer != NULL)
+        MemoryAPI::free_array(vertices_reorder_buffer);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-ExtendedCSRGraph *VectCSRGraph::get_direction_graph_ptr(TraversalDirection _direction)
+UndirectedGraph *VectCSRGraph::get_direction_graph_ptr(TraversalDirection _direction)
 {
     if(_direction == SCATTER)
     {
@@ -37,7 +40,7 @@ ExtendedCSRGraph *VectCSRGraph::get_direction_graph_ptr(TraversalDirection _dire
     }
     else
     {
-        throw "Error in ExtendedCSRGraph::get_direction_graph_ptr, incorrect _direction type";
+        throw "Error in UndirectedGraph::get_direction_graph_ptr, incorrect _direction type";
         return NULL;
     }
 }
@@ -46,7 +49,22 @@ ExtendedCSRGraph *VectCSRGraph::get_direction_graph_ptr(TraversalDirection _dire
 
 int VectCSRGraph::select_random_vertex(TraversalDirection _direction)
 {
-    //int vertex_id = get_direction_graph_ptr(_direction)->select_random_vertex();
+    int attempt_num = 0;
+    while(attempt_num < ATTEMPTS_THRESHOLD)
+    {
+        int outgoing_vertex_id = outgoing_graph->select_random_vertex();
+        int incoming_vertex_id = this->reorder(outgoing_vertex_id, SCATTER, GATHER);
+        if(incoming_graph->get_connections_count(incoming_vertex_id) > 0)
+        {
+            int original_vertex_id = this->reorder(outgoing_vertex_id, SCATTER, ORIGINAL);
+            return original_vertex_id;
+        }
+
+        attempt_num++;
+    }
+
+    throw "Error in VectCSRGraph::select_random_vertex: can not select non-zero degree vertex in ATTEMPTS_THRESHOLD attempts";
+
     return -1;
 }
 

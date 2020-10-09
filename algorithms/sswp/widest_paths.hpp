@@ -22,7 +22,7 @@ void WidestPaths::free_result_memory(_TEdgeWeight *_widths)
 
 #ifdef __USE_NEC_SX_AURORA__
 
-SSWP::WidestPaths(ExtendedCSRGraph &_graph):
+SSWP::WidestPaths(UndirectedGraph &_graph):
 frontier(_graph.get_vertices_count())
 {
     MemoryAPI::allocate_array(&class_old_widths, _graph.get_vertices_count());

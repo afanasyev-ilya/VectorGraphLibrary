@@ -168,7 +168,7 @@ int main(int argc, char ** argv)
         
         if(output_format.find("extended_CSR") != string::npos)
         {
-            ExtendedCSRGraph<int, float> result_graph;
+            UndirectedGraph<int, float> result_graph;
             t1 = omp_get_wtime();
             result_graph.import_graph(rand_graph, VERTICES_SORTED, edges_state, 1, traversal_type, multiple_arcs_state);
             t2 = omp_get_wtime();
@@ -177,7 +177,7 @@ int main(int argc, char ** argv)
             t1 = omp_get_wtime();
             result_graph.save_to_binary_file(file_name + "_ext_CSR.gbin");
             t2 = omp_get_wtime();
-            cout << "saved into ExtendedCSRGraph in " << t2 - t1 << " sec"  << endl;
+            cout << "saved into UndirectedGraph in " << t2 - t1 << " sec"  << endl;
         }
         else if(output_format.find("ligra") != string::npos)
         {

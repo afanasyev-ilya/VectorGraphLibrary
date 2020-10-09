@@ -32,11 +32,11 @@ void BFS::copy_result_to_host(int *_host_levels, int *_device_levels, int _verti
 
 #ifdef __USE_GPU__
 
-void BFS::gpu_top_down(ExtendedCSRGraph &_graph,
+void BFS::gpu_top_down(UndirectedGraph &_graph,
                                          int *_device_levels,
                                          int _source_vertex)
 {
-    LOAD_EXTENDED_CSR_GRAPH_DATA(_graph);
+    LOAD_UNDIRECTED_CSR_GRAPH_DATA(_graph);
 
     _graph.move_to_device();
 
@@ -55,11 +55,11 @@ void BFS::gpu_top_down(ExtendedCSRGraph &_graph,
 
 #ifdef __USE_GPU__
 
-void BFS::gpu_direction_optimizing(ExtendedCSRGraph &_graph,
+void BFS::gpu_direction_optimizing(UndirectedGraph &_graph,
                                                                 int *_device_levels,
                                                                 int _source_vertex)
 {
-    LOAD_EXTENDED_CSR_GRAPH_DATA(_graph);
+    LOAD_UNDIRECTED_CSR_GRAPH_DATA(_graph);
 
     _graph.move_to_device();
 

@@ -13,8 +13,8 @@ template <typename _T>
 void SSSP::seq_dijkstra(VectCSRGraph &_graph, EdgesArrayNec<_T> &_weights, VerticesArrayNec<_T> &_distances,
                         int _source_vertex)
 {
-    ExtendedCSRGraph *outgoing_graph_ptr = _graph.get_outgoing_graph_ptr();
-    LOAD_EXTENDED_CSR_GRAPH_DATA((*outgoing_graph_ptr));
+    UndirectedGraph *outgoing_graph_ptr = _graph.get_outgoing_graph_ptr();
+    LOAD_UNDIRECTED_CSR_GRAPH_DATA((*outgoing_graph_ptr));
 
     _source_vertex = _graph.reorder(_source_vertex, ORIGINAL, SCATTER);
 

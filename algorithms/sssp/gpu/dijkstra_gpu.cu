@@ -17,13 +17,13 @@ using namespace std;
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-void gpu_dijkstra_all_active_wrapper(ExtendedCSRGraph &_graph,
+void gpu_dijkstra_all_active_wrapper(UndirectedGraph &_graph,
                                      _TEdgeWeight *_distances,
                                      int _source_vertex,
                                      int &_iterations_count,
                                      AlgorithmTraversalType _traversal_direction)
 {
-    LOAD_EXTENDED_CSR_GRAPH_DATA(_graph);
+    LOAD_UNDIRECTED_CSR_GRAPH_DATA(_graph);
     GraphPrimitivesGPU graph_API;
     FrontierGPU frontier(_graph.get_vertices_count());
 
@@ -81,12 +81,12 @@ void gpu_dijkstra_all_active_wrapper(ExtendedCSRGraph &_graph,
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-void gpu_dijkstra_partial_active_wrapper(ExtendedCSRGraph &_graph,
+void gpu_dijkstra_partial_active_wrapper(UndirectedGraph &_graph,
                                          _TEdgeWeight *_distances,
                                          int _source_vertex,
                                          int &_iterations_count)
 {
-    LOAD_EXTENDED_CSR_GRAPH_DATA(_graph);
+    LOAD_UNDIRECTED_CSR_GRAPH_DATA(_graph);
 
     GraphPrimitivesGPU graph_API;
 
@@ -147,9 +147,9 @@ void gpu_dijkstra_partial_active_wrapper(ExtendedCSRGraph &_graph,
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-template void gpu_dijkstra_all_active_wrapper<int, float>(ExtendedCSRGraph<int, float> &_graph, float *_distances, int _source_vertex,
+template void gpu_dijkstra_all_active_wrapper<int, float>(UndirectedGraph<int, float> &_graph, float *_distances, int _source_vertex,
                                                           int &_iterations_count, AlgorithmTraversalType _traversal_direction);
-template void gpu_dijkstra_partial_active_wrapper<int, float>(ExtendedCSRGraph<int, float> &_graph, float *_distances, int _source_vertex,
+template void gpu_dijkstra_partial_active_wrapper<int, float>(UndirectedGraph<int, float> &_graph, float *_distances, int _source_vertex,
                                                               int &_iterations_count);
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

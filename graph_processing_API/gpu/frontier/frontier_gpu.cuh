@@ -11,10 +11,6 @@
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#include "../../framework_types.h"
-
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
 #define GPU_VWP_16_THRESHOLD_VALUE 16
 #define GPU_VWP_8_THRESHOLD_VALUE 8
 #define GPU_VWP_4_THRESHOLD_VALUE 4
@@ -54,7 +50,7 @@ public:
     FrontierType get_type() {return type;};
 
 
-    void add_vertex(ExtendedCSRGraph &_graph, int src_id);
+    void add_vertex(UndirectedGraph &_graph, int src_id);
 
     friend class GraphPrimitivesGPU;
 };

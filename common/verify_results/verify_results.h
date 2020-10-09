@@ -34,9 +34,9 @@ void verify_results(VectCSRGraph &_graph,
                     int _first_printed_results = 0,
                     int _error_count_print = 30)
 {
-
+    // remember current directions for both arrays
     TraversalDirection prev_first_direction = _first.get_direction();
-    TraversalDirection prev_second_direction = _first.get_direction();
+    TraversalDirection prev_second_direction = _second.get_direction();
 
     // make both results stored in original order
     _graph.reorder_to_original(_first);
@@ -68,8 +68,8 @@ void verify_results(VectCSRGraph &_graph,
     }
 
     // restore order if required
-    //_graph.reorder(_first, prev_first_direction);
-    //_graph.reorder(_second, prev_second_direction);
+    _graph.reorder(_first, prev_first_direction);
+    _graph.reorder(_second, prev_second_direction);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
