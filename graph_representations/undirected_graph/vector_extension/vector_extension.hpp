@@ -103,7 +103,6 @@ void VectorExtension::init_from_graph(long long *_csr_adjacent_ptrs,
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-
 template <typename _T>
 void VectorExtension::copy_array_from_csr_to_ve(_T *_dst_ve_array, _T *_src_csr_array)
 {
@@ -140,7 +139,6 @@ void VectorExtension::copy_array_from_csr_to_ve(_T *_dst_ve_array, _T *_src_csr_
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-
 inline long long VectorExtension::get_ve_edge_id(int _src_id, int _dst_id)
 {
     int cur_vector_segment = (_src_id - first_vertex)/VECTOR_LENGTH;
@@ -166,6 +164,19 @@ inline long long VectorExtension::get_ve_edge_id(int _src_id, int _dst_id)
     }
     throw "Error in VectorExtension::get_csr_edge_id(): specified dst_id not found for current src vertex";
     return -1;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+size_t VectorExtension::get_size()
+{
+    size_t size = 0;
+    size += sizeof(vector_group_ptrs[0])*(this->vertices_count);
+    size += sizeof(vector_group_sizes[0])*(this->vertices_count);
+
+    size += sizeof(csr_adjacent_ptrs_ptr[0])*(this->vertices_count);
+    size += sizeof(adjacent_ids[0])*(this->edges_count_in_ve);
+    return size;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

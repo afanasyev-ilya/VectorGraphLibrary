@@ -21,7 +21,7 @@ LDFLAGS = -fopenmp -report-all -ftrace -lasl_openmp_i64 #-ftrace
 # binaries
 ##########
 
-all: sssp sswp bfs_td bfs_do cc pr apsp mf gather generate_test_data
+all: bfs sssp gather
 
 cc: create_folders cc.o
 	$(CXX) object_files/cc.o $(Library_Path) $(Libraries) $(LDFLAGS) -o ./bin/cc

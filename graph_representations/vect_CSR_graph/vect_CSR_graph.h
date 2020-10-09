@@ -32,7 +32,8 @@ public:
 
     /* print API */
     void print();
-    void print_size() {};
+    void print_size();
+    size_t get_size();
     template <typename _T>
     void print_with_weights(EdgesArrayNec<_T> &_weights);
 

@@ -26,6 +26,7 @@ public:
     void print();
     void print_in_csr_format();
     void print_size() {};
+    size_t get_size() {return 0;};
 
     /* file load/store API */
     void save_to_graphviz_file(string file_name, VisualisationMode _visualisation_mode = VISUALISE_AS_DIRECTED);

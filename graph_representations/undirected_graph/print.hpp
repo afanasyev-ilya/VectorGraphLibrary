@@ -77,3 +77,22 @@ void UndirectedGraph::print_with_weights(EdgesArrayNec<_T> &_weights, TraversalD
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+void UndirectedGraph::print_size()
+{
+    cout << "UndirectedGraph size: " << get_size()/1e9 << "GB" << endl;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+size_t UndirectedGraph::get_size()
+{
+    size_t size = 0;
+    size += sizeof(vertex_pointers[0])*(this->vertices_count+1);
+    size += sizeof(adjacent_ids[0])*(this->edges_count);
+    size += 2*sizeof(forward_conversion[0])*this->vertices_count;
+    size += last_vertices_ve.get_size();
+    return size;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

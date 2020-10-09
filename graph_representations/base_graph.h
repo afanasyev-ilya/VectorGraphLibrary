@@ -44,6 +44,7 @@ public:
     /* print API */
     virtual void print() = 0;
     virtual void print_size() = 0;
+    virtual size_t get_size() = 0;
 
     /* file load/store API */
     virtual void save_to_graphviz_file(string file_name, VisualisationMode _visualisation_mode = VISUALISE_AS_DIRECTED) = 0;

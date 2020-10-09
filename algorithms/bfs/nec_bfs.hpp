@@ -186,12 +186,10 @@ void BFS::nec_top_down(VectCSRGraph &_graph,
     frontier.clear();
     frontier.add_vertex(_source_vertex);
 
-    /*
-    double t1 = omp_get_wtime();
     int current_level = FIRST_LEVEL_VERTEX;
     while(frontier.size() > 0)
     {
-        auto edge_op = [_levels, current_level](int src_id, int dst_id, int local_edge_pos,
+        auto edge_op = [&_levels, current_level](int src_id, int dst_id, int local_edge_pos,
                 long long int global_edge_pos, int vector_index, DelayedWriteNEC &delayed_write)
         {
             int dst_level = _levels[dst_id];
@@ -201,7 +199,10 @@ void BFS::nec_top_down(VectCSRGraph &_graph,
             }
         };
 
-        auto on_next_level = [_levels, current_level] (int src_id)->int
+        graph_API.scatter(_graph, frontier, edge_op, EMPTY_VERTEX_OP, EMPTY_VERTEX_OP,
+                          edge_op, EMPTY_VERTEX_OP, EMPTY_VERTEX_OP);
+
+        auto on_next_level = [&_levels, current_level] (int src_id)->int
         {
             int result = NOT_IN_FRONTIER_FLAG;
             if(_levels[src_id] == (current_level + 1))
@@ -209,15 +210,16 @@ void BFS::nec_top_down(VectCSRGraph &_graph,
             return result;
         };
 
-        graph_API.advance(_graph, frontier, frontier, edge_op, on_next_level);
+        graph_API.generate_new_frontier(_graph, frontier, on_next_level);
 
         current_level++;
     }
-    double t2 = omp_get_wtime();
+
+    tm.end();
 
     #ifdef __PRINT_SAMPLES_PERFORMANCE_STATS__
-    PerformanceStats::print_performance_stats("BFS (top-down)", t2 - t1, edges_count, current_level);
-    #endif*/
+    PerformanceStats::print_performance_stats("BFS (top-down)", tm.get_time(), _graph.get_edges_count(), current_level);
+    #endif
 }
 #endif
 

@@ -41,6 +41,9 @@ int main(int argc, const char * argv[])
             cout << "file " << parser.get_graph_file_name() << " loaded in " << t2 - t1 << " sec" << endl;
         }
 
+        // print size of VectCSR graph
+        graph.print_size();
+
         #ifdef __USE_GPU__
         graph.move_to_device();
         #endif

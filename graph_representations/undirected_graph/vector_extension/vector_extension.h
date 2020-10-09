@@ -47,6 +47,8 @@ public:
 
     inline long long get_ve_edge_id(int _src_id, int _dst_id);
 
+    size_t get_size();
+
     template <typename _T>
     void copy_array_from_csr_to_ve(_T *_dst_ve_array, _T *_src_csr_array);
 };

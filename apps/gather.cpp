@@ -54,6 +54,9 @@ int main(int argc, const char * argv[])
         VectCSRGraph graph;
         graph.import_graph(el_graph);
 
+        // print size of VectCSR graph
+        graph.print_size();
+
         // create graph weights and set them random
         EdgesArrayNec<float> weights(graph);
         weights.set_all_random(MAX_WEIGHT);
