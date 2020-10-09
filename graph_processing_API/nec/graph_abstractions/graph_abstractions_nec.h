@@ -24,7 +24,7 @@ class GraphAbstractionsNEC
 {
 private:
     VectCSRGraph *processed_graph_ptr;
-    TraversalDirection traversal_direction;
+    TraversalDirection current_traversal_direction;
 
     template <typename ComputeOperation>
     void compute_worker(ExtendedCSRGraph &_graph,
@@ -161,6 +161,12 @@ private:
                                                            VertexPreprocessOperation vertex_preprocess_op,
                                                            VertexPostprocessOperation vertex_postprocess_op,
                                                            const int _first_edge);
+
+    template <typename FilterCondition>
+    int estimate_sorted_frontier_part_size(FrontierNEC &_frontier,
+                                           int _first_vertex,
+                                           int _last_vertex,
+                                           FilterCondition &&filter_cond);
 public:
     // attaches graph-processing API to the specific graph
     GraphAbstractionsNEC(VectCSRGraph &_graph, TraversalDirection _initial_traversal = SCATTER_TRAVERSAL);
@@ -199,6 +205,12 @@ public:
     void compute(VectCSRGraph &_graph,
                  FrontierNEC &_frontier,
                  ComputeOperation &&compute_op);
+
+    // creates new frontier, which satisfy user-defined "cond" condition
+    template <typename FilterCondition>
+    void generate_new_frontier(VectCSRGraph &_graph,
+                               FrontierNEC &_frontier,
+                               FilterCondition &&filter_cond);
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -212,5 +224,6 @@ public:
 #include "advance_all_active.hpp"
 #include "advance_dense.hpp"
 #include "advance_sparse.hpp"
+#include "generate_new_frontier.hpp"
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

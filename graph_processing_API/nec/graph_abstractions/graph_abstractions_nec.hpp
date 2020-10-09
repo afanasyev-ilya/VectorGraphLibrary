@@ -5,14 +5,14 @@
 GraphAbstractionsNEC::GraphAbstractionsNEC(VectCSRGraph &_graph, TraversalDirection _initial_traversal)
 {
     processed_graph_ptr = &_graph;
-    traversal_direction = _initial_traversal;
+    current_traversal_direction = _initial_traversal;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 void GraphAbstractionsNEC::change_traversal_direction(TraversalDirection _new_direction)
 {
-    traversal_direction = _new_direction;
+    current_traversal_direction = _new_direction;
 
     // TODO what other changes are required?
 }

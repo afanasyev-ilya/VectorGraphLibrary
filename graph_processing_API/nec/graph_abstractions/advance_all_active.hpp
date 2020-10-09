@@ -24,7 +24,7 @@ void GraphAbstractionsNEC::vector_engine_per_vertex_kernel_all_active(const long
 
     long long edges_count = processed_graph_ptr->get_edges_count();
     long long direction_shift = edges_count + processed_graph_ptr->get_edges_count_in_outgoing_ve();
-    int traversal = traversal_direction;
+    int traversal = current_traversal_direction;
     int storage = CSR_STORAGE;
 
     for(int front_pos = _first_vertex; front_pos < _last_vertex; front_pos++)
@@ -98,7 +98,7 @@ void GraphAbstractionsNEC::vector_core_per_vertex_kernel_all_active(const long l
 
     long long edges_count = processed_graph_ptr->get_edges_count();
     long long direction_shift = edges_count + processed_graph_ptr->get_edges_count_in_outgoing_ve();
-    int traversal = traversal_direction;
+    int traversal = current_traversal_direction;
     int storage = CSR_STORAGE;
 
     #pragma omp for schedule(static, 1)
@@ -176,7 +176,7 @@ void GraphAbstractionsNEC::ve_collective_vertex_processing_kernel_all_active(con
 
     long long edges_count = processed_graph_ptr->get_edges_count();
     long long direction_shift = edges_count + processed_graph_ptr->get_edges_count_in_outgoing_ve();
-    int traversal = traversal_direction;
+    int traversal = current_traversal_direction;
     int storage = VE_STORAGE;
 
     long long reg_real_start[VECTOR_LENGTH];

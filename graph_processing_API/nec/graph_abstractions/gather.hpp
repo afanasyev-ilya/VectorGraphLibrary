@@ -16,9 +16,13 @@ void GraphAbstractionsNEC::gather(VectCSRGraph &_graph,
 {
     ExtendedCSRGraph *current_direction_graph;
 
-    if(traversal_direction != GATHER_TRAVERSAL)
+    if(current_traversal_direction != GATHER_TRAVERSAL)
     {
         throw "Error in GraphAbstractionsNEC::gather : wrong traversal direction";
+    }
+    if(_frontier.get_direction() != GATHER_TRAVERSAL)
+    {
+        throw "Error in GraphAbstractionsNEC::gather : wrong frontier direction";
     }
     current_direction_graph = _graph.get_incoming_graph_ptr();
 

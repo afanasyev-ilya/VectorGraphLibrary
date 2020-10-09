@@ -66,7 +66,7 @@ int main(int argc, const char * argv[])
         VerticesArrayNec<float> seq_distances(graph, SCATTER);
         VerticesArrayNec<float> push_distances(graph, SCATTER);
         VerticesArrayNec<float> pull_distances(graph, GATHER);
-        VerticesArrayNec<float> partial_active_distances(graph, GATHER);
+        VerticesArrayNec<float> partial_active_distances(graph, SCATTER);
 
         // run different SSSP algorithms
         ShortestPaths::nec_dijkstra(graph, weights, push_distances, 0, ALL_ACTIVE, PUSH_TRAVERSAL);

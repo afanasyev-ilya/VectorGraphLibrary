@@ -3,7 +3,6 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #ifdef __USE_NEC_SX_AURORA__
-
 void BFS::nec_top_down_compute_step(ExtendedCSRGraph &_graph,
                                                                  int *_levels,
                                                                  int _current_level,

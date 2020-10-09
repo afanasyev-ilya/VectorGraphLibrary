@@ -76,11 +76,11 @@ void GraphAbstractionsNEC::compute(VectCSRGraph &_graph,
 
     // TODO is frontier direction correct?
 
-    if(traversal_direction == SCATTER_TRAVERSAL)
+    if(current_traversal_direction == SCATTER_TRAVERSAL)
     {
         current_direction_graph = _graph.get_outgoing_graph_ptr();
     }
-    else if(traversal_direction == GATHER_TRAVERSAL)
+    else if(current_traversal_direction == GATHER_TRAVERSAL)
     {
         current_direction_graph = _graph.get_incoming_graph_ptr();
     }

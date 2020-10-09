@@ -9,6 +9,8 @@
 class FrontierNEC // TODO inheritance
 {
 private:
+    TraversalDirection frontier_direction;
+
     int *flags;
     int *ids;
     int *work_buffer;
@@ -26,12 +28,7 @@ private:
     int current_size;
     int max_size;
 public:
-    FrontierNEC(ExtendedCSRGraph &_graph);
-
-    FrontierNEC(VectCSRGraph &_graph);
-
-    FrontierNEC(int _vertices_count);
-
+    FrontierNEC(VectCSRGraph &_graph, TraversalDirection _frontier_direction);
     ~FrontierNEC();
 
     int size() {return current_size;};
@@ -48,6 +45,9 @@ public:
     inline void add_vertices(ExtendedCSRGraph &_graph, int *_vertex_ids, int _number_of_vertices);
 
     inline void clear() { current_size = 0; };
+
+    TraversalDirection get_direction() {return frontier_direction;};
+    void set_direction(TraversalDirection _new_direction) {frontier_direction = _new_direction;};
 
     friend class GraphAbstractionsNEC;
 };

@@ -2,7 +2,7 @@
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-FrontierNEC::FrontierNEC(ExtendedCSRGraph &_graph)
+FrontierNEC::FrontierNEC(VectCSRGraph &_graph, TraversalDirection _frontier_direction)
 {
     max_size = _graph.get_vertices_count();
     MemoryAPI::allocate_array(&flags, max_size);
@@ -13,39 +13,7 @@ FrontierNEC::FrontierNEC(ExtendedCSRGraph &_graph)
     type = ALL_ACTIVE_FRONTIER;
     current_size = max_size;
 
-    #pragma omp parallel
-    {}
-}
-
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-FrontierNEC::FrontierNEC(VectCSRGraph &_graph)
-{
-    max_size = _graph.get_vertices_count();
-    MemoryAPI::allocate_array(&flags, max_size);
-    MemoryAPI::allocate_array(&ids, max_size);
-    MemoryAPI::allocate_array(&work_buffer, max_size + VECTOR_LENGTH * MAX_SX_AURORA_THREADS);
-
-    // by default frontier is all active
-    type = ALL_ACTIVE_FRONTIER;
-    current_size = max_size;
-
-    #pragma omp parallel
-    {}
-}
-
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-FrontierNEC::FrontierNEC(int _vertices_count)
-{
-    max_size = _vertices_count;
-    MemoryAPI::allocate_array(&flags, max_size);
-    MemoryAPI::allocate_array(&ids, max_size);
-    MemoryAPI::allocate_array(&work_buffer, max_size);
-
-    // by default frontier is all active
-    type = ALL_ACTIVE_FRONTIER;
-    current_size = max_size;
+    frontier_direction = _frontier_direction;
 
     #pragma omp parallel
     {}

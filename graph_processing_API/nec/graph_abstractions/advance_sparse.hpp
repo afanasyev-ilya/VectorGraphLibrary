@@ -21,7 +21,7 @@ void GraphAbstractionsNEC::vector_engine_per_vertex_kernel_sparse(const long lon
 
     long long edges_count = processed_graph_ptr->get_edges_count();
     long long direction_shift = edges_count + processed_graph_ptr->get_edges_count_in_outgoing_ve();
-    int traversal = traversal_direction;
+    int traversal = current_traversal_direction;
     int storage = CSR_STORAGE;
 
     DelayedWriteNEC delayed_write;
@@ -103,7 +103,7 @@ void GraphAbstractionsNEC::vector_core_per_vertex_kernel_sparse(const long long 
 
     long long edges_count = processed_graph_ptr->get_edges_count();
     long long direction_shift = edges_count + processed_graph_ptr->get_edges_count_in_outgoing_ve();
-    int traversal = traversal_direction;
+    int traversal = current_traversal_direction;
     int storage = CSR_STORAGE;
 
     DelayedWriteNEC delayed_write;
@@ -190,7 +190,7 @@ void GraphAbstractionsNEC::collective_vertex_processing_kernel_sparse(const long
 
     long long edges_count = processed_graph_ptr->get_edges_count();
     long long direction_shift = edges_count + processed_graph_ptr->get_edges_count_in_outgoing_ve();
-    int traversal = traversal_direction;
+    int traversal = current_traversal_direction;
     int storage = CSR_STORAGE;
 
     long long int reg_start[VECTOR_LENGTH];
