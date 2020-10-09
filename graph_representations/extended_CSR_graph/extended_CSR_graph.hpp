@@ -216,4 +216,21 @@ long long ExtendedCSRGraph::get_csr_edge_id(int _src_id, int _dst_id)
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+int ExtendedCSRGraph::select_random_vertex()
+{
+    int attempt_num = 0;
+    while(attempt_num < ATTEMPTS_THRESHOLD)
+    {
+        int vertex_id = rand() % this->vertices_count;
+        if(get_connections_count(vertex_id) > 0)
+            return vertex_id;
+        attempt_num++;
+    }
+    throw "Error in ExtendedCSRGraph::select_random_vertex: can not select non-zero degree vertex in ATTEMPTS_THRESHOLD attempts";
+    return -1;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
 

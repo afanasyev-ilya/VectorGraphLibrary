@@ -16,6 +16,7 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #define VECTOR_EXTENSION_SIZE 7
+#define ATTEMPTS_THRESHOLD 100
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -95,6 +96,9 @@ public:
     inline long long        get_edges_count_in_ve() {return last_vertices_ve.get_edges_count_in_ve();}
     inline VectorExtension* get_ve_ptr() {return &last_vertices_ve;};
 
+    // TODO
+    inline int get_connections_count(int _vertex_id) {return (vertex_pointers[_vertex_id+1] - vertex_pointers[_vertex_id]);};
+
     inline long long get_csr_edge_id(int _src_id, int _dst_id);
     inline long long get_ve_edge_id(int _src_id, int _dst_id) { return last_vertices_ve.get_ve_edge_id(_src_id, _dst_id); };
 
@@ -127,6 +131,9 @@ public:
     _T& get_edge_data(_T *_data_array, int _src_id, int _dst_id); // TODO remove
 
     size_t get_graph_size_in_bytes();
+
+    // selects random vertex with non-zero degree
+    int select_random_vertex();
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

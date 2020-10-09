@@ -45,7 +45,6 @@ void verify_results(VectCSRGraph &_graph,
     // calculate error count
     int error_count = 0;
     int vertices_count = _graph.get_vertices_count();
-    #pragma omp parallel for reduction(+ : error_count)
     for(int i = 0; i < vertices_count; i++)
     {
         if(!are_same(_first[i], _second[i]))
@@ -69,8 +68,8 @@ void verify_results(VectCSRGraph &_graph,
     }
 
     // restore order if required
-    _graph.reorder(_first, prev_first_direction);
-    _graph.reorder(_second, prev_second_direction);
+    //_graph.reorder(_first, prev_first_direction);
+    //_graph.reorder(_second, prev_second_direction);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

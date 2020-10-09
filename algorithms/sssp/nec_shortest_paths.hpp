@@ -269,7 +269,7 @@ void SSSP::nec_dijkstra_all_active_pull(VectCSRGraph &_graph,
             auto edge_op_pull = [&_distances, &_weights, &reg_was_changes, &reg_distances](int src_id, int dst_id, int local_edge_pos,
                     long long int global_edge_pos, int vector_index, DelayedWriteNEC &delayed_write)
             {
-                _T weight = 1;//_T weight = _weights.get(global_edge_pos);
+                _T weight = _weights.get(global_edge_pos);
                 _T dst_weight = _distances[dst_id];
                 if(_distances[src_id] > dst_weight + weight)
                 {
