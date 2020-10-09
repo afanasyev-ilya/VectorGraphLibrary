@@ -20,8 +20,6 @@
 class ShortestPaths
 {
 private:
-    double performance;
-
     #ifdef __USE_NEC_SX_AURORA__
     template <typename _T>
     static void nec_dijkstra_all_active_push(VectCSRGraph &_graph,
@@ -50,12 +48,6 @@ public:
     static void seq_dijkstra(VectCSRGraph &_graph, EdgesArrayNec<_T> &_weights, VerticesArrayNec<_T> &_distances,
                              int _source_vertex);
 
-    /*#ifdef __USE_NEC_SX_AURORA__
-    void nec_dijkstra(UndirectedGraph &_graph, _TEdgeWeight *_distances,
-                      int _source_vertex, AlgorithmFrontierType _frontier_type = ALL_ACTIVE,
-                      AlgorithmTraversalType _traversal_direction = PUSH_TRAVERSAL);
-    #endif*/
-
     #ifdef __USE_NEC_SX_AURORA__
     template <typename _T>
     static void nec_dijkstra(VectCSRGraph &_graph, EdgesArrayNec<_T> &_weights, VerticesArrayNec<_T> &_distances,
@@ -63,19 +55,11 @@ public:
                              AlgorithmTraversalType _traversal_direction = PUSH_TRAVERSAL);
     #endif
 
-    /*#ifdef __USE_NEC_SX_AURORA__
-    void nec_bellamn_ford(EdgesListGraph &_graph, _TEdgeWeight *_distances,
-                          int _source_vertex);
-    #endif*/
-
-    /*#ifdef __USE_GPU__
-    void gpu_dijkstra(UndirectedGraph &_graph,
-                      _TEdgeWeight *_distances, int _source_vertex,
-                      AlgorithmFrontierType _frontier_type = PARTIAL_ACTIVE,
+    #ifdef __USE_GPU__
+    void gpu_dijkstra(VectCSRGraph &_graph, EdgesArrayNec<_T> &_weights, VerticesArrayNec<_T> &_distances,
+                      int _source_vertex, AlgorithmFrontierType _frontier_type = ALL_ACTIVE,
                       AlgorithmTraversalType _traversal_direction = PUSH_TRAVERSAL);
-    #endif*/
-
-    double get_performance() { return performance; };
+    #endif
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

@@ -4,34 +4,38 @@
 
 class Frontier
 {
-private:
-    int *flags;
-    int *ids;
+protected:
+    // pointer to base graph
+    VectCSRGraph *graph_ptr;
+    TraversalDirection direction;
 
+    // frontier type - sparse, dense, all-active
     FrontierType type;
 
+    // number of vertices located in frontier
     int current_size;
-    int max_size;
+    int max_size; // TODO remove? can be obtained from graph prt
 public:
+    Frontier() {};
+    ~Frontier() {};
+
+    // get API
     int size() {return current_size;};
     FrontierType get_type() {return type;};
 
-    void set_all_active() {};
+    // printing API
+    virtual void print_stats() = 0;
+    virtual void print() = 0;
 
-    void change_size(int _size) {max_size = _size;};
-
-
-    void print_frontier_info(UndirectedGraph &_graph) {};
-
-
-    inline void add_vertex(UndirectedGraph &_graph, int src_id) {};
-
-
-    inline void add_vertices(UndirectedGraph &_graph,
-                                     int *_vertex_ids,
-                                     int _number_of_vertices) {};
-
+    // frontier modification API
+    virtual inline void set_all_active() = 0;
+    virtual inline void add_vertex(int src_id) = 0;
+    virtual inline void add_group_of_vertices(int *_vertex_ids, int _number_of_vertices) = 0;
     inline void clear() { current_size = 0; };
+
+    // frontier direction API
+    TraversalDirection get_direction() {return direction;};
+    void set_direction(TraversalDirection _direction) {direction = _direction;};
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

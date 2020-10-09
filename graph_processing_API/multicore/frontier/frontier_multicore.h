@@ -26,13 +26,13 @@ public:
     void change_size(int _size) {max_size = _size;};
 
 
-    void print_frontier_info(UndirectedGraph &_graph);
+    void print_stats(UndirectedGraph &_graph);
 
 
     inline void add_vertex(UndirectedGraph &_graph, int src_id);
 
 
-    inline void add_vertices(UndirectedGraph &_graph, int *_vertex_ids, int _number_of_vertices);
+    inline void add_group_of_vertices(UndirectedGraph &_graph, int *_vertex_ids, int _number_of_vertices);
 
     inline void clear() { current_size = 0; };
 

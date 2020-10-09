@@ -68,7 +68,7 @@ sssp.o: sssp.cpp
 sswp.o: sswp.cpp
 	$(CXX) $(CXXFLAGS) $(Include_Path)  -c sswp.cpp -o object_files/sswp.o -fopenmp
 
-bfs.o: bfs_td.cpp
+bfs.o: bfs.cpp
 	$(CXX) $(CXXFLAGS) $(Include_Path)  -c bfs.cpp -o object_files/bfs.o -fopenmp
 	
 gather.o: gather.cpp

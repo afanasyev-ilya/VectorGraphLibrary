@@ -38,7 +38,7 @@ int main(int argc, const char * argv[])
         {
             double t1 = omp_get_wtime();
             if(!graph.load_from_binary_file(parser.get_graph_file_name()))
-                throw "ERROR: graph file not found";
+                throw "Error: graph file not found";
             double t2 = omp_get_wtime();
             cout << "file " << parser.get_graph_file_name() << " loaded in " << t2 - t1 << " sec" << endl;
         }

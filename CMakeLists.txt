@@ -45,7 +45,6 @@ add_executable(VectorGraphLibrary
         algorithms/bfs/change_state/change_state.h
         algorithms/bfs/change_state/change_state.hpp
         algorithms/bfs/bfs.h
-        algorithms/bfs/bfs.hpp
         algorithms/bfs/gpu_bfs.hpp
         algorithms/bfs/nec_bfs.hpp
         algorithms/bfs/seq_bfs.hpp
@@ -68,7 +67,7 @@ add_executable(VectorGraphLibrary
         algorithms/sswp/widest_paths.h
         algorithms/sswp/widest_paths.hpp
         apps/analyse_graph.cpp
-        apps/bfs_td.cpp
+        apps/bfs.cpp
         apps/cc.cpp
         apps/generate_test_data.cpp
         apps/graph_library.sh

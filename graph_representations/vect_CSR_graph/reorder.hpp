@@ -23,7 +23,7 @@ int VectCSRGraph::reorder(int _vertex_id, TraversalDirection _input_dir, Travers
         }
         if(_output_dir == GATHER)
         {
-            throw incoming_graph->reorder_to_sorted(outgoing_graph->reorder_to_original(_vertex_id));
+            return incoming_graph->reorder_to_sorted(outgoing_graph->reorder_to_original(_vertex_id));
         }
     }
     if(_input_dir == GATHER)
@@ -34,7 +34,7 @@ int VectCSRGraph::reorder(int _vertex_id, TraversalDirection _input_dir, Travers
         }
         if(_output_dir == SCATTER)
         {
-            throw outgoing_graph->reorder_to_sorted(incoming_graph->reorder_to_original(_vertex_id));
+            return outgoing_graph->reorder_to_sorted(incoming_graph->reorder_to_original(_vertex_id));
         }
     }
     return -1;

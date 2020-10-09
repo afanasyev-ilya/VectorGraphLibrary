@@ -22,7 +22,7 @@ void GraphAbstractionsNEC::advance_worker(UndirectedGraph &_graph,
     #ifdef __PRINT_API_PERFORMANCE_STATS__
     #pragma omp master
     {
-        _frontier.print_frontier_info();
+        _frontier.print_stats();
         cout << "ADVANCE stats: " << endl;
     }
     #pragma omp barrier

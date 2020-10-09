@@ -3,14 +3,14 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #ifdef __USE_NEC_SX_AURORA__
-void BFS::nec_top_down_compute_step(UndirectedGraph &_graph,
-                                                                 int *_levels,
-                                                                 int _current_level,
-                                                                 int &_vis,
-                                                                 int &_in_lvl,
-                                                                 bool _compute_stats)
+void BFS::nec_top_down_compute_step(VectCSRGraph &_graph,
+                                    VerticesArrayNec<int> &_levels,
+                                    int _current_level,
+                                    int &_vis,
+                                    int &_in_lvl,
+                                    bool _compute_stats)
 {
-    if(_compute_stats)
+    /*if(_compute_stats)
     {
         #pragma omp parallel
         {
@@ -56,34 +56,25 @@ void BFS::nec_top_down_compute_step(UndirectedGraph &_graph,
         };
 
         graph_API.advance(_graph, frontier, edge_op);
-    }
+    }*/
 }
 #endif
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #ifdef __USE_NEC_SX_AURORA__
-
-void BFS::nec_bottom_up_compute_step(UndirectedGraph &_graph,
-                                                                  int *_levels,
-                                                                  int *_connections_array,
-                                                                  int _current_level,
-                                                                  int &_vis,
-                                                                  int &_in_lvl,
-                                                                  bool _use_vector_extension)
+void BFS::nec_bottom_up_compute_step(VectCSRGraph &_graph,
+                                     VerticesArrayNec<int> &_levels,
+                                     int *_connections_array,
+                                     int _current_level,
+                                     int &_vis,
+                                     int &_in_lvl,
+                                     bool _use_vector_extension)
 {
-    int first_edge = 0;
+    /*int first_edge = 0;
     if(_use_vector_extension)
     {
         frontier.set_all_active();
-        /*auto vertex_value_is_unset = [_levels, _connections_array] (int src_id)->int
-        {
-            int result = NOT_IN_FRONTIER_FLAG;
-            if((_levels[src_id] == UNVISITED_VERTEX) && (_connections_array[src_id] > 0))
-                result = IN_FRONTIER_FLAG;
-            return result;
-        };
-        graph_API.generate_new_frontier(_graph, frontier, vertex_value_is_unset);*/
 
         first_edge = 4;
         #pragma omp parallel
@@ -156,22 +147,34 @@ void BFS::nec_bottom_up_compute_step(UndirectedGraph &_graph,
 
         #pragma omp atomic
         _in_lvl += local_in_lvl;
-    }
+    }*/
 }
 #endif
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #ifdef __USE_NEC_SX_AURORA__
-
-void BFS::nec_top_down(UndirectedGraph &_graph,
-                                                    int *_levels,
-                                                    int _source_vertex)
+void BFS::nec_top_down(VectCSRGraph &_graph,
+                       VerticesArrayNec<int> &_levels,
+                       int _source_vertex)
 {
-    LOAD_UNDIRECTED_CSR_GRAPH_DATA(_graph);
+    GraphAbstractionsNEC graph_API(_graph, SCATTER);
+    FrontierNEC frontier(_graph, SCATTER);
+
+    graph_API.change_traversal_direction(SCATTER);
     frontier.set_all_active();
 
-    auto init_levels = [_levels, _source_vertex] (int src_id, int connections_count, int vector_index)
+    _source_vertex = _graph.reorder(_source_vertex, ORIGINAL, SCATTER);
+
+    Timer tm;
+    tm.start();
+
+    if(!graph_API.have_correct_direction(_levels))
+    {
+        throw "Error: incorrect direction of vertex array in SSSP::nec_dijkstra_all_active_push";
+    }
+
+    auto init_levels = [&_levels, _source_vertex] (int src_id, int connections_count, int vector_index)
     {
         if(src_id == _source_vertex)
             _levels[_source_vertex] = FIRST_LEVEL_VERTEX;
@@ -181,8 +184,9 @@ void BFS::nec_top_down(UndirectedGraph &_graph,
     graph_API.compute(_graph, frontier, init_levels);
 
     frontier.clear();
-    frontier.add_vertex(_graph, _source_vertex);
+    frontier.add_vertex(_source_vertex);
 
+    /*
     double t1 = omp_get_wtime();
     int current_level = FIRST_LEVEL_VERTEX;
     while(frontier.size() > 0)
@@ -213,17 +217,16 @@ void BFS::nec_top_down(UndirectedGraph &_graph,
 
     #ifdef __PRINT_SAMPLES_PERFORMANCE_STATS__
     PerformanceStats::print_performance_stats("BFS (top-down)", t2 - t1, edges_count, current_level);
-    #endif
+    #endif*/
 }
 #endif
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#ifdef __USE_NEC_SX_AURORA__
-
-double BFS::nec_direction_optimizing(UndirectedGraph &_graph,
-                                                                  int *_levels,
-                                                                  int _source_vertex)
+/*#ifdef __USE_NEC_SX_AURORA__
+double BFS::nec_direction_optimizing(VectCSRGraph &_graph,
+                                     int *_levels,
+                                     int _source_vertex)
 {
     LOAD_UNDIRECTED_CSR_GRAPH_DATA(_graph);
     GraphStructure graph_structure = check_graph_structure(_graph);
@@ -305,12 +308,6 @@ double BFS::nec_direction_optimizing(UndirectedGraph &_graph,
             #ifdef __PRINT_SAMPLES_PERFORMANCE_STATS__
             t_st = omp_get_wtime();
             #endif
-
-            /*if(current_level == FIRST_LEVEL_VERTEX)
-                frontier.add_vertex(_graph, _source_vertex);
-            else
-                graph_API.generate_new_frontier(_graph, frontier, on_current_level);
-            nec_top_down_compute_step(_graph, _levels, current_level, vis, in_lvl, true);*/
 
             NEC_REGISTER_INT(vis, 0);
             NEC_REGISTER_INT(in_lvl, 0);
@@ -396,7 +393,7 @@ double BFS::nec_direction_optimizing(UndirectedGraph &_graph,
     double inner_perf = edges_count / (compute_time*1e6);
     return inner_perf;
 }
-#endif
+#endif*/
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 

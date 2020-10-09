@@ -1,32 +1,26 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#define INT_ELEMENTS_PER_EDGE 5.0
-#define VECTOR_ENGINE_THRESHOLD_VALUE VECTOR_LENGTH * MAX_SX_AURORA_THREADS * 4096
-#define VECTOR_CORE_THRESHOLD_VALUE 5*VECTOR_LENGTH
+#define INT_ELEMENTS_PER_EDGE 4.0
+#define VECTOR_CORE_THRESHOLD_VALUE 4.0*VECTOR_LENGTH
+#define COLLECTIVE_FRONTIER_TYPE_CHANGE_THRESHOLD 0.35
+//#define __PRINT_SAMPLES_PERFORMANCE_STATS__
 //#define __PRINT_API_PERFORMANCE_STATS__
-#define __PRINT_SAMPLES_PERFORMANCE_STATS__
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #include "../graph_library.h"
-#include <iostream>
 
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-using namespace std;
-
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 int main(int argc, const char * argv[])
 {
     try
     {
-        cout << "SSSP (Single Source Shortest Paths) test..." << endl;
-
         // parse args
         AlgorithmCommandOptionsParser parser;
         parser.parse_args(argc, argv);
 
+        // load graph
         VectCSRGraph graph;
         if(parser.get_compute_mode() == GENERATE_NEW_GRAPH)
         {
@@ -47,21 +41,16 @@ int main(int argc, const char * argv[])
             cout << "file " << parser.get_graph_file_name() << " loaded in " << t2 - t1 << " sec" << endl;
         }
 
-        // add weights to graph
-        EdgesArrayNec<float> weights(graph);
-        weights.set_all_random(MAX_WEIGHT);
-
-        // move graph to GPU if required
         #ifdef __USE_GPU__
         graph.move_to_device();
         #endif
 
-        // compute SSSP
+        // compute BFS
         cout << "Computations started..." << endl;
-        cout << "Doing " << parser.get_number_of_rounds() << " SSSP iterations..." << endl;
+        cout << "Doing " << parser.get_number_of_rounds() << " BFS iterations..." << endl;
         for(int i = 0; i < parser.get_number_of_rounds(); i++)
         {
-            VerticesArrayNec<float> distances(graph, convert_traversal_type(parser.get_traversal_direction()));
+            VerticesArrayNec<int> levels(graph, SCATTER); // TODO
 
             int source_vertex = graph.select_random_vertex(ORIGINAL);
 
@@ -70,9 +59,11 @@ int main(int argc, const char * argv[])
             #endif
 
             #ifdef __USE_NEC_SX_AURORA__
-            ShortestPaths::nec_dijkstra(graph, weights, distances, source_vertex,
-                                        parser.get_algorithm_frontier_type(),
-                                        parser.get_traversal_direction());
+            BFS::nec_top_down(graph, levels, source_vertex);
+            #endif
+
+            #ifdef __USE_GPU__
+            BFS::gpu_top_down(graph, device_bfs_levels, vertex_to_check);
             #endif
 
             #ifdef __PRINT_API_PERFORMANCE_STATS__
@@ -82,18 +73,18 @@ int main(int argc, const char * argv[])
             // check if required
             if(parser.get_check_flag())
             {
-                VerticesArrayNec<float> check_distances(graph, SCATTER);
-                ShortestPaths::seq_dijkstra(graph, weights, check_distances, source_vertex);
-                verify_results(graph, distances, check_distances);
+                VerticesArrayNec<int> check_levels(graph, SCATTER);
+                BFS::seq_top_down(graph, check_levels, source_vertex);
+                verify_results(graph, levels, check_levels);
             }
         }
-        
-        #ifdef __USE_GPU__
-        graph.move_to_host();
-        #endif
 
         #ifdef __SAVE_PERFORMANCE_STATS_TO_FILE__
-        PerformanceStats::save_performance_to_file("sssp", parser.get_graph_file_name(), int(avg_perf));
+        PerformanceStats::save_performance_to_file("bfs_td", parser.get_graph_file_name(), avg_perf);
+        #endif
+
+        #ifdef __USE_GPU__
+        graph.move_to_host();
         #endif
     }
     catch (string error)

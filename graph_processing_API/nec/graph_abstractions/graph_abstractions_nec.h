@@ -21,14 +21,9 @@ auto EMPTY_COMPUTE_OP = [] (int src_id, int connections_count, int vector_index)
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-class GraphAbstractionsNEC
+class GraphAbstractionsNEC : public GraphAbstractions
 {
 private:
-    VectCSRGraph *processed_graph_ptr;
-    TraversalDirection current_traversal_direction;
-
-    bool same_direction(TraversalDirection _first, TraversalDirection _second);
-
     // compute inner implementation
     template <typename ComputeOperation>
     void compute_worker(UndirectedGraph &_graph,
@@ -181,9 +176,6 @@ public:
     // attaches graph-processing API to the specific graph
     GraphAbstractionsNEC(VectCSRGraph &_graph, TraversalDirection _initial_traversal = SCATTER);
 
-    // change graph traversal direction (from GATHER to SCATTER or vice versa)
-    void change_traversal_direction(TraversalDirection _new_direction);
-
     // performs user-defined "edge_op" operation over all OUTGOING edges, neighbouring specified frontier
     template <typename EdgeOperation, typename VertexPreprocessOperation, typename VertexPostprocessOperation,
             typename CollectiveEdgeOperation, typename CollectiveVertexPreprocessOperation,
@@ -228,11 +220,6 @@ public:
     void generate_new_frontier(VectCSRGraph &_graph,
                                FrontierNEC &_frontier,
                                FilterCondition &&filter_cond);
-
-    // allows to check if multiple arrays (vertexArrays, frontiers) have correct direction
-    bool have_correct_direction();
-    template<typename _T, typename ... Types>
-    bool have_correct_direction(_T _first_arg, Types ... _args);
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

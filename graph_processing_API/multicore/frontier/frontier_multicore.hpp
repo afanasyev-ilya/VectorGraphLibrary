@@ -44,7 +44,7 @@ FrontierMulticore::~FrontierMulticore()
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-void FrontierMulticore::print_frontier_info(UndirectedGraph &_graph)
+void FrontierMulticore::print_stats(UndirectedGraph &_graph)
 {
     // TODO
     throw "multicore TODO";
@@ -73,7 +73,7 @@ void FrontierMulticore::add_vertex(UndirectedGraph &_graph, int src_id)
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-void FrontierMulticore::add_vertices(UndirectedGraph &_graph, int *_vertex_ids, int _number_of_vertices)
+void FrontierMulticore::add_group_of_vertices(UndirectedGraph &_graph, int *_vertex_ids, int _number_of_vertices)
 {
     throw "multicore TODO";
 }

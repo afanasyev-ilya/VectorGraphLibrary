@@ -55,7 +55,7 @@ void FrontierNEC::add_vertex(int src_id)
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void FrontierNEC::add_vertices(int *_vertex_ids, int _number_of_vertices)
+void FrontierNEC::add_group_of_vertices(int *_vertex_ids, int _number_of_vertices)
 {
     UndirectedGraph *current_direction_graph = graph_ptr->get_direction_graph_ptr(direction);
     LOAD_UNDIRECTED_CSR_GRAPH_DATA((*current_direction_graph));

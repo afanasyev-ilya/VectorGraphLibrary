@@ -27,18 +27,14 @@ using namespace std;
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+// main VGL part: graphs in different formats
 #include "graph_representations/base_graph.h"
 #include "graph_representations/edges_list_graph/edges_list_graph.h"
 #include "graph_representations/undirected_graph/undirected_graph.h"
 #include "graph_representations/vect_CSR_graph/vect_CSR_graph.h"
 //#include "graph_representations/sharded_graph/sharded_graph.h"
 
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-#include "graph_generation_API/graph_generation_API.h"
-
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
+// main VGL part: computational and data abstractions
 #include "graph_processing_API/vertices_array.h"
 #include "graph_processing_API/edges_array.h"
 #include "graph_processing_API/frontier.h"
@@ -46,9 +42,14 @@ using namespace std;
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+#include "graph_generation_API/graph_generation_API.h"
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+// algorithm implementations
 #include "algorithms/sssp/shortest_paths.h"
-/*#include "algorithms/sswp/widest_paths.h"
 #include "algorithms/bfs/bfs.h"
+/*#include "algorithms/sswp/widest_paths.h"
 #include "algorithms/cc/cc.h"
 #include "algorithms/pr/pr.h"
 #include "algorithms/lp/lp.h"
