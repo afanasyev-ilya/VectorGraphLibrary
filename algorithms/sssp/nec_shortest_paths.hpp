@@ -271,23 +271,39 @@ void SSSP::nec_dijkstra_all_active_pull(VectCSRGraph &_graph,
             {
                 _T weight = _weights.get(global_edge_pos);
                 _T dst_weight = _distances[dst_id];
-                if(_distances[src_id] > dst_weight + weight)
+                if(reg_distances[vector_index] > dst_weight + weight)
                 {
-                    _distances[src_id] = dst_weight + weight;
-                    reg_was_changes[vector_index] = 1;
+                    reg_distances[vector_index] = dst_weight + weight;
+                    //reg_was_changes[vector_index] = 1;
                 }
             };
 
             auto vertex_preprocess_op = [&_distances, &reg_distances]
                     (int src_id, int connections_count, int vector_index, DelayedWriteNEC &delayed_write)
             {
-
+                //#pragma _NEC vector
+                for(int i = 0; i < VECTOR_LENGTH; i++)
+                {
+                    reg_distances[i] = _distances[src_id];
+                }
             };
 
-            auto vertex_postprocess_op = [&_distances, &reg_distances]
+            auto vertex_postprocess_op = [&_distances, &reg_distances, &reg_was_changes]
                         (int src_id, int connections_count, int vector_index, DelayedWriteNEC &delayed_write)
             {
+                _T min = FLT_MAX;
 
+                #pragma _NEC novector
+                for(int i = 0; i < VECTOR_LENGTH; i++)
+                {
+                    if(min > reg_distances[i])
+                        min = reg_distances[i];
+                }
+                if(min < _distances[src_id])
+                {
+                    _distances[src_id] = min;
+                    reg_was_changes[0] = 1;
+                }
             };
 
             auto edge_op_collective_pull = [&_distances, &_weights, &reg_was_changes]
@@ -303,13 +319,18 @@ void SSSP::nec_dijkstra_all_active_pull(VectCSRGraph &_graph,
                 }
             };
 
-            graph_API.gather(_graph, frontier, edge_op_pull, EMPTY_VERTEX_OP, EMPTY_VERTEX_OP,
+            graph_API.gather(_graph, frontier, edge_op_pull, vertex_preprocess_op, vertex_postprocess_op,
                              edge_op_collective_pull, EMPTY_VERTEX_OP, EMPTY_VERTEX_OP);
+
+            #pragma omp barrier
 
             #pragma omp critical
             {
-                changes += register_sum_reduce(reg_was_changes);
+                int local_changes = register_sum_reduce(reg_was_changes);
+                changes += local_changes;
             }
+
+            #pragma omp barrier
         }
     }
     while(changes);

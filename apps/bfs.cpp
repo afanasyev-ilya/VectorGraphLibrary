@@ -3,8 +3,8 @@
 #define INT_ELEMENTS_PER_EDGE 4.0
 #define VECTOR_CORE_THRESHOLD_VALUE 4.0*VECTOR_LENGTH
 #define COLLECTIVE_FRONTIER_TYPE_CHANGE_THRESHOLD 0.35
-//#define __PRINT_SAMPLES_PERFORMANCE_STATS__
-//#define __PRINT_API_PERFORMANCE_STATS__
+#define __PRINT_SAMPLES_PERFORMANCE_STATS__
+#define __PRINT_API_PERFORMANCE_STATS__
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -53,9 +53,10 @@ int main(int argc, const char * argv[])
         cout << "Doing " << parser.get_number_of_rounds() << " BFS iterations..." << endl;
         for(int i = 0; i < parser.get_number_of_rounds(); i++)
         {
-            VerticesArrayNec<int> levels(graph, SCATTER); // TODO
+            VerticesArrayNec<int> levels(graph, SCATTER); // TODO selection for DO/BU
 
             int source_vertex = graph.select_random_vertex(ORIGINAL);
+            cout << "selected source vertex " << source_vertex << endl;
 
             #ifdef __PRINT_API_PERFORMANCE_STATS__
             PerformanceStats::reset_API_performance_timers();

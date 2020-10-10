@@ -166,9 +166,6 @@ void BFS::nec_top_down(VectCSRGraph &_graph,
 
     _source_vertex = _graph.reorder(_source_vertex, ORIGINAL, SCATTER);
 
-    Timer tm;
-    tm.start();
-
     if(!graph_API.have_correct_direction(_levels))
     {
         throw "Error: incorrect direction of vertex array in SSSP::nec_dijkstra_all_active_push";
@@ -185,6 +182,9 @@ void BFS::nec_top_down(VectCSRGraph &_graph,
 
     frontier.clear();
     frontier.add_vertex(_source_vertex);
+
+    Timer tm;
+    tm.start();
 
     int current_level = FIRST_LEVEL_VERTEX;
     while(frontier.size() > 0)
