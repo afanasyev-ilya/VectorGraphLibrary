@@ -170,7 +170,7 @@ int main(int argc, char ** argv)
         {
             UndirectedCSRGraph<int, float> result_graph;
             t1 = omp_get_wtime();
-            result_graph.import_graph(rand_graph, VERTICES_SORTED, edges_state, 1, traversal_type, multiple_arcs_state);
+            result_graph.import(rand_graph, VERTICES_SORTED, edges_state, 1, traversal_type, multiple_arcs_state);
             t2 = omp_get_wtime();
             cout << "format conversion time: " << t2 - t1 << " sec" << endl;
             

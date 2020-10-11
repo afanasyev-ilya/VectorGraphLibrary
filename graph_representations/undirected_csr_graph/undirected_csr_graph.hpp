@@ -50,20 +50,27 @@ void UndirectedCSRGraph::resize(int _vertices_count, long long _edges_count)
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void UndirectedCSRGraph::save_to_graphviz_file(string _file_name, VisualisationMode _visualisation_mode)
+template <typename _TVertexValue>
+void UndirectedCSRGraph::save_to_graphviz_file(string _file_name, VerticesArrayNec<_TVertexValue> &_vertex_data,
+                                               VisualisationMode _visualisation_mode)
 {
     ofstream dot_output(_file_name.c_str());
     
-    string connection;
+    string edge_symbol;
     if(_visualisation_mode == VISUALISE_AS_DIRECTED)
     {
         dot_output << "digraph G {" << endl;
-        connection = " -> ";
+        edge_symbol = " -> ";
     }
     else if(_visualisation_mode == VISUALISE_AS_UNDIRECTED)
     {
         dot_output << "graph G {" << endl;
-        connection = " -- ";
+        edge_symbol = " -- ";
+    }
+
+    for(int cur_vertex = 0; cur_vertex < this->vertices_count; cur_vertex++)
+    {
+        dot_output << cur_vertex << " [label = \" " << _vertex_data[cur_vertex] << " \"];" << endl;
     }
     
     for(int cur_vertex = 0; cur_vertex < this->vertices_count; cur_vertex++)
@@ -72,21 +79,7 @@ void UndirectedCSRGraph::save_to_graphviz_file(string _file_name, VisualisationM
         for(long long edge_pos = vertex_pointers[cur_vertex]; edge_pos < vertex_pointers[cur_vertex + 1]; edge_pos++)
         {
             int dst_id = adjacent_ids[edge_pos];
-            float weight = 0.0;
-            if(src_id != dst_id)
-            {
-                if(_visualisation_mode == VISUALISE_AS_UNDIRECTED)
-                {
-                    if(src_id < dst_id)
-                    {
-                        dot_output << src_id << connection << dst_id << " [label = \" " << weight << " \"];" << endl;
-                    }
-                }
-                else
-                {
-                    dot_output << src_id << connection << dst_id << " [label = \" " << weight << " \"];" << endl;
-                }
-            }
+            dot_output << src_id << edge_symbol << dst_id /*<< " [label = \" " << weight << " \"];"*/ << endl;
         }
     }
     

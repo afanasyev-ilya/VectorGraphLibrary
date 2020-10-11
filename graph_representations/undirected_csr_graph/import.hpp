@@ -177,7 +177,7 @@ void UndirectedCSRGraph::copy_edges_indexes(long long *_edges_reorder_indexes,
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void UndirectedCSRGraph::import_and_preprocess(EdgesListGraph &_el_graph, long long *_edges_reorder_indexes)
+void UndirectedCSRGraph::import(EdgesListGraph &_el_graph, long long *_edges_reorder_indexes)
 {
     // get size of edges list graph
     int el_vertices_count = _el_graph.get_vertices_count();

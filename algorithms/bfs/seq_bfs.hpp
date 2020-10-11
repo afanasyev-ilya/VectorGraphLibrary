@@ -13,7 +13,13 @@ void BFS::seq_top_down(VectCSRGraph &_graph,
                        VerticesArrayNec<int> &_levels,
                        int _source_vertex)
 {
-    /*LOAD_UNDIRECTED_CSR_GRAPH_DATA(_graph);
+    UndirectedCSRGraph *outgoing_graph_ptr = _graph.get_outgoing_graph_ptr();
+    LOAD_UNDIRECTED_CSR_GRAPH_DATA((*outgoing_graph_ptr));
+
+    _source_vertex = _graph.reorder(_source_vertex, ORIGINAL, SCATTER);
+
+    Timer tm;
+    tm.start();
 
     // Mark all the vertices as not visited
     for(int i = 0; i < vertices_count; i++)
@@ -45,7 +51,10 @@ void BFS::seq_top_down(VectCSRGraph &_graph,
                 queue.push_back(v);
             }
         }
-    }*/
+    }
+
+    tm.end();
+    cout << "seq top-down BFS(with queue) time: " << tm.get_time() << " sec" << endl;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

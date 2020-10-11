@@ -37,7 +37,7 @@ int main(int argc, const char * argv[])
 
         // create vect CSR graph
         VectCSRGraph graph;
-        graph.import_graph(el_graph);
+        graph.import(el_graph);
 
         // print size of VectCSR graph
         graph.print_size();
@@ -74,7 +74,7 @@ int main(int argc, const char * argv[])
 
         cout << " ----------------------------- " << endl;
         ShardedGraph sharded_graph;
-        sharded_graph.import_graph(el_graph);
+        sharded_graph.import(el_graph);
     }
     catch (string error)
     {

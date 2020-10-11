@@ -44,52 +44,30 @@ int main(int argc, const char * argv[])
         // print size of VectCSR graph
         graph.print_size();
 
-        #ifdef __USE_GPU__
-        graph.move_to_device();
+        // compute SCC
+        cout << "SCC computations started..." << endl;
+
+        VerticesArrayNec<int> components(graph, SCATTER); // TODO selection for DO/BU
+
+        #ifdef __PRINT_API_PERFORMANCE_STATS__
+        PerformanceStats::reset_API_performance_timers();
         #endif
 
-        // compute BFS
-        cout << "Computations started..." << endl;
-        cout << "Doing " << parser.get_number_of_rounds() << " BFS iterations..." << endl;
-        for(int i = 0; i < parser.get_number_of_rounds(); i++)
+        #ifdef __USE_NEC_SX_AURORA__
+        SCC::nec_forward_backward(graph, components);
+        #endif
+
+        #ifdef __PRINT_API_PERFORMANCE_STATS__
+        PerformanceStats::print_API_performance_timers(graph.get_edges_count());
+        #endif
+
+        // check if required
+        if(parser.get_check_flag())
         {
-            VerticesArrayNec<int> levels(graph, SCATTER); // TODO selection for DO/BU
-
-            int source_vertex = graph.select_random_vertex(ORIGINAL);
-            cout << "selected source vertex " << source_vertex << endl;
-
-            #ifdef __PRINT_API_PERFORMANCE_STATS__
-            PerformanceStats::reset_API_performance_timers();
-            #endif
-
-            #ifdef __USE_NEC_SX_AURORA__
-            BFS::nec_top_down(graph, levels, source_vertex);
-            #endif
-
-            #ifdef __USE_GPU__
-            BFS::gpu_top_down(graph, device_bfs_levels, vertex_to_check);
-            #endif
-
-            #ifdef __PRINT_API_PERFORMANCE_STATS__
-            PerformanceStats::print_API_performance_timers(graph.get_edges_count());
-            #endif
-
-            // check if required
-            if(parser.get_check_flag())
-            {
-                VerticesArrayNec<int> check_levels(graph, SCATTER);
-                BFS::seq_top_down(graph, check_levels, source_vertex);
-                verify_results(graph, levels, check_levels);
-            }
+            VerticesArrayNec<int> check_components(graph, SCATTER);
+            SCC::seq_tarjan(graph, check_components);
+            //verify_results(graph, components, check_components);
         }
-
-        #ifdef __SAVE_PERFORMANCE_STATS_TO_FILE__
-        PerformanceStats::save_performance_to_file("bfs_td", parser.get_graph_file_name(), avg_perf);
-        #endif
-
-        #ifdef __USE_GPU__
-        graph.move_to_host();
-        #endif
     }
     catch (string error)
     {

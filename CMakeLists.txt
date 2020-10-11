@@ -124,7 +124,7 @@ add_executable(VectorGraphLibrary
         graph_representations/undirected_csr_graph/undirected_csr_graph.h
         graph_representations/undirected_csr_graph/undirected_csr_graph.hpp
         graph_representations/undirected_csr_graph/gpu_api.hpp
-        graph_representations/undirected_csr_graph/preprocess.hpp
+        graph_representations/undirected_csr_graph/import.hpp
         graph_representations/undirected_csr_graph/nec_api.hpp
         graph_representations/sharded_csr_graph/shard_base/shard_base.h
         graph_representations/sharded_csr_graph/shard_base/shard_base.hpp

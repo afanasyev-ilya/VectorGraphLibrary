@@ -21,10 +21,13 @@ LDFLAGS = -fopenmp -report-all -ftrace -lasl_openmp_i64 #-ftrace
 # binaries
 ##########
 
-all: bfs sssp gather
+all: bfs sssp gather scc
 
 cc: create_folders cc.o
 	$(CXX) object_files/cc.o $(Library_Path) $(Libraries) $(LDFLAGS) -o ./bin/cc
+
+scc: create_folders scc.o
+	$(CXX) object_files/scc.o $(Library_Path) $(Libraries) $(LDFLAGS) -o ./bin/scc
 
 sssp: create_folders sssp.o
 	$(CXX) object_files/sssp.o $(Library_Path) $(Libraries) $(LDFLAGS) -o ./bin/sssp
@@ -62,6 +65,9 @@ pr.o: pr.cpp
 
 cc.o: cc.cpp
 	$(CXX) $(CXXFLAGS) $(Include_Path)  -c cc.cpp -o object_files/cc.o -fopenmp
+
+scc.o: scc.cpp
+	$(CXX) $(CXXFLAGS) $(Include_Path)  -c scc.cpp -o object_files/scc.o -fopenmp
 
 sssp.o: sssp.cpp
 	$(CXX) $(CXXFLAGS) $(Include_Path)  -c sssp.cpp -o object_files/sssp.o -fopenmp

@@ -50,7 +50,10 @@ public:
     // allow to renumber vertices based on indexes provided in conversion array
     void renumber_vertices(int *_conversion_array, int *_work_buffer = NULL);
 
-    /* preprocess API */
+    /* import and preprocess API */
+    // allows to import form 2 arrays (src_ids and dst_ids)
+    void import(int *_src_ids, int *_dst_ids, int _vertices_count, long long _edges_count);
+
     // 2D segmenting preprocessing (each segment fits into LLC cache)
     void preprocess_into_segmented();
 
@@ -67,6 +70,7 @@ public:
 #include "preprocess_into_segmented.hpp"
 #include "preprocess_into_csr_based.hpp"
 #include "print.hpp"
+#include "import.hpp"
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 

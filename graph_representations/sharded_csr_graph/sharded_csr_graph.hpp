@@ -20,12 +20,12 @@ ShardedGraph::~ShardedGraph()
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void ShardedGraph::import_graph(EdgesListGraph &_el_graph)
+void ShardedGraph::import(EdgesListGraph &_el_graph)
 {
     this->vertices_count = _el_graph.get_vertices_count();
     this->edges_count = _el_graph.get_edges_count();
 
-    max_cached_vertices = 1*1024*1024/(sizeof(int));
+    max_cached_vertices = this->vertices_count/2; // 1*1024*1024/(sizeof(int)); TODO
     cout << "max_cached_vertices: " << max_cached_vertices << endl;
 
     shards_number = (this->vertices_count - 1)/max_cached_vertices + 1;
@@ -36,6 +36,11 @@ void ShardedGraph::import_graph(EdgesListGraph &_el_graph)
     _el_graph.transpose();
     _el_graph.preprocess_into_csr_based();
     _el_graph.transpose();
+
+
+    // obtain pointers, edges inside sorted according to dst_ids
+    int *el_src_ids = _el_graph.get_src_ids();
+    int *el_dst_ids = _el_graph.get_dst_ids();
 
     // estimate edge borders in each shards
     int first_border[shards_number]; // TODO dynamic
@@ -53,7 +58,6 @@ void ShardedGraph::import_graph(EdgesListGraph &_el_graph)
     Timer tm;
     tm.start();
     first_shard_edge[0] = 0;
-    int *el_dst_ids = _el_graph.get_dst_ids(); // since transposed all dst ids are sorted
     #pragma _NEC ivdep
     #pragma omp parallel for
     for(long long edge_pos = 0; edge_pos < (this->edges_count - 1); edge_pos++)
@@ -61,6 +65,7 @@ void ShardedGraph::import_graph(EdgesListGraph &_el_graph)
         int dst_id = el_dst_ids[edge_pos];
         int next_dst_id = el_dst_ids[edge_pos + 1];
 
+        #pragma unroll
         for(int shard_id = 0; shard_id < shards_number; shard_id++)
         {
             int first_border_val = first_border[shard_id];
@@ -79,21 +84,54 @@ void ShardedGraph::import_graph(EdgesListGraph &_el_graph)
     tm.end();
     tm.print_bandwidth_stats("Sharded split", this->edges_count, sizeof(int)*2.0);
 
-    long long sum = 0;
-    for(int i = 0; i < shards_number; i++)
+    for(int shard_id = 0; shard_id < shards_number; shard_id++)
     {
-        long long shard_size = last_shard_edge[i] - first_shard_edge[i];
-        sum += shard_size;
-        cout << "[" << first_shard_edge[i] << ", " << last_shard_edge[i] << "], size = " << shard_size << " | " << 100.0*(shard_size)/this->edges_count << " %" << endl;
-
+        long long shard_size = last_shard_edge[shard_id] - first_shard_edge[shard_id];
+        cout << "[" << first_shard_edge[shard_id] << ", " << last_shard_edge[shard_id] << "], size = " << shard_size << " | " << 100.0*(shard_size)/this->edges_count << " %" << endl;
     }
-    cout << this->edges_count << " vs " << sum << endl;
+
+    // import each shard from edges list
+    for(int shard_id = 0; shard_id < shards_number; shard_id++)
+    {
+        cout << " ------------------------------------------------------------ " << endl;
+        cout << "shard " << shard_id << endl;
+        long long edges_in_shard = last_shard_edge[shard_id] - first_shard_edge[shard_id];
+
+        long long first_shard_edge_val = first_shard_edge[shard_id];
+
+        int *shard_src_ids_ptr = &el_src_ids[first_shard_edge_val];
+        int *shard_dst_ids_ptr = &el_dst_ids[first_shard_edge_val];
+        EdgesListGraph edges_list_shard;
+        edges_list_shard.import(shard_src_ids_ptr, shard_dst_ids_ptr, this->vertices_count, edges_in_shard);
+
+        outgoing_shards[shard_id].import(edges_list_shard, NULL);
+        outgoing_shards[shard_id].print();
+        cout << " ------------------------------------------------------------ " << endl;
+    }
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+/*
+void process()
+{
+    Frontier frontier; // need to process verices {1, 2, 3, 10, 15}
+    // problem: each shard can have different enumeration...
+    // если сначала сортируем, потом фиксируем номера внутри каждой shard в таком же порядке
+    // - может происходить разброс степеней соседних
+    //
 
-/*void ShardedGraph::import_graph(EdgesListGraph &_old_graph,
+    // если сортируем каждую шарду - разная нумерация, как работать с фронтом?
+    // можно смотреть на тип фронта
+    // all-active - нет проблемы
+    // dense - нет проблемы
+    // если есть sparse-часть - её перенумеровывать для каждой шарды (внутри advance)
+*/
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+/*void ShardedGraph::import(EdgesListGraph &_old_graph,
                                  AlgorithmTraversalType _traversal_type)
 {
     LOAD_EDGES_LIST_GRAPH_DATA(_old_graph);

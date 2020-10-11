@@ -48,8 +48,8 @@ public:
 
     /* Further - ShardedCSRGraph specific API : reorder, working with double-directions, etc.*/
 
-    // initializes ShardedCSR graph from EdgesList graph
-    void import_graph(EdgesListGraph &_copy_graph);
+    // creates ShardedCSRGraph format from EdgesListGraph
+    void import(EdgesListGraph &_el_graph);
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

@@ -22,7 +22,7 @@ int main(int argc, const char * argv[])
         GraphGenerationAPI<int, float>::R_MAT(rand_graph, vertices_count, edges_count, 57, 19, 19, 5, UNDIRECTED_GRAPH);
         
         UndirectedCSRGraph<int, float> graph;
-        graph.import_graph(rand_graph, VERTICES_SORTED, EDGES_UNSORTED, VECTOR_LENGTH, PUSH_TRAVERSAL);
+        graph.import(rand_graph, VERTICES_SORTED, EDGES_UNSORTED, VECTOR_LENGTH, PUSH_TRAVERSAL);
         
         //graph.save_to_graphviz_file("TEST.gv", VISUALISE_AS_UNDIRECTED);
         
@@ -38,7 +38,7 @@ int main(int argc, const char * argv[])
         //KCore<int, float>::maximal_kcore(graph, kcore_data);
         
         VectorisedCSRGraph<int, float> vect_graph;
-        vect_graph.import_graph(rand_graph, VERTICES_SORTED, EDGES_UNSORTED, VECTOR_LENGTH, PUSH_TRAVERSAL);
+        vect_graph.import(rand_graph, VERTICES_SORTED, EDGES_UNSORTED, VECTOR_LENGTH, PUSH_TRAVERSAL);
         KCore<int, float>::kcore_subgraph(vect_graph, kcore_data, atoi(argv[3]));
         
         KCore<int, float>::free_result_memory(kcore_data);

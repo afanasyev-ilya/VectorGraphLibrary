@@ -2,14 +2,14 @@
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void VectCSRGraph::import_graph(EdgesListGraph &_el_graph)
+void VectCSRGraph::import(EdgesListGraph &_el_graph)
 {
     this->vertices_count = _el_graph.get_vertices_count();
     this->edges_count = _el_graph.get_edges_count();
 
     Timer tm;
     tm.start();
-    outgoing_graph->import_and_preprocess(_el_graph, NULL);
+    outgoing_graph->import(_el_graph, NULL);
     tm.end();
     #ifdef __PRINT_API_PERFORMANCE_STATS__
     tm.print_time_stats("VectCSR outgoing conversion");
@@ -20,7 +20,7 @@ void VectCSRGraph::import_graph(EdgesListGraph &_el_graph)
     this->resize_helper_arrays();
 
     tm.start();
-    incoming_graph->import_and_preprocess(_el_graph, edges_reorder_indexes);
+    incoming_graph->import(_el_graph, edges_reorder_indexes);
     tm.end();
     #ifdef __PRINT_API_PERFORMANCE_STATS__
     tm.print_time_stats("VectCSR incoming conversion");

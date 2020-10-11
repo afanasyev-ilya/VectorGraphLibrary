@@ -26,7 +26,6 @@ public:
     virtual size_t get_size() = 0;
 
     /* file load/store API */
-    virtual void save_to_graphviz_file(string file_name, VisualisationMode _visualisation_mode = VISUALISE_AS_DIRECTED) = 0;
     virtual bool save_to_binary_file(string file_name) = 0;
     virtual bool load_from_binary_file(string file_name) = 0;
 

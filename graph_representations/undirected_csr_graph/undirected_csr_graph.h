@@ -89,7 +89,6 @@ public:
     void print_with_weights(EdgesArrayNec<_T> &_weights, TraversalDirection _direction);
 
     /* file load/store API */
-    void save_to_graphviz_file(string _file_name, VisualisationMode _visualisation_mode = VISUALISE_AS_DIRECTED);
     bool save_to_binary_file(string file_name);
     bool load_from_binary_file(string file_name);
 
@@ -108,9 +107,6 @@ public:
 
     // allows to get position of specified edge in VE representation
     inline long long get_ve_edge_id (int _src_id, int _dst_id) { return last_vertices_ve.get_ve_edge_id(_src_id, _dst_id); };
-
-    // main function to create vector CSR format
-    void import_and_preprocess(EdgesListGraph &_old_graph, long long *_edges_reorder_indexes);
 
     /* reorder API */
     // reorders a single vertex from original (edges list) to sorted (undirectedCSR)
@@ -145,6 +141,15 @@ public:
 
     // selects random vertex with non-zero degree
     int select_random_vertex();
+
+    // performs simple graph visualization using GraphViz API
+    template <typename _TVertexValue>
+    void save_to_graphviz_file(string _file_name, VerticesArrayNec<_TVertexValue> &_vertex_data,
+                               VisualisationMode _visualisation_mode = VISUALISE_AS_DIRECTED);
+
+    /* import and preprocess API */
+    // creates UndirectedCSRGraph format from EdgesListGraph
+    void import(EdgesListGraph &_old_graph, long long *_edges_reorder_indexes);
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -167,7 +172,7 @@ int *ve_adjacent_ids = (input_graph.get_ve_ptr())->get_adjacent_ids();\
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #include "undirected_csr_graph.hpp"
-#include "preprocess.hpp"
+#include "import.hpp"
 #include "gpu_api.hpp"
 #include "nec_api.hpp"
 #include "reorder.hpp"

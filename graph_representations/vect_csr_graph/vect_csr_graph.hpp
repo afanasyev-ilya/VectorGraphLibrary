@@ -30,6 +30,15 @@ VectCSRGraph::~VectCSRGraph()
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+template <typename _TVertexValue>
+void VectCSRGraph::save_to_graphviz_file(string _file_name, VerticesArrayNec<_TVertexValue> &_vertex_data)
+{
+    // if undirected - take from TODO variable
+    outgoing_graph->save_to_graphviz_file(_file_name, _vertex_data, VISUALISE_AS_DIRECTED);
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 UndirectedCSRGraph *VectCSRGraph::get_direction_graph_ptr(TraversalDirection _direction)
 {
     if(_direction == SCATTER)

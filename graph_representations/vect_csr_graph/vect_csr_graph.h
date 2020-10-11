@@ -38,7 +38,6 @@ public:
     void print_with_weights(EdgesArrayNec<_T> &_weights);
 
     /* file load/store API */
-    void save_to_graphviz_file(string file_name, VisualisationMode _visualisation_mode = VISUALISE_AS_DIRECTED) {};
     bool save_to_binary_file(string file_name) {};
     bool load_from_binary_file(string file_name) {};
 
@@ -49,9 +48,6 @@ public:
     #endif
 
     /* Further - VectCSRGraph specific API : reorder, working with double-directions, etc.*/
-
-    // initializes VectCSR graph from EdgesList graph
-    void import_graph(EdgesListGraph &_copy_graph);
 
     // get pointers to the specific undirected part of graph (incoming or outgoing ids)
     UndirectedCSRGraph *get_outgoing_graph_ptr() {return outgoing_graph;};
@@ -88,6 +84,14 @@ public:
 
     // selects random vertex with non-zero outgoing and incoming degree
     int select_random_vertex(TraversalDirection _direction = ORIGINAL);
+
+    // performs simple graph visualization using GraphViz API
+    template <typename _TVertexValue>
+    void save_to_graphviz_file(string _file_name, VerticesArrayNec<_TVertexValue> &_vertex_data);
+
+    /* import and preprocess API */
+    // creates VectCSRGraph format from EdgesListGraph
+    void import(EdgesListGraph &_copy_graph);
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -95,7 +99,7 @@ public:
 #include "vect_csr_graph.hpp"
 #include "reorder.hpp"
 #include "print.hpp"
-#include "preprocess.hpp"
+#include "import.hpp"
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
