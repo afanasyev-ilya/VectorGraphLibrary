@@ -2,10 +2,10 @@
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void UndirectedGraph::print()
+void UndirectedCSRGraph::print()
 {
     cout << endl;
-    cout << "UndirectedGraph format" << endl;
+    cout << "UndirectedCSRGraph format" << endl;
 
     cout << "|V|=" << this->vertices_count << endl;
     cout << "|E|=" << this->edges_count << endl;
@@ -38,10 +38,10 @@ void UndirectedGraph::print()
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template <typename _T>
-void UndirectedGraph::print_with_weights(EdgesArrayNec<_T> &_weights, TraversalDirection _direction)
+void UndirectedCSRGraph::print_with_weights(EdgesArrayNec<_T> &_weights, TraversalDirection _direction)
 {
     cout << endl;
-    cout << "UndirectedGraph format" << endl;
+    cout << "UndirectedCSRGraph format" << endl;
 
     cout << "|V|=" << this->vertices_count << endl;
     cout << "|E|=" << this->edges_count << endl;
@@ -78,14 +78,14 @@ void UndirectedGraph::print_with_weights(EdgesArrayNec<_T> &_weights, TraversalD
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void UndirectedGraph::print_size()
+void UndirectedCSRGraph::print_size()
 {
-    cout << "UndirectedGraph size: " << get_size()/1e9 << "GB" << endl;
+    cout << "UndirectedCSRGraph size: " << get_size()/1e9 << "GB" << endl;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-size_t UndirectedGraph::get_size()
+size_t UndirectedCSRGraph::get_size()
 {
     size_t size = 0;
     size += sizeof(vertex_pointers[0])*(this->vertices_count+1);

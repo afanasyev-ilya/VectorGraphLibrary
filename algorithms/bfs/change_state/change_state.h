@@ -32,7 +32,7 @@ enum GraphStructure
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-GraphStructure check_graph_structure(UndirectedGraph &_graph);
+GraphStructure check_graph_structure(UndirectedCSRGraph &_graph);
 
 StateOfBFS nec_change_state(int _current_queue_size, int _next_queue_size, int _vertices_count, long long _edges_count,
                             StateOfBFS _old_state, int _vis, int _in_lvl, bool &_use_vect_CSR_extension, int _cur_level,

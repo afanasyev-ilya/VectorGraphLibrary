@@ -28,15 +28,15 @@ void SSSP::nec_dijkstra_partial_active(VectCSRGraph &_graph,
     Timer tm;
     tm.start();
 
-    auto init_distances = [&_distances, _source_vertex] (int src_id, int connections_count, int vector_index)
+    _T inf_val = std::numeric_limits<_T>::max() - MAX_WEIGHT;
+    auto init_distances = [&_distances, _source_vertex, inf_val] (int src_id, int connections_count, int vector_index)
     {
         if(src_id == _source_vertex)
-            _distances[_source_vertex] = 0;
+            _distances[src_id] = 0;
         else
-            _distances[src_id] = FLT_MAX;
+            _distances[src_id] = inf_val;
     };
-
-    graph_API.compute(_graph, all_active_frontier, init_distances); // init distances with all-active frontier
+    graph_API.compute(_graph, all_active_frontier, init_distances);
 
     work_frontier.clear();
     work_frontier.add_vertex(_source_vertex);
@@ -65,7 +65,7 @@ void SSSP::nec_dijkstra_partial_active(VectCSRGraph &_graph,
             };
 
             graph_API.scatter(_graph, work_frontier, edge_op_push, EMPTY_VERTEX_OP, EMPTY_VERTEX_OP,
-                             edge_op_push, EMPTY_VERTEX_OP, EMPTY_VERTEX_OP);
+                              edge_op_push, EMPTY_VERTEX_OP, EMPTY_VERTEX_OP);
         }
 
         auto changes_occurred = [&_distances, &prev_distances] (int src_id)->int
@@ -100,14 +100,15 @@ void SSSP::nec_bellamn_ford(EdgesListGraph &_graph,
     double t1 = omp_get_wtime();
     LOAD_EDGES_LIST_GRAPH_DATA(_graph);
 
-    auto init_distances = [_distances, _source_vertex] (int src_id, int connections_count, int vector_index)
+    _T inf_val = std::numeric_limits<_T>::max();
+    auto init_distances = [&_distances, _source_vertex, inf_val] (int src_id, int connections_count, int vector_index)
     {
         if(src_id == _source_vertex)
-            _distances[_source_vertex] = 0;
+            _distances[src_id] = 0;
         else
-            _distances[src_id] = FLT_MAX;
+            _distances[src_id] = inf_val;
     };
-    graph_API.compute(_graph, init_distances);
+    graph_API.compute(_graph, frontier, init_distances);
 
     int iterations_count = 0;
     int changes_count = 0;
@@ -167,13 +168,13 @@ void SSSP::nec_dijkstra_all_active_push(VectCSRGraph &_graph,
         throw "Error: incorrect direction of vertex array in SSSP::nec_dijkstra_all_active_push";
     }
 
-    int vect_csr_source_vertex = _source_vertex;
-    auto init_distances = [&_distances, vect_csr_source_vertex] (int src_id, int connections_count, int vector_index)
+    _T inf_val = std::numeric_limits<_T>::max() - MAX_WEIGHT;
+    auto init_distances = [&_distances, _source_vertex, inf_val] (int src_id, int connections_count, int vector_index)
     {
-        if(src_id == vect_csr_source_vertex)
+        if(src_id == _source_vertex)
             _distances[src_id] = 0;
         else
-            _distances[src_id] = FLT_MAX;
+            _distances[src_id] = inf_val;
     };
     graph_API.compute(_graph, frontier, init_distances);
 
@@ -237,7 +238,9 @@ void SSSP::nec_dijkstra_all_active_pull(VectCSRGraph &_graph,
 
     _source_vertex = _graph.reorder(_source_vertex, ORIGINAL, GATHER);
 
-    if(!graph_API.have_correct_direction(_distances))
+    VerticesArrayNec<_T> prev_distances(_graph, GATHER);
+
+    if(!graph_API.have_correct_direction(_distances, prev_distances))
     {
         throw "Error: incorrect direction of vertex array in SSSP::nec_dijkstra_all_active_pull";
     }
@@ -245,13 +248,13 @@ void SSSP::nec_dijkstra_all_active_pull(VectCSRGraph &_graph,
     Timer tm;
     tm.start();
 
-    int vect_csr_source_vertex = _source_vertex;
-    auto init_distances = [&_distances, vect_csr_source_vertex] (int src_id, int connections_count, int vector_index)
+    _T inf_val = std::numeric_limits<_T>::max() - MAX_WEIGHT;
+    auto init_distances = [&_distances, _source_vertex, inf_val] (int src_id, int connections_count, int vector_index)
     {
-        if(src_id == vect_csr_source_vertex)
+        if(src_id == _source_vertex)
             _distances[src_id] = 0;
         else
-            _distances[src_id] = FLT_MAX;
+            _distances[src_id] = inf_val;
     };
     graph_API.compute(_graph, frontier, init_distances);
 
@@ -261,52 +264,46 @@ void SSSP::nec_dijkstra_all_active_pull(VectCSRGraph &_graph,
         changes = 0;
         iterations_count++;
 
+        auto save_old_distances = [&_distances, &prev_distances] (int src_id, int connections_count, int vector_index)
+        {
+            prev_distances[src_id] = _distances[src_id];
+        };
+        graph_API.compute(_graph, frontier, save_old_distances);
+
         #pragma omp parallel shared(changes)
         {
             NEC_REGISTER_INT(was_changes, 0);
             NEC_REGISTER_FLT(distances, 0);
 
-            auto edge_op_pull = [&_distances, &_weights, &reg_was_changes, &reg_distances](int src_id, int dst_id, int local_edge_pos,
+            auto edge_op_pull = [&_distances, &_weights, &reg_distances](int src_id, int dst_id, int local_edge_pos,
                     long long int global_edge_pos, int vector_index, DelayedWriteNEC &delayed_write)
             {
                 _T weight = _weights.get(global_edge_pos);
                 _T dst_weight = _distances[dst_id];
-                if(reg_distances[vector_index] > dst_weight + weight)
+                if(_distances[src_id] > dst_weight + weight)
                 {
                     reg_distances[vector_index] = dst_weight + weight;
-                    //reg_was_changes[vector_index] = 1;
                 }
             };
 
-            auto vertex_preprocess_op = [&_distances, &reg_distances]
-                    (int src_id, int connections_count, int vector_index, DelayedWriteNEC &delayed_write)
+            auto preprocess = [&reg_distances, inf_val] (int src_id, int connections_count, int vector_index, DelayedWriteNEC &delayed_write)
             {
-                //#pragma _NEC vector
                 for(int i = 0; i < VECTOR_LENGTH; i++)
-                {
-                    reg_distances[i] = _distances[src_id];
-                }
+                    reg_distances[i] = inf_val;
             };
 
-            auto vertex_postprocess_op = [&_distances, &reg_distances, &reg_was_changes]
-                        (int src_id, int connections_count, int vector_index, DelayedWriteNEC &delayed_write)
+            auto postprocess = [&_distances, &reg_distances, inf_val] (int src_id, int connections_count, int vector_index, DelayedWriteNEC &delayed_write)
             {
-                _T min = FLT_MAX;
-
-                #pragma _NEC novector
+                _T min = inf_val;
                 for(int i = 0; i < VECTOR_LENGTH; i++)
-                {
                     if(min > reg_distances[i])
                         min = reg_distances[i];
-                }
-                if(min < _distances[src_id])
-                {
+                if(_distances[src_id] > min)
                     _distances[src_id] = min;
-                    reg_was_changes[0] = 1;
-                }
             };
 
-            auto edge_op_collective_pull = [&_distances, &_weights, &reg_was_changes]
+
+            auto edge_op_collective_pull = [&_distances, &_weights]
                    (int src_id, int dst_id, int local_edge_pos, long long int global_edge_pos,
                     int vector_index, DelayedWriteNEC &delayed_write)
             {
@@ -315,23 +312,23 @@ void SSSP::nec_dijkstra_all_active_pull(VectCSRGraph &_graph,
                 if(_distances[src_id] > dst_weight + weight)
                 {
                     _distances[src_id] = dst_weight + weight;
-                    reg_was_changes[vector_index] = 1;
                 }
             };
 
-            graph_API.gather(_graph, frontier, edge_op_pull, vertex_preprocess_op, vertex_postprocess_op,
+            graph_API.gather(_graph, frontier, edge_op_pull, preprocess, postprocess,
                              edge_op_collective_pull, EMPTY_VERTEX_OP, EMPTY_VERTEX_OP);
-
-            #pragma omp barrier
-
-            #pragma omp critical
-            {
-                int local_changes = register_sum_reduce(reg_was_changes);
-                changes += local_changes;
-            }
-
-            #pragma omp barrier
         }
+
+        auto reduce_changes = [&_distances, &prev_distances](int src_id, int connections_count, int vector_index)->int
+        {
+            int result = 0.0;
+            if(prev_distances[src_id] != _distances[src_id])
+            {
+                result = 1;
+            }
+            return result;
+        };
+        changes = graph_API.reduce<int>(_graph, frontier, reduce_changes, REDUCE_SUM);
     }
     while(changes);
 

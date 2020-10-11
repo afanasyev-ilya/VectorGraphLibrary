@@ -50,7 +50,7 @@ public:
     FrontierType get_type() {return type;};
 
 
-    void add_vertex(UndirectedGraph &_graph, int src_id);
+    void add_vertex(UndirectedCSRGraph &_graph, int src_id);
 
     friend class GraphPrimitivesGPU;
 };

@@ -4,7 +4,7 @@
 
 #ifdef __USE_NEC_SX_AURORA__
 
-void SSWP::nec_dijkstra(UndirectedGraph &_graph,
+void SSWP::nec_dijkstra(UndirectedCSRGraph &_graph,
                         _TEdgeWeight *_widths,
                         int _source_vertex,
                         AlgorithmTraversalType _traversal_direction)

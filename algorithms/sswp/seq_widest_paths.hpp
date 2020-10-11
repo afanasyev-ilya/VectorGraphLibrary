@@ -3,7 +3,7 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-void SSWP::seq_dijkstra(UndirectedGraph &_graph,
+void SSWP::seq_dijkstra(UndirectedCSRGraph &_graph,
                         _TEdgeWeight *_widths,
                         int _source_vertex)
 {

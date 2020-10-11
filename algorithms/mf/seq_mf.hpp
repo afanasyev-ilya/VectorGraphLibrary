@@ -3,7 +3,7 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-bool MF::seq_bfs(UndirectedGraph &_graph, int _source, int _sink, int *_parents)
+bool MF::seq_bfs(UndirectedCSRGraph &_graph, int _source, int _sink, int *_parents)
 {
     // Create a visited array and mark all vertices as not visited
     LOAD_UNDIRECTED_CSR_GRAPH_DATA(_graph);
@@ -50,7 +50,7 @@ bool MF::seq_bfs(UndirectedGraph &_graph, int _source, int _sink, int *_parents)
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-_TEdgeWeight MF::get_flow(UndirectedGraph &_graph, int _src_id, int _dst_id)
+_TEdgeWeight MF::get_flow(UndirectedCSRGraph &_graph, int _src_id, int _dst_id)
 {
     LOAD_UNDIRECTED_CSR_GRAPH_DATA(_graph);
 
@@ -71,7 +71,7 @@ _TEdgeWeight MF::get_flow(UndirectedGraph &_graph, int _src_id, int _dst_id)
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-void MF::add_flow(UndirectedGraph &_graph, int _src_id, int _dst_id, _TEdgeWeight update_val)
+void MF::add_flow(UndirectedCSRGraph &_graph, int _src_id, int _dst_id, _TEdgeWeight update_val)
 {
     LOAD_UNDIRECTED_CSR_GRAPH_DATA(_graph);
 
@@ -91,7 +91,7 @@ void MF::add_flow(UndirectedGraph &_graph, int _src_id, int _dst_id, _TEdgeWeigh
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-void MF::subtract_flow(UndirectedGraph &_graph, int _src_id, int _dst_id, _TEdgeWeight update_val)
+void MF::subtract_flow(UndirectedCSRGraph &_graph, int _src_id, int _dst_id, _TEdgeWeight update_val)
 {
     LOAD_UNDIRECTED_CSR_GRAPH_DATA(_graph);
 
@@ -111,7 +111,7 @@ void MF::subtract_flow(UndirectedGraph &_graph, int _src_id, int _dst_id, _TEdge
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-_TEdgeWeight MF::seq_ford_fulkerson(UndirectedGraph &_graph,
+_TEdgeWeight MF::seq_ford_fulkerson(UndirectedCSRGraph &_graph,
                                     int _source, int _sink)
 {
     LOAD_UNDIRECTED_CSR_GRAPH_DATA(_graph);

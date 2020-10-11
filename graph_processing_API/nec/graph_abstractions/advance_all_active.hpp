@@ -38,10 +38,10 @@ void GraphAbstractionsNEC::vector_engine_per_vertex_kernel_all_active(const long
         vertex_preprocess_op(src_id, connections_count, 0, delayed_write);
 
         #pragma _NEC ivdep
-        #pragma _NEC vovertake
+        //#pragma _NEC vovertake
         #pragma _NEC novob
         #pragma _NEC vector
-        #pragma _NEC gather_reorder
+        //#pragma _NEC gather_reorder
         #pragma omp for schedule(static)
         for (int local_edge_pos = 0; local_edge_pos < connections_count; local_edge_pos++)
         {
@@ -111,10 +111,10 @@ void GraphAbstractionsNEC::vector_core_per_vertex_kernel_all_active(const long l
         vertex_preprocess_op(src_id, connections_count, 0, delayed_write);
 
         #pragma _NEC ivdep
-        #pragma _NEC vovertake
+        //#pragma _NEC vovertake
         #pragma _NEC novob
         #pragma _NEC vector
-        #pragma _NEC gather_reorder
+        //#pragma _NEC gather_reorder
         for (int local_edge_pos = 0; local_edge_pos < connections_count; local_edge_pos++)
         {
             const long long internal_edge_pos = start + local_edge_pos;
@@ -217,10 +217,10 @@ void GraphAbstractionsNEC::ve_collective_vertex_processing_kernel_all_active(con
         for(int edge_pos = _first_edge; edge_pos < segment_connections_count; edge_pos++)
         {
             #pragma _NEC ivdep
-            #pragma _NEC vovertake
+            //#pragma _NEC vovertake
             #pragma _NEC novob
             #pragma _NEC vector
-            #pragma _NEC gather_reorder
+            //#pragma _NEC gather_reorder
             for (int i = 0; i < VECTOR_LENGTH; i++)
             {
                 const int src_id = segment_first_vertex + i;

@@ -13,7 +13,7 @@ template <typename _T>
 void SSSP::seq_dijkstra(VectCSRGraph &_graph, EdgesArrayNec<_T> &_weights, VerticesArrayNec<_T> &_distances,
                         int _source_vertex)
 {
-    UndirectedGraph *outgoing_graph_ptr = _graph.get_outgoing_graph_ptr();
+    UndirectedCSRGraph *outgoing_graph_ptr = _graph.get_outgoing_graph_ptr();
     LOAD_UNDIRECTED_CSR_GRAPH_DATA((*outgoing_graph_ptr));
 
     _source_vertex = _graph.reorder(_source_vertex, ORIGINAL, SCATTER);
@@ -27,8 +27,9 @@ void SSSP::seq_dijkstra(VectCSRGraph &_graph, EdgesArrayNec<_T> &_weights, Verti
 
     // Create a vector for distances and initialize all
     // distances as infinite (INF)
+    _T inf_val = std::numeric_limits<_T>::max() - MAX_WEIGHT;
     for(int i = 0; i < vertices_count; i++)
-        _distances[i] = FLT_MAX;
+        _distances[i] = inf_val;
 
     // Insert source itself in priority queue and initialize
     // its distance as 0.

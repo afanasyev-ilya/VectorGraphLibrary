@@ -20,7 +20,7 @@ void FrontierNEC::add_vertex(int src_id)
         throw "Error in FrontierNEC::add_vertex: VGL can not add vertex to non-empty frontier";
     }
 
-    UndirectedGraph *current_direction_graph = graph_ptr->get_direction_graph_ptr(direction);
+    UndirectedCSRGraph *current_direction_graph = graph_ptr->get_direction_graph_ptr(direction);
     const int ve_threshold = current_direction_graph->get_vector_engine_threshold_vertex();
     const int vc_threshold = current_direction_graph->get_vector_core_threshold_vertex();
     const int vertices_count = current_direction_graph->get_vertices_count();
@@ -57,7 +57,7 @@ void FrontierNEC::add_vertex(int src_id)
 
 void FrontierNEC::add_group_of_vertices(int *_vertex_ids, int _number_of_vertices)
 {
-    UndirectedGraph *current_direction_graph = graph_ptr->get_direction_graph_ptr(direction);
+    UndirectedCSRGraph *current_direction_graph = graph_ptr->get_direction_graph_ptr(direction);
     LOAD_UNDIRECTED_CSR_GRAPH_DATA((*current_direction_graph));
 
     /*if(current_size > 0)

@@ -3,7 +3,7 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template <typename _TVertexValue, typename _TEdgeWeight, typename EdgeOperation>
-void GraphPrimitivesMulticore::advance(UndirectedGraph &_graph,
+void GraphPrimitivesMulticore::advance(UndirectedCSRGraph &_graph,
                                        FrontierMulticore &_frontier,
                                        EdgeOperation &&edge_op)
 {

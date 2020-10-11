@@ -14,7 +14,7 @@ private:
     int max_size;
 public:
 
-    FrontierMulticore(UndirectedGraph &_graph);
+    FrontierMulticore(UndirectedCSRGraph &_graph);
     FrontierMulticore(int _vertices_count);
     ~FrontierMulticore();
 
@@ -26,13 +26,13 @@ public:
     void change_size(int _size) {max_size = _size;};
 
 
-    void print_stats(UndirectedGraph &_graph);
+    void print_stats(UndirectedCSRGraph &_graph);
 
 
-    inline void add_vertex(UndirectedGraph &_graph, int src_id);
+    inline void add_vertex(UndirectedCSRGraph &_graph, int src_id);
 
 
-    inline void add_group_of_vertices(UndirectedGraph &_graph, int *_vertex_ids, int _number_of_vertices);
+    inline void add_group_of_vertices(UndirectedCSRGraph &_graph, int *_vertex_ids, int _number_of_vertices);
 
     inline void clear() { current_size = 0; };
 

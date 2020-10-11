@@ -3,7 +3,7 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template <typename _TVertexValue, typename _TEdgeWeight, typename ComputeOperation>
-void GraphPrimitivesMulticore::compute(UndirectedGraph &_graph,
+void GraphPrimitivesMulticore::compute(UndirectedCSRGraph &_graph,
                                        FrontierMulticore &_frontier,
                                        ComputeOperation compute_op)
 {

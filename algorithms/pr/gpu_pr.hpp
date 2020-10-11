@@ -4,7 +4,7 @@
 
 #ifdef __USE_GPU__
 
-void PR::gpu_page_rank(UndirectedGraph &_graph,
+void PR::gpu_page_rank(UndirectedCSRGraph &_graph,
                        float *_page_ranks,
                        float _convergence_factor,
                        int _max_iterations,

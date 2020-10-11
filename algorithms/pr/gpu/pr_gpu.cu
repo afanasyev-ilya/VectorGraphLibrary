@@ -16,7 +16,7 @@ using namespace std;
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-void page_rank_wrapper(UndirectedGraph &_graph,
+void page_rank_wrapper(UndirectedCSRGraph &_graph,
                        float *_page_ranks,
                        float _convergence_factor,
                        int _max_iterations,
@@ -167,7 +167,7 @@ void page_rank_wrapper(UndirectedGraph &_graph,
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-template void page_rank_wrapper<int, float>(UndirectedGraph<int, float> &_graph,
+template void page_rank_wrapper<int, float>(UndirectedCSRGraph<int, float> &_graph,
                                             float *_page_ranks,
                                             float _convergence_factor,
                                             int _max_iterations,

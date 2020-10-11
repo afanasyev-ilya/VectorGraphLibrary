@@ -4,7 +4,7 @@
 
 template <typename _TVertexValue, typename _TEdgeWeight, typename EdgeOperation, typename VertexPreprocessOperation,
         typename VertexPostprocessOperation>
-void GraphPrimitivesGPU::advance(UndirectedGraph &_graph,
+void GraphPrimitivesGPU::advance(UndirectedCSRGraph &_graph,
                                  FrontierGPU &_frontier,
                                  EdgeOperation edge_op,
                                  VertexPreprocessOperation vertex_preprocess_op,
@@ -19,7 +19,7 @@ void GraphPrimitivesGPU::advance(UndirectedGraph &_graph,
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template <typename _TVertexValue, typename _TEdgeWeight, typename EdgeOperation>
-void GraphPrimitivesGPU::advance(UndirectedGraph &_graph,
+void GraphPrimitivesGPU::advance(UndirectedCSRGraph &_graph,
                                  FrontierGPU &_frontier,
                                  EdgeOperation edge_op)
 {
@@ -31,7 +31,7 @@ void GraphPrimitivesGPU::advance(UndirectedGraph &_graph,
 
 template <typename _TVertexValue, typename _TEdgeWeight, typename EdgeOperation, typename VertexPreprocessOperation,
         typename VertexPostprocessOperation, typename Condition>
-void GraphPrimitivesGPU::advance(UndirectedGraph &_graph,
+void GraphPrimitivesGPU::advance(UndirectedCSRGraph &_graph,
                                  FrontierGPU &_in_frontier,
                                  EdgeOperation edge_op,
                                  VertexPreprocessOperation vertex_preprocess_op,

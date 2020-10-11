@@ -33,10 +33,13 @@ void EdgesListGraph::preprocess_into_csr_based(int *_work_buffer, asl_int_t *_as
     ASL_CALL(asl_sort_create_i32(&hnd, ASL_SORTORDER_ASCENDING, ASL_SORTALGORITHM_AUTO));
 
     // sort src_ids
-    double t1 = omp_get_wtime();
+    Timer tm;
+    tm.start();
     ASL_CALL(asl_sort_execute_i32(hnd, this->edges_count, src_ids, _asl_buffer, src_ids, _asl_buffer));
-    double t2 = omp_get_wtime();
-    cout << "edges list graph sorting time: " << t2 - t1 << " sec" << endl;
+    tm.end();
+    #ifdef __PRINT_API_PERFORMANCE_STATS__
+    tm.print_time_stats("EdgesListGraph sorting (to CSR) time");
+    #endif
 
     ASL_CALL(asl_sort_destroy(hnd));
     ASL_CALL(asl_library_finalize());

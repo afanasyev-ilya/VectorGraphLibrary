@@ -9,7 +9,7 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-void LP::seq_lp(UndirectedGraph &_graph, int *_labels, int _max_iterations)
+void LP::seq_lp(UndirectedCSRGraph &_graph, int *_labels, int _max_iterations)
 {
     LOAD_UNDIRECTED_CSR_GRAPH_DATA(_graph);
 

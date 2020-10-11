@@ -2,14 +2,14 @@
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-int UndirectedGraph::reorder_to_original(int _vertex_id)
+int UndirectedCSRGraph::reorder_to_original(int _vertex_id)
 {
     return backward_conversion[_vertex_id];
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-int UndirectedGraph::reorder_to_sorted(int _vertex_id)
+int UndirectedCSRGraph::reorder_to_sorted(int _vertex_id)
 {
     return forward_conversion[_vertex_id];
 }
@@ -17,7 +17,7 @@ int UndirectedGraph::reorder_to_sorted(int _vertex_id)
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template <typename _T>
-void UndirectedGraph::reorder_to_original(_T *_data, _T *_buffer)
+void UndirectedCSRGraph::reorder_to_original(_T *_data, _T *_buffer)
 {
     #pragma _NEC ivdep
     #pragma _NEC vovertake
@@ -42,7 +42,7 @@ void UndirectedGraph::reorder_to_original(_T *_data, _T *_buffer)
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template <typename _T>
-void UndirectedGraph::reorder_to_sorted(_T *_data, _T *_buffer)
+void UndirectedCSRGraph::reorder_to_sorted(_T *_data, _T *_buffer)
 {
     #pragma _NEC ivdep
     #pragma _NEC vovertake

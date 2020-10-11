@@ -1,26 +1,4 @@
-//
-//  base_graph.h
-//  ParallelGraphLibrary
-//
-//  Created by Elijah Afanasiev on 14/04/2019.
-//  Copyright © 2019 MSU. All rights reserved.
-//
-
-#ifndef base_graph_h
-#define base_graph_h
-
-#include "common/graph_types.h"
-#include <string>
-
-using namespace std;
-
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-enum VisualisationMode
-{
-    VISUALISE_AS_DIRECTED = 0,
-    VISUALISE_AS_UNDIRECTED = 1
-};
+#pragma once
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -40,6 +18,7 @@ public:
     /* get API */
     inline int get_vertices_count() {return vertices_count;};
     inline long long get_edges_count() {return edges_count;};
+    inline GraphType get_type() {return graph_type;};
 
     /* print API */
     virtual void print() = 0;
@@ -59,5 +38,3 @@ public:
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-#endif /* base_graph_h */

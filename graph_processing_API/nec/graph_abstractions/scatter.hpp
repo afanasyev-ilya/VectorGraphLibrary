@@ -14,7 +14,7 @@ void GraphAbstractionsNEC::scatter(VectCSRGraph &_graph,
                                    CollectiveVertexPreprocessOperation &&collective_vertex_preprocess_op,
                                    CollectiveVertexPostprocessOperation &&collective_vertex_postprocess_op)
 {
-    UndirectedGraph *current_direction_graph;
+    UndirectedCSRGraph *current_direction_graph;
 
     if(current_traversal_direction != SCATTER)
     {

@@ -2,22 +2,22 @@
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-UndirectedGraph::UndirectedGraph(int _vertices_count, long long _edges_count)
+UndirectedCSRGraph::UndirectedCSRGraph(int _vertices_count, long long _edges_count)
 {
-    this->graph_type = GraphTypeExtendedCSR;
+    this->graph_type = UNDIRECTED_CSR_GRAPH;
     alloc(_vertices_count, _edges_count);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-UndirectedGraph::~UndirectedGraph()
+UndirectedCSRGraph::~UndirectedCSRGraph()
 {
     free();
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void UndirectedGraph::alloc(int _vertices_count, long long _edges_count)
+void UndirectedCSRGraph::alloc(int _vertices_count, long long _edges_count)
 {
     this->vertices_count = _vertices_count;
     this->edges_count = _edges_count;
@@ -31,7 +31,7 @@ void UndirectedGraph::alloc(int _vertices_count, long long _edges_count)
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void UndirectedGraph::free()
+void UndirectedCSRGraph::free()
 {
     MemoryAPI::free_array(vertex_pointers);
     MemoryAPI::free_array(adjacent_ids);
@@ -42,7 +42,7 @@ void UndirectedGraph::free()
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void UndirectedGraph::resize(int _vertices_count, long long _edges_count)
+void UndirectedCSRGraph::resize(int _vertices_count, long long _edges_count)
 {
     this->free();
     this->alloc(_vertices_count, _edges_count);
@@ -50,7 +50,7 @@ void UndirectedGraph::resize(int _vertices_count, long long _edges_count)
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void UndirectedGraph::save_to_graphviz_file(string _file_name, VisualisationMode _visualisation_mode)
+void UndirectedCSRGraph::save_to_graphviz_file(string _file_name, VisualisationMode _visualisation_mode)
 {
     ofstream dot_output(_file_name.c_str());
     
@@ -96,7 +96,7 @@ void UndirectedGraph::save_to_graphviz_file(string _file_name, VisualisationMode
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-bool UndirectedGraph::save_to_binary_file(string _file_name)
+bool UndirectedCSRGraph::save_to_binary_file(string _file_name)
 {
     FILE * graph_file = fopen(_file_name.c_str(), "wb");
     if(graph_file == NULL)
@@ -120,7 +120,7 @@ bool UndirectedGraph::save_to_binary_file(string _file_name)
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-bool UndirectedGraph::load_from_binary_file(string _file_name)
+bool UndirectedCSRGraph::load_from_binary_file(string _file_name)
 {
     FILE * graph_file = fopen(_file_name.c_str(), "rb");
     if(graph_file == NULL)
@@ -134,7 +134,7 @@ bool UndirectedGraph::load_from_binary_file(string _file_name)
     fread(reinterpret_cast<void*>(&(this->graph_type)), sizeof(GraphType), 1, graph_file);
     
     if(this->graph_type != GraphTypeExtendedCSR)
-        throw "ERROR: loaded incorrect type of graph into UndirectedGraph container";
+        throw "ERROR: loaded incorrect type of graph into UndirectedCSRGraph container";
     
     fread(reinterpret_cast<void*>(&vertices_state), sizeof(VerticesState), 1, graph_file);
     fread(reinterpret_cast<void*>(&edges_state), sizeof(EdgesState), 1, graph_file);
@@ -165,7 +165,7 @@ bool UndirectedGraph::load_from_binary_file(string _file_name)
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template <typename _T>
-_T& UndirectedGraph::get_edge_data(_T *_data_array, int _src_id, int _dst_id)
+_T& UndirectedCSRGraph::get_edge_data(_T *_data_array, int _src_id, int _dst_id)
 {
     const long long edge_start = vertex_pointers[_src_id];
     const int connections_count = vertex_pointers[_src_id + 1] - vertex_pointers[_src_id];
@@ -184,7 +184,7 @@ _T& UndirectedGraph::get_edge_data(_T *_data_array, int _src_id, int _dst_id)
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-long long UndirectedGraph::get_csr_edge_id(int _src_id, int _dst_id)
+long long UndirectedCSRGraph::get_csr_edge_id(int _src_id, int _dst_id)
 {
     const long long int start = vertex_pointers[_src_id];
     const long long int end = vertex_pointers[_src_id + 1];
@@ -199,13 +199,13 @@ long long UndirectedGraph::get_csr_edge_id(int _src_id, int _dst_id)
             return global_edge_pos;
         }
     }
-    throw "Error in UndirectedGraph::get_csr_edge_id(): specified dst_id not found for current src vertex";
+    throw "Error in UndirectedCSRGraph::get_csr_edge_id(): specified dst_id not found for current src vertex";
     return -1;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-int UndirectedGraph::select_random_vertex()
+int UndirectedCSRGraph::select_random_vertex()
 {
     int attempt_num = 0;
     while(attempt_num < ATTEMPTS_THRESHOLD)
@@ -215,7 +215,7 @@ int UndirectedGraph::select_random_vertex()
             return vertex_id;
         attempt_num++;
     }
-    throw "Error in UndirectedGraph::select_random_vertex: can not select non-zero degree vertex in ATTEMPTS_THRESHOLD attempts";
+    throw "Error in UndirectedCSRGraph::select_random_vertex: can not select non-zero degree vertex in ATTEMPTS_THRESHOLD attempts";
     return -1;
 }
 

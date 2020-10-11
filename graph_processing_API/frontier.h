@@ -16,6 +16,7 @@ protected:
     int current_size;
     int max_size; // TODO remove? can be obtained from graph prt
 public:
+    /* constructors and destructors */
     Frontier() {};
     ~Frontier() {};
 

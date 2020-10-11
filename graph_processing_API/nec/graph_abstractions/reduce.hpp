@@ -3,7 +3,7 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template <typename _T, typename ReduceOperation>
-_T GraphAbstractionsNEC::reduce_sum(UndirectedGraph &_graph,
+_T GraphAbstractionsNEC::reduce_sum(UndirectedCSRGraph &_graph,
                                     FrontierNEC &_frontier,
                                     ReduceOperation &&reduce_op)
 {
@@ -66,7 +66,7 @@ _T GraphAbstractionsNEC::reduce(VectCSRGraph &_graph,
         throw "Error in GraphAbstractionsNEC::reduce : wrong frontier direction";
     }
 
-    UndirectedGraph *current_direction_graph;
+    UndirectedCSRGraph *current_direction_graph;
     if(current_traversal_direction == SCATTER)
     {
         current_direction_graph = _graph.get_outgoing_graph_ptr();

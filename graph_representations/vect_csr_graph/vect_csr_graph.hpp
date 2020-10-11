@@ -4,10 +4,12 @@
 
 VectCSRGraph::VectCSRGraph(int _vertices_count, long long _edges_count)
 {
+    this->graph_type = VECT_CSR_GRAPH;
+
     this->vertices_count = _vertices_count;
     this->edges_count = _edges_count;
-    outgoing_graph = new UndirectedGraph(this->vertices_count, this->edges_count );
-    incoming_graph = new UndirectedGraph(this->vertices_count, this->edges_count );
+    outgoing_graph = new UndirectedCSRGraph(this->vertices_count, this->edges_count );
+    incoming_graph = new UndirectedCSRGraph(this->vertices_count, this->edges_count );
 
     edges_reorder_indexes = NULL;
     vertices_reorder_buffer = NULL;
@@ -28,7 +30,7 @@ VectCSRGraph::~VectCSRGraph()
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-UndirectedGraph *VectCSRGraph::get_direction_graph_ptr(TraversalDirection _direction)
+UndirectedCSRGraph *VectCSRGraph::get_direction_graph_ptr(TraversalDirection _direction)
 {
     if(_direction == SCATTER)
     {
@@ -40,7 +42,7 @@ UndirectedGraph *VectCSRGraph::get_direction_graph_ptr(TraversalDirection _direc
     }
     else
     {
-        throw "Error in UndirectedGraph::get_direction_graph_ptr, incorrect _direction type";
+        throw "Error in UndirectedCSRGraph::get_direction_graph_ptr, incorrect _direction type";
         return NULL;
     }
 }

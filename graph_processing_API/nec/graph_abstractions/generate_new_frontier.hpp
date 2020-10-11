@@ -34,7 +34,7 @@ void GraphAbstractionsNEC::generate_new_frontier(VectCSRGraph &_graph,
 
     _frontier.set_direction(current_traversal_direction);
 
-    UndirectedGraph *graph_ptr = _graph.get_direction_graph_ptr(current_traversal_direction);
+    UndirectedCSRGraph *graph_ptr = _graph.get_direction_graph_ptr(current_traversal_direction);
     const int ve_threshold = graph_ptr->get_vector_engine_threshold_vertex();
     int vc_threshold = graph_ptr->get_vector_core_threshold_vertex();
     const int vertices_count = graph_ptr->get_vertices_count();

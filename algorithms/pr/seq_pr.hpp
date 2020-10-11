@@ -3,7 +3,7 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-void PR::seq_page_rank(UndirectedGraph &_graph,
+void PR::seq_page_rank(UndirectedCSRGraph &_graph,
                        float *_page_ranks,
                        float _convergence_factor,
                        int _max_iterations)

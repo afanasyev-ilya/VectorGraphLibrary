@@ -4,7 +4,7 @@
 
 #ifdef __USE_GPU__
 
-void CC::gpu_shiloach_vishkin(UndirectedGraph &_graph,
+void CC::gpu_shiloach_vishkin(UndirectedCSRGraph &_graph,
                               int *_components)
 {
     LOAD_UNDIRECTED_CSR_GRAPH_DATA(_graph);

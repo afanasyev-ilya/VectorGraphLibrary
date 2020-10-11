@@ -4,7 +4,7 @@
 
 #ifdef __USE_NEC_SX_AURORA__
 
-void CC::nec_shiloach_vishkin(UndirectedGraph &_graph,
+void CC::nec_shiloach_vishkin(UndirectedCSRGraph &_graph,
                               int *_components)
 {
     LOAD_UNDIRECTED_CSR_GRAPH_DATA(_graph);

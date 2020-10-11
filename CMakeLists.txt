@@ -33,12 +33,12 @@ include_directories(graph_processing_API/nec/vector_register)
 include_directories(graph_representations)
 include_directories(graph_representations/common)
 include_directories(graph_representations/edges_list_graph)
-include_directories(graph_representations/undirected_graph)
-include_directories(graph_representations/undirected_graph/vector_extension)
-include_directories(graph_representations/sharded_graph)
-include_directories(graph_representations/sharded_graph/shard_base)
-include_directories(graph_representations/sharded_graph/shard_CSR)
-include_directories(graph_representations/sharded_graph/shard_vect_CSR)
+include_directories(graph_representations/undirected_csr_graph)
+include_directories(graph_representations/undirected_csr_graph/vector_extension)
+include_directories(graph_representations/sharded_csr_graph)
+include_directories(graph_representations/sharded_csr_graph/shard_base)
+include_directories(graph_representations/sharded_csr_graph/shard_CSR)
+include_directories(graph_representations/sharded_csr_graph/shard_vect_csr)
 include_directories(verification)
 
 add_executable(VectorGraphLibrary
@@ -119,23 +119,23 @@ add_executable(VectorGraphLibrary
         graph_representations/common/graph_types.h
         graph_representations/edges_list_graph/edges_list_graph.h
         graph_representations/edges_list_graph/edges_list_graph.hpp
-        graph_representations/undirected_graph/vector_extension/vector_extension.h
-        graph_representations/undirected_graph/vector_extension/vector_extension.hpp
-        graph_representations/undirected_graph/undirected_graph.h
-        graph_representations/undirected_graph/undirected_graph.hpp
-        graph_representations/undirected_graph/gpu_api.hpp
-        graph_representations/undirected_graph/preprocess.hpp
-        graph_representations/undirected_graph/nec_api.hpp
-        graph_representations/sharded_graph/shard_base/shard_base.h
-        graph_representations/sharded_graph/shard_base/shard_base.hpp
-        graph_representations/sharded_graph/shard_CSR/shard_CSR.h
-        graph_representations/sharded_graph/shard_CSR/shard_CSR.hpp
-        graph_representations/sharded_graph/shard_CSR/shard_CSR_pointer_data.h
-        graph_representations/sharded_graph/shard_vect_CSR/shard_vect_CSR.h
-        graph_representations/sharded_graph/shard_vect_CSR/shard_vect_CSR.hpp
-        graph_representations/sharded_graph/shard_vect_CSR/shard_vect_CSR_pointer_data.h
-        graph_representations/sharded_graph/sharded_graph.h
-        graph_representations/sharded_graph/sharded_graph.hpp
+        graph_representations/undirected_csr_graph/vector_extension/vector_extension.h
+        graph_representations/undirected_csr_graph/vector_extension/vector_extension.hpp
+        graph_representations/undirected_csr_graph/undirected_csr_graph.h
+        graph_representations/undirected_csr_graph/undirected_csr_graph.hpp
+        graph_representations/undirected_csr_graph/gpu_api.hpp
+        graph_representations/undirected_csr_graph/preprocess.hpp
+        graph_representations/undirected_csr_graph/nec_api.hpp
+        graph_representations/sharded_csr_graph/shard_base/shard_base.h
+        graph_representations/sharded_csr_graph/shard_base/shard_base.hpp
+        graph_representations/sharded_csr_graph/shard_CSR/shard_CSR.h
+        graph_representations/sharded_csr_graph/shard_CSR/shard_CSR.hpp
+        graph_representations/sharded_csr_graph/shard_CSR/shard_CSR_pointer_data.h
+        graph_representations/sharded_csr_graph/shard_vect_csr/shard_vect_CSR.h
+        graph_representations/sharded_csr_graph/shard_vect_csr/shard_vect_CSR.hpp
+        graph_representations/sharded_csr_graph/shard_vect_csr/shard_vect_CSR_pointer_data.h
+        graph_representations/sharded_csr_graph/sharded_csr_graph.h
+        graph_representations/sharded_csr_graph/sharded_csr_graph.hpp
         graph_representations/base_graph.h
         misc/custom_test.cpp
         misc/generate_memory_traces.cpp

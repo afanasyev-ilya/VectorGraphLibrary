@@ -18,7 +18,7 @@ int calculate_remaining_count(int *_components, int _vertices_count)
 
 #ifdef __USE_NEC_SX_AURORA__
 
-void CC::nec_bfs_based(UndirectedGraph &_graph,
+void CC::nec_bfs_based(UndirectedCSRGraph &_graph,
                        int *_components)
 {
     LOAD_UNDIRECTED_CSR_GRAPH_DATA(_graph);

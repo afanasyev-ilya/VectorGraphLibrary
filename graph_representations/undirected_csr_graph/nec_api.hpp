@@ -3,9 +3,10 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #ifdef __USE_NEC_SX_AURORA__
-void UndirectedGraph::estimate_nec_thresholds()
+void UndirectedCSRGraph::estimate_nec_thresholds()
 {
-    double t1 = omp_get_wtime();
+    Timer tm;
+    tm.start();
 
     vector_engine_threshold_vertex = 0;
     vector_core_threshold_vertex = 0;
@@ -43,8 +44,10 @@ void UndirectedGraph::estimate_nec_thresholds()
         }
     }
 
-    double t2 = omp_get_wtime();
-    cout << "estimate thresholds time: " << t2 - t1 << " sec" << endl;
+    tm.end();
+    #ifdef __PRINT_API_PERFORMANCE_STATS__
+    tm.print_time_stats("Estimate thresholds");
+    #endif
 }
 #endif
 

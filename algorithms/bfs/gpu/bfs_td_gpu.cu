@@ -21,7 +21,7 @@ using namespace std;
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-void top_down_wrapper(UndirectedGraph &_graph,
+void top_down_wrapper(UndirectedCSRGraph &_graph,
                       int *_levels,
                       int _source_vertex,
                       int &_iterations_count)
@@ -82,7 +82,7 @@ void top_down_wrapper(UndirectedGraph &_graph,
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-template void top_down_wrapper<int, float>(UndirectedGraph<int, float> &_graph, int *_levels,
+template void top_down_wrapper<int, float>(UndirectedCSRGraph<int, float> &_graph, int *_levels,
                                            int _source_vertex, int &_iterations_count);
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

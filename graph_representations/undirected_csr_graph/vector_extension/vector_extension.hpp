@@ -46,7 +46,9 @@ void VectorExtension::init_from_graph(long long *_csr_adjacent_ptrs,
                                       int _first_vertex,
                                       int _last_vertex)
 {
-    double t1 = omp_get_wtime();
+    Timer tm;
+    tm.start();
+
     vertices_count = _last_vertex - _first_vertex;
     starting_vertex = _first_vertex;
     vector_segments_count = (vertices_count - 1) / VECTOR_LENGTH + 1;
@@ -97,8 +99,11 @@ void VectorExtension::init_from_graph(long long *_csr_adjacent_ptrs,
             current_edge += VECTOR_LENGTH;
         }
     }
-    double t2 = omp_get_wtime();
-    cout << "VE creation time: " << t2 - t1 << " sec" << endl;
+
+    tm.end();
+    #ifdef __PRINT_API_PERFORMANCE_STATS__
+    tm.print_time_stats("VectorExtension creation");
+    #endif
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

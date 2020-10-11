@@ -3,7 +3,7 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #ifdef __USE_GPU__
-void UndirectedGraph::move_to_device()
+void UndirectedCSRGraph::move_to_device()
 {
     if(this->graph_on_device)
     {
@@ -25,7 +25,7 @@ void UndirectedGraph::move_to_device()
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #ifdef __USE_GPU__
-void UndirectedGraph::move_to_host()
+void UndirectedCSRGraph::move_to_host()
 {
     if(!this->graph_on_device)
     {
@@ -42,7 +42,7 @@ void UndirectedGraph::move_to_host()
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #ifdef __USE_GPU__
-void UndirectedGraph::estimate_gpu_thresholds()
+void UndirectedCSRGraph::estimate_gpu_thresholds()
 {
     gpu_grid_threshold_vertex = 0;
     gpu_block_threshold_vertex = 0;

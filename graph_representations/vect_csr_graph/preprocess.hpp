@@ -7,19 +7,24 @@ void VectCSRGraph::import_graph(EdgesListGraph &_el_graph)
     this->vertices_count = _el_graph.get_vertices_count();
     this->edges_count = _el_graph.get_edges_count();
 
-    double t1 = omp_get_wtime();
+    Timer tm;
+    tm.start();
     outgoing_graph->import_and_preprocess(_el_graph, NULL);
-    double t2 = omp_get_wtime();
-    cout << "outgoing conversion time: " << t2 - t1 << " sec" << endl;
+    tm.end();
+    #ifdef __PRINT_API_PERFORMANCE_STATS__
+    tm.print_time_stats("VectCSR outgoing conversion");
+    #endif
 
     _el_graph.transpose();
 
     this->resize_helper_arrays();
 
-    t1 = omp_get_wtime();
+    tm.start();
     incoming_graph->import_and_preprocess(_el_graph, edges_reorder_indexes);
-    t2 = omp_get_wtime();
-    cout << "incoming conversion time: " << t2 - t1 << " sec" << endl;
+    tm.end();
+    #ifdef __PRINT_API_PERFORMANCE_STATS__
+    tm.print_time_stats("VectCSR incoming conversion");
+    #endif
 
     _el_graph.transpose();
 }

@@ -4,7 +4,7 @@
 
 EdgesListGraph::EdgesListGraph(int _vertices_count, long long _edges_count)
 {
-    this->graph_type = GraphTypeEdgesList;
+    this->graph_type = EDGES_LIST_GRAPH;
     
     alloc(_vertices_count, _edges_count);
 }
@@ -77,9 +77,9 @@ bool EdgesListGraph::save_to_binary_file(string _file_name)
     if(graph_file == NULL)
         return false;
 
-    // TODO graph type
     int vertices_count = this->vertices_count;
     long long edges_count = this->edges_count;
+    fwrite(reinterpret_cast<void*>(&this->graph_type), sizeof(GraphType), 1, graph_file);
     fwrite(reinterpret_cast<const void*>(&vertices_count), sizeof(int), 1, graph_file);
     fwrite(reinterpret_cast<const void*>(&edges_count), sizeof(long long), 1, graph_file);
 
@@ -97,7 +97,8 @@ bool EdgesListGraph::load_from_binary_file(string _file_name)
     FILE * graph_file = fopen(_file_name.c_str(), "rb");
     if(graph_file == NULL)
         return false;
-    
+
+    fread(reinterpret_cast<void*>(&this->graph_type), sizeof(GraphType), 1, graph_file);
     fread(reinterpret_cast<void*>(&this->vertices_count), sizeof(int), 1, graph_file);
     fread(reinterpret_cast<void*>(&this->edges_count), sizeof(long long), 1, graph_file);
     
@@ -121,10 +122,8 @@ void EdgesListGraph::transpose()
 
 void EdgesListGraph::renumber_vertices(int *_conversion_array, int *_work_buffer)
 {
-    double t1 = omp_get_wtime();
-
-    // TODO reorder vertex values
-    // TODO save conversion arrays
+    Timer tm;
+    tm.start();
 
     bool work_buffer_was_allocated = false;
     if(_work_buffer == NULL)
@@ -172,9 +171,10 @@ void EdgesListGraph::renumber_vertices(int *_conversion_array, int *_work_buffer
         MemoryAPI::free_array(_work_buffer);
     }
 
-    double t2 = omp_get_wtime();
-    cout << "edges list graph reorder (to optimized) time: " << t2 - t1 << " sec" << endl;
-    cout << "BW: " << this->edges_count*sizeof(int)*(2*2 + 3*2)/((t2 - t1)*1e9) << " GB/s" << endl;
+    tm.end();
+    #ifdef __PRINT_API_PERFORMANCE_STATS__
+    tm.print_time_and_bandwidth_stats("EdgesList graph reorder (to optimized)", this->edges_count, sizeof(int)*(2*2 + 3*2));
+    #endif
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

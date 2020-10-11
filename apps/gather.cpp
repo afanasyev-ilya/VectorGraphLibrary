@@ -58,25 +58,24 @@ int main(int argc, const char * argv[])
         graph.print_size();
 
         // create graph weights and set them random
-        EdgesArrayNec<float> weights(graph);
+        EdgesArrayNec<int> weights(graph);
         weights.set_all_random(MAX_WEIGHT);
-        //weights.set_all_constant(1.0);
 
         //graph.print();
         //graph.print_with_weights(weights);
 
         // run different SSSP algorithms
-        VerticesArrayNec<float> push_distances(graph, SCATTER);
+        VerticesArrayNec<int> push_distances(graph, SCATTER);
         ShortestPaths::nec_dijkstra(graph, weights, push_distances, 0, ALL_ACTIVE, PUSH_TRAVERSAL);
 
-        VerticesArrayNec<float> pull_distances(graph, GATHER);
+        VerticesArrayNec<int> pull_distances(graph, GATHER);
         ShortestPaths::nec_dijkstra(graph, weights, pull_distances, 0, ALL_ACTIVE, PULL_TRAVERSAL);
 
-        VerticesArrayNec<float> partial_active_distances(graph, SCATTER);
+        VerticesArrayNec<int> partial_active_distances(graph, SCATTER);
         ShortestPaths::nec_dijkstra(graph, weights, partial_active_distances, 0, PARTIAL_ACTIVE, PUSH_TRAVERSAL);
 
         // compute reference result
-        VerticesArrayNec<float> seq_distances(graph, SCATTER);
+        VerticesArrayNec<int> seq_distances(graph, SCATTER);
         ShortestPaths::seq_dijkstra(graph, weights, seq_distances, 0);
 
         cout << "push check" << endl;
@@ -87,6 +86,10 @@ int main(int argc, const char * argv[])
 
         cout << "partial check" << endl;
         verify_results(graph, partial_active_distances, seq_distances);
+
+        cout << " ----------------------------- " << endl;
+        ShardedGraph sharded_graph;
+        sharded_graph.import_graph(el_graph);
     }
     catch (string error)
     {

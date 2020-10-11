@@ -27,7 +27,7 @@ class EdgesArrayNec;
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-class UndirectedGraph: public BaseGraph
+class UndirectedCSRGraph: public BaseGraph
 {
 private:
     long long     *vertex_pointers;
@@ -71,8 +71,8 @@ private:
 
     void copy_edges_indexes(long long *_edges_reorder_indexes, asl_int_t *_asl_indexes, long long _edges_count);
 public:
-    UndirectedGraph(int _vertices_count = 1, long long _edges_count = 1);
-    ~UndirectedGraph();
+    UndirectedCSRGraph(int _vertices_count = 1, long long _edges_count = 1);
+    ~UndirectedCSRGraph();
 
     /* get API */
     inline long long       *get_vertex_pointers()        {return vertex_pointers;};
@@ -166,7 +166,7 @@ int *ve_adjacent_ids = (input_graph.get_ve_ptr())->get_adjacent_ids();\
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#include "undirected_graph.hpp"
+#include "undirected_csr_graph.hpp"
 #include "preprocess.hpp"
 #include "gpu_api.hpp"
 #include "nec_api.hpp"

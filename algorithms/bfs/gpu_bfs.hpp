@@ -32,7 +32,7 @@ void BFS::copy_result_to_host(int *_host_levels, int *_device_levels, int _verti
 
 #ifdef __USE_GPU__
 
-void BFS::gpu_top_down(UndirectedGraph &_graph,
+void BFS::gpu_top_down(UndirectedCSRGraph &_graph,
                                          int *_device_levels,
                                          int _source_vertex)
 {
@@ -55,7 +55,7 @@ void BFS::gpu_top_down(UndirectedGraph &_graph,
 
 #ifdef __USE_GPU__
 
-void BFS::gpu_direction_optimizing(UndirectedGraph &_graph,
+void BFS::gpu_direction_optimizing(UndirectedCSRGraph &_graph,
                                                                 int *_device_levels,
                                                                 int _source_vertex)
 {

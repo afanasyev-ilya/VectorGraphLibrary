@@ -25,7 +25,7 @@ __global__ void estimate_advance_work_kernel(const int *_frontier_ids,
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-int GraphPrimitivesGPU::estimate_advance_work(UndirectedGraph &_graph,
+int GraphPrimitivesGPU::estimate_advance_work(UndirectedCSRGraph &_graph,
                                               FrontierGPU &_frontier)
 {
     LOAD_UNDIRECTED_CSR_GRAPH_DATA(_graph);

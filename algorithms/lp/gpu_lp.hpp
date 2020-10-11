@@ -4,7 +4,7 @@
 
 #ifdef __USE_GPU__
 
-void LP::gpu_lp(UndirectedGraph &_graph,
+void LP::gpu_lp(UndirectedCSRGraph &_graph,
                 int *_labels,
                 GpuActiveConditionType _gpu_active_condition_type,
                 int _max_iterations)

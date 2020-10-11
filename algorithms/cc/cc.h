@@ -32,25 +32,25 @@ private:
 
     double performance;
 public:
-    ConnectedComponents(UndirectedGraph &_graph): frontier(_graph.get_vertices_count()), bfs_frontier(_graph.get_vertices_count()){};
+    ConnectedComponents(UndirectedCSRGraph &_graph): frontier(_graph.get_vertices_count()), bfs_frontier(_graph.get_vertices_count()){};
     ~ConnectedComponents() {};
 
     void allocate_result_memory(int _vertices_count, int **_components);
     void free_result_memory    (int *_components);
 
     #ifdef __USE_NEC_SX_AURORA__
-    void nec_shiloach_vishkin(UndirectedGraph &_graph, int *_components);
+    void nec_shiloach_vishkin(UndirectedCSRGraph &_graph, int *_components);
     #endif
 
     #ifdef __USE_NEC_SX_AURORA__
-    void nec_bfs_based(UndirectedGraph &_graph, int *_components);
+    void nec_bfs_based(UndirectedCSRGraph &_graph, int *_components);
     #endif
 
     #ifdef __USE_GPU__
-    void gpu_shiloach_vishkin(UndirectedGraph &_graph, int *_components);
+    void gpu_shiloach_vishkin(UndirectedCSRGraph &_graph, int *_components);
     #endif
 
-    void seq_bfs_based(UndirectedGraph &_graph, int *_components);
+    void seq_bfs_based(UndirectedCSRGraph &_graph, int *_components);
 
     double get_performance() { return performance; };
 };

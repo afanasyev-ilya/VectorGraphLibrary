@@ -17,7 +17,7 @@ using namespace std;
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-void gpu_dijkstra_all_active_wrapper(UndirectedGraph &_graph,
+void gpu_dijkstra_all_active_wrapper(UndirectedCSRGraph &_graph,
                                      _TEdgeWeight *_distances,
                                      int _source_vertex,
                                      int &_iterations_count,
@@ -81,7 +81,7 @@ void gpu_dijkstra_all_active_wrapper(UndirectedGraph &_graph,
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-void gpu_dijkstra_partial_active_wrapper(UndirectedGraph &_graph,
+void gpu_dijkstra_partial_active_wrapper(UndirectedCSRGraph &_graph,
                                          _TEdgeWeight *_distances,
                                          int _source_vertex,
                                          int &_iterations_count)
@@ -147,9 +147,9 @@ void gpu_dijkstra_partial_active_wrapper(UndirectedGraph &_graph,
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-template void gpu_dijkstra_all_active_wrapper<int, float>(UndirectedGraph<int, float> &_graph, float *_distances, int _source_vertex,
+template void gpu_dijkstra_all_active_wrapper<int, float>(UndirectedCSRGraph<int, float> &_graph, float *_distances, int _source_vertex,
                                                           int &_iterations_count, AlgorithmTraversalType _traversal_direction);
-template void gpu_dijkstra_partial_active_wrapper<int, float>(UndirectedGraph<int, float> &_graph, float *_distances, int _source_vertex,
+template void gpu_dijkstra_partial_active_wrapper<int, float>(UndirectedCSRGraph<int, float> &_graph, float *_distances, int _source_vertex,
                                                               int &_iterations_count);
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

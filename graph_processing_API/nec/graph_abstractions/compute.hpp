@@ -3,7 +3,7 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template <typename ComputeOperation>
-void GraphAbstractionsNEC::compute_worker(UndirectedGraph &_graph,
+void GraphAbstractionsNEC::compute_worker(UndirectedCSRGraph &_graph,
                                                                        FrontierNEC &_frontier,
                                                                        ComputeOperation &&compute_op)
 {
@@ -77,7 +77,7 @@ void GraphAbstractionsNEC::compute(VectCSRGraph &_graph,
         throw "Error in GraphAbstractionsNEC::compute : wrong frontier direction";
     }
 
-    UndirectedGraph *current_direction_graph;
+    UndirectedCSRGraph *current_direction_graph;
     if(current_traversal_direction == SCATTER)
     {
         current_direction_graph = _graph.get_outgoing_graph_ptr();

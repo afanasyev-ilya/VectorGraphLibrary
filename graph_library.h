@@ -30,9 +30,11 @@ using namespace std;
 // main VGL part: graphs in different formats
 #include "graph_representations/base_graph.h"
 #include "graph_representations/edges_list_graph/edges_list_graph.h"
-#include "graph_representations/undirected_graph/undirected_graph.h"
-#include "graph_representations/vect_CSR_graph/vect_CSR_graph.h"
-//#include "graph_representations/sharded_graph/sharded_graph.h"
+#include "graph_representations/undirected_csr_graph/undirected_csr_graph.h"
+#include "graph_representations/vect_csr_graph/vect_csr_graph.h"
+#include "graph_representations/sharded_csr_graph/sharded_csr_graph.h"
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // main VGL part: computational and data abstractions
 #include "graph_processing_API/vertices_array.h"

@@ -114,7 +114,7 @@ void FrontierGPU::split_sorted_frontier(const long long *_vertex_pointers,
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-void FrontierGPU::add_vertex(UndirectedGraph &_graph, int src_id)
+void FrontierGPU::add_vertex(UndirectedCSRGraph &_graph, int src_id)
 {
     if(type == ALL_ACTIVE_FRONTIER)
     {

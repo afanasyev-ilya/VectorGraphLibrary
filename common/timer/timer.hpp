@@ -47,7 +47,16 @@ void Timer::print_bandwidth_stats(string _name, long long _elements, double _byt
 
 void Timer::print_time_stats(string _name)
 {
-    cout << _name << " time(s): " << this->get_time() << " sec" << endl;
+    cout << _name << " time: " << this->get_time() << " (s)" << endl;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+void Timer::print_time_and_bandwidth_stats(string _name, long long _elements, double _bytes_per_element)
+{
+    double bytes = _elements * _bytes_per_element;
+    cout << _name << " time: " << this->get_time() << " (s)" << endl;
+    cout << _name << " BW: " << bytes/(this->get_time()*1e9) << " (GB/s)" << endl << endl;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

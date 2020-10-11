@@ -16,7 +16,7 @@ void FrontierNEC::print_stats()
 {
     #pragma omp master
     {
-        UndirectedGraph *current_direction_graph = graph_ptr->get_direction_graph_ptr(direction);
+        UndirectedCSRGraph *current_direction_graph = graph_ptr->get_direction_graph_ptr(direction);
 
         const int ve_threshold = current_direction_graph->get_vector_engine_threshold_vertex();
         const int vc_threshold = current_direction_graph->get_vector_core_threshold_vertex();

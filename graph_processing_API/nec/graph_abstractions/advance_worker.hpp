@@ -7,7 +7,7 @@
 template <typename EdgeOperation, typename VertexPreprocessOperation,
         typename VertexPostprocessOperation, typename CollectiveEdgeOperation, typename CollectiveVertexPreprocessOperation,
         typename CollectiveVertexPostprocessOperation>
-void GraphAbstractionsNEC::advance_worker(UndirectedGraph &_graph,
+void GraphAbstractionsNEC::advance_worker(UndirectedCSRGraph &_graph,
                                           FrontierNEC &_frontier,
                                           EdgeOperation &&edge_op,
                                           VertexPreprocessOperation &&vertex_preprocess_op,

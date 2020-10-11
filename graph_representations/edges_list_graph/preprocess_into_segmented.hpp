@@ -329,7 +329,8 @@ void EdgesListGraph::preprocess_into_segmented()
     #pragma omp parallel
     {};
 
-    double t1 = omp_get_wtime();
+    Timer tm;
+    tm.start();
     #pragma _NEC novector
     #pragma omp parallel num_threads(MAX_SX_AURORA_THREADS)
     {
@@ -365,11 +366,12 @@ void EdgesListGraph::preprocess_into_segmented()
             }
         }
     }
-    double t2 = omp_get_wtime();
-    cout << "split time: " << t2 - t1 << " sec" << endl;
-    cout << "split BW: " << 6.0*sizeof(int)*this->edges_count/((t2 - t1)*1e9) << " GB/s" << endl;
+    tm.end();
+    #ifdef __PRINT_API_PERFORMANCE_STATS__
+    tm.print_time_and_bandwidth_stats("Split to segments", this->edges_count, 6.0*sizeof(int));
+    #endif
 
-    t1 = omp_get_wtime();
+    tm.start();
     #pragma _NEC novector
     #pragma omp parallel num_threads(MAX_SX_AURORA_THREADS)
     {
@@ -377,10 +379,12 @@ void EdgesListGraph::preprocess_into_segmented()
         VectorData *local_vector_data = vector_data[tid];
         local_vector_data->resize_segments();
     }
-    t2 = omp_get_wtime();
-    cout << "resize time: " << t2 - t1 << " sec" << endl;
+    tm.end();
+    #ifdef __PRINT_API_PERFORMANCE_STATS__
+    tm.print_time_stats("Resize segments");
+    #endif
 
-    t1 = omp_get_wtime();
+    tm.start();
     #pragma _NEC novector
     #pragma omp parallel num_threads(MAX_SX_AURORA_THREADS)
     {
@@ -434,15 +438,18 @@ void EdgesListGraph::preprocess_into_segmented()
             #pragma omp barrier
         }
     };
-    t2 = omp_get_wtime();
-    cout << "parallel merge time: " << t2 - t1 << " sec" << endl;
+    tm.end();
+    #ifdef __PRINT_API_PERFORMANCE_STATS__
+    tm.print_time_stats("Parallel merge");
+    #endif
 
     int merge_pos = 0;
-    t1 = omp_get_wtime();
+    tm.start();
     vector_data[0]->merge_to_graph(src_ids, dst_ids);
-    t2 = omp_get_wtime();
-    cout << "copy time: " << t2 - t1 << " sec" << endl;
-    cout << "copy BW: " << 4.0*sizeof(int)*this->edges_count/((t2 - t1)*1e9) << " GB/s" << endl;
+    tm.end();
+    #ifdef __PRINT_API_PERFORMANCE_STATS__
+    tm.print_time_and_bandwidth_stats("Copy from vector segments");
+    #endif
 
     for(int core = 0; core < MAX_SX_AURORA_THREADS; core++)
     {

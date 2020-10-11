@@ -18,14 +18,15 @@ private:
     FrontierType vector_core_part_type;
     FrontierType collective_part_type;
 public:
+    /* constructors and destructors */
     FrontierNEC(VectCSRGraph &_graph, TraversalDirection _direction);
     ~FrontierNEC();
 
-    // printing API
+    /* Print API */
     void print_stats();
     void print();
 
-    // frontier modification API
+    /* frontier modification API */
     inline void set_all_active();
     inline void add_vertex(int src_id);
     inline void add_group_of_vertices(int *_vertex_ids, int _number_of_vertices);

@@ -3,7 +3,7 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #ifdef __USE_GPU__
-void SSSP::gpu_dijkstra(UndirectedGraph &_graph,
+void SSSP::gpu_dijkstra(UndirectedCSRGraph &_graph,
                         _TEdgeWeight *_distances,
                         int _source_vertex,
                         AlgorithmFrontierType _frontier_type,

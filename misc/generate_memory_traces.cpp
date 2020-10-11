@@ -330,7 +330,7 @@ void generate_simple_memory_profiles(EdgesListGraph<int, float> &rand_graph)
 
 void ext_csr_trace(EdgesListGraph<int, float> &rand_graph, int VECT_LEN, float *distances)
 {
-    UndirectedGraph<int, float> ext_graph;
+    UndirectedCSRGraph<int, float> ext_graph;
     ext_graph.import_graph(rand_graph, VERTICES_SORTED, EDGES_RANDOM_SHUFFLED, VECT_LEN, PULL_TRAVERSAL);
     cout << "ext csr graph generated" << endl;
     
@@ -391,7 +391,7 @@ void ext_csr_trace(EdgesListGraph<int, float> &rand_graph, int VECT_LEN, float *
 
 void ext_csr_trace_small_vectors(EdgesListGraph<int, float> &rand_graph, int VECT_LEN, float *distances)
 {
-    UndirectedGraph<int, float> ext_graph;
+    UndirectedCSRGraph<int, float> ext_graph;
     ext_graph.import_graph(rand_graph, VERTICES_SORTED, EDGES_RANDOM_SHUFFLED, VECT_LEN, PULL_TRAVERSAL);
     cout << "ext csr graph small vectors generated" << endl;
     

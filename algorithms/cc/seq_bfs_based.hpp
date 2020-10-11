@@ -3,7 +3,7 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-void CC::seq_bfs_based(UndirectedGraph &_graph,
+void CC::seq_bfs_based(UndirectedCSRGraph &_graph,
                        int *_components)
 {
     LOAD_UNDIRECTED_CSR_GRAPH_DATA(_graph);

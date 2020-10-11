@@ -8,7 +8,7 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-void shiloach_vishkin_wrapper(UndirectedGraph &_graph,
+void shiloach_vishkin_wrapper(UndirectedCSRGraph &_graph,
                               int *_components,
                               int &_iterations_count)
 {
@@ -80,7 +80,7 @@ void shiloach_vishkin_wrapper(UndirectedGraph &_graph,
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-template void shiloach_vishkin_wrapper<int, float>(UndirectedGraph<int, float> &_graph, int *_components,
+template void shiloach_vishkin_wrapper<int, float>(UndirectedCSRGraph<int, float> &_graph, int *_components,
                                                    int &_iterations_count);
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

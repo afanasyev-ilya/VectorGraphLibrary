@@ -119,7 +119,7 @@ __global__ void reduce_kernel_all_active(const int _size,
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template <typename _T, typename _TVertexValue, typename _TEdgeWeight, typename ReduceOperation>
-_T GraphPrimitivesGPU::reduce(UndirectedGraph &_graph,
+_T GraphPrimitivesGPU::reduce(UndirectedCSRGraph &_graph,
                               FrontierGPU &_frontier,
                               ReduceOperation &&reduce_op,
                               REDUCE_TYPE _reduce_type)

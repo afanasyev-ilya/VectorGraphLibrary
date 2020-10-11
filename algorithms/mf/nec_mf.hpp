@@ -4,7 +4,7 @@
 
 #ifdef __USE_NEC_SX_AURORA__
 
-bool MF::nec_bfs(UndirectedGraph &_graph,
+bool MF::nec_bfs(UndirectedCSRGraph &_graph,
                  int _source,
                  int _sink,
                  int *_parents,
@@ -81,7 +81,7 @@ void construct_path(int _source, int _sink, int *_parents, int *_path, int &_pat
 
 #ifdef __USE_NEC_SX_AURORA__
 
-_TEdgeWeight MF::nec_ford_fulkerson(UndirectedGraph &_graph,
+_TEdgeWeight MF::nec_ford_fulkerson(UndirectedCSRGraph &_graph,
                                     int _source, int _sink)
 {
     GraphPrimitivesNEC graph_API;

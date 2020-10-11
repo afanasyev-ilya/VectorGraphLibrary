@@ -2,10 +2,13 @@
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void UndirectedGraph::extract_connection_count(EdgesListGraph &_el_graph,
-                                               int *_work_buffer,
-                                               int *_connections_array)
+void UndirectedCSRGraph::extract_connection_count(EdgesListGraph &_el_graph,
+                                                  int *_work_buffer,
+                                                  int *_connections_array)
 {
+    Timer tm;
+    tm.start();
+
     int el_vertices_count = _el_graph.get_vertices_count();
     long long el_edges_count = _el_graph.get_edges_count();
     int *el_src_ids = _el_graph.get_src_ids();
@@ -16,7 +19,6 @@ void UndirectedGraph::extract_connection_count(EdgesListGraph &_el_graph,
     #pragma omp parallel
     {};
 
-    double t1 = omp_get_wtime();
     #pragma omp parallel
     {
         int tid = omp_get_thread_num();
@@ -46,19 +48,24 @@ void UndirectedGraph::extract_connection_count(EdgesListGraph &_el_graph,
             }
         }
     }
-    double t2 = omp_get_wtime();
-    cout << "extract connections time: " << t2 - t1 << " sec" << endl;
+
+    tm.end();
+    #ifdef __PRINT_API_PERFORMANCE_STATS__
+    tm.print_time_stats("Extract connections count from EdgesListGraph");
+    #endif
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void UndirectedGraph::sort_vertices_by_degree(int *_connections_array,
-                                              asl_int_t *_asl_indexes,
-                                              int _el_vertices_count,
-                                              int *_forward_conversion,
-                                              int *_backward_conversion)
+void UndirectedCSRGraph::sort_vertices_by_degree(int *_connections_array,
+                                                 asl_int_t *_asl_indexes,
+                                                 int _el_vertices_count,
+                                                 int *_forward_conversion,
+                                                 int *_backward_conversion)
 {
-    double t1 = omp_get_wtime();
+    Timer tm;
+    tm.start();
+
     // prepare indexes
     #pragma _NEC ivdep
     #pragma omp parallel for
@@ -91,15 +98,18 @@ void UndirectedGraph::sort_vertices_by_degree(int *_connections_array,
         _backward_conversion[i] = _asl_indexes[i];
     }
 
-    double t2 = omp_get_wtime();
-    cout << "connections sorting (prepare reorder) time: " << t2 - t1 << " sec" << endl;
+    tm.end();
+    #ifdef __PRINT_API_PERFORMANCE_STATS__
+    tm.print_time_stats("connections sorting (prepare reorder)");
+    #endif
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void UndirectedGraph::construct_CSR(EdgesListGraph &_el_graph)
+void UndirectedCSRGraph::construct_CSR(EdgesListGraph &_el_graph)
 {
-    double t1 = omp_get_wtime();
+    Timer tm;
+    tm.start();
 
     int el_vertices_count = _el_graph.get_vertices_count();
     long long el_edges_count = _el_graph.get_edges_count();
@@ -142,15 +152,17 @@ void UndirectedGraph::construct_CSR(EdgesListGraph &_el_graph)
         this->adjacent_ids[cur_edge] = el_dst_ids[cur_edge];
     }
 
-    double t2 = omp_get_wtime();
-    cout << "CSR construction time: " << t2 - t1 << " sec" << endl;
+    tm.end();
+    #ifdef __PRINT_API_PERFORMANCE_STATS__
+    tm.print_time_stats("CSR construction");
+    #endif
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void UndirectedGraph::copy_edges_indexes(long long *_edges_reorder_indexes,
-                                         asl_int_t *_asl_indexes,
-                                         long long _edges_count)
+void UndirectedCSRGraph::copy_edges_indexes(long long *_edges_reorder_indexes,
+                                            asl_int_t *_asl_indexes,
+                                            long long _edges_count)
 {
     if(_edges_reorder_indexes != NULL)
     {
@@ -165,7 +177,7 @@ void UndirectedGraph::copy_edges_indexes(long long *_edges_reorder_indexes,
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void UndirectedGraph::import_and_preprocess(EdgesListGraph &_el_graph, long long *_edges_reorder_indexes)
+void UndirectedCSRGraph::import_and_preprocess(EdgesListGraph &_el_graph, long long *_edges_reorder_indexes)
 {
     // get size of edges list graph
     int el_vertices_count = _el_graph.get_vertices_count();
