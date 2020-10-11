@@ -19,7 +19,7 @@ private:
     int shards_number;
     int max_cached_vertices;
 
-    VectCSRGraph *outgoing_shards;
+    UndirectedCSRGraph *outgoing_shards;
 
     int get_shard_id(int _dst_id) { return _dst_id / max_cached_vertices; };
 public:

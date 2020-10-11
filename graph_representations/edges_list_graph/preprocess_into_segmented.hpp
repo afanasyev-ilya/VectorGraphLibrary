@@ -448,7 +448,7 @@ void EdgesListGraph::preprocess_into_segmented()
     vector_data[0]->merge_to_graph(src_ids, dst_ids);
     tm.end();
     #ifdef __PRINT_API_PERFORMANCE_STATS__
-    tm.print_time_and_bandwidth_stats("Copy from vector segments");
+    tm.print_time_and_bandwidth_stats("Copy from vector segments", this->edges_count, 4.0*sizeof(int));
     #endif
 
     for(int core = 0; core < MAX_SX_AURORA_THREADS; core++)

@@ -22,7 +22,6 @@ ShardedGraph::~ShardedGraph()
 
 void ShardedGraph::import_graph(EdgesListGraph &_el_graph)
 {
-    cout << "sharded import" << endl;
     this->vertices_count = _el_graph.get_vertices_count();
     this->edges_count = _el_graph.get_edges_count();
 
@@ -30,48 +29,65 @@ void ShardedGraph::import_graph(EdgesListGraph &_el_graph)
     cout << "max_cached_vertices: " << max_cached_vertices << endl;
 
     shards_number = (this->vertices_count - 1)/max_cached_vertices + 1;
-    cout << "shards number" << shards_number << endl;
+    cout << "shards number: " << shards_number << endl;
 
-    outgoing_shards = new VectCSRGraph[shards_number];
+    outgoing_shards = new UndirectedCSRGraph[shards_number];
 
     _el_graph.transpose();
     _el_graph.preprocess_into_csr_based();
     _el_graph.transpose();
 
-    for(int i = 0; i < 20; i++)
-        cout << _el_graph.get_src_ids()[i] << " " << _el_graph.get_dst_ids()[i] << endl;
-
     // estimate edge borders in each shards
-    int edges_in_each_shard[shards_number]; // TODO dynamic
-    int front_border[shards_number]; // TODO dynamic
-    int back_border[shards_number]; // TODO dynamic
+    int first_border[shards_number]; // TODO dynamic
+    int last_border[shards_number];
     long long first_shard_edge[shards_number];
-    long long second_shard_edge[shards_number];
+    long long last_shard_edge[shards_number];
     for(int i = 0; i < shards_number; i++)
     {
-        edges_in_each_shard[i] = 0;
         first_shard_edge[i] = 0;
-        second_shard_edge[i] = 0;
-        front_border[i] = max_cached_vertices * i;
-        back_border[i] = max_cached_vertices * (i + 1);
+        last_shard_edge[i] = 0;
+        first_border[i] = max_cached_vertices * i;
+        last_border[i] = max_cached_vertices * (i + 1);
     }
 
+    Timer tm;
+    tm.start();
+    first_shard_edge[0] = 0;
+    int *el_dst_ids = _el_graph.get_dst_ids(); // since transposed all dst ids are sorted
+    #pragma _NEC ivdep
+    #pragma omp parallel for
+    for(long long edge_pos = 0; edge_pos < (this->edges_count - 1); edge_pos++)
+    {
+        int dst_id = el_dst_ids[edge_pos];
+        int next_dst_id = el_dst_ids[edge_pos + 1];
+
+        for(int shard_id = 0; shard_id < shards_number; shard_id++)
+        {
+            int first_border_val = first_border[shard_id];
+            int last_border_val = last_border[shard_id];
+            if((dst_id < first_border_val) && (next_dst_id >= first_border_val))
+            {
+                first_shard_edge[shard_id] = edge_pos;
+            }
+            if((dst_id < last_border_val) && (next_dst_id >= last_border_val))
+            {
+                last_shard_edge[shard_id] = edge_pos;
+            }
+        }
+    }
+    last_shard_edge[shards_number - 1] = this->edges_count;
+    tm.end();
+    tm.print_bandwidth_stats("Sharded split", this->edges_count, sizeof(int)*2.0);
+
+    long long sum = 0;
     for(int i = 0; i < shards_number; i++)
     {
-        cout << "[" << front_border[i] << ", " << back_border[i] << "]" << endl;
-    }
+        long long shard_size = last_shard_edge[i] - first_shard_edge[i];
+        sum += shard_size;
+        cout << "[" << first_shard_edge[i] << ", " << last_shard_edge[i] << "], size = " << shard_size << " | " << 100.0*(shard_size)/this->edges_count << " %" << endl;
 
-    int *dst_ids = _el_graph.get_dst_ids(); // since transposed all dst ids are sorted
-    for(long long i = 0; i < (this->edges_count - 1); i++)
-    {
-        int dst_id = dst_ids[i];
-        int next_dst_id = dst_ids[i + 1];
-        int shard_id = get_shard_id(dst_id);
-        edges_in_each_shard[shard_id]++;
     }
-
-    for(int i = 0; i < shards_number; i++)
-        cout << edges_in_each_shard[i] << " edges in shard " << i << ", " << 100.0*((double)edges_in_each_shard[i])/this->edges_count << " %" << endl;
+    cout << this->edges_count << " vs " << sum << endl;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

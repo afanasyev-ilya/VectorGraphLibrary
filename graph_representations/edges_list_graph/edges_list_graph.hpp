@@ -101,6 +101,8 @@ bool EdgesListGraph::load_from_binary_file(string _file_name)
     fread(reinterpret_cast<void*>(&this->graph_type), sizeof(GraphType), 1, graph_file);
     fread(reinterpret_cast<void*>(&this->vertices_count), sizeof(int), 1, graph_file);
     fread(reinterpret_cast<void*>(&this->edges_count), sizeof(long long), 1, graph_file);
+
+    resize(this->vertices_count, this->edges_count);
     
     fread(reinterpret_cast<void*>(src_ids), sizeof(int), this->edges_count, graph_file);
     fread(reinterpret_cast<void*>(dst_ids), sizeof(int), this->edges_count, graph_file);

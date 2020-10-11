@@ -42,6 +42,7 @@ public:
     /* Further - VectCSRGraph specific API : reorder, working with double-directions, etc.*/
     // resize graph
     void resize(int _vertices_count, long long _edges_count);
+    void clear() {free();};
 
     // transpose edges list graph (implemented as fast pointer swap)
     void transpose(); // TODO should it be in base Graph? basic graph operations API
