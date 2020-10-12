@@ -54,7 +54,9 @@ void BFS::seq_top_down(VectCSRGraph &_graph,
     }
 
     tm.end();
-    cout << "seq top-down BFS(with queue) time: " << tm.get_time() << " sec" << endl;
+    #ifdef __PRINT_SAMPLES_PERFORMANCE_STATS__
+    PerformanceStats::print_performance_stats("BFS (Sequential Top-Down)", tm.get_time(), _graph.get_edges_count());
+    #endif
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

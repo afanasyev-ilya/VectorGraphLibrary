@@ -66,7 +66,7 @@ int main(int argc, const char * argv[])
         {
             VerticesArrayNec<int> check_components(graph, SCATTER);
             SCC::seq_tarjan(graph, check_components);
-            //verify_results(graph, components, check_components);
+            equal_components(graph, components, check_components);
         }
     }
     catch (string error)

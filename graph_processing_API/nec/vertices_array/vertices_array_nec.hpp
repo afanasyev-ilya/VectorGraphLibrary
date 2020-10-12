@@ -8,6 +8,8 @@ VerticesArrayNec<_T>::VerticesArrayNec(VectCSRGraph &_graph, TraversalDirection 
     direction = _direction;
     vertices_count = _graph.get_vertices_count();
     MemoryAPI::allocate_array(&vertices_data, vertices_count);
+    #pragma omp parallel
+    {};
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -20,6 +22,8 @@ VerticesArrayNec<_T>::VerticesArrayNec(const VerticesArrayNec<_T> &_copy_obj)
     this->direction = _copy_obj.direction;
     MemoryAPI::allocate_array(&this->vertices_data, vertices_count);
     MemoryAPI::copy(this->vertices_data, _copy_obj.vertices_data, vertices_count);
+    #pragma omp parallel
+    {};
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

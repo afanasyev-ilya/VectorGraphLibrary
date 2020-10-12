@@ -32,6 +32,8 @@ public:
 
     static void print_performance_stats(string _name, double _time, long long _edges_count, int _iterations_count);
 
+    static void print_performance_stats(string _name, double _time, long long _edges_count);
+
     static void component_stats(int *_components, int _vertices_count);
 };
 

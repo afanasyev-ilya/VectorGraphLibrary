@@ -13,7 +13,7 @@
 #define INIT_COMPONENT -1
 #define INIT_TREE 1
 #define ERROR_IN_PIVOT -1
-#define ACTIVE 1
+#define IS_ACTIVE 1
 #define NOT_ACTIVE 0
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -48,7 +48,6 @@ private:
     static void FB_step(VectCSRGraph &_graph,
                         GraphAbstractionsNEC &_graph_API,
                         FrontierNEC &_frontier,
-                        VerticesArrayNec<_T> &_components,
                         VerticesArrayNec<_T> &_trees,
                         VerticesArrayNec<_T> &_forward_result,
                         VerticesArrayNec<_T> &_backward_result,

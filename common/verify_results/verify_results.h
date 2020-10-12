@@ -28,7 +28,7 @@ inline bool are_same(int a, int b)
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template <typename _T>
-void verify_results(VectCSRGraph &_graph,
+bool verify_results(VectCSRGraph &_graph,
                     VerticesArrayNec<_T> &_first,
                     VerticesArrayNec<_T> &_second,
                     int _first_printed_results = 0,
@@ -70,6 +70,105 @@ void verify_results(VectCSRGraph &_graph,
     // restore order if required
     _graph.reorder(_first, prev_first_direction);
     _graph.reorder(_second, prev_second_direction);
+
+    if(error_count == 0)
+        cout << "Results are equal" << endl;
+    else
+        cout << "Results are NOT equal, error_count = " << error_count << endl;
+
+    if(error_count == 0)
+        return true;
+    else
+        return false;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+template <typename _T>
+bool equal_components(VectCSRGraph &_graph,
+                      VerticesArrayNec<_T> &_first,
+                      VerticesArrayNec<_T> &_second)
+{
+    int vertices_count = _graph.get_vertices_count();
+
+    // remember current directions for both arrays
+    TraversalDirection prev_first_direction = _first.get_direction();
+    TraversalDirection prev_second_direction = _second.get_direction();
+
+    // make both results stored in original order
+    _graph.reorder_to_original(_first);
+    _graph.reorder_to_original(_second);
+
+    // construct equality maps
+    map<int, int> f_s_equality;
+    map<int, int> s_f_equality;
+    for (int i = 0; i < vertices_count; i++)
+    {
+        f_s_equality[_first[i]] = _second[i];
+        s_f_equality[_second[i]] = _first[i];
+    }
+
+    // check if components are equal using maps
+    bool result = true;
+    int error_count = 0;
+    for (int i = 0; i < vertices_count; i++)
+    {
+        if (f_s_equality[_first[i]] != _second[i])
+        {
+            result = false;
+            error_count++;
+        }
+        if (s_f_equality[_second[i]] != _first[i])
+        {
+            result = false;
+            error_count++;
+        }
+    }
+
+    // restore order if required
+    _graph.reorder(_first, prev_first_direction);
+    _graph.reorder(_second, prev_second_direction);
+
+    if(result == true)
+        cout << "Components are equal" << endl;
+    else
+        cout << "Components are NOT equal, error_count = " << error_count << endl;
+
+    return result;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+template <typename _T>
+void print_component_sizes(VectCSRGraph &_graph, VerticesArrayNec<_T> &_components)
+{
+    int vertices_count = _graph.get_vertices_count();
+
+    // calculate sizes of each component
+    map<int, int> components_sizes;
+    for(int i = 0; i < vertices_count; i++)
+    {
+        int CC_num = _components[i];
+        components_sizes[CC_num]++;
+    }
+
+    // calculate sizes stats
+    map<int, int> sizes_stats;
+    for(auto it = components_sizes.begin(); it != components_sizes.end(); ++it)
+    {
+        int CC_num = it->first;
+        int CC_size = it->second;
+        sizes_stats[CC_size]++;
+    }
+
+    // print sizes stats
+    for(auto it = sizes_stats.begin(); it != sizes_stats.end(); ++it)
+    {
+        int size = it->first;
+        int count = it->second;
+        cout << "There are " << count << " components of size " << size << endl;
+    }
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+

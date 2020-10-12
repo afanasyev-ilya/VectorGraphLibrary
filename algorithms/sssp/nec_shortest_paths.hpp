@@ -84,7 +84,7 @@ void SSSP::nec_dijkstra_partial_active(VectCSRGraph &_graph,
     tm.end();
 
     #ifdef __PRINT_SAMPLES_PERFORMANCE_STATS__
-    PerformanceStats::print_performance_stats("partial active sssp (dijkstra)", tm.get_time(),
+    PerformanceStats::print_performance_stats("SSSP (Dijkstra, partial active)", tm.get_time(),
                                               _graph.get_edges_count(), iterations_count);
     #endif
 }
@@ -215,7 +215,7 @@ void SSSP::nec_dijkstra_all_active_push(VectCSRGraph &_graph,
     tm.end();
 
     #ifdef __PRINT_SAMPLES_PERFORMANCE_STATS__
-    PerformanceStats::print_performance_stats("sssp (dijkstra, all-active, push)", tm.get_time(),
+    PerformanceStats::print_performance_stats("SSSP (dijkstra, all-active, push)", tm.get_time(),
                                               _graph.get_edges_count(), iterations_count);
     #endif
 }
@@ -335,7 +335,7 @@ void SSSP::nec_dijkstra_all_active_pull(VectCSRGraph &_graph,
     tm.end();
 
     #ifdef __PRINT_SAMPLES_PERFORMANCE_STATS__
-    PerformanceStats::print_performance_stats("sssp (dijkstra, all-active, pull)", tm.get_time(),
+    PerformanceStats::print_performance_stats("SSSP (dijkstra, all-active, pull)", tm.get_time(),
                                               _graph.get_edges_count(), iterations_count);
     #endif
 }

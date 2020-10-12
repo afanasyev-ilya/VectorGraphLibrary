@@ -2,6 +2,13 @@
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+void detect_trivial_components()
+{
+    
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 #ifdef __USE_NEC_SX_AURORA__
 template <typename _T>
 void SCC::bfs_reach(VectCSRGraph &_graph,
@@ -98,8 +105,6 @@ int SCC::select_pivot(VectCSRGraph &_graph,
     if(pivot > _graph.get_vertices_count())
         pivot = ERROR_IN_PIVOT;
 
-    cout << "selected " << pivot << " for " << _tree_num << " _tree_num" << endl;
-
     return pivot;
 }
 #endif
@@ -123,44 +128,27 @@ void SCC::process_result(VectCSRGraph &_graph,
         _T bwd_res = _backward_result[src_id];
         _T active = _active[src_id];
 
-        if ((active == 1) && (fwd_res != UNVISITED_VERTEX) && (bwd_res != UNVISITED_VERTEX))
+        if ((active == IS_ACTIVE) && (fwd_res != UNVISITED_VERTEX) && (bwd_res != UNVISITED_VERTEX))
         {
             _trees[src_id] = _last_tree;
-            _active[src_id] = 0;
-            //cout << "scc: " << _trees[src_id] << " " << src_id << endl;
+            _active[src_id] = NOT_ACTIVE;
         }
-        if ((active == 1) && (fwd_res == UNVISITED_VERTEX) && (bwd_res != UNVISITED_VERTEX))
+        if ((active == IS_ACTIVE) && (fwd_res == UNVISITED_VERTEX) && (bwd_res != UNVISITED_VERTEX))
         {
             _trees[src_id] = _last_tree + 1;
-            //cout << "scc: " << _trees[src_id] << " " << src_id << endl;
         }
-        if ((active == 1) && (fwd_res != UNVISITED_VERTEX) && (bwd_res == UNVISITED_VERTEX))
+        if ((active == IS_ACTIVE) && (fwd_res != UNVISITED_VERTEX) && (bwd_res == UNVISITED_VERTEX))
         {
             _trees[src_id] = _last_tree + 2;
-            //cout << "scc: " << _trees[src_id] << " " << src_id << endl;
         }
-        if ((active == 1) && (fwd_res == UNVISITED_VERTEX) && (bwd_res == UNVISITED_VERTEX))
+        if ((active == IS_ACTIVE) && (fwd_res == UNVISITED_VERTEX) && (bwd_res == UNVISITED_VERTEX))
         {
             _trees[src_id] = _last_tree + 3;
-            //cout << "scc: " << _trees[src_id] << " " << src_id << endl;
         }
     };
 
     _frontier.set_all_active();
     _graph_API.compute(_graph, _frontier, locate_scc);
-
-    cout << "trees: " << endl;
-    for(int i = 0; i < _graph.get_vertices_count(); i++)
-    {
-        cout << _trees[i] << " ";
-    }
-    cout << endl;
-    cout << "active: " << endl;
-    for(int i = 0; i < _graph.get_vertices_count(); i++)
-    {
-        cout << _active[i] << " ";
-    }
-    cout << endl;
 }
 #endif
 
@@ -171,7 +159,6 @@ template <typename _T>
 void SCC::FB_step(VectCSRGraph &_graph,
                   GraphAbstractionsNEC &_graph_API,
                   FrontierNEC &_frontier,
-                  VerticesArrayNec<_T> &_components,
                   VerticesArrayNec<_T> &_trees,
                   VerticesArrayNec<_T> &_forward_result,
                   VerticesArrayNec<_T> &_backward_result,
@@ -194,9 +181,9 @@ void SCC::FB_step(VectCSRGraph &_graph,
     process_result(_graph, _graph_API, _frontier, _forward_result, _backward_result, _trees, _active, _last_tree);
     _last_tree += 4;
 
-    FB_step(_graph, _graph_API, _frontier, _components, _trees, _forward_result, _backward_result, _active, current_tree + 1, _last_tree);
-    FB_step(_graph, _graph_API, _frontier, _components, _trees, _forward_result, _backward_result, _active, current_tree + 2, _last_tree);
-    FB_step(_graph, _graph_API, _frontier, _components, _trees, _forward_result, _backward_result, _active, current_tree + 3, _last_tree);
+    FB_step(_graph, _graph_API, _frontier, _trees, _forward_result, _backward_result, _active, current_tree + 1, _last_tree);
+    FB_step(_graph, _graph_API, _frontier, _trees, _forward_result, _backward_result, _active, current_tree + 2, _last_tree);
+    FB_step(_graph, _graph_API, _frontier, _trees, _forward_result, _backward_result, _active, current_tree + 3, _last_tree);
 }
 #endif
 
@@ -211,29 +198,25 @@ void SCC::nec_forward_backward(VectCSRGraph &_graph, VerticesArrayNec<_T> &_comp
 
     VerticesArrayNec<_T> forward_result(_graph, SCATTER);
     VerticesArrayNec<_T> backward_result(_graph, GATHER);
-    VerticesArrayNec<_T> trees(_graph, SCATTER);
     VerticesArrayNec<_T> active(_graph, SCATTER);
 
-    auto init = [&trees, &_components, &active] (int src_id, int connections_count, int vector_index)
+    Timer tm;
+    tm.start();
+    auto init = [&_components, &active] (int src_id, int connections_count, int vector_index)
     {
-        trees[src_id] = INIT_TREE;
-        _components[src_id] = INIT_COMPONENT;
-        active[src_id] = 1;
+        _components[src_id] = INIT_TREE;
+        active[src_id] = IS_ACTIVE;
     };
     graph_API.compute(_graph, frontier, init);
 
     int last_tree = INIT_TREE;
-    FB_step(_graph, graph_API, frontier, _components, trees, forward_result, backward_result, active, INIT_TREE, last_tree);
+    FB_step(_graph, graph_API, frontier, _components, forward_result, backward_result, active, INIT_TREE, last_tree);
+    tm.end();
 
-    trees.print();
-
-    //int pivot_in_reversed = f(pivot)
-
-    /*bfs_reach(src_ids, dst_ids, pivot, fwd_result, _trees);
-    bfs_reach(dst_ids, src_ids, pivot, bwd_result, _trees);
-
-    int loc_last_trees[3] = { 0, 0, 0 };
-    process_result(fwd_result, bwd_result, _components, _trees, _active, _last_component, loc_last_trees);*/
+    #ifdef __PRINT_SAMPLES_PERFORMANCE_STATS__
+    PerformanceStats::print_performance_stats("SCC (Forward-Backward)", tm.get_time(), _graph.get_edges_count());
+    #endif
+    print_component_sizes(_graph, _components);
 }
 #endif
 

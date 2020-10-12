@@ -69,7 +69,9 @@ void SSSP::seq_dijkstra(VectCSRGraph &_graph, EdgesArrayNec<_T> &_weights, Verti
     }
 
     tm.end();
-    cout << "seq dijkstra SSSP time: " << tm.get_time() << " sec" << endl;
+    #ifdef __PRINT_SAMPLES_PERFORMANCE_STATS__
+    PerformanceStats::print_performance_stats("SSSP (Sequential Dijkstra)", tm.get_time(), _graph.get_edges_count());
+    #endif
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

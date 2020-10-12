@@ -117,10 +117,9 @@ void SCC::seq_tarjan_kernel(VectCSRGraph &_graph,
 
 void SCC::seq_tarjan(VectCSRGraph &_graph, VerticesArrayNec<int> &_components)
 {
-    cout << "tarjan seq started" << endl;
-
     // allocate memory for Tarjan's algorithm computations
-
+    Timer tm;
+    tm.start();
     VerticesArrayNec<int>disc(_graph, SCATTER);
     VerticesArrayNec<int>low(_graph, SCATTER);
     VerticesArrayNec<bool>stack_member(_graph, SCATTER);
@@ -142,9 +141,13 @@ void SCC::seq_tarjan(VectCSRGraph &_graph, VerticesArrayNec<int> &_components)
             seq_tarjan_kernel(_graph, root, disc, low, st, stack_member, _components);
         }
     }
+    tm.end();
+    #ifdef __PRINT_SAMPLES_PERFORMANCE_STATS__
+    PerformanceStats::print_performance_stats("SCC (Sequential Tarjan)", tm.get_time(), _graph.get_edges_count());
+    #endif
 
-    _components.print();
-    _graph.save_to_graphviz_file<int>("scc.gv", _components);
+    //_components.print();
+    //_graph.save_to_graphviz_file<int>("scc.gv", _components);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

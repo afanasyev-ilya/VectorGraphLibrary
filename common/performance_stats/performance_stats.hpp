@@ -67,6 +67,16 @@ void PerformanceStats::print_performance_stats(string _name, double _time, long 
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+void PerformanceStats::print_performance_stats(string _name, double _time, long long _edges_count)
+{
+    cout << " --------------------------- " << _name << " performance stats --------------------------- " << endl;
+    cout << "wall time: " << _time*1000.0 << " ms" << endl;
+    cout << "wall perf: " << _edges_count / (_time * 1e6) << " MTEPS" << endl;
+    cout << " ----------------------------------------------------------------------------------------- " << endl << endl;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 void PerformanceStats::reset_API_performance_timers()
 {
     INNER_WALL_TIME = 0;
