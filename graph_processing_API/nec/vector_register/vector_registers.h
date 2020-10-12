@@ -4,21 +4,21 @@
 int reg_##name[VECTOR_LENGTH];\
 for(int i = 0; i < VECTOR_LENGTH; i++)\
 {\
-    reg_##name[i] = 0;\
+    reg_##name[i] = value;\
 }
 
 #define NEC_REGISTER_FLT(name, value)\
 float reg_##name[VECTOR_LENGTH];\
 for(int i = 0; i < VECTOR_LENGTH; i++)\
 {\
-    reg_##name[i] = 0;\
+    reg_##name[i] = value;\
 }
 
 #define NEC_REGISTER_DBL(name, value)\
 double reg_##name[VECTOR_LENGTH];\
 for(int i = 0; i < VECTOR_LENGTH; i++)\
 {\
-    reg_##name[i] = 0;\
+    reg_##name[i] = value;\
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

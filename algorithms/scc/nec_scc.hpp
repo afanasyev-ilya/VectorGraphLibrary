@@ -76,24 +76,91 @@ int SCC::select_pivot(VectCSRGraph &_graph,
                       VerticesArrayNec<_T> &_trees,
                       int _tree_num)
 {
-    NEC_REGISTER_INT(pivots, -1);
+    NEC_REGISTER_INT(pivots, _graph.get_vertices_count() + 1);
 
     auto select_pivot = [&_trees, _tree_num, &reg_pivots] (int src_id, int connections_count, int vector_index)
     {
         if(_trees[src_id] == _tree_num)
             reg_pivots[vector_index] = src_id;
     };
+
+    _frontier.set_all_active();
     _graph_API.compute(_graph, _frontier, select_pivot);
 
-    int pivot = -1;
+    int pivot = _graph.get_vertices_count() + 1;
     #pragma _NEC vector
     for(int i = 0; i < VECTOR_LENGTH; i++)
     {
-        if((reg_pivots[i] >= 0) && (pivot < reg_pivots[i]))
+        if(reg_pivots[i] < pivot)
             pivot = reg_pivots[i];
     }
 
+    if(pivot > _graph.get_vertices_count())
+        pivot = ERROR_IN_PIVOT;
+
+    cout << "selected " << pivot << " for " << _tree_num << " _tree_num" << endl;
+
     return pivot;
+}
+#endif
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+#ifdef __USE_NEC_SX_AURORA__
+template <typename _T>
+void SCC::process_result(VectCSRGraph &_graph,
+                         GraphAbstractionsNEC &_graph_API,
+                         FrontierNEC &_frontier,
+                         VerticesArrayNec<_T> &_forward_result,
+                         VerticesArrayNec<_T> &_backward_result,
+                         VerticesArrayNec<_T> &_trees,
+                         VerticesArrayNec<_T> &_active,
+                         int _last_tree)
+{
+    auto locate_scc = [&_forward_result, &_backward_result, &_trees, &_active, _last_tree] (int src_id, int connections_count, int vector_index)
+    {
+        _T fwd_res = _forward_result[src_id];
+        _T bwd_res = _backward_result[src_id];
+        _T active = _active[src_id];
+
+        if ((active == 1) && (fwd_res != UNVISITED_VERTEX) && (bwd_res != UNVISITED_VERTEX))
+        {
+            _trees[src_id] = _last_tree;
+            _active[src_id] = 0;
+            //cout << "scc: " << _trees[src_id] << " " << src_id << endl;
+        }
+        if ((active == 1) && (fwd_res == UNVISITED_VERTEX) && (bwd_res != UNVISITED_VERTEX))
+        {
+            _trees[src_id] = _last_tree + 1;
+            //cout << "scc: " << _trees[src_id] << " " << src_id << endl;
+        }
+        if ((active == 1) && (fwd_res != UNVISITED_VERTEX) && (bwd_res == UNVISITED_VERTEX))
+        {
+            _trees[src_id] = _last_tree + 2;
+            //cout << "scc: " << _trees[src_id] << " " << src_id << endl;
+        }
+        if ((active == 1) && (fwd_res == UNVISITED_VERTEX) && (bwd_res == UNVISITED_VERTEX))
+        {
+            _trees[src_id] = _last_tree + 3;
+            //cout << "scc: " << _trees[src_id] << " " << src_id << endl;
+        }
+    };
+
+    _frontier.set_all_active();
+    _graph_API.compute(_graph, _frontier, locate_scc);
+
+    cout << "trees: " << endl;
+    for(int i = 0; i < _graph.get_vertices_count(); i++)
+    {
+        cout << _trees[i] << " ";
+    }
+    cout << endl;
+    cout << "active: " << endl;
+    for(int i = 0; i < _graph.get_vertices_count(); i++)
+    {
+        cout << _active[i] << " ";
+    }
+    cout << endl;
 }
 #endif
 
@@ -108,32 +175,28 @@ void SCC::FB_step(VectCSRGraph &_graph,
                   VerticesArrayNec<_T> &_trees,
                   VerticesArrayNec<_T> &_forward_result,
                   VerticesArrayNec<_T> &_backward_result,
-                  int _tree_num)
+                  VerticesArrayNec<_T> &_active,
+                  int _processed_tree,
+                  int &_last_tree)
 {
-    int scatter_pivot = select_pivot(_graph, _graph_API, _frontier, _trees, _tree_num);
-    cout << "scatter_pivot : " << scatter_pivot << endl;
-
-    if(scatter_pivot == -1)
-    {
+    int scatter_pivot = select_pivot(_graph, _graph_API, _frontier, _trees, _processed_tree);
+    if(scatter_pivot == ERROR_IN_PIVOT)
         return;
-    }
 
     int gather_pivot = _graph.reorder(scatter_pivot, SCATTER, GATHER);
-    cout << "gather_pivot : " << gather_pivot << endl;
 
     bfs_reach(_graph, _graph_API, _frontier, _forward_result, scatter_pivot, SCATTER);
-    cout << "forward don" << endl;
     bfs_reach(_graph, _graph_API, _frontier, _backward_result, gather_pivot, GATHER);
-    cout << "backward don" << endl;
 
-    cout << "forward result :";
-    for(int i = 0; i < _graph.get_vertices_count(); i++)
-        cout << _forward_result[i] << " ";
-    cout << endl;
-    cout << "backward result :";
-    for(int i = 0; i < _graph.get_vertices_count(); i++)
-        cout << _backward_result[i] << " ";
-    cout << endl;
+    _graph.reorder(_backward_result, SCATTER);
+
+    int current_tree = _last_tree;
+    process_result(_graph, _graph_API, _frontier, _forward_result, _backward_result, _trees, _active, _last_tree);
+    _last_tree += 4;
+
+    FB_step(_graph, _graph_API, _frontier, _components, _trees, _forward_result, _backward_result, _active, current_tree + 1, _last_tree);
+    FB_step(_graph, _graph_API, _frontier, _components, _trees, _forward_result, _backward_result, _active, current_tree + 2, _last_tree);
+    FB_step(_graph, _graph_API, _frontier, _components, _trees, _forward_result, _backward_result, _active, current_tree + 3, _last_tree);
 }
 #endif
 
@@ -143,24 +206,26 @@ void SCC::FB_step(VectCSRGraph &_graph,
 template <typename _T>
 void SCC::nec_forward_backward(VectCSRGraph &_graph, VerticesArrayNec<_T> &_components)
 {
-    cout << "nec FB" << endl;
-
     GraphAbstractionsNEC graph_API(_graph, SCATTER);
     FrontierNEC frontier(_graph, SCATTER);
 
     VerticesArrayNec<_T> forward_result(_graph, SCATTER);
     VerticesArrayNec<_T> backward_result(_graph, GATHER);
     VerticesArrayNec<_T> trees(_graph, SCATTER);
+    VerticesArrayNec<_T> active(_graph, SCATTER);
 
-    auto init = [&trees, &_components] (int src_id, int connections_count, int vector_index)
+    auto init = [&trees, &_components, &active] (int src_id, int connections_count, int vector_index)
     {
         trees[src_id] = INIT_TREE;
         _components[src_id] = INIT_COMPONENT;
+        active[src_id] = 1;
     };
     graph_API.compute(_graph, frontier, init);
 
-    FB_step(_graph, graph_API, frontier, _components, trees, forward_result, backward_result, INIT_TREE);
+    int last_tree = INIT_TREE;
+    FB_step(_graph, graph_API, frontier, _components, trees, forward_result, backward_result, active, INIT_TREE, last_tree);
 
+    trees.print();
 
     //int pivot_in_reversed = f(pivot)
 

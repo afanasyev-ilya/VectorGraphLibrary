@@ -4,8 +4,8 @@
 
 template <typename ComputeOperation>
 void GraphAbstractionsNEC::compute_worker(UndirectedCSRGraph &_graph,
-                                                                       FrontierNEC &_frontier,
-                                                                       ComputeOperation &&compute_op)
+                                          FrontierNEC &_frontier,
+                                          ComputeOperation &&compute_op)
 {
     #ifdef __PRINT_API_PERFORMANCE_STATS__
     double t1 = omp_get_wtime();

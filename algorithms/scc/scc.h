@@ -12,6 +12,9 @@
 
 #define INIT_COMPONENT -1
 #define INIT_TREE 1
+#define ERROR_IN_PIVOT -1
+#define ACTIVE 1
+#define NOT_ACTIVE 0
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -20,19 +23,38 @@ class StronglyConnectedComponents
 private:
     #ifdef __USE_NEC_SX_AURORA__
     template <typename _T>
-    static void bfs_reach(VectCSRGraph &_graph,
-                  GraphAbstractionsNEC &_graph_API,
-                  FrontierNEC &_frontier,
-                  VerticesArrayNec<_T> &_bfs_result,
-                  int _source_vertex,
-                  TraversalDirection _traversal_direction);
+    static void process_result(VectCSRGraph &_graph,
+                               GraphAbstractionsNEC &_graph_API,
+                               FrontierNEC &_frontier,
+                               VerticesArrayNec<_T> &_forward_result,
+                               VerticesArrayNec<_T> &_backward_result,
+                               VerticesArrayNec<_T> &_trees,
+                               VerticesArrayNec<_T> &_active,
+                               int _last_tree);
     #endif
 
     #ifdef __USE_NEC_SX_AURORA__
     template <typename _T>
-    static void FB_step(VectCSRGraph &_graph, GraphAbstractionsNEC &_graph_API, FrontierNEC &_frontier,
-                        VerticesArrayNec<_T> &_components, VerticesArrayNec<_T> &_trees,
-                        VerticesArrayNec<_T> &_forward_result, VerticesArrayNec<_T> &_backward_result, int _tree_num);
+    static void bfs_reach(VectCSRGraph &_graph,
+                          GraphAbstractionsNEC &_graph_API,
+                          FrontierNEC &_frontier,
+                          VerticesArrayNec<_T> &_bfs_result,
+                          int _source_vertex,
+                          TraversalDirection _traversal_direction);
+    #endif
+
+    #ifdef __USE_NEC_SX_AURORA__
+    template <typename _T>
+    static void FB_step(VectCSRGraph &_graph,
+                        GraphAbstractionsNEC &_graph_API,
+                        FrontierNEC &_frontier,
+                        VerticesArrayNec<_T> &_components,
+                        VerticesArrayNec<_T> &_trees,
+                        VerticesArrayNec<_T> &_forward_result,
+                        VerticesArrayNec<_T> &_backward_result,
+                        VerticesArrayNec<_T> &_active,
+                        int _processed_tree,
+                        int &_last_tree);
     #endif
 
     #ifdef __USE_NEC_SX_AURORA__
