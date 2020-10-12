@@ -154,8 +154,9 @@ void BFS::nec_bottom_up_compute_step(VectCSRGraph &_graph,
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #ifdef __USE_NEC_SX_AURORA__
+template <typename _T>
 void BFS::nec_top_down(VectCSRGraph &_graph,
-                       VerticesArrayNec<int> &_levels,
+                       VerticesArrayNec<_T> &_levels,
                        int _source_vertex)
 {
     GraphAbstractionsNEC graph_API(_graph, SCATTER);
@@ -171,12 +172,15 @@ void BFS::nec_top_down(VectCSRGraph &_graph,
         throw "Error: incorrect direction of vertex array in SSSP::nec_dijkstra_all_active_push";
     }
 
+    #pragma omp parallel
+    {};
+
     auto init_levels = [&_levels, _source_vertex] (int src_id, int connections_count, int vector_index)
     {
         if(src_id == _source_vertex)
-            _levels[_source_vertex] = FIRST_LEVEL_VERTEX;
+            levels[_source_vertex] = FIRST_LEVEL_VERTEX;
         else
-            _levels[src_id] = UNVISITED_VERTEX;
+            levels[src_id] = UNVISITED_VERTEX;
     };
     graph_API.compute(_graph, frontier, init_levels);
 
@@ -189,7 +193,7 @@ void BFS::nec_top_down(VectCSRGraph &_graph,
     int current_level = FIRST_LEVEL_VERTEX;
     while(frontier.size() > 0)
     {
-        auto edge_op = [&_levels, current_level](int src_id, int dst_id, int local_edge_pos,
+        auto edge_op = [&_levels, &current_level](int src_id, int dst_id, int local_edge_pos,
                 long long int global_edge_pos, int vector_index, DelayedWriteNEC &delayed_write)
         {
             int dst_level = _levels[dst_id];
@@ -205,7 +209,7 @@ void BFS::nec_top_down(VectCSRGraph &_graph,
         auto on_next_level = [&_levels, current_level] (int src_id)->int
         {
             int result = NOT_IN_FRONTIER_FLAG;
-            if(_levels[src_id] == (current_level + 1))
+            if(levels[src_id] == (current_level + 1))
                 result = IN_FRONTIER_FLAG;
             return result;
         };

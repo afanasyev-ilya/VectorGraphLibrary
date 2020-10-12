@@ -97,13 +97,13 @@ void PerformanceStats::print_API_performance_timers(long long _edges_count)
     double advance_bw = sizeof(int)*INT_ELEMENTS_PER_EDGE*INNER_WALL_WORK / (1e9*INNER_ADVANCE_TIME);
     cout << "ADVANCE_BANDWIDTH: " << advance_bw << " GB/s" << endl;
     #ifdef __USE_NEC_SX_AURORA__
-    cout << "         DETAILED_ADVANCE_PART_1_NEC_TIME: " << int(100.0 * DETAILED_ADVANCE_PART_1_NEC_TIME / INNER_WALL_TIME) << " %" << endl;
-    cout << "         DETAILED_ADVANCE_PART_2_NEC_TIME: " << int(100.0 * DETAILED_ADVANCE_PART_2_NEC_TIME / INNER_WALL_TIME) << " %" << endl;
-    cout << "         DETAILED_ADVANCE_PART_3_NEC_TIME: " << int(100.0 * DETAILED_ADVANCE_PART_3_NEC_TIME / INNER_WALL_TIME) << " %" << endl;
+    cout << "         DETAILED_ADVANCE_PART_1_NEC_TIME: " << int(100.0 * DETAILED_ADVANCE_PART_1_NEC_TIME / INNER_WALL_TIME) << " % (" << 1000.0*DETAILED_ADVANCE_PART_1_NEC_TIME << " ms)" << endl;
+    cout << "         DETAILED_ADVANCE_PART_2_NEC_TIME: " << int(100.0 * DETAILED_ADVANCE_PART_2_NEC_TIME / INNER_WALL_TIME) << " % (" << 1000.0*DETAILED_ADVANCE_PART_2_NEC_TIME << " ms)" << endl;
+    cout << "         DETAILED_ADVANCE_PART_3_NEC_TIME: " << int(100.0 * DETAILED_ADVANCE_PART_3_NEC_TIME / INNER_WALL_TIME) << " % (" << 1000.0*DETAILED_ADVANCE_PART_3_NEC_TIME << " ms)" << endl;
     #endif
 
     cout << "INNER_COMPUTE_TIME: " << int(100.0 * INNER_COMPUTE_TIME / INNER_WALL_TIME) << " %" << endl;
-    cout << "INNER_GNF_TIME: " << int(100.0 * INNER_GNF_TIME / INNER_WALL_TIME) << " % (" << 1000.0*INNER_GNF_TIME << ")" << endl;
+    cout << "INNER_GNF_TIME: " << int(100.0 * INNER_GNF_TIME / INNER_WALL_TIME) << " % (" << 1000.0*INNER_GNF_TIME << " ms)" << endl;
     cout << "INNER_REDUCE_TIME: " << int(100.0 * INNER_REDUCE_TIME / INNER_WALL_TIME) << " %" << endl;
     cout << "INNER_PACK_TIME: " << int(100.0 * INNER_PACK_TIME / INNER_WALL_TIME) << " %" << endl;
     cout << "INNER_FILTER_TIME: " << int(100.0 * INNER_FILTER_TIME / INNER_WALL_TIME) << " %" << endl;

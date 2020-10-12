@@ -65,6 +65,11 @@ public:
     bool have_correct_direction();
     template<typename _T, typename ... Types>
     bool have_correct_direction(_T _first_arg, Types ... _args);
+
+    // allows to set correct direction for multiple arrays (vertexArrays, frontiers)
+    void set_correct_direction();
+    template<typename _T, typename ... Types>
+    void set_correct_direction(_T &_first_arg, Types &... _args);
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -88,6 +93,22 @@ bool GraphAbstractions::have_correct_direction(_T _first_arg, _Types ... _args)
 {
     bool check_result = same_direction(_first_arg.get_direction(), current_traversal_direction);
     return (check_result && have_correct_direction(_args...));
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+void GraphAbstractions::set_correct_direction()
+{
+
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+template<typename _T, typename ... Types>
+void GraphAbstractions::set_correct_direction(_T &_first_arg, Types &... _args)
+{
+    _first_arg.set_direction(current_traversal_direction);
+    set_correct_direction(_args...);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

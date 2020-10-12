@@ -38,7 +38,8 @@ public:
     #endif
 
     #ifdef __USE_NEC_SX_AURORA__
-    static void nec_top_down(VectCSRGraph &_graph, VerticesArrayNec<int> &_levels, int _source_vertex);
+    template <typename _T>
+    static void nec_top_down(VectCSRGraph &_graph, VerticesArrayNec<_T> &_levels, int _source_vertex);
     #endif
 
     static void seq_top_down(VectCSRGraph &_graph, VerticesArrayNec<int> &_levels, int _source_vertex);

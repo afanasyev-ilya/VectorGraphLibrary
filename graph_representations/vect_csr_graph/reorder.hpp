@@ -4,6 +4,8 @@
 
 int VectCSRGraph::reorder(int _vertex_id, TraversalDirection _input_dir, TraversalDirection _output_dir)
 {
+    if((_vertex_id < 0) || (_vertex_id >= this->vertices_count))
+        throw "Error in VectCSRGraph::reorder : _vertex_id is out of range";
     if(_input_dir == ORIGINAL)
     {
         if(_output_dir == GATHER)
