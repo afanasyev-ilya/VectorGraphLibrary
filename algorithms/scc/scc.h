@@ -10,17 +10,27 @@
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#define INIT_COMPONENT -1
 #define INIT_TREE 1
 #define ERROR_IN_PIVOT -1
+#define IS_NOT_ACTIVE 0
 #define IS_ACTIVE 1
-#define NOT_ACTIVE 0
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 class StronglyConnectedComponents
 {
 private:
+    #ifdef __USE_NEC_SX_AURORA__
+    template <typename _T>
+    static void detect_trivial_components(VectCSRGraph &_graph,
+                                          GraphAbstractionsNEC &_graph_API,
+                                          FrontierNEC &_frontier,
+                                          VerticesArrayNec<_T> &_forward_result,
+                                          VerticesArrayNec<_T> &_backward_result,
+                                          VerticesArrayNec<_T> &_trees,
+                                          VerticesArrayNec<_T> &_active);
+    #endif
+
     #ifdef __USE_NEC_SX_AURORA__
     template <typename _T>
     static void process_result(VectCSRGraph &_graph,

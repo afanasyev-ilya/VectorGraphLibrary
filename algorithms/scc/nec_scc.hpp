@@ -2,10 +2,62 @@
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void detect_trivial_components()
+#ifdef __USE_NEC_SX_AURORA__
+template <typename _T>
+void SCC::detect_trivial_components(VectCSRGraph &_graph,
+                                    GraphAbstractionsNEC &_graph_API,
+                                    FrontierNEC &_frontier,
+                                    VerticesArrayNec<_T> &_forward_result,
+                                    VerticesArrayNec<_T> &_backward_result,
+                                    VerticesArrayNec<_T> &_trees,
+                                    VerticesArrayNec<_T> &_active)
 {
-    
+    _graph_API.change_traversal_direction(SCATTER);
+    _graph_API.set_correct_direction(_forward_result, _frontier);
+    auto forward_mark = [&_forward_result] (int src_id, int connections_count, int vector_index)
+    {
+        if(connections_count > 0)
+            _forward_result[src_id] = 0;
+        else
+            _forward_result[src_id] = 1;
+    };
+    _frontier.set_all_active();
+    _graph_API.compute(_graph, _frontier, forward_mark);
+
+    _graph_API.change_traversal_direction(GATHER);
+    _graph_API.set_correct_direction(_backward_result, _frontier);
+    auto backward_mark = [&_backward_result] (int src_id, int connections_count, int vector_index)
+    {
+        if(connections_count > 0)
+            _backward_result[src_id] = 0;
+        else
+            _backward_result[src_id] = 1;
+    };
+
+    _graph_API.compute(_graph, _frontier, backward_mark);
+
+    _graph_API.change_traversal_direction(SCATTER);
+    _graph.reorder(_backward_result, SCATTER);
+    _graph_API.set_correct_direction(_frontier);
+    int vertices_count = _graph.get_vertices_count();
+    auto remove_trivial_and_init = [&_forward_result, &_backward_result, &_trees, &_active, vertices_count] (int src_id, int connections_count, int vector_index)
+    {
+        if((_forward_result[src_id] == 1) || (_backward_result[src_id] == 1))
+        {
+            _trees[src_id] = src_id + vertices_count;
+            _active[src_id] = IS_NOT_ACTIVE;
+        }
+        else
+        {
+            _trees[src_id] = INIT_TREE;
+            _active[src_id] = IS_ACTIVE;
+        }
+    };
+    _frontier.set_all_active();
+    _graph_API.compute(_graph, _frontier, remove_trivial_and_init);
+    cout << "init done" << endl;
 }
+#endif
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -83,6 +135,9 @@ int SCC::select_pivot(VectCSRGraph &_graph,
                       VerticesArrayNec<_T> &_trees,
                       int _tree_num)
 {
+    _graph_API.change_traversal_direction(SCATTER);
+    _graph_API.set_correct_direction(_frontier);
+
     NEC_REGISTER_INT(pivots, _graph.get_vertices_count() + 1);
 
     auto select_pivot = [&_trees, _tree_num, &reg_pivots] (int src_id, int connections_count, int vector_index)
@@ -131,7 +186,7 @@ void SCC::process_result(VectCSRGraph &_graph,
         if ((active == IS_ACTIVE) && (fwd_res != UNVISITED_VERTEX) && (bwd_res != UNVISITED_VERTEX))
         {
             _trees[src_id] = _last_tree;
-            _active[src_id] = NOT_ACTIVE;
+            _active[src_id] = IS_NOT_ACTIVE;
         }
         if ((active == IS_ACTIVE) && (fwd_res == UNVISITED_VERTEX) && (bwd_res != UNVISITED_VERTEX))
         {
@@ -200,18 +255,17 @@ void SCC::nec_forward_backward(VectCSRGraph &_graph, VerticesArrayNec<_T> &_comp
     VerticesArrayNec<_T> backward_result(_graph, GATHER);
     VerticesArrayNec<_T> active(_graph, SCATTER);
 
-    Timer tm;
+    Timer tm, tm_init;
     tm.start();
-    auto init = [&_components, &active] (int src_id, int connections_count, int vector_index)
-    {
-        _components[src_id] = INIT_TREE;
-        active[src_id] = IS_ACTIVE;
-    };
-    graph_API.compute(_graph, frontier, init);
+    tm_init.start();
+    detect_trivial_components(_graph, graph_API, frontier, forward_result, backward_result, _components, active);
+    tm_init.end();
+    cout << "init time: " << tm_init.get_time() << " sec" << endl;
 
     int last_tree = INIT_TREE;
     FB_step(_graph, graph_API, frontier, _components, forward_result, backward_result, active, INIT_TREE, last_tree);
     tm.end();
+    cout << "last tree: " << last_tree << endl;
 
     #ifdef __PRINT_SAMPLES_PERFORMANCE_STATS__
     PerformanceStats::print_performance_stats("SCC (Forward-Backward)", tm.get_time(), _graph.get_edges_count());
