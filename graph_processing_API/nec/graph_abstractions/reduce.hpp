@@ -87,9 +87,8 @@ _T GraphAbstractionsNEC::reduce(VectCSRGraph &_graph,
     }
 
     tm.end();
+    performance_stats.update_reduce_time(tm);
     #ifdef __PRINT_API_PERFORMANCE_STATS__
-    INNER_WALL_TIME += tm.get_time();
-    INNER_REDUCE_TIME += tm.get_time();
     tm.print_bandwidth_stats("reduce", _frontier.size(), REDUCE_INT_ELEMENTS);
     #endif
 }

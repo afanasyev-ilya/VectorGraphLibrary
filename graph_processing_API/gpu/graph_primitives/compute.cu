@@ -58,15 +58,8 @@ void GraphPrimitivesGPU::compute(UndirectedCSRGraph &_graph,
                                  FrontierGPU &_frontier,
                                  ComputeOperation &&compute_op)
 {
-    #ifdef __PRINT_API_PERFORMANCE_STATS__
-    cudaDeviceSynchronize();
-    double t1 = omp_get_wtime();
-    #endif
-
     LOAD_UNDIRECTED_CSR_GRAPH_DATA(_graph);
-
     long long *vertex_pointers = vertex_pointers;
-
     if(_frontier.type == ALL_ACTIVE_FRONTIER)
     {
         SAFE_KERNEL_CALL((compute_kernel_all_active <<< (vertices_count - 1) / BLOCK_SIZE + 1, BLOCK_SIZE >>>
@@ -84,16 +77,6 @@ void GraphPrimitivesGPU::compute(UndirectedCSRGraph &_graph,
                 (_frontier.ids, frontier_size, vertex_pointers, compute_op)));
     }
     cudaDeviceSynchronize();
-
-    #ifdef __PRINT_API_PERFORMANCE_STATS__
-    cudaDeviceSynchronize();
-    double t2 = omp_get_wtime();
-    INNER_WALL_TIME += t2 - t1;
-    INNER_COMPUTE_TIME += t2 - t1;
-    double work = _frontier.size();
-    cout << "compute time: " << (t2 - t1)*1000.0 << " ms" << endl;
-    cout << "compute BW: " << sizeof(int)*COMPUTE_INT_ELEMENTS*work/((t2-t1)*1e9) << " GB/s" << endl << endl;
-    #endif
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

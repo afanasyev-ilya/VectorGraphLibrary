@@ -25,7 +25,7 @@ void PR::gpu_page_rank(UndirectedCSRGraph &_graph,
     MemoryAPI::free_device_array(device_page_ranks);
 
     #ifdef __PRINT_SAMPLES_PERFORMANCE_STATS__
-    PerformanceStats::print_performance_stats("page rank", t2 - t1, edges_count, iterations_count);
+    PerformanceStats::print_algorithm_performance_stats("page rank", t2 - t1, edges_count, iterations_count);
     #endif
 
     performance_per_iteration = double(iterations_count) * (edges_count/((t2 - t1)*1e6));

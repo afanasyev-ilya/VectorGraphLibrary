@@ -94,7 +94,7 @@ void CC::nec_bfs_based(UndirectedCSRGraph &_graph,
     bfs_operation.free_result_memory(bfs_levels);
 
     #ifdef __PRINT_SAMPLES_PERFORMANCE_STATS__
-    PerformanceStats::print_performance_stats("nec bfs based", t2 - t1, edges_count, iterations_count);
+    PerformanceStats::print_algorithm_performance_stats("nec bfs based", t2 - t1, edges_count, iterations_count);
     PerformanceStats::component_stats(_components, vertices_count);
     #endif
 }

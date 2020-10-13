@@ -49,17 +49,13 @@ int main(int argc, const char * argv[])
 
         VerticesArrayNec<int> components(graph, SCATTER); // TODO selection for DO/BU
 
-        #ifdef __PRINT_API_PERFORMANCE_STATS__
-        PerformanceStats::reset_API_performance_timers();
-        #endif
+        performance_stats.reset_timers();
 
         #ifdef __USE_NEC_SX_AURORA__
         SCC::nec_forward_backward(graph, components);
         #endif
 
-        #ifdef __PRINT_API_PERFORMANCE_STATS__
-        PerformanceStats::print_API_performance_timers(graph.get_edges_count());
-        #endif
+        performance_stats.print_timers_stats();
 
         // check if required
         if(parser.get_check_flag())

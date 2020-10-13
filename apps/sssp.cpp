@@ -68,9 +68,7 @@ int main(int argc, const char * argv[])
 
             int source_vertex = graph.select_random_vertex(ORIGINAL);
 
-            #ifdef __PRINT_API_PERFORMANCE_STATS__
-            PerformanceStats::reset_API_performance_timers();
-            #endif
+            performance_stats.reset_timers();
 
             #ifdef __USE_NEC_SX_AURORA__
             ShortestPaths::nec_dijkstra(graph, weights, distances, source_vertex,
@@ -78,9 +76,7 @@ int main(int argc, const char * argv[])
                                         parser.get_traversal_direction());
             #endif
 
-            #ifdef __PRINT_API_PERFORMANCE_STATS__
-            PerformanceStats::print_API_performance_timers(graph.get_edges_count());
-            #endif
+            performance_stats.print_timers_stats();
 
             // check if required
             if(parser.get_check_flag())

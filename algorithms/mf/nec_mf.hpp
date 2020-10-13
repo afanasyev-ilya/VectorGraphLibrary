@@ -159,7 +159,7 @@ _TEdgeWeight MF::nec_ford_fulkerson(UndirectedCSRGraph &_graph,
     cout << "wall perf: " << edges_count / ((bfs_time + reminder_time)*1e6) << " MTEPS" << endl;
 
     #ifdef __PRINT_SAMPLES_PERFORMANCE_STATS__
-    PerformanceStats::print_performance_stats("MF nec_ford_fulkerson", bfs_time + reminder_time, edges_count, iterations_count);
+    PerformanceStats::print_algorithm_performance_stats("MF nec_ford_fulkerson", bfs_time + reminder_time, edges_count, iterations_count);
     #endif
 
     MemoryAPI::free_array(parents);

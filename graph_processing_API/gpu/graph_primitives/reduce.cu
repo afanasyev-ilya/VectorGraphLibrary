@@ -124,11 +124,6 @@ _T GraphPrimitivesGPU::reduce(UndirectedCSRGraph &_graph,
                               ReduceOperation &&reduce_op,
                               REDUCE_TYPE _reduce_type)
 {
-    #ifdef __PRINT_API_PERFORMANCE_STATS__
-    cudaDeviceSynchronize();
-    double t1 = omp_get_wtime();
-    #endif
-
     _T *managed_reduced_result;
     MemoryAPI::allocate_managed_array(&managed_reduced_result, 1);
 
@@ -152,15 +147,6 @@ _T GraphPrimitivesGPU::reduce(UndirectedCSRGraph &_graph,
     cudaDeviceSynchronize();
     _T reduce_result = managed_reduced_result[0];
 
-    #ifdef __PRINT_API_PERFORMANCE_STATS__
-    cudaDeviceSynchronize();
-    double t2 = omp_get_wtime();
-    INNER_WALL_TIME += t2 - t1;
-    INNER_REDUCE_TIME += t2 - t1;
-    double work = _frontier.size();
-    cout << "reduce time: " << (t2 - t1)*1000.0 << " ms" << endl;
-    cout << "reduce BW: " << sizeof(int)*REDUCE_INT_ELEMENTS*work/((t2-t1)*1e9) << " GB/s" << endl << endl;
-    #endif
 
     MemoryAPI::free_device_array(managed_reduced_result);
 

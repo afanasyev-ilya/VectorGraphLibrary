@@ -126,7 +126,7 @@ void PR::nec_page_rank(UndirectedCSRGraph &_graph,
     double t2 = omp_get_wtime();
 
     #ifdef __PRINT_SAMPLES_PERFORMANCE_STATS__
-    PerformanceStats::print_performance_stats("page ranks", t2 - t1, edges_count, iterations_count);
+    PerformanceStats::print_algorithm_performance_stats("page ranks", t2 - t1, edges_count, iterations_count);
     #endif
 
     MemoryAPI::free_array(number_of_loops);

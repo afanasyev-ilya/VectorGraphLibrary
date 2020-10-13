@@ -7,15 +7,11 @@ void GraphAbstractionsNEC::compute_worker(UndirectedCSRGraph &_graph,
                                           FrontierNEC &_frontier,
                                           ComputeOperation &&compute_op)
 {
-    #ifdef __PRINT_API_PERFORMANCE_STATS__
-    double t1 = omp_get_wtime();
-    #pragma omp barrier
-    #endif
+    Timer tm;
+    tm.start();
 
     LOAD_UNDIRECTED_CSR_GRAPH_DATA(_graph);
-
     int max_frontier_size = _frontier.max_size;
-
     if(_frontier.type == ALL_ACTIVE_FRONTIER)
     {
         #pragma _NEC ivdep
@@ -50,18 +46,10 @@ void GraphAbstractionsNEC::compute_worker(UndirectedCSRGraph &_graph,
         }
     }
 
+    tm.end();
+    performance_stats.update_compute_time(tm);
     #ifdef __PRINT_API_PERFORMANCE_STATS__
-    #pragma omp barrier
-    double t2 = omp_get_wtime();
-    #pragma omp master
-    {
-        INNER_WALL_TIME += t2 - t1;
-        INNER_COMPUTE_TIME += t2 - t1;
-
-        double work = _frontier.size();
-        cout << "compute time: " << (t2 - t1)*1000.0 << " ms" << endl;
-        cout << "compute BW: " << sizeof(int)*(COMPUTE_INT_ELEMENTS)*work/((t2-t1)*1e9) << " GB/s" << endl << endl;
-    }
+    tm.print_bandwidth_stats("Compute", _frontier.size(), COMPUTE_INT_ELEMENTS);
     #endif
 }
 

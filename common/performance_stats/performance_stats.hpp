@@ -2,24 +2,151 @@
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void PerformanceStats::save_performance_to_file(string _operation_name, string _graph_name, double _perf)
+void PerformanceStats::update_advance_time(Timer &_timer)
 {
-    string file_name = _operation_name + "_performance_data.txt";
-    string short_file_name = _operation_name + "_performance_data_short.txt";
-
-    ofstream perf_file;
-    perf_file.open(file_name.c_str(), std::ios_base::app);
-    perf_file << _graph_name << ": " << _perf << " MTEPS" << endl;
-    perf_file.close();
-
-    ofstream short_perf_file;
-    short_perf_file.open(short_file_name.c_str(), std::ios_base::app);
-    short_perf_file << _perf << endl;
-    short_perf_file.close();
+    #pragma omp master
+    {
+        inner_wall_time += _timer.get_time();
+        advance_time += _timer.get_time();
+    }
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+void PerformanceStats::update_advance_ve_part_time(Timer &_timer)
+{
+    #pragma omp master
+    {
+        inner_wall_time += _timer.get_time();
+        advance_time += _timer.get_time();
+        advance_ve_part_time += _timer.get_time();
+    }
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+void PerformanceStats::update_advance_vc_part_time(Timer &_timer)
+{
+    #pragma omp master
+    {
+        inner_wall_time += _timer.get_time();
+        advance_time += _timer.get_time();
+        advance_vc_part_time += _timer.get_time();
+    }
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+void PerformanceStats::update_advance_collective_part_time(Timer &_timer)
+{
+    #pragma omp master
+    {
+        inner_wall_time += _timer.get_time();
+        advance_time += _timer.get_time();
+        advance_collective_part_time += _timer.get_time();
+    }
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+void PerformanceStats::update_scatter_time(Timer &_timer)
+{
+    #pragma omp master
+    {
+        inner_wall_time += _timer.get_time();
+        scatter_time += _timer.get_time();
+    }
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+void PerformanceStats::update_gather_time(Timer &_timer)
+{
+    #pragma omp master
+    {
+        inner_wall_time += _timer.get_time();
+        gather_time += _timer.get_time();
+    }
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+void PerformanceStats::update_compute_time(Timer &_timer)
+{
+    #pragma omp master
+    {
+        inner_wall_time += _timer.get_time();
+        compute_time += _timer.get_time();
+    }
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+void PerformanceStats::update_reduce_time(Timer &_timer)
+{
+    #pragma omp master
+    {
+        inner_wall_time += _timer.get_time();
+        reduce_time += _timer.get_time();
+    }
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+void PerformanceStats::update_gnf_time(Timer &_timer)
+{
+    #pragma omp master
+    {
+        inner_wall_time += _timer.get_time();
+        gnf_time += _timer.get_time();
+    }
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+void PerformanceStats::update_pack_time(Timer &_timer)
+{
+    #pragma omp master
+    {
+        inner_wall_time += _timer.get_time();
+        pack_time += _timer.get_time();
+    }
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+void PerformanceStats::update_reorder_time(Timer &_timer)
+{
+    #pragma omp master
+    {
+        inner_wall_time += _timer.get_time();
+        reorder_time += _timer.get_time();
+    }
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+void PerformanceStats::reset_timers()
+{
+    inner_wall_time = 0;
+    advance_time = 0;
+    gather_time = 0;
+    scatter_time = 0;
+
+    advance_ve_part_time = 0;
+    advance_vc_part_time = 0;
+    advance_collective_part_time = 0;
+
+    compute_time = 0;
+    gnf_time = 0;
+    reduce_time = 0;
+    reorder_time = 0;
+    pack_time = 0;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+/*
 void PerformanceStats::component_stats(int *_components, int _vertices_count)
 {
     map<int, int> component_sizes;
@@ -50,11 +177,11 @@ void PerformanceStats::component_stats(int *_components, int _vertices_count)
         cout << "there are " << it->second << " components of size " << it->first << endl;
     }
     cout << " ---------------------------------------------------------------------------- " << endl << endl;
-}
+}*/
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void PerformanceStats::print_performance_stats(string _name, double _time, long long _edges_count, int _iterations_count)
+void PerformanceStats::print_algorithm_performance_stats(string _name, double _time, long long _edges_count, int _iterations_count)
 {
     cout << " --------------------------- " << _name << " performance stats --------------------------- " << endl;
     cout << "wall time: " << _time*1000.0 << " ms" << endl;
@@ -67,7 +194,7 @@ void PerformanceStats::print_performance_stats(string _name, double _time, long 
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void PerformanceStats::print_performance_stats(string _name, double _time, long long _edges_count)
+void PerformanceStats::print_algorithm_performance_stats(string _name, double _time, long long _edges_count)
 {
     cout << " --------------------------- " << _name << " performance stats --------------------------- " << endl;
     cout << "wall time: " << _time*1000.0 << " ms" << endl;
@@ -77,46 +204,38 @@ void PerformanceStats::print_performance_stats(string _name, double _time, long 
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void PerformanceStats::reset_API_performance_timers()
+void PerformanceStats::print_timers_stats()
 {
-    INNER_WALL_TIME = 0;
-    INNER_ADVANCE_TIME = 0;
-    INNER_COMPUTE_TIME = 0;
-    INNER_GNF_TIME = 0;
-    INNER_FILTER_TIME = 0;
-    INNER_REDUCE_TIME = 0;
-    INNER_PACK_TIME = 0;
-    INNER_WALL_WORK = 0;
-
+    cout << endl;
+    print_abstraction_stats("Inner wall    ", inner_wall_time);
+    print_abstraction_stats("Advance       ", advance_time);
     #ifdef __USE_NEC_SX_AURORA__
-    DETAILED_ADVANCE_PART_1_NEC_TIME = 0;
-    DETAILED_ADVANCE_PART_2_NEC_TIME = 0;
-    DETAILED_ADVANCE_PART_3_NEC_TIME = 0;
+    print_detailed_advance_stats("Advance (ve) time", advance_ve_part_time);
+    print_detailed_advance_stats("Advance (vc) time", advance_vc_part_time);
+    print_detailed_advance_stats("Advance (collective) time", advance_collective_part_time);
     #endif
+    print_abstraction_stats("Compute       ", compute_time);
+    print_abstraction_stats("Reduce        ", reduce_time);
+    print_abstraction_stats("GNF           ", gnf_time);
+    print_abstraction_stats("Reorder       ", reorder_time);
+    print_abstraction_stats("Pack          ", pack_time);
+    cout << endl;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void PerformanceStats::print_API_performance_timers(long long _edges_count)
+void PerformanceStats::print_abstraction_stats(string _name, double _time)
 {
-    cout << "test: " << INT_ELEMENTS_PER_EDGE << endl;
-    cout << "INNER_WALL_TIME: " << INNER_WALL_TIME * 1000 << " ms" << endl;
-    cout << "INNER perf: " << _edges_count / (INNER_WALL_TIME * 1e6) << " MTEPS" << endl;
-    cout << "INNER_ADVANCE_TIME: " << int(100.0 * INNER_ADVANCE_TIME / INNER_WALL_TIME) << " %" << endl;
+    if(_time > 0)
+        cout << "            " << _name << " : " << to_ms(_time) << " (ms), " << to_percent(_time) << "%" << endl;
+}
 
-    double advance_bw = sizeof(int)*INT_ELEMENTS_PER_EDGE*INNER_WALL_WORK / (1e9*INNER_ADVANCE_TIME);
-    cout << "ADVANCE_BANDWIDTH: " << advance_bw << " GB/s" << endl;
-    #ifdef __USE_NEC_SX_AURORA__
-    cout << "         DETAILED_ADVANCE_PART_1_NEC_TIME: " << int(100.0 * DETAILED_ADVANCE_PART_1_NEC_TIME / INNER_WALL_TIME) << " % (" << 1000.0*DETAILED_ADVANCE_PART_1_NEC_TIME << " ms)" << endl;
-    cout << "         DETAILED_ADVANCE_PART_2_NEC_TIME: " << int(100.0 * DETAILED_ADVANCE_PART_2_NEC_TIME / INNER_WALL_TIME) << " % (" << 1000.0*DETAILED_ADVANCE_PART_2_NEC_TIME << " ms)" << endl;
-    cout << "         DETAILED_ADVANCE_PART_3_NEC_TIME: " << int(100.0 * DETAILED_ADVANCE_PART_3_NEC_TIME / INNER_WALL_TIME) << " % (" << 1000.0*DETAILED_ADVANCE_PART_3_NEC_TIME << " ms)" << endl;
-    #endif
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    cout << "INNER_COMPUTE_TIME: " << int(100.0 * INNER_COMPUTE_TIME / INNER_WALL_TIME) << " %" << endl;
-    cout << "INNER_GNF_TIME: " << int(100.0 * INNER_GNF_TIME / INNER_WALL_TIME) << " % (" << 1000.0*INNER_GNF_TIME << " ms)" << endl;
-    cout << "INNER_REDUCE_TIME: " << int(100.0 * INNER_REDUCE_TIME / INNER_WALL_TIME) << " %" << endl;
-    cout << "INNER_PACK_TIME: " << int(100.0 * INNER_PACK_TIME / INNER_WALL_TIME) << " %" << endl;
-    cout << "INNER_FILTER_TIME: " << int(100.0 * INNER_FILTER_TIME / INNER_WALL_TIME) << " %" << endl;
+void PerformanceStats::print_detailed_advance_stats(string _name, double _time)
+{
+    if(_time > 0)
+        cout << _name << " : " << to_ms(_time) << " (ms), " << to_percent(_time) << "%" << endl;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

@@ -68,7 +68,7 @@ void SSSP::nec_dijkstra_partial_active(VectCSRGraph &_graph,
                               edge_op_push, EMPTY_VERTEX_OP, EMPTY_VERTEX_OP);
         }
 
-        auto changes_occurred = [&_distances, &prev_distances] (int src_id)->int
+        auto changes_occurred = [&_distances, &prev_distances] (int src_id, int connections_count)->int
         {
             int result = NOT_IN_FRONTIER_FLAG;
             if(_distances[src_id] != prev_distances[src_id])
@@ -84,7 +84,7 @@ void SSSP::nec_dijkstra_partial_active(VectCSRGraph &_graph,
     tm.end();
 
     #ifdef __PRINT_SAMPLES_PERFORMANCE_STATS__
-    PerformanceStats::print_performance_stats("SSSP (Dijkstra, partial active)", tm.get_time(),
+    PerformanceStats::print_algorithm_performance_stats("SSSP (Dijkstra, partial active)", tm.get_time(),
                                               _graph.get_edges_count(), iterations_count);
     #endif
 }
@@ -138,7 +138,7 @@ void SSSP::nec_bellamn_ford(EdgesListGraph &_graph,
     performance = edges_count / ((t2 - t1)*1e6);
 
     #ifdef __PRINT_SAMPLES_PERFORMANCE_STATS__
-    PerformanceStats::print_performance_stats("sssp (bellman-ford)", t2 - t1, edges_count, iterations_count);
+    PerformanceStats::print_algorithm_performance_stats("sssp (bellman-ford)", t2 - t1, edges_count, iterations_count);
     #endif
 }
 #endif*/
@@ -215,7 +215,7 @@ void SSSP::nec_dijkstra_all_active_push(VectCSRGraph &_graph,
     tm.end();
 
     #ifdef __PRINT_SAMPLES_PERFORMANCE_STATS__
-    PerformanceStats::print_performance_stats("SSSP (dijkstra, all-active, push)", tm.get_time(),
+    PerformanceStats::print_algorithm_performance_stats("SSSP (dijkstra, all-active, push)", tm.get_time(),
                                               _graph.get_edges_count(), iterations_count);
     #endif
 }
@@ -335,7 +335,7 @@ void SSSP::nec_dijkstra_all_active_pull(VectCSRGraph &_graph,
     tm.end();
 
     #ifdef __PRINT_SAMPLES_PERFORMANCE_STATS__
-    PerformanceStats::print_performance_stats("SSSP (dijkstra, all-active, pull)", tm.get_time(),
+    PerformanceStats::print_algorithm_performance_stats("SSSP (dijkstra, all-active, pull)", tm.get_time(),
                                               _graph.get_edges_count(), iterations_count);
     #endif
 }

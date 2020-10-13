@@ -58,9 +58,7 @@ int main(int argc, const char * argv[])
             int source_vertex = graph.select_random_vertex(ORIGINAL);
             cout << "selected source vertex " << source_vertex << endl;
 
-            #ifdef __PRINT_API_PERFORMANCE_STATS__
-            PerformanceStats::reset_API_performance_timers();
-            #endif
+            performance_stats.reset_timers();
 
             #ifdef __USE_NEC_SX_AURORA__
             BFS::nec_top_down(graph, levels, source_vertex);
@@ -70,9 +68,7 @@ int main(int argc, const char * argv[])
             BFS::gpu_top_down(graph, device_bfs_levels, vertex_to_check);
             #endif
 
-            #ifdef __PRINT_API_PERFORMANCE_STATS__
-            PerformanceStats::print_API_performance_timers(graph.get_edges_count());
-            #endif
+            performance_stats.print_timers_stats();
 
             // check if required
             if(parser.get_check_flag())

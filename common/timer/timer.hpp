@@ -4,21 +4,27 @@
 
 Timer::Timer()
 {
-    t_start = omp_get_wtime();
+    t_start = 0;
+    t_end = 0;
+    start();
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 void Timer::start()
 {
+    #pragma omp barrier
     t_start = omp_get_wtime();
+    #pragma omp barrier
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 void Timer::end()
 {
+    #pragma omp barrier
     t_end = omp_get_wtime();
+    #pragma omp barrier
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -39,24 +45,33 @@ double Timer::get_time_in_ms()
 
 void Timer::print_bandwidth_stats(string _name, long long _elements, double _bytes_per_element)
 {
-    double bytes = _elements * _bytes_per_element;
-    cout << _name << " BW: " << bytes/(this->get_time()*1e9) << " GB/s" << endl << endl;
+    #pragma omp master
+    {
+        double bytes = _elements * _bytes_per_element;
+        cout << _name << " BW: " << bytes/(this->get_time()*1e9) << " GB/s" << endl << endl;
+    }
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 void Timer::print_time_stats(string _name)
 {
-    cout << _name << " time: " << this->get_time() << " (s)" << endl;
+    #pragma omp master
+    {
+        cout << _name << " time: " << this->get_time() << " (s)" << endl;
+    }
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 void Timer::print_time_and_bandwidth_stats(string _name, long long _elements, double _bytes_per_element)
 {
-    double bytes = _elements * _bytes_per_element;
-    cout << _name << " time: " << this->get_time() << " (s)" << endl;
-    cout << _name << " BW: " << bytes/(this->get_time()*1e9) << " (GB/s)" << endl << endl;
+    #pragma omp master
+    {
+        double bytes = _elements * _bytes_per_element;
+        cout << _name << " time: " << this->get_time() << " (s)" << endl;
+        cout << _name << " BW: " << bytes / (this->get_time() * 1e9) << " (GB/s)" << endl << endl;
+    }
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

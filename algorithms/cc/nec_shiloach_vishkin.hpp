@@ -112,7 +112,7 @@ void CC::nec_shiloach_vishkin(UndirectedCSRGraph &_graph,
     performance = edges_count / ((t2 - t1)*1e6);
 
     #ifdef __PRINT_SAMPLES_PERFORMANCE_STATS__
-    PerformanceStats::print_performance_stats("shiloach vishkin", t2 - t1, edges_count, iteration);
+    PerformanceStats::print_algorithm_performance_stats("shiloach vishkin", t2 - t1, edges_count, iteration);
     PerformanceStats::component_stats(_components, vertices_count);
     #endif
 }

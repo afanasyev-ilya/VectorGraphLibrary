@@ -31,8 +31,9 @@ void GraphAbstractionsNEC::generate_new_frontier(VectCSRGraph &_graph,
                                                  FrontierNEC &_frontier,
                                                  FilterCondition &&filter_cond)
 {
-    Timer tm_flags;
+    Timer tm_flags, tm_wall;
     tm_flags.start();
+    tm_wall.start();
 
     _frontier.set_direction(current_traversal_direction);
 
@@ -110,9 +111,9 @@ void GraphAbstractionsNEC::generate_new_frontier(VectCSRGraph &_graph,
     }
 
     tm_copy_if.end();
+    tm_wall.end();
+    performance_stats.update_gnf_time(tm_wall);
     #ifdef __PRINT_API_PERFORMANCE_STATS__
-    INNER_WALL_TIME += tm_flags.get_time() + tm_copy_if.get_time();
-    INNER_GNF_TIME += tm_flags.get_time() + tm_copy_if.get_time();
     tm_flags.print_time_and_bandwidth_stats("GNF flags", _frontier.max_size, 2.0*sizeof(int));
     tm_copy_if.print_time_and_bandwidth_stats("GNF copy if", _frontier.max_size, 2.0*sizeof(int));
     #endif

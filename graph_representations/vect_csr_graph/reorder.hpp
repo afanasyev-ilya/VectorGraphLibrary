@@ -84,6 +84,7 @@ void VectCSRGraph::reorder_to_original(VerticesArrayNec<_T> &_data)
         MemoryAPI::free_array(buffer);
 
     tm.end();
+    performance_stats.update_reorder_time(tm);
     #ifdef __PRINT_API_PERFORMANCE_STATS__
     tm.print_bandwidth_stats("vertices reorder", this->vertices_count, sizeof(_T)*2 + sizeof(int));
     #endif
@@ -132,6 +133,7 @@ void VectCSRGraph::reorder_to_scatter(VerticesArrayNec<_T> &_data)
         MemoryAPI::free_array(buffer);
 
     tm.end();
+    performance_stats.update_reorder_time(tm);
     #ifdef __PRINT_API_PERFORMANCE_STATS__
     tm.print_bandwidth_stats("vertices reorder", this->vertices_count, sizeof(_T)*2 + sizeof(int));
     #endif
@@ -180,6 +182,7 @@ void VectCSRGraph::reorder_to_gather(VerticesArrayNec<_T> &_data)
         MemoryAPI::free_array(buffer);
 
     tm.end();
+    performance_stats.update_reorder_time(tm);
     #ifdef __PRINT_API_PERFORMANCE_STATS__
     tm.print_bandwidth_stats("vertices reorder", this->vertices_count, sizeof(_T)*2 + sizeof(int));
     #endif

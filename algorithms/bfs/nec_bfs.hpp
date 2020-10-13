@@ -178,9 +178,9 @@ void BFS::nec_top_down(VectCSRGraph &_graph,
     auto init_levels = [&_levels, _source_vertex] (int src_id, int connections_count, int vector_index)
     {
         if(src_id == _source_vertex)
-            levels[_source_vertex] = FIRST_LEVEL_VERTEX;
+            _levels[_source_vertex] = FIRST_LEVEL_VERTEX;
         else
-            levels[src_id] = UNVISITED_VERTEX;
+            _levels[src_id] = UNVISITED_VERTEX;
     };
     graph_API.compute(_graph, frontier, init_levels);
 
@@ -209,7 +209,7 @@ void BFS::nec_top_down(VectCSRGraph &_graph,
         auto on_next_level = [&_levels, current_level] (int src_id, int connections_count)->int
         {
             int result = NOT_IN_FRONTIER_FLAG;
-            if(levels[src_id] == (current_level + 1))
+            if(_levels[src_id] == (current_level + 1))
                 result = IN_FRONTIER_FLAG;
             return result;
         };
@@ -222,7 +222,7 @@ void BFS::nec_top_down(VectCSRGraph &_graph,
     tm.end();
 
     #ifdef __PRINT_SAMPLES_PERFORMANCE_STATS__
-    PerformanceStats::print_performance_stats("BFS (top-down)", tm.get_time(), _graph.get_edges_count(), current_level);
+    PerformanceStats::print_algorithm_performance_stats("BFS (top-down)", tm.get_time(), _graph.get_edges_count(), current_level);
     #endif
 }
 #endif
@@ -391,7 +391,7 @@ double BFS::nec_direction_optimizing(VectCSRGraph &_graph,
         compute_time += step_times[i];
     }
     cout << "time diff: " << compute_time << " vs " << t2 - t1 << endl;
-    PerformanceStats::print_performance_stats("BFS (direction-optimizing)", compute_time, edges_count, current_level);
+    PerformanceStats::print_algorithm_performance_stats("BFS (direction-optimizing)", compute_time, edges_count, current_level);
     #endif
 
     MemoryAPI::free_array(connections_array);

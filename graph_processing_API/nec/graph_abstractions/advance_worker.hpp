@@ -17,19 +17,11 @@ void GraphAbstractionsNEC::advance_worker(UndirectedCSRGraph &_graph,
                                           CollectiveVertexPostprocessOperation &&collective_vertex_postprocess_op,
                                           int _first_edge)
 {
+    Timer tm;
+    tm.start();
+
     LOAD_UNDIRECTED_CSR_GRAPH_DATA(_graph);
-
-    #ifdef __PRINT_API_PERFORMANCE_STATS__
-    #pragma omp master
-    {
-        _frontier.print_stats();
-        cout << "ADVANCE stats: " << endl;
-    }
-    #pragma omp barrier
-    #endif
-
     int *frontier_flags = _frontier.flags;
-
     const int vector_engine_threshold_start = 0;
     const int vector_engine_threshold_end = _graph.get_vector_engine_threshold_vertex();
     const int vector_core_threshold_start = _graph.get_vector_engine_threshold_vertex();
@@ -116,11 +108,9 @@ void GraphAbstractionsNEC::advance_worker(UndirectedCSRGraph &_graph,
         }
     }
 
+    tm.end();
     #ifdef __PRINT_API_PERFORMANCE_STATS__
-    #pragma omp master
-    {
-        cout << endl;
-    }
+    tm.print_bandwidth_stats("Advance", _frontier.size(), COMPUTE_INT_ELEMENTS);
     #endif
 }
 

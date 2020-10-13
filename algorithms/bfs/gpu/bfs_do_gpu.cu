@@ -139,19 +139,8 @@ void bottom_up_step(UndirectedCSRGraph &_graph,
                     int *_vis,
                     bool _use_vector_extension)
 {
-    #ifdef __PRINT_API_PERFORMANCE_STATS__
-    double t1 = omp_get_wtime();
-    #endif
-
     bottom_up_kernel<<< (_vertices_count - 1)/BLOCK_SIZE + 1, BLOCK_SIZE >>>(_vertex_pointers, _adjacent_ids, _vertices_count, _vector_extension, _levels, _current_level, _vis);
     cudaDeviceSynchronize();
-
-    #ifdef __PRINT_API_PERFORMANCE_STATS__
-    double t2 = omp_get_wtime();
-    INNER_WALL_TIME += t2 - t1;
-    INNER_ADVANCE_TIME += t2 - t1;
-    cout << "BU advance time: " << (t2 - t1)*1000.0 << " ms" << endl << endl;
-    #endif
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

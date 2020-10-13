@@ -37,9 +37,9 @@ void SSSP::gpu_dijkstra(UndirectedCSRGraph &_graph,
 
     #ifdef __PRINT_SAMPLES_PERFORMANCE_STATS__
     if(_frontier_type == PARTIAL_ACTIVE)
-        PerformanceStats::print_performance_stats("partial-active sssp (dijkstra)", t2 - t1, edges_count, iterations_count);
+        PerformanceStats::print_algorithm_performance_stats("SSSP (partial-active, dijkstra)", t2 - t1, edges_count, iterations_count);
     else if(_frontier_type == ALL_ACTIVE)
-        PerformanceStats::print_performance_stats("all-active sssp (dijkstra)", t2 - t1, edges_count, iterations_count);
+        PerformanceStats::print_algorithm_performance_stats("SSSP (all-active, dijkstra)", t2 - t1, edges_count, iterations_count);
     #endif
 }
 #endif

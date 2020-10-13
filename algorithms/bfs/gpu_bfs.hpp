@@ -46,7 +46,7 @@ void BFS::gpu_top_down(UndirectedCSRGraph &_graph,
     double t2 = omp_get_wtime();
 
     #ifdef __PRINT_SAMPLES_PERFORMANCE_STATS__
-    PerformanceStats::print_performance_stats("BFS (top-down)", t2 - t1, edges_count, iterations_count);
+    PerformanceStats::print_algorithm_performance_stats("BFS (top-down)", t2 - t1, edges_count, iterations_count);
     #endif
 }
 #endif
@@ -69,7 +69,7 @@ void BFS::gpu_direction_optimizing(UndirectedCSRGraph &_graph,
     double t2 = omp_get_wtime();
 
     #ifdef __PRINT_SAMPLES_PERFORMANCE_STATS__
-    PerformanceStats::print_performance_stats("BFS (direction_optimizing)", t2 - t1, edges_count, iterations_count);
+    PerformanceStats::print_algorithm_performance_stats("BFS (direction_optimizing)", t2 - t1, edges_count, iterations_count);
     #endif
 }
 #endif

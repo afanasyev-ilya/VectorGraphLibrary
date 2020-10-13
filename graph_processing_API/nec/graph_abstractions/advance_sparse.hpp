@@ -13,11 +13,8 @@ void GraphAbstractionsNEC::vector_engine_per_vertex_kernel_sparse(const long lon
                                                                   VertexPostprocessOperation vertex_postprocess_op,
                                                                   const int _first_edge)
 {
-    #ifdef __PRINT_API_PERFORMANCE_STATS__
-    #pragma omp barrier
-    double t1 = omp_get_wtime();
-    #pragma omp barrier
-    #endif
+    Timer tm;
+    tm.start();
 
     long long edges_count = processed_graph_ptr->get_edges_count();
     long long direction_shift = edges_count + processed_graph_ptr->get_edges_count_in_outgoing_ve();
@@ -56,30 +53,8 @@ void GraphAbstractionsNEC::vector_engine_per_vertex_kernel_sparse(const long lon
         vertex_postprocess_op(src_id, connections_count, 0, delayed_write);
     }
 
-    #ifdef __PRINT_API_PERFORMANCE_STATS__
-        #pragma omp barrier
-        double t2 = omp_get_wtime();
-
-        #pragma omp master
-        {
-            INNER_WALL_TIME += t2 - t1;
-            INNER_ADVANCE_TIME += t2 - t1;
-            DETAILED_ADVANCE_PART_1_NEC_TIME += t2 - t1;
-
-            double work = 0;
-            for (int front_pos = 0; front_pos < _frontier_segment_size; front_pos++)
-            {
-                const int src_id = _frontier_ids[front_pos];
-                const int connections_count = _vertex_pointers[src_id + 1] - _vertex_pointers[src_id];
-
-                work += connections_count;
-            }
-            INNER_WALL_WORK += work;
-            cout << "1) time: " << (t2 - t1)*1000.0 << " ms" << endl;
-            cout << "1) BW: " << sizeof(int)*INT_ELEMENTS_PER_EDGE*work/((t2-t1)*1e9) << " GB/s" << endl;
-        };
-        #pragma omp barrier
-    #endif
+    tm.end();
+    performance_stats.update_advance_ve_part_time(tm);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -95,11 +70,8 @@ void GraphAbstractionsNEC::vector_core_per_vertex_kernel_sparse(const long long 
                                                                 VertexPostprocessOperation vertex_postprocess_op,
                                                                 const int _first_edge)
 {
-    #ifdef __PRINT_API_PERFORMANCE_STATS__
-    #pragma omp barrier
-    double t1 = omp_get_wtime();
-    #pragma omp barrier
-    #endif
+    Timer tm;
+    tm.start();
 
     long long edges_count = processed_graph_ptr->get_edges_count();
     long long direction_shift = edges_count + processed_graph_ptr->get_edges_count_in_outgoing_ve();
@@ -138,31 +110,8 @@ void GraphAbstractionsNEC::vector_core_per_vertex_kernel_sparse(const long long 
         vertex_postprocess_op(src_id, connections_count, 0, delayed_write);
     }
 
-    #ifdef __PRINT_API_PERFORMANCE_STATS__
-        #pragma omp barrier
-        double t2 = omp_get_wtime();
-
-        #pragma omp master
-        {
-            INNER_WALL_TIME += t2 - t1;
-            INNER_ADVANCE_TIME += t2 - t1;
-            DETAILED_ADVANCE_PART_2_NEC_TIME += t2 - t1;
-
-            double work = 0;
-            for (int front_pos = 0; front_pos < _frontier_segment_size; front_pos++)
-            {
-                const int src_id = _frontier_ids[front_pos];
-                const int connections_count = _vertex_pointers[src_id + 1] - _vertex_pointers[src_id];
-
-                work += connections_count;
-            }
-            INNER_WALL_WORK += work;
-
-            cout << "2) time: " << (t2 - t1)*1000.0 << " ms" << endl;
-            cout << "2) BW: " << sizeof(int)*INT_ELEMENTS_PER_EDGE*work/((t2-t1)*1e9) << " GB/s" << endl;
-        };
-        #pragma omp barrier
-    #endif
+    tm.end();
+    performance_stats.update_advance_vc_part_time(tm);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -182,11 +131,8 @@ void GraphAbstractionsNEC::collective_vertex_processing_kernel_sparse(const long
                                                                       VertexPostprocessOperation vertex_postprocess_op,
                                                                       const int _first_edge)
 {
-    #ifdef __PRINT_API_PERFORMANCE_STATS__
-    #pragma omp barrier
-    double t1 = omp_get_wtime();
-    #pragma omp barrier
-    #endif
+    Timer tm;
+    tm.start();
 
     long long edges_count = processed_graph_ptr->get_edges_count();
     long long direction_shift = edges_count + processed_graph_ptr->get_edges_count_in_outgoing_ve();
@@ -280,29 +226,8 @@ void GraphAbstractionsNEC::collective_vertex_processing_kernel_sparse(const long
         }
     }
 
-    #ifdef __PRINT_API_PERFORMANCE_STATS__
-        #pragma omp barrier
-        double t2 = omp_get_wtime();
-        #pragma omp master
-        {
-            INNER_WALL_TIME += t2 - t1;
-            INNER_ADVANCE_TIME += t2 - t1;
-            DETAILED_ADVANCE_PART_3_NEC_TIME += t2 - t1;
-
-            double work = 0;
-            for(int front_pos = 0; front_pos < _frontier_size; front_pos ++)
-            {
-                int src_id = _frontier_ids[front_pos];
-                int connections_count = _vertex_pointers[src_id + 1] - _vertex_pointers[src_id];
-                work += connections_count;
-            }
-            INNER_WALL_WORK += work;
-            cout << "3) time: " << (t2 - t1)*1000.0 << " ms" << endl;
-            cout << "3) BW: " << sizeof(int)*INT_ELEMENTS_PER_EDGE*work/((t2-t1)*1e9) << " GB/s" << endl;
-            cout << "3) avg connections: " << work / _frontier_size << endl;
-        };
-        #pragma omp barrier
-    #endif
+    tm.end();
+    performance_stats.update_advance_collective_part_time(tm);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

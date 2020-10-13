@@ -13,11 +13,8 @@ void GraphAbstractionsNEC::vector_engine_per_vertex_kernel_all_active(const long
                                                                       VertexPostprocessOperation vertex_postprocess_op,
                                                                       const int _first_edge)
 {
-    #ifdef __PRINT_API_PERFORMANCE_STATS__
-        #pragma omp barrier
-        double t1 = omp_get_wtime();
-        #pragma omp barrier
-    #endif
+    Timer tm;
+    tm.start();
 
     DelayedWriteNEC delayed_write;
     delayed_write.init();
@@ -56,22 +53,8 @@ void GraphAbstractionsNEC::vector_engine_per_vertex_kernel_all_active(const long
         vertex_postprocess_op(src_id, connections_count, 0, delayed_write);
     }
 
-    #ifdef __PRINT_API_PERFORMANCE_STATS__
-        #pragma omp barrier
-        double t2 = omp_get_wtime();
-        #pragma omp master
-        {
-            INNER_WALL_TIME += t2 - t1;
-            INNER_ADVANCE_TIME += t2 - t1;
-            DETAILED_ADVANCE_PART_1_NEC_TIME += t2 - t1;
-
-            double work = _vertex_pointers[_last_vertex] - _vertex_pointers[_first_vertex];
-            INNER_WALL_WORK += work;
-            cout << "1) time: " << (t2 - t1)*1000.0 << " ms" << endl;
-            cout << "1) all active BW: " << sizeof(int)*INT_ELEMENTS_PER_EDGE*work/((t2-t1)*1e9) << " GB/s" << endl;
-        };
-        #pragma omp barrier
-    #endif
+    tm.end();
+    performance_stats.update_advance_ve_part_time(tm);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -87,11 +70,8 @@ void GraphAbstractionsNEC::vector_core_per_vertex_kernel_all_active(const long l
                                                                     VertexPostprocessOperation vertex_postprocess_op,
                                                                     const int _first_edge)
 {
-    #ifdef __PRINT_API_PERFORMANCE_STATS__
-        #pragma omp barrier
-        double t1 = omp_get_wtime();
-        #pragma omp barrier
-    #endif
+    Timer tm;
+    tm.start();
 
     DelayedWriteNEC delayed_write;
     delayed_write.init();
@@ -128,22 +108,8 @@ void GraphAbstractionsNEC::vector_core_per_vertex_kernel_all_active(const long l
         vertex_postprocess_op(src_id, connections_count, 0, delayed_write);
     }
 
-    #ifdef __PRINT_API_PERFORMANCE_STATS__
-        #pragma omp barrier
-        double t2 = omp_get_wtime();
-        #pragma omp master
-        {
-            INNER_WALL_TIME += t2 - t1;
-            INNER_ADVANCE_TIME += t2 - t1;
-            DETAILED_ADVANCE_PART_2_NEC_TIME += t2 - t1;
-
-            double work = _vertex_pointers[_last_vertex] - _vertex_pointers[_first_vertex];
-            INNER_WALL_WORK += work;
-            cout << "2) time: " << (t2 - t1)*1000.0 << " ms" << endl;
-            cout << "2) all active BW: " << sizeof(int)*INT_ELEMENTS_PER_EDGE*work/((t2-t1)*1e9) << " GB/s" << endl;
-        };
-        #pragma omp barrier
-    #endif
+    tm.end();
+    performance_stats.update_advance_vc_part_time(tm);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -165,11 +131,8 @@ void GraphAbstractionsNEC::ve_collective_vertex_processing_kernel_all_active(con
                                                                              int _vertices_count,
                                                                              const int _first_edge)
 {
-    #ifdef __PRINT_API_PERFORMANCE_STATS__
-        #pragma omp barrier
-        double t1 = omp_get_wtime();
-        #pragma omp barrier
-    #endif
+    Timer tm;
+    tm.start();
 
     DelayedWriteNEC delayed_write;
     delayed_write.init();
@@ -246,22 +209,8 @@ void GraphAbstractionsNEC::ve_collective_vertex_processing_kernel_all_active(con
         }
     }
 
-    #ifdef __PRINT_API_PERFORMANCE_STATS__
-        #pragma omp barrier
-        double t2 = omp_get_wtime();
-        #pragma omp master
-        {
-            INNER_WALL_TIME += t2 - t1;
-            INNER_ADVANCE_TIME += t2 - t1;
-            DETAILED_ADVANCE_PART_3_NEC_TIME += t2 - t1;
-
-            double work = _ve_vector_group_ptrs[_ve_vector_segments_count - 1] - _ve_vector_group_ptrs[0];
-            INNER_WALL_WORK += work;
-            cout << "3) time: " << (t2 - t1)*1000.0 << " ms" << endl;
-            cout << "3) (ve) all active BW: " << sizeof(int)*INT_ELEMENTS_PER_EDGE*work/((t2-t1)*1e9) << " GB/s" << endl;
-        };
-        #pragma omp barrier
-    #endif
+    tm.end();
+    performance_stats.update_advance_collective_part_time(tm);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
