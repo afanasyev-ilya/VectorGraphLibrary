@@ -169,6 +169,7 @@ private:
 
     template <typename FilterCondition>
     int estimate_sorted_frontier_part_size(FrontierNEC &_frontier,
+                                           long long *_vertex_pointers,
                                            int _first_vertex,
                                            int _last_vertex,
                                            FilterCondition &&filter_cond);

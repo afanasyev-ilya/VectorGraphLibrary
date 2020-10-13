@@ -206,6 +206,13 @@ void VectCSRGraph::reorder(VerticesArrayNec<_T> &_data, TraversalDirection _outp
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+void VectCSRGraph::reorder(FrontierNEC &_data, TraversalDirection _output_dir)
+{
+    throw "Error in VectCSRGraph::reorder : can not reorder a frontier";
+};
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 template <typename _T>
 void VectCSRGraph::reorder_edges_to_gather(_T *_incoming_csr_ptr, _T *_outgoing_csr_ptr)
 {

@@ -39,8 +39,8 @@ bool verify_results(VectCSRGraph &_graph,
     TraversalDirection prev_second_direction = _second.get_direction();
 
     // make both results stored in original order
-    _graph.reorder_to_original(_first);
-    _graph.reorder_to_original(_second);
+    _graph.reorder(_first, ORIGINAL);
+    _graph.reorder(_second, ORIGINAL);
 
     // calculate error count
     int error_count = 0;
@@ -96,8 +96,8 @@ bool equal_components(VectCSRGraph &_graph,
     TraversalDirection prev_second_direction = _second.get_direction();
 
     // make both results stored in original order
-    _graph.reorder_to_original(_first);
-    _graph.reorder_to_original(_second);
+    _graph.reorder(_first, ORIGINAL);
+    _graph.reorder(_second, ORIGINAL);
 
     // construct equality maps
     map<int, int> f_s_equality;

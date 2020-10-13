@@ -26,6 +26,12 @@ private:
 
     template <typename _T>
     bool vertices_buffer_can_be_used(VerticesArrayNec<_T> &_data);
+    template <typename _T>
+    void reorder_to_original(VerticesArrayNec<_T> &_data);
+    template <typename _T>
+    void reorder_to_scatter(VerticesArrayNec<_T> &_data);
+    template <typename _T>
+    void reorder_to_gather(VerticesArrayNec<_T> &_data);
 public:
     VectCSRGraph(int _vertices_count = 1, long long _edges_count = 1);
     ~VectCSRGraph();
@@ -62,21 +68,12 @@ public:
     // allows to reorder a single vertex ID in arbitrary direction
     int reorder(int _vertex_id, TraversalDirection _input_dir, TraversalDirection _output_dir);
 
-    // allows to reorder verticesArray to original enumeration (as vertices were in edges list)
-    template <typename _T>
-    void reorder_to_original(VerticesArrayNec<_T> &_data);
-
-    // allows to reorder verticesArray to scatter enumeration (outgoing edges)
-    template <typename _T>
-    void reorder_to_scatter(VerticesArrayNec<_T> &_data);
-
-    // allows to reorder verticesArray to gather enumeration (outgoing edges)
-    template <typename _T>
-    void reorder_to_gather(VerticesArrayNec<_T> &_data);
-
-    // allows to reorder verticesArray to arbitrary enumeration (any specified)
+    // allows to reorder verticesArray in arbitrary direction
     template <typename _T>
     void reorder(VerticesArrayNec<_T> &_data, TraversalDirection _output_dir);
+
+    // allows to reorder frontier in arbitrary direction
+    void reorder(FrontierNEC &_data, TraversalDirection _output_dir);
 
     // allows to reorder edges array to secondary direction (gather)
     template <typename _T>

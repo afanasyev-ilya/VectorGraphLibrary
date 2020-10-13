@@ -5,7 +5,8 @@
 template <typename _T>
 class VerticesArray
 {
-public:
+protected:
+    ObjectType object_type;
     TraversalDirection direction;
     VectCSRGraph *graph_ptr;
 
@@ -13,11 +14,12 @@ public:
     int vertices_count;
 public:
     /* constructors and destructors */
-    VerticesArray() {};
+    VerticesArray() {object_type = VERTICES_ARRAY;};
     ~VerticesArray() {};
 
     /* get/set API */
     _T *get_ptr() {return vertices_data;};
+    ObjectType get_object_type() {return object_type;};
 
     /* direction API */
     TraversalDirection get_direction() {return direction;};

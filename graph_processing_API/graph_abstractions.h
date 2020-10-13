@@ -107,7 +107,16 @@ void GraphAbstractions::set_correct_direction()
 template<typename _T, typename ... Types>
 void GraphAbstractions::set_correct_direction(_T &_first_arg, Types &... _args)
 {
-    _first_arg.set_direction(current_traversal_direction);
+    if(_first_arg.get_object_type() == VERTICES_ARRAY)
+    {
+        processed_graph_ptr->reorder(_first_arg, current_traversal_direction);
+    }
+    else if(_first_arg.get_object_type() == FRONTIER)
+    {
+        _first_arg.set_direction(current_traversal_direction);
+    }
+    // TODO other types?
+
     set_correct_direction(_args...);
 }
 

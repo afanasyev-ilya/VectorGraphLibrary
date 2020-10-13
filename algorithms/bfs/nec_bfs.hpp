@@ -206,7 +206,7 @@ void BFS::nec_top_down(VectCSRGraph &_graph,
         graph_API.scatter(_graph, frontier, edge_op, EMPTY_VERTEX_OP, EMPTY_VERTEX_OP,
                           edge_op, EMPTY_VERTEX_OP, EMPTY_VERTEX_OP);
 
-        auto on_next_level = [&_levels, current_level] (int src_id)->int
+        auto on_next_level = [&_levels, current_level] (int src_id, int connections_count)->int
         {
             int result = NOT_IN_FRONTIER_FLAG;
             if(levels[src_id] == (current_level + 1))

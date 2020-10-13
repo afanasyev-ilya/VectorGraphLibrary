@@ -5,6 +5,8 @@
 class Frontier
 {
 protected:
+    ObjectType object_type;
+
     // pointer to base graph
     VectCSRGraph *graph_ptr;
     TraversalDirection direction;
@@ -17,12 +19,13 @@ protected:
     int max_size; // TODO remove? can be obtained from graph prt
 public:
     /* constructors and destructors */
-    Frontier() {};
+    Frontier() {object_type = FRONTIER;};
     ~Frontier() {};
 
     // get API
     int size() {return current_size;};
     FrontierType get_type() {return type;};
+    ObjectType get_object_type() {return object_type;};
 
     // printing API
     virtual void print_stats() = 0;

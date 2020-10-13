@@ -22,13 +22,13 @@ class StronglyConnectedComponents
 private:
     #ifdef __USE_NEC_SX_AURORA__
     template <typename _T>
-    static void detect_trivial_components(VectCSRGraph &_graph,
-                                          GraphAbstractionsNEC &_graph_API,
-                                          FrontierNEC &_frontier,
-                                          VerticesArrayNec<_T> &_forward_result,
-                                          VerticesArrayNec<_T> &_backward_result,
-                                          VerticesArrayNec<_T> &_trees,
-                                          VerticesArrayNec<_T> &_active);
+    static void trim_step(VectCSRGraph &_graph,
+                          GraphAbstractionsNEC &_graph_API,
+                          FrontierNEC &_frontier,
+                          VerticesArrayNec<_T> &_forward_result,
+                          VerticesArrayNec<_T> &_backward_result,
+                          VerticesArrayNec<_T> &_trees,
+                          VerticesArrayNec<_T> &_active);
     #endif
 
     #ifdef __USE_NEC_SX_AURORA__
