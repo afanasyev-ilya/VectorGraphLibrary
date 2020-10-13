@@ -146,41 +146,6 @@ void PerformanceStats::reset_timers()
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-/*
-void PerformanceStats::component_stats(int *_components, int _vertices_count)
-{
-    map<int, int> component_sizes;
-    for(int i = 0; i < _vertices_count; i++)
-    {
-        int current_component = _components[i];
-        component_sizes[current_component]++;
-    }
-
-    map<int, int> sizes_stats;
-
-    cout << " -------------------------------- CC stats --------------------------------- " << endl;
-    for(auto it = component_sizes.begin(); it != component_sizes.end(); it++)
-    {
-        sizes_stats[it->second]++;
-    }
-
-    std::vector<std::pair<int, int>> size_pairs;
-    for (auto itr = sizes_stats.begin(); itr != sizes_stats.end(); ++itr)
-        size_pairs.push_back(*itr);
-
-    auto cmp_func = [=](const std::pair<int, int>& a, const std::pair<int, int>& b) { return a.first >= b.first; };
-
-    sort(size_pairs.begin(), size_pairs.end(), cmp_func);
-
-    for(auto it = size_pairs.begin(); it != size_pairs.end(); it++)
-    {
-        cout << "there are " << it->second << " components of size " << it->first << endl;
-    }
-    cout << " ---------------------------------------------------------------------------- " << endl << endl;
-}*/
-
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
 void PerformanceStats::print_algorithm_performance_stats(string _name, double _time, long long _edges_count, int _iterations_count)
 {
     cout << " --------------------------- " << _name << " performance stats --------------------------- " << endl;
@@ -210,8 +175,8 @@ void PerformanceStats::print_timers_stats()
     print_abstraction_stats("Inner wall    ", inner_wall_time);
     print_abstraction_stats("Advance       ", advance_time);
     #ifdef __USE_NEC_SX_AURORA__
-    print_detailed_advance_stats("Advance (ve) time", advance_ve_part_time);
-    print_detailed_advance_stats("Advance (vc) time", advance_vc_part_time);
+    print_detailed_advance_stats("Advance (ve) time        ", advance_ve_part_time);
+    print_detailed_advance_stats("Advance (vc) time        ", advance_vc_part_time);
     print_detailed_advance_stats("Advance (collective) time", advance_collective_part_time);
     #endif
     print_abstraction_stats("Compute       ", compute_time);
@@ -227,7 +192,7 @@ void PerformanceStats::print_timers_stats()
 void PerformanceStats::print_abstraction_stats(string _name, double _time)
 {
     if(_time > 0)
-        cout << "            " << _name << " : " << to_ms(_time) << " (ms), " << to_percent(_time) << "%" << endl;
+        cout << _name << " : " << to_ms(_time) << " (ms), " << to_percent(_time) << "%" << endl;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -235,7 +200,7 @@ void PerformanceStats::print_abstraction_stats(string _name, double _time)
 void PerformanceStats::print_detailed_advance_stats(string _name, double _time)
 {
     if(_time > 0)
-        cout << _name << " : " << to_ms(_time) << " (ms), " << to_percent(_time) << "%" << endl;
+        cout << "    "  << _name << " : " << to_ms(_time) << " (ms), " << to_percent(_time) << "%" << endl;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

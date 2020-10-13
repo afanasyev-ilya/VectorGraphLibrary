@@ -58,6 +58,10 @@ void GraphAbstractionsNEC::vector_engine_per_vertex_kernel_dense(const long long
 
     tm.end();
     performance_stats.update_advance_ve_part_time(tm);
+    #ifdef __PRINT_API_PERFORMANCE_STATS__
+    double work = _vertex_pointers[_last_vertex] - _vertex_pointers[_first_vertex];
+    tm.print_time_and_bandwidth_stats("Advance (ve)", work, INT_ELEMENTS_PER_EDGE);
+    #endif
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -118,6 +122,10 @@ void GraphAbstractionsNEC::vector_core_per_vertex_kernel_dense(const long long *
 
     tm.end();
     performance_stats.update_advance_vc_part_time(tm);
+    #ifdef __PRINT_API_PERFORMANCE_STATS__
+    double work = _vertex_pointers[_last_vertex] - _vertex_pointers[_first_vertex];
+    tm.print_time_and_bandwidth_stats("Advance (vc)", work, INT_ELEMENTS_PER_EDGE);
+    #endif
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -226,6 +234,10 @@ void GraphAbstractionsNEC::ve_collective_vertex_processing_kernel_dense(const lo
 
     tm.end();
     performance_stats.update_advance_collective_part_time(tm);
+    #ifdef __PRINT_API_PERFORMANCE_STATS__
+    double work = _vertex_pointers[_last_vertex] - _vertex_pointers[_first_vertex];
+    tm.print_time_and_bandwidth_stats("Advance (collective)", work, INT_ELEMENTS_PER_EDGE);
+    #endif
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
