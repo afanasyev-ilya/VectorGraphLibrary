@@ -6,7 +6,6 @@ void PerformanceStats::update_advance_time(Timer &_timer)
 {
     #pragma omp master
     {
-        inner_wall_time += _timer.get_time();
         advance_time += _timer.get_time();
     }
 }
@@ -17,8 +16,6 @@ void PerformanceStats::update_advance_ve_part_time(Timer &_timer)
 {
     #pragma omp master
     {
-        inner_wall_time += _timer.get_time();
-        advance_time += _timer.get_time();
         advance_ve_part_time += _timer.get_time();
     }
 }
@@ -29,8 +26,6 @@ void PerformanceStats::update_advance_vc_part_time(Timer &_timer)
 {
     #pragma omp master
     {
-        inner_wall_time += _timer.get_time();
-        advance_time += _timer.get_time();
         advance_vc_part_time += _timer.get_time();
     }
 }
@@ -41,8 +36,6 @@ void PerformanceStats::update_advance_collective_part_time(Timer &_timer)
 {
     #pragma omp master
     {
-        inner_wall_time += _timer.get_time();
-        advance_time += _timer.get_time();
         advance_collective_part_time += _timer.get_time();
     }
 }
@@ -179,6 +172,8 @@ void PerformanceStats::print_timers_stats()
     print_detailed_advance_stats("Advance (vc) time        ", advance_vc_part_time);
     print_detailed_advance_stats("Advance (collective) time", advance_collective_part_time);
     #endif
+    print_abstraction_stats("Gather        ", gather_time);
+    print_abstraction_stats("Scatter       ", scatter_time);
     print_abstraction_stats("Compute       ", compute_time);
     print_abstraction_stats("Reduce        ", reduce_time);
     print_abstraction_stats("GNF           ", gnf_time);

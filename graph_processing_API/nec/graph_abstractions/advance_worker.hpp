@@ -62,7 +62,7 @@ void GraphAbstractionsNEC::advance_worker(UndirectedCSRGraph &_graph,
             else if (_frontier.vector_engine_part_type == SPARSE_FRONTIER)
             {
                 int *frontier_ids = &(_frontier.ids[0]);
-                vector_engine_per_vertex_kernel_sparse(vertex_pointers, adjacent_ids, frontier_ids,
+                vector_engine_per_vertex_kernel_sparse(_frontier, vertex_pointers, adjacent_ids, frontier_ids,
                                                        _frontier.vector_engine_part_size,
                                                        edge_op, vertex_preprocess_op, vertex_postprocess_op,
                                                        _first_edge);
@@ -80,7 +80,7 @@ void GraphAbstractionsNEC::advance_worker(UndirectedCSRGraph &_graph,
             else if(_frontier.vector_core_part_type == SPARSE_FRONTIER)
             {
                 int *frontier_ids = &(_frontier.ids[_frontier.vector_engine_part_size]);
-                vector_core_per_vertex_kernel_sparse(vertex_pointers, adjacent_ids, frontier_ids,
+                vector_core_per_vertex_kernel_sparse(_frontier, vertex_pointers, adjacent_ids, frontier_ids,
                                                      _frontier.vector_core_part_size,
                                                      edge_op, vertex_preprocess_op, vertex_postprocess_op, _first_edge);
             }
@@ -99,7 +99,8 @@ void GraphAbstractionsNEC::advance_worker(UndirectedCSRGraph &_graph,
             else if(_frontier.collective_part_type == SPARSE_FRONTIER)
             {
                 int *frontier_ids = &(_frontier.ids[_frontier.vector_core_part_size + _frontier.vector_engine_part_size]);
-                collective_vertex_processing_kernel_sparse(vertex_pointers, adjacent_ids, frontier_ids, _frontier.collective_part_size,
+                collective_vertex_processing_kernel_sparse(_frontier, vertex_pointers, adjacent_ids, frontier_ids,
+                                                           _frontier.collective_part_size,
                                                            collective_threshold_start,
                                                            collective_threshold_end, collective_edge_op,
                                                            collective_vertex_preprocess_op,
@@ -109,9 +110,7 @@ void GraphAbstractionsNEC::advance_worker(UndirectedCSRGraph &_graph,
     }
 
     tm.end();
-    #ifdef __PRINT_API_PERFORMANCE_STATS__
-    tm.print_bandwidth_stats("Advance", _frontier.size(), COMPUTE_INT_ELEMENTS);
-    #endif
+    performance_stats.update_advance_time(tm);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

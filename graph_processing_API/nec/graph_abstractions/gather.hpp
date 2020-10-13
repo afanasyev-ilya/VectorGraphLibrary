@@ -14,6 +14,8 @@ void GraphAbstractionsNEC::gather(VectCSRGraph &_graph,
                                   CollectiveVertexPreprocessOperation &&collective_vertex_preprocess_op,
                                   CollectiveVertexPostprocessOperation &&collective_vertex_postprocess_op)
 {
+    Timer tm;
+    tm.start();
     UndirectedCSRGraph *current_direction_graph;
 
     if(current_traversal_direction != GATHER)
@@ -41,6 +43,8 @@ void GraphAbstractionsNEC::gather(VectCSRGraph &_graph,
                            collective_edge_op, collective_vertex_preprocess_op, collective_vertex_postprocess_op, 0);
         }
     }
+    tm.end();
+    performance_stats.update_gather_time(tm);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

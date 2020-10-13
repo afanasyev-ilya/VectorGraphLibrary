@@ -24,6 +24,9 @@ auto EMPTY_COMPUTE_OP = [] (int src_id, int connections_count, int vector_index)
 class GraphAbstractionsNEC : public GraphAbstractions
 {
 private:
+    // current the number of vertices, neighbouring a frontier (for Advance perf)
+    long long count_frontier_neighbours(VectCSRGraph &_graph, FrontierNEC &_frontier);
+
     // compute inner implementation
     template <typename ComputeOperation>
     void compute_worker(UndirectedCSRGraph &_graph,
@@ -132,7 +135,8 @@ private:
     // sparse advance implementation
     template <typename EdgeOperation, typename VertexPreprocessOperation,
             typename VertexPostprocessOperation>
-    inline void vector_engine_per_vertex_kernel_sparse(const long long *_vertex_pointers,
+    inline void vector_engine_per_vertex_kernel_sparse(FrontierNEC &_frontier,
+                                                       const long long *_vertex_pointers,
                                                        const int *_adjacent_ids,
                                                        const int *_frontier_ids,
                                                        const int _frontier_segment_size,
@@ -144,7 +148,8 @@ private:
     // sparse advance implementation
     template <typename EdgeOperation, typename VertexPreprocessOperation,
             typename VertexPostprocessOperation>
-    inline void vector_core_per_vertex_kernel_sparse(const long long *_vertex_pointers,
+    inline void vector_core_per_vertex_kernel_sparse(FrontierNEC &_frontier,
+                                                     const long long *_vertex_pointers,
                                                      const int *_adjacent_ids,
                                                      const int *_frontier_ids,
                                                      const int _frontier_segment_size,
@@ -156,7 +161,8 @@ private:
     // sparse advance implementation
     template <typename EdgeOperation, typename VertexPreprocessOperation,
             typename VertexPostprocessOperation>
-    inline void collective_vertex_processing_kernel_sparse(const long long *_vertex_pointers,
+    inline void collective_vertex_processing_kernel_sparse(FrontierNEC &_frontier,
+                                                           const long long *_vertex_pointers,
                                                            const int *_adjacent_ids,
                                                            const int *_frontier_ids,
                                                            const int _frontier_size,

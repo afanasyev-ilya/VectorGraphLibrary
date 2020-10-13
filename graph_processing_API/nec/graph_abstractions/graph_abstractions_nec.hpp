@@ -9,3 +9,16 @@ GraphAbstractionsNEC::GraphAbstractionsNEC(VectCSRGraph &_graph, TraversalDirect
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+long long GraphAbstractionsNEC::count_frontier_neighbours(VectCSRGraph &_graph,
+                                                          FrontierNEC &_frontier)
+{
+    auto sum_connections = [](int src_id, int connections_count, int vector_index)->int
+    {
+        return connections_count;
+    };
+    return this->reduce<int>(_graph, _frontier, sum_connections, REDUCE_SUM);
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+

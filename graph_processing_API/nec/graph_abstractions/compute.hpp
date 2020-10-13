@@ -49,7 +49,7 @@ void GraphAbstractionsNEC::compute_worker(UndirectedCSRGraph &_graph,
     tm.end();
     performance_stats.update_compute_time(tm);
     #ifdef __PRINT_API_PERFORMANCE_STATS__
-    tm.print_bandwidth_stats("Compute", _frontier.size(), COMPUTE_INT_ELEMENTS);
+    tm.print_bandwidth_stats("Compute", _frontier.size(), COMPUTE_INT_ELEMENTS*sizeof(int));
     #endif
 }
 

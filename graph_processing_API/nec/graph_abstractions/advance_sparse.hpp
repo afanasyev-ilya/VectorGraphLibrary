@@ -4,7 +4,8 @@
 
 template <typename EdgeOperation, typename VertexPreprocessOperation,
         typename VertexPostprocessOperation>
-void GraphAbstractionsNEC::vector_engine_per_vertex_kernel_sparse(const long long *_vertex_pointers,
+void GraphAbstractionsNEC::vector_engine_per_vertex_kernel_sparse(FrontierNEC &_frontier,
+                                                                  const long long *_vertex_pointers,
                                                                   const int *_adjacent_ids,
                                                                   const int *_frontier_ids,
                                                                   const int _frontier_segment_size,
@@ -55,13 +56,19 @@ void GraphAbstractionsNEC::vector_engine_per_vertex_kernel_sparse(const long lon
 
     tm.end();
     performance_stats.update_advance_ve_part_time(tm);
+
+    #ifdef __PRINT_API_PERFORMANCE_STATS__
+    long long work = count_frontier_neighbours((*processed_graph_ptr), _frontier);
+    tm.print_bandwidth_stats("Advance (ve)", work, INT_ELEMENTS_PER_EDGE*sizeof(int));
+    #endif
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template <typename EdgeOperation, typename VertexPreprocessOperation,
         typename VertexPostprocessOperation>
-void GraphAbstractionsNEC::vector_core_per_vertex_kernel_sparse(const long long *_vertex_pointers,
+void GraphAbstractionsNEC::vector_core_per_vertex_kernel_sparse(FrontierNEC &_frontier,
+                                                                const long long *_vertex_pointers,
                                                                 const int *_adjacent_ids,
                                                                 const int *_frontier_ids,
                                                                 const int _frontier_segment_size,
@@ -112,6 +119,10 @@ void GraphAbstractionsNEC::vector_core_per_vertex_kernel_sparse(const long long 
 
     tm.end();
     performance_stats.update_advance_vc_part_time(tm);
+    #ifdef __PRINT_API_PERFORMANCE_STATS__
+    long long work = count_frontier_neighbours((*processed_graph_ptr), _frontier);
+    tm.print_bandwidth_stats("Advance (vc)", work, INT_ELEMENTS_PER_EDGE*sizeof(int));
+    #endif
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -120,7 +131,8 @@ void GraphAbstractionsNEC::vector_core_per_vertex_kernel_sparse(const long long 
 
 template <typename EdgeOperation, typename VertexPreprocessOperation,
         typename VertexPostprocessOperation>
-void GraphAbstractionsNEC::collective_vertex_processing_kernel_sparse(const long long *_vertex_pointers,
+void GraphAbstractionsNEC::collective_vertex_processing_kernel_sparse(FrontierNEC &_frontier,
+                                                                      const long long *_vertex_pointers,
                                                                       const int *_adjacent_ids,
                                                                       const int *_frontier_ids,
                                                                       const int _frontier_size,
@@ -228,6 +240,10 @@ void GraphAbstractionsNEC::collective_vertex_processing_kernel_sparse(const long
 
     tm.end();
     performance_stats.update_advance_collective_part_time(tm);
+    #ifdef __PRINT_API_PERFORMANCE_STATS__
+    long long work = count_frontier_neighbours((*processed_graph_ptr), _frontier);
+    tm.print_bandwidth_stats("Advance (collective)", work, INT_ELEMENTS_PER_EDGE*sizeof(int));
+    #endif
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
