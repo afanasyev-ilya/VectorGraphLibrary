@@ -75,6 +75,9 @@ int main(int argc, const char * argv[])
         cout << " ----------------------------- " << endl;
         ShardedGraph sharded_graph;
         sharded_graph.import(el_graph);
+
+        cout << "import done" << endl;
+
     }
     catch (string error)
     {

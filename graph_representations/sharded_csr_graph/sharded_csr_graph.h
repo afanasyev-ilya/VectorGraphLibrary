@@ -20,6 +20,9 @@ private:
     int max_cached_vertices;
 
     UndirectedCSRGraph *outgoing_shards;
+    UndirectedCSRGraph *incoming_shards;
+
+    void import_direction(EdgesListGraph &_el_graph, UndirectedCSRGraph **_shards_ptr);
 
     int get_shard_id(int _dst_id) { return _dst_id / max_cached_vertices; };
 public:
@@ -55,5 +58,6 @@ public:
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #include "sharded_csr_graph.hpp"
+#include "import.hpp"
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
