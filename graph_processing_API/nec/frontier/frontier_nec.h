@@ -17,10 +17,20 @@ private:
     FrontierType vector_engine_part_type;
     FrontierType vector_core_part_type;
     FrontierType collective_part_type;
+
+    void init();
 public:
     /* constructors and destructors */
-    FrontierNEC(VectCSRGraph &_graph, TraversalDirection _direction);
+    FrontierNEC(VectCSRGraph &_graph, TraversalDirection _direction = SCATTER);
+    FrontierNEC(ShardedCSRGraph &_graph, TraversalDirection _direction = SCATTER);
     ~FrontierNEC();
+
+    /* Get API */
+    int *get_flags() {return flags;};
+    int *get_ids() {return ids;};
+    int get_vector_engine_part_size(){return vector_engine_part_size;};
+    int get_vector_core_part_size(){return vector_core_part_size;};
+    int get_collective_part_size(){return collective_part_size;};
 
     /* Print API */
     void print_stats();

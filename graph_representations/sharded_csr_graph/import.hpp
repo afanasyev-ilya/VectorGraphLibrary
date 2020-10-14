@@ -2,7 +2,7 @@
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void ShardedGraph::import_direction(EdgesListGraph &_el_graph, UndirectedCSRGraph **_shards_ptr)
+void ShardedCSRGraph::import_direction(EdgesListGraph &_el_graph, UndirectedCSRGraph **_shards_ptr)
 {
     *_shards_ptr = new UndirectedCSRGraph[shards_number];
 
@@ -69,8 +69,8 @@ void ShardedGraph::import_direction(EdgesListGraph &_el_graph, UndirectedCSRGrap
         int *shard_dst_ids_ptr = &el_dst_ids[first_shard_edge_val];
         EdgesListGraph edges_list_shard;
         edges_list_shard.import(shard_src_ids_ptr, shard_dst_ids_ptr, this->vertices_count, edges_in_shard);
-
         (*_shards_ptr)[shard_id].import(edges_list_shard, NULL);
+        cout << "import: " << (*_shards_ptr)[shard_id].get_edges_count() << endl;
     }
     tm.end();
     tm.print_time_stats("Import shards");
@@ -83,12 +83,12 @@ void ShardedGraph::import_direction(EdgesListGraph &_el_graph, UndirectedCSRGrap
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void ShardedGraph::import(EdgesListGraph &_el_graph)
+void ShardedCSRGraph::import(EdgesListGraph &_el_graph)
 {
     this->vertices_count = _el_graph.get_vertices_count();
     this->edges_count = _el_graph.get_edges_count();
 
-    max_cached_vertices = this->vertices_count/2; // 1*1024*1024/(sizeof(int)); TODO
+    max_cached_vertices = 1*1024*1024/(sizeof(int));// TODO
     cout << "max_cached_vertices: " << max_cached_vertices << endl;
 
     shards_number = (this->vertices_count - 1)/max_cached_vertices + 1;

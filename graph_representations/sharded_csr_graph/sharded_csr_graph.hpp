@@ -2,7 +2,7 @@
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-ShardedGraph::ShardedGraph()
+ShardedCSRGraph::ShardedCSRGraph()
 {
     this->graph_type = SHARDED_CSR_GRAPH;
     max_cached_vertices = 1;
@@ -13,7 +13,7 @@ ShardedGraph::ShardedGraph()
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-ShardedGraph::~ShardedGraph()
+ShardedCSRGraph::~ShardedCSRGraph()
 {
     if(outgoing_shards != NULL)
         delete []outgoing_shards;
@@ -41,7 +41,7 @@ void process()
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-/*void ShardedGraph::import(EdgesListGraph &_old_graph,
+/*void ShardedCSRGraph::import(EdgesListGraph &_old_graph,
                             AlgorithmTraversalType _traversal_type)
 {
     LOAD_EDGES_LIST_GRAPH_DATA(_old_graph);

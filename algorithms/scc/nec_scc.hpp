@@ -16,14 +16,14 @@ void SCC::trim_step(VectCSRGraph &_graph,
     FrontierNEC in_frontier(_graph, GATHER);
 
     // set everythig as active
-    _graph_API.change_traversal_direction(SCATTER); // TODO - remove?
-    _graph_API.set_correct_direction(_frontier, _trees, _active);
-    _frontier.set_all_active();
+    _graph_API.change_traversal_direction(SCATTER, _frontier, _trees, _active);
+
     auto init = [&_trees, &_active] (int src_id, int connections_count, int vector_index)
     {
         _trees[src_id] = INIT_TREE;
         _active[src_id] = IS_ACTIVE;
     };
+    _frontier.set_all_active();
     _graph_API.compute(_graph, _frontier, init);
 
     int trim_steps = 0;
@@ -33,8 +33,7 @@ void SCC::trim_step(VectCSRGraph &_graph,
         changes = 0;
 
         /* process out-degrees */
-        _graph_API.change_traversal_direction(SCATTER);
-        _graph_API.set_correct_direction(_frontier, out_frontier, _out_degrees, _active);
+        _graph_API.change_traversal_direction(SCATTER, _frontier, out_frontier, _out_degrees, _active);
 
         // work only with low-degree vertices
         auto out_connections = [] (int src_id, int connections_count)->int
@@ -66,8 +65,7 @@ void SCC::trim_step(VectCSRGraph &_graph,
 
         /* process in-degrees */
         // work only with low-degree vertices
-        _graph_API.change_traversal_direction(GATHER);
-        _graph_API.set_correct_direction(_frontier, in_frontier, _in_degrees, _active);
+        _graph_API.change_traversal_direction(GATHER, _frontier, in_frontier, _in_degrees, _active);
 
         auto in_connections = [] (int src_id, int connections_count)->int
         {
@@ -96,12 +94,9 @@ void SCC::trim_step(VectCSRGraph &_graph,
         _graph_API.gather(_graph, in_frontier, update_in, EMPTY_VERTEX_OP, EMPTY_VERTEX_OP,
                           update_in, EMPTY_VERTEX_OP, EMPTY_VERTEX_OP);
 
-        _graph_API.change_traversal_direction(SCATTER);
-        _graph_API.set_correct_direction(_frontier, _in_degrees, _out_degrees, _trees, _active);
-        _frontier.set_all_active();
+        _graph_API.change_traversal_direction(SCATTER, _frontier, _in_degrees, _out_degrees, _trees, _active);
 
         int vertices_count = _graph.get_vertices_count();
-
         NEC_REGISTER_INT(changes, 0);
         auto remove_trivial_and_init = [&_active, &_in_degrees, &_out_degrees, &_trees, &reg_changes, vertices_count] (int src_id, int connections_count, int vector_index)
         {
@@ -112,7 +107,7 @@ void SCC::trim_step(VectCSRGraph &_graph,
                 reg_changes[vector_index] = 1;
             }
         };
-
+        _frontier.set_all_active();
         _graph_API.compute(_graph, _frontier, remove_trivial_and_init);
         changes = register_sum_reduce(reg_changes);
         trim_steps++;
@@ -133,10 +128,7 @@ void SCC::bfs_reach(VectCSRGraph &_graph,
                     int _source_vertex,
                     TraversalDirection _traversal_direction)
 {
-    _graph_API.change_traversal_direction(_traversal_direction);
-    _graph_API.set_correct_direction(_bfs_result, _frontier, _bfs_result);
-
-    _frontier.set_all_active();
+    _graph_API.change_traversal_direction(_traversal_direction, _bfs_result, _frontier, _bfs_result);
 
     auto init_levels = [&_bfs_result, _source_vertex] (int src_id, int connections_count, int vector_index)
     {
@@ -145,6 +137,7 @@ void SCC::bfs_reach(VectCSRGraph &_graph,
         else
             _bfs_result[src_id] = UNVISITED_VERTEX;
     };
+    _frontier.set_all_active();
     _graph_API.compute(_graph, _frontier, init_levels);
 
     _frontier.clear();
@@ -198,8 +191,7 @@ int SCC::select_pivot(VectCSRGraph &_graph,
                       VerticesArrayNec<_T> &_trees,
                       int _tree_num)
 {
-    _graph_API.change_traversal_direction(SCATTER);
-    _graph_API.set_correct_direction(_frontier, _trees);
+    _graph_API.change_traversal_direction(SCATTER, _frontier, _trees);
 
     NEC_REGISTER_INT(pivots, _graph.get_vertices_count() + 1);
 
@@ -208,7 +200,6 @@ int SCC::select_pivot(VectCSRGraph &_graph,
         if(_trees[src_id] == _tree_num)
             reg_pivots[vector_index] = src_id;
     };
-
     _frontier.set_all_active();
     _graph_API.compute(_graph, _frontier, select_pivot);
 
@@ -240,8 +231,7 @@ void SCC::process_result(VectCSRGraph &_graph,
                          VerticesArrayNec<_T> &_active,
                          int _last_tree)
 {
-    _graph_API.change_traversal_direction(SCATTER);
-    _graph_API.set_correct_direction(_frontier, _forward_result, _backward_result, _trees, _active);
+    _graph_API.change_traversal_direction(SCATTER, _frontier, _forward_result, _backward_result, _trees, _active);
 
     auto locate_scc = [&_forward_result, &_backward_result, &_trees, &_active, _last_tree] (int src_id, int connections_count, int vector_index)
     {
@@ -318,12 +308,9 @@ void SCC::nec_forward_backward(VectCSRGraph &_graph, VerticesArrayNec<_T> &_comp
     VerticesArrayNec<_T> backward_result(_graph, GATHER);
     VerticesArrayNec<_T> active(_graph, SCATTER);
 
-    Timer tm, tm_init;
+    Timer tm;
     tm.start();
-    tm_init.start();
     trim_step(_graph, graph_API, frontier, forward_result, backward_result, _components, active);
-    tm_init.end();
-    cout << "init time: " << tm_init.get_time() << " sec" << endl;
 
     int last_tree = INIT_TREE;
     FB_step(_graph, graph_API, frontier, _components, forward_result, backward_result, active, INIT_TREE, last_tree);

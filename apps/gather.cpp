@@ -3,7 +3,7 @@
 #define INT_ELEMENTS_PER_EDGE 5.0
 #define VECTOR_ENGINE_THRESHOLD_VALUE VECTOR_LENGTH * MAX_SX_AURORA_THREADS * 4096
 #define VECTOR_CORE_THRESHOLD_VALUE 5*VECTOR_LENGTH
-//#define __PRINT_API_PERFORMANCE_STATS__
+#define __PRINT_API_PERFORMANCE_STATS__
 #define __PRINT_SAMPLES_PERFORMANCE_STATS__
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -73,11 +73,36 @@ int main(int argc, const char * argv[])
         verify_results(graph, partial_active_distances, seq_distances);
 
         cout << " ----------------------------- " << endl;
-        ShardedGraph sharded_graph;
+        ShardedCSRGraph sharded_graph;
         sharded_graph.import(el_graph);
 
         cout << "import done" << endl;
+        FrontierNEC test_front(sharded_graph);
+        test_front.set_all_active();
+        GraphAbstractionsNEC graph_API(sharded_graph);
+        VerticesArrayNec<int> test(graph, SCATTER); // TODO graph -> sharded graph
 
+        int *test_ptr = test.get_ptr();
+        for(int i = 0; i < sharded_graph.get_vertices_count(); i++)
+        {
+            test_ptr[i] = rand()%100;
+        }
+        test_ptr[0] = 0;
+
+        auto edge_op = [&test_ptr](int src_id, int dst_id, int local_edge_pos,
+                                long long int global_edge_pos, int vector_index, DelayedWriteNEC &delayed_write)
+        {
+            int weight = 5;
+            int src_weight = test_ptr[src_id];
+            if(test_ptr[dst_id] > src_weight + weight)
+            {
+                test_ptr[dst_id] = src_weight + weight;
+            }
+        };
+
+        performance_stats.reset_timers();
+        graph_API.scatter(sharded_graph, test_front, edge_op, EMPTY_VERTEX_OP, EMPTY_VERTEX_OP, edge_op, EMPTY_VERTEX_OP, EMPTY_VERTEX_OP);
+        performance_stats.print_timers_stats();
     }
     catch (string error)
     {

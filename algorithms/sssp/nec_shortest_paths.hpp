@@ -9,21 +9,12 @@ void SSSP::nec_dijkstra_partial_active(VectCSRGraph &_graph,
                                        VerticesArrayNec<_T> &_distances,
                                        int _source_vertex)
 {
-    GraphAbstractionsNEC graph_API(_graph, SCATTER);
-    FrontierNEC work_frontier(_graph, SCATTER);
-    FrontierNEC all_active_frontier(_graph, SCATTER);
+    GraphAbstractionsNEC graph_API(_graph);
+    FrontierNEC work_frontier(_graph);
+    FrontierNEC all_active_frontier(_graph);
+    VerticesArrayNec<_T> prev_distances(_graph);
 
-    graph_API.change_traversal_direction(SCATTER);
-    all_active_frontier.set_all_active();
-
-    VerticesArrayNec<_T> prev_distances(_graph, SCATTER);
-
-    _source_vertex = _graph.reorder(_source_vertex, ORIGINAL, SCATTER);
-
-    if(!graph_API.have_correct_direction(_distances, prev_distances))
-    {
-        throw "Error: incorrect direction of vertex array in SSSP::nec_dijkstra_partial_active";
-    }
+    graph_API.change_traversal_direction(SCATTER, _distances, work_frontier, all_active_frontier, prev_distances);
 
     Timer tm;
     tm.start();
@@ -36,6 +27,7 @@ void SSSP::nec_dijkstra_partial_active(VectCSRGraph &_graph,
         else
             _distances[src_id] = inf_val;
     };
+    all_active_frontier.set_all_active();
     graph_API.compute(_graph, all_active_frontier, init_distances);
 
     work_frontier.clear();
@@ -152,21 +144,12 @@ void SSSP::nec_dijkstra_all_active_push(VectCSRGraph &_graph,
                                         VerticesArrayNec<_T> &_distances,
                                         int _source_vertex)
 {
-    GraphAbstractionsNEC graph_API(_graph, SCATTER);
-    FrontierNEC frontier(_graph, SCATTER);
-
-    graph_API.change_traversal_direction(SCATTER);
-    frontier.set_all_active();
-
-    _source_vertex = _graph.reorder(_source_vertex, ORIGINAL, SCATTER);
+    GraphAbstractionsNEC graph_API(_graph);
+    FrontierNEC frontier(_graph);
+    graph_API.change_traversal_direction(SCATTER, _distances, frontier);
 
     Timer tm;
     tm.start();
-
-    if(!graph_API.have_correct_direction(_distances))
-    {
-        throw "Error: incorrect direction of vertex array in SSSP::nec_dijkstra_all_active_push";
-    }
 
     _T inf_val = std::numeric_limits<_T>::max() - MAX_WEIGHT;
     auto init_distances = [&_distances, _source_vertex, inf_val] (int src_id, int connections_count, int vector_index)
@@ -176,6 +159,7 @@ void SSSP::nec_dijkstra_all_active_push(VectCSRGraph &_graph,
         else
             _distances[src_id] = inf_val;
     };
+    frontier.set_all_active();
     graph_API.compute(_graph, frontier, init_distances);
 
     int changes = 0, iterations_count = 0;
@@ -216,7 +200,7 @@ void SSSP::nec_dijkstra_all_active_push(VectCSRGraph &_graph,
 
     #ifdef __PRINT_SAMPLES_PERFORMANCE_STATS__
     PerformanceStats::print_algorithm_performance_stats("SSSP (dijkstra, all-active, push)", tm.get_time(),
-                                              _graph.get_edges_count(), iterations_count);
+                                                        _graph.get_edges_count(), iterations_count);
     #endif
 }
 #endif
@@ -230,20 +214,11 @@ void SSSP::nec_dijkstra_all_active_pull(VectCSRGraph &_graph,
                                         VerticesArrayNec<_T> &_distances,
                                         int _source_vertex)
 {
-    GraphAbstractionsNEC graph_API(_graph, GATHER);
-    FrontierNEC frontier(_graph, GATHER);
-
-    graph_API.change_traversal_direction(GATHER);
-    frontier.set_all_active();
-
-    _source_vertex = _graph.reorder(_source_vertex, ORIGINAL, GATHER);
-
+    GraphAbstractionsNEC graph_API(_graph);
+    FrontierNEC frontier(_graph);
     VerticesArrayNec<_T> prev_distances(_graph, GATHER);
 
-    if(!graph_API.have_correct_direction(_distances, prev_distances))
-    {
-        throw "Error: incorrect direction of vertex array in SSSP::nec_dijkstra_all_active_pull";
-    }
+    graph_API.change_traversal_direction(GATHER, _distances, frontier);
 
     Timer tm;
     tm.start();
@@ -256,6 +231,7 @@ void SSSP::nec_dijkstra_all_active_pull(VectCSRGraph &_graph,
         else
             _distances[src_id] = inf_val;
     };
+    frontier.set_all_active();
     graph_API.compute(_graph, frontier, init_distances);
 
     int changes = 0, iterations_count = 0;
@@ -355,13 +331,13 @@ void SSSP::nec_dijkstra(VectCSRGraph &_graph,
     if(_frontier_type == ALL_ACTIVE)
     {
         if(_traversal_direction == PUSH_TRAVERSAL)
-            nec_dijkstra_all_active_push(_graph, _weights, _distances, _source_vertex);
+            nec_dijkstra_all_active_push(_graph, _weights, _distances, _graph.reorder(_source_vertex, ORIGINAL, SCATTER));
         else if(_traversal_direction == PULL_TRAVERSAL)
-            nec_dijkstra_all_active_pull(_graph, _weights, _distances, _source_vertex);
+            nec_dijkstra_all_active_pull(_graph, _weights, _distances, _graph.reorder(_source_vertex, ORIGINAL, GATHER));
     }
     else if(_frontier_type == PARTIAL_ACTIVE)
     {
-        nec_dijkstra_partial_active(_graph, _weights, _distances, _source_vertex);
+        nec_dijkstra_partial_active(_graph, _weights, _distances, _graph.reorder(_source_vertex, ORIGINAL, SCATTER));
     }
 }
 #endif

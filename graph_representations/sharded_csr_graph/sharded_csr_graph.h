@@ -13,7 +13,7 @@ using namespace std;
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-class ShardedGraph : public BaseGraph
+class ShardedCSRGraph : public BaseGraph
 {
 private:
     int shards_number;
@@ -26,12 +26,13 @@ private:
 
     int get_shard_id(int _dst_id) { return _dst_id / max_cached_vertices; };
 public:
-    ShardedGraph();
-    ~ShardedGraph();
+    ShardedCSRGraph();
+    ~ShardedCSRGraph();
 
     /* get API */
-    inline int get_vertices_count() {return vertices_count;};
-    inline long long get_edges_count() {return edges_count;};
+    inline int get_shards_number() {return shards_number;};
+    inline UndirectedCSRGraph *get_outgoing_shard_ptr(int _shard_id) {return &(outgoing_shards[_shard_id]);};
+    inline UndirectedCSRGraph *get_incoming_shard_ptr(int _shard_id) {return &(incoming_shards[_shard_id]);};
 
     /* print API */
     void print() {};

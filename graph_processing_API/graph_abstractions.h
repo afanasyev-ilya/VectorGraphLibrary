@@ -9,12 +9,14 @@ protected:
     TraversalDirection current_traversal_direction;
 
     bool same_direction(TraversalDirection _first, TraversalDirection _second) {return (_first == _second);};
+
+    // allows to set correct direction for multiple arrays (vertexArrays, frontiers)
+    void set_correct_direction();
+    template<typename _T, typename ... Types>
+    void set_correct_direction(_T &_first_arg, Types &... _args);
 public:
     // attaches graph-processing API to the specific graph
     GraphAbstractionsNEC() {};
-
-    // change graph traversal direction (from GATHER to SCATTER or vice versa)
-    void change_traversal_direction(TraversalDirection _new_direction);
 
     // performs user-defined "edge_op" operation over all OUTGOING edges, neighbouring specified frontier
     template <typename EdgeOperation, typename VertexPreprocessOperation, typename VertexPostprocessOperation,
@@ -66,10 +68,10 @@ public:
     template<typename _T, typename ... Types>
     bool have_correct_direction(_T _first_arg, Types ... _args);
 
-    // allows to set correct direction for multiple arrays (vertexArrays, frontiers)
-    void set_correct_direction();
+    // change graph traversal direction (from GATHER to SCATTER or vice versa)
     template<typename _T, typename ... Types>
-    void set_correct_direction(_T &_first_arg, Types &... _args);
+    void change_traversal_direction(TraversalDirection _new_direction, _T &_first_arg, Types &... _args);
+    void change_traversal_direction(TraversalDirection _new_direction);
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -77,6 +79,15 @@ public:
 void GraphAbstractions::change_traversal_direction(TraversalDirection _new_direction)
 {
     current_traversal_direction = _new_direction;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+template<typename _T, typename ... Types>
+void GraphAbstractions::change_traversal_direction(TraversalDirection _new_direction, _T &_first_arg, Types &... _args)
+{
+    current_traversal_direction = _new_direction;
+    set_correct_direction(_first_arg, _args...);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

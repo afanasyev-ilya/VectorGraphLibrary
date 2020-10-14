@@ -5,6 +5,25 @@
 FrontierNEC::FrontierNEC(VectCSRGraph &_graph, TraversalDirection _direction)
 {
     max_size = _graph.get_vertices_count();
+    direction = _direction;
+    graph_ptr = &_graph;
+    init();
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+FrontierNEC::FrontierNEC(ShardedCSRGraph &_graph, TraversalDirection _direction)
+{
+    max_size = _graph.get_vertices_count();
+    direction = _direction;
+    graph_ptr = NULL; //TODO graph type?
+    init();
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+void FrontierNEC::init()
+{
     MemoryAPI::allocate_array(&flags, max_size);
     MemoryAPI::allocate_array(&ids, max_size);
     MemoryAPI::allocate_array(&work_buffer, max_size + VECTOR_LENGTH * MAX_SX_AURORA_THREADS);
@@ -13,11 +32,8 @@ FrontierNEC::FrontierNEC(VectCSRGraph &_graph, TraversalDirection _direction)
     type = ALL_ACTIVE_FRONTIER;
     current_size = max_size;
 
-    direction = _direction;
-    graph_ptr = &_graph;
-
     #pragma omp parallel
-    {}
+    {};
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

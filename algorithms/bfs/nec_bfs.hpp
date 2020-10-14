@@ -159,18 +159,12 @@ void BFS::nec_top_down(VectCSRGraph &_graph,
                        VerticesArrayNec<_T> &_levels,
                        int _source_vertex)
 {
-    GraphAbstractionsNEC graph_API(_graph, SCATTER);
-    FrontierNEC frontier(_graph, SCATTER);
+    GraphAbstractionsNEC graph_API(_graph);
+    FrontierNEC frontier(_graph);
 
-    graph_API.change_traversal_direction(SCATTER);
-    frontier.set_all_active();
+    graph_API.change_traversal_direction(SCATTER, _levels, frontier);
 
     _source_vertex = _graph.reorder(_source_vertex, ORIGINAL, SCATTER);
-
-    if(!graph_API.have_correct_direction(_levels))
-    {
-        throw "Error: incorrect direction of vertex array in SSSP::nec_dijkstra_all_active_push";
-    }
 
     #pragma omp parallel
     {};
@@ -182,6 +176,7 @@ void BFS::nec_top_down(VectCSRGraph &_graph,
         else
             _levels[src_id] = UNVISITED_VERTEX;
     };
+    frontier.set_all_active();
     graph_API.compute(_graph, frontier, init_levels);
 
     frontier.clear();
