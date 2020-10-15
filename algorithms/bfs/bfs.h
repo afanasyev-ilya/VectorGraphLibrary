@@ -16,7 +16,7 @@ class BFS
 private:
     #ifdef __USE_NEC_SX_AURORA__
     static void nec_top_down_compute_step(VectCSRGraph &_graph,
-                                          VerticesArrayNec<int> &_levels,
+                                          VerticesArrayNEC<int> &_levels,
                                           int _current_level,
                                           int &_vis,
                                           int &_in_lvl,
@@ -25,7 +25,7 @@ private:
 
     #ifdef __USE_NEC_SX_AURORA__
     static void nec_bottom_up_compute_step(VectCSRGraph &_graph,
-                                           VerticesArrayNec<int> &_levels,
+                                           VerticesArrayNEC<int> &_levels,
                                            int *_connections_array,
                                            int _current_level,
                                            int &_vis,
@@ -34,15 +34,15 @@ private:
     #endif
 public:
     #ifdef __USE_GPU__
-    static void gpu_top_down(VectCSRGraph &_graph, VerticesArrayNec<int> &_levels, int _source_vertex);
+    static void gpu_top_down(VectCSRGraph &_graph, VerticesArrayNEC<int> &_levels, int _source_vertex);
     #endif
 
     #ifdef __USE_NEC_SX_AURORA__
     template <typename _T>
-    static void nec_top_down(VectCSRGraph &_graph, VerticesArrayNec<_T> &_levels, int _source_vertex);
+    static void nec_top_down(VectCSRGraph &_graph, VerticesArrayNEC<_T> &_levels, int _source_vertex);
     #endif
 
-    static void seq_top_down(VectCSRGraph &_graph, VerticesArrayNec<int> &_levels, int _source_vertex);
+    static void seq_top_down(VectCSRGraph &_graph, VerticesArrayNEC<int> &_levels, int _source_vertex);
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

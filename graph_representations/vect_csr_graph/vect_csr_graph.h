@@ -25,13 +25,13 @@ private:
     void resize_helper_arrays();
 
     template <typename _T>
-    bool vertices_buffer_can_be_used(VerticesArrayNec<_T> &_data);
+    bool vertices_buffer_can_be_used(VerticesArrayNEC<_T> &_data);
     template <typename _T>
-    void reorder_to_original(VerticesArrayNec<_T> &_data);
+    void reorder_to_original(VerticesArrayNEC<_T> &_data);
     template <typename _T>
-    void reorder_to_scatter(VerticesArrayNec<_T> &_data);
+    void reorder_to_scatter(VerticesArrayNEC<_T> &_data);
     template <typename _T>
-    void reorder_to_gather(VerticesArrayNec<_T> &_data);
+    void reorder_to_gather(VerticesArrayNEC<_T> &_data);
 public:
     VectCSRGraph(int _vertices_count = 1, long long _edges_count = 1);
     ~VectCSRGraph();
@@ -41,7 +41,7 @@ public:
     void print_size();
     size_t get_size();
     template <typename _T>
-    void print_with_weights(EdgesArrayNec<_T> &_weights);
+    void print_with_weights(EdgesArrayNEC<_T> &_weights);
 
     /* file load/store API */
     bool save_to_binary_file(string file_name) {};
@@ -70,7 +70,7 @@ public:
 
     // allows to reorder verticesArray in arbitrary direction
     template <typename _T>
-    void reorder(VerticesArrayNec<_T> &_data, TraversalDirection _output_dir);
+    void reorder(VerticesArrayNEC<_T> &_data, TraversalDirection _output_dir);
 
     // allows to reorder frontier in arbitrary direction
     void reorder(FrontierNEC &_data, TraversalDirection _output_dir);
@@ -84,7 +84,7 @@ public:
 
     // performs simple graph visualization using GraphViz API
     template <typename _TVertexValue>
-    void save_to_graphviz_file(string _file_name, VerticesArrayNec<_TVertexValue> &_vertex_data);
+    void save_to_graphviz_file(string _file_name, VerticesArrayNEC<_TVertexValue> &_vertex_data);
 
     /* import and preprocess API */
     // creates VectCSRGraph format from EdgesListGraph

@@ -3,7 +3,7 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template <typename _T>
-VerticesArrayNec<_T>::VerticesArrayNec(VectCSRGraph &_graph, TraversalDirection _direction)
+VerticesArrayNEC<_T>::VerticesArrayNEC(VectCSRGraph &_graph, TraversalDirection _direction)
 {
     this->direction = _direction;
     this->vertices_count = _graph.get_vertices_count();
@@ -15,7 +15,7 @@ VerticesArrayNec<_T>::VerticesArrayNec(VectCSRGraph &_graph, TraversalDirection 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template <typename _T>
-VerticesArrayNec<_T>::VerticesArrayNec(const VerticesArrayNec<_T> &_copy_obj)
+VerticesArrayNEC<_T>::VerticesArrayNEC(const VerticesArrayNEC<_T> &_copy_obj)
 {
     this->graph_ptr = _copy_obj.graph_ptr;
     this->vertices_count = _copy_obj.vertices_count;
@@ -29,7 +29,7 @@ VerticesArrayNec<_T>::VerticesArrayNec(const VerticesArrayNec<_T> &_copy_obj)
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template <typename _T>
-VerticesArrayNec<_T>::~VerticesArrayNec()
+VerticesArrayNEC<_T>::~VerticesArrayNEC()
 {
     MemoryAPI::free_array(this->vertices_data);
 }
@@ -37,14 +37,14 @@ VerticesArrayNec<_T>::~VerticesArrayNec()
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template <typename _T>
-void VerticesArrayNec<_T>::set_all_constant(_T _const)
+void VerticesArrayNEC<_T>::set_all_constant(_T _const)
 {
     MemoryAPI::set(this->vertices_data, _const, this->vertices_count);
 }
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template <typename _T>
-void VerticesArrayNec<_T>::set_all_random(_T _max_rand)
+void VerticesArrayNEC<_T>::set_all_random(_T _max_rand)
 {
     // init CSR parts
     RandomGenerationAPI rng_api;
@@ -54,7 +54,7 @@ void VerticesArrayNec<_T>::set_all_random(_T _max_rand)
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template <typename _T>
-void VerticesArrayNec<_T>::print()
+void VerticesArrayNEC<_T>::print()
 {
     for(int i = 0; i < this->vertices_count; i++)
     {
@@ -66,7 +66,7 @@ void VerticesArrayNec<_T>::print()
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template <typename _T>
-void VerticesArrayNec<_T>::print(string _name)
+void VerticesArrayNEC<_T>::print(string _name)
 {
     cout << _name << ": ";
     print();

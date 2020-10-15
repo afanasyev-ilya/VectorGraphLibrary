@@ -3,13 +3,13 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template <typename _T>
-class VerticesArrayNec : public VerticesArray<_T>
+class VerticesArrayNEC : public VerticesArray<_T>
 {
 public:
     /* constructors and destructors */
-    VerticesArrayNec(VectCSRGraph &_graph, TraversalDirection _direction = SCATTER);
-    VerticesArrayNec(const VerticesArrayNec<_T> &_copy_obj);
-    ~VerticesArrayNec();
+    VerticesArrayNEC(VectCSRGraph &_graph, TraversalDirection _direction = SCATTER);
+    VerticesArrayNEC(const VerticesArrayNEC<_T> &_copy_obj);
+    ~VerticesArrayNEC();
 
     /* get/set API */
     inline _T get(int _idx) {return this->vertices_data[_idx];};

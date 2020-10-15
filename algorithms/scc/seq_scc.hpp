@@ -13,11 +13,11 @@ struct SnapShotStruct
 
 void SCC::seq_tarjan_kernel(VectCSRGraph &_graph,
                             int _root,
-                            VerticesArrayNec<int> &_disc,
-                            VerticesArrayNec<int> &_low,
+                            VerticesArrayNEC<int> &_disc,
+                            VerticesArrayNEC<int> &_low,
                             stack<int> &_st,
-                            VerticesArrayNec<bool> &_stack_member,
-                            VerticesArrayNec<int> &_components)
+                            VerticesArrayNEC<bool> &_stack_member,
+                            VerticesArrayNEC<int> &_components)
 {
     UndirectedCSRGraph *outgoing_graph_ptr = _graph.get_outgoing_graph_ptr();
     LOAD_UNDIRECTED_CSR_GRAPH_DATA((*outgoing_graph_ptr));
@@ -115,14 +115,14 @@ void SCC::seq_tarjan_kernel(VectCSRGraph &_graph,
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void SCC::seq_tarjan(VectCSRGraph &_graph, VerticesArrayNec<int> &_components)
+void SCC::seq_tarjan(VectCSRGraph &_graph, VerticesArrayNEC<int> &_components)
 {
     // allocate memory for Tarjan's algorithm computations
     Timer tm;
     tm.start();
-    VerticesArrayNec<int>disc(_graph, SCATTER);
-    VerticesArrayNec<int>low(_graph, SCATTER);
-    VerticesArrayNec<bool>stack_member(_graph, SCATTER);
+    VerticesArrayNEC<int>disc(_graph, SCATTER);
+    VerticesArrayNEC<int>low(_graph, SCATTER);
+    VerticesArrayNEC<bool>stack_member(_graph, SCATTER);
     stack<int> st;
 
     // Initialize disc and low, and stackMember arrays

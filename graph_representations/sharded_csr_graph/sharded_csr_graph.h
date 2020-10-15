@@ -22,9 +22,12 @@ private:
     UndirectedCSRGraph *outgoing_shards;
     UndirectedCSRGraph *incoming_shards;
 
+    long long *vertices_reorder_buffer;
+
     void import_direction(EdgesListGraph &_el_graph, UndirectedCSRGraph **_shards_ptr);
 
     int get_shard_id(int _dst_id) { return _dst_id / max_cached_vertices; };
+    void resize_helper_arrays();
 public:
     ShardedCSRGraph();
     ~ShardedCSRGraph();
@@ -52,6 +55,12 @@ public:
 
     /* Further - ShardedCSRGraph specific API : reorder, working with double-directions, etc.*/
 
+    /* reorder API */
+    template <typename _T>
+    void reorder_to_sorted_for_shard(VerticesArrayNEC<_T> _data, int _shard_id);
+    template <typename _T>
+    void reorder_to_original_for_shard(VerticesArrayNEC<_T> _data, int _shard_id);
+
     // creates ShardedCSRGraph format from EdgesListGraph
     void import(EdgesListGraph &_el_graph);
 };
@@ -60,5 +69,6 @@ public:
 
 #include "sharded_csr_graph.hpp"
 #include "import.hpp"
+#include "reorder.hpp"
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

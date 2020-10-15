@@ -9,6 +9,8 @@ ShardedCSRGraph::ShardedCSRGraph()
     shards_number = 0;
     outgoing_shards = NULL;
     incoming_shards = NULL;
+
+    vertices_reorder_buffer = NULL;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -19,6 +21,8 @@ ShardedCSRGraph::~ShardedCSRGraph()
         delete []outgoing_shards;
     if(incoming_shards != NULL)
         delete []incoming_shards;
+    if(vertices_reorder_buffer)
+        delete []vertices_reorder_buffer;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

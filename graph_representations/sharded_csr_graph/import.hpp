@@ -55,7 +55,9 @@ void ShardedCSRGraph::import_direction(EdgesListGraph &_el_graph, UndirectedCSRG
     }
     last_shard_edge[shards_number - 1] = this->edges_count;
     tm.end();
+    #ifdef __PRINT_API_PERFORMANCE_STATS__
     tm.print_time_stats("Sharded split");
+    #endif
 
     // import each shard from edges list
     tm.start();
@@ -70,10 +72,11 @@ void ShardedCSRGraph::import_direction(EdgesListGraph &_el_graph, UndirectedCSRG
         EdgesListGraph edges_list_shard;
         edges_list_shard.import(shard_src_ids_ptr, shard_dst_ids_ptr, this->vertices_count, edges_in_shard);
         (*_shards_ptr)[shard_id].import(edges_list_shard, NULL);
-        cout << "import: " << (*_shards_ptr)[shard_id].get_edges_count() << endl;
     }
     tm.end();
+    #ifdef __PRINT_API_PERFORMANCE_STATS__
     tm.print_time_stats("Import shards");
+    #endif
 
     delete []first_border;
     delete []last_border;
@@ -88,17 +91,28 @@ void ShardedCSRGraph::import(EdgesListGraph &_el_graph)
     this->vertices_count = _el_graph.get_vertices_count();
     this->edges_count = _el_graph.get_edges_count();
 
-    max_cached_vertices = 1*1024*1024/(sizeof(int));// TODO
-    cout << "max_cached_vertices: " << max_cached_vertices << endl;
-
+    max_cached_vertices = 8*1024*1024/(sizeof(int));
     shards_number = (this->vertices_count - 1)/max_cached_vertices + 1;
-    cout << "shards number: " << shards_number << endl;
+    cout << "Shards number: " << shards_number << endl;
 
     import_direction(_el_graph, &outgoing_shards);
 
     _el_graph.transpose();
 
     import_direction(_el_graph, &incoming_shards);
+
+    resize_helper_arrays();
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+void ShardedCSRGraph::resize_helper_arrays()
+{
+    if(vertices_reorder_buffer != NULL)
+        MemoryAPI::free_array(vertices_reorder_buffer);
+    MemoryAPI::allocate_array(&vertices_reorder_buffer, this->vertices_count);
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+

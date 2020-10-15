@@ -3,7 +3,7 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template <typename _T>
-class EdgesArrayNec
+class EdgesArrayNEC
 {
 private:
     VectCSRGraph *graph_ptr;
@@ -21,7 +21,7 @@ private:
     long long edges_count_in_incoming_ve;
     long long wall_array_size;
 public:
-    EdgesArrayNec(VectCSRGraph &_graph);
+    EdgesArrayNEC(VectCSRGraph &_graph);
 
     inline _T get(long long _global_idx) {return edges_data[_global_idx];};
     inline _T set(long long _global_idx, _T _val) {edges_data[_global_idx] = _val;};
@@ -34,7 +34,7 @@ public:
 
     void print();
 
-    ~EdgesArrayNec();
+    ~EdgesArrayNEC();
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

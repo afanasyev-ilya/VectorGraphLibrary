@@ -10,7 +10,7 @@ using namespace std;
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 void BFS::seq_top_down(VectCSRGraph &_graph,
-                       VerticesArrayNec<int> &_levels,
+                       VerticesArrayNEC<int> &_levels,
                        int _source_vertex)
 {
     UndirectedCSRGraph *outgoing_graph_ptr = _graph.get_outgoing_graph_ptr();

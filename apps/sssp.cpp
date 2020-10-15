@@ -49,7 +49,7 @@ int main(int argc, const char * argv[])
         graph.print_size();
 
         // add weights to graph
-        EdgesArrayNec<float> weights(graph);
+        EdgesArrayNEC<int> weights(graph);
         weights.set_all_random(MAX_WEIGHT);
 
         // move graph to GPU if required
@@ -62,7 +62,7 @@ int main(int argc, const char * argv[])
         cout << "Doing " << parser.get_number_of_rounds() << " SSSP iterations..." << endl;
         for(int i = 0; i < parser.get_number_of_rounds(); i++)
         {
-            VerticesArrayNec<float> distances(graph, convert_traversal_type(parser.get_traversal_direction()));
+            VerticesArrayNEC<int> distances(graph, convert_traversal_type(parser.get_traversal_direction()));
 
             int source_vertex = graph.select_random_vertex(ORIGINAL);
 
@@ -79,7 +79,7 @@ int main(int argc, const char * argv[])
             // check if required
             if(parser.get_check_flag())
             {
-                VerticesArrayNec<float> check_distances(graph, SCATTER);
+                VerticesArrayNEC<int> check_distances(graph, SCATTER);
                 ShortestPaths::seq_dijkstra(graph, weights, check_distances, source_vertex);
                 verify_results(graph, distances, check_distances);
             }

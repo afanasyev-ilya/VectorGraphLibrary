@@ -25,10 +25,10 @@ private:
     static void trim_step(VectCSRGraph &_graph,
                           GraphAbstractionsNEC &_graph_API,
                           FrontierNEC &_frontier,
-                          VerticesArrayNec<_T> &_forward_result,
-                          VerticesArrayNec<_T> &_backward_result,
-                          VerticesArrayNec<_T> &_trees,
-                          VerticesArrayNec<_T> &_active);
+                          VerticesArrayNEC<_T> &_forward_result,
+                          VerticesArrayNEC<_T> &_backward_result,
+                          VerticesArrayNEC<_T> &_trees,
+                          VerticesArrayNEC<_T> &_active);
     #endif
 
     #ifdef __USE_NEC_SX_AURORA__
@@ -36,10 +36,10 @@ private:
     static void process_result(VectCSRGraph &_graph,
                                GraphAbstractionsNEC &_graph_API,
                                FrontierNEC &_frontier,
-                               VerticesArrayNec<_T> &_forward_result,
-                               VerticesArrayNec<_T> &_backward_result,
-                               VerticesArrayNec<_T> &_trees,
-                               VerticesArrayNec<_T> &_active,
+                               VerticesArrayNEC<_T> &_forward_result,
+                               VerticesArrayNEC<_T> &_backward_result,
+                               VerticesArrayNEC<_T> &_trees,
+                               VerticesArrayNEC<_T> &_active,
                                int _last_tree);
     #endif
 
@@ -48,7 +48,7 @@ private:
     static void bfs_reach(VectCSRGraph &_graph,
                           GraphAbstractionsNEC &_graph_API,
                           FrontierNEC &_frontier,
-                          VerticesArrayNec<_T> &_bfs_result,
+                          VerticesArrayNEC<_T> &_bfs_result,
                           int _source_vertex,
                           TraversalDirection _traversal_direction);
     #endif
@@ -58,10 +58,10 @@ private:
     static void FB_step(VectCSRGraph &_graph,
                         GraphAbstractionsNEC &_graph_API,
                         FrontierNEC &_frontier,
-                        VerticesArrayNec<_T> &_trees,
-                        VerticesArrayNec<_T> &_forward_result,
-                        VerticesArrayNec<_T> &_backward_result,
-                        VerticesArrayNec<_T> &_active,
+                        VerticesArrayNEC<_T> &_trees,
+                        VerticesArrayNEC<_T> &_forward_result,
+                        VerticesArrayNEC<_T> &_backward_result,
+                        VerticesArrayNEC<_T> &_active,
                         int _processed_tree,
                         int &_last_tree);
     #endif
@@ -71,24 +71,24 @@ private:
     static int select_pivot(VectCSRGraph &_graph,
                      GraphAbstractionsNEC &_graph_API,
                      FrontierNEC &_frontier,
-                     VerticesArrayNec<_T> &_trees,
+                     VerticesArrayNEC<_T> &_trees,
                      int _tree_num);
     #endif
 
     static void seq_tarjan_kernel(VectCSRGraph &_graph,
                                   int _root,
-                                  VerticesArrayNec<int> &_disc,
-                                  VerticesArrayNec<int> &_low,
+                                  VerticesArrayNEC<int> &_disc,
+                                  VerticesArrayNEC<int> &_low,
                                   stack<int> &_st,
-                                  VerticesArrayNec<bool> &_stack_member,
-                                  VerticesArrayNec<int> &_components);
+                                  VerticesArrayNEC<bool> &_stack_member,
+                                  VerticesArrayNEC<int> &_components);
 public:
     #ifdef __USE_NEC_SX_AURORA__
     template <typename _T>
-    static void nec_forward_backward(VectCSRGraph &_graph, VerticesArrayNec<_T> &_components);
+    static void nec_forward_backward(VectCSRGraph &_graph, VerticesArrayNEC<_T> &_components);
     #endif
 
-    static void seq_tarjan(VectCSRGraph &_graph, VerticesArrayNec<int> &_components);
+    static void seq_tarjan(VectCSRGraph &_graph, VerticesArrayNEC<int> &_components);
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

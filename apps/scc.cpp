@@ -45,7 +45,7 @@ int main(int argc, const char * argv[])
         // compute SCC
         cout << "SCC computations started..." << endl;
 
-        VerticesArrayNec<int> components(graph, SCATTER); // TODO selection for DO/BU
+        VerticesArrayNEC<int> components(graph, SCATTER); // TODO selection for DO/BU
 
         performance_stats.reset_timers();
 
@@ -58,7 +58,7 @@ int main(int argc, const char * argv[])
         // check if required
         if(parser.get_check_flag())
         {
-            VerticesArrayNec<int> check_components(graph, SCATTER);
+            VerticesArrayNEC<int> check_components(graph, SCATTER);
             SCC::seq_tarjan(graph, check_components);
             equal_components(graph, components, check_components);
         }

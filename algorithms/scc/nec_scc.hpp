@@ -7,10 +7,10 @@ template <typename _T>
 void SCC::trim_step(VectCSRGraph &_graph,
                     GraphAbstractionsNEC &_graph_API,
                     FrontierNEC &_frontier,
-                    VerticesArrayNec<_T> &_out_degrees,
-                    VerticesArrayNec<_T> &_in_degrees,
-                    VerticesArrayNec<_T> &_trees,
-                    VerticesArrayNec<_T> &_active)
+                    VerticesArrayNEC<_T> &_out_degrees,
+                    VerticesArrayNEC<_T> &_in_degrees,
+                    VerticesArrayNEC<_T> &_trees,
+                    VerticesArrayNEC<_T> &_active)
 {
     FrontierNEC out_frontier(_graph, SCATTER);
     FrontierNEC in_frontier(_graph, GATHER);
@@ -124,7 +124,7 @@ template <typename _T>
 void SCC::bfs_reach(VectCSRGraph &_graph,
                     GraphAbstractionsNEC &_graph_API,
                     FrontierNEC &_frontier,
-                    VerticesArrayNec<_T> &_bfs_result,
+                    VerticesArrayNEC<_T> &_bfs_result,
                     int _source_vertex,
                     TraversalDirection _traversal_direction)
 {
@@ -188,7 +188,7 @@ template <typename _T>
 int SCC::select_pivot(VectCSRGraph &_graph,
                       GraphAbstractionsNEC &_graph_API,
                       FrontierNEC &_frontier,
-                      VerticesArrayNec<_T> &_trees,
+                      VerticesArrayNEC<_T> &_trees,
                       int _tree_num)
 {
     _graph_API.change_traversal_direction(SCATTER, _frontier, _trees);
@@ -225,10 +225,10 @@ template <typename _T>
 void SCC::process_result(VectCSRGraph &_graph,
                          GraphAbstractionsNEC &_graph_API,
                          FrontierNEC &_frontier,
-                         VerticesArrayNec<_T> &_forward_result,
-                         VerticesArrayNec<_T> &_backward_result,
-                         VerticesArrayNec<_T> &_trees,
-                         VerticesArrayNec<_T> &_active,
+                         VerticesArrayNEC<_T> &_forward_result,
+                         VerticesArrayNEC<_T> &_backward_result,
+                         VerticesArrayNEC<_T> &_trees,
+                         VerticesArrayNEC<_T> &_active,
                          int _last_tree)
 {
     _graph_API.change_traversal_direction(SCATTER, _frontier, _forward_result, _backward_result, _trees, _active);
@@ -270,10 +270,10 @@ template <typename _T>
 void SCC::FB_step(VectCSRGraph &_graph,
                   GraphAbstractionsNEC &_graph_API,
                   FrontierNEC &_frontier,
-                  VerticesArrayNec<_T> &_trees,
-                  VerticesArrayNec<_T> &_forward_result,
-                  VerticesArrayNec<_T> &_backward_result,
-                  VerticesArrayNec<_T> &_active,
+                  VerticesArrayNEC<_T> &_trees,
+                  VerticesArrayNEC<_T> &_forward_result,
+                  VerticesArrayNEC<_T> &_backward_result,
+                  VerticesArrayNEC<_T> &_active,
                   int _processed_tree,
                   int &_last_tree)
 {
@@ -299,14 +299,14 @@ void SCC::FB_step(VectCSRGraph &_graph,
 
 #ifdef __USE_NEC_SX_AURORA__
 template <typename _T>
-void SCC::nec_forward_backward(VectCSRGraph &_graph, VerticesArrayNec<_T> &_components)
+void SCC::nec_forward_backward(VectCSRGraph &_graph, VerticesArrayNEC<_T> &_components)
 {
     GraphAbstractionsNEC graph_API(_graph, SCATTER);
     FrontierNEC frontier(_graph, SCATTER);
 
-    VerticesArrayNec<_T> forward_result(_graph, SCATTER);
-    VerticesArrayNec<_T> backward_result(_graph, GATHER);
-    VerticesArrayNec<_T> active(_graph, SCATTER);
+    VerticesArrayNEC<_T> forward_result(_graph, SCATTER);
+    VerticesArrayNEC<_T> backward_result(_graph, GATHER);
+    VerticesArrayNEC<_T> active(_graph, SCATTER);
 
     Timer tm;
     tm.start();
