@@ -41,18 +41,18 @@ int main(int argc, const char * argv[])
         graph.print_size();
 
         // create graph weights and set them random
-        EdgesArrayNEC<int> weights(graph);
+        EdgesArray<int> weights(graph);
         weights.set_all_random(MAX_WEIGHT);
         //weights.set_all_constant(1);
 
         // run different SSSP algorithms
-        VerticesArrayNEC<int> push_distances(graph, SCATTER);
+        VerticesArray<int> push_distances(graph, SCATTER);
         ShortestPaths::nec_dijkstra(graph, weights, push_distances, 0, ALL_ACTIVE, PUSH_TRAVERSAL);
 
-        VerticesArrayNEC<int> pull_distances(graph, GATHER);
+        VerticesArray<int> pull_distances(graph, GATHER);
         ShortestPaths::nec_dijkstra(graph, weights, pull_distances, 0, ALL_ACTIVE, PULL_TRAVERSAL);
 
-        VerticesArrayNEC<int> partial_active_distances(graph, SCATTER);
+        VerticesArray<int> partial_active_distances(graph, SCATTER);
         ShortestPaths::nec_dijkstra(graph, weights, partial_active_distances, 0, PARTIAL_ACTIVE, PUSH_TRAVERSAL);
 
         cout << " ----------------------------- " << endl;
@@ -60,14 +60,14 @@ int main(int argc, const char * argv[])
         sharded_graph.import(el_graph);
         cout << " ----------------------------- " << endl;
 
-        VerticesArrayNEC<int> sharded_distances(graph, ORIGINAL);
+        VerticesArray<int> sharded_distances(graph, ORIGINAL);
 
         performance_stats.reset_timers();
         ShortestPaths::nec_dijkstra(sharded_graph, weights, sharded_distances, 0);
         performance_stats.print_timers_stats();
 
         // compute reference result
-        VerticesArrayNEC<int> seq_distances(graph, SCATTER);
+        VerticesArray<int> seq_distances(graph, SCATTER);
         ShortestPaths::seq_dijkstra(graph, weights, seq_distances, 0);
 
         cout << "push check" << endl;

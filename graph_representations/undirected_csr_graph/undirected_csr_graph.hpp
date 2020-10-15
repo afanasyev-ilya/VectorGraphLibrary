@@ -51,7 +51,7 @@ void UndirectedCSRGraph::resize(int _vertices_count, long long _edges_count)
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template <typename _TVertexValue>
-void UndirectedCSRGraph::save_to_graphviz_file(string _file_name, VerticesArrayNEC<_TVertexValue> &_vertex_data,
+void UndirectedCSRGraph::save_to_graphviz_file(string _file_name, VerticesArray<_TVertexValue> &_vertex_data,
                                                VisualisationMode _visualisation_mode)
 {
     ofstream dot_output(_file_name.c_str());

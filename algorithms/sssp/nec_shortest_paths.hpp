@@ -5,14 +5,14 @@
 #ifdef __USE_NEC_SX_AURORA__
 template <typename _T>
 void SSSP::nec_dijkstra_partial_active(VectCSRGraph &_graph,
-                                       EdgesArrayNEC<_T> &_weights,
-                                       VerticesArrayNEC<_T> &_distances,
+                                       EdgesArray<_T> &_weights,
+                                       VerticesArray<_T> &_distances,
                                        int _source_vertex)
 {
     GraphAbstractionsNEC graph_API(_graph);
     FrontierNEC work_frontier(_graph);
     FrontierNEC all_active_frontier(_graph);
-    VerticesArrayNEC<_T> prev_distances(_graph);
+    VerticesArray<_T> prev_distances(_graph);
 
     graph_API.change_traversal_direction(SCATTER, _distances, work_frontier, all_active_frontier, prev_distances);
 
@@ -140,8 +140,8 @@ void SSSP::nec_bellamn_ford(EdgesListGraph &_graph,
 #ifdef __USE_NEC_SX_AURORA__
 template <typename _T>
 void SSSP::nec_dijkstra_all_active_push(VectCSRGraph &_graph,
-                                        EdgesArrayNEC<_T> &_weights,
-                                        VerticesArrayNEC<_T> &_distances,
+                                        EdgesArray<_T> &_weights,
+                                        VerticesArray<_T> &_distances,
                                         int _source_vertex)
 {
     GraphAbstractionsNEC graph_API(_graph);
@@ -210,13 +210,13 @@ void SSSP::nec_dijkstra_all_active_push(VectCSRGraph &_graph,
 #ifdef __USE_NEC_SX_AURORA__
 template <typename _T>
 void SSSP::nec_dijkstra_all_active_pull(VectCSRGraph &_graph,
-                                        EdgesArrayNEC<_T> &_weights,
-                                        VerticesArrayNEC<_T> &_distances,
+                                        EdgesArray<_T> &_weights,
+                                        VerticesArray<_T> &_distances,
                                         int _source_vertex)
 {
     GraphAbstractionsNEC graph_API(_graph);
     FrontierNEC frontier(_graph);
-    VerticesArrayNEC<_T> prev_distances(_graph, GATHER);
+    VerticesArray<_T> prev_distances(_graph, GATHER);
 
     graph_API.change_traversal_direction(GATHER, _distances, frontier);
 
@@ -322,8 +322,8 @@ void SSSP::nec_dijkstra_all_active_pull(VectCSRGraph &_graph,
 #ifdef __USE_NEC_SX_AURORA__
 template <typename _T>
 void SSSP::nec_dijkstra(VectCSRGraph &_graph,
-                        EdgesArrayNEC<_T> &_weights,
-                        VerticesArrayNEC<_T> &_distances,
+                        EdgesArray<_T> &_weights,
+                        VerticesArray<_T> &_distances,
                         int _source_vertex,
                         AlgorithmFrontierType _frontier_type,
                         AlgorithmTraversalType _traversal_direction)
@@ -347,8 +347,8 @@ void SSSP::nec_dijkstra(VectCSRGraph &_graph,
 #ifdef __USE_NEC_SX_AURORA__
 template <typename _T>
 void SSSP::nec_dijkstra(ShardedCSRGraph &_graph,
-                        EdgesArrayNEC<_T> &_weights,
-                        VerticesArrayNEC<_T> &_distances,
+                        EdgesArray<_T> &_weights,
+                        VerticesArray<_T> &_distances,
                         int _source_vertex)
 {
     GraphAbstractionsNEC graph_API(_graph);

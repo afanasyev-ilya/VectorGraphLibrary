@@ -11,7 +11,7 @@ void VectCSRGraph::print()
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template <typename _T>
-void VectCSRGraph::print_with_weights(EdgesArrayNEC<_T> &_weights)
+void VectCSRGraph::print_with_weights(EdgesArray<_T> &_weights)
 {
     outgoing_graph->print_with_weights(_weights, SCATTER);
     incoming_graph->print_with_weights(_weights, GATHER);

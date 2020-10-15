@@ -3,7 +3,7 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template <typename _T>
-void ShardedCSRGraph::reorder_to_sorted_for_shard(VerticesArrayNEC<_T> _data, int _shard_id)
+void ShardedCSRGraph::reorder_to_sorted_for_shard(VerticesArray<_T> _data, int _shard_id)
 {
     Timer tm;
     tm.start();
@@ -25,7 +25,7 @@ void ShardedCSRGraph::reorder_to_sorted_for_shard(VerticesArrayNEC<_T> _data, in
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template <typename _T>
-void ShardedCSRGraph::reorder_to_original_for_shard(VerticesArrayNEC<_T> _data, int _shard_id)
+void ShardedCSRGraph::reorder_to_original_for_shard(VerticesArray<_T> _data, int _shard_id)
 {
     Timer tm;
     tm.start();

@@ -4,7 +4,7 @@
 
 #ifdef __USE_NEC_SX_AURORA__
 void BFS::nec_top_down_compute_step(VectCSRGraph &_graph,
-                                    VerticesArrayNEC<int> &_levels,
+                                    VerticesArray<int> &_levels,
                                     int _current_level,
                                     int &_vis,
                                     int &_in_lvl,
@@ -64,7 +64,7 @@ void BFS::nec_top_down_compute_step(VectCSRGraph &_graph,
 
 #ifdef __USE_NEC_SX_AURORA__
 void BFS::nec_bottom_up_compute_step(VectCSRGraph &_graph,
-                                     VerticesArrayNEC<int> &_levels,
+                                     VerticesArray<int> &_levels,
                                      int *_connections_array,
                                      int _current_level,
                                      int &_vis,
@@ -156,7 +156,7 @@ void BFS::nec_bottom_up_compute_step(VectCSRGraph &_graph,
 #ifdef __USE_NEC_SX_AURORA__
 template <typename _T>
 void BFS::nec_top_down(VectCSRGraph &_graph,
-                       VerticesArrayNEC<_T> &_levels,
+                       VerticesArray<_T> &_levels,
                        int _source_vertex)
 {
     GraphAbstractionsNEC graph_API(_graph);

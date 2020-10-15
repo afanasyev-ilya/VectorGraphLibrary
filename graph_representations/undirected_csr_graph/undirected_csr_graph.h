@@ -20,10 +20,10 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template <typename _T>
-class VerticesArrayNEC;
+class VerticesArray;
 
 template <typename _T>
-class EdgesArrayNEC;
+class EdgesArray;
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -86,7 +86,7 @@ public:
     void print_size();
     size_t get_size();
     template <typename _T>
-    void print_with_weights(EdgesArrayNEC<_T> &_weights, TraversalDirection _direction);
+    void print_with_weights(EdgesArray<_T> &_weights, TraversalDirection _direction);
 
     /* file load/store API */
     bool save_to_binary_file(string file_name);
@@ -144,7 +144,7 @@ public:
 
     // performs simple graph visualization using GraphViz API
     template <typename _TVertexValue>
-    void save_to_graphviz_file(string _file_name, VerticesArrayNEC<_TVertexValue> &_vertex_data,
+    void save_to_graphviz_file(string _file_name, VerticesArray<_TVertexValue> &_vertex_data,
                                VisualisationMode _visualisation_mode = VISUALISE_AS_DIRECTED);
 
     /* import and preprocess API */

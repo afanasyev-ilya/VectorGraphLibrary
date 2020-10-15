@@ -48,50 +48,32 @@ int main(int argc, const char * argv[])
         // print size of VectCSR graph
         graph.print_size();
 
-        // add weights to graph
-        EdgesArrayNEC<int> weights(graph);
-        weights.set_all_random(MAX_WEIGHT);
-
-        // move graph to GPU if required
-        #ifdef __USE_GPU__
-        graph.move_to_device();
-        #endif
-
-        // compute SSSP
         cout << "Computations started..." << endl;
         cout << "Doing " << parser.get_number_of_rounds() << " SSSP iterations..." << endl;
+
+        EdgesArray<int> weights(graph);
+        weights.set_all_random(MAX_WEIGHT);
         for(int i = 0; i < parser.get_number_of_rounds(); i++)
         {
-            VerticesArrayNEC<int> distances(graph, convert_traversal_type(parser.get_traversal_direction()));
-
             int source_vertex = graph.select_random_vertex(ORIGINAL);
+            VerticesArray<int> distances(graph, convert_traversal_type(parser.get_traversal_direction()));
 
             performance_stats.reset_timers();
-
             #ifdef __USE_NEC_SX_AURORA__
             ShortestPaths::nec_dijkstra(graph, weights, distances, source_vertex,
                                         parser.get_algorithm_frontier_type(),
                                         parser.get_traversal_direction());
             #endif
-
             performance_stats.print_timers_stats();
 
             // check if required
             if(parser.get_check_flag())
             {
-                VerticesArrayNEC<int> check_distances(graph, SCATTER);
-                ShortestPaths::seq_dijkstra(graph, weights, check_distances, source_vertex);
-                verify_results(graph, distances, check_distances);
+                VerticesArray<int> check_distances(graph, SCATTER);
+                ShortestPaths::seq_dijkstra(graph, weights, check_distances, source_vertex); // Problem: SEQ - uses NEC array. And NEC weights...
+                verify_results(graph, distances, check_distances); // uses NEC arrays
             }
         }
-        
-        #ifdef __USE_GPU__
-        graph.move_to_host();
-        #endif
-
-        #ifdef __SAVE_PERFORMANCE_STATS_TO_FILE__
-        PerformanceStats::save_performance_to_file("sssp", parser.get_graph_file_name(), int(avg_perf));
-        #endif
     }
     catch (string error)
     {

@@ -37,8 +37,8 @@ using namespace std;
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // main VGL part: computational and data abstractions
-#include "graph_processing_API/vertices_array.h"
-#include "graph_processing_API/edges_array.h"
+#include "graph_processing_API/common/vertices_array/vertices_array.h"
+#include "graph_processing_API/common/edges_array/edges_array.h"
 #include "graph_processing_API/frontier.h"
 #include "graph_processing_API/graph_abstractions.h"
 

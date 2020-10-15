@@ -38,7 +38,7 @@ void UndirectedCSRGraph::print()
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template <typename _T>
-void UndirectedCSRGraph::print_with_weights(EdgesArrayNEC<_T> &_weights, TraversalDirection _direction)
+void UndirectedCSRGraph::print_with_weights(EdgesArray<_T> &_weights, TraversalDirection _direction)
 {
     cout << endl;
     cout << "UndirectedCSRGraph format" << endl;

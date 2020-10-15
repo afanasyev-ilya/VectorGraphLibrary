@@ -29,8 +29,8 @@ inline bool are_same(int a, int b)
 
 template <typename _T>
 bool verify_results(VectCSRGraph &_graph,
-                    VerticesArrayNEC<_T> &_first,
-                    VerticesArrayNEC<_T> &_second,
+                    VerticesArray<_T> &_first,
+                    VerticesArray<_T> &_second,
                     int _first_printed_results = 0,
                     int _error_count_print = 30)
 {
@@ -86,8 +86,8 @@ bool verify_results(VectCSRGraph &_graph,
 
 template <typename _T>
 bool equal_components(VectCSRGraph &_graph,
-                      VerticesArrayNEC<_T> &_first,
-                      VerticesArrayNEC<_T> &_second)
+                      VerticesArray<_T> &_first,
+                      VerticesArray<_T> &_second)
 {
     int vertices_count = _graph.get_vertices_count();
 
@@ -140,7 +140,7 @@ bool equal_components(VectCSRGraph &_graph,
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template <typename _T>
-void print_component_sizes(VectCSRGraph &_graph, VerticesArrayNEC<_T> &_components)
+void print_component_sizes(VectCSRGraph &_graph, VerticesArray<_T> &_components)
 {
     int vertices_count = _graph.get_vertices_count();
 

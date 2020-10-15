@@ -3,8 +3,11 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template <typename _T>
-VerticesArrayNEC<_T>::VerticesArrayNEC(VectCSRGraph &_graph, TraversalDirection _direction)
+VerticesArray<_T>::VerticesArray(VectCSRGraph &_graph, TraversalDirection _direction)
 {
+    object_type = VERTICES_ARRAY;
+    graph_ptr = &_graph;
+
     this->direction = _direction;
     this->vertices_count = _graph.get_vertices_count();
     MemoryAPI::allocate_array(&this->vertices_data, this->vertices_count);
@@ -15,8 +18,9 @@ VerticesArrayNEC<_T>::VerticesArrayNEC(VectCSRGraph &_graph, TraversalDirection 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template <typename _T>
-VerticesArrayNEC<_T>::VerticesArrayNEC(const VerticesArrayNEC<_T> &_copy_obj)
+VerticesArray<_T>::VerticesArray(const VerticesArray<_T> &_copy_obj)
 {
+    this->object_type = _copy_obj.object_type;
     this->graph_ptr = _copy_obj.graph_ptr;
     this->vertices_count = _copy_obj.vertices_count;
     this->direction = _copy_obj.direction;
@@ -29,7 +33,7 @@ VerticesArrayNEC<_T>::VerticesArrayNEC(const VerticesArrayNEC<_T> &_copy_obj)
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template <typename _T>
-VerticesArrayNEC<_T>::~VerticesArrayNEC()
+VerticesArray<_T>::~VerticesArray()
 {
     MemoryAPI::free_array(this->vertices_data);
 }
@@ -37,14 +41,14 @@ VerticesArrayNEC<_T>::~VerticesArrayNEC()
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template <typename _T>
-void VerticesArrayNEC<_T>::set_all_constant(_T _const)
+void VerticesArray<_T>::set_all_constant(_T _const)
 {
     MemoryAPI::set(this->vertices_data, _const, this->vertices_count);
 }
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template <typename _T>
-void VerticesArrayNEC<_T>::set_all_random(_T _max_rand)
+void VerticesArray<_T>::set_all_random(_T _max_rand)
 {
     // init CSR parts
     RandomGenerationAPI rng_api;
@@ -54,7 +58,7 @@ void VerticesArrayNEC<_T>::set_all_random(_T _max_rand)
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template <typename _T>
-void VerticesArrayNEC<_T>::print()
+void VerticesArray<_T>::print()
 {
     for(int i = 0; i < this->vertices_count; i++)
     {
@@ -66,7 +70,7 @@ void VerticesArrayNEC<_T>::print()
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template <typename _T>
-void VerticesArrayNEC<_T>::print(string _name)
+void VerticesArray<_T>::print(string _name)
 {
     cout << _name << ": ";
     print();

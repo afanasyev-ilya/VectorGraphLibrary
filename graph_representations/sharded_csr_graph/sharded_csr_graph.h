@@ -57,9 +57,9 @@ public:
 
     /* reorder API */
     template <typename _T>
-    void reorder_to_sorted_for_shard(VerticesArrayNEC<_T> _data, int _shard_id);
+    void reorder_to_sorted_for_shard(VerticesArray<_T> _data, int _shard_id);
     template <typename _T>
-    void reorder_to_original_for_shard(VerticesArrayNEC<_T> _data, int _shard_id);
+    void reorder_to_original_for_shard(VerticesArray<_T> _data, int _shard_id);
 
     // creates ShardedCSRGraph format from EdgesListGraph
     void import(EdgesListGraph &_el_graph);

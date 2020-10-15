@@ -60,7 +60,7 @@ void GraphAbstractionsNEC::scatter(ShardedCSRGraph &_graph,
                                    CollectiveEdgeOperation &&collective_edge_op,
                                    CollectiveVertexPreprocessOperation &&collective_vertex_preprocess_op,
                                    CollectiveVertexPostprocessOperation &&collective_vertex_postprocess_op,
-                                   VerticesArrayNEC<_T> &_test_data)
+                                   VerticesArray<_T> &_test_data)
 {
     Timer tm;
     tm.start();

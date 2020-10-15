@@ -51,7 +51,7 @@ int main(int argc, const char * argv[])
         cout << "Doing " << parser.get_number_of_rounds() << " BFS iterations..." << endl;
         for(int i = 0; i < parser.get_number_of_rounds(); i++)
         {
-            VerticesArrayNEC<int> levels(graph, SCATTER); // TODO selection for DO/BU
+            VerticesArray<int> levels(graph, SCATTER); // TODO selection for DO/BU
 
             int source_vertex = graph.select_random_vertex(ORIGINAL);
             cout << "selected source vertex " << source_vertex << endl;
@@ -71,7 +71,7 @@ int main(int argc, const char * argv[])
             // check if required
             if(parser.get_check_flag())
             {
-                VerticesArrayNEC<int> check_levels(graph, SCATTER);
+                VerticesArray<int> check_levels(graph, SCATTER);
                 BFS::seq_top_down(graph, check_levels, source_vertex);
                 verify_results(graph, levels, check_levels);
             }

@@ -3,7 +3,7 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template <typename _T>
-EdgesArrayNEC<_T>::EdgesArrayNEC(VectCSRGraph &_graph)
+EdgesArray<_T>::EdgesArray(VectCSRGraph &_graph)
 {
     edges_count = _graph.get_edges_count();
     edges_count_in_outgoing_ve = _graph.get_edges_count_in_outgoing_ve();
@@ -23,7 +23,7 @@ EdgesArrayNEC<_T>::EdgesArrayNEC(VectCSRGraph &_graph)
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template <typename _T>
-EdgesArrayNEC<_T>::~EdgesArrayNEC()
+EdgesArray<_T>::~EdgesArray()
 {
     MemoryAPI::free_array(edges_data);
 }
@@ -31,14 +31,14 @@ EdgesArrayNEC<_T>::~EdgesArrayNEC()
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template <typename _T>
-void EdgesArrayNEC<_T>::set_all_constant(_T _const)
+void EdgesArray<_T>::set_all_constant(_T _const)
 {
     MemoryAPI::set(edges_data, _const, wall_array_size);
 }
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template <typename _T>
-void EdgesArrayNEC<_T>::set_all_random(_T _max_rand)
+void EdgesArray<_T>::set_all_random(_T _max_rand)
 {
     // init CSR parts
     RandomGenerationAPI rng_api;
@@ -54,7 +54,7 @@ void EdgesArrayNEC<_T>::set_all_random(_T _max_rand)
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template <typename _T>
-void EdgesArrayNEC<_T>::set(int _src_id, int _dst_id, _T _val, TraversalDirection _direction)
+void EdgesArray<_T>::set(int _src_id, int _dst_id, _T _val, TraversalDirection _direction)
 {
     // set into both CSR and VE for Advance API
     _T *target_csr_buffer, *target_ve_buffer;
@@ -81,7 +81,7 @@ void EdgesArrayNEC<_T>::set(int _src_id, int _dst_id, _T _val, TraversalDirectio
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template <typename _T>
-_T EdgesArrayNEC<_T>::get(int _src_id, int _dst_id, TraversalDirection _direction)
+_T EdgesArray<_T>::get(int _src_id, int _dst_id, TraversalDirection _direction)
 {
     // always get from CSR since it's faster
     _T *answer_csr_buffer_ptr;
@@ -108,7 +108,7 @@ _T EdgesArrayNEC<_T>::get(int _src_id, int _dst_id, TraversalDirection _directio
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template <typename _T>
-void EdgesArrayNEC<_T>::print()
+void EdgesArray<_T>::print()
 {
     cout << "outgoing_csr_ptr: ";
     for(long long i = 0; i < edges_count; i++)

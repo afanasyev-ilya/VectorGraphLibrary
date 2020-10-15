@@ -45,7 +45,7 @@ int VectCSRGraph::reorder(int _vertex_id, TraversalDirection _input_dir, Travers
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template <typename _T>
-void VectCSRGraph::reorder_to_original(VerticesArrayNEC<_T> &_data)
+void VectCSRGraph::reorder_to_original(VerticesArray<_T> &_data)
 {
     Timer tm;
     tm.start();
@@ -93,7 +93,7 @@ void VectCSRGraph::reorder_to_original(VerticesArrayNEC<_T> &_data)
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template <typename _T>
-void VectCSRGraph::reorder_to_scatter(VerticesArrayNEC<_T> &_data)
+void VectCSRGraph::reorder_to_scatter(VerticesArray<_T> &_data)
 {
     Timer tm;
     tm.start();
@@ -142,7 +142,7 @@ void VectCSRGraph::reorder_to_scatter(VerticesArrayNEC<_T> &_data)
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template <typename _T>
-void VectCSRGraph::reorder_to_gather(VerticesArrayNEC<_T> &_data)
+void VectCSRGraph::reorder_to_gather(VerticesArray<_T> &_data)
 {
     Timer tm;
     tm.start();
@@ -191,7 +191,7 @@ void VectCSRGraph::reorder_to_gather(VerticesArrayNEC<_T> &_data)
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template <typename _T>
-void VectCSRGraph::reorder(VerticesArrayNEC<_T> &_data, TraversalDirection _output_dir)
+void VectCSRGraph::reorder(VerticesArray<_T> &_data, TraversalDirection _output_dir)
 {
     if(_output_dir == SCATTER)
     {
@@ -241,7 +241,7 @@ void VectCSRGraph::reorder_edges_to_gather(_T *_incoming_csr_ptr, _T *_outgoing_
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template <typename _T>
-bool VectCSRGraph::vertices_buffer_can_be_used(VerticesArrayNEC<_T> &_data)
+bool VectCSRGraph::vertices_buffer_can_be_used(VerticesArray<_T> &_data)
 {
     if(sizeof(_T) <= sizeof(vertices_reorder_buffer[0]))
         return true;
