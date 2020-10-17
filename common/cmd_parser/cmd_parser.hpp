@@ -2,7 +2,7 @@
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-AlgorithmCommandOptionsParser::AlgorithmCommandOptionsParser()
+Parser::Parser()
 {
     scale = 10;
     avg_degree = 5;
@@ -19,7 +19,7 @@ AlgorithmCommandOptionsParser::AlgorithmCommandOptionsParser()
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void AlgorithmCommandOptionsParser::parse_args(int _argc, const char * _argv[])
+void Parser::parse_args(int _argc, const char * _argv[])
 {
     // get params from cmd line
     for (int i = 1; i < _argc; i++)
@@ -118,6 +118,26 @@ void AlgorithmCommandOptionsParser::parse_args(int _argc, const char * _argv[])
             algorithm_cc = BFS_BASED_ALGORITHM;
         }
     }
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+TraversalDirection Parser::convert_traversal_type(AlgorithmTraversalType _algo_type)
+{
+    if(_algo_type == PUSH_TRAVERSAL)
+        return SCATTER;
+    if(_algo_type == PULL_TRAVERSAL)
+        return GATHER;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+AlgorithmTraversalType Parser::convert_traversal_type(TraversalDirection _direction_type)
+{
+    if(_direction_type == SCATTER)
+        return PUSH_TRAVERSAL;
+    if(_direction_type == GATHER)
+        return PULL_TRAVERSAL;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

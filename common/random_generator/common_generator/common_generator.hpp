@@ -1,0 +1,22 @@
+#pragma once
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+template <typename _T>
+void CommonRandomGenerator::generate_array_of_random_uniform_values(_T *_array, int _size, _T _max_val)
+{
+    for(int i = 0; i < _size; i++)
+    _array[i] = rand() % ((int)_max_val);
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+template <>
+void CommonRandomGenerator::generate_array_of_random_uniform_values<float>(float *_array, int _size, float _max_val)
+{
+    for(int i = 0; i < _size; i++)
+        _array[i] = static_cast <float> (rand()) / (static_cast <float> (RAND_MAX/_max_val));
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+

@@ -20,7 +20,7 @@ int main(int argc, const char * argv[])
         cout << "SSWP (Single Source Widest Paths) test..." << endl;
         
         // parse args
-        AlgorithmCommandOptionsParser parser;
+        Parser parser;
         parser.parse_args(argc, argv);
 
         UndirectedCSRGraph<int, float> graph;

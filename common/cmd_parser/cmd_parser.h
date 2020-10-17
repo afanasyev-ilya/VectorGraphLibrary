@@ -6,7 +6,7 @@
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-class AlgorithmCommandOptionsParser
+class Parser
 {
 private:
     ComputeMode compute_mode;
@@ -26,7 +26,7 @@ private:
     AlgorithmBFS algorithm_bfs;
     AlgorithmCC algorithm_cc;
 public:
-    AlgorithmCommandOptionsParser();
+    Parser();
     
     int get_scale() { return scale; };
     int get_avg_degree() { return avg_degree; };
@@ -44,10 +44,16 @@ public:
     AlgorithmCC get_algorithm_cc() {return algorithm_cc;};
     
     void parse_args(int _argc, const char * _argv[]);
+
+    static TraversalDirection convert_traversal_type(AlgorithmTraversalType _algo_type);
+    static AlgorithmTraversalType convert_traversal_type(TraversalDirection _direction_type);
+
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+#ifndef __CUDA_INCLUDE__
 #include "cmd_parser.hpp"
+#endif
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

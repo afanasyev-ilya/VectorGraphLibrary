@@ -2,8 +2,7 @@
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#ifdef __USE_ASL__
-void EdgesListGraph::preprocess_into_csr_based(int *_work_buffer, asl_int_t *_asl_buffer)
+void EdgesListGraph::preprocess_into_csr_based(int *_work_buffer, vgl_sort_indexes *_sort_buffer)
 {
     bool work_buffer_was_allocated = false;
     if(_work_buffer == NULL)
@@ -12,11 +11,11 @@ void EdgesListGraph::preprocess_into_csr_based(int *_work_buffer, asl_int_t *_as
         MemoryAPI::allocate_array(&_work_buffer, this->edges_count);
     }
 
-    bool asl_buffer_was_allocated = false;
-    if(_asl_buffer == NULL)
+    bool sort_buffer_was_allocated = false;
+    if(_sort_buffer == NULL)
     {
-        asl_buffer_was_allocated = true;
-        MemoryAPI::allocate_array(&_asl_buffer, this->edges_count);
+        sort_buffer_was_allocated = true;
+        MemoryAPI::allocate_array(&_sort_buffer, this->edges_count);
     }
 
     // init sort indexes
@@ -24,25 +23,17 @@ void EdgesListGraph::preprocess_into_csr_based(int *_work_buffer, asl_int_t *_as
     #pragma omp parallel for
     for(int i = 0; i < this->edges_count; i++)
     {
-        _asl_buffer[i] = i;
+        _sort_buffer[i] = i;
     }
-
-    // initialize ASL sorting library
-    asl_sort_t hnd;
-    ASL_CALL(asl_library_initialize());
-    ASL_CALL(asl_sort_create_i32(&hnd, ASL_SORTORDER_ASCENDING, ASL_SORTALGORITHM_AUTO));
 
     // sort src_ids
     Timer tm;
     tm.start();
-    ASL_CALL(asl_sort_execute_i32(hnd, this->edges_count, src_ids, _asl_buffer, src_ids, _asl_buffer));
+    Sorter::sort(src_ids, _sort_buffer, this->edges_count, SORT_ASCENDING);
     tm.end();
     #ifdef __PRINT_API_PERFORMANCE_STATS__
     tm.print_time_stats("EdgesListGraph sorting (to CSR) time");
     #endif
-
-    ASL_CALL(asl_sort_destroy(hnd));
-    ASL_CALL(asl_library_finalize());
 
     // reorder dst_ids
     #pragma _NEC ivdep
@@ -53,7 +44,7 @@ void EdgesListGraph::preprocess_into_csr_based(int *_work_buffer, asl_int_t *_as
     #pragma omp parallel for
     for(long long edge_pos = 0; edge_pos < this->edges_count; edge_pos++)
     {
-        _work_buffer[edge_pos] = dst_ids[_asl_buffer[edge_pos]];
+        _work_buffer[edge_pos] = dst_ids[_sort_buffer[edge_pos]];
     }
 
     #pragma _NEC ivdep
@@ -67,11 +58,10 @@ void EdgesListGraph::preprocess_into_csr_based(int *_work_buffer, asl_int_t *_as
     {
         MemoryAPI::free_array(_work_buffer);
     }
-    if(asl_buffer_was_allocated)
+    if(sort_buffer_was_allocated)
     {
-        MemoryAPI::free_array(_asl_buffer);
+        MemoryAPI::free_array(_sort_buffer);
     }
 }
-#endif
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

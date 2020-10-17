@@ -22,7 +22,7 @@ int main(int argc, const char * argv[])
         cout << "PR (connected components) test..." << endl;
 
         // parse args
-        AlgorithmCommandOptionsParser parser;
+        Parser parser;
         parser.parse_args(argc, argv);
 
         // load graph

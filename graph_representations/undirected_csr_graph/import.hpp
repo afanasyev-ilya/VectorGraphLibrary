@@ -58,7 +58,7 @@ void UndirectedCSRGraph::extract_connection_count(EdgesListGraph &_el_graph,
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 void UndirectedCSRGraph::sort_vertices_by_degree(int *_connections_array,
-                                                 asl_int_t *_asl_indexes,
+                                                 vgl_sort_indexes *_sort_indexes,
                                                  int _el_vertices_count,
                                                  int *_forward_conversion,
                                                  int *_backward_conversion)
@@ -71,31 +71,24 @@ void UndirectedCSRGraph::sort_vertices_by_degree(int *_connections_array,
     #pragma omp parallel for
     for(int i = 0; i < _el_vertices_count; i++)
     {
-        _asl_indexes[i] = i;
+        _sort_indexes[i] = i;
     }
 
-    ASL_CALL(asl_library_initialize());
-    asl_sort_t hnd;
-    ASL_CALL(asl_sort_create_i32(&hnd, ASL_SORTORDER_DESCENDING, ASL_SORTALGORITHM_AUTO));
-
-    // do sorting
-    ASL_CALL(asl_sort_execute_i32(hnd, _el_vertices_count, _connections_array, _asl_indexes, _connections_array, _asl_indexes));
-
-    ASL_CALL(asl_sort_destroy(hnd));
-    ASL_CALL(asl_library_finalize());
+    // sorting
+    Sorter::sort(_connections_array, _sort_indexes, _el_vertices_count, SORT_DESCENDING);
 
     #pragma _NEC ivdep
     #pragma omp parallel for
     for(int i = 0; i < _el_vertices_count; i++)
     {
-        _forward_conversion[_asl_indexes[i]] = i;
+        _forward_conversion[_sort_indexes[i]] = i;
     }
 
     #pragma _NEC ivdep
     #pragma omp parallel for
     for(int i = 0; i < _el_vertices_count; i++)
     {
-        _backward_conversion[i] = _asl_indexes[i];
+        _backward_conversion[i] = _sort_indexes[i];
     }
 
     tm.end();
@@ -161,7 +154,7 @@ void UndirectedCSRGraph::construct_CSR(EdgesListGraph &_el_graph)
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 void UndirectedCSRGraph::copy_edges_indexes(long long *_edges_reorder_indexes,
-                                            asl_int_t *_asl_indexes,
+                                            vgl_sort_indexes *_sort_indexes,
                                             long long _edges_count)
 {
     if(_edges_reorder_indexes != NULL)
@@ -170,7 +163,7 @@ void UndirectedCSRGraph::copy_edges_indexes(long long *_edges_reorder_indexes,
         #pragma omp parallel for
         for(long long i = 0; i < _edges_count; i++)
         {
-            _edges_reorder_indexes[i] = _asl_indexes[i];
+            _edges_reorder_indexes[i] = _sort_indexes[i];
         }
     }
 }
@@ -191,16 +184,16 @@ void UndirectedCSRGraph::import(EdgesListGraph &_el_graph, long long *_edges_reo
     // allocate buffers
     int *connections_array;
     int *work_buffer;
-    asl_int_t *asl_indexes;
+    vgl_sort_indexes *sort_indexes;
     MemoryAPI::allocate_array(&connections_array, el_vertices_count);
-    MemoryAPI::allocate_array(&asl_indexes, el_edges_count);
+    MemoryAPI::allocate_array(&sort_indexes, el_edges_count);
     MemoryAPI::allocate_array(&work_buffer, max(el_edges_count, (long long)el_vertices_count*MAX_SX_AURORA_THREADS));
 
     // obtain connections array from edges list graph
     extract_connection_count(_el_graph, work_buffer, connections_array);
 
     // get reorder data (sort by vertex degree)
-    sort_vertices_by_degree(connections_array, asl_indexes, el_vertices_count, loc_forward_conversion,
+    sort_vertices_by_degree(connections_array, sort_indexes, el_vertices_count, loc_forward_conversion,
                             loc_backward_conversion);
     MemoryAPI::free_array(connections_array);
 
@@ -208,11 +201,11 @@ void UndirectedCSRGraph::import(EdgesListGraph &_el_graph, long long *_edges_reo
     _el_graph.renumber_vertices(loc_forward_conversion, work_buffer);
 
     // sorting preprocessed edges list graph
-    _el_graph.preprocess_into_csr_based(work_buffer, asl_indexes);
+    _el_graph.preprocess_into_csr_based(work_buffer, sort_indexes);
 
     // save reordering information and free ASL array
-    this->copy_edges_indexes(_edges_reorder_indexes, asl_indexes, el_edges_count);
-    MemoryAPI::free_array(asl_indexes);
+    this->copy_edges_indexes(_edges_reorder_indexes, sort_indexes, el_edges_count);
+    MemoryAPI::free_array(sort_indexes);
 
     // resize constructed graph
     this->resize(el_vertices_count, el_edges_count);

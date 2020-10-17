@@ -18,7 +18,7 @@ include_directories(common/gpu_API)
 include_directories(common/memory_API)
 include_directories(common/parallel_primitives)
 include_directories(common/random_generator)
-include_directories(common/sorting)
+include_directories(common/sorter)
 include_directories(common/verify_results)
 include_directories(export_graphs)
 include_directories(graph_analytics)
@@ -87,11 +87,11 @@ add_executable(VectorGraphLibrary
         common/memory_API/memory_API.hpp
         common/parallel_primitives/copy_if.h
         common/parallel_primitives/get_elements_count.h
-        common/random_generator/ASL_random_generator.h
-        common/random_generator/ASL_random_generator.hpp
-        common/random_generator/common_random_generator.h
-        common/random_generator/random_generation_API.h
-        common/sorting/sorting.h
+        common/random_generator/asl_generator/asl_generator.h
+        common/random_generator/asl_generator/asl_generator.hpp
+        common/random_generator/common_generator/common_generator.h
+        common/random_generator/random_generator.h
+        common/sorter/sorter.h
         common/verify_results/verify_results.h
         export_graphs/edges_list_export.h
         export_graphs/ligra_export.h

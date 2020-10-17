@@ -51,7 +51,7 @@ template <typename _T>
 void VerticesArray<_T>::set_all_random(_T _max_rand)
 {
     // init CSR parts
-    RandomGenerationAPI rng_api;
+    RandomGenerator rng_api;
     rng_api.generate_array_of_random_values<_T>(this->vertices_data, this->vertices_count, _max_rand);
 }
 

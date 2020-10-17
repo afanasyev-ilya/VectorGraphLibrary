@@ -2,16 +2,6 @@
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#include "../../../common/gpu_API/cuda_error_handling.h"
-#include "../../../architectures.h"
-#include "../../../graph_representations/base_graph.h"
-#include "../../../graph_representations/edges_list_graph/edges_list_graph.h"
-#include "../../../graph_representations/extended_CSR_graph/extended_CSR_graph.h"
-#include <nvfunctional>
-#include "../frontier/frontier_gpu.cuh"
-
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
 class GraphPrimitivesGPU
 {
 private:

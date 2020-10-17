@@ -18,8 +18,8 @@ using namespace std;
 
 #include "common/timer/timer.h"
 #include "common/memory_API/memory_API.h"
-#include "common/random_generator/random_generation_API.h"
-#include "common/sorting/sorting.h"
+#include "common/random_generator/random_generator.h"
+#include "common/sorter/sorter.h"
 #include "common/cmd_parser/cmd_parser.h"
 #include "common/parallel_primitives/copy_if.h"
 #include "common/parallel_primitives/get_elements_count.h"
@@ -39,8 +39,8 @@ using namespace std;
 // main VGL part: computational and data abstractions
 #include "graph_processing_API/common/vertices_array/vertices_array.h"
 #include "graph_processing_API/common/edges_array/edges_array.h"
-#include "graph_processing_API/frontier.h"
-#include "graph_processing_API/graph_abstractions.h"
+#include "graph_processing_API/common/frontier/frontier.h"
+#include "graph_processing_API/common/graph_abstractions/graph_abstractions.h"
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -49,9 +49,9 @@ using namespace std;
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // algorithm implementations
-#include "algorithms/bfs/bfs.h"
+//#include "algorithms/bfs/bfs.h"
 #include "algorithms/sssp/shortest_paths.h"
-#include "algorithms/scc/scc.h"
+//#include "algorithms/scc/scc.h"
 /*#include "algorithms/sswp/widest_paths.h"
 #include "algorithms/cc/cc.h"
 #include "algorithms/pr/pr.h"
@@ -65,7 +65,7 @@ using namespace std;
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#include "graph_analytics/graph_analytics.h"
+//#include "graph_analytics/graph_analytics.h"
 #include "common/verify_results/verify_results.h"
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

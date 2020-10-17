@@ -16,14 +16,15 @@ using namespace std;
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-
-void gpu_dijkstra_all_active_wrapper(UndirectedCSRGraph &_graph,
-                                     _TEdgeWeight *_distances,
+template <typename _T>
+void gpu_dijkstra_all_active_wrapper(VectCSRGraph &_graph,
+                                     EdgesArray<_T> &_weights,
+                                     VerticesArray<_T> &_distance,
                                      int _source_vertex,
                                      int &_iterations_count,
                                      AlgorithmTraversalType _traversal_direction)
 {
-    LOAD_UNDIRECTED_CSR_GRAPH_DATA(_graph);
+    /*LOAD_UNDIRECTED_CSR_GRAPH_DATA(_graph);
     GraphPrimitivesGPU graph_API;
     FrontierGPU frontier(_graph.get_vertices_count());
 
@@ -75,18 +76,19 @@ void gpu_dijkstra_all_active_wrapper(UndirectedCSRGraph &_graph,
             graph_API.advance(_graph, frontier, edge_op_pull);
         _iterations_count++;
     }
-    while(changes[0] > 0);
+    while(changes[0] > 0);*/
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-
-void gpu_dijkstra_partial_active_wrapper(UndirectedCSRGraph &_graph,
-                                         _TEdgeWeight *_distances,
+template <typename _T>
+void gpu_dijkstra_partial_active_wrapper(VectCSRGraph &_graph,
+                                         EdgesArray<_T> &_weights,
+                                         VerticesArray<_T> &_distance,
                                          int _source_vertex,
                                          int &_iterations_count)
 {
-    LOAD_UNDIRECTED_CSR_GRAPH_DATA(_graph);
+    /*LOAD_UNDIRECTED_CSR_GRAPH_DATA(_graph);
 
     GraphPrimitivesGPU graph_API;
 
@@ -142,14 +144,19 @@ void gpu_dijkstra_partial_active_wrapper(UndirectedCSRGraph &_graph,
         _iterations_count++;
     }
 
-    cudaFree(was_updated);
+    cudaFree(was_updated);*/
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-template void gpu_dijkstra_all_active_wrapper<int, float>(UndirectedCSRGraph<int, float> &_graph, float *_distances, int _source_vertex,
-                                                          int &_iterations_count, AlgorithmTraversalType _traversal_direction);
-template void gpu_dijkstra_partial_active_wrapper<int, float>(UndirectedCSRGraph<int, float> &_graph, float *_distances, int _source_vertex,
-                                                              int &_iterations_count);
+template void gpu_dijkstra_all_active_wrapper<int>(VectCSRGraph &_graph, EdgesArray<int> &_weights,
+               VerticesArray<int> &_distance, int _source_vertex, int &_iterations_count, AlgorithmTraversalType _traversal_direction);
+template void gpu_dijkstra_all_active_wrapper<float>(VectCSRGraph &_graph, EdgesArray<float> &_weights,
+               VerticesArray<float> &_distance, int _source_vertex, int &_iterations_count, AlgorithmTraversalType _traversal_direction);
+
+template void gpu_dijkstra_partial_active_wrapper<int>(VectCSRGraph &_graph, EdgesArray<int> &_weights,
+                                                       VerticesArray<int> &_distance, int _source_vertex, int &_iterations_count);
+template void gpu_dijkstra_partial_active_wrapper<float>(VectCSRGraph &_graph, EdgesArray<float> &_weights,
+                                                         VerticesArray<float> &_distance, int _source_vertex, int &_iterations_count);
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

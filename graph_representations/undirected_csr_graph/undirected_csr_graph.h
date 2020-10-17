@@ -7,6 +7,7 @@
 #include <string>
 #include <fstream>
 #include <stdio.h>
+#include <string.h>
 
 #include "../../common/cmd_parser/parser_options.h"
 #include "vector_extension/vector_extension.h"
@@ -63,13 +64,13 @@ private:
     void extract_connection_count(EdgesListGraph &_el_graph,
                                   int *_work_buffer, int *_connections_count);
 
-    void sort_vertices_by_degree(int *_connections_array, asl_int_t *_asl_indexes,
+    void sort_vertices_by_degree(int *_connections_array, vgl_sort_indexes *_sort_indexes,
                                  int _el_vertices_count, int *_forward_conversion,
                                  int *_backward_conversion);
 
     void construct_CSR(EdgesListGraph &_el_graph);
 
-    void copy_edges_indexes(long long *_edges_reorder_indexes, asl_int_t *_asl_indexes, long long _edges_count);
+    void copy_edges_indexes(long long *_edges_reorder_indexes, vgl_sort_indexes *_sort_indexes, long long _edges_count);
 public:
     UndirectedCSRGraph(int _vertices_count = 1, long long _edges_count = 1);
     ~UndirectedCSRGraph();
@@ -171,12 +172,14 @@ int *ve_adjacent_ids = (input_graph.get_ve_ptr())->get_adjacent_ids();\
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+#ifndef __CUDA_INCLUDE__
 #include "undirected_csr_graph.hpp"
 #include "import.hpp"
 #include "gpu_api.hpp"
 #include "nec_api.hpp"
 #include "reorder.hpp"
 #include "print.hpp"
+#endif
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 

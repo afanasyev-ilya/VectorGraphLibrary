@@ -23,26 +23,6 @@ enum AlgorithmTraversalType {
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-TraversalDirection convert_traversal_type(AlgorithmTraversalType _algo_type)
-{
-    if(_algo_type == PUSH_TRAVERSAL)
-        return SCATTER;
-    if(_algo_type == PULL_TRAVERSAL)
-        return GATHER;
-}
-
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-AlgorithmTraversalType convert_traversal_type(TraversalDirection _direction_type)
-{
-    if(_direction_type == SCATTER)
-        return PUSH_TRAVERSAL;
-    if(_direction_type == GATHER)
-        return PULL_TRAVERSAL;
-}
-
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
 enum VerticesState
 {
     VERTICES_SORTED = 1,

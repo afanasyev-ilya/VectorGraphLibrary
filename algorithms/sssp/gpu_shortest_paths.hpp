@@ -3,15 +3,19 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #ifdef __USE_GPU__
-void SSSP::gpu_dijkstra(UndirectedCSRGraph &_graph,
-                        _TEdgeWeight *_distances,
+template <typename _T>
+void SSSP::gpu_dijkstra(VectCSRGraph &_graph,
+                        EdgesArray<_T> &_weights,
+                        VerticesArray<_T> &_distances,
                         int _source_vertex,
                         AlgorithmFrontierType _frontier_type,
                         AlgorithmTraversalType _traversal_direction)
 {
+    cout << "inside GPU version" << endl;
+
     //_graph.move_to_device();
 
-    LOAD_UNDIRECTED_CSR_GRAPH_DATA(_graph);
+    /*LOAD_UNDIRECTED_CSR_GRAPH_DATA(_graph);
 
     _TEdgeWeight *device_distances;
     MemoryAPI::allocate_non_managed_array(&device_distances, vertices_count);
@@ -40,7 +44,7 @@ void SSSP::gpu_dijkstra(UndirectedCSRGraph &_graph,
         PerformanceStats::print_algorithm_performance_stats("SSSP (partial-active, dijkstra)", t2 - t1, edges_count, iterations_count);
     else if(_frontier_type == ALL_ACTIVE)
         PerformanceStats::print_algorithm_performance_stats("SSSP (all-active, dijkstra)", t2 - t1, edges_count, iterations_count);
-    #endif
+    #endif*/
 }
 #endif
 

@@ -20,7 +20,7 @@ int main(int argc, const char * argv[])
         cout << "APSP (All-pair Shortest Paths) test..." << endl;
 
         // parse args
-        AlgorithmCommandOptionsParser parser;
+        Parser parser;
         parser.parse_args(argc, argv);
 
         //VectorisedCSRGraph<int, float> graph;

@@ -22,7 +22,7 @@ int main(int argc, const char * argv[])
         cout << "Gather test..." << endl;
 
         // parse args
-        AlgorithmCommandOptionsParser parser;
+        Parser parser;
         parser.parse_args(argc, argv);
 
         // generate random graph

@@ -12,7 +12,7 @@ int main(int argc, const char * argv[])
         cout << "KCore test..." << endl;
         
         // parse args
-        AlgorithmCommandOptionsParser parser;
+        Parser parser;
         parser.parse_args(argc, argv);
         
         // gen new graph

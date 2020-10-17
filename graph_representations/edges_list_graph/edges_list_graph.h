@@ -58,19 +58,18 @@ public:
     void preprocess_into_segmented();
 
     // CSR-based preprocessing (vertices are sorted based on src_ids)
-    #ifdef __USE_ASL__
-    void preprocess_into_csr_based(int *_work_buffer = NULL, asl_int_t *_asl_buffer = NULL); // TODO non-ASL
-    #endif
-
+    void preprocess_into_csr_based(int *_work_buffer = NULL, vgl_sort_indexes *_sort_buffer = NULL);
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+#ifndef __CUDA_INCLUDE__
 #include "edges_list_graph.hpp"
 #include "preprocess_into_segmented.hpp"
 #include "preprocess_into_csr_based.hpp"
 #include "print.hpp"
 #include "import.hpp"
+#endif
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 

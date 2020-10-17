@@ -23,7 +23,7 @@ void GraphGenerationAPI::random_uniform(EdgesListGraph &_graph,
     {};
 
     double t1 = omp_get_wtime();
-    RandomGenerationAPI rng_api;
+    RandomGenerator rng_api;
     int max_id_val = vertices_count;
     rng_api.generate_array_of_random_values<int>(src_ids, directed_edges_count, max_id_val);
     rng_api.generate_array_of_random_values<int>(dst_ids, directed_edges_count, max_id_val);
@@ -71,7 +71,7 @@ struct BatchedRand
     void generate_new_portion()
     {
         cout << "gen " << omp_get_thread_num() << endl;
-        RandomGenerationAPI rng_api;
+        RandomGenerator rng_api;
         rng_api.generate_array_of_random_values<int>(rand_buffer, rand_buffer_size, 100);
     }
 
@@ -230,7 +230,7 @@ void GraphGenerationAPI::SCC_uniform(EdgesListGraph &_graph,
     int *src_ids = _graph.get_src_ids();
     int *dst_ids = _graph.get_dst_ids();
     
-    RandomGenerationAPI rng_api;
+    RandomGenerator rng_api;
 
     int current_edges_pos = 0;
     for(int i = 0; i < SCC_count; i++)

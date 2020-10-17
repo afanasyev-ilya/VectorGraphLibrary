@@ -2,12 +2,12 @@
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#include "ASL_random_generator.h"
-#include "common_random_generator.h"
+#include "asl_generator/asl_generator.h"
+#include "common_generator/common_generator.h"
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-class RandomGenerationAPI
+class RandomGenerator
 {
 private:
     #ifdef __USE_ASL__
@@ -15,19 +15,14 @@ private:
     #endif
     CommonRandomGenerator common_rng;
 public:
-    RandomGenerationAPI() {};
-    
-    ~RandomGenerationAPI() {};
-    
     template <typename _T>
-    void generate_array_of_random_values(_T *_array, long long _size, _T _max_val)
-    {
-        #ifdef __USE_ASL__
-        ASL_rng.generate_array_of_random_uniform_values<_T>(_array, _size, _max_val);
-        #else
-        common_rng.generate_array_of_random_uniform_values<_T>(_array, _size, _max_val);
-        #endif
-    }
+    void generate_array_of_random_values(_T *_array, long long _size, _T _max_val);
 };
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+#ifndef __CUDA_INCLUDE__
+#include "random_generator.hpp"
+#endif
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

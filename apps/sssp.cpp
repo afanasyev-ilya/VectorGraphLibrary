@@ -22,7 +22,7 @@ int main(int argc, const char * argv[])
         cout << "SSSP (Single Source Shortest Paths) test..." << endl;
 
         // parse args
-        AlgorithmCommandOptionsParser parser;
+        Parser parser;
         parser.parse_args(argc, argv);
 
         VectCSRGraph graph;
@@ -56,11 +56,17 @@ int main(int argc, const char * argv[])
         for(int i = 0; i < parser.get_number_of_rounds(); i++)
         {
             int source_vertex = graph.select_random_vertex(ORIGINAL);
-            VerticesArray<int> distances(graph, convert_traversal_type(parser.get_traversal_direction()));
+            VerticesArray<int> distances(graph, Parser::convert_traversal_type(parser.get_traversal_direction()));
 
             performance_stats.reset_timers();
             #ifdef __USE_NEC_SX_AURORA__
             ShortestPaths::nec_dijkstra(graph, weights, distances, source_vertex,
+                                        parser.get_algorithm_frontier_type(),
+                                        parser.get_traversal_direction());
+            #endif
+
+            #ifdef __USE_GPU__
+            ShortestPaths::gpu_dijkstra(graph, weights, distances, source_vertex,
                                         parser.get_algorithm_frontier_type(),
                                         parser.get_traversal_direction());
             #endif

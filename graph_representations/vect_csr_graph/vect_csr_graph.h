@@ -8,6 +8,8 @@
 #include <fstream>
 #include <stdio.h>
 
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 #include "../../common/cmd_parser/parser_options.h"
 #include "../../common/memory_API/memory_API.h"
 
@@ -49,8 +51,8 @@ public:
 
     /* GPU specific (copy) API */
     #ifdef __USE_GPU__
-    virtual void move_to_device() = 0;
-    virtual void move_to_host() = 0;
+    void move_to_device();
+    void move_to_host();
     #endif
 
     /* Further - VectCSRGraph specific API : reorder, working with double-directions, etc.*/
@@ -93,10 +95,13 @@ public:
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+#ifndef __CUDA_INCLUDE__
 #include "vect_csr_graph.hpp"
 #include "reorder.hpp"
 #include "print.hpp"
 #include "import.hpp"
+#include "gpu_api.hpp"
+#endif
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 

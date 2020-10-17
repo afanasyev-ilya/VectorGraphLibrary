@@ -64,9 +64,10 @@ public:
     #endif
 
     #ifdef __USE_GPU__
-    void gpu_dijkstra(VectCSRGraph &_graph, EdgesArray<_T> &_weights, VerticesArray<_T> &_distances,
-                      int _source_vertex, AlgorithmFrontierType _frontier_type = ALL_ACTIVE,
-                      AlgorithmTraversalType _traversal_direction = PUSH_TRAVERSAL);
+    template <typename _T>
+    static void gpu_dijkstra(VectCSRGraph &_graph, EdgesArray<_T> &_weights, VerticesArray<_T> &_distances,
+                             int _source_vertex, AlgorithmFrontierType _frontier_type = ALL_ACTIVE,
+                             AlgorithmTraversalType _traversal_direction = PUSH_TRAVERSAL);
     #endif
 };
 
