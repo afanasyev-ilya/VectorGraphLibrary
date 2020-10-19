@@ -25,14 +25,14 @@ __global__ void estimate_advance_work_kernel(const int *_frontier_ids,
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-int GraphPrimitivesGPU::estimate_advance_work(UndirectedCSRGraph &_graph,
+int GraphAbstractionsGPU::estimate_advance_work(UndirectedCSRGraph &_graph,
                                               FrontierGPU &_frontier)
 {
     LOAD_UNDIRECTED_CSR_GRAPH_DATA(_graph);
     long long *vertex_pointers = vertex_pointers;
 
     int *managed_reduced_result;
-    MemoryAPI::allocate_managed_array(&managed_reduced_result, 1);
+    MemoryAPI::allocate_array(&managed_reduced_result, 1);
 
     int frontier_size = _frontier.size();
     SAFE_KERNEL_CALL((estimate_advance_work_kernel<<< (frontier_size - 1) / BLOCK_SIZE + 1, BLOCK_SIZE >>>(_frontier.ids, frontier_size, vertex_pointers, managed_reduced_result)));
@@ -40,7 +40,7 @@ int GraphPrimitivesGPU::estimate_advance_work(UndirectedCSRGraph &_graph,
     cudaDeviceSynchronize();
     int reduce_result = managed_reduced_result[0];
 
-    MemoryAPI::free_device_array(managed_reduced_result);
+    MemoryAPI::free_array(managed_reduced_result);
 
     return reduce_result;
 }

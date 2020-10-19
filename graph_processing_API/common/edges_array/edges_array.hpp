@@ -8,10 +8,13 @@ EdgesArray<_T>::EdgesArray(VectCSRGraph &_graph)
     edges_count = _graph.get_edges_count();
     edges_count_in_outgoing_ve = _graph.get_edges_count_in_outgoing_ve();
     edges_count_in_incoming_ve = _graph.get_edges_count_in_incoming_ve();
-    wall_array_size = edges_count/*outgoing csr*/ + edges_count/*incoming csr*/ +
+    total_array_size = edges_count/*outgoing csr*/ + edges_count/*incoming csr*/ +
                       edges_count_in_outgoing_ve + edges_count_in_incoming_ve;
 
-    MemoryAPI::allocate_array(&edges_data, wall_array_size);
+    cout << "edges_count_in_outgoing_ve: " << edges_count_in_outgoing_ve << endl;
+    cout << "edges_count_in_incoming_ve: " << edges_count_in_incoming_ve << endl;
+
+    MemoryAPI::allocate_array(&edges_data, total_array_size);
     outgoing_csr_ptr = &edges_data[0];
     outgoing_ve_ptr = &edges_data[edges_count];
     incoming_csr_ptr = &edges_data[edges_count + edges_count_in_outgoing_ve];
@@ -33,7 +36,7 @@ EdgesArray<_T>::~EdgesArray()
 template <typename _T>
 void EdgesArray<_T>::set_all_constant(_T _const)
 {
-    MemoryAPI::set(edges_data, _const, wall_array_size);
+    MemoryAPI::set(edges_data, _const, total_array_size);
 }
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 

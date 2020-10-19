@@ -2,19 +2,12 @@
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#include "frontier_kernels.cu"
-
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-FrontierGPU::FrontierGPU(int _vertices_count)
+FrontierGPU::FrontierGPU(VectCSRGraph &_graph, TraversalDirection _direction)
 {
-    max_size = _vertices_count;
-    current_size = 0;
-    MemoryAPI::allocate_non_managed_array(&ids, max_size);
-    MemoryAPI::allocate_non_managed_array(&flags, max_size);
-    cudaMemset(ids, 0, max_size*sizeof(int));
-    cudaMemset(flags, 0, max_size*sizeof(int));
-    type = ALL_ACTIVE_FRONTIER;
+    max_size = _graph.get_vertices_count();
+    direction = _direction;
+    graph_ptr = &_graph;
+    init();
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -27,12 +20,71 @@ FrontierGPU::~FrontierGPU()
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void FrontierGPU::set_all_active()
+void FrontierGPU::init()
 {
+    MemoryAPI::allocate_array(&ids, max_size);
+    MemoryAPI::allocate_array(&flags, max_size);
+    cudaMemset(ids, 0, max_size*sizeof(int));
+    cudaMemset(flags, 0, max_size*sizeof(int));
     type = ALL_ACTIVE_FRONTIER;
+}
 
-    SAFE_KERNEL_CALL((set_all_active_frontier_kernel<<< (max_size - 1)/BLOCK_SIZE + 1, BLOCK_SIZE >>> (ids, flags, max_size)));
-    current_size = max_size;
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+void __global__ split_frontier_kernel(const long long *_vertex_pointers,
+                                      const int *_frontier_ids,
+                                      const int _frontier_size,
+                                      int *_grid_threshold_vertex,
+                                      int *_block_threshold_vertex,
+                                      int *_warp_threshold_vertex,
+                                      int *_vwp_16_threshold_vertex,
+                                      int *_vwp_8_threshold_vertex,
+                                      int *_vwp_4_threshold_vertex,
+                                      int *_vwp_2_threshold_vertex)
+{
+    register const int idx = blockIdx.x * blockDim.x + threadIdx.x;
+    if(idx < _frontier_size)
+    {
+        const int current_id = _frontier_ids[idx];
+        const int next_id = _frontier_ids[idx+1];
+
+        int current_size = _vertex_pointers[current_id + 1] - _vertex_pointers[current_id];;
+        int next_size = 0;
+        if(idx < (_frontier_size - 1))
+        {
+            next_size = _vertex_pointers[next_id + 1] - _vertex_pointers[next_id];
+        }
+
+        if((current_size > GPU_GRID_THRESHOLD_VALUE) && (next_size <= GPU_GRID_THRESHOLD_VALUE))
+        {
+            *_grid_threshold_vertex = idx + 1;
+        }
+        if((current_size > GPU_BLOCK_THRESHOLD_VALUE) && (next_size <= GPU_BLOCK_THRESHOLD_VALUE))
+        {
+            *_block_threshold_vertex = idx + 1;
+        }
+        if((current_size > GPU_WARP_THRESHOLD_VALUE) && (next_size <= GPU_WARP_THRESHOLD_VALUE))
+        {
+            *_warp_threshold_vertex = idx + 1;
+        }
+
+        if((current_size > GPU_VWP_16_THRESHOLD_VALUE) && (next_size <= GPU_VWP_16_THRESHOLD_VALUE))
+        {
+            *_vwp_16_threshold_vertex = idx + 1;
+        }
+        if((current_size > GPU_VWP_8_THRESHOLD_VALUE) && (next_size <= GPU_VWP_8_THRESHOLD_VALUE))
+        {
+            *_vwp_8_threshold_vertex = idx + 1;
+        }
+        if((current_size > GPU_VWP_4_THRESHOLD_VALUE) && (next_size <= GPU_VWP_4_THRESHOLD_VALUE))
+        {
+            *_vwp_4_threshold_vertex = idx + 1;
+        }
+        if((current_size > GPU_VWP_2_THRESHOLD_VALUE) && (next_size <= GPU_VWP_2_THRESHOLD_VALUE))
+        {
+            *_vwp_2_threshold_vertex = idx + 1;
+        }
+    }
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -63,13 +115,13 @@ void FrontierGPU::split_sorted_frontier(const long long *_vertex_pointers,
     int *vwp_4_threshold_vertex;
     int *vwp_2_threshold_vertex;
 
-    MemoryAPI::allocate_managed_array(&grid_threshold_vertex, 1);
-    MemoryAPI::allocate_managed_array(&block_threshold_vertex, 1);
-    MemoryAPI::allocate_managed_array(&warp_threshold_vertex, 1);
-    MemoryAPI::allocate_managed_array(&vwp_16_threshold_vertex, 1);
-    MemoryAPI::allocate_managed_array(&vwp_8_threshold_vertex, 1);
-    MemoryAPI::allocate_managed_array(&vwp_4_threshold_vertex, 1);
-    MemoryAPI::allocate_managed_array(&vwp_2_threshold_vertex, 1);
+    MemoryAPI::allocate_array(&grid_threshold_vertex, 1);
+    MemoryAPI::allocate_array(&block_threshold_vertex, 1);
+    MemoryAPI::allocate_array(&warp_threshold_vertex, 1);
+    MemoryAPI::allocate_array(&vwp_16_threshold_vertex, 1);
+    MemoryAPI::allocate_array(&vwp_8_threshold_vertex, 1);
+    MemoryAPI::allocate_array(&vwp_4_threshold_vertex, 1);
+    MemoryAPI::allocate_array(&vwp_2_threshold_vertex, 1);
 
     grid_threshold_vertex[0] = 0;
     block_threshold_vertex[0] = 0;
@@ -102,30 +154,13 @@ void FrontierGPU::split_sorted_frontier(const long long *_vertex_pointers,
     _thread_threshold_start = _vwp_2_threshold_end;
     _thread_threshold_end   = current_size;
 
-    MemoryAPI::free_device_array(grid_threshold_vertex);
-    MemoryAPI::free_device_array(block_threshold_vertex);
-    MemoryAPI::free_device_array(warp_threshold_vertex);
-    MemoryAPI::free_device_array(vwp_16_threshold_vertex);
-    MemoryAPI::free_device_array(vwp_8_threshold_vertex);
-    MemoryAPI::free_device_array(vwp_4_threshold_vertex);
-    MemoryAPI::free_device_array(vwp_2_threshold_vertex);
-}
-
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-
-void FrontierGPU::add_vertex(UndirectedCSRGraph &_graph, int src_id)
-{
-    if(type == ALL_ACTIVE_FRONTIER)
-    {
-        throw "ERROR: can't add vertices to all-active frontier";
-    }
-
-    if(current_size < (max_size - 1))
-    {
-        MemoryAPI::copy_array_to_device(ids + current_size, &src_id, 1);
-        current_size++;
-    }
+    MemoryAPI::free_array(grid_threshold_vertex);
+    MemoryAPI::free_array(block_threshold_vertex);
+    MemoryAPI::free_array(warp_threshold_vertex);
+    MemoryAPI::free_array(vwp_16_threshold_vertex);
+    MemoryAPI::free_array(vwp_8_threshold_vertex);
+    MemoryAPI::free_array(vwp_4_threshold_vertex);
+    MemoryAPI::free_array(vwp_2_threshold_vertex);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

@@ -129,7 +129,7 @@ void __global__ ve_bottom_up_kernel(const long long *_vertex_pointers,
 
 void bottom_up_step(UndirectedCSRGraph &_graph,
                     FrontierGPU &_frontier,
-                    GraphPrimitivesGPU &_graph_API,
+                    GraphAbstractionsGPU &_graph_API,
                     const long long *_vertex_pointers,
                     const int *_adjacent_ids,
                     const int _vertices_count,
@@ -183,7 +183,7 @@ void direction_optimizing_wrapper(UndirectedCSRGraph &_graph,
                                   int _source_vertex, int &_iterations_count)
 {
     LOAD_UNDIRECTED_CSR_GRAPH_DATA(_graph);
-    GraphPrimitivesGPU graph_API;
+    GraphAbstractionsGPU graph_API;
     FrontierGPU frontier(_graph.get_vertices_count());
 
     // unroll here - 4-5x
@@ -192,7 +192,7 @@ void direction_optimizing_wrapper(UndirectedCSRGraph &_graph,
     init_vector_extension(_graph.get_vertex_pointers(), _graph.get_adjacent_ids(), vertices_count, vector_extension);*/
 
     int *next_frontier_size;
-    MemoryAPI::allocate_managed_array(&next_frontier_size, 1);
+    MemoryAPI::allocate_array(&next_frontier_size, 1);
 
     auto init_levels = [_levels, _source_vertex] __device__ (int src_id, int position_in_frontier, int connections_count)
     {
@@ -212,8 +212,8 @@ void direction_optimizing_wrapper(UndirectedCSRGraph &_graph,
 
     int *vis;
     int *in_lvl;
-    MemoryAPI::allocate_managed_array(&vis, 1);
-    MemoryAPI::allocate_managed_array(&in_lvl, 1);
+    MemoryAPI::allocate_array(&vis, 1);
+    MemoryAPI::allocate_array(&in_lvl, 1);
     vis[0] = 1;
     in_lvl[0] = 0;
 
@@ -229,8 +229,6 @@ void direction_optimizing_wrapper(UndirectedCSRGraph &_graph,
             return connections_count;
         };
         in_lvl[0] = graph_API.reduce<int>(_graph, frontier, reduce_op, REDUCE_SUM);
-
-        MemoryAPI::prefetch_managed_array(vis, 1);
 
         if(current_state == TOP_DOWN)
         {
@@ -294,7 +292,7 @@ void direction_optimizing_wrapper(UndirectedCSRGraph &_graph,
 
     _iterations_count = current_level;
 
-    //MemoryAPI::free_device_array(vector_extension);
+    //MemoryAPI::free_array(vector_extension);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

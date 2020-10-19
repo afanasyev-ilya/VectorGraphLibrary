@@ -12,13 +12,11 @@ void UndirectedCSRGraph::move_to_device()
     
     this->graph_on_device = true;
 
-    MemoryAPI::move_array_to_device<long long>(&vertex_pointers, this->vertices_count + 1);
-    MemoryAPI::move_array_to_device<int>(&adjacent_ids, this->edges_count);
+    MemoryAPI::move_array_to_device(vertex_pointers, this->vertices_count + 1);
+    MemoryAPI::move_array_to_device(adjacent_ids, this->edges_count);
 
-    #ifdef __USE_MANAGED_MEMORY__
-    MemoryAPI::prefetch_managed_array(vertex_pointers, this->vertices_count + 1);
-    MemoryAPI::prefetch_managed_array(adjacent_ids, this->edges_count);
-    #endif
+    MemoryAPI::move_array_to_device(forward_conversion, this->vertices_count);
+    MemoryAPI::move_array_to_device(backward_conversion, this->vertices_count);
 }
 #endif
 
@@ -34,8 +32,11 @@ void UndirectedCSRGraph::move_to_host()
     
     this->graph_on_device = false;
 
-    MemoryAPI::move_array_to_host<long long>(&vertex_pointers, this->vertices_count + 1);
-    MemoryAPI::move_array_to_host<int>(&adjacent_ids, this->edges_count);
+    MemoryAPI::move_array_to_host(vertex_pointers, this->vertices_count + 1);
+    MemoryAPI::move_array_to_host(adjacent_ids, this->edges_count);
+
+    MemoryAPI::move_array_to_host(forward_conversion, this->vertices_count);
+    MemoryAPI::move_array_to_host(backward_conversion, this->vertices_count);
 }
 #endif
 

@@ -4,7 +4,7 @@
 
 template <typename _TVertexValue, typename _TEdgeWeight, typename EdgeOperation, typename VertexPreprocessOperation,
         typename VertexPostprocessOperation>
-void GraphPrimitivesGPU::advance(UndirectedCSRGraph &_graph,
+void GraphAbstractionsGPU::advance(UndirectedCSRGraph &_graph,
                                  FrontierGPU &_frontier,
                                  EdgeOperation edge_op,
                                  VertexPreprocessOperation vertex_preprocess_op,
@@ -19,7 +19,7 @@ void GraphPrimitivesGPU::advance(UndirectedCSRGraph &_graph,
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template <typename _TVertexValue, typename _TEdgeWeight, typename EdgeOperation>
-void GraphPrimitivesGPU::advance(UndirectedCSRGraph &_graph,
+void GraphAbstractionsGPU::advance(UndirectedCSRGraph &_graph,
                                  FrontierGPU &_frontier,
                                  EdgeOperation edge_op)
 {
@@ -31,7 +31,7 @@ void GraphPrimitivesGPU::advance(UndirectedCSRGraph &_graph,
 
 template <typename _TVertexValue, typename _TEdgeWeight, typename EdgeOperation, typename VertexPreprocessOperation,
         typename VertexPostprocessOperation, typename Condition>
-void GraphPrimitivesGPU::advance(UndirectedCSRGraph &_graph,
+void GraphAbstractionsGPU::advance(UndirectedCSRGraph &_graph,
                                  FrontierGPU &_in_frontier,
                                  EdgeOperation edge_op,
                                  VertexPreprocessOperation vertex_preprocess_op,
@@ -41,7 +41,7 @@ void GraphPrimitivesGPU::advance(UndirectedCSRGraph &_graph,
 {
     int vertices_count = _graph.get_vertices_count();
     int *adjacent_layer_size;
-    MemoryAPI::allocate_managed_array(&adjacent_layer_size, 1);
+    MemoryAPI::allocate_array(&adjacent_layer_size, 1);
     bool generate_frontier_inside_advance = false;
 
     int in_frontier_size = _in_frontier.size();

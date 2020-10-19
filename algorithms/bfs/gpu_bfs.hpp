@@ -14,7 +14,7 @@ void BFS::allocate_device_result_memory(int _vertices_count, int **_device_level
 
 void BFS::free_device_result_memory(int *_device_levels)
 {
-    MemoryAPI::free_device_array(_device_levels);
+    MemoryAPI::free_array(_device_levels);
 }
 #endif
 

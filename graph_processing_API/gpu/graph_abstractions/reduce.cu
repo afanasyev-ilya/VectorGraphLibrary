@@ -119,13 +119,13 @@ __global__ void reduce_kernel_all_active(const int _size,
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template <typename _T, typename _TVertexValue, typename _TEdgeWeight, typename ReduceOperation>
-_T GraphPrimitivesGPU::reduce(UndirectedCSRGraph &_graph,
+_T GraphAbstractionsGPU::reduce(UndirectedCSRGraph &_graph,
                               FrontierGPU &_frontier,
                               ReduceOperation &&reduce_op,
                               REDUCE_TYPE _reduce_type)
 {
     _T *managed_reduced_result;
-    MemoryAPI::allocate_managed_array(&managed_reduced_result, 1);
+    MemoryAPI::allocate_array(&managed_reduced_result, 1);
 
     LOAD_UNDIRECTED_CSR_GRAPH_DATA(_graph);
     long long *vertex_pointers = vertex_pointers;
@@ -148,7 +148,7 @@ _T GraphPrimitivesGPU::reduce(UndirectedCSRGraph &_graph,
     _T reduce_result = managed_reduced_result[0];
 
 
-    MemoryAPI::free_device_array(managed_reduced_result);
+    MemoryAPI::free_array(managed_reduced_result);
 
     return reduce_result;
 }

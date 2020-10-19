@@ -18,7 +18,7 @@
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-class FrontierGPU
+class FrontierGPU : public Frontier
 {
 private:
     int *ids;
@@ -29,6 +29,8 @@ private:
     int max_size;
     int current_size;
 
+    void init();
+
     void split_sorted_frontier(const long long *_vertex_pointers, int &_grid_threshold_start, int &_grid_threshold_end,
                                int &_block_threshold_start, int &_block_threshold_end,
                                int &_warp_threshold_start, int &_warp_threshold_end,
@@ -38,25 +40,32 @@ private:
                                int &_vwp_2_threshold_start, int &_vwp_2_threshold_end,
                                int &_thread_threshold_start, int &_thread_threshold_end);
 public:
-    FrontierGPU(int _vertices_count);
-
-    void set_all_active();
-
+    /* constructors and destructors */
+    FrontierGPU(VectCSRGraph &_graph, TraversalDirection _direction = SCATTER);
     ~FrontierGPU();
 
-    int size() {return current_size;};
-    void clear() {current_size = 0; type = SPARSE_FRONTIER;};
+    /* Get API */
+    int *get_flags() {return flags;};
+    int *get_ids() {return ids;};
 
-    FrontierType get_type() {return type;};
+    /* Print API */
+    void print_stats();
+    void print();
 
+    /* frontier modification API */
+    inline void set_all_active();
+    inline void add_vertex(int src_id);
+    inline void add_group_of_vertices(int *_vertex_ids, int _number_of_vertices);
 
-    void add_vertex(UndirectedCSRGraph &_graph, int src_id);
-
-    friend class GraphPrimitivesGPU;
+    friend class GraphAbstractionsGPU;
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+#ifdef __CUDA_INCLUDE__
 #include "frontier_gpu.cu"
+#include "modification.cu"
+#include "print.cu"
+#endif
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

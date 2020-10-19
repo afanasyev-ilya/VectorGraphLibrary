@@ -27,7 +27,7 @@ void top_down_wrapper(UndirectedCSRGraph &_graph,
                       int &_iterations_count)
 {
     LOAD_UNDIRECTED_CSR_GRAPH_DATA(_graph);
-    GraphPrimitivesGPU graph_API;
+    GraphAbstractionsGPU graph_API;
     FrontierGPU frontier(_graph.get_vertices_count());
 
     frontier.set_all_active();

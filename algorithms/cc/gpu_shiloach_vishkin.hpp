@@ -17,7 +17,7 @@ void CC::gpu_shiloach_vishkin(UndirectedCSRGraph &_graph,
     double t2 = omp_get_wtime();
 
     MemoryAPI::copy_array_to_host(_components, device_components, vertices_count);
-    MemoryAPI::free_device_array(device_components);
+    MemoryAPI::free_array(device_components);
 
     performance = edges_count / ((t2 - t1)*1e6);
 

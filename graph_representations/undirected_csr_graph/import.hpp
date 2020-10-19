@@ -19,7 +19,7 @@ void UndirectedCSRGraph::extract_connection_count(EdgesListGraph &_el_graph,
     #pragma omp parallel
     {};
 
-    #pragma omp parallel
+    #pragma omp parallel num_threads(MAX_SX_AURORA_THREADS)
     {
         int tid = omp_get_thread_num();
 

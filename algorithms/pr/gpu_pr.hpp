@@ -22,7 +22,7 @@ void PR::gpu_page_rank(UndirectedCSRGraph &_graph,
     double t2 = omp_get_wtime();
 
     MemoryAPI::copy_array_to_host(_page_ranks, device_page_ranks, vertices_count);
-    MemoryAPI::free_device_array(device_page_ranks);
+    MemoryAPI::free_array(device_page_ranks);
 
     #ifdef __PRINT_SAMPLES_PERFORMANCE_STATS__
     PerformanceStats::print_algorithm_performance_stats("page rank", t2 - t1, edges_count, iterations_count);

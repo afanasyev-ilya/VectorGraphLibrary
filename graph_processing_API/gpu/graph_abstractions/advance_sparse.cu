@@ -232,7 +232,7 @@ void __global__ virtual_warp_per_vertex_kernel(const long long *_vertex_pointers
 
 template <typename _TVertexValue, typename _TEdgeWeight, typename EdgeOperation, typename VertexPreprocessOperation,
         typename VertexPostprocessOperation>
-void GraphPrimitivesGPU::advance_sparse(UndirectedCSRGraph &_graph,
+void GraphAbstractionsGPU::advance_sparse(UndirectedCSRGraph &_graph,
                                         FrontierGPU &_frontier,
                                         EdgeOperation edge_op,
                                         VertexPreprocessOperation vertex_preprocess_op,
@@ -270,7 +270,7 @@ void GraphPrimitivesGPU::advance_sparse(UndirectedCSRGraph &_graph,
     int *tmp_new_frontier_buffer = _frontier.flags;
     int *new_frontier_size;
     if(_generate_frontier)
-        MemoryAPI::allocate_managed_array(&new_frontier_size, 1);
+        MemoryAPI::allocate_array(&new_frontier_size, 1);
 
     int grid_vertices_count = grid_threshold_end - grid_threshold_start;
     if (grid_vertices_count > 0)

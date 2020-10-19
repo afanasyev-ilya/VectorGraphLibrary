@@ -24,7 +24,7 @@ void page_rank_wrapper(UndirectedCSRGraph &_graph,
                        AlgorithmTraversalType _traversal_direction)
 {
     LOAD_UNDIRECTED_CSR_GRAPH_DATA(_graph);
-    GraphPrimitivesGPU graph_API;
+    GraphAbstractionsGPU graph_API;
     FrontierGPU frontier(vertices_count);
 
     frontier.set_all_active();
@@ -159,10 +159,10 @@ void page_rank_wrapper(UndirectedCSRGraph &_graph,
 
     _iterations_count = current_iteration;
 
-    MemoryAPI::free_device_array(number_of_loops);
-    MemoryAPI::free_device_array(incoming_degrees_without_loops);
-    MemoryAPI::free_device_array(old_page_ranks);
-    MemoryAPI::free_device_array(reversed_degrees);
+    MemoryAPI::free_array(number_of_loops);
+    MemoryAPI::free_array(incoming_degrees_without_loops);
+    MemoryAPI::free_array(old_page_ranks);
+    MemoryAPI::free_array(reversed_degrees);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

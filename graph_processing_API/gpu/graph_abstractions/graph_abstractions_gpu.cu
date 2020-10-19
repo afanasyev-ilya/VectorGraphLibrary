@@ -2,8 +2,11 @@
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-GraphPrimitivesGPU::GraphPrimitivesGPU()
+GraphAbstractionsGPU::GraphAbstractionsGPU(VectCSRGraph &_graph, TraversalDirection _initial_traversal)
 {
+    processed_graph_ptr = &_graph;
+    current_traversal_direction = _initial_traversal;
+
     cudaStreamCreate(&grid_processing_stream);
     cudaStreamCreate(&block_processing_stream);
     cudaStreamCreate(&warp_processing_stream);
@@ -16,7 +19,24 @@ GraphPrimitivesGPU::GraphPrimitivesGPU()
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-GraphPrimitivesGPU::~GraphPrimitivesGPU()
+GraphAbstractionsGPU::GraphAbstractionsGPU(ShardedCSRGraph &_graph, TraversalDirection _initial_traversal)
+{
+    processed_graph_ptr = NULL; // TODO
+    current_traversal_direction = _initial_traversal;
+
+    cudaStreamCreate(&grid_processing_stream);
+    cudaStreamCreate(&block_processing_stream);
+    cudaStreamCreate(&warp_processing_stream);
+    cudaStreamCreate(&vwp_16_processing_stream);
+    cudaStreamCreate(&vwp_8_processing_stream);
+    cudaStreamCreate(&vwp_4_processing_stream);
+    cudaStreamCreate(&vwp_2_processing_stream);
+    cudaStreamCreate(&thread_processing_stream);
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+GraphAbstractionsGPU::~GraphAbstractionsGPU()
 {
     cudaStreamDestroy(block_processing_stream);
     cudaStreamDestroy(warp_processing_stream);

@@ -53,13 +53,13 @@ void __global__ compute_kernel_sparse(const int *_frontier_ids,
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-template <typename _TVertexValue, typename _TEdgeWeight, typename ComputeOperation>
-void GraphPrimitivesGPU::compute(UndirectedCSRGraph &_graph,
-                                 FrontierGPU &_frontier,
-                                 ComputeOperation &&compute_op)
+template <typename ComputeOperation>
+void GraphAbstractionsGPU::compute_worker(UndirectedCSRGraph &_graph,
+                                          FrontierGPU &_frontier,
+                                          ComputeOperation &&compute_op)
 {
     LOAD_UNDIRECTED_CSR_GRAPH_DATA(_graph);
-    long long *vertex_pointers = vertex_pointers;
+
     if(_frontier.type == ALL_ACTIVE_FRONTIER)
     {
         SAFE_KERNEL_CALL((compute_kernel_all_active <<< (vertices_count - 1) / BLOCK_SIZE + 1, BLOCK_SIZE >>>
@@ -77,6 +77,31 @@ void GraphPrimitivesGPU::compute(UndirectedCSRGraph &_graph,
                 (_frontier.ids, frontier_size, vertex_pointers, compute_op)));
     }
     cudaDeviceSynchronize();
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+template <typename ComputeOperation>
+void GraphAbstractionsGPU::compute(VectCSRGraph &_graph,
+                                   FrontierGPU &_frontier,
+                                   ComputeOperation &&compute_op)
+{
+    if(_frontier.get_direction() != current_traversal_direction)
+    {
+        throw "Error in GraphAbstractionsNEC::compute : wrong frontier direction";
+    }
+
+    UndirectedCSRGraph *current_direction_graph;
+    if(current_traversal_direction == SCATTER)
+    {
+        current_direction_graph = _graph.get_outgoing_graph_ptr();
+    }
+    else if(current_traversal_direction == GATHER)
+    {
+        current_direction_graph = _graph.get_incoming_graph_ptr();
+    }
+
+    compute_worker(*current_direction_graph, _frontier, compute_op);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

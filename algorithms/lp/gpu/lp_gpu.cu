@@ -189,7 +189,7 @@ void gpu_lp_wrapper(UndirectedCSRGraph &_graph,
                     int _max_iterations)
 {
     LOAD_UNDIRECTED_CSR_GRAPH_DATA(_graph);
-    GraphPrimitivesGPU graph_API;
+    GraphAbstractionsGPU graph_API;
     FrontierGPU frontier(_graph.get_vertices_count());
 
     mgpu::standard_context_t context;
@@ -415,14 +415,14 @@ void gpu_lp_wrapper(UndirectedCSRGraph &_graph,
     }
     while((_iterations_count < _max_iterations) && (updated[0] > 0));
 
-    MemoryAPI::free_device_array(new_ptr);
-    MemoryAPI::free_device_array(array_1);
-    MemoryAPI::free_device_array(array_2);
-    MemoryAPI::free_device_array(seg_reduce_indices);
-    MemoryAPI::free_device_array(seg_reduce_result);
-    MemoryAPI::free_device_array(gathered_labels);
-    MemoryAPI::free_device_array(node_states);
-    MemoryAPI::free_device_array(shifts);
+    MemoryAPI::free_array(new_ptr);
+    MemoryAPI::free_array(array_1);
+    MemoryAPI::free_array(array_2);
+    MemoryAPI::free_array(seg_reduce_indices);
+    MemoryAPI::free_array(seg_reduce_result);
+    MemoryAPI::free_array(gathered_labels);
+    MemoryAPI::free_array(node_states);
+    MemoryAPI::free_array(shifts);
 
     cudaFree(updated);
 }

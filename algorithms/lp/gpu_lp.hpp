@@ -20,7 +20,7 @@ void LP::gpu_lp(UndirectedCSRGraph &_graph,
     double t2 = omp_get_wtime();
 
     MemoryAPI::copy_array_to_host(_labels, device_labels, vertices_count);
-    MemoryAPI::free_device_array(device_labels);
+    MemoryAPI::free_array(device_labels);
 
     #ifdef __PRINT_SAMPLES_PERFORMANCE_STATS__
     PerformanceStats::print_algorithm_performance_stats("gpu label propagation", t2 - t1, edges_count, iterations_count);
