@@ -86,9 +86,12 @@ void GraphAbstractionsGPU::compute(VectCSRGraph &_graph,
                                    FrontierGPU &_frontier,
                                    ComputeOperation &&compute_op)
 {
+    Timer tm;
+    tm.start();
+
     if(_frontier.get_direction() != current_traversal_direction)
     {
-        throw "Error in GraphAbstractionsNEC::compute : wrong frontier direction";
+        throw "Error in GraphAbstractionsGPU::compute : wrong frontier direction";
     }
 
     UndirectedCSRGraph *current_direction_graph;
@@ -102,6 +105,13 @@ void GraphAbstractionsGPU::compute(VectCSRGraph &_graph,
     }
 
     compute_worker(*current_direction_graph, _frontier, compute_op);
+
+    tm.end();
+    performance_stats.update_compute_time(tm);
+    #ifdef __PRINT_API_PERFORMANCE_STATS__
+    cout << "test: " << _frontier.size() << endl;
+    tm.print_time_and_bandwidth_stats("Compute", _frontier.size(), COMPUTE_INT_ELEMENTS*sizeof(int));
+    #endif
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

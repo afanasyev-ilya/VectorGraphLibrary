@@ -6,6 +6,10 @@ class Timer
 {
 private:
     double t_start, t_end;
+
+    #ifdef __USE_GPU__
+    cudaEvent_t cuda_event_start, cuda_event_stop;
+    #endif
 public:
 
     Timer();

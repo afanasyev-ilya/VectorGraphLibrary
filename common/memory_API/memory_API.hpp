@@ -17,13 +17,16 @@ void MemoryAPI::allocate_array(_T **_ptr, size_t _size)
 template <typename _T>
 void MemoryAPI::free_array(_T *_ptr)
 {
-    #if defined(__USE_NEC_SX_AURORA__)
-    free(_ptr);
-    #elif defined(__USE_GPU__)
-    SAFE_CALL(cudaFree((void*)_ptr));
-    #else
-    free(_ptr);
-    #endif
+    if(_ptr != NULL)
+    {
+        #if defined(__USE_NEC_SX_AURORA__)
+        free(_ptr);
+        #elif defined(__USE_GPU__)
+        SAFE_CALL(cudaFree((void*)_ptr));
+        #else
+        free(_ptr);
+        #endif
+    }
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

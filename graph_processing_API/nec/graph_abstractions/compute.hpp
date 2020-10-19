@@ -7,9 +7,6 @@ void GraphAbstractionsNEC::compute_worker(UndirectedCSRGraph &_graph,
                                           FrontierNEC &_frontier,
                                           ComputeOperation &&compute_op)
 {
-    Timer tm;
-    tm.start();
-
     LOAD_UNDIRECTED_CSR_GRAPH_DATA(_graph);
     int max_frontier_size = _frontier.max_size;
     if(_frontier.type == ALL_ACTIVE_FRONTIER)
@@ -45,12 +42,6 @@ void GraphAbstractionsNEC::compute_worker(UndirectedCSRGraph &_graph,
             }
         }
     }
-
-    tm.end();
-    performance_stats.update_compute_time(tm);
-    #ifdef __PRINT_API_PERFORMANCE_STATS__
-    tm.print_bandwidth_stats("Compute", _frontier.size(), COMPUTE_INT_ELEMENTS*sizeof(int));
-    #endif
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -60,6 +51,9 @@ void GraphAbstractionsNEC::compute(VectCSRGraph &_graph,
                                    FrontierNEC &_frontier,
                                    ComputeOperation &&compute_op)
 {
+    Timer tm;
+    tm.start();
+
     if(_frontier.get_direction() != current_traversal_direction)
     {
         throw "Error in GraphAbstractionsNEC::compute : wrong frontier direction";
@@ -88,6 +82,12 @@ void GraphAbstractionsNEC::compute(VectCSRGraph &_graph,
             compute_worker(*current_direction_graph, _frontier, compute_op);
         }
     }
+
+    tm.end();
+    performance_stats.update_compute_time(tm);
+    #ifdef __PRINT_API_PERFORMANCE_STATS__
+    tm.print_bandwidth_stats("Compute", _frontier.size(), COMPUTE_INT_ELEMENTS*sizeof(int));
+    #endif
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

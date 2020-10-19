@@ -11,19 +11,19 @@ private:
     template <typename ComputeOperation>
     void compute_worker(UndirectedCSRGraph &_graph, FrontierGPU &_frontier, ComputeOperation &&compute_op);
 
-    /*void split_frontier(FrontierGPU &_frontier);
+    //void split_frontier(FrontierGPU &_frontier);
 
-    template <typename _TVertexValue, typename _TEdgeWeight, typename EdgeOperation, typename VertexPreprocessOperation,
-            typename VertexPostprocessOperation>
-    void advance_sparse(UndirectedCSRGraph &_graph,
-                        FrontierGPU &_frontier,
-                        EdgeOperation edge_op,
-                        VertexPreprocessOperation vertex_preprocess_op,
-                        VertexPostprocessOperation vertex_postprocess_op,
-                        bool _generate_frontier = false);
+    template <typename EdgeOperation, typename VertexPreprocessOperation,
+        typename VertexPostprocessOperation>
+    void GraphAbstractionsGPU::advance_worker(UndirectedCSRGraph &_graph,
+                                              FrontierGPU &_frontier,
+                                              EdgeOperation edge_op,
+                                              VertexPreprocessOperation vertex_preprocess_op,
+                                              VertexPostprocessOperation vertex_postprocess_op,
+                                              bool _generate_frontier);
 
 
-    int estimate_advance_work(UndirectedCSRGraph &_graph,
+    /*int estimate_advance_work(UndirectedCSRGraph &_graph,
                               FrontierGPU &_frontier);*/
 public:
     // attaches graph-processing API to the specific graph
@@ -32,17 +32,21 @@ public:
     ~GraphAbstractionsGPU();
 
     // performs user-defined "edge_op" operation over all OUTGOING edges, neighbouring specified frontier
-    /*template <typename EdgeOperation, typename VertexPreprocessOperation, typename VertexPostprocessOperation,
+    template <typename EdgeOperation, typename VertexPreprocessOperation, typename VertexPostprocessOperation,
             typename CollectiveEdgeOperation, typename CollectiveVertexPreprocessOperation,
             typename CollectiveVertexPostprocessOperation>
     void scatter(VectCSRGraph &_graph,
-                 FrontierNEC &_frontier,
+                 FrontierGPU &_frontier,
                  EdgeOperation &&edge_op,
                  VertexPreprocessOperation &&vertex_preprocess_op,
                  VertexPostprocessOperation &&vertex_postprocess_op,
                  CollectiveEdgeOperation &&collective_edge_op,
                  CollectiveVertexPreprocessOperation &&collective_vertex_preprocess_op,
-                 CollectiveVertexPostprocessOperation &&collective_vertex_postprocess_op);*/
+                 CollectiveVertexPostprocessOperation &&collective_vertex_postprocess_op);
+
+    // performs user-defined "edge_op" operation over all OUTGOING edges, neighbouring specified frontier
+    template <typename EdgeOperation>
+    void scatter(VectCSRGraph &_graph, FrontierGPU &_frontier, EdgeOperation &&edge_op);
 
     // performs user-defined "compute_op" operation for each element in the given frontier
     template <typename ComputeOperation>
@@ -66,8 +70,8 @@ public:
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #ifdef __CUDA_INCLUDE__
-//#include "advance.cu"
-//#include "advance_sparse.cu"
+#include "scatter.cu"
+#include "advance.cu"
 #include "compute.cu"
 //#include "reduce.cu"
 //#include "generate_new_frontier.cu"

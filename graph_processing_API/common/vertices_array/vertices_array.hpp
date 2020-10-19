@@ -11,8 +11,13 @@ VerticesArray<_T>::VerticesArray(VectCSRGraph &_graph, TraversalDirection _direc
     this->direction = _direction;
     this->vertices_count = _graph.get_vertices_count();
     MemoryAPI::allocate_array(&this->vertices_data, this->vertices_count);
+
+    is_copy = false;
+
+    #ifdef __USE_NEC_SX_AURORA__
     #pragma omp parallel
     {};
+    #endif
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -24,10 +29,13 @@ VerticesArray<_T>::VerticesArray(const VerticesArray<_T> &_copy_obj)
     this->graph_ptr = _copy_obj.graph_ptr;
     this->vertices_count = _copy_obj.vertices_count;
     this->direction = _copy_obj.direction;
-    MemoryAPI::allocate_array(&this->vertices_data, this->vertices_count);
-    MemoryAPI::copy(this->vertices_data, _copy_obj.vertices_data, this->vertices_count);
+    this->vertices_data = _copy_obj.vertices_data;
+    this->is_copy = true;
+
+    #ifdef __USE_NEC_SX_AURORA__
     #pragma omp parallel
     {};
+    #endif
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -35,7 +43,11 @@ VerticesArray<_T>::VerticesArray(const VerticesArray<_T> &_copy_obj)
 template <typename _T>
 VerticesArray<_T>::~VerticesArray()
 {
-    MemoryAPI::free_array(this->vertices_data);
+    if(!is_copy)
+    {
+        MemoryAPI::free_array(this->vertices_data);
+        this->vertices_data = NULL;
+    }
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -75,5 +87,10 @@ void VerticesArray<_T>::print(string _name)
     cout << _name << ": ";
     print();
 }
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+template class VerticesArray<int>;
+template class VerticesArray<float>;
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

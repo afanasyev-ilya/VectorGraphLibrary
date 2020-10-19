@@ -12,6 +12,8 @@ private:
 
     _T *vertices_data;
     int vertices_count;
+
+    bool is_copy;
 public:
     /* constructors and destructors */
     VerticesArray(VectCSRGraph &_graph, TraversalDirection _direction = SCATTER);
@@ -22,11 +24,18 @@ public:
     _T *get_ptr() {return vertices_data;};
     ObjectType get_object_type() {return object_type;};
 
-    inline _T get(int _idx) {return this->vertices_data[_idx];};
-    inline _T set(int _idx, _T _val) {this->vertices_data[_idx] = _val;};
+    #ifdef __USE_GPU__
+    __host__ __device__ inline _T get(int _idx) const {return this->vertices_data[_idx];};
+    __host__ __device__ inline _T set(int _idx, _T _val) const {this->vertices_data[_idx] = _val;};
+    __host__ __device__ inline _T& operator[] (int _idx) const { return vertices_data[_idx]; };
+    #endif
 
+    #if defined(__USE_NEC_SX_AURORA__) || defined(__USE_INTEL__)
+    inline _T get(int _idx) const {return this->vertices_data[_idx];};
+    inline _T set(int _idx, _T _val) const {this->vertices_data[_idx] = _val;};
     inline _T& operator[](int _idx) { return vertices_data[_idx]; }
-    const inline _T& operator[] (int _idx) const { return vertices_data[_idx]; };
+    inline _T& operator[] (int _idx) const { return vertices_data[_idx]; };
+    #endif
 
     /* direction API */
     TraversalDirection get_direction() {return direction;};
@@ -49,14 +58,9 @@ public:
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-template class VerticesArray<int>;
-template class VerticesArray<float>;
-
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
 #ifndef __CUDA_INCLUDE__
-#include "vertices_array.hpp"
 #include "gpu_api.hpp"
+#include "vertices_array.hpp"
 #endif
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

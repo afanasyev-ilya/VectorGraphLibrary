@@ -1,6 +1,7 @@
 CXX = g++
 CUDA_DIR = /usr/local/cuda/
 #CUDA_DIR = /usr/local/cuda-10.2
+#CUDA_DIR = ~/local_cuda/
 CUDA_COMPILER = $(CUDA_DIR)/bin/nvcc
 
 # Include paths...
@@ -67,6 +68,9 @@ install:
 	if [ ! -d ../external_libraries/moderngpu ];then\
                         git clone https://www.github.com/moderngpu/moderngpu ../external_libraries/moderngpu;\
                 fi
+
+vgl_library.o: ../graph_processing_API/common/vertices_array/vertices_array.hpp
+	$(CXX) $(CXXFLAGS) $(Include_Path) -c ../graph_processing_API/common/vertices_array/vertices_array.cpp -o object_files/vgl_library.o -fopenmp
 
 sssp.o: sssp.cpp
 	$(CXX) $(CXXFLAGS) $(Include_Path)  -c sssp.cpp -o object_files/sssp.o -fopenmp

@@ -21,6 +21,31 @@ EdgesArray<_T>::EdgesArray(VectCSRGraph &_graph)
     incoming_ve_ptr = &edges_data[edges_count + edges_count_in_outgoing_ve + edges_count];
 
     graph_ptr = &_graph;
+
+    is_copy = false;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+template <typename _T>
+EdgesArray<_T>::EdgesArray(const EdgesArray<_T> &_copy_obj)
+{
+    this->graph_ptr = _copy_obj.graph_ptr;
+
+    this->edges_data = _copy_obj.edges_data;
+
+    this->outgoing_csr_ptr = _copy_obj.outgoing_csr_ptr;
+    this->incoming_csr_ptr = _copy_obj.incoming_csr_ptr;
+
+    this->outgoing_ve_ptr = _copy_obj.outgoing_ve_ptr;
+    this->incoming_ve_ptr = _copy_obj.incoming_ve_ptr;
+
+    this->edges_count = _copy_obj.edges_count;
+    this->edges_count_in_outgoing_ve = _copy_obj.edges_count_in_outgoing_ve;
+    this->edges_count_in_incoming_ve = _copy_obj.edges_count_in_incoming_ve;
+    this->total_array_size = _copy_obj.total_array_size;
+
+    this->is_copy = true;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -28,7 +53,10 @@ EdgesArray<_T>::EdgesArray(VectCSRGraph &_graph)
 template <typename _T>
 EdgesArray<_T>::~EdgesArray()
 {
-    MemoryAPI::free_array(edges_data);
+    if(!is_copy)
+    {
+        MemoryAPI::free_array(edges_data);
+    }
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -138,5 +166,10 @@ void EdgesArray<_T>::print()
     }
     cout << endl << endl;
 }
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+template class EdgesArray<int>;
+template class EdgesArray<float>;
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

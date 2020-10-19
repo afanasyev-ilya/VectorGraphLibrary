@@ -108,8 +108,7 @@ void ShardedCSRGraph::import(EdgesListGraph &_el_graph)
 
 void ShardedCSRGraph::resize_helper_arrays()
 {
-    if(vertices_reorder_buffer != NULL)
-        MemoryAPI::free_array(vertices_reorder_buffer);
+    MemoryAPI::free_array(vertices_reorder_buffer);
     MemoryAPI::allocate_array(&vertices_reorder_buffer, this->vertices_count);
 }
 

@@ -52,9 +52,33 @@ private:
     #ifndef __USE_ASL__
     static void inner_sort(int *_data, vgl_sort_indexes *_indexes, long long _size, SortOrder _sort_order)
     {
-        cout << "insde STD sort v2.0" << endl;
+        int *work_buffer;
+        MemoryAPI::allocate_array(&work_buffer, _size);
 
-        stable_sort(_indexes, _indexes + _size, [&_data](long long _i1, long long _i2) {return _data[_i1] < _data[_i2];});
+        if(_sort_order == SORT_ASCENDING)
+        {
+            stable_sort(_indexes, _indexes + _size, [&_data](long long _i1, long long _i2) {return _data[_i1] < _data[_i2];});
+        }
+        else if(_sort_order == SORT_DESCENDING)
+        {
+            stable_sort(_indexes, _indexes + _size, [&_data](long long _i1, long long _i2) {return _data[_i1] > _data[_i2];});
+        }
+
+        #pragma _NEC ivdep
+        #pragma omp parallel for
+        for(long long i = 0; i < _size; i++)
+        {
+            work_buffer[i] = _data[_indexes[i]];
+        }
+
+        #pragma _NEC ivdep
+        #pragma omp parallel for
+        for(long long i = 0; i < _size; i++)
+        {
+            _data[i] = work_buffer[i];
+        }
+
+        MemoryAPI::free_array(work_buffer);
     };
     #endif
 public:

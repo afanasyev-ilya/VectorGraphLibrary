@@ -24,27 +24,25 @@ void gpu_dijkstra_all_active_wrapper(VectCSRGraph &_graph,
     FrontierGPU frontier(_graph);
 
     auto init_op = [_distances, _source_vertex] __device__ (int src_id, int position_in_frontier, int connections_count) {
-        /*if(src_id == _source_vertex)
+        if(src_id == _source_vertex)
             _distances[_source_vertex] = 0;
         else
-            _distances[src_id] = FLT_MAX;*/
+            _distances[src_id] = FLT_MAX;
     };
     frontier.set_all_active();
-    cout << "before compute" << endl;
     graph_API.compute(_graph, frontier, init_op);
-    cout << "after compute" << endl;
 
-    /*int *changes;
+    int *changes;
     MemoryAPI::allocate_array(&changes, 1);
     _iterations_count = 0;
     do
     {
         changes[0] = 0;
 
-        auto edge_op_push = [adjacent_weights, _distances, changes] __device__(int src_id, int dst_id, int local_edge_pos, long long int global_edge_pos, int frontier_pos){
-            _TEdgeWeight weight = adjacent_weights[global_edge_pos];
-            _TEdgeWeight src_weight = __ldg(&_distances[src_id]);
-            _TEdgeWeight dst_weight = __ldg(&_distances[dst_id]);
+        auto edge_op_push = [_weights, _distances, changes] __device__(int src_id, int dst_id, int local_edge_pos, long long int global_edge_pos, int frontier_pos){
+            _T weight = 1.0; //_weights[global_edge_pos];
+            _T src_weight = __ldg(&_distances[src_id]);
+            _T dst_weight = __ldg(&_distances[dst_id]);
 
             if(dst_weight > src_weight + weight)
             {
@@ -53,10 +51,10 @@ void gpu_dijkstra_all_active_wrapper(VectCSRGraph &_graph,
             }
         };
 
-        auto edge_op_pull = [adjacent_weights, _distances, changes] __device__(int src_id, int dst_id, int local_edge_pos, long long int global_edge_pos, int frontier_pos){
-            _TEdgeWeight weight = adjacent_weights[global_edge_pos];
-            _TEdgeWeight src_weight = __ldg(&_distances[src_id]);
-            _TEdgeWeight dst_weight = __ldg(&_distances[dst_id]);
+        auto edge_op_pull = [_weights, _distances, changes] __device__(int src_id, int dst_id, int local_edge_pos, long long int global_edge_pos, int frontier_pos){
+            _T weight = 1.0; //_weights[global_edge_pos];
+            _T src_weight = __ldg(&_distances[src_id]);
+            _T dst_weight = __ldg(&_distances[dst_id]);
 
             if(src_weight > dst_weight + weight)
             {
@@ -66,15 +64,15 @@ void gpu_dijkstra_all_active_wrapper(VectCSRGraph &_graph,
         };
 
         if(_traversal_direction == PUSH_TRAVERSAL)
-            graph_API.advance(_graph, frontier, edge_op_push);
+            graph_API.scatter(_graph, frontier, edge_op_push);
         else if(_traversal_direction == PULL_TRAVERSAL)
-            graph_API.advance(_graph, frontier, edge_op_pull);
+            graph_API.scatter(_graph, frontier, edge_op_pull);
 
         _iterations_count++;
     }
     while(changes[0] > 0);
 
-    MemoryAPI::free_array(changes);*/
+    MemoryAPI::free_array(changes);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

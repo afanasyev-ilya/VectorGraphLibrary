@@ -20,14 +20,26 @@ private:
     long long edges_count_in_outgoing_ve;
     long long edges_count_in_incoming_ve;
     long long total_array_size;
+
+    bool is_copy;
 public:
     /* constructors and destructors */
     EdgesArray(VectCSRGraph &_graph);
+    EdgesArray(const EdgesArray<_T> &_copy_obj);
     ~EdgesArray();
 
     /* get/set API */
-    inline _T get(long long _global_idx) {return edges_data[_global_idx];};
-    inline _T set(long long _global_idx, _T _val) {edges_data[_global_idx] = _val;};
+    #ifdef __USE_GPU__
+    __host__ __device__ inline _T get(long long _global_idx) const {return edges_data[_global_idx];};
+    __host__ __device__ inline _T set(long long _global_idx, _T _val) const {edges_data[_global_idx] = _val;};
+    __host__ __device__ inline _T& operator[] (long long _global_idx) const { return edges_data[_global_idx]; };
+    #endif
+
+    #if defined(__USE_NEC_SX_AURORA__) || defined(__USE_INTEL__)
+    __host__ __device__ inline _T get(long long _global_idx) const {return edges_data[_global_idx];};
+    __host__ __device__ inline _T set(long long _global_idx, _T _val) const {edges_data[_global_idx] = _val;};
+    __host__ __device__ inline _T& operator[] (long long _global_idx) const { return edges_data[_global_idx]; };
+    #endif
 
     void set(int _src_id, int _dst_id, _T _val, TraversalDirection _direction);
     _T get(int _src_id, int _dst_id, TraversalDirection _direction);

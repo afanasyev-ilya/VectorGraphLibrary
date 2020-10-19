@@ -8,7 +8,10 @@ VectorExtension::VectorExtension()
     starting_vertex = 0;
     vector_segments_count = 1;
 
-    edges_count_in_ve = VECTOR_LENGTH;
+    edges_count_in_ve = 0;
+    vector_group_ptrs = NULL;
+    vector_group_sizes = NULL;
+    adjacent_ids = NULL;
     alloc(VECTOR_LENGTH);
 }
 
@@ -25,7 +28,6 @@ void VectorExtension::alloc(long long _edges_count)
 {
     MemoryAPI::allocate_array(&vector_group_ptrs, vector_segments_count);
     MemoryAPI::allocate_array(&vector_group_sizes, vector_segments_count);
-
     MemoryAPI::allocate_array(&adjacent_ids, _edges_count);
 }
 
@@ -35,7 +37,6 @@ void VectorExtension::free()
 {
     MemoryAPI::free_array(vector_group_ptrs);
     MemoryAPI::free_array(vector_group_sizes);
-
     MemoryAPI::free_array(adjacent_ids);
 }
 

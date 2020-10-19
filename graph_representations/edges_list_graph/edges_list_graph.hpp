@@ -22,18 +22,16 @@ void EdgesListGraph::alloc(int _vertices_count, long long _edges_count)
 {
     this->vertices_count = _vertices_count;
     this->edges_count    = _edges_count;
-    src_ids              = new int[this->edges_count]; // TODO correct alloc
-    dst_ids              = new int[this->edges_count];
+    MemoryAPI::allocate_array(&src_ids, this->edges_count);
+    MemoryAPI::allocate_array(&dst_ids, this->edges_count);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 void EdgesListGraph::free()
 {
-    if(src_ids != NULL)
-        delete []src_ids;
-    if(dst_ids != NULL)
-        delete []dst_ids;
+    MemoryAPI::free_array(src_ids);
+    MemoryAPI::free_array(dst_ids);
 
     src_ids = NULL;
     dst_ids = NULL;

@@ -34,7 +34,6 @@ void FrontierGPU::init()
 void __global__ split_frontier_kernel(const long long *_vertex_pointers,
                                       const int *_frontier_ids,
                                       const int _frontier_size,
-                                      int *_grid_threshold_vertex,
                                       int *_block_threshold_vertex,
                                       int *_warp_threshold_vertex,
                                       int *_vwp_16_threshold_vertex,
@@ -55,10 +54,6 @@ void __global__ split_frontier_kernel(const long long *_vertex_pointers,
             next_size = _vertex_pointers[next_id + 1] - _vertex_pointers[next_id];
         }
 
-        if((current_size > GPU_GRID_THRESHOLD_VALUE) && (next_size <= GPU_GRID_THRESHOLD_VALUE))
-        {
-            *_grid_threshold_vertex = idx + 1;
-        }
         if((current_size > GPU_BLOCK_THRESHOLD_VALUE) && (next_size <= GPU_BLOCK_THRESHOLD_VALUE))
         {
             *_block_threshold_vertex = idx + 1;
@@ -90,8 +85,6 @@ void __global__ split_frontier_kernel(const long long *_vertex_pointers,
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 void FrontierGPU::split_sorted_frontier(const long long *_vertex_pointers,
-                                        int &_grid_threshold_start,
-                                        int &_grid_threshold_end,
                                         int &_block_threshold_start,
                                         int &_block_threshold_end,
                                         int &_warp_threshold_start,
@@ -123,7 +116,6 @@ void FrontierGPU::split_sorted_frontier(const long long *_vertex_pointers,
     MemoryAPI::allocate_array(&vwp_4_threshold_vertex, 1);
     MemoryAPI::allocate_array(&vwp_2_threshold_vertex, 1);
 
-    grid_threshold_vertex[0] = 0;
     block_threshold_vertex[0] = 0;
     warp_threshold_vertex[0] = 0;
     vwp_16_threshold_vertex[0] = 0;
@@ -132,14 +124,12 @@ void FrontierGPU::split_sorted_frontier(const long long *_vertex_pointers,
     vwp_2_threshold_vertex[0] = 0;
 
     split_frontier_kernel<<<(current_size - 1)/BLOCK_SIZE+1, BLOCK_SIZE>>>(_vertex_pointers, ids,
-            current_size, grid_threshold_vertex, block_threshold_vertex, warp_threshold_vertex,
+            current_size, block_threshold_vertex, warp_threshold_vertex,
             vwp_16_threshold_vertex, vwp_8_threshold_vertex, vwp_4_threshold_vertex, vwp_2_threshold_vertex);
 
     cudaDeviceSynchronize();
 
-    _grid_threshold_start   = 0;
-    _grid_threshold_end     = grid_threshold_vertex[0];
-    _block_threshold_start  = _grid_threshold_end;
+    _block_threshold_start  = 0;
     _block_threshold_end    = block_threshold_vertex[0];
     _warp_threshold_start   = _block_threshold_end;
     _warp_threshold_end     = warp_threshold_vertex[0];

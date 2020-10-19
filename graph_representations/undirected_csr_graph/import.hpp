@@ -110,7 +110,7 @@ void UndirectedCSRGraph::construct_CSR(EdgesListGraph &_el_graph)
     int *el_dst_ids = _el_graph.get_dst_ids();
 
     #pragma _NEC ivdep
-    #pragma omp parallel
+    #pragma omp parallel for
     for(long long cur_vertex = 0; cur_vertex < el_vertices_count; cur_vertex++)
     {
         this->vertex_pointers[cur_vertex] = -1;
@@ -118,7 +118,7 @@ void UndirectedCSRGraph::construct_CSR(EdgesListGraph &_el_graph)
 
     vertex_pointers[0] = 0;
     #pragma _NEC ivdep
-    #pragma omp parallel
+    #pragma omp parallel for
     for(long long cur_edge = 1; cur_edge < el_edges_count; cur_edge++)
     {
         int prev_id = el_src_ids[cur_edge - 1];
@@ -129,7 +129,7 @@ void UndirectedCSRGraph::construct_CSR(EdgesListGraph &_el_graph)
     vertex_pointers[el_vertices_count] = el_edges_count;
 
     #pragma _NEC ivdep
-    #pragma omp parallel // this can be done in parallel only because graph is sorted
+    #pragma omp parallel for// this can be done in parallel only because graph is sorted
     for(long long cur_vertex = el_vertices_count; cur_vertex >= 0; cur_vertex--)
     {
         if(this->vertex_pointers[cur_vertex] == -1) // if vertex has zero degree
@@ -139,7 +139,7 @@ void UndirectedCSRGraph::construct_CSR(EdgesListGraph &_el_graph)
     }
 
     #pragma _NEC ivdep
-    #pragma omp parallel
+    #pragma omp parallel for
     for(long long cur_edge = 0; cur_edge < el_edges_count; cur_edge++)
     {
         this->adjacent_ids[cur_edge] = el_dst_ids[cur_edge];

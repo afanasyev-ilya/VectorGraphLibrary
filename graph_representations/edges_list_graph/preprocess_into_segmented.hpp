@@ -113,10 +113,8 @@ struct VectorSegment
 
     void free()
     {
-        if(merged_src_ids != NULL)
-            MemoryAPI::free_array(merged_src_ids);
-        if(merged_dst_ids != NULL)
-            MemoryAPI::free_array(merged_dst_ids);
+        MemoryAPI::free_array(merged_src_ids);
+        MemoryAPI::free_array(merged_dst_ids);
         merged_src_ids = NULL;
         merged_dst_ids = NULL;
     }

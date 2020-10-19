@@ -21,17 +21,13 @@
 class FrontierGPU : public Frontier
 {
 private:
+    // this is how NEC frontier is represented
     int *ids;
     int *flags;
 
-    FrontierType type;
-
-    int max_size;
-    int current_size;
-
     void init();
 
-    void split_sorted_frontier(const long long *_vertex_pointers, int &_grid_threshold_start, int &_grid_threshold_end,
+    void split_sorted_frontier(const long long *_vertex_pointers,
                                int &_block_threshold_start, int &_block_threshold_end,
                                int &_warp_threshold_start, int &_warp_threshold_end,
                                int &_vwp_16_threshold_start, int &_vwp_16_threshold_end,

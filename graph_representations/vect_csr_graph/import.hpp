@@ -33,13 +33,11 @@ void VectCSRGraph::import(EdgesListGraph &_el_graph)
 
 void VectCSRGraph::resize_helper_arrays()
 {
-    if(edges_reorder_indexes != NULL)
-        MemoryAPI::free_array(edges_reorder_indexes);
+    MemoryAPI::free_array(edges_reorder_indexes);
     MemoryAPI::allocate_array(&edges_reorder_indexes, this->edges_count);
     MemoryAPI::set(edges_reorder_indexes, (long long)0, this->edges_count);
 
-    if(vertices_reorder_buffer != NULL)
-        MemoryAPI::free_array(vertices_reorder_buffer);
+    MemoryAPI::free_array(vertices_reorder_buffer);
     MemoryAPI::allocate_array(&vertices_reorder_buffer, this->vertices_count);
 }
 
