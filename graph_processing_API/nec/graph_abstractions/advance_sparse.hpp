@@ -14,7 +14,7 @@ void GraphAbstractionsNEC::vector_engine_per_vertex_kernel_sparse(UndirectedCSRG
     Timer tm;
     tm.start();
 
-    int traversal = current_traversal_direction;
+    TraversalDirection traversal = current_traversal_direction;
     int storage = CSR_STORAGE;
 
     DelayedWriteNEC delayed_write;
@@ -76,7 +76,7 @@ void GraphAbstractionsNEC::vector_core_per_vertex_kernel_sparse(UndirectedCSRGra
     Timer tm;
     tm.start();
 
-    int traversal = current_traversal_direction;
+    TraversalDirection traversal = current_traversal_direction;
     int storage = CSR_STORAGE;
 
     DelayedWriteNEC delayed_write;
@@ -145,7 +145,7 @@ void GraphAbstractionsNEC::collective_vertex_processing_kernel_sparse(Undirected
     int *frontier_ids = &(_frontier.get_ids()[_frontier.get_vector_core_part_size() + _frontier.get_vector_engine_part_size()]);
     int frontier_segment_size = _frontier.get_collective_part_size();
 
-    int traversal = current_traversal_direction;
+    TraversalDirection traversal = current_traversal_direction;
     int storage = CSR_STORAGE;
 
     long long int reg_start[VECTOR_LENGTH];

@@ -118,17 +118,33 @@ __global__ void reduce_kernel_all_active(const int _size,
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-template <typename _T, typename _TVertexValue, typename _TEdgeWeight, typename ReduceOperation>
-_T GraphAbstractionsGPU::reduce(UndirectedCSRGraph &_graph,
-                              FrontierGPU &_frontier,
-                              ReduceOperation &&reduce_op,
-                              REDUCE_TYPE _reduce_type)
+template <typename _T, typename ReduceOperation>
+_T GraphAbstractionsGPU::reduce(VectCSRGraph &_graph,
+                                FrontierGPU &_frontier,
+                                ReduceOperation &&reduce_op,
+                                REDUCE_TYPE _reduce_type)
 {
+    Timer tm;
+    tm.start();
+
+    if(_frontier.get_direction() != current_traversal_direction)
+    {
+        throw "Error in GraphAbstractionsNEC::reduce : wrong frontier direction";
+    }
+
+    UndirectedCSRGraph *current_direction_graph;
+    if(current_traversal_direction == SCATTER)
+    {
+        current_direction_graph = _graph.get_outgoing_graph_ptr();
+    }
+    else if(current_traversal_direction == GATHER)
+    {
+        current_direction_graph = _graph.get_incoming_graph_ptr();
+    }
+
     _T *managed_reduced_result;
     MemoryAPI::allocate_array(&managed_reduced_result, 1);
-
-    LOAD_UNDIRECTED_CSR_GRAPH_DATA(_graph);
-    long long *vertex_pointers = vertex_pointers;
+    LOAD_UNDIRECTED_CSR_GRAPH_DATA(current_direction_graph);
 
     if(_frontier.type == ALL_ACTIVE_FRONTIER)
     {
@@ -147,8 +163,13 @@ _T GraphAbstractionsGPU::reduce(UndirectedCSRGraph &_graph,
     cudaDeviceSynchronize();
     _T reduce_result = managed_reduced_result[0];
 
-
     MemoryAPI::free_array(managed_reduced_result);
+
+    tm.end();
+    performance_stats.update_reduce_time(tm);
+    #ifdef __PRINT_API_PERFORMANCE_STATS__
+    tm.print_bandwidth_stats("Reduce", _frontier.size(), REDUCE_INT_ELEMENTS*sizeof(int));
+    #endif
 
     return reduce_result;
 }

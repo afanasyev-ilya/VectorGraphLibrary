@@ -27,13 +27,13 @@ public:
 
     /* Print API */
     // prints effective bandwidth of specified interval
-    void print_bandwidth_stats(string _name, long long _elements, double _bytes_per_element);
+    void print_bandwidth_stats(string _name, long long _elements, double _bytes_per_element = 1);
 
     // prints wall time of specified interval
     void print_time_stats(string _name);
 
     // prints both effective bandwidth and wall time of specified interval
-    void print_time_and_bandwidth_stats(string _name, long long _elements, double _bytes_per_element);
+    void print_time_and_bandwidth_stats(string _name, long long _elements, double _bytes_per_element = 1);
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

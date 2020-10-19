@@ -19,6 +19,7 @@ int UndirectedCSRGraph::reorder_to_sorted(int _vertex_id)
 template <typename _T>
 void UndirectedCSRGraph::reorder_to_original(_T *_data, _T *_buffer)
 {
+    #if defined(__USE_NEC_SX_AURORA__) || defined(__USE_INTEL__)
     #pragma _NEC ivdep
     #pragma _NEC vovertake
     #pragma _NEC novob
@@ -37,6 +38,11 @@ void UndirectedCSRGraph::reorder_to_original(_T *_data, _T *_buffer)
     {
         _data[i] = _buffer[i];
     }
+    #endif
+
+    #if defined(__USE_GPU__)
+    cuda_reorder_wrapper(_data, _buffer, backward_conversion, this->vertices_count);
+    #endif
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -44,6 +50,7 @@ void UndirectedCSRGraph::reorder_to_original(_T *_data, _T *_buffer)
 template <typename _T>
 void UndirectedCSRGraph::reorder_to_sorted(_T *_data, _T *_buffer)
 {
+    #if defined(__USE_NEC_SX_AURORA__) || defined(__USE_INTEL__)
     #pragma _NEC ivdep
     #pragma _NEC vovertake
     #pragma _NEC novob
@@ -62,6 +69,11 @@ void UndirectedCSRGraph::reorder_to_sorted(_T *_data, _T *_buffer)
     {
         _data[i] = _buffer[i];
     }
+    #endif
+
+    #if defined(__USE_GPU__)
+    cuda_reorder_wrapper(_data, _buffer, forward_conversion, this->vertices_count);
+    #endif
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

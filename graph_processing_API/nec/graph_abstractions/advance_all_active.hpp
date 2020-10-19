@@ -20,7 +20,7 @@ void GraphAbstractionsNEC::vector_engine_per_vertex_kernel_all_active(Undirected
     DelayedWriteNEC delayed_write;
     delayed_write.init();
 
-    int traversal = current_traversal_direction;
+    TraversalDirection traversal = current_traversal_direction;
     int storage = CSR_STORAGE;
 
     for(int front_pos = _first_vertex; front_pos < _last_vertex; front_pos++)
@@ -80,7 +80,7 @@ void GraphAbstractionsNEC::vector_core_per_vertex_kernel_all_active(UndirectedCS
 
     LOAD_UNDIRECTED_CSR_GRAPH_DATA(_graph);
 
-    int traversal = current_traversal_direction;
+    TraversalDirection traversal = current_traversal_direction;
     int storage = CSR_STORAGE;
 
     #pragma omp for schedule(static, 1)
@@ -138,7 +138,7 @@ void GraphAbstractionsNEC::ve_collective_vertex_processing_kernel_all_active(Und
 
     LOAD_UNDIRECTED_CSR_GRAPH_DATA(_graph);
 
-    int traversal = current_traversal_direction;
+    TraversalDirection traversal = current_traversal_direction;
     int storage = VE_STORAGE;
 
     long long reg_real_start[VECTOR_LENGTH];

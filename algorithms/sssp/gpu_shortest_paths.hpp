@@ -12,26 +12,33 @@ void SSSP::gpu_dijkstra(VectCSRGraph &_graph,
                         AlgorithmTraversalType _traversal_direction)
 {
     Timer tm;
-    tm.start();
     _graph.move_to_device();
     _weights.move_to_device();
     _distances.move_to_device();
-    tm.end();
-    #ifdef __PRINT_API_PERFORMANCE_STATS__
-    cout << "Copy to device time: " << tm.get_time() << endl;
-    #endif
 
     int iterations_count = 0;
     tm.start();
     if(_frontier_type == PARTIAL_ACTIVE)
     {
+        _source_vertex = _graph.reorder(_source_vertex, ORIGINAL, SCATTER);
         gpu_dijkstra_partial_active_wrapper(_graph, _weights, _distances, _source_vertex,
                                             iterations_count);
     }
     else if(_frontier_type == ALL_ACTIVE)
     {
-        gpu_dijkstra_all_active_wrapper(_graph, _weights, _distances, _source_vertex,
-                                        iterations_count, _traversal_direction);
+        if(_traversal_direction == PUSH_TRAVERSAL)
+        {
+            _source_vertex = _graph.reorder(_source_vertex, ORIGINAL, SCATTER);
+            gpu_dijkstra_all_active_push_wrapper(_graph, _weights, _distances, _source_vertex,
+                                                 iterations_count);
+        }
+        else if(_traversal_direction == PULL_TRAVERSAL)
+        {
+            _source_vertex = _graph.reorder(_source_vertex, ORIGINAL, GATHER);
+            gpu_dijkstra_all_active_pull_wrapper(_graph, _weights, _distances, _source_vertex,
+                                                 iterations_count);
+        }
+
     }
     tm.end();
 

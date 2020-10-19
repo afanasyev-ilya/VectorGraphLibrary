@@ -1,0 +1,51 @@
+#pragma once
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+template <typename EdgeOperation, typename VertexPreprocessOperation, typename VertexPostprocessOperation,
+        typename CollectiveEdgeOperation, typename CollectiveVertexPreprocessOperation,
+        typename CollectiveVertexPostprocessOperation>
+void GraphAbstractionsGPU::gather(VectCSRGraph &_graph,
+                                  FrontierGPU &_frontier,
+                                  EdgeOperation &&edge_op,
+                                  VertexPreprocessOperation &&vertex_preprocess_op,
+                                  VertexPostprocessOperation &&vertex_postprocess_op,
+                                  CollectiveEdgeOperation &&collective_edge_op,
+                                  CollectiveVertexPreprocessOperation &&collective_vertex_preprocess_op,
+                                  CollectiveVertexPostprocessOperation &&collective_vertex_postprocess_op)
+{
+    Timer tm;
+    tm.start();
+    UndirectedCSRGraph *current_direction_graph;
+
+    if(current_traversal_direction != GATHER)
+    {
+        throw "Error in GraphAbstractionsGPU::gather : wrong traversal direction";
+    }
+    if(_frontier.get_direction() != current_traversal_direction)
+    {
+        throw "Error in GraphAbstractionsGPU::gather : wrong frontier direction";
+    }
+    current_direction_graph = _graph.get_incoming_graph_ptr();
+
+    advance_worker(*current_direction_graph, _frontier, edge_op, vertex_preprocess_op, vertex_postprocess_op, false);
+
+    tm.end();
+    performance_stats.update_scatter_time(tm);
+    #ifdef __PRINT_API_PERFORMANCE_STATS__
+    tm.print_time_and_bandwidth_stats("Gather", _graph.get_edges_count(), INT_ELEMENTS_PER_EDGE*sizeof(int));
+    #endif
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+template <typename EdgeOperation>
+void GraphAbstractionsGPU::gather(VectCSRGraph &_graph,
+                                   FrontierGPU &_frontier,
+                                   EdgeOperation &&edge_op)
+{
+    auto EMPTY_VERTEX_OP = [] __device__(int src_id, int position_in_frontier, int connections_count){};
+    gather(_graph, _frontier, edge_op, EMPTY_VERTEX_OP, EMPTY_VERTEX_OP, edge_op, EMPTY_VERTEX_OP, EMPTY_VERTEX_OP);
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

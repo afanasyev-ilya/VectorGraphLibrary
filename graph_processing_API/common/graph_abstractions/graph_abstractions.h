@@ -7,6 +7,7 @@ class GraphAbstractions
 protected:
     VectCSRGraph *processed_graph_ptr;
     TraversalDirection current_traversal_direction;
+    long long direction_shift;
 
     bool same_direction(TraversalDirection _first, TraversalDirection _second);
 
@@ -76,8 +77,16 @@ public:
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+#ifdef __USE_GPU__
+#ifdef __CUDA_INCLUDE__
+#include "graph_abstractions.hpp"
+#endif
+#endif
+
+#ifndef __USE_GPU__
 #ifndef __CUDA_INCLUDE__
 #include "graph_abstractions.hpp"
+#endif
 #endif
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

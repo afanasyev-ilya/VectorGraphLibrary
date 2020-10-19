@@ -14,7 +14,9 @@ void __global__ block_per_vertex_kernel(const long long *_vertex_pointers,
                                         VertexPostprocessOperation vertex_postprocess_op,
                                         int *_new_frontier_ids,
                                         bool _generate_frontier,
-                                        int *_new_frontier_size)
+                                        int *_new_frontier_size,
+                                        TraversalDirection _traversal,
+                                        long long _direction_shift)
 {
     const int frontier_pos = blockIdx.x + _vertex_part_start;
     if(frontier_pos < _vertex_part_end)
@@ -28,10 +30,13 @@ void __global__ block_per_vertex_kernel(const long long *_vertex_pointers,
         {
             if(edge_pos < connections_count)
             {
-                const long long int global_edge_pos = edge_start + edge_pos;
-                const int dst_id = _adjacent_ids[global_edge_pos];
+                const long long int internal_edge_pos = edge_start + edge_pos;
+                const int dst_id = _adjacent_ids[internal_edge_pos];
                 const int local_edge_pos = edge_pos;
-                edge_op(src_id, dst_id, local_edge_pos, global_edge_pos, frontier_pos);
+                int vector_index = cub::LaneId();
+
+                long long global_edge_pos = _traversal * _direction_shift + internal_edge_pos;
+                edge_op(src_id, dst_id, local_edge_pos, global_edge_pos, vector_index);
             }
         }
 
@@ -53,7 +58,9 @@ void __global__ warp_per_vertex_kernel(const long long *_vertex_pointers,
                                        VertexPostprocessOperation vertex_postprocess_op,
                                        int *_new_frontier_ids,
                                        bool _generate_frontier,
-                                       int *_new_frontier_size)
+                                       int *_new_frontier_size,
+                                       TraversalDirection _traversal,
+                                       long long _direction_shift)
 {
     const int warp_id = threadIdx.x / WARP_SIZE;
     const int lane_id = threadIdx.x % WARP_SIZE;
@@ -70,10 +77,13 @@ void __global__ warp_per_vertex_kernel(const long long *_vertex_pointers,
         {
             if(edge_pos < connections_count)
             {
-                const long long int global_edge_pos = edge_start + edge_pos;
-                const int dst_id = _adjacent_ids[global_edge_pos];
+                const long long int internal_edge_pos = edge_start + edge_pos;
+                const int dst_id = _adjacent_ids[internal_edge_pos];
                 const int local_edge_pos = edge_pos;
-                edge_op(src_id, dst_id, local_edge_pos, global_edge_pos, frontier_pos);
+                int vector_index = cub::LaneId();
+
+                long long global_edge_pos = _traversal * _direction_shift + internal_edge_pos;
+                edge_op(src_id, dst_id, local_edge_pos, global_edge_pos, vector_index);
             }
         }
 
@@ -95,7 +105,9 @@ void __global__ thread_per_vertex_kernel(const long long *_vertex_pointers,
                                          VertexPostprocessOperation vertex_postprocess_op,
                                          int *_new_frontier_ids,
                                          bool _generate_frontier,
-                                         int *_new_frontier_size)
+                                         int *_new_frontier_size,
+                                         TraversalDirection _traversal,
+                                         long long _direction_shift)
 {
     const int frontier_pos = blockIdx.x * blockDim.x + threadIdx.x + _vertex_part_start;
 
@@ -112,10 +124,13 @@ void __global__ thread_per_vertex_kernel(const long long *_vertex_pointers,
         {
             if(edge_pos < connections_count)
             {
-                const long long int global_edge_pos = edge_start + edge_pos;
-                const int dst_id = _adjacent_ids[global_edge_pos];
+                const long long int internal_edge_pos = edge_start + edge_pos;
+                const int dst_id = _adjacent_ids[internal_edge_pos];
                 const int local_edge_pos = edge_pos;
-                edge_op(src_id, dst_id, local_edge_pos, global_edge_pos, frontier_pos);
+                int vector_index = cub::LaneId();
+
+                long long global_edge_pos = _traversal * _direction_shift + internal_edge_pos;
+                edge_op(src_id, dst_id, local_edge_pos, global_edge_pos, vector_index);
             }
         }
 
@@ -137,7 +152,9 @@ void __global__ virtual_warp_per_vertex_kernel(const long long *_vertex_pointers
                                                VertexPostprocessOperation vertex_postprocess_op,
                                                int *_new_frontier_ids,
                                                bool _generate_frontier,
-                                               int *_new_frontier_size)
+                                               int *_new_frontier_size,
+                                               TraversalDirection _traversal,
+                                               long long _direction_shift)
 {
     const int virtual_warp_id = threadIdx.x / VirtualWarpSize;
     const int position_in_virtual_warp = threadIdx.x % VirtualWarpSize;
@@ -157,10 +174,13 @@ void __global__ virtual_warp_per_vertex_kernel(const long long *_vertex_pointers
         {
             if(edge_pos < connections_count)
             {
-                const long long int global_edge_pos = edge_start + edge_pos;
-                const int dst_id = _adjacent_ids[global_edge_pos];
+                const long long int internal_edge_pos = edge_start + edge_pos;
+                const int dst_id = _adjacent_ids[internal_edge_pos];
                 const int local_edge_pos = edge_pos;
-                edge_op(src_id, dst_id, local_edge_pos, global_edge_pos, frontier_pos);
+                int vector_index = cub::LaneId();
+
+                long long global_edge_pos = _traversal * _direction_shift + internal_edge_pos;
+                edge_op(src_id, dst_id, local_edge_pos, global_edge_pos, vector_index);
             }
         }
 
@@ -206,7 +226,6 @@ void GraphAbstractionsGPU::advance_worker(UndirectedCSRGraph &_graph,
                                     vwp_2_threshold_start, vwp_2_threshold_end,
                                     thread_threshold_start, thread_threshold_end);
 
-
     int *tmp_new_frontier_buffer = _frontier.flags;
     int *new_frontier_size;
     if(_generate_frontier)
@@ -217,7 +236,8 @@ void GraphAbstractionsGPU::advance_worker(UndirectedCSRGraph &_graph,
     {
         block_per_vertex_kernel <<< block_vertices_count, BLOCK_SIZE, 0, block_processing_stream >>>
                 (vertex_pointers, adjacent_ids, _frontier.ids, vertices_count, block_threshold_start,
-                 block_threshold_end, edge_op, vertex_preprocess_op, vertex_postprocess_op, tmp_new_frontier_buffer, _generate_frontier, new_frontier_size);
+                 block_threshold_end, edge_op, vertex_preprocess_op, vertex_postprocess_op, tmp_new_frontier_buffer, _generate_frontier, new_frontier_size,
+                 current_traversal_direction, direction_shift);
     }
 
     int warp_vertices_count = warp_threshold_end - warp_threshold_start;
@@ -225,7 +245,8 @@ void GraphAbstractionsGPU::advance_worker(UndirectedCSRGraph &_graph,
     {
         warp_per_vertex_kernel <<< WARP_SIZE*(warp_vertices_count - 1)/BLOCK_SIZE + 1, BLOCK_SIZE, 0, warp_processing_stream >>>
                 (vertex_pointers, adjacent_ids, _frontier.ids, vertices_count, warp_threshold_start,
-                 warp_threshold_end, edge_op, vertex_preprocess_op, vertex_postprocess_op, tmp_new_frontier_buffer, _generate_frontier, new_frontier_size);
+                 warp_threshold_end, edge_op, vertex_preprocess_op, vertex_postprocess_op, tmp_new_frontier_buffer, _generate_frontier, new_frontier_size,
+                 current_traversal_direction, direction_shift);
     }
 
     int vwp_16_vertices_count = vwp_16_threshold_end - vwp_16_threshold_start;
@@ -233,7 +254,8 @@ void GraphAbstractionsGPU::advance_worker(UndirectedCSRGraph &_graph,
     {
         virtual_warp_per_vertex_kernel<16> <<< 16*(vwp_16_vertices_count - 1) / BLOCK_SIZE + 1, BLOCK_SIZE, 0, vwp_16_processing_stream >>>
                 (vertex_pointers, adjacent_ids, _frontier.ids, vertices_count, vwp_16_threshold_start,
-                 vwp_16_threshold_end, edge_op, vertex_preprocess_op, vertex_postprocess_op, tmp_new_frontier_buffer, _generate_frontier, new_frontier_size);
+                 vwp_16_threshold_end, edge_op, vertex_preprocess_op, vertex_postprocess_op, tmp_new_frontier_buffer, _generate_frontier, new_frontier_size,
+                 current_traversal_direction, direction_shift);
     }
 
     int vwp_8_vertices_count = vwp_8_threshold_end - vwp_8_threshold_start;
@@ -241,7 +263,8 @@ void GraphAbstractionsGPU::advance_worker(UndirectedCSRGraph &_graph,
     {
         virtual_warp_per_vertex_kernel<8> <<< 8*(vwp_8_vertices_count - 1) / BLOCK_SIZE + 1, BLOCK_SIZE, 0, vwp_8_processing_stream >>>
                 (vertex_pointers, adjacent_ids, _frontier.ids, vertices_count, vwp_8_threshold_start,
-                 vwp_8_threshold_end, edge_op, vertex_preprocess_op, vertex_postprocess_op, tmp_new_frontier_buffer, _generate_frontier, new_frontier_size);
+                 vwp_8_threshold_end, edge_op, vertex_preprocess_op, vertex_postprocess_op, tmp_new_frontier_buffer, _generate_frontier, new_frontier_size,
+                 current_traversal_direction, direction_shift);
     }
 
     int vwp_4_vertices_count = vwp_4_threshold_end - vwp_4_threshold_start;
@@ -249,7 +272,8 @@ void GraphAbstractionsGPU::advance_worker(UndirectedCSRGraph &_graph,
     {
         virtual_warp_per_vertex_kernel<4> <<< 4*(vwp_4_vertices_count - 1) / BLOCK_SIZE + 1, BLOCK_SIZE, 0, vwp_4_processing_stream >>>
                 (vertex_pointers, adjacent_ids, _frontier.ids, vertices_count, vwp_4_threshold_start,
-                 vwp_4_threshold_end, edge_op, vertex_preprocess_op, vertex_postprocess_op, tmp_new_frontier_buffer, _generate_frontier, new_frontier_size);
+                 vwp_4_threshold_end, edge_op, vertex_preprocess_op, vertex_postprocess_op, tmp_new_frontier_buffer, _generate_frontier, new_frontier_size,
+                 current_traversal_direction, direction_shift);
     }
 
     int vwp_2_vertices_count = vwp_2_threshold_end - vwp_2_threshold_start;
@@ -257,7 +281,8 @@ void GraphAbstractionsGPU::advance_worker(UndirectedCSRGraph &_graph,
     {
         virtual_warp_per_vertex_kernel<2> <<< 2*(vwp_2_vertices_count - 1) / BLOCK_SIZE + 1, BLOCK_SIZE, 0, vwp_2_processing_stream >>>
                 (vertex_pointers, adjacent_ids, _frontier.ids, vertices_count, vwp_2_threshold_start,
-                 vwp_2_threshold_end, edge_op, vertex_preprocess_op, vertex_postprocess_op, tmp_new_frontier_buffer, _generate_frontier, new_frontier_size);
+                 vwp_2_threshold_end, edge_op, vertex_preprocess_op, vertex_postprocess_op, tmp_new_frontier_buffer, _generate_frontier, new_frontier_size,
+                 current_traversal_direction, direction_shift);
     }
 
     int thread_vertices_count = thread_threshold_end - thread_threshold_start;
@@ -265,7 +290,8 @@ void GraphAbstractionsGPU::advance_worker(UndirectedCSRGraph &_graph,
     {
         thread_per_vertex_kernel <<< (thread_vertices_count - 1) / BLOCK_SIZE + 1, BLOCK_SIZE, 0, thread_processing_stream >>>
                                                                                                   (vertex_pointers, adjacent_ids, _frontier.ids, vertices_count, thread_threshold_start,
-                                                                                                          thread_threshold_end, edge_op, vertex_preprocess_op, vertex_postprocess_op, tmp_new_frontier_buffer, _generate_frontier, new_frontier_size);
+                                                                                                   thread_threshold_end, edge_op, vertex_preprocess_op, vertex_postprocess_op, tmp_new_frontier_buffer, _generate_frontier, new_frontier_size,
+                                                                                                   current_traversal_direction, direction_shift);
     }
     cudaDeviceSynchronize();
 }

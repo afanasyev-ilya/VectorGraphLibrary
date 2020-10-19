@@ -27,7 +27,13 @@ void FrontierGPU::set_all_active()
 
 void FrontierGPU::add_vertex(int src_id)
 {
-    throw "Error FrontierGPU::add_vertex : not implemented yet";
+    if(current_size > 0)
+    {
+        throw "Error in FrontierGPU::add_vertex: VGL can not add vertex to non-empty frontier";
+    }
+    ids[0] = src_id;
+    flags[src_id] = IN_FRONTIER_FLAG;
+    current_size = 1;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

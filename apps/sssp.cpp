@@ -75,21 +75,21 @@ int main(int argc, const char * argv[])
             // check if required
             if(parser.get_check_flag())
             {
-                #ifdef __USE_GPU__
+                /*#ifdef __USE_GPU__
                 graph.move_to_host();
                 distances.move_to_host();
                 weights.move_to_host();
-                #endif
+                #endif*/
 
                 VerticesArray<int> check_distances(graph, SCATTER);
                 ShortestPaths::seq_dijkstra(graph, weights, check_distances, source_vertex);
                 verify_results(graph, distances, check_distances);
 
-                #ifdef __USE_GPU__
+                /*#ifdef __USE_GPU__
                 graph.move_to_device();
                 distances.move_to_device();
                 weights.move_to_device();
-                #endif
+                #endif*/
             }
         }
     }

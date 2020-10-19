@@ -92,5 +92,10 @@ void VerticesArray<_T>::print(string _name)
 
 template class VerticesArray<int>;
 template class VerticesArray<float>;
+template class VerticesArray<double>;
+template class VerticesArray<long long>;
+template class VerticesArray<bool>;
+template class VerticesArray<char>;
+template class VerticesArray<short>;
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

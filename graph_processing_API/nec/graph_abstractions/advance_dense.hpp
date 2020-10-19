@@ -19,7 +19,7 @@ void GraphAbstractionsNEC::vector_engine_per_vertex_kernel_dense(UndirectedCSRGr
     LOAD_UNDIRECTED_CSR_GRAPH_DATA(_graph);
     int *frontier_flags = _frontier.get_flags();
 
-    int traversal = current_traversal_direction;
+    TraversalDirection traversal = current_traversal_direction;
     int storage = CSR_STORAGE;
 
     DelayedWriteNEC delayed_write;
@@ -83,7 +83,7 @@ void GraphAbstractionsNEC::vector_core_per_vertex_kernel_dense(UndirectedCSRGrap
     LOAD_UNDIRECTED_CSR_GRAPH_DATA(_graph);
     int *frontier_flags = _frontier.get_flags();
 
-    int traversal = current_traversal_direction;
+    TraversalDirection traversal = current_traversal_direction;
     int storage = CSR_STORAGE;
 
     DelayedWriteNEC delayed_write;
@@ -150,7 +150,7 @@ void GraphAbstractionsNEC::ve_collective_vertex_processing_kernel_dense(Undirect
     DelayedWriteNEC delayed_write;
     delayed_write.init();
 
-    int traversal = current_traversal_direction;
+    TraversalDirection traversal = current_traversal_direction;
     int storage = VE_STORAGE;
 
     long long reg_real_start[VECTOR_LENGTH];
