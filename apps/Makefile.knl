@@ -4,7 +4,7 @@ CXX = icpc
 
 # Include paths...
 Include_Path = -I ../
-Flags = -O3 -fopenmp -w -m64 -std=c++11
+Flags = -O3 -qopenmp -w -m64 -std=c++11 -qopt-report-phase=vec -qopt-streaming-stores always
 
 # Library paths...
 Library_Path =

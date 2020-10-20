@@ -301,7 +301,7 @@ void SSSP::nec_dijkstra(ShardedCSRGraph &_graph,
     GraphAbstractionsNEC graph_API(_graph);
     FrontierNEC frontier(_graph);
 
-    _source_vertex = _graph.reorder(_source_vertex, ORIGINAL, SCATTER);
+    //_source_vertex = _graph.reorder(_source_vertex, ORIGINAL, SCATTER);
 
     graph_API.change_traversal_direction(SCATTER);
 

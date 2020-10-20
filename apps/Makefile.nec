@@ -7,14 +7,9 @@ CXX = nc++
 Include_Path = -I /opt/nec/ve/nlc/2.0.0/include/ -I ../
 Flags = -O4 -fopenmp -report-all -proginf -mparallel -mretain-list-vector -DASL_LIB_INT64 #-ftrace #-mno-vector #-ftrace
 
-
 # Library paths...
 Library_Path =
 Libraries = -fopenmp -report-all -ftrace -lasl_openmp_i64 #-ftrace
-
-# CPU Compiler flags...
-
-
 #  -floop-normalize -floop-interchange -floop-collapse -mretain-list-vector
 
 .DEFAULT_GOAL := all
@@ -23,7 +18,7 @@ Libraries = -fopenmp -report-all -ftrace -lasl_openmp_i64 #-ftrace
 # binaries
 ##########
 
-all: sssp bfs scc
+all: sssp bfs scc gather
 
 sssp: create_folders sssp.o
 	$(CXX) object_files/sssp.o $(Library_Path) $(Libraries) -o ./bin/sssp_sx
@@ -34,18 +29,24 @@ bfs: create_folders bfs.o
 scc: create_folders scc.o
 	$(CXX) object_files/scc.o $(Library_Path) $(Libraries) -o ./bin/scc_sx
 
+gather: create_folders gather.o
+	$(CXX) object_files/gather.o $(Library_Path) $(Libraries) -o ./bin/gather_sx
+
 ##########
 # CPPs
 ##########
 
-sssp.o: sssp/sssp_nec.cpp
-	$(CXX) $(Flags) $(Include_Path)  -c sssp/sssp_nec.cpp -o object_files/sssp.o -fopenmp
+sssp.o: sssp/sssp.cpp
+	$(CXX) $(Flags) $(Include_Path)  -c sssp/sssp.cpp -o object_files/sssp.o -fopenmp
 
-bfs.o: bfs/bfs_nec.cpp
-	$(CXX) $(Flags) $(Include_Path)  -c bfs/bfs_nec.cpp -o object_files/bfs.o -fopenmp
+bfs.o: bfs/bfs.cpp
+	$(CXX) $(Flags) $(Include_Path)  -c bfs/bfs.cpp -o object_files/bfs.o -fopenmp
 
-scc.o: scc/scc_nec.cpp
-	$(CXX) $(Flags) $(Include_Path)  -c scc/scc_nec.cpp -o object_files/scc.o -fopenmp
+scc.o: scc/scc.cpp
+	$(CXX) $(Flags) $(Include_Path)  -c scc/scc.cpp -o object_files/scc.o -fopenmp
+
+gather.o: misc/gather.cpp
+	$(CXX) $(Flags) $(Include_Path)  -c misc/gather.cpp -o object_files/gather.o -fopenmp
 
 create_folders:
 	-mkdir -p ./bin

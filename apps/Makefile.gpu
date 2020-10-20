@@ -35,11 +35,11 @@ install:
                         git clone https://www.github.com/moderngpu/moderngpu ../external_libraries/moderngpu;\
                 fi
 
-sssp.o: sssp/sssp_gpu.cu
-	$(CUDA_COMPILER) $(Flags) $(Include_Path) -c sssp/sssp_gpu.cu -o object_files/sssp.o
+sssp.o: sssp/sssp.cu
+	$(CUDA_COMPILER) $(Flags) $(Include_Path) -c sssp/sssp.cu -o object_files/sssp.o
 
-bfs.o: bfs/bfs_gpu.cu
-	$(CUDA_COMPILER) $(Flags) $(Include_Path) -c bfs/bfs_gpu.cu -o object_files/bfs.o
+bfs.o: bfs/bfs.cu
+	$(CUDA_COMPILER) $(Flags) $(Include_Path) -c bfs/bfs.cu -o object_files/bfs.o
 
 create_folders:
 	-mkdir -p ./bin
