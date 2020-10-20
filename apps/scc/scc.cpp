@@ -1,12 +1,16 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+#define __USE_NEC_SX_AURORA__
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 #define INT_ELEMENTS_PER_EDGE 4.0
 #define VECTOR_CORE_THRESHOLD_VALUE 4.0*VECTOR_LENGTH
 #define COLLECTIVE_FRONTIER_TYPE_CHANGE_THRESHOLD 0.35
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#include "../../graph_library.h"
+#include "graph_library.h"
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -44,15 +48,14 @@ int main(int argc, const char * argv[])
 
         // compute SCC
         cout << "SCC computations started..." << endl;
+        VerticesArray<int> components(graph, SCATTER);
 
-        VerticesArray<int> components(graph, SCATTER); // TODO selection for DO/BU
-
-        performance_stats.reset_timers();
-
-        #ifdef __USE_NEC_SX_AURORA__
+        // heat run
         SCC::nec_forward_backward(graph, components);
-        #endif
 
+        // timed run
+        performance_stats.reset_timers();
+        SCC::nec_forward_backward(graph, components);
         performance_stats.print_timers_stats();
 
         // check if required

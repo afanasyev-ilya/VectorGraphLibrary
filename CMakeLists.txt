@@ -71,8 +71,6 @@ add_executable(VectorGraphLibrary
         apps/cc/cc.cpp
         apps/misc/generate_test_data.cpp
         apps/graph_library.sh
-        apps/Makefile.gcc
-        apps/Makefile.intel
         apps/Makefile.gpu
         apps/Makefile.nec
         apps/pr/pr.cpp

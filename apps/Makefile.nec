@@ -4,14 +4,16 @@ CXX = nc++
 # Include paths...
 
 # Include paths...
-Include_Path =
+Include_Path = -I /opt/nec/ve/nlc/2.0.0/include/ -I ../
+Flags = -O4 -fopenmp -report-all -proginf -mparallel -mretain-list-vector -DASL_LIB_INT64 #-ftrace #-mno-vector #-ftrace
+
 
 # Library paths...
-Libraries = #-ftrace
+Library_Path =
+Libraries = -fopenmp -report-all -ftrace -lasl_openmp_i64 #-ftrace
 
 # CPU Compiler flags...
-CXXFLAGS = -O4 -fopenmp -report-all -proginf -mparallel -mretain-list-vector -DASL_LIB_INT64 -I /opt/nec/ve/nlc/2.0.0/include/ #-ftrace #-mno-vector #-ftrace
-LDFLAGS = -fopenmp -report-all -ftrace -lasl_openmp_i64 #-ftrace
+
 
 #  -floop-normalize -floop-interchange -floop-collapse -mretain-list-vector
 
@@ -21,23 +23,29 @@ LDFLAGS = -fopenmp -report-all -ftrace -lasl_openmp_i64 #-ftrace
 # binaries
 ##########
 
-all: sssp bfs
+all: sssp bfs scc
 
 sssp: create_folders sssp.o
-	$(CXX) object_files/sssp.o $(Library_Path) $(Libraries) $(LDFLAGS) -o ./bin/sssp_sx
+	$(CXX) object_files/sssp.o $(Library_Path) $(Libraries) -o ./bin/sssp_sx
 
 bfs: create_folders bfs.o
-	$(CXX) object_files/bfs.o $(Library_Path) $(Libraries) $(LDFLAGS) -o ./bin/bfs_sx
+	$(CXX) object_files/bfs.o $(Library_Path) $(Libraries) -o ./bin/bfs_sx
+
+scc: create_folders scc.o
+	$(CXX) object_files/scc.o $(Library_Path) $(Libraries) -o ./bin/scc_sx
 
 ##########
 # CPPs
 ##########
 
 sssp.o: sssp/sssp.cpp
-	$(CXX) $(CXXFLAGS) $(Include_Path)  -c sssp/sssp.cpp -o object_files/sssp.o -fopenmp
+	$(CXX) $(Flags) $(Include_Path)  -c sssp/sssp.cpp -o object_files/sssp.o -fopenmp
 
 bfs.o: bfs/bfs.cpp
-	$(CXX) $(CXXFLAGS) $(Include_Path)  -c bfs/bfs.cpp -o object_files/bfs.o -fopenmp
+	$(CXX) $(Flags) $(Include_Path)  -c bfs/bfs.cpp -o object_files/bfs.o -fopenmp
+
+scc.o: scc/scc.cpp
+	$(CXX) $(Flags) $(Include_Path)  -c scc/scc.cpp -o object_files/scc.o -fopenmp
 
 create_folders:
 	-mkdir -p ./bin

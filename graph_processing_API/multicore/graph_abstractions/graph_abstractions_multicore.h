@@ -6,28 +6,28 @@
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-class GraphPrimitivesMulticore
+class GraphAbstractionsMulticore
 {
 private:
 
 public:
-    GraphPrimitivesMulticore() {};
+    GraphAbstractionsMulticore() {};
 
-    ~GraphPrimitivesMulticore() {};
+    ~GraphAbstractionsMulticore() {};
 
-    template <typename _TVertexValue, typename _TEdgeWeight, typename EdgeOperation>
+    template <typename EdgeOperation>
     void advance(UndirectedCSRGraph &_graph,
                  FrontierMulticore &_frontier,
                  EdgeOperation &&edge_op);
 
     // performs user-defined "compute_op" operation for each element in the given frontier
-    template <typename _TVertexValue, typename _TEdgeWeight, typename ComputeOperation>
+    template <typename ComputeOperation>
     void compute(UndirectedCSRGraph &_graph, FrontierMulticore &_frontier, ComputeOperation compute_op);
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#include "graph_primitives_multicore.hpp"
+#include "graph_abstractions_multicore.hpp"
 #include "compute.hpp"
 #include "advance.hpp"
 

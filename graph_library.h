@@ -63,7 +63,7 @@ using namespace std;
 // algorithm implementations
 #include "algorithms/bfs/bfs.h"
 #include "algorithms/sssp/shortest_paths.h"
-//#include "algorithms/scc/scc.h"
+#include "algorithms/scc/scc.h"
 /*#include "algorithms/sswp/widest_paths.h"
 #include "algorithms/cc/cc.h"
 #include "algorithms/pr/pr.h"
