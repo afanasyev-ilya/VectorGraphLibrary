@@ -7,10 +7,6 @@
 #include <cfloat>
 #endif
 
-#ifdef __USE_GPU__
-#include "gpu/dijkstra_gpu.cuh"
-#endif
-
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #define SSSP ShortestPaths
@@ -19,7 +15,8 @@
 
 class ShortestPaths
 {
-private:
+public:
+    // worker functions
     #ifdef __USE_NEC_SX_AURORA__
     template <typename _T>
     static void nec_dijkstra_all_active_push(VectCSRGraph &_graph,
@@ -43,7 +40,35 @@ private:
                                             VerticesArray<_T> &_distances,
                                             int _source_vertex);
     #endif
-public:
+
+    #ifdef __USE_GPU__
+    template <typename _T>
+    static void gpu_dijkstra_partial_active(VectCSRGraph &_graph,
+                                     EdgesArray<_T> &_weights,
+                                     VerticesArray<_T> &_distances,
+                                     int _source_vertex,
+                                     int &_iterations_count);
+    #endif
+
+    #ifdef __USE_GPU__
+    template <typename _T>
+    static void gpu_dijkstra_all_active_push(VectCSRGraph &_graph,
+                                      EdgesArray<_T> &_weights,
+                                      VerticesArray<_T> &_distances,
+                                      int _source_vertex,
+                                      int &_iterations_count);
+    #endif
+
+    #ifdef __USE_GPU__
+    template <typename _T>
+    static void gpu_dijkstra_all_active_pull(VectCSRGraph &_graph,
+                                      EdgesArray<_T> &_weights,
+                                      VerticesArray<_T> &_distances,
+                                      int _source_vertex,
+                                      int &_iterations_count);
+    #endif
+
+    // --------------------------------- main interfaces ----------------------------------------
     template <typename _T>
     static void seq_dijkstra(VectCSRGraph &_graph, EdgesArray<_T> &_weights, VerticesArray<_T> &_distances,
                              int _source_vertex);

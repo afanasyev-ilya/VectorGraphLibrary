@@ -81,8 +81,6 @@ void GraphAbstractionsGPU::generate_new_frontier(VectCSRGraph &_graph,
         return connections_count;
     };
     _frontier.neighbours_count = this->reduce_worker<int>(*current_direction_graph, _frontier, reduce_connections, REDUCE_SUM);
-    cout << _frontier.neighbours_count << " vs " << _graph.get_edges_count() << endl;
-    cout << "_frontier.neighbours_count: " << 100.0*_frontier.neighbours_count / _graph.get_edges_count() << endl;
     cudaDeviceSynchronize();
 
     tm.end();

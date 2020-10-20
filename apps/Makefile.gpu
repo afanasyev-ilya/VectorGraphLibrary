@@ -20,7 +20,7 @@ Libraries = -lcudart -lcudadevrt -lcudadevrt -Xcompiler -fopenmp
 all: install sssp
 
 sssp: create_folders sssp.o
-	$(CUDA_COMPILER) object_files/sssp.o $(Library_Path) $(Libraries) -o ./bin/sssp
+	$(CUDA_COMPILER) object_files/sssp.o $(Library_Path) $(Libraries) -o ./bin/sssp_cu
 
 ##########
 # CPPs

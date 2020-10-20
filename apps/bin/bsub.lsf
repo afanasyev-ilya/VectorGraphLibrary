@@ -7,4 +7,4 @@ source /polusfs/setenv/setup.SMPI
 OMP_NUM_THREADS=20
 export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:~/local_cuda/lib64/
 
-./sssp -s 20 -e 32 -check -partial-active
+./sssp_cu -rmat -s 22 -e 32 -all-active -push -it 2

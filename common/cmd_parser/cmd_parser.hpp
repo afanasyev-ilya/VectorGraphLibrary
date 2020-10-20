@@ -52,6 +52,15 @@ void Parser::parse_args(int _argc, const char * _argv[])
             graph_type = RMAT;
         }
 
+        if ((option.compare("-type") == 0))
+        {
+            string tmp_type = _argv[++i];
+            if((tmp_type == "rmat") || (tmp_type == "RMAT"))
+                graph_type = RMAT;
+            if((tmp_type == "random_uniform") || (tmp_type == "ru"))
+                graph_type = RANDOM_UNIFORM;
+        }
+
         if ((option.compare("-edges") == 0) || (option.compare("-e") == 0))
         {
             avg_degree = atoi(_argv[++i]);
