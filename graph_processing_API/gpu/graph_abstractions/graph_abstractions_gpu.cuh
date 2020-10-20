@@ -2,23 +2,35 @@
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+#include <cub/cub.cuh>
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 class GraphAbstractionsGPU : public GraphAbstractions
 {
 private:
     cudaStream_t grid_processing_stream,block_processing_stream, warp_processing_stream, thread_processing_stream;
     cudaStream_t vwp_16_processing_stream, vwp_8_processing_stream, vwp_4_processing_stream, vwp_2_processing_stream;
 
-    template <typename ComputeOperation>
-    void compute_worker(UndirectedCSRGraph &_graph, FrontierGPU &_frontier, ComputeOperation &&compute_op);
-
     template <typename EdgeOperation, typename VertexPreprocessOperation,
         typename VertexPostprocessOperation>
-    void GraphAbstractionsGPU::advance_worker(UndirectedCSRGraph &_graph,
-                                              FrontierGPU &_frontier,
-                                              EdgeOperation edge_op,
-                                              VertexPreprocessOperation vertex_preprocess_op,
-                                              VertexPostprocessOperation vertex_postprocess_op,
-                                              bool _generate_frontier);
+    void advance_worker(UndirectedCSRGraph &_graph,
+                        FrontierGPU &_frontier,
+                        EdgeOperation edge_op,
+                        VertexPreprocessOperation vertex_preprocess_op,
+                        VertexPostprocessOperation vertex_postprocess_op,
+                        bool _generate_frontier);
+
+    template <typename ComputeOperation>
+    void compute_worker(UndirectedCSRGraph &_graph,
+                        FrontierGPU &_frontier,
+                        ComputeOperation &&compute_op);
+
+    template <typename _T, typename ReduceOperation>
+    _T GraphAbstractionsGPU::reduce_worker(UndirectedCSRGraph &_graph,
+                                           FrontierGPU &_frontier,
+                                           ReduceOperation &&reduce_op,
+                                           REDUCE_TYPE _reduce_type);
 public:
     // attaches graph-processing API to the specific graph
     GraphAbstractionsGPU(VectCSRGraph &_graph, TraversalDirection _initial_traversal = SCATTER);
@@ -74,14 +86,12 @@ public:
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#ifdef __CUDA_INCLUDE__
 #include "scatter.cu"
 #include "gather.cu"
 #include "advance.cu"
 #include "compute.cu"
-//#include "reduce.cu"
+#include "reduce.cu"
 #include "generate_new_frontier.cu"
 #include "graph_abstractions_gpu.cu"
-#endif
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

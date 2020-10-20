@@ -33,7 +33,7 @@ void GraphAbstractionsGPU::scatter(VectCSRGraph &_graph,
     tm.end();
     performance_stats.update_scatter_time(tm);
     #ifdef __PRINT_API_PERFORMANCE_STATS__
-    tm.print_time_and_bandwidth_stats("Scatter", _graph.get_edges_count(), INT_ELEMENTS_PER_EDGE*sizeof(int));
+    tm.print_time_and_bandwidth_stats("Scatter", _frontier.get_neighbours_count(), INT_ELEMENTS_PER_EDGE*sizeof(int));
     #endif
 }
 

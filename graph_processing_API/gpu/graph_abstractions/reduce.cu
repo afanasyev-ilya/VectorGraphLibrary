@@ -119,6 +119,41 @@ __global__ void reduce_kernel_all_active(const int _size,
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template <typename _T, typename ReduceOperation>
+_T GraphAbstractionsGPU::reduce_worker(UndirectedCSRGraph &_graph,
+                                       FrontierGPU &_frontier,
+                                       ReduceOperation &&reduce_op,
+                                       REDUCE_TYPE _reduce_type)
+{
+    _T *managed_reduced_result;
+    MemoryAPI::allocate_array(&managed_reduced_result, 1);
+    managed_reduced_result[0] = 0;
+    MemoryAPI::move_array_to_device(managed_reduced_result, 1);
+    LOAD_UNDIRECTED_CSR_GRAPH_DATA(_graph);
+
+    if(_frontier.type == ALL_ACTIVE_FRONTIER)
+    {
+        SAFE_KERNEL_CALL((reduce_kernel_all_active<<< (vertices_count - 1) / BLOCK_SIZE + 1, BLOCK_SIZE >>>(vertices_count, vertex_pointers, reduce_op, managed_reduced_result)));
+    }
+    else if(_frontier.type == DENSE_FRONTIER)
+    {
+        throw "Error: dense frontier in reduce is not supported";
+    }
+    else if(_frontier.type == SPARSE_FRONTIER)
+    {
+        int frontier_size = _frontier.size();
+        SAFE_KERNEL_CALL((reduce_kernel_sparse<<< (frontier_size - 1) / BLOCK_SIZE + 1, BLOCK_SIZE >>>(_frontier.ids, frontier_size, vertex_pointers, reduce_op, managed_reduced_result)));
+    }
+
+    cudaDeviceSynchronize();
+    _T reduce_result = managed_reduced_result[0];
+
+    MemoryAPI::free_array(managed_reduced_result);
+    return reduce_result;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+template <typename _T, typename ReduceOperation>
 _T GraphAbstractionsGPU::reduce(VectCSRGraph &_graph,
                                 FrontierGPU &_frontier,
                                 ReduceOperation &&reduce_op,
@@ -142,28 +177,7 @@ _T GraphAbstractionsGPU::reduce(VectCSRGraph &_graph,
         current_direction_graph = _graph.get_incoming_graph_ptr();
     }
 
-    _T *managed_reduced_result;
-    MemoryAPI::allocate_array(&managed_reduced_result, 1);
-    LOAD_UNDIRECTED_CSR_GRAPH_DATA(current_direction_graph);
-
-    if(_frontier.type == ALL_ACTIVE_FRONTIER)
-    {
-        SAFE_KERNEL_CALL((reduce_kernel_all_active<<< (vertices_count - 1) / BLOCK_SIZE + 1, BLOCK_SIZE >>>(vertices_count, vertex_pointers, reduce_op, managed_reduced_result)));
-    }
-    else if(_frontier.type == DENSE_FRONTIER)
-    {
-        throw "Error: dense frontier in reduce is not supported";
-    }
-    else if(_frontier.type == SPARSE_FRONTIER)
-    {
-        int frontier_size = _frontier.size();
-        SAFE_KERNEL_CALL((reduce_kernel_sparse<<< (frontier_size - 1) / BLOCK_SIZE + 1, BLOCK_SIZE >>>(_frontier.ids, frontier_size, vertex_pointers, reduce_op, managed_reduced_result)));
-    }
-
-    cudaDeviceSynchronize();
-    _T reduce_result = managed_reduced_result[0];
-
-    MemoryAPI::free_array(managed_reduced_result);
+    _T reduce_result = reduce_worker(*current_direction_graph, _frontier, reduce_op, _reduce_type);
 
     tm.end();
     performance_stats.update_reduce_time(tm);

@@ -60,40 +60,40 @@ gather: create_folders gather.o
 # CPPs
 ##########
 
-pr.o: pr.cpp
+pr.o: pr/pr.cpp
 	$(CXX) $(CXXFLAGS) $(Include_Path)  -c pr.cpp -o object_files/pr.o -fopenmp
 
-cc.o: cc.cpp
+cc.o: cc/cc.cpp
 	$(CXX) $(CXXFLAGS) $(Include_Path)  -c cc.cpp -o object_files/cc.o -fopenmp
 
-scc.o: scc.cpp
+scc.o: scc/scc.cpp
 	$(CXX) $(CXXFLAGS) $(Include_Path)  -c scc.cpp -o object_files/scc.o -fopenmp
 
-sssp.o: sssp.cpp
+sssp.o: sssp/sssp.cpp
 	$(CXX) $(CXXFLAGS) $(Include_Path)  -c sssp.cpp -o object_files/sssp.o -fopenmp
 
-apsp.o: apsp.cpp
+apsp.o: apsp/apsp.cpp
 	$(CXX) $(CXXFLAGS) $(Include_Path)  -c apsp.cpp -o object_files/apsp.o -fopenmp
 
-sswp.o: sswp.cpp
+sswp.o: sswp/sswp.cpp
 	$(CXX) $(CXXFLAGS) $(Include_Path)  -c sswp.cpp -o object_files/sswp.o -fopenmp
 
-bfs.o: bfs.cpp
+bfs.o: bfs/bfs.cpp
 	$(CXX) $(CXXFLAGS) $(Include_Path)  -c bfs.cpp -o object_files/bfs.o -fopenmp
 
-gather.o: gather.cpp
+gather.o: misc/gather.cpp
 	$(CXX) $(CXXFLAGS) $(Include_Path)  -c gather.cpp -o object_files/gather.o -fopenmp
 
-mf.o: mf.cpp
+mf.o: mf/mf.cpp
 	$(CXX) $(CXXFLAGS) $(Include_Path)  -c mf.cpp -o object_files/mf.o -fopenmp
 	
 custom_test.o: ../misc/custom_test.cpp
 	$(CXX) $(CXXFLAGS) $(Include_Path)  -c custom_test.cpp -o object_files/custom_test.o -fopenmp
 
-generate_test_data.o: generate_test_data.cpp
+generate_test_data.o: misc/generate_test_data.cpp
 	g++ -std=c++11 -fpermissive $(Include_Path) -c generate_test_data.cpp -o object_files/generate_test_data.o -fopenmp
 
-analyse_graph.o: analyse_graph.cpp
+analyse_graph.o: misc/analyse_graph.cpp
 	$(CXX)  $(CXXFLAGS) $(Include_Path) -c analyse_graph.cpp -o object_files/analyse_graph.o -fopenmp
 
 create_folders:

@@ -1,26 +1,15 @@
-CXX = g++
-CUDA_DIR = /usr/local/cuda/
+#CUDA_DIR = /usr/local/cuda/
 #CUDA_DIR = /usr/local/cuda-10.2
-#CUDA_DIR = ~/local_cuda/
+CUDA_DIR = ~/local_cuda/
 CUDA_COMPILER = $(CUDA_DIR)/bin/nvcc
 
 # Include paths...
-Include_Path = -I $(CUDA_DIR)/include
+Include_Path = -I $(CUDA_DIR)/include -I ../external_libraries/cub -I ../
+Flags = -O2 -w -m64 -std=c++11 -Xptxas -dlcm=ca --expt-extended-lambda -gencode arch=compute_60,code=sm_60 -gencode arch=compute_70,code=sm_70 -Xcompiler -fopenmp
 
 # Library paths...
-Libraries =  -fopenmp -fpermissive
 Library_Path = -L $(CUDA_DIR)/lib -L $(CUDA_DIR)/lib64
-Libraries += -lcudart -lcudadevrt -lcublas -lcudadevrt
-
-# CPU Compiler flags...
-CXXFLAGS = -O2 -fopenmp -std=c++11 -fpermissive
-LDFLAGS = -fopenmp
-
-# CUDA Compiler flags
-CUDA_FLAGS = -O2 -w -m64 -std=c++11 -Xptxas -dlcm=ca --expt-extended-lambda -gencode arch=compute_60,code=sm_60 -gencode arch=compute_70,code=sm_70 #-gencode arch=compute_52,code=sm_52
-
-# Paths to gpu algorithms from current sample
-VPATH=./:../algorithms/sssp/gpu/:../algorithms/bfs/gpu/:../algorithms/cc/gpu:../graph_processing_API/gpu/:../algorithms/lp/gpu/:../algorithms/pr/gpu
+Libraries = -lcudart -lcudadevrt -lcudadevrt -Xcompiler -fopenmp
 
 .DEFAULT_GOAL := all
 
@@ -28,73 +17,25 @@ VPATH=./:../algorithms/sssp/gpu/:../algorithms/bfs/gpu/:../algorithms/cc/gpu:../
 # binaries
 ##########
 
-all: bfs_td bfs_do cc sssp pr generate_test_data
+all: install sssp
 
-sssp: create_folders sssp.o dijkstra_gpu.o
-	$(CUDA_COMPILER) $(CUDA_FLAGS) $(Include_Path) -dlink  object_files/dijkstra_gpu.o -o object_files/cuda_files_link.o -lcudadevrt -lcudart
-	$(CXX) object_files/sssp.o object_files/dijkstra_gpu.o object_files/cuda_files_link.o $(Library_Path) $(Libraries) $(LDFLAGS) -o ./bin/sssp
-
-cc: create_folders cc.o shiloach_vishkin_gpu.o
-	$(CUDA_COMPILER) $(CUDA_FLAGS) $(Include_Path) -dlink  object_files/shiloach_vishkin_gpu.o -o object_files/cuda_files_link.o -lcudadevrt -lcudart
-	$(CXX) object_files/cc.o object_files/shiloach_vishkin_gpu.o object_files/cuda_files_link.o $(Library_Path) $(Libraries) $(LDFLAGS) -o ./bin/cc
-	
-bfs_td: create_folders bfs_td.o bfs_td_gpu.o
-	$(CUDA_COMPILER) $(CUDA_FLAGS) $(Include_Path) -dlink object_files/bfs_td_gpu.o -o object_files/cuda_files_link.o -lcudadevrt -lcudart
-	$(CXX) object_files/bfs_td.o object_files/bfs_td_gpu.o object_files/cuda_files_link.o $(Library_Path) $(Libraries) $(LDFLAGS) -o ./bin/bfs_td
-
-bfs_do: create_folders bfs_do.o bfs_do_gpu.o
-	$(CUDA_COMPILER) $(CUDA_FLAGS) $(Include_Path) -dlink object_files/bfs_do_gpu.o -o object_files/cuda_files_link.o -lcudadevrt -lcudart
-	$(CXX) object_files/bfs_do.o object_files/bfs_do_gpu.o object_files/cuda_files_link.o $(Library_Path) $(Libraries) $(LDFLAGS) -o ./bin/bfs_do
-
-pr: create_folders pr.o pr_gpu.o
-	$(CUDA_COMPILER) $(CUDA_FLAGS) $(Include_Path) -dlink object_files/pr_gpu.o -o object_files/cuda_files_link.o -lcudadevrt -lcudart
-	$(CXX) object_files/pr.o object_files/pr_gpu.o object_files/cuda_files_link.o $(Library_Path) $(Libraries) $(LDFLAGS) -o ./bin/pr
-
-lp: create_folders install lp.o lp_gpu.o
-	$(CUDA_COMPILER) $(CUDA_FLAGS) $(Include_Path) -dlink  object_files/lp_gpu.o -o object_files/cuda_files_link.o -lcudadevrt -lcudart
-	$(CXX) object_files/lp.o object_files/lp_gpu.o object_files/cuda_files_link.o $(Library_Path) $(Libraries) $(LDFLAGS) -o ./bin/lp
-
-generate_test_data: create_folders generate_test_data.o
-	$(CXX) object_files/generate_test_data.o $(Library_Path) $(Libraries) -fopenmp -o ./bin/generate_test_data
-
-analyse_graph: create_folders analyse_graph.o
-	$(CXX) object_files/analyse_graph.o $(Library_Path) $(Libraries) -fopenmp -o ./bin/analyse_graph
+sssp: create_folders sssp.o
+	$(CUDA_COMPILER) object_files/sssp.o $(Library_Path) $(Libraries) -o ./bin/sssp
 
 ##########
 # CPPs
 ##########
 
 install:
+	if [ ! -d ../external_libraries/cub ];then\
+                        git clone https://github.com/NVlabs/cub ../external_libraries/cub;\
+                fi
 	if [ ! -d ../external_libraries/moderngpu ];then\
                         git clone https://www.github.com/moderngpu/moderngpu ../external_libraries/moderngpu;\
                 fi
 
-vgl_library.o: ../graph_processing_API/common/vertices_array/vertices_array.hpp
-	$(CXX) $(CXXFLAGS) $(Include_Path) -c ../graph_processing_API/common/vertices_array/vertices_array.cpp -o object_files/vgl_library.o -fopenmp
-
-sssp.o: sssp.cpp
-	$(CXX) $(CXXFLAGS) $(Include_Path)  -c sssp.cpp -o object_files/sssp.o -fopenmp
-
-cc.o: cc.cpp
-	$(CXX) $(CXXFLAGS) $(Include_Path)  -c cc.cpp -o object_files/cc.o -fopenmp
-	
-bfs_td.o: bfs.cpp
-	$(CXX) $(CXXFLAGS) $(Include_Path)  -c bfs_td.cpp -o object_files/bfs_td.o -fopenmp
-
-bfs_do.o: bfs_do.cpp
-	$(CXX) $(CXXFLAGS) $(Include_Path)  -c bfs_do.cpp -o object_files/bfs_do.o -fopenmp
-
-lp.o: lp.cpp
-	$(CXX) $(CXXFLAGS) $(Include_Path)  -c lp.cpp -o object_files/lp.o -fopenmp
-
-pr.o: pr.cpp
-	$(CXX) $(CXXFLAGS) $(Include_Path)  -c pr.cpp -o object_files/pr.o -fopenmp
-
-generate_test_data.o: generate_test_data.cpp
-	$(CXX) $(CXXFLAGS) $(Include_Path) -fopenmp $(Include_Path)  -c generate_test_data.cpp -o object_files/generate_test_data.o -fopenmp
-
-analyse_graph.o: analyse_graph.cpp
-	$(CXX) $(CXXFLAGS) $(Include_Path) -fopenmp $(Include_Path)  -c analyse_graph.cpp -o object_files/analyse_graph.o -fopenmp
+sssp.o: sssp/sssp.cu
+	$(CUDA_COMPILER) $(Flags) $(Include_Path) -c sssp/sssp.cu -o object_files/sssp.o
 
 create_folders:
 	-mkdir -p ./bin
@@ -103,26 +44,3 @@ create_folders:
 
 clean:
 	-rm -f object_files/*.o
-
-#################
-# CUDA operations
-#################
-
-dijkstra_gpu.o: dijkstra_gpu.cu
-	$(CUDA_COMPILER) $(CUDA_FLAGS) $(Include_Path) -rdc=true -c ../algorithms/sssp/gpu/dijkstra_gpu.cu -o object_files/dijkstra_gpu.o
-
-shiloach_vishkin_gpu.o: shiloach_vishkin_gpu.cu
-	$(CUDA_COMPILER) $(CUDA_FLAGS) $(Include_Path) -rdc=true -c ../algorithms/cc/gpu/shiloach_vishkin_gpu.cu -o object_files/shiloach_vishkin_gpu.o
-
-bfs_td_gpu.o: bfs_td_gpu.cu
-	$(CUDA_COMPILER) $(CUDA_FLAGS) $(Include_Path) -rdc=true -c ../algorithms/bfs/gpu/bfs_td_gpu.cu -o object_files/bfs_td_gpu.o
-
-bfs_do_gpu.o: bfs_do_gpu.cu
-	$(CUDA_COMPILER) $(CUDA_FLAGS) $(Include_Path) -rdc=true -c ../algorithms/bfs/gpu/bfs_do_gpu.cu -o object_files/bfs_do_gpu.o
-
-lp_gpu.o: lp_gpu.cu
-	$(CUDA_COMPILER) $(CUDA_FLAGS) $(Include_Path) -rdc=true -c ../algorithms/lp/gpu/lp_gpu.cu -o object_files/lp_gpu.o
-
-pr_gpu.o: pr_gpu.cu
-	$(CUDA_COMPILER) $(CUDA_FLAGS) $(Include_Path) -rdc=true -c ../algorithms/pr/gpu/pr_gpu.cu -o object_files/pr_gpu.o
-

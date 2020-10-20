@@ -199,6 +199,8 @@ void GraphAbstractionsGPU::advance_worker(UndirectedCSRGraph &_graph,
                                           VertexPostprocessOperation vertex_postprocess_op,
                                           bool _generate_frontier)
 {
+    Timer tm;
+    tm.start();
     LOAD_UNDIRECTED_CSR_GRAPH_DATA(_graph);
 
     int block_threshold_start = 0;
@@ -294,6 +296,8 @@ void GraphAbstractionsGPU::advance_worker(UndirectedCSRGraph &_graph,
                                                                                                    current_traversal_direction, direction_shift);
     }
     cudaDeviceSynchronize();
+    tm.end();
+    performance_stats.update_advance_time(tm);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

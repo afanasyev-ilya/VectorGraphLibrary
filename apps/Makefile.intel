@@ -58,22 +58,22 @@ install:
                         git clone https://www.github.com/moderngpu/moderngpu ../external_libraries/moderngpu;\
                 fi
 
-sssp.o: sssp.cpp
+sssp.o: sssp/sssp.cpp
 	$(CXX) $(CXXFLAGS) $(Include_Path)  -c sssp.cpp -o object_files/sssp.o -fopenmp
 
-cc.o: cc.cpp
+cc.o: cc/cc.cpp
 	$(CXX) $(CXXFLAGS) $(Include_Path)  -c cc.cpp -o object_files/cc.o -fopenmp
 
-bfs.o: bfs.cpp
+bfs.o: bfs/bfs.cpp
 	$(CXX) $(CXXFLAGS) $(Include_Path)  -c bfs.cpp -o object_files/bfs.o -fopenmp
 
-lp.o: lp.cpp
+lp.o: lp/lp.cpp
 	$(CXX) $(CXXFLAGS) $(Include_Path)  -c lp.cpp -o object_files/lp.o -fopenmp
 
-generate_test_data.o: generate_test_data.cpp
+generate_test_data.o: misc/generate_test_data.cpp
 	$(CXX) $(CXXFLAGS) $(Include_Path) -fopenmp $(Include_Path)  -c generate_test_data.cpp -o object_files/generate_test_data.o -fopenmp
 
-analyse_graph.o: analyse_graph.cpp
+analyse_graph.o: misc/analyse_graph.cpp
 	$(CXX) $(CXXFLAGS) $(Include_Path) -fopenmp $(Include_Path)  -c analyse_graph.cpp -o object_files/analyse_graph.o -fopenmp
 
 create_folders:

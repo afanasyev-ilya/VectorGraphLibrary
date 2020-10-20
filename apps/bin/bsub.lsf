@@ -1,0 +1,10 @@
+source /polusfs/setenv/setup.SMPI
+#BSUB -n 1
+#BSUB -W 00:15
+#BSUB -gpu "num=1:mode=exclusive_process"
+#BSUB -o sssp.%J.out
+#BSUB -e sssp.%J.err
+OMP_NUM_THREADS=20
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:~/local_cuda/lib64/
+
+./sssp -s 20 -e 32 -check -partial-active

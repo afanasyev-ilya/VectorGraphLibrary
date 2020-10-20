@@ -77,17 +77,7 @@ public:
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#ifdef __USE_GPU__
-#ifdef __CUDA_INCLUDE__
 #include "graph_abstractions.hpp"
-#endif
-#endif
-
-#ifndef __USE_GPU__
-#ifndef __CUDA_INCLUDE__
-#include "graph_abstractions.hpp"
-#endif
-#endif
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -95,7 +85,7 @@ public:
 #include "../../nec/graph_abstractions/graph_abstractions_nec.h"
 #endif
 
-#if defined(__USE_GPU__) && defined(__CUDA_INCLUDE__)
+#ifdef __USE_GPU__
 #include "../../gpu/graph_abstractions/graph_abstractions_gpu.cuh"
 #endif
 

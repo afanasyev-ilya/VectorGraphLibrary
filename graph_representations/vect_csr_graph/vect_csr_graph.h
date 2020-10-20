@@ -74,8 +74,12 @@ public:
     template <typename _T>
     void reorder(VerticesArray<_T> &_data, TraversalDirection _output_dir);
 
-    // allows to reorder frontier in arbitrary direction
+    // allows to reorder NEC frontier in arbitrary direction
     void reorder(FrontierNEC &_data, TraversalDirection _output_dir);
+    // allows to reorder GPU frontier in arbitrary direction
+    #ifdef __USE_GPU__
+    void reorder(FrontierGPU &_data, TraversalDirection _output_dir); // TODO
+    #endif
 
     // allows to reorder edges array to secondary direction (gather)
     template <typename _T>
@@ -95,13 +99,11 @@ public:
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#ifndef __CUDA_INCLUDE__
 #include "vect_csr_graph.hpp"
 #include "reorder.hpp"
 #include "print.hpp"
 #include "import.hpp"
 #include "gpu_api.hpp"
-#endif
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 

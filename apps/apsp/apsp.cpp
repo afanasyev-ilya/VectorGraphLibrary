@@ -4,7 +4,7 @@
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#include "../graph_library.h"
+#include "../../graph_library.h"
 #include <iostream>
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -17,19 +17,21 @@ int main(int argc, const char * argv[])
 {
     try
     {
-        cout << "SSWP (Single Source Widest Paths) test..." << endl;
-        
+        cout << "APSP (All-pair Shortest Paths) test..." << endl;
+
         // parse args
         Parser parser;
         parser.parse_args(argc, argv);
 
+        //VectorisedCSRGraph<int, float> graph;
         UndirectedCSRGraph<int, float> graph;
+        EdgesListGraph<int, float> rand_graph;
         if(parser.get_compute_mode() == GENERATE_NEW_GRAPH)
         {
-            EdgesListGraph<int, float> rand_graph;
             int vertices_count = pow(2.0, parser.get_scale());
             long long edges_count = vertices_count * parser.get_avg_degree();
-            GraphGenerationAPI<int, float>::R_MAT(rand_graph, vertices_count, edges_count, 57, 19, 19, 5, DIRECTED_GRAPH);
+            //GraphGenerationAPI<int, float>::random_uniform(rand_graph, vertices_count, edges_count, UNDIRECTED_GRAPH);
+            GraphGenerationAPI<int, float>::R_MAT(rand_graph, vertices_count, edges_count, 57, 19, 19, 5, UNDIRECTED_GRAPH);
             graph.import(rand_graph, VERTICES_SORTED, EDGES_SORTED, VECTOR_LENGTH, PULL_TRAVERSAL);
         }
         else if(parser.get_compute_mode() == LOAD_GRAPH_FROM_FILE)
@@ -44,54 +46,40 @@ int main(int argc, const char * argv[])
         GraphAnalytics graph_analytics;
         graph_analytics.analyse_graph_stats(graph, parser.get_graph_file_name());
 
-        // compute sswp
-        int last_src_vertex = 0;
+        // compute APSP
         cout << "Computations started..." << endl;
-        WidestPaths<int, float> sswp_operation(graph);
-        float *widths;
-        sswp_operation.allocate_result_memory(graph.get_vertices_count(), &widths);
+        ShortestPaths<int, float> sssp_operation(graph);
+        float *distances;
+        sssp_operation.allocate_result_memory(graph.get_vertices_count(), &distances);
 
-        cout << "Doing " << parser.get_number_of_rounds() << " SSWP iterations..." << endl;
+        int vertices_count = graph.get_vertices_count();
+        int vertices_per_percent = vertices_count / 100;
         double t1 = omp_get_wtime();
-        for(int i = 0; i < parser.get_number_of_rounds(); i++)
+        for(int current_vertex = 0; current_vertex < vertices_count; current_vertex++)
         {
-            last_src_vertex = i * 100 + 1;
-
             #ifdef __PRINT_API_PERFORMANCE_STATS__
             PerformanceStats::reset_API_performance_timers();
             #endif
 
             #ifdef __USE_NEC_SX_AURORA__
-            sswp_operation.nec_dijkstra(graph, widths, last_src_vertex, parser.get_traversal_direction());
+            sssp_operation.nec_dijkstra(graph, distances, current_vertex, ALL_ACTIVE, PUSH_TRAVERSAL);
             #endif
 
             #ifdef __PRINT_API_PERFORMANCE_STATS__
             PerformanceStats::print_API_performance_timers(graph.get_edges_count());
             #endif
+
+            if(current_vertex % vertices_per_percent == 0)
+            {
+                cout << ((100.0 * current_vertex) / vertices_count) << "% done!" << endl;
+            }
         }
         double t2 = omp_get_wtime();
-        double avg_perf = parser.get_number_of_rounds() * (((double)graph.get_edges_count()) / ((t2 - t1) * 1e6));
 
-        cout << "SSWP wall time: " << 1000.0 * (t2 - t1) << " ms" << endl;
-        cout << "SSWP average performance: " << avg_perf << " MFLOPS" << endl << endl;
+        cout << "APSP wall time: " << t2 - t1 << " sec" << endl;
+        cout << "APSP average performance: " << 10.0 * (((double)graph.get_edges_count()) / ((t2 - t1) * 1e6)) << " MFLOPS" << endl << endl;
 
-        #ifdef __SAVE_PERFORMANCE_STATS_TO_FILE__
-        PerformanceStats::save_performance_to_file("sswp", parser.get_graph_file_name(), avg_perf);
-        #endif
-
-        // check if required
-        if(parser.get_check_flag())
-        {
-            float *check_widths;
-            sswp_operation.allocate_result_memory(graph.get_vertices_count(), &check_widths);
-            sswp_operation.seq_dijkstra(graph, check_widths, last_src_vertex);
-
-            verify_results(widths, check_widths, graph.get_vertices_count());
-
-            sswp_operation.free_result_memory(check_widths);
-        }
-
-        sswp_operation.free_result_memory(widths);
+        sssp_operation.free_result_memory(distances);
     }
     catch (string error)
     {

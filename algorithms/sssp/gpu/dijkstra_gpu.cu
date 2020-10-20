@@ -2,12 +2,6 @@
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#include "../../../graph_processing_API/gpu/cuda_API_include.h"
-#define INT_ELEMENTS_PER_EDGE 5.0
-#define __PRINT_API_PERFORMANCE_STATS__
-
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
 using namespace std;
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -21,7 +15,7 @@ void gpu_dijkstra_all_active_push_wrapper(VectCSRGraph &_graph,
 {
     GraphAbstractionsGPU graph_API(_graph, SCATTER);
     FrontierGPU frontier(_graph, SCATTER);
-    //graph_API.change_traversal_direction(SCATTER, _distances, frontier);
+    graph_API.change_traversal_direction(SCATTER, _distances, frontier);
 
     _T inf_val = std::numeric_limits<_T>::max() - MAX_WEIGHT;
     auto init_op = [_distances, _source_vertex, inf_val] __device__  (int src_id, int connections_count, int vector_index) {
@@ -73,7 +67,7 @@ void gpu_dijkstra_all_active_pull_wrapper(VectCSRGraph &_graph,
 {
     GraphAbstractionsGPU graph_API(_graph, GATHER);
     FrontierGPU frontier(_graph, GATHER);
-    //graph_API.change_traversal_direction(GATHER, _distances, frontier);
+    graph_API.change_traversal_direction(GATHER, _distances, frontier);
 
     _T inf_val = std::numeric_limits<_T>::max() - MAX_WEIGHT;
     auto init_op = [_distances, _source_vertex, inf_val] __device__  (int src_id, int connections_count, int vector_index) {
@@ -126,7 +120,7 @@ void gpu_dijkstra_partial_active_wrapper(VectCSRGraph &_graph,
     GraphAbstractionsGPU graph_API(_graph, SCATTER);
     FrontierGPU frontier(_graph, SCATTER);
     VerticesArray<char> was_updated(_graph, SCATTER);
-    //graph_API.change_traversal_direction(SCATTER, _distances, frontier, was_updated);
+    graph_API.change_traversal_direction(SCATTER, _distances, frontier, was_updated);
 
     _T inf_val = std::numeric_limits<_T>::max() - MAX_WEIGHT;
     auto init_op = [_distances, _source_vertex, inf_val] __device__  (int src_id, int connections_count, int vector_index) {

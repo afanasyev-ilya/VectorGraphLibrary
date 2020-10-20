@@ -60,15 +60,30 @@ void GraphAbstractionsGPU::generate_new_frontier(VectCSRGraph &_graph,
     _frontier.set_direction(current_traversal_direction);
     _frontier.type = SPARSE_FRONTIER; // TODO
 
-    UndirectedCSRGraph *graph_ptr = _graph.get_direction_graph_ptr(current_traversal_direction);
-    LOAD_UNDIRECTED_CSR_GRAPH_DATA((*graph_ptr));
+    UndirectedCSRGraph *current_direction_graph = _graph.get_direction_graph_ptr(current_traversal_direction);
+    LOAD_UNDIRECTED_CSR_GRAPH_DATA((*current_direction_graph));
 
+    // generate frontier flags
     SAFE_KERNEL_CALL((copy_frontier_ids_kernel<<<(vertices_count - 1)/BLOCK_SIZE + 1, BLOCK_SIZE>>>(_frontier.ids, _frontier.flags,
                                                                                                     vertex_pointers, vertices_count, cond)));
 
+    // generate frontier IDS
     int *new_end = thrust::remove_if(thrust::device, _frontier.ids, _frontier.ids + vertices_count, is_not_active());
+
+    // calculate frontier size
     _frontier.current_size = new_end - _frontier.ids;
+    if(_frontier.size() == _graph.get_vertices_count())
+        _frontier.type = ALL_ACTIVE_FRONTIER;
+
+    // calculate neighbours count
+    auto reduce_connections = [] __device__ (int src_id, int connections_count, int vector_index)->int
+    {
+        return connections_count;
+    };
+    _frontier.neighbours_count = this->reduce_worker<unsigned long long int>(*current_direction_graph, _frontier, reduce_connections, REDUCE_SUM);
+    cout << "_frontier.neighbours_count: " << 100.0*_frontier.neighbours_count / _graph.get_edges_count() << endl;
     cudaDeviceSynchronize();
+
     tm.end();
     performance_stats.update_gnf_time(tm);
     #ifdef __PRINT_API_PERFORMANCE_STATS__

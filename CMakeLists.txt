@@ -66,19 +66,18 @@ add_executable(VectorGraphLibrary
         algorithms/sssp/shortest_paths.h
         algorithms/sswp/widest_paths.h
         algorithms/sswp/widest_paths.hpp
-        apps/analyse_graph.cpp
-        apps/bfs.cpp
-        apps/cc.cpp
-        apps/generate_test_data.cpp
+        apps/misc/analyse_graph.cpp
+        apps/bfs/bfs.cpp
+        apps/cc/cc.cpp
+        apps/misc/generate_test_data.cpp
         apps/graph_library.sh
-        apps/kcore.cpp
         apps/Makefile.gcc
         apps/Makefile.intel
         apps/Makefile.gpu
         apps/Makefile.tohoku
-        apps/pr.cpp
-        apps/sssp.cpp
-        apps/sswp.cpp
+        apps/pr/pr.cpp
+        apps/sssp/sssp.cpp
+        apps/sswp/sswp.cpp
         common/cmd_parser/cmd_parser.h
         common/cmd_parser/cmd_parser.hpp
         common/cmd_parser/parser_options.h
@@ -99,7 +98,6 @@ add_executable(VectorGraphLibrary
         graph_analytics/graph_analytics.hpp
         graph_generation_API/graph_generation_API.h
         graph_generation_API/graph_generation_API.hpp
-        graph_processing_API/gpu/cuda_API_include.h
         graph_processing_API/nec/delayed_write/delayed_write_nec.h
         graph_processing_API/nec/delayed_write/delayed_write_nec.hpp
         graph_processing_API/nec/frontier/frontier_nec.h

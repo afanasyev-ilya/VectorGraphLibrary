@@ -56,25 +56,25 @@ generate_memory_traces: create_folders generate_memory_traces.o
 # CPPs
 ##########
 
-pr.o: pr.cpp
+pr.o: pr/pr.cpp
 	$(CXX) $(CXXFLAGS) $(Include_Path)  -c pr.cpp -o object_files/pr.o -fopenmp
 
-cc.o: cc.cpp
+cc.o: cc/cc.cpp
 	$(CXX) $(CXXFLAGS) $(Include_Path)  -c cc.cpp -o object_files/cc.o -fopenmp
 
-sssp.o: sssp.cpp
+sssp.o: sssp/sssp.cpp
 	$(CXX) $(CXXFLAGS) $(Include_Path)  -c sssp.cpp -o object_files/sssp.o -fopenmp
 
-sswp.o: sswp.cpp
+sswp.o: sswp/sswp.cpp
 	$(CXX) $(CXXFLAGS) $(Include_Path)  -c sswp.cpp -o object_files/sswp.o -fopenmp
 
-bfs.o: bfs.cpp
+bfs.o: bfs/bfs.cpp
 	$(CXX) $(CXXFLAGS) $(Include_Path)  -c bfs.cpp -o object_files/bfs.o -fopenmp
 	
-gather.o: gather.cpp
+gather.o: misc/gather.cpp
 	$(CXX) $(CXXFLAGS) $(Include_Path)  -c gather.cpp -o object_files/gather.o -fopenmp
 
-generate_test_data.o: generate_test_data.cpp
+generate_test_data.o: misc/generate_test_data.cpp
 	$(CXX) $(CXXFLAGS) $(Include_Path)  -c generate_test_data.cpp -o object_files/generate_test_data.o -fopenmp
 	
 generate_memory_traces.o: ../misc/generate_memory_traces.cpp

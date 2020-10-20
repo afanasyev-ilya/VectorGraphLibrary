@@ -21,6 +21,7 @@ void FrontierGPU::set_all_active()
 
     SAFE_KERNEL_CALL((set_all_active_frontier_kernel<<< (max_size - 1)/BLOCK_SIZE + 1, BLOCK_SIZE >>> (ids, flags, max_size)));
     current_size = max_size;
+    neighbours_count = graph_ptr->get_edges_count();
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -34,6 +35,7 @@ void FrontierGPU::add_vertex(int src_id)
     ids[0] = src_id;
     flags[src_id] = IN_FRONTIER_FLAG;
     current_size = 1;
+    //neighbours_count = 1; // TODO set from GRAPH
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

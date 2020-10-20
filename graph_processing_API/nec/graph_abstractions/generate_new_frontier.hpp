@@ -37,11 +37,11 @@ void GraphAbstractionsNEC::generate_new_frontier(VectCSRGraph &_graph,
 
     _frontier.set_direction(current_traversal_direction);
 
-    UndirectedCSRGraph *graph_ptr = _graph.get_direction_graph_ptr(current_traversal_direction);
-    LOAD_UNDIRECTED_CSR_GRAPH_DATA((*graph_ptr));
+    UndirectedCSRGraph *current_direction_graph = _graph.get_direction_graph_ptr(current_traversal_direction);
+    LOAD_UNDIRECTED_CSR_GRAPH_DATA((*current_direction_graph));
 
-    const int ve_threshold = graph_ptr->get_vector_engine_threshold_vertex();
-    int vc_threshold = graph_ptr->get_vector_core_threshold_vertex();
+    const int ve_threshold = current_direction_graph->get_vector_engine_threshold_vertex();
+    int vc_threshold = current_direction_graph->get_vector_core_threshold_vertex();
 
     // calculate numbers of elements in different frontier parts
     _frontier.vector_engine_part_size = estimate_sorted_frontier_part_size(_frontier, vertex_pointers, 0, ve_threshold, filter_cond);
