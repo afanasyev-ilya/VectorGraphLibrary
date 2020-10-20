@@ -91,6 +91,10 @@ public:
                              int _source_vertex, AlgorithmFrontierType _frontier_type = ALL_ACTIVE,
                              AlgorithmTraversalType _traversal_direction = PUSH_TRAVERSAL);
     #endif
+
+    template <typename _T>
+    static void multicore_dijkstra(VectCSRGraph &_graph, EdgesArray<_T> &_weights, VerticesArray<_T> &_distances,
+                                   int _source_vertex);
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -98,6 +102,7 @@ public:
 #include "gpu_shortest_paths.hpp"
 #include "seq_shortest_paths.hpp"
 #include "nec_shortest_paths.hpp"
+#include "multicore_shortest_paths.hpp"
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 

@@ -1,6 +1,7 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#define __USE_NEC_SX_AURORA__
+#define __USE_INTEL__
+#define __USE_KNL__
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -58,37 +59,15 @@ int main(int argc, const char * argv[])
             VerticesArray<int> distances(graph, Parser::convert_traversal_type(parser.get_traversal_direction()));
 
             performance_stats.reset_timers();
-            #ifdef __USE_NEC_SX_AURORA__
-            ShortestPaths::nec_dijkstra(graph, weights, distances, source_vertex,
-                                        parser.get_algorithm_frontier_type(),
-                                        parser.get_traversal_direction());
-            #endif
-
-            #ifdef __USE_GPU__
-            ShortestPaths::gpu_dijkstra(graph, weights, distances, source_vertex,
-                                        parser.get_algorithm_frontier_type(),
-                                        parser.get_traversal_direction());
-            #endif
+            ShortestPaths::multicore_dijkstra(graph, weights, distances, source_vertex);
             performance_stats.print_timers_stats();
 
             // check if required
             if(parser.get_check_flag())
             {
-                /*#ifdef __USE_GPU__
-                graph.move_to_host();
-                distances.move_to_host();
-                weights.move_to_host();
-                #endif*/
-
                 VerticesArray<int> check_distances(graph, SCATTER);
                 ShortestPaths::seq_dijkstra(graph, weights, check_distances, source_vertex);
                 verify_results(graph, distances, check_distances);
-
-                /*#ifdef __USE_GPU__
-                graph.move_to_device();
-                distances.move_to_device();
-                weights.move_to_device();
-                #endif*/
             }
         }
     }

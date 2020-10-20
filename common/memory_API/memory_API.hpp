@@ -7,6 +7,8 @@ void MemoryAPI::allocate_array(_T **_ptr, size_t _size)
     *_ptr = (_T*)aligned_alloc(sizeof(_T), _size*sizeof(_T));
     #elif defined(__USE_GPU__)
     SAFE_CALL(cudaMallocManaged((void**)_ptr, _size * sizeof(_T)));
+    #elif defined(__USE_KNL__)
+    *_ptr = (_T*)_mm_malloc(sizeof(_T)*(_size),2097152);
     #else
     *_ptr = (_T*)malloc(_size*sizeof(_T));
     #endif
@@ -23,6 +25,8 @@ void MemoryAPI::free_array(_T *_ptr)
         free(_ptr);
         #elif defined(__USE_GPU__)
         SAFE_CALL(cudaFree((void*)_ptr));
+        #elif defined(__USE_KNL__)
+        free(_ptr);
         #else
         free(_ptr);
         #endif

@@ -38,14 +38,14 @@ scc: create_folders scc.o
 # CPPs
 ##########
 
-sssp.o: sssp/sssp.cpp
-	$(CXX) $(Flags) $(Include_Path)  -c sssp/sssp.cpp -o object_files/sssp.o -fopenmp
+sssp.o: sssp/sssp_nec.cpp
+	$(CXX) $(Flags) $(Include_Path)  -c sssp/sssp_nec.cpp -o object_files/sssp.o -fopenmp
 
-bfs.o: bfs/bfs.cpp
-	$(CXX) $(Flags) $(Include_Path)  -c bfs/bfs.cpp -o object_files/bfs.o -fopenmp
+bfs.o: bfs/bfs_nec.cpp
+	$(CXX) $(Flags) $(Include_Path)  -c bfs/bfs_nec.cpp -o object_files/bfs.o -fopenmp
 
-scc.o: scc/scc.cpp
-	$(CXX) $(Flags) $(Include_Path)  -c scc/scc.cpp -o object_files/scc.o -fopenmp
+scc.o: scc/scc_nec.cpp
+	$(CXX) $(Flags) $(Include_Path)  -c scc/scc_nec.cpp -o object_files/scc.o -fopenmp
 
 create_folders:
 	-mkdir -p ./bin
