@@ -48,3 +48,16 @@ void GraphAbstractionsNEC::gather(VectCSRGraph &_graph,
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+template <typename EdgeOperation>
+void GraphAbstractionsNEC::gather(VectCSRGraph &_graph,
+                                  FrontierNEC &_frontier,
+                                  EdgeOperation &&edge_op)
+{
+    gather(_graph, _frontier, edge_op, EMPTY_VERTEX_OP, EMPTY_VERTEX_OP,
+           edge_op, EMPTY_VERTEX_OP, EMPTY_VERTEX_OP);
+}
+
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+

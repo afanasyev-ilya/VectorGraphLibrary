@@ -36,9 +36,9 @@ public:
     #endif
 
     #if defined(__USE_NEC_SX_AURORA__) || defined(__USE_INTEL__)
-    __host__ __device__ inline _T get(long long _global_idx) const {return edges_data[_global_idx];};
-    __host__ __device__ inline _T set(long long _global_idx, _T _val) const {edges_data[_global_idx] = _val;};
-    __host__ __device__ inline _T& operator[] (long long _global_idx) const { return edges_data[_global_idx]; };
+    inline _T get(long long _global_idx) const {return edges_data[_global_idx];};
+    inline _T set(long long _global_idx, _T _val) const {edges_data[_global_idx] = _val;};
+    inline _T& operator[] (long long _global_idx) const { return edges_data[_global_idx]; };
     #endif
 
     void set(int _src_id, int _dst_id, _T _val, TraversalDirection _direction);

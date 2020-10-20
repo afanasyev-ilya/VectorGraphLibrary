@@ -46,8 +46,7 @@ public:
     static void gpu_dijkstra_partial_active(VectCSRGraph &_graph,
                                      EdgesArray<_T> &_weights,
                                      VerticesArray<_T> &_distances,
-                                     int _source_vertex,
-                                     int &_iterations_count);
+                                     int _source_vertex);
     #endif
 
     #ifdef __USE_GPU__
@@ -55,8 +54,7 @@ public:
     static void gpu_dijkstra_all_active_push(VectCSRGraph &_graph,
                                       EdgesArray<_T> &_weights,
                                       VerticesArray<_T> &_distances,
-                                      int _source_vertex,
-                                      int &_iterations_count);
+                                      int _source_vertex);
     #endif
 
     #ifdef __USE_GPU__
@@ -64,8 +62,7 @@ public:
     static void gpu_dijkstra_all_active_pull(VectCSRGraph &_graph,
                                       EdgesArray<_T> &_weights,
                                       VerticesArray<_T> &_distances,
-                                      int _source_vertex,
-                                      int &_iterations_count);
+                                      int _source_vertex);
     #endif
 
     // --------------------------------- main interfaces ----------------------------------------

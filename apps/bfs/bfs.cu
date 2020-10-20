@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#define __USE_NEC_SX_AURORA__
+#define __USE_GPU__
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -57,15 +57,21 @@ int main(int argc, const char * argv[])
             cout << "selected source vertex " << source_vertex << endl;
 
             performance_stats.reset_timers();
-            BFS::nec_top_down(graph, levels, source_vertex);
+            BFS::gpu_top_down(graph, levels, source_vertex);
             performance_stats.print_timers_stats();
 
             // check if required
             if(parser.get_check_flag())
             {
+                graph.move_to_host();
+                levels.move_to_host();
+
                 VerticesArray<int> check_levels(graph, SCATTER);
                 BFS::seq_top_down(graph, check_levels, source_vertex);
                 verify_results(graph, levels, check_levels);
+
+                graph.move_to_device();
+                levels.move_to_device();
             }
         }
     }

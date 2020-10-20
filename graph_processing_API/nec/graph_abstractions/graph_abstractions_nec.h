@@ -178,6 +178,12 @@ public:
                  CollectiveVertexPostprocessOperation &&collective_vertex_postprocess_op);
 
     // performs user-defined "edge_op" operation over all OUTGOING edges, neighbouring specified frontier
+    template <typename EdgeOperation>
+    void scatter(VectCSRGraph &_graph,
+                 FrontierNEC &_frontier,
+                 EdgeOperation &&edge_op);
+
+    // performs user-defined "edge_op" operation over all OUTGOING edges, neighbouring specified frontier
     template <typename EdgeOperation, typename VertexPreprocessOperation, typename VertexPostprocessOperation,
             typename CollectiveEdgeOperation, typename CollectiveVertexPreprocessOperation,
             typename CollectiveVertexPostprocessOperation, typename _T>
@@ -203,6 +209,12 @@ public:
                 CollectiveEdgeOperation &&collective_edge_op,
                 CollectiveVertexPreprocessOperation &&collective_vertex_preprocess_op,
                 CollectiveVertexPostprocessOperation &&collective_vertex_postprocess_op);
+
+    // performs user-defined "edge_op" operation over all INCOMING edges, neighbouring specified frontier
+    template <typename EdgeOperation>
+    void gather(VectCSRGraph &_graph,
+                FrontierNEC &_frontier,
+                EdgeOperation &&edge_op);
 
     // performs user-defined "compute_op" operation for each element in the given frontier
     template <typename ComputeOperation>

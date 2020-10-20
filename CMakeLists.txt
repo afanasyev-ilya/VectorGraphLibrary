@@ -74,7 +74,7 @@ add_executable(VectorGraphLibrary
         apps/Makefile.gcc
         apps/Makefile.intel
         apps/Makefile.gpu
-        apps/Makefile.tohoku
+        apps/Makefile.nec
         apps/pr/pr.cpp
         apps/sssp/sssp.cpp
         apps/sswp/sswp.cpp

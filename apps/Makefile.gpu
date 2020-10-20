@@ -1,6 +1,4 @@
-#CUDA_DIR = /usr/local/cuda/
-#CUDA_DIR = /usr/local/cuda-10.2
-CUDA_DIR = ~/local_cuda/
+CUDA_DIR = /usr/local/cuda/
 CUDA_COMPILER = $(CUDA_DIR)/bin/nvcc
 
 # Include paths...
@@ -17,10 +15,13 @@ Libraries = -lcudart -lcudadevrt -lcudadevrt -Xcompiler -fopenmp
 # binaries
 ##########
 
-all: install sssp
+all: install sssp bfs
 
 sssp: create_folders sssp.o
 	$(CUDA_COMPILER) object_files/sssp.o $(Library_Path) $(Libraries) -o ./bin/sssp_cu
+
+bfs: create_folders bfs.o
+	$(CUDA_COMPILER) object_files/bfs.o $(Library_Path) $(Libraries) -o ./bin/bfs_cu
 
 ##########
 # CPPs
@@ -36,6 +37,9 @@ install:
 
 sssp.o: sssp/sssp.cu
 	$(CUDA_COMPILER) $(Flags) $(Include_Path) -c sssp/sssp.cu -o object_files/sssp.o
+
+bfs.o: bfs/bfs.cu
+	$(CUDA_COMPILER) $(Flags) $(Include_Path) -c bfs/bfs.cu -o object_files/bfs.o
 
 create_folders:
 	-mkdir -p ./bin

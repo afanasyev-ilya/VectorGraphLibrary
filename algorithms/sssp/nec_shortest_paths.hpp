@@ -76,64 +76,11 @@ void SSSP::nec_dijkstra_partial_active(VectCSRGraph &_graph,
     tm.end();
 
     #ifdef __PRINT_SAMPLES_PERFORMANCE_STATS__
-    PerformanceStats::print_algorithm_performance_stats("SSSP (Dijkstra, partial active)", tm.get_time(),
+    PerformanceStats::print_algorithm_performance_stats("SSSP (Dijkstra, partial active, NEC)", tm.get_time(),
                                               _graph.get_edges_count(), iterations_count);
     #endif
 }
 #endif
-
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-/*#ifdef __USE_NEC_SX_AURORA__
-void SSSP::nec_bellamn_ford(EdgesListGraph &_graph,
-                            _TEdgeWeight *_distances,
-                            int _source_vertex)
-{
-    double t1 = omp_get_wtime();
-    LOAD_EDGES_LIST_GRAPH_DATA(_graph);
-
-    _T inf_val = std::numeric_limits<_T>::max();
-    auto init_distances = [&_distances, _source_vertex, inf_val] (int src_id, int connections_count, int vector_index)
-    {
-        if(src_id == _source_vertex)
-            _distances[src_id] = 0;
-        else
-            _distances[src_id] = inf_val;
-    };
-    graph_API.compute(_graph, frontier, init_distances);
-
-    int iterations_count = 0;
-    int changes_count = 0;
-    do
-    {
-        NEC_REGISTER_INT(changes, 0);
-
-        auto edge_op = [_distances, weights, &reg_changes](int src_id, int dst_id, long long int global_edge_pos, int vector_index)
-        {
-            float weight = weights[global_edge_pos];
-            float dst_weight = _distances[dst_id];
-            float src_weight = _distances[src_id];
-            if(dst_weight > src_weight + weight)
-            {
-                _distances[dst_id] = src_weight + weight;
-                reg_changes[vector_index] = 1;
-            }
-        };
-
-        graph_API.advance(_graph, edge_op);
-
-        changes_count = register_sum_reduce(reg_changes);
-        iterations_count++;
-    } while(changes_count > 0);
-
-    double t2 = omp_get_wtime();
-    performance = edges_count / ((t2 - t1)*1e6);
-
-    #ifdef __PRINT_SAMPLES_PERFORMANCE_STATS__
-    PerformanceStats::print_algorithm_performance_stats("sssp (bellman-ford)", t2 - t1, edges_count, iterations_count);
-    #endif
-}
-#endif*/
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -199,7 +146,7 @@ void SSSP::nec_dijkstra_all_active_push(VectCSRGraph &_graph,
     tm.end();
 
     #ifdef __PRINT_SAMPLES_PERFORMANCE_STATS__
-    PerformanceStats::print_algorithm_performance_stats("SSSP (dijkstra, all-active, push)", tm.get_time(),
+    PerformanceStats::print_algorithm_performance_stats("SSSP (Dijkstra, all-active, push, NEC)", tm.get_time(),
                                                         _graph.get_edges_count(), iterations_count);
     #endif
 }
@@ -311,7 +258,7 @@ void SSSP::nec_dijkstra_all_active_pull(VectCSRGraph &_graph,
     tm.end();
 
     #ifdef __PRINT_SAMPLES_PERFORMANCE_STATS__
-    PerformanceStats::print_algorithm_performance_stats("SSSP (dijkstra, all-active, pull)", tm.get_time(),
+    PerformanceStats::print_algorithm_performance_stats("SSSP (Dijkstra, all-active, pull, NEC)", tm.get_time(),
                                               _graph.get_edges_count(), iterations_count);
     #endif
 }

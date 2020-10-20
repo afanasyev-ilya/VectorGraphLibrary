@@ -2,10 +2,6 @@
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#ifdef __USE_GPU__
-#include "gpu/bfs_gpu.cuh"
-#endif
-
 #include <string>
 #include "change_state/change_state.h"
 
@@ -34,7 +30,8 @@ private:
     #endif
 public:
     #ifdef __USE_GPU__
-    static void gpu_top_down(VectCSRGraph &_graph, VerticesArray<int> &_levels, int _source_vertex);
+    template <typename _T>
+    static void gpu_top_down(VectCSRGraph &_graph, VerticesArray<_T> &_levels, int _source_vertex);
     #endif
 
     #ifdef __USE_NEC_SX_AURORA__
@@ -42,7 +39,8 @@ public:
     static void nec_top_down(VectCSRGraph &_graph, VerticesArray<_T> &_levels, int _source_vertex);
     #endif
 
-    static void seq_top_down(VectCSRGraph &_graph, VerticesArray<int> &_levels, int _source_vertex);
+    template <typename _T>
+    static void seq_top_down(VectCSRGraph &_graph, VerticesArray<_T> &_levels, int _source_vertex);
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

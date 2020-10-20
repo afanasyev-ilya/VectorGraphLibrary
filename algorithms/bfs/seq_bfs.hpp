@@ -9,8 +9,9 @@ using namespace std;
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+template <typename _T>
 void BFS::seq_top_down(VectCSRGraph &_graph,
-                       VerticesArray<int> &_levels,
+                       VerticesArray<_T> &_levels,
                        int _source_vertex)
 {
     UndirectedCSRGraph *outgoing_graph_ptr = _graph.get_outgoing_graph_ptr();
@@ -55,7 +56,7 @@ void BFS::seq_top_down(VectCSRGraph &_graph,
 
     tm.end();
     #ifdef __PRINT_SAMPLES_PERFORMANCE_STATS__
-    PerformanceStats::print_algorithm_performance_stats("BFS (Sequential Top-Down)", tm.get_time(), _graph.get_edges_count());
+    PerformanceStats::print_algorithm_performance_stats("BFS (Top-Down, Sequential)", tm.get_time(), _graph.get_edges_count());
     #endif
 }
 

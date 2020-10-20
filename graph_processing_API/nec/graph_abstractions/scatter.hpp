@@ -49,6 +49,17 @@ void GraphAbstractionsNEC::scatter(VectCSRGraph &_graph,
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+template <typename EdgeOperation>
+void GraphAbstractionsNEC::scatter(VectCSRGraph &_graph,
+                                   FrontierNEC &_frontier,
+                                   EdgeOperation &&edge_op)
+{
+    scatter(_graph, _frontier, edge_op, EMPTY_VERTEX_OP, EMPTY_VERTEX_OP,
+            edge_op, EMPTY_VERTEX_OP, EMPTY_VERTEX_OP);
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 template <typename EdgeOperation, typename VertexPreprocessOperation,
         typename VertexPostprocessOperation, typename CollectiveEdgeOperation, typename CollectiveVertexPreprocessOperation,
         typename CollectiveVertexPostprocessOperation, typename _T>

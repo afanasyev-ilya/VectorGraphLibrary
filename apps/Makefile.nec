@@ -1,0 +1,53 @@
+CXX = nc++
+#CXX = nc++-2.5.1
+
+# Include paths...
+
+# Include paths...
+Include_Path =
+
+# Library paths...
+Libraries = #-ftrace
+
+# CPU Compiler flags...
+CXXFLAGS = -O4 -fopenmp -report-all -proginf -mparallel -mretain-list-vector -DASL_LIB_INT64 -I /opt/nec/ve/nlc/2.0.0/include/ #-ftrace #-mno-vector #-ftrace
+LDFLAGS = -fopenmp -report-all -ftrace -lasl_openmp_i64 #-ftrace
+
+#  -floop-normalize -floop-interchange -floop-collapse -mretain-list-vector
+
+.DEFAULT_GOAL := all
+
+##########
+# binaries
+##########
+
+all: sssp bfs
+
+sssp: create_folders sssp.o
+	$(CXX) object_files/sssp.o $(Library_Path) $(Libraries) $(LDFLAGS) -o ./bin/sssp_sx
+
+bfs: create_folders bfs.o
+	$(CXX) object_files/bfs.o $(Library_Path) $(Libraries) $(LDFLAGS) -o ./bin/bfs_sx
+
+##########
+# CPPs
+##########
+
+sssp.o: sssp/sssp.cpp
+	$(CXX) $(CXXFLAGS) $(Include_Path)  -c sssp/sssp.cpp -o object_files/sssp.o -fopenmp
+
+bfs.o: bfs/bfs.cpp
+	$(CXX) $(CXXFLAGS) $(Include_Path)  -c bfs/bfs.cpp -o object_files/bfs.o -fopenmp
+
+create_folders:
+	-mkdir -p ./bin
+	-cp graph_library.sh ./bin
+	-mkdir -p ./object_files
+
+clean:
+	-rm -f object_files/*.o
+
+#################
+# CUDA operations
+#################
+

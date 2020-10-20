@@ -70,7 +70,7 @@ void SSSP::seq_dijkstra(VectCSRGraph &_graph, EdgesArray<_T> &_weights, Vertices
 
     tm.end();
     #ifdef __PRINT_SAMPLES_PERFORMANCE_STATS__
-    PerformanceStats::print_algorithm_performance_stats("SSSP (Sequential Dijkstra)", tm.get_time(), _graph.get_edges_count());
+    PerformanceStats::print_algorithm_performance_stats("SSSP (Dijkstra, Sequential)", tm.get_time(), _graph.get_edges_count());
     #endif
 }
 
