@@ -82,11 +82,11 @@ public:
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #ifdef __USE_NEC_SX_AURORA__
-#include "../../nec/graph_abstractions/graph_abstractions_nec.h"
+#include "graph_processing_API/nec/graph_abstractions/graph_abstractions_nec.h"
 #endif
 
 #ifdef __USE_GPU__
-#include "../../gpu/graph_abstractions/graph_abstractions_gpu.cuh"
+#include "graph_processing_API/gpu/graph_abstractions/graph_abstractions_gpu.cuh"
 #endif
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

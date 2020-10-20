@@ -4,7 +4,7 @@
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#include "../../../architectures.h"
+#include "architectures.h"
 #define INT_ELEMENTS_PER_EDGE 3.0
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -19,11 +19,11 @@
 #include <curand.h>
 #include <curand_kernel.h>
 #include "../lp_constants.h"
-#include "../../../graph_processing_API/gpu/cuda_API_include.h"
-#include "../../../external_libraries/moderngpu/src/moderngpu/kernel_segsort.hxx"
-#include "../../../external_libraries/moderngpu/src/moderngpu/memory.hxx"
-#include "../../../external_libraries/moderngpu/src/moderngpu/kernel_segreduce.hxx"
-#include "../../../external_libraries/moderngpu/src/moderngpu/kernel_scan.hxx"
+#include "graph_processing_API/gpu/cuda_API_include.h"
+#include "external_libraries/moderngpu/src/moderngpu/kernel_segsort.hxx"
+#include "external_libraries/moderngpu/src/moderngpu/memory.hxx"
+#include "external_libraries/moderngpu/src/moderngpu/kernel_segreduce.hxx"
+#include "external_libraries/moderngpu/src/moderngpu/kernel_scan.hxx"
 #include "active_conditions.cuh"
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
