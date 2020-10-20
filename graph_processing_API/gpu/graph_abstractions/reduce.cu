@@ -53,8 +53,8 @@ template <typename _T>
 __inline__ __device__ _T block_reduce_sum(_T val)
 {
     static __shared__ _T shared[32]; // Shared mem for 32 partial sums
-    int lane = threadIdx.x % warpSize;
-    int wid = threadIdx.x / warpSize;
+    int lane =  threadIdx.x % 32;
+    int wid =  threadIdx.x / 32;
 
     val = warp_reduce_sum(val);     // Each warp performs partial reduction
 
@@ -75,45 +75,49 @@ __inline__ __device__ _T block_reduce_sum(_T val)
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template <typename _T, typename ReduceOperation>
-__global__ void reduce_kernel_sparse(const int *_frontier_ids,
-                                     const int _frontier_size,
-                                     const long long *_vertex_pointers,
-                                     ReduceOperation reduce_op,
-                                     _T* out)
-{
-    const int frontier_pos = blockIdx.x * blockDim.x + threadIdx.x;
-
-    if(frontier_pos < _frontier_size)
-    {
-        int src_id = _frontier_ids[frontier_pos];
-        int connections_count = _vertex_pointers[src_id + 1] - _vertex_pointers[src_id];
-
-        _T sum = reduce_op(src_id, frontier_pos, connections_count);
-
-        sum = block_reduce_sum(sum);
-        if (threadIdx.x == 0)
-            atomicAdd(out, sum);
-    }
-}
-
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-template <typename _T, typename ReduceOperation>
 __global__ void reduce_kernel_all_active(const int _size,
                                          const long long *_vertex_pointers,
                                          ReduceOperation reduce_op,
                                          _T* _result)
 {
     const int src_id = blockIdx.x * blockDim.x + threadIdx.x;
+
+    _T val = 0;
     if(src_id < _size)
     {
         int connections_count = _vertex_pointers[src_id + 1] - _vertex_pointers[src_id];
-        _T sum = reduce_op(src_id, src_id, connections_count);
-
-        sum = block_reduce_sum(sum);
-        if (threadIdx.x == 0)
-            atomicAdd(_result, sum);
+        int vector_index = cub::LaneId();
+        val = reduce_op(src_id, connections_count, vector_index);
     }
+
+    _T sum = block_reduce_sum(val);
+    if (threadIdx.x == 0)
+        atomicAdd(_result, sum);
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+template <typename _T, typename ReduceOperation>
+__global__ void reduce_kernel_sparse(const int *_frontier_ids,
+                                     const int _frontier_size,
+                                     const long long *_vertex_pointers,
+                                     ReduceOperation reduce_op,
+                                     _T* _result)
+{
+    const int frontier_pos = blockIdx.x * blockDim.x + threadIdx.x;
+
+    _T val = 0;
+    if(frontier_pos < _frontier_size)
+    {
+        int src_id = _frontier_ids[frontier_pos];
+        int connections_count = _vertex_pointers[src_id + 1] - _vertex_pointers[src_id];
+        int vector_index = cub::LaneId();
+        val = reduce_op(src_id, connections_count, vector_index);
+    }
+
+    _T sum = block_reduce_sum(val);
+    if (threadIdx.x == 0)
+        atomicAdd(_result, sum);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
