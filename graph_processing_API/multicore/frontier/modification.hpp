@@ -1,0 +1,34 @@
+#pragma once
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+void FrontierMulticore::set_all_active()
+{
+    type = ALL_ACTIVE_FRONTIER;
+
+    current_size = max_size;
+    neighbours_count = graph_ptr->get_edges_count();
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+void FrontierMulticore::add_vertex(int src_id)
+{
+    if(current_size > 0)
+    {
+        throw "Error in FrontierGPU::add_vertex: VGL can not add vertex to non-empty frontier";
+    }
+    ids[0] = src_id;
+    flags[src_id] = IN_FRONTIER_FLAG;
+    current_size = 1;
+    //neighbours_count = 1; // TODO set from GRAPH
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+void FrontierMulticore::add_group_of_vertices(int *_vertex_ids, int _number_of_vertices)
+{
+    throw "Error FrontierGPU::add_group_of_vertices : not implemented yet";
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

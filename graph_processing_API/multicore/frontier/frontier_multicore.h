@@ -2,45 +2,39 @@
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-class FrontierMulticore
+class FrontierMulticore : public Frontier
 {
 private:
-    int *flags;
+    // this is how NEC frontier is represented
     int *ids;
+    int *flags;
 
-    FrontierType type;
-
-    int current_size;
-    int max_size;
+    void init();
 public:
-
-    FrontierMulticore(UndirectedCSRGraph &_graph);
-    FrontierMulticore(int _vertices_count);
+    /* constructors and destructors */
+    FrontierMulticore(VectCSRGraph &_graph, TraversalDirection _direction = SCATTER);
     ~FrontierMulticore();
 
-    int size() {return current_size;};
-    FrontierType get_type() {return type;};
+    /* Get API */
+    int *get_flags() {return flags;};
+    int *get_ids() {return ids;};
 
-    void set_all_active();
+    /* Print API */
+    void print_stats();
+    void print();
 
-    void change_size(int _size) {max_size = _size;};
+    /* frontier modification API */
+    inline void set_all_active();
+    inline void add_vertex(int src_id);
+    inline void add_group_of_vertices(int *_vertex_ids, int _number_of_vertices);
 
-
-    void print_stats(UndirectedCSRGraph &_graph);
-
-
-    inline void add_vertex(UndirectedCSRGraph &_graph, int src_id);
-
-
-    inline void add_group_of_vertices(UndirectedCSRGraph &_graph, int *_vertex_ids, int _number_of_vertices);
-
-    inline void clear() { current_size = 0; };
-
-    friend class GraphPrimitivesMulticore;
+    friend class GraphAbstractionsMulticore;
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #include "frontier_multicore.hpp"
+#include "modification.hpp"
+#include "print.hpp"
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

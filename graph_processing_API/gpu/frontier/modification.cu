@@ -35,7 +35,9 @@ void FrontierGPU::add_vertex(int src_id)
     ids[0] = src_id;
     flags[src_id] = IN_FRONTIER_FLAG;
     current_size = 1;
-    //neighbours_count = 1; // TODO set from GRAPH
+    UndirectedCSRGraph *current_direction_graph = graph_ptr->get_direction_graph_ptr(direction);
+    neighbours_count = current_direction_graph->get_vertex_pointers()[src_id + 1] -
+            current_direction_graph->get_vertex_pointers()[src_id];
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

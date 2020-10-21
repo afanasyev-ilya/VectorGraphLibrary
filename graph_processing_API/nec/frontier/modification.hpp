@@ -8,6 +8,10 @@ void FrontierNEC::set_all_active()
     current_size = max_size;
     neighbours_count = graph_ptr->get_edges_count();
 
+    vector_engine_part_neighbours_count = 0;
+    vector_core_part_neighbours_count = 0;
+    collective_part_neighbours_count = graph_ptr->get_edges_count(); // TODO
+
     #pragma omp parallel // dummy for performance evaluation
     {};
 }
@@ -37,17 +41,27 @@ void FrontierNEC::add_vertex(int src_id)
     vector_core_part_size = 0;
     collective_part_size = 0;
 
+    vector_engine_part_neighbours_count = 0;
+    vector_core_part_neighbours_count = 0;
+    collective_part_neighbours_count = 0;
+
     if(src_id < ve_threshold)
     {
         vector_engine_part_size = 1;
+        vector_engine_part_neighbours_count = current_direction_graph->get_vertex_pointers()[src_id + 1] -
+                current_direction_graph->get_vertex_pointers()[src_id];
     }
     if((src_id >= ve_threshold) && (src_id < vc_threshold))
     {
         vector_core_part_size = 1;
+        vector_core_part_neighbours_count = current_direction_graph->get_vertex_pointers()[src_id + 1] -
+                                              current_direction_graph->get_vertex_pointers()[src_id];
     }
     if((src_id >= vc_threshold) && (src_id < vertices_count))
     {
         collective_part_size = 1;
+        collective_part_neighbours_count = current_direction_graph->get_vertex_pointers()[src_id + 1] -
+                                              current_direction_graph->get_vertex_pointers()[src_id];
     }
 
     type = SPARSE_FRONTIER;

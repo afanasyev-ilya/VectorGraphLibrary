@@ -154,11 +154,13 @@ private:
                                                            const int _first_edge);
 
     template <typename FilterCondition>
-    int estimate_sorted_frontier_part_size(FrontierNEC &_frontier,
-                                           long long *_vertex_pointers,
-                                           int _first_vertex,
-                                           int _last_vertex,
-                                           FilterCondition &&filter_cond);
+    void estimate_sorted_frontier_part_size(FrontierNEC &_frontier,
+                                            long long *_vertex_pointers,
+                                            int _first_vertex,
+                                            int _last_vertex,
+                                            FilterCondition &&filter_cond,
+                                            int &_elements_count,
+                                            long long &_neighbours_count);
 public:
     // attaches graph-processing API to the specific graph
     GraphAbstractionsNEC(VectCSRGraph &_graph, TraversalDirection _initial_traversal = SCATTER);
