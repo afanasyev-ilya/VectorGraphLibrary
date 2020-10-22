@@ -126,7 +126,13 @@ void GraphAbstractions::set_correct_direction(_T &_first_arg, Types &... _args)
 {
     if(_first_arg.get_object_type() == VERTICES_ARRAY)
     {
-        processed_graph_ptr->reorder(_first_arg, current_traversal_direction);
+        cout << "set dir" << endl;
+        if(processed_graph_ptr->get_type() == VECT_CSR_GRAPH)
+        {
+            VectCSRGraph *tmp_ptr = (VectCSRGraph *)processed_graph_ptr;
+            tmp_ptr->reorder(_first_arg, current_traversal_direction);
+        }
+        cout << "done dir" << endl;
     }
     else if(_first_arg.get_object_type() == FRONTIER)
     {
@@ -138,4 +144,16 @@ void GraphAbstractions::set_correct_direction(_T &_first_arg, Types &... _args)
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+template<typename _T>
+void GraphAbstractions::attach_data(VerticesArray<_T> &_array)
+{
+    //VerticesArrayContainer container((char*)(_array.get_ptr()), (int)sizeof(_T), _array.get_direction());
+    //vertices_arrays.push_back(container);
+    cout << "attach done" << endl;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
 

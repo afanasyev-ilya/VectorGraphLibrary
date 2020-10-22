@@ -59,14 +59,15 @@ int main(int argc, const char * argv[])
         sharded_graph.import(el_graph);
         cout << " ----------------------------- " << endl;
 
-        VerticesArray<int> sharded_distances(graph, ORIGINAL);
+        //VerticesArray<int> sharded_distances(sharded_graph, ORIGINAL);
 
-        performance_stats.reset_timers();
-        ShortestPaths::nec_dijkstra(sharded_graph, weights, sharded_distances, 0);
-        performance_stats.print_timers_stats();
+        //performance_stats.reset_timers();
+        //ShortestPaths::nec_dijkstra(sharded_graph, weights, sharded_distances, 0);
+        //performance_stats.print_timers_stats();
+        //cout << "done" << endl;
 
         // compute reference result
-        VerticesArray<int> seq_distances(graph, SCATTER);
+        /*VerticesArray<int> seq_distances(graph, SCATTER);
         ShortestPaths::seq_dijkstra(graph, weights, seq_distances, 0);
 
         cout << "push check" << endl;
@@ -76,7 +77,7 @@ int main(int argc, const char * argv[])
         verify_results(graph, pull_distances, seq_distances);
 
         cout << "partial check" << endl;
-        verify_results(graph, partial_active_distances, seq_distances);
+        verify_results(graph, partial_active_distances, seq_distances);*/
 
     }
     catch (string error)

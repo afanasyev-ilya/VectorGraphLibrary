@@ -8,7 +8,6 @@ class VerticesArray
 private:
     ObjectType object_type;
     TraversalDirection direction;
-    VectCSRGraph *graph_ptr;
 
     _T *vertices_data;
     int vertices_count;
@@ -17,6 +16,7 @@ private:
 public:
     /* constructors and destructors */
     VerticesArray(VectCSRGraph &_graph, TraversalDirection _direction = SCATTER);
+    VerticesArray(ShardedCSRGraph &_graph, TraversalDirection _direction = SCATTER);
     VerticesArray(const VerticesArray<_T> &_copy_obj);
     ~VerticesArray();
 

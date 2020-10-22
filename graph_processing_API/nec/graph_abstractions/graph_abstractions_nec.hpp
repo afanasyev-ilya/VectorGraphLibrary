@@ -13,7 +13,7 @@ GraphAbstractionsNEC::GraphAbstractionsNEC(VectCSRGraph &_graph, TraversalDirect
 
 GraphAbstractionsNEC::GraphAbstractionsNEC(ShardedCSRGraph &_graph, TraversalDirection _initial_traversal)
 {
-    //processed_graph_ptr = &_graph; // TODO SHARDED API
+    processed_graph_ptr = &_graph;
     current_traversal_direction = _initial_traversal;
     direction_shift = 0; // TODO SHARDED API
 }

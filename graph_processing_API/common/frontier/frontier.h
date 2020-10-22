@@ -8,7 +8,7 @@ protected:
     ObjectType object_type;
 
     // pointer to base graph
-    VectCSRGraph *graph_ptr;
+    BaseGraph *graph_ptr;
     TraversalDirection direction;
 
     // frontier type - sparse, dense, all-active

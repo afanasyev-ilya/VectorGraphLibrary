@@ -2,10 +2,29 @@
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+class VerticesArrayContainer
+{
+private:
+    TraversalDirection direction;
+    char *pointer;
+    int element_size;
+public:
+    VerticesArrayContainer(char *_pointer, int _element_size, TraversalDirection _direction)
+    {
+        pointer = _pointer;
+        element_size = _element_size;
+        direction = _direction;
+    }
+};
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 class GraphAbstractions
 {
 protected:
-    VectCSRGraph *processed_graph_ptr;
+    vector<VerticesArrayContainer> vertices_arrays;
+
+    BaseGraph *processed_graph_ptr;
     TraversalDirection current_traversal_direction;
     long long direction_shift;
 
@@ -73,6 +92,9 @@ public:
     template<typename _T, typename ... Types>
     void change_traversal_direction(TraversalDirection _new_direction, _T &_first_arg, Types &... _args);
     void change_traversal_direction(TraversalDirection _new_direction);
+
+    template<typename _T>
+    void attach_data(VerticesArray<_T> &_array);
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

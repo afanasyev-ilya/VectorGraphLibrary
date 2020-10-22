@@ -17,9 +17,9 @@ ShardedCSRGraph::ShardedCSRGraph()
 
 ShardedCSRGraph::~ShardedCSRGraph()
 {
-    MemoryAPI::free_array(outgoing_shards);
-    MemoryAPI::free_array(incoming_shards);
-    MemoryAPI::free_array(vertices_reorder_buffer);
+    //MemoryAPI::free_array(outgoing_shards);
+    //MemoryAPI::free_array(incoming_shards);
+    //MemoryAPI::free_array(vertices_reorder_buffer);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
