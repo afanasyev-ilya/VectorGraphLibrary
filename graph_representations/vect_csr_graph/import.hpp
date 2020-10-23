@@ -4,12 +4,11 @@
 
 void VectCSRGraph::import(EdgesListGraph &_el_graph)
 {
-    this->vertices_count = _el_graph.get_vertices_count();
-    this->edges_count = _el_graph.get_edges_count();
+    this->resize(_el_graph.get_vertices_count(), _el_graph.get_edges_count());
 
     Timer tm;
     tm.start();
-    outgoing_graph->import(_el_graph, NULL);
+    outgoing_graph->import(_el_graph, edges_reorder_indexes_original_to_scatter);
     tm.end();
     #ifdef __PRINT_API_PERFORMANCE_STATS__
     tm.print_time_stats("VectCSR outgoing conversion");
@@ -17,28 +16,14 @@ void VectCSRGraph::import(EdgesListGraph &_el_graph)
 
     _el_graph.transpose();
 
-    this->resize_helper_arrays();
-
     tm.start();
-    incoming_graph->import(_el_graph, edges_reorder_indexes);
+    incoming_graph->import(_el_graph, edges_reorder_indexes_scatter_to_gather);
     tm.end();
     #ifdef __PRINT_API_PERFORMANCE_STATS__
     tm.print_time_stats("VectCSR incoming conversion");
     #endif
 
     _el_graph.transpose();
-}
-
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-void VectCSRGraph::resize_helper_arrays()
-{
-    MemoryAPI::free_array(edges_reorder_indexes);
-    MemoryAPI::allocate_array(&edges_reorder_indexes, this->edges_count);
-    MemoryAPI::set(edges_reorder_indexes, (long long)0, this->edges_count);
-
-    MemoryAPI::free_array(vertices_reorder_buffer);
-    MemoryAPI::allocate_array(&vertices_reorder_buffer, this->vertices_count);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

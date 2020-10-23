@@ -33,9 +33,9 @@ int main(int argc, const char * argv[])
             GraphGenerationAPI::random_uniform(el_graph, v, v * parser.get_avg_degree(), DIRECTED_GRAPH);
 
         EdgesArray_EL<int> el_weights(el_graph);
-        el_weights.set_all_constant(1);
-        //el_weights.set_all_random(MAX_WEIGHT);
-        //el_weights.print();
+        el_graph.preprocess_into_segmented();
+        //el_weights.set_all_constant(1);
+        el_weights.set_all_random(MAX_WEIGHT);
 
         VerticesArray<int> el_distances(el_graph, ORIGINAL);
         ShortestPaths::nec_dijkstra(el_graph, el_weights, el_distances, 0);
@@ -50,8 +50,8 @@ int main(int argc, const char * argv[])
         // create graph weights and set them random
         EdgesArray_VEC<int> vect_weights(graph);
         //vect_weights.set_all_random(MAX_WEIGHT);
-        vect_weights.set_all_constant(1);
-        //vect_weights = el_weights;
+        //vect_weights.set_all_constant(1);
+        vect_weights = el_weights;
 
         // run different SSSP algorithms
         VerticesArray<int> push_distances(graph, SCATTER);

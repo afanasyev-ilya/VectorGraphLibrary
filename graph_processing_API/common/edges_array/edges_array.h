@@ -31,6 +31,8 @@ public:
     inline _T& operator[] (long long _global_idx) const { return edges_data[_global_idx]; };
     #endif
 
+    inline _T *get_ptr() const {return edges_data;};
+
     /* initialization API */
     virtual void set_all_constant(_T _const) = 0;
     virtual void set_all_random(_T _max_rand) = 0;

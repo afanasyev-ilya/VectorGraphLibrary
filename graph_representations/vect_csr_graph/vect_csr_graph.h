@@ -22,9 +22,12 @@ private:
     UndirectedCSRGraph *incoming_graph;
 
     long long *vertices_reorder_buffer;
-    long long *edges_reorder_indexes;
+    long long *edges_reorder_indexes_original_to_scatter;
+    long long *edges_reorder_indexes_scatter_to_gather;
 
-    void resize_helper_arrays();
+    void init(int _vertices_count, long long _edges_count);
+    void free();
+    void resize(int _vertices_count, long long _edges_count);
 
     template <typename _T>
     bool vertices_buffer_can_be_used(VerticesArray<_T> &_data);
@@ -81,9 +84,13 @@ public:
     void reorder(FrontierGPU &_data, TraversalDirection _output_dir); // TODO
     #endif
 
-    // allows to reorder edges array to secondary direction (gather)
+    // allows to reorder edges array to primary direction (scatter, from original)
     template <typename _T>
-    void reorder_edges_to_gather(_T *_incoming_csr_ptr, _T *_outgoing_csr_ptr); // TODO name fix?
+    void reorder_edges_original_to_scatter(_T *_original_csr_ptr, _T *_outgoing_csr_ptr);
+
+    // allows to reorder edges array to secondary direction (gather, from original)
+    template <typename _T>
+    void reorder_edges_scatter_to_gather(_T *_incoming_csr_ptr, _T *_outgoing_csr_ptr);
 
     // selects random vertex with non-zero outgoing and incoming degree
     int select_random_vertex(TraversalDirection _direction = ORIGINAL);
