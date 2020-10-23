@@ -17,6 +17,8 @@ public:
     /* constructors and destructors */
     VerticesArray(VectCSRGraph &_graph, TraversalDirection _direction = SCATTER);
     VerticesArray(ShardedCSRGraph &_graph, TraversalDirection _direction = SCATTER);
+    VerticesArray(EdgesListGraph &_graph, TraversalDirection _direction = ORIGINAL);
+
     VerticesArray(const VerticesArray<_T> &_copy_obj);
     ~VerticesArray();
 

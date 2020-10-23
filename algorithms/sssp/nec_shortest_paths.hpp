@@ -5,7 +5,7 @@
 #ifdef __USE_NEC_SX_AURORA__
 template <typename _T>
 void SSSP::nec_dijkstra_partial_active(VectCSRGraph &_graph,
-                                       EdgesArray<_T> &_weights,
+                                       EdgesArray_VEC<_T> &_weights,
                                        VerticesArray<_T> &_distances,
                                        int _source_vertex)
 {
@@ -47,7 +47,7 @@ void SSSP::nec_dijkstra_partial_active(VectCSRGraph &_graph,
             auto edge_op_push = [&_distances, &_weights](int src_id, int dst_id, int local_edge_pos,
                             long long int global_edge_pos, int vector_index, DelayedWriteNEC &delayed_write)
             {
-                _T weight = _weights.get(global_edge_pos);
+                _T weight = _weights[global_edge_pos];
                 _T src_weight = _distances[src_id];
 
                 if(_distances[dst_id] > src_weight + weight)
@@ -87,7 +87,7 @@ void SSSP::nec_dijkstra_partial_active(VectCSRGraph &_graph,
 #ifdef __USE_NEC_SX_AURORA__
 template <typename _T>
 void SSSP::nec_dijkstra_all_active_push(VectCSRGraph &_graph,
-                                        EdgesArray<_T> &_weights,
+                                        EdgesArray_VEC<_T> &_weights,
                                         VerticesArray<_T> &_distances,
                                         int _source_vertex)
 {
@@ -122,7 +122,7 @@ void SSSP::nec_dijkstra_all_active_push(VectCSRGraph &_graph,
             auto edge_op_push = [&_distances, &_weights, &reg_was_changes, &changes](int src_id, int dst_id, int local_edge_pos,
                             long long int global_edge_pos, int vector_index, DelayedWriteNEC &delayed_write)
             {
-                _T weight = _weights.get(global_edge_pos);
+                _T weight = _weights[global_edge_pos];
                 _T src_weight = _distances[src_id];
 
                 if(_distances[dst_id] > src_weight + weight)
@@ -157,7 +157,7 @@ void SSSP::nec_dijkstra_all_active_push(VectCSRGraph &_graph,
 #ifdef __USE_NEC_SX_AURORA__
 template <typename _T>
 void SSSP::nec_dijkstra_all_active_pull(VectCSRGraph &_graph,
-                                        EdgesArray<_T> &_weights,
+                                        EdgesArray_VEC<_T> &_weights,
                                         VerticesArray<_T> &_distances,
                                         int _source_vertex)
 {
@@ -201,7 +201,7 @@ void SSSP::nec_dijkstra_all_active_pull(VectCSRGraph &_graph,
             auto edge_op_pull = [&_distances, &_weights, &reg_distances](int src_id, int dst_id, int local_edge_pos,
                     long long int global_edge_pos, int vector_index, DelayedWriteNEC &delayed_write)
             {
-                _T weight = _weights.get(global_edge_pos);
+                _T weight = _weights[global_edge_pos];
                 _T dst_weight = _distances[dst_id];
                 if(_distances[src_id] > dst_weight + weight)
                 {
@@ -230,7 +230,7 @@ void SSSP::nec_dijkstra_all_active_pull(VectCSRGraph &_graph,
                    (int src_id, int dst_id, int local_edge_pos, long long int global_edge_pos,
                     int vector_index, DelayedWriteNEC &delayed_write)
             {
-                _T weight = _weights.get(global_edge_pos);
+                _T weight = _weights[global_edge_pos];
                 _T dst_weight = _distances[dst_id];
                 if(_distances[src_id] > dst_weight + weight)
                 {
@@ -256,7 +256,6 @@ void SSSP::nec_dijkstra_all_active_pull(VectCSRGraph &_graph,
     while(changes);
 
     tm.end();
-
     #ifdef __PRINT_SAMPLES_PERFORMANCE_STATS__
     PerformanceStats::print_algorithm_performance_stats("SSSP (Dijkstra, all-active, pull, NEC)", tm.get_time(),
                                               _graph.get_edges_count(), iterations_count);
@@ -269,7 +268,7 @@ void SSSP::nec_dijkstra_all_active_pull(VectCSRGraph &_graph,
 #ifdef __USE_NEC_SX_AURORA__
 template <typename _T>
 void SSSP::nec_dijkstra(VectCSRGraph &_graph,
-                        EdgesArray<_T> &_weights,
+                        EdgesArray_VEC<_T> &_weights,
                         VerticesArray<_T> &_distances,
                         int _source_vertex,
                         AlgorithmFrontierType _frontier_type,
@@ -293,8 +292,63 @@ void SSSP::nec_dijkstra(VectCSRGraph &_graph,
 
 #ifdef __USE_NEC_SX_AURORA__
 template <typename _T>
+void SSSP::nec_dijkstra(EdgesListGraph &_graph, EdgesArray_EL<_T> &_weights, VerticesArray<_T> &_distances,
+                        int _source_vertex)
+{
+    GraphAbstractionsNEC graph_API(_graph);
+
+    Timer tm;
+    tm.start();
+
+    _T inf_val = std::numeric_limits<_T>::max() - MAX_WEIGHT;
+    #pragma omp parallel for
+    for(int i = 0; i < _graph.get_vertices_count(); i++)
+    {
+        _distances[i] = inf_val;
+    }
+    _distances[_source_vertex] = 0;
+
+    int changes = 0, iterations_count = 0;
+    do
+    {
+        changes = 0;
+        iterations_count++;
+
+        NEC_REGISTER_INT(was_changes, 0);
+
+        auto edge_op = [&_distances, &_weights, &reg_was_changes](int src_id, int dst_id, int local_edge_pos,
+                long long int global_edge_pos, int vector_index, DelayedWriteNEC &delayed_write)
+        {
+            _T weight = _weights[global_edge_pos];
+            _T src_weight = _distances[src_id];
+
+            if(_distances[dst_id] > src_weight + weight)
+            {
+                _distances[dst_id] = src_weight + weight;
+                reg_was_changes[vector_index] = 1;
+            }
+        };
+
+        graph_API.scatter(_graph, edge_op);
+
+        changes += register_sum_reduce(reg_was_changes);
+    }
+    while(changes);
+
+    tm.end();
+    #ifdef __PRINT_SAMPLES_PERFORMANCE_STATS__
+    PerformanceStats::print_algorithm_performance_stats("SSSP (Dijkstra, Edges List)", tm.get_time(),
+                                                        _graph.get_edges_count(), iterations_count);
+    #endif
+}
+#endif
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+#ifdef __USE_NEC_SX_AURORA__
+template <typename _T>
 void SSSP::nec_dijkstra(ShardedCSRGraph &_graph,
-                        EdgesArray<_T> &_weights,
+                        EdgesArray_VEC<_T> &_weights,
                         VerticesArray<_T> &_distances,
                         int _source_vertex)
 {
@@ -332,7 +386,7 @@ void SSSP::nec_dijkstra(ShardedCSRGraph &_graph,
         auto edge_op_push = [&_distances, &_weights, &reg_was_changes, &changes](int src_id, int dst_id, int local_edge_pos,
                 long long int global_edge_pos, int vector_index, DelayedWriteNEC &delayed_write)
         {
-            _T weight = 1;//_weights.get(global_edge_pos);
+            _T weight = 1;//_weights[global_edge_pos];
             _T src_weight = _distances[src_id];
 
             if(_distances[dst_id] > src_weight + weight)

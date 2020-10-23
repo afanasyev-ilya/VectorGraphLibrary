@@ -4,7 +4,7 @@
 
 template <typename _T>
 void SSSP::multicore_dijkstra(VectCSRGraph &_graph,
-                              EdgesArray<_T> &_weights,
+                              EdgesArray_VEC<_T> &_weights,
                               VerticesArray<_T> &_distances,
                               int _source_vertex)
 {

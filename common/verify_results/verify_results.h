@@ -56,7 +56,7 @@ bool verify_results(VectCSRGraph &_graph,
             }
         }
     }
-    cout << "error count: " << error_count << endl << endl;
+    cout << "error count: " << error_count << endl;
 
     // print first results
     if(_first_printed_results > 0)
@@ -75,6 +75,7 @@ bool verify_results(VectCSRGraph &_graph,
         cout << "Results are equal" << endl;
     else
         cout << "Results are NOT equal, error_count = " << error_count << endl;
+    cout << endl;
 
     if(error_count == 0)
         return true;

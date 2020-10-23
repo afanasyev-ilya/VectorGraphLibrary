@@ -20,6 +20,15 @@ GraphAbstractionsNEC::GraphAbstractionsNEC(ShardedCSRGraph &_graph, TraversalDir
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+GraphAbstractionsNEC::GraphAbstractionsNEC(EdgesListGraph &_graph, TraversalDirection _initial_traversal)
+{
+    processed_graph_ptr = &_graph;
+    current_traversal_direction = _initial_traversal;
+    direction_shift = 0;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 long long GraphAbstractionsNEC::count_frontier_neighbours(VectCSRGraph &_graph,
                                                           FrontierNEC &_frontier)
 {

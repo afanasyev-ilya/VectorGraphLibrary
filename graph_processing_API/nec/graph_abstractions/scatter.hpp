@@ -114,3 +114,21 @@ void GraphAbstractionsNEC::scatter(ShardedCSRGraph &_graph,
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+template <typename EdgeOperation>
+void GraphAbstractionsNEC::scatter(EdgesListGraph &_graph,
+                                   EdgeOperation &&edge_op)
+{
+    Timer tm;
+    tm.start();
+
+    #pragma omp parallel
+    {
+        advance_worker(_graph, edge_op);
+    }
+
+    tm.end();
+    performance_stats.update_scatter_time(tm);
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

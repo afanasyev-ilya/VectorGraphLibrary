@@ -52,6 +52,9 @@ private:
                         CollectiveVertexPostprocessOperation &&collective_vertex_postprocess_op,
                         int _first_edge);
 
+    template <typename EdgeOperation>
+    void advance_worker(EdgesListGraph &_graph, EdgeOperation &&edge_op);
+
     // all-active advance inner implementation
     template <typename EdgeOperation, typename VertexPreprocessOperation,
             typename VertexPostprocessOperation>
@@ -165,6 +168,7 @@ public:
     // attaches graph-processing API to the specific graph
     GraphAbstractionsNEC(VectCSRGraph &_graph, TraversalDirection _initial_traversal = SCATTER);
     GraphAbstractionsNEC(ShardedCSRGraph &_graph, TraversalDirection _initial_traversal = SCATTER);
+    GraphAbstractionsNEC(EdgesListGraph &_graph, TraversalDirection _initial_traversal = ORIGINAL);
 
     // performs user-defined "edge_op" operation over all OUTGOING edges, neighbouring specified frontier
     template <typename EdgeOperation, typename VertexPreprocessOperation, typename VertexPostprocessOperation,
@@ -198,6 +202,11 @@ public:
                  CollectiveVertexPreprocessOperation &&collective_vertex_preprocess_op,
                  CollectiveVertexPostprocessOperation &&collective_vertex_postprocess_op,
                  VerticesArray<_T> &_test_data);
+
+    // performs user-defined "edge_op" operation over all OUTGOING edges, neighbouring specified frontier
+    template <typename EdgeOperation>
+    void scatter(EdgesListGraph &_graph,
+                 EdgeOperation &&edge_op);
 
     // performs user-defined "edge_op" operation over all INCOMING edges, neighbouring specified frontier
     template <typename EdgeOperation, typename VertexPreprocessOperation, typename VertexPostprocessOperation,
