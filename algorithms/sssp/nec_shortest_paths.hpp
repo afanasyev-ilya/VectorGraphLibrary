@@ -298,35 +298,30 @@ void SSSP::nec_dijkstra(ShardedCSRGraph &_graph,
                         VerticesArray<_T> &_distances,
                         int _source_vertex)
 {
-    /*GraphAbstractionsNEC graph_API(_graph);
+    GraphAbstractionsNEC graph_API(_graph);
     FrontierNEC frontier(_graph);
 
     //_source_vertex = _graph.reorder(_source_vertex, ORIGINAL, SCATTER);
 
-    //graph_API.attach_data(_distances);
+    graph_API.attach_data(_distances);
     cout << "outer" << endl;
 
-    //graph_API.change_traversal_direction(SCATTER);
-    cout << "outer2" << endl;
+    graph_API.change_traversal_direction(SCATTER);
 
     Timer tm;
     tm.start();
 
-    cout << "_graph.get_vertices_count(): " << _graph.get_vertices_count() << endl;
-    cout << _source_vertex << endl;
-
     _T inf_val = std::numeric_limits<_T>::max() - MAX_WEIGHT;
-    //#pragma omp parallel for
+    #pragma omp parallel for
     for(int i = 0; i < _graph.get_vertices_count(); i++)
     {
         _distances[i] = inf_val;
     }
     _distances[_source_vertex] = 0;
-    //frontier.set_all_active();
+    frontier.set_all_active();
+    // TODO compute
 
-    cout << "comptute" << endl;
-
-    /*int changes = 0, iterations_count = 0;
+    int changes = 0, iterations_count = 0;
     do
     {
         changes = 0;
@@ -357,9 +352,9 @@ void SSSP::nec_dijkstra(ShardedCSRGraph &_graph,
     tm.end();
 
     #ifdef __PRINT_SAMPLES_PERFORMANCE_STATS__
-    PerformanceStats::print_algorithm_performance_stats("SSSP (Sharded)", tm.get_time(),
+    PerformanceStats::print_algorithm_performance_stats("SSSP (Dijkstra, sharded graph)", tm.get_time(),
                                                         _graph.get_edges_count(), iterations_count);
-    #endif*/
+    #endif
 }
 #endif
 

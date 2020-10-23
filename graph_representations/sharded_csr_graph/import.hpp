@@ -2,14 +2,11 @@
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void ShardedCSRGraph::import_direction(EdgesListGraph &_el_graph, UndirectedCSRGraph **_shards_ptr)
+void ShardedCSRGraph::import_direction(EdgesListGraph &_el_graph, TraversalDirection _import_direction)
 {
-    outgoing_shards = new UndirectedCSRGraph[shards_number];
-
-    // dst ids are sorted
     _el_graph.transpose();
     _el_graph.preprocess_into_csr_based();
-    _el_graph.transpose();
+    _el_graph.transpose(); // dst ids are sorted here
 
     // obtain pointers, edges inside sorted according to dst_ids
     int *el_src_ids = _el_graph.get_src_ids();
@@ -72,10 +69,11 @@ void ShardedCSRGraph::import_direction(EdgesListGraph &_el_graph, UndirectedCSRG
         cout << shard_id << " : " << edges_in_shard << " " << 1.0*edges_in_shard/_el_graph.get_edges_count() << endl;
         EdgesListGraph edges_list_shard;
         edges_list_shard.import(shard_src_ids_ptr, shard_dst_ids_ptr, this->vertices_count, edges_in_shard);
-        UndirectedCSRGraph gr;
-        cout << "done 1" << endl;
-        gr.import(edges_list_shard, NULL);
-        cout << "done 2" << endl;
+
+        if(_import_direction == SCATTER)
+            outgoing_shards[shard_id].import(edges_list_shard, NULL);
+        else if(_import_direction == GATHER)
+            incoming_shards[shard_id].import(edges_list_shard, NULL);
     }
     tm.end();
     //#ifdef __PRINT_API_PERFORMANCE_STATS__
@@ -99,21 +97,15 @@ void ShardedCSRGraph::import(EdgesListGraph &_el_graph)
     shards_number = (this->vertices_count - 1)/max_cached_vertices + 1;
     cout << "Shards number: " << shards_number << endl;
 
-    import_direction(_el_graph, &outgoing_shards);
+    resize(shards_number, this->vertices_count);
 
-    //_el_graph.transpose();
+    import_direction(_el_graph, SCATTER);
 
-    //import_direction(_el_graph, &incoming_shards);
+    _el_graph.transpose();
 
-    //resize_helper_arrays();
-}
+    import_direction(_el_graph, GATHER);
 
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-void ShardedCSRGraph::resize_helper_arrays()
-{
-    MemoryAPI::free_array(vertices_reorder_buffer);
-    MemoryAPI::allocate_array(&vertices_reorder_buffer, this->vertices_count);
+    _el_graph.transpose();
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

@@ -24,10 +24,13 @@ private:
 
     long long *vertices_reorder_buffer;
 
-    void import_direction(EdgesListGraph &_el_graph, UndirectedCSRGraph **_shards_ptr);
+    void import_direction(EdgesListGraph &_el_graph, TraversalDirection _import_direction);
 
     int get_shard_id(int _dst_id) { return _dst_id / max_cached_vertices; };
-    void resize_helper_arrays();
+
+    void resize(int _shards_count, int _vertices_count);
+    void init(int _shards_count, int _vertices_count);
+    void free();
 public:
     ShardedCSRGraph();
     ~ShardedCSRGraph();

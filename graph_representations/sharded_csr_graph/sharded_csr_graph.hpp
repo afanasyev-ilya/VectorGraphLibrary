@@ -4,22 +4,47 @@
 
 ShardedCSRGraph::ShardedCSRGraph()
 {
+    this->vertices_count = 1;
+    this->edges_count = 1;
     this->graph_type = SHARDED_CSR_GRAPH;
     max_cached_vertices = 1;
-    shards_number = 0;
-    outgoing_shards = NULL;
-    incoming_shards = NULL;
+    shards_number = 1;
+    init(shards_number, this->vertices_count);
+}
 
-    vertices_reorder_buffer = NULL;
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+void ShardedCSRGraph::resize(int _shards_count, int _vertices_count)
+{
+    free();
+    init(_shards_count, _vertices_count);
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+void ShardedCSRGraph::init(int _shards_count, int _vertices_count)
+{
+    outgoing_shards = new UndirectedCSRGraph[_shards_count]; // MemoryAPI doesnt work here
+    incoming_shards = new UndirectedCSRGraph[_shards_count];
+    MemoryAPI::allocate_array(&vertices_reorder_buffer, _vertices_count);
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+void ShardedCSRGraph::free()
+{
+    //MemoryAPI::free_array(outgoing_shards);
+    //MemoryAPI::free_array(incoming_shards);
+    delete []outgoing_shards;
+    delete []incoming_shards;
+    MemoryAPI::free_array(vertices_reorder_buffer);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 ShardedCSRGraph::~ShardedCSRGraph()
 {
-    //MemoryAPI::free_array(outgoing_shards);
-    //MemoryAPI::free_array(incoming_shards);
-    //MemoryAPI::free_array(vertices_reorder_buffer);
+    free();
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

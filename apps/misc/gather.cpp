@@ -41,8 +41,8 @@ int main(int argc, const char * argv[])
 
         // create graph weights and set them random
         EdgesArray<int> weights(graph);
-        weights.set_all_random(MAX_WEIGHT);
-        //weights.set_all_constant(1);
+        //weights.set_all_random(MAX_WEIGHT);
+        weights.set_all_constant(1);
 
         // run different SSSP algorithms
         VerticesArray<int> push_distances(graph, SCATTER);
@@ -54,31 +54,17 @@ int main(int argc, const char * argv[])
         VerticesArray<int> partial_active_distances(graph, SCATTER);
         ShortestPaths::nec_dijkstra(graph, weights, partial_active_distances, 0, PARTIAL_ACTIVE, PUSH_TRAVERSAL);
 
-        cout << " ----------------------------- " << endl;
         ShardedCSRGraph sharded_graph;
         sharded_graph.import(el_graph);
-        cout << " ----------------------------- " << endl;
 
-        //VerticesArray<int> sharded_distances(sharded_graph, ORIGINAL);
+        VerticesArray<int> sharded_distances(sharded_graph, ORIGINAL);
 
-        //performance_stats.reset_timers();
-        //ShortestPaths::nec_dijkstra(sharded_graph, weights, sharded_distances, 0);
-        //performance_stats.print_timers_stats();
-        //cout << "done" << endl;
+        performance_stats.reset_timers();
+        ShortestPaths::nec_dijkstra(sharded_graph, weights, sharded_distances, 0);
+        performance_stats.print_timers_stats();
 
-        // compute reference result
-        /*VerticesArray<int> seq_distances(graph, SCATTER);
-        ShortestPaths::seq_dijkstra(graph, weights, seq_distances, 0);
-
-        cout << "push check" << endl;
-        verify_results(graph, push_distances, seq_distances);
-
-        cout << "pull check" << endl;
-        verify_results(graph, pull_distances, seq_distances);
-
-        cout << "partial check" << endl;
-        verify_results(graph, partial_active_distances, seq_distances);*/
-
+        cout << "sharded check" << endl;
+        verify_results(graph, sharded_distances, push_distances);
     }
     catch (string error)
     {

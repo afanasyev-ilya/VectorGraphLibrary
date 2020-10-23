@@ -31,7 +31,7 @@ void ShardedCSRGraph::reorder_to_original_for_shard(VerticesArray<_T> _data, int
     tm.start();
     if(_data.get_direction() == ORIGINAL)
     {
-        outgoing_shards[_shard_id].reorder_to_sorted(_data.get_ptr(), (_T*)vertices_reorder_buffer);
+        outgoing_shards[_shard_id].reorder_to_original(_data.get_ptr(), (_T*)vertices_reorder_buffer);
     }
     else
     {
