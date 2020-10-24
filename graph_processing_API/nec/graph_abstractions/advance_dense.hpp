@@ -21,6 +21,7 @@ void GraphAbstractionsNEC::vector_engine_per_vertex_kernel_dense(UndirectedCSRGr
 
     TraversalDirection traversal = current_traversal_direction;
     int storage = CSR_STORAGE;
+    long long process_shift = traversal * direction_shift + storage * edges_count;
 
     DelayedWriteNEC delayed_write;
     delayed_write.init();
@@ -47,7 +48,7 @@ void GraphAbstractionsNEC::vector_engine_per_vertex_kernel_dense(UndirectedCSRGr
                 const long long int internal_edge_pos = start + local_edge_pos;
                 const int vector_index = get_vector_index(local_edge_pos);
                 const int dst_id = adjacent_ids[internal_edge_pos];
-                const long long external_edge_pos = traversal * direction_shift + storage * edges_count + internal_edge_pos;
+                const long long external_edge_pos = process_shift + internal_edge_pos;
 
                 edge_op(src_id, dst_id, local_edge_pos, external_edge_pos, vector_index, delayed_write);
             }
@@ -86,6 +87,7 @@ void GraphAbstractionsNEC::vector_core_per_vertex_kernel_dense(UndirectedCSRGrap
 
     TraversalDirection traversal = current_traversal_direction;
     int storage = CSR_STORAGE;
+    long long process_shift = traversal * direction_shift + storage * edges_count;
 
     DelayedWriteNEC delayed_write;
     delayed_write.init();
@@ -112,7 +114,7 @@ void GraphAbstractionsNEC::vector_core_per_vertex_kernel_dense(UndirectedCSRGrap
                 const long long int internal_edge_pos = start + local_edge_pos;
                 const int vector_index = get_vector_index(local_edge_pos);
                 const int dst_id = adjacent_ids[internal_edge_pos];
-                const long long external_edge_pos = traversal * direction_shift + storage * edges_count + internal_edge_pos;
+                const long long external_edge_pos = process_shift + internal_edge_pos;
 
                 edge_op(src_id, dst_id, local_edge_pos, external_edge_pos, vector_index, delayed_write);
             }
@@ -154,6 +156,7 @@ void GraphAbstractionsNEC::ve_collective_vertex_processing_kernel_dense(Undirect
 
     TraversalDirection traversal = current_traversal_direction;
     int storage = VE_STORAGE;
+    long long process_shift = traversal * direction_shift + storage * edges_count;
 
     long long reg_real_start[VECTOR_LENGTH];
     int reg_real_connections_count[VECTOR_LENGTH];
@@ -210,7 +213,7 @@ void GraphAbstractionsNEC::ve_collective_vertex_processing_kernel_dense(Undirect
                     const int local_edge_pos = edge_pos;
                     const int dst_id = ve_adjacent_ids[internal_edge_pos];
 
-                    const long long external_edge_pos = traversal * direction_shift + storage * edges_count + internal_edge_pos;
+                    const long long external_edge_pos = process_shift + internal_edge_pos;
 
                     if((src_id < vertices_count) && (edge_pos < reg_real_connections_count[i]))
                         edge_op(src_id, dst_id, local_edge_pos, external_edge_pos, vector_index, delayed_write);

@@ -50,7 +50,7 @@ int main(int argc, const char * argv[])
         cout << "Computations started..." << endl;
         cout << "Doing " << parser.get_number_of_rounds() << " SSSP iterations..." << endl;
 
-        EdgesArray<int> weights(graph);
+        EdgesArray_Vect<int> weights(graph);
         weights.set_all_random(MAX_WEIGHT);
         for(int i = 0; i < parser.get_number_of_rounds(); i++)
         {

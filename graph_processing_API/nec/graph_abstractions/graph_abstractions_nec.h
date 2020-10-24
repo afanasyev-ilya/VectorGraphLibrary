@@ -50,7 +50,8 @@ private:
                         CollectiveEdgeOperation &&collective_edge_op,
                         CollectiveVertexPreprocessOperation &&collective_vertex_preprocess_op,
                         CollectiveVertexPostprocessOperation &&collective_vertex_postprocess_op,
-                        int _first_edge);
+                        int _first_edge,
+                        const long long _shard_shift);
 
     template <typename EdgeOperation>
     void advance_worker(EdgesListGraph &_graph, EdgeOperation &&edge_op);
@@ -64,7 +65,8 @@ private:
                                                            EdgeOperation edge_op,
                                                            VertexPreprocessOperation vertex_preprocess_op,
                                                            VertexPostprocessOperation vertex_postprocess_op,
-                                                           const int _first_edge);
+                                                           const int _first_edge,
+                                                           const long long _shard_shift);
 
     // all-active advance inner implementation
     template <typename EdgeOperation, typename VertexPreprocessOperation,
@@ -75,7 +77,8 @@ private:
                                                          EdgeOperation edge_op,
                                                          VertexPreprocessOperation vertex_preprocess_op,
                                                          VertexPostprocessOperation vertex_postprocess_op,
-                                                         const int _first_edge);
+                                                         const int _first_edge,
+                                                         const long long _shard_shift);
 
     // all-active advance inner implementation
     template <typename EdgeOperation, typename VertexPreprocessOperation,
@@ -86,7 +89,8 @@ private:
                                                                   EdgeOperation edge_op,
                                                                   VertexPreprocessOperation vertex_preprocess_op,
                                                                   VertexPostprocessOperation vertex_postprocess_op,
-                                                                  const int _first_edge);
+                                                                  const int _first_edge,
+                                                                  const long long _shard_shift);
 
     // dense advance implementation
     template <typename EdgeOperation, typename VertexPreprocessOperation,

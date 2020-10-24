@@ -40,6 +40,14 @@ public:
     inline UndirectedCSRGraph *get_outgoing_shard_ptr(int _shard_id) {return &(outgoing_shards[_shard_id]);};
     inline UndirectedCSRGraph *get_incoming_shard_ptr(int _shard_id) {return &(incoming_shards[_shard_id]);};
 
+    inline long long get_edges_count_outgoing_shard(int _shard_id) {return outgoing_shards[_shard_id].get_edges_count();};
+    inline long long get_edges_count_incoming_shard(int _shard_id) {return incoming_shards[_shard_id].get_edges_count();};
+    inline long long get_edges_count_in_ve_outgoing_shard(int _shard_id) {return outgoing_shards[_shard_id].get_edges_count_in_ve();};
+    inline long long get_edges_count_in_ve_incoming_shard(int _shard_id) {return incoming_shards[_shard_id].get_edges_count_in_ve();};
+
+    inline long long get_direction_shift();
+    inline long long get_shard_shift(int _shard_id);
+
     /* print API */
     void print() {};
     void print_size() {};

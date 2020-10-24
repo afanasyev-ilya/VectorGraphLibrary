@@ -10,7 +10,8 @@ void GraphAbstractionsNEC::vector_engine_per_vertex_kernel_all_active(Undirected
                                                                       EdgeOperation edge_op,
                                                                       VertexPreprocessOperation vertex_preprocess_op,
                                                                       VertexPostprocessOperation vertex_postprocess_op,
-                                                                      const int _first_edge)
+                                                                      const int _first_edge,
+                                                                      const long long _shard_shift)
 {
     Timer tm;
     tm.start();
@@ -22,6 +23,7 @@ void GraphAbstractionsNEC::vector_engine_per_vertex_kernel_all_active(Undirected
 
     TraversalDirection traversal = current_traversal_direction;
     int storage = CSR_STORAGE;
+    long long process_shift = traversal * direction_shift + _shard_shift + storage * edges_count;
 
     for(int front_pos = _first_vertex; front_pos < _last_vertex; front_pos++)
     {
@@ -44,7 +46,7 @@ void GraphAbstractionsNEC::vector_engine_per_vertex_kernel_all_active(Undirected
             const long long internal_edge_pos = start + local_edge_pos;
             const int vector_index = get_vector_index(local_edge_pos);
             const int dst_id = adjacent_ids[internal_edge_pos];
-            const long long external_edge_pos = traversal * direction_shift + storage * edges_count + internal_edge_pos;
+            const long long external_edge_pos = process_shift + internal_edge_pos;
 
             edge_op(src_id, dst_id, local_edge_pos, external_edge_pos, vector_index, delayed_write);
         }
@@ -70,7 +72,8 @@ void GraphAbstractionsNEC::vector_core_per_vertex_kernel_all_active(UndirectedCS
                                                                     EdgeOperation edge_op,
                                                                     VertexPreprocessOperation vertex_preprocess_op,
                                                                     VertexPostprocessOperation vertex_postprocess_op,
-                                                                    const int _first_edge)
+                                                                    const int _first_edge,
+                                                                    const long long _shard_shift)
 {
     Timer tm;
     tm.start();
@@ -82,6 +85,7 @@ void GraphAbstractionsNEC::vector_core_per_vertex_kernel_all_active(UndirectedCS
 
     TraversalDirection traversal = current_traversal_direction;
     int storage = CSR_STORAGE;
+    long long process_shift = traversal * direction_shift + _shard_shift + storage * edges_count;
 
     #pragma omp for schedule(static, 1)
     for (int src_id = _first_vertex; src_id < _last_vertex; src_id++)
@@ -102,7 +106,7 @@ void GraphAbstractionsNEC::vector_core_per_vertex_kernel_all_active(UndirectedCS
             const long long internal_edge_pos = start + local_edge_pos;
             const int vector_index = get_vector_index(local_edge_pos);
             const int dst_id = adjacent_ids[internal_edge_pos];
-            const long long external_edge_pos = traversal * direction_shift + storage * edges_count + internal_edge_pos;
+            const long long external_edge_pos = process_shift + internal_edge_pos;
 
             edge_op(src_id, dst_id, local_edge_pos, external_edge_pos, vector_index, delayed_write);
         }
@@ -128,7 +132,8 @@ void GraphAbstractionsNEC::ve_collective_vertex_processing_kernel_all_active(Und
                                                                              EdgeOperation edge_op,
                                                                              VertexPreprocessOperation vertex_preprocess_op,
                                                                              VertexPostprocessOperation vertex_postprocess_op,
-                                                                             const int _first_edge)
+                                                                             const int _first_edge,
+                                                                             const long long _shard_shift)
 {
     Timer tm;
     tm.start();
@@ -140,6 +145,7 @@ void GraphAbstractionsNEC::ve_collective_vertex_processing_kernel_all_active(Und
 
     TraversalDirection traversal = current_traversal_direction;
     int storage = VE_STORAGE;
+    long long process_shift = traversal * direction_shift + _shard_shift + storage * edges_count;
 
     long long reg_real_start[VECTOR_LENGTH];
     int reg_real_connections_count[VECTOR_LENGTH];
@@ -191,7 +197,7 @@ void GraphAbstractionsNEC::ve_collective_vertex_processing_kernel_all_active(Und
                 const long long internal_edge_pos = segment_edges_start + edge_pos * VECTOR_LENGTH + i;
                 const int local_edge_pos = edge_pos;
                 const int dst_id = ve_adjacent_ids[internal_edge_pos];
-                const long long external_edge_pos = traversal * direction_shift + storage * edges_count + internal_edge_pos;
+                const long long external_edge_pos = process_shift + internal_edge_pos;
 
                 if((src_id < vertices_count) && (edge_pos < reg_real_connections_count[i]))
                     edge_op(src_id, dst_id, local_edge_pos, external_edge_pos, vector_index, delayed_write);

@@ -41,6 +41,9 @@ public:
     VectCSRGraph(int _vertices_count = 1, long long _edges_count = 1);
     ~VectCSRGraph();
 
+    /* get/set API */
+    long long get_direction_shift() {return (this->edges_count + this->get_edges_count_in_outgoing_ve());};
+
     /* print API */
     void print();
     void print_size();

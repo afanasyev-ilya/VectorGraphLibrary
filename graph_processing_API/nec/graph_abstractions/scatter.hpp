@@ -32,7 +32,7 @@ void GraphAbstractionsNEC::scatter(VectCSRGraph &_graph,
     {
         #pragma omp barrier
         advance_worker(*current_direction_graph, _frontier, edge_op, vertex_preprocess_op, vertex_postprocess_op,
-                       collective_edge_op, collective_vertex_preprocess_op, collective_vertex_postprocess_op, 0);
+                       collective_edge_op, collective_vertex_preprocess_op, collective_vertex_postprocess_op, 0, 0);
         #pragma omp barrier
     }
     else
@@ -40,7 +40,7 @@ void GraphAbstractionsNEC::scatter(VectCSRGraph &_graph,
         #pragma omp parallel
         {
             advance_worker(*current_direction_graph, _frontier, edge_op, vertex_preprocess_op, vertex_postprocess_op,
-                           collective_edge_op, collective_vertex_preprocess_op, collective_vertex_postprocess_op, 0);
+                           collective_edge_op, collective_vertex_preprocess_op, collective_vertex_postprocess_op, 0, 0);
         }
     }
     tm.end();
@@ -100,10 +100,11 @@ void GraphAbstractionsNEC::scatter(ShardedCSRGraph &_graph,
 
         _graph.reorder_to_sorted_for_shard(_test_data, shard_id);
 
+        long long shard_shift = _graph.get_shard_shift();
         #pragma omp parallel
         {
             advance_worker(*current_shard, _frontier, edge_op, vertex_preprocess_op, vertex_postprocess_op,
-                           collective_edge_op, collective_vertex_preprocess_op, collective_vertex_postprocess_op, 0);
+                           collective_edge_op, collective_vertex_preprocess_op, collective_vertex_postprocess_op, 0, shard_shift);
         }
 
         _graph.reorder_to_original_for_shard(_test_data, shard_id);

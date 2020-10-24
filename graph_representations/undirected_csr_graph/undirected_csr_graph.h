@@ -37,6 +37,8 @@ private:
     int *forward_conversion; // forward = to sorted, forward(i) = sorted
     int *backward_conversion; // backward = to original, backward(i) = original
 
+    vgl_sort_indexes *edges_reorder_indexes;
+
     VectorExtension last_vertices_ve;
     
     #ifdef __USE_GPU__
@@ -123,6 +125,18 @@ public:
     // reorders a vertexArray(pointer)  from sorted (undirectedCSR) to original (edges list)
     template <typename _T>
     void reorder_to_original(_T *_data, _T *_buffer);
+
+    // allows to save edge reorder indexes
+    void save_edge_reorder_indexes(vgl_sort_indexes *_edges_reorder_indexes);
+
+    template <typename _T>
+    void reorder_edges_to_sorted(_T *_data, _T *_buffer);
+
+    template <typename _T>
+    void reorder_edges_to_original(_T *_data, _T *_buffer);
+
+    template <typename _T>
+    void copy_edges_from_original_to_sorted(_T *_dst_sorted, _T *_src_original, long long _size);
 
     // API to calculate GPU thresholds // TODO remove
     #ifdef __USE_GPU__

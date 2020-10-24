@@ -3,7 +3,7 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template <typename _T>
-EdgesArray_VEC<_T>::EdgesArray_VEC(VectCSRGraph &_graph)
+EdgesArray_Vect<_T>::EdgesArray_Vect(VectCSRGraph &_graph)
 {
     long long edges_count = _graph.get_edges_count();
     edges_count_in_outgoing_ve = _graph.get_edges_count_in_outgoing_ve();
@@ -27,7 +27,7 @@ EdgesArray_VEC<_T>::EdgesArray_VEC(VectCSRGraph &_graph)
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template <typename _T>
-EdgesArray_VEC<_T>::EdgesArray_VEC(const EdgesArray_VEC<_T> &_copy_obj)
+EdgesArray_Vect<_T>::EdgesArray_Vect(const EdgesArray_Vect<_T> &_copy_obj)
 {
     this->graph_ptr = _copy_obj.graph_ptr;
     this->edges_data = _copy_obj.edges_data;
@@ -48,7 +48,7 @@ EdgesArray_VEC<_T>::EdgesArray_VEC(const EdgesArray_VEC<_T> &_copy_obj)
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template <typename _T>
-EdgesArray_VEC<_T>::~EdgesArray_VEC()
+EdgesArray_Vect<_T>::~EdgesArray_Vect()
 {
     if(!this->is_copy)
     {
@@ -59,14 +59,14 @@ EdgesArray_VEC<_T>::~EdgesArray_VEC()
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template <typename _T>
-void EdgesArray_VEC<_T>::set_all_constant(_T _const)
+void EdgesArray_Vect<_T>::set_all_constant(_T _const)
 {
     MemoryAPI::set(this->edges_data, _const, this->total_array_size);
 }
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template <typename _T>
-void EdgesArray_VEC<_T>::set_all_random(_T _max_rand)
+void EdgesArray_Vect<_T>::set_all_random(_T _max_rand)
 {
     // get correct pointer
     VectCSRGraph *vect_ptr = (VectCSRGraph *)this->graph_ptr;
@@ -86,7 +86,7 @@ void EdgesArray_VEC<_T>::set_all_random(_T _max_rand)
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template <typename _T>
-void EdgesArray_VEC<_T>::set(int _src_id, int _dst_id, _T _val, TraversalDirection _direction)
+void EdgesArray_Vect<_T>::set(int _src_id, int _dst_id, _T _val, TraversalDirection _direction)
 {
     // get correct pointer
     VectCSRGraph *vect_ptr = (VectCSRGraph *)this->graph_ptr;
@@ -117,7 +117,7 @@ void EdgesArray_VEC<_T>::set(int _src_id, int _dst_id, _T _val, TraversalDirecti
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template <typename _T>
-_T EdgesArray_VEC<_T>::get(int _src_id, int _dst_id, TraversalDirection _direction)
+_T EdgesArray_Vect<_T>::get(int _src_id, int _dst_id, TraversalDirection _direction)
 {
     // get correct pointer
     VectCSRGraph *vect_ptr = (VectCSRGraph *)this->graph_ptr;
@@ -148,7 +148,7 @@ _T EdgesArray_VEC<_T>::get(int _src_id, int _dst_id, TraversalDirection _directi
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template <typename _T>
-void EdgesArray_VEC<_T>::print()
+void EdgesArray_Vect<_T>::print()
 {
     long long edges_count = this->graph_ptr->get_edges_count();
     cout << "Edges Array (VectCSR)" << endl;
@@ -181,10 +181,8 @@ void EdgesArray_VEC<_T>::print()
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template <typename _T>
-void EdgesArray_VEC<_T>::operator = (const EdgesArray_EL<_T> &_el_data)
+void EdgesArray_Vect<_T>::operator = (const EdgesArray_EL<_T> &_el_data)
 {
-    cout << "in assign" << endl;
-
     // get correct pointer
     VectCSRGraph *vect_ptr = (VectCSRGraph *)this->graph_ptr;
     long long edges_count = this->graph_ptr->get_edges_count();
@@ -200,7 +198,7 @@ void EdgesArray_VEC<_T>::operator = (const EdgesArray_EL<_T> &_el_data)
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-template class EdgesArray_VEC<int>;
-template class EdgesArray_VEC<float>;
+template class EdgesArray_Vect<int>;
+template class EdgesArray_Vect<float>;
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

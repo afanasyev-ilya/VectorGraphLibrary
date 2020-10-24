@@ -51,6 +51,7 @@ public:
 
 #include "gpu_api.hpp"
 #include "el/edges_array.h"
-#include "vec/edges_array.h"
+#include "vect/edges_array.h"
+#include "sharded/edges_array.h"
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

@@ -27,6 +27,8 @@ void UndirectedCSRGraph::alloc(int _vertices_count, long long _edges_count)
 
     MemoryAPI::allocate_array(&forward_conversion, this->vertices_count);
     MemoryAPI::allocate_array(&backward_conversion, this->vertices_count);
+
+    MemoryAPI::allocate_array(&edges_reorder_indexes, this->edges_count);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -38,6 +40,8 @@ void UndirectedCSRGraph::free()
 
     MemoryAPI::free_array(forward_conversion);
     MemoryAPI::free_array(backward_conversion);
+
+    MemoryAPI::free_array(edges_reorder_indexes);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

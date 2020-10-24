@@ -31,14 +31,18 @@ int main(int argc, const char * argv[])
             GraphGenerationAPI::R_MAT(el_graph, v, v * parser.get_avg_degree(), 57, 19, 19, 5, DIRECTED_GRAPH);
         else if(parser.get_graph_type() == RANDOM_UNIFORM)
             GraphGenerationAPI::random_uniform(el_graph, v, v * parser.get_avg_degree(), DIRECTED_GRAPH);
+        el_graph.preprocess_into_csr_based();
+
 
         EdgesArray_EL<int> el_weights(el_graph);
-        el_graph.preprocess_into_segmented();
         //el_weights.set_all_constant(1);
+        cout << "set" << endl;
         el_weights.set_all_random(MAX_WEIGHT);
+        cout << "set done" << endl;
 
         VerticesArray<int> el_distances(el_graph, ORIGINAL);
         ShortestPaths::nec_dijkstra(el_graph, el_weights, el_distances, 0);
+        cout << "algo done" << endl;
 
         // create vect CSR graph
         VectCSRGraph graph;
@@ -48,7 +52,7 @@ int main(int argc, const char * argv[])
         graph.print_size();
 
         // create graph weights and set them random
-        EdgesArray_VEC<int> vect_weights(graph);
+        EdgesArray_Vect<int> vect_weights(graph);
         //vect_weights.set_all_random(MAX_WEIGHT);
         //vect_weights.set_all_constant(1);
         vect_weights = el_weights;
@@ -66,6 +70,28 @@ int main(int argc, const char * argv[])
         VerticesArray<int> seq_distances(graph, SCATTER);
         ShortestPaths::seq_dijkstra(graph, vect_weights, seq_distances, 0);
 
+        // sort back edges list graph into initial order
+        el_graph.preprocess_into_csr_based();
+
+        // sharded test
+        ShardedCSRGraph sharded_graph;
+        sharded_graph.import(el_graph);
+
+        EdgesArray_Sharded<int> sharded_weights(sharded_graph);
+        sharded_weights.set_all_constant(2);
+
+        //sharded_weights = el_weights;
+
+        sharded_weights.set_all_random(20);
+        sharded_weights.print();
+
+        VerticesArray<int> sharded_distances(sharded_graph, ORIGINAL);
+
+        performance_stats.reset_timers();
+        ShortestPaths::nec_dijkstra(sharded_graph, sharded_weights, sharded_distances, 0);
+        performance_stats.print_timers_stats();
+
+        // checks
         cout << "push check" << endl;
         verify_results(graph, push_distances, seq_distances);
 
@@ -78,21 +104,8 @@ int main(int argc, const char * argv[])
         cout << "edges list check" << endl;
         verify_results(graph, el_distances, seq_distances);
 
-        // sharded test
-        /*ShardedCSRGraph sharded_graph;
-        sharded_graph.import(el_graph);
-
-        EdgesArray<int> sharded_weights(sharded_graph);
-        sharded_weights.copy(weights);
-
-        VerticesArray<int> sharded_distances(sharded_graph, ORIGINAL);
-
-        performance_stats.reset_timers();
-        ShortestPaths::nec_dijkstra(sharded_graph, sharded_weights, sharded_distances, 0);
-        performance_stats.print_timers_stats();
-
         cout << "sharded check" << endl;
-        verify_results(graph, sharded_distances, push_distances);*/
+        verify_results(graph, sharded_distances, push_distances);
     }
     catch (string error)
     {

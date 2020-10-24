@@ -14,15 +14,16 @@ void GraphAbstractionsNEC::vector_engine_per_vertex_kernel_sparse(UndirectedCSRG
     Timer tm;
     tm.start();
 
-    TraversalDirection traversal = current_traversal_direction;
-    int storage = CSR_STORAGE;
-
-    DelayedWriteNEC delayed_write;
-    delayed_write.init();
-
     LOAD_UNDIRECTED_CSR_GRAPH_DATA(_graph);
     int *frontier_ids = &(_frontier.get_ids()[0]);
     int frontier_segment_size = _frontier.get_vector_engine_part_size();
+
+    TraversalDirection traversal = current_traversal_direction;
+    int storage = CSR_STORAGE;
+    long long process_shift = traversal * direction_shift + storage * edges_count;
+
+    DelayedWriteNEC delayed_write;
+    delayed_write.init();
 
     for (int front_pos = 0; front_pos < frontier_segment_size; front_pos++)
     {
@@ -45,7 +46,7 @@ void GraphAbstractionsNEC::vector_engine_per_vertex_kernel_sparse(UndirectedCSRG
             const long long int internal_edge_pos = start + local_edge_pos;
             const int vector_index = get_vector_index(local_edge_pos);
             const int dst_id = adjacent_ids[internal_edge_pos];
-            const long long external_edge_pos = traversal * direction_shift + storage * edges_count + internal_edge_pos;
+            const long long external_edge_pos = process_shift + internal_edge_pos;
 
             edge_op(src_id, dst_id, local_edge_pos, external_edge_pos, vector_index, delayed_write);
         }
@@ -76,15 +77,16 @@ void GraphAbstractionsNEC::vector_core_per_vertex_kernel_sparse(UndirectedCSRGra
     Timer tm;
     tm.start();
 
-    TraversalDirection traversal = current_traversal_direction;
-    int storage = CSR_STORAGE;
-
-    DelayedWriteNEC delayed_write;
-    delayed_write.init();
-
     LOAD_UNDIRECTED_CSR_GRAPH_DATA(_graph);
     int *frontier_ids = &(_frontier.get_ids()[_frontier.get_vector_engine_part_size()]);
     int frontier_segment_size = _frontier.get_vector_core_part_size();
+
+    TraversalDirection traversal = current_traversal_direction;
+    int storage = CSR_STORAGE;
+    long long process_shift = traversal * direction_shift + storage * edges_count;
+
+    DelayedWriteNEC delayed_write;
+    delayed_write.init();
 
     #pragma omp for schedule(static, 8)
     for (int front_pos = 0; front_pos < frontier_segment_size; front_pos++)
@@ -107,7 +109,7 @@ void GraphAbstractionsNEC::vector_core_per_vertex_kernel_sparse(UndirectedCSRGra
             const long long int internal_edge_pos = start + local_edge_pos;
             const int vector_index = get_vector_index(local_edge_pos);
             const int dst_id = adjacent_ids[internal_edge_pos];
-            const long long external_edge_pos = traversal * direction_shift + storage * edges_count + internal_edge_pos;
+            const long long external_edge_pos = process_shift + internal_edge_pos;
 
             edge_op(src_id, dst_id, local_edge_pos, external_edge_pos, vector_index, delayed_write);
         }
@@ -147,6 +149,7 @@ void GraphAbstractionsNEC::collective_vertex_processing_kernel_sparse(Undirected
 
     TraversalDirection traversal = current_traversal_direction;
     int storage = CSR_STORAGE;
+    long long process_shift = traversal * direction_shift + storage * edges_count;
 
     long long int reg_start[VECTOR_LENGTH];
     long long int reg_end[VECTOR_LENGTH];
@@ -216,7 +219,7 @@ void GraphAbstractionsNEC::collective_vertex_processing_kernel_sparse(Undirected
                         const long long int internal_edge_pos = reg_start[i] + edge_pos;
                         const int local_edge_pos = edge_pos;
                         const int dst_id = adjacent_ids[internal_edge_pos];
-                        const long long external_edge_pos = traversal * direction_shift + storage * edges_count + internal_edge_pos;
+                        const long long external_edge_pos = process_shift + internal_edge_pos;
 
                         edge_op(src_id, dst_id, local_edge_pos, external_edge_pos, vector_index, delayed_write);
                     }

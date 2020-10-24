@@ -5,7 +5,7 @@
 #ifdef __USE_NEC_SX_AURORA__
 template <typename _T>
 void SSSP::nec_dijkstra_partial_active(VectCSRGraph &_graph,
-                                       EdgesArray_VEC<_T> &_weights,
+                                       EdgesArray_Vect<_T> &_weights,
                                        VerticesArray<_T> &_distances,
                                        int _source_vertex)
 {
@@ -87,7 +87,7 @@ void SSSP::nec_dijkstra_partial_active(VectCSRGraph &_graph,
 #ifdef __USE_NEC_SX_AURORA__
 template <typename _T>
 void SSSP::nec_dijkstra_all_active_push(VectCSRGraph &_graph,
-                                        EdgesArray_VEC<_T> &_weights,
+                                        EdgesArray_Vect<_T> &_weights,
                                         VerticesArray<_T> &_distances,
                                         int _source_vertex)
 {
@@ -157,7 +157,7 @@ void SSSP::nec_dijkstra_all_active_push(VectCSRGraph &_graph,
 #ifdef __USE_NEC_SX_AURORA__
 template <typename _T>
 void SSSP::nec_dijkstra_all_active_pull(VectCSRGraph &_graph,
-                                        EdgesArray_VEC<_T> &_weights,
+                                        EdgesArray_Vect<_T> &_weights,
                                         VerticesArray<_T> &_distances,
                                         int _source_vertex)
 {
@@ -268,7 +268,7 @@ void SSSP::nec_dijkstra_all_active_pull(VectCSRGraph &_graph,
 #ifdef __USE_NEC_SX_AURORA__
 template <typename _T>
 void SSSP::nec_dijkstra(VectCSRGraph &_graph,
-                        EdgesArray_VEC<_T> &_weights,
+                        EdgesArray_Vect<_T> &_weights,
                         VerticesArray<_T> &_distances,
                         int _source_vertex,
                         AlgorithmFrontierType _frontier_type,
@@ -348,7 +348,7 @@ void SSSP::nec_dijkstra(EdgesListGraph &_graph, EdgesArray_EL<_T> &_weights, Ver
 #ifdef __USE_NEC_SX_AURORA__
 template <typename _T>
 void SSSP::nec_dijkstra(ShardedCSRGraph &_graph,
-                        EdgesArray_VEC<_T> &_weights,
+                        EdgesArray_Sharded<_T> &_weights,
                         VerticesArray<_T> &_distances,
                         int _source_vertex)
 {
@@ -358,7 +358,6 @@ void SSSP::nec_dijkstra(ShardedCSRGraph &_graph,
     //_source_vertex = _graph.reorder(_source_vertex, ORIGINAL, SCATTER);
 
     graph_API.attach_data(_distances);
-    cout << "outer" << endl;
 
     graph_API.change_traversal_direction(SCATTER);
 

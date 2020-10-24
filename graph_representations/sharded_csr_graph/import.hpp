@@ -4,9 +4,16 @@
 
 void ShardedCSRGraph::import_direction(EdgesListGraph &_el_graph, TraversalDirection _import_direction)
 {
+    int *work_buffer;
+    vgl_sort_indexes *edges_reorder_indexes;
+    MemoryAPI::allocate_array(&work_buffer, _el_graph.get_edges_count());
+    MemoryAPI::allocate_array(&edges_reorder_indexes, _el_graph.get_edges_count());
+
     _el_graph.transpose();
-    _el_graph.preprocess_into_csr_based();
+    _el_graph.preprocess_into_csr_based(work_buffer, edges_reorder_indexes);
     _el_graph.transpose(); // dst ids are sorted here
+
+    MemoryAPI::free_array(work_buffer);
 
     // obtain pointers, edges inside sorted according to dst_ids
     int *el_src_ids = _el_graph.get_src_ids();
@@ -60,20 +67,25 @@ void ShardedCSRGraph::import_direction(EdgesListGraph &_el_graph, TraversalDirec
     tm.start();
     for(int shard_id = 0; shard_id < shards_number; shard_id++)
     {
+        // import shard
         long long edges_in_shard = last_shard_edge[shard_id] - first_shard_edge[shard_id];
-
         long long first_shard_edge_val = first_shard_edge[shard_id];
 
         int *shard_src_ids_ptr = &(el_src_ids[first_shard_edge_val]);
         int *shard_dst_ids_ptr = &(el_dst_ids[first_shard_edge_val]);
-        cout << shard_id << " : " << edges_in_shard << " " << 1.0*edges_in_shard/_el_graph.get_edges_count() << endl;
         EdgesListGraph edges_list_shard;
         edges_list_shard.import(shard_src_ids_ptr, shard_dst_ids_ptr, this->vertices_count, edges_in_shard);
 
         if(_import_direction == SCATTER)
+        {
             outgoing_shards[shard_id].import(edges_list_shard, NULL);
+            outgoing_shards[shard_id].save_edge_reorder_indexes(&edges_reorder_indexes[first_shard_edge_val]);
+        }
         else if(_import_direction == GATHER)
+        {
             incoming_shards[shard_id].import(edges_list_shard, NULL);
+            incoming_shards[shard_id].save_edge_reorder_indexes(&edges_reorder_indexes[first_shard_edge_val]);
+        }
     }
     tm.end();
     //#ifdef __PRINT_API_PERFORMANCE_STATS__
@@ -84,6 +96,8 @@ void ShardedCSRGraph::import_direction(EdgesListGraph &_el_graph, TraversalDirec
     delete []last_border;
     delete []first_shard_edge;
     delete []last_shard_edge;
+
+    MemoryAPI::free_array(edges_reorder_indexes);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -93,7 +107,7 @@ void ShardedCSRGraph::import(EdgesListGraph &_el_graph)
     this->vertices_count = _el_graph.get_vertices_count();
     this->edges_count = _el_graph.get_edges_count();
 
-    max_cached_vertices = 1*1024*1024/(sizeof(int));
+    max_cached_vertices = this->vertices_count/2; //1*1024*1024/(sizeof(int));
     shards_number = (this->vertices_count - 1)/max_cached_vertices + 1;
     cout << "Shards number: " << shards_number << endl;
 
