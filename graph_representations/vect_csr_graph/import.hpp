@@ -8,7 +8,7 @@ void VectCSRGraph::import(EdgesListGraph &_el_graph)
 
     Timer tm;
     tm.start();
-    outgoing_graph->import(_el_graph, edges_reorder_indexes_original_to_scatter);
+    outgoing_graph->import(_el_graph);
     tm.end();
     #ifdef __PRINT_API_PERFORMANCE_STATS__
     tm.print_time_stats("VectCSR outgoing conversion");
@@ -17,7 +17,7 @@ void VectCSRGraph::import(EdgesListGraph &_el_graph)
     _el_graph.transpose();
 
     tm.start();
-    incoming_graph->import(_el_graph, edges_reorder_indexes_scatter_to_gather);
+    incoming_graph->import(_el_graph);
     tm.end();
     #ifdef __PRINT_API_PERFORMANCE_STATS__
     tm.print_time_stats("VectCSR incoming conversion");

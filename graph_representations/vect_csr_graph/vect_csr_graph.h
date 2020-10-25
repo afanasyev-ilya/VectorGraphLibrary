@@ -22,8 +22,6 @@ private:
     UndirectedCSRGraph *incoming_graph;
 
     long long *vertices_reorder_buffer;
-    long long *edges_reorder_indexes_original_to_scatter;
-    long long *edges_reorder_indexes_scatter_to_gather;
 
     void init(int _vertices_count, long long _edges_count);
     void free();

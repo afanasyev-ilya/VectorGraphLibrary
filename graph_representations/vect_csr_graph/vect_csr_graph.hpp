@@ -27,10 +27,6 @@ void VectCSRGraph::init(int _vertices_count, long long _edges_count)
     incoming_graph = new UndirectedCSRGraph(this->vertices_count, this->edges_count );
 
     MemoryAPI::allocate_array(&vertices_reorder_buffer, this->vertices_count);
-    MemoryAPI::allocate_array(&edges_reorder_indexes_original_to_scatter, this->edges_count);
-    MemoryAPI::allocate_array(&edges_reorder_indexes_scatter_to_gather, this->edges_count);
-    MemoryAPI::set(edges_reorder_indexes_original_to_scatter, (long long)0, this->edges_count);
-    MemoryAPI::set(edges_reorder_indexes_scatter_to_gather, (long long)0, this->edges_count);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -40,10 +36,6 @@ void VectCSRGraph::free()
     delete outgoing_graph;
     delete incoming_graph;
 
-    if(edges_reorder_indexes_original_to_scatter != NULL)
-        MemoryAPI::free_array(edges_reorder_indexes_original_to_scatter);
-    if(edges_reorder_indexes_scatter_to_gather != NULL)
-        MemoryAPI::free_array(edges_reorder_indexes_scatter_to_gather);
     if(vertices_reorder_buffer != NULL)
         MemoryAPI::free_array(vertices_reorder_buffer);
 }

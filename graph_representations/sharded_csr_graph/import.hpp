@@ -78,12 +78,12 @@ void ShardedCSRGraph::import_direction(EdgesListGraph &_el_graph, TraversalDirec
 
         if(_import_direction == SCATTER)
         {
-            outgoing_shards[shard_id].import(edges_list_shard, NULL);
+            outgoing_shards[shard_id].import(edges_list_shard);
             outgoing_shards[shard_id].update_edge_reorder_indexes_using_superposition(&edges_reorder_indexes[first_shard_edge_val]);
         }
         else if(_import_direction == GATHER)
         {
-            incoming_shards[shard_id].import(edges_list_shard, NULL);
+            incoming_shards[shard_id].import(edges_list_shard);
             incoming_shards[shard_id].update_edge_reorder_indexes_using_superposition(&edges_reorder_indexes[first_shard_edge_val]);
         }
     }

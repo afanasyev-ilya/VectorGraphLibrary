@@ -72,7 +72,7 @@ private:
 
     void construct_CSR(EdgesListGraph &_el_graph);
 
-    void copy_edges_indexes(long long *_edges_reorder_indexes, vgl_sort_indexes *_sort_indexes, long long _edges_count);
+    void copy_edges_indexes(vgl_sort_indexes *_sort_indexes);
 public:
     UndirectedCSRGraph(int _vertices_count = 1, long long _edges_count = 1);
     ~UndirectedCSRGraph();
@@ -157,7 +157,7 @@ public:
 
     /* import and preprocess API */
     // creates UndirectedCSRGraph format from EdgesListGraph
-    void import(EdgesListGraph &_old_graph, long long *_edges_reorder_indexes);
+    void import(EdgesListGraph &_old_graph);
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

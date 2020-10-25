@@ -91,6 +91,7 @@ size_t UndirectedCSRGraph::get_size()
     size += sizeof(vertex_pointers[0])*(this->vertices_count+1);
     size += sizeof(adjacent_ids[0])*(this->edges_count);
     size += 2*sizeof(forward_conversion[0])*this->vertices_count;
+    size += sizeof(edges_reorder_indexes[0])*this->edges_count;
     size += last_vertices_ve.get_size();
     return size;
 }
