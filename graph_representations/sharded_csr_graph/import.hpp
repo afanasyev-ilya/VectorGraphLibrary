@@ -79,12 +79,12 @@ void ShardedCSRGraph::import_direction(EdgesListGraph &_el_graph, TraversalDirec
         if(_import_direction == SCATTER)
         {
             outgoing_shards[shard_id].import(edges_list_shard, NULL);
-            outgoing_shards[shard_id].save_edge_reorder_indexes(&edges_reorder_indexes[first_shard_edge_val]);
+            outgoing_shards[shard_id].update_edge_reorder_indexes_using_superposition(&edges_reorder_indexes[first_shard_edge_val]);
         }
         else if(_import_direction == GATHER)
         {
             incoming_shards[shard_id].import(edges_list_shard, NULL);
-            incoming_shards[shard_id].save_edge_reorder_indexes(&edges_reorder_indexes[first_shard_edge_val]);
+            incoming_shards[shard_id].update_edge_reorder_indexes_using_superposition(&edges_reorder_indexes[first_shard_edge_val]);
         }
     }
     tm.end();
@@ -107,7 +107,7 @@ void ShardedCSRGraph::import(EdgesListGraph &_el_graph)
     this->vertices_count = _el_graph.get_vertices_count();
     this->edges_count = _el_graph.get_edges_count();
 
-    max_cached_vertices = this->vertices_count/4; //1*1024*1024/(sizeof(int));
+    max_cached_vertices = this->vertices_count/2; //1*1024*1024/(sizeof(int));
     shards_number = (this->vertices_count - 1)/max_cached_vertices + 1;
     cout << "Shards number: " << shards_number << endl;
 

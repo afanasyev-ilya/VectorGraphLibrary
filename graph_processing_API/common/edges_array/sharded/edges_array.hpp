@@ -188,8 +188,7 @@ void EdgesArray_Sharded<_T>::copy_el_weights(int _shard_id, const EdgesArray_EL<
     MemoryAPI::allocate_array(&buffer, shard_edges_count);
 
     // copy edges list weights to sharded weights
-    sharded_graph_ptr->get_outgoing_shard_ptr(_shard_id)->copy_edges_from_original_to_sorted(outgoing_csr_shards_ptrs[_shard_id], _el_data.get_ptr(),
-                                                                                             outgoing_csr_shards_sizes[_shard_id]);
+    sharded_graph_ptr->get_outgoing_shard_ptr(_shard_id)->reorder_and_copy_edges_from_original_to_sorted(outgoing_csr_shards_ptrs[_shard_id], _el_data.get_ptr());
     sharded_graph_ptr->get_outgoing_shard_ptr(_shard_id)->get_ve_ptr()->copy_array_from_csr_to_ve(outgoing_ve_shards_ptrs[_shard_id],
                                                                                                   outgoing_csr_shards_ptrs[_shard_id]);
 

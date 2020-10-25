@@ -161,26 +161,6 @@ bool UndirectedCSRGraph::load_from_binary_file(string _file_name)
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-template <typename _T>
-_T& UndirectedCSRGraph::get_edge_data(_T *_data_array, int _src_id, int _dst_id)
-{
-    const long long edge_start = vertex_pointers[_src_id];
-    const int connections_count = vertex_pointers[_src_id + 1] - vertex_pointers[_src_id];
-
-    for (int edge_pos = 0; edge_pos < connections_count; edge_pos++)
-    {
-        long long int global_edge_pos = edge_start + edge_pos;
-        int current_dst_id = adjacent_ids[global_edge_pos];
-
-        if (_dst_id == current_dst_id)
-            return _data_array[global_edge_pos];
-    }
-
-    return _data_array[edge_start];
-}
-
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
 long long UndirectedCSRGraph::get_csr_edge_id(int _src_id, int _dst_id)
 {
     const long long int start = vertex_pointers[_src_id];

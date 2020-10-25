@@ -78,11 +78,11 @@ void UndirectedCSRGraph::reorder_to_sorted(_T *_data, _T *_buffer)
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void UndirectedCSRGraph::save_edge_reorder_indexes(vgl_sort_indexes *_outer_edges_reorder_indexes)
+void UndirectedCSRGraph::update_edge_reorder_indexes_using_superposition(vgl_sort_indexes *_outer_edges_reorder_indexes)
 {
     vgl_sort_indexes *buffer;
     MemoryAPI::allocate_array(&buffer, this->edges_count);
-    for(int i = 0; i < this->edges_count; i++)
+    for(long long i = 0; i < this->edges_count; i++)
     {
         buffer[i] = _outer_edges_reorder_indexes[edges_reorder_indexes[i]];
     }
@@ -96,6 +96,13 @@ void UndirectedCSRGraph::save_edge_reorder_indexes(vgl_sort_indexes *_outer_edge
 template <typename _T>
 void UndirectedCSRGraph::reorder_edges_to_sorted(_T *_data, _T *_buffer)
 {
+    bool buffer_was_allocated = false;
+    if(_buffer == NULL)
+    {
+        MemoryAPI::allocate_array(&_buffer, this->edges_count);
+        buffer_was_allocated = true;
+    }
+
     #if defined(__USE_NEC_SX_AURORA__) || defined(__USE_INTEL__)
     #pragma _NEC ivdep
     #pragma _NEC vovertake
@@ -120,6 +127,11 @@ void UndirectedCSRGraph::reorder_edges_to_sorted(_T *_data, _T *_buffer)
     #if defined(__USE_GPU__)
     throw "Error UndirectedCSRGraph::reorder_edges_to_sorted : not implemented yet";
     #endif
+
+    if(buffer_was_allocated)
+    {
+        MemoryAPI::free_array(_buffer);
+    }
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -127,6 +139,13 @@ void UndirectedCSRGraph::reorder_edges_to_sorted(_T *_data, _T *_buffer)
 template <typename _T>
 void UndirectedCSRGraph::reorder_edges_to_original(_T *_data, _T *_buffer)
 {
+    bool buffer_was_allocated = false;
+    if(_buffer == NULL)
+    {
+        MemoryAPI::allocate_array(&_buffer, this->edges_count);
+        buffer_was_allocated = true;
+    }
+
     #if defined(__USE_NEC_SX_AURORA__) || defined(__USE_INTEL__)
     #pragma _NEC ivdep
     #pragma _NEC vovertake
@@ -151,16 +170,18 @@ void UndirectedCSRGraph::reorder_edges_to_original(_T *_data, _T *_buffer)
     #if defined(__USE_GPU__)
     throw "Error UndirectedCSRGraph::reorder_edges_to_original : not implemented yet";
     #endif
+
+    if(buffer_was_allocated)
+    {
+        MemoryAPI::free_array(_buffer);
+    }
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template <typename _T>
-void UndirectedCSRGraph::copy_edges_from_original_to_sorted(_T *_dst_sorted, _T *_src_original, long long _size)
+void UndirectedCSRGraph::reorder_and_copy_edges_from_original_to_sorted(_T *_dst_sorted, _T *_src_original)
 {
-    if(_size != this->edges_count)
-        throw " ERROR";
-
     #if defined(__USE_NEC_SX_AURORA__) || defined(__USE_INTEL__)
     #pragma _NEC ivdep
     #pragma _NEC vovertake
@@ -175,7 +196,7 @@ void UndirectedCSRGraph::copy_edges_from_original_to_sorted(_T *_dst_sorted, _T 
     #endif
 
     #if defined(__USE_GPU__)
-    throw "Error UndirectedCSRGraph::copy_edges_from_original_to_sorted : not implemented yet";
+    throw "Error UndirectedCSRGraph::reorder_and_copy_edges_from_original_to_sorted : not implemented yet";
     #endif
 }
 

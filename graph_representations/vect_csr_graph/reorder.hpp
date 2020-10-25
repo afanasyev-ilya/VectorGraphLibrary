@@ -226,50 +226,35 @@ void VectCSRGraph::reorder(FrontierGPU &_data, TraversalDirection _output_dir)
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template <typename _T>
-void VectCSRGraph::reorder_edges_scatter_to_gather(_T *_incoming_csr_ptr, _T *_outgoing_csr_ptr)
+void VectCSRGraph::reorder_edges_original_to_scatter(_T *_scatter_data, _T *_original_data)
 {
     Timer tm;
     tm.start();
 
-    #pragma _NEC ivdep
-    #pragma _NEC vovertake
-    #pragma _NEC novob
-    #pragma _NEC vector
-    #pragma omp parallel for
-    for(long long i = 0; i < this->edges_count; i++)
-    {
-        _incoming_csr_ptr[i] = _outgoing_csr_ptr[edges_reorder_indexes_scatter_to_gather[i]];
-    }
+    outgoing_graph->reorder_and_copy_edges_from_original_to_sorted(_scatter_data, _original_data);
 
     tm.end();
     #ifdef __PRINT_API_PERFORMANCE_STATS__
-    tm.print_bandwidth_stats("vertices reorder", this->vertices_count, sizeof(_T)*2 + sizeof(_outgoing_csr_ptr[0]));
+    tm.print_bandwidth_stats("vertices reorder", this->vertices_count, sizeof(_T)*2 + sizeof(_outgoing_data[0]));
     #endif
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template <typename _T>
-void VectCSRGraph::reorder_edges_original_to_scatter(_T *_scatter_csr_ptr, _T *_original_csr_ptr)
+void VectCSRGraph::reorder_edges_scatter_to_gather(_T *_incoming_data, _T *_outgoing_data)
 {
     Timer tm;
     tm.start();
 
-    #pragma _NEC ivdep
-    #pragma _NEC vovertake
-    #pragma _NEC novob
-    #pragma _NEC vector
-    #pragma omp parallel for
-    for(long long i = 0; i < this->edges_count; i++)
-    {
-        _scatter_csr_ptr[i] = _original_csr_ptr[edges_reorder_indexes_original_to_scatter[i]];
-    }
+    incoming_graph->reorder_and_copy_edges_from_original_to_sorted(_incoming_data, _outgoing_data);
 
     tm.end();
     #ifdef __PRINT_API_PERFORMANCE_STATS__
-    tm.print_bandwidth_stats("vertices reorder", this->vertices_count, sizeof(_T)*2 + sizeof(_outgoing_csr_ptr[0]));
+    tm.print_bandwidth_stats("vertices reorder", this->vertices_count, sizeof(_T)*2 + sizeof(_outgoing_data[0]));
     #endif
 }
+
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 

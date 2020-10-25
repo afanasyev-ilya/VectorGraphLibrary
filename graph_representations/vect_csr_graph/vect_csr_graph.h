@@ -89,11 +89,11 @@ public:
 
     // allows to reorder edges array to primary direction (scatter, from original)
     template <typename _T>
-    void reorder_edges_original_to_scatter(_T *_original_csr_ptr, _T *_outgoing_csr_ptr);
+    void reorder_edges_original_to_scatter(_T *_original_data, _T *_outgoing_data);
 
     // allows to reorder edges array to secondary direction (gather, from original)
     template <typename _T>
-    void reorder_edges_scatter_to_gather(_T *_incoming_csr_ptr, _T *_outgoing_csr_ptr);
+    void reorder_edges_scatter_to_gather(_T *_incoming_data, _T *_outgoing_data);
 
     // selects random vertex with non-zero outgoing and incoming degree
     int select_random_vertex(TraversalDirection _direction = ORIGINAL);
