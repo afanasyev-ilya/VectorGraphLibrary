@@ -55,10 +55,6 @@ private:
     void alloc(int _vertices_count, long long _edges_count);
     void free();
 
-    #ifdef __USE_GPU__
-    void estimate_gpu_thresholds();
-    #endif
-
     #ifdef __USE_NEC_SX_AURORA__
     void estimate_nec_thresholds();
     #endif

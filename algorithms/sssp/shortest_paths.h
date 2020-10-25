@@ -60,7 +60,7 @@ public:
     #ifdef __USE_GPU__
     template <typename _T>
     static void gpu_dijkstra_all_active_pull(VectCSRGraph &_graph,
-                                             EdgesArray_VectEdgesArray<_T> &_weights,
+                                             EdgesArray_Vect<_T> &_weights,
                                              VerticesArray<_T> &_distances,
                                              int _source_vertex);
     #endif

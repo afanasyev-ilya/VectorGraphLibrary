@@ -19,6 +19,7 @@ int main(int argc, const char * argv[])
     try
     {
         cout << "Gather test..." << endl;
+        int source_vertex = rand()%10;
 
         // parse args
         Parser parser;
@@ -42,7 +43,7 @@ int main(int argc, const char * argv[])
 
         // EdgesList SSSP
         VerticesArray<int> el_distances(el_graph, ORIGINAL);
-        ShortestPaths::nec_dijkstra(el_graph, el_weights, el_distances, 0);
+        ShortestPaths::nec_dijkstra(el_graph, el_weights, el_distances, source_vertex);
 
         // create vect CSR graph
         VectCSRGraph graph;
@@ -57,16 +58,13 @@ int main(int argc, const char * argv[])
 
         // run different SSSP algorithms
         VerticesArray<int> push_distances(graph, SCATTER);
-        ShortestPaths::nec_dijkstra(graph, vect_weights, push_distances, 0, ALL_ACTIVE, PUSH_TRAVERSAL);
+        ShortestPaths::nec_dijkstra(graph, vect_weights, push_distances, source_vertex, ALL_ACTIVE, PUSH_TRAVERSAL);
 
         VerticesArray<int> pull_distances(graph, GATHER);
-        ShortestPaths::nec_dijkstra(graph, vect_weights, pull_distances, 0, ALL_ACTIVE, PULL_TRAVERSAL);
+        ShortestPaths::nec_dijkstra(graph, vect_weights, pull_distances, source_vertex, ALL_ACTIVE, PULL_TRAVERSAL);
 
         VerticesArray<int> partial_active_distances(graph, SCATTER);
-        ShortestPaths::nec_dijkstra(graph, vect_weights, partial_active_distances, 0, PARTIAL_ACTIVE, PUSH_TRAVERSAL);
-
-        VerticesArray<int> seq_distances(graph, SCATTER);
-        ShortestPaths::seq_dijkstra(graph, vect_weights, seq_distances, 0);
+        ShortestPaths::nec_dijkstra(graph, vect_weights, partial_active_distances, source_vertex, PARTIAL_ACTIVE, PUSH_TRAVERSAL);
 
         // obtain original EdgesList graph (since it could be changed during vectCSR generation)
         el_graph = original_graph;
@@ -81,24 +79,30 @@ int main(int argc, const char * argv[])
         // ShardedGraph SSSP
         VerticesArray<int> sharded_distances(sharded_graph, ORIGINAL);
         performance_stats.reset_timers();
-        ShortestPaths::nec_dijkstra(sharded_graph, sharded_weights, sharded_distances, 0);
+        ShortestPaths::nec_dijkstra(sharded_graph, sharded_weights, sharded_distances, source_vertex);
         performance_stats.print_timers_stats();
 
-        // checks
-        cout << "push check" << endl;
-        verify_results(graph, push_distances, seq_distances);
+        if(parser.get_check_flag())
+        {
+            VerticesArray<int> seq_distances(graph, SCATTER);
+            ShortestPaths::seq_dijkstra(graph, vect_weights, seq_distances, source_vertex);
 
-        cout << "pull check" << endl;
-        verify_results(graph, pull_distances, seq_distances);
+            // checks
+            cout << "push check" << endl;
+            verify_results(graph, push_distances, seq_distances);
 
-        cout << "partial check" << endl;
-        verify_results(graph, partial_active_distances, seq_distances);
+            cout << "pull check" << endl;
+            verify_results(graph, pull_distances, seq_distances);
 
-        cout << "edges list check" << endl;
-        verify_results(graph, el_distances, seq_distances);
+            cout << "partial check" << endl;
+            verify_results(graph, partial_active_distances, seq_distances);
 
-        cout << "sharded check" << endl;
-        verify_results(graph, sharded_distances, push_distances);
+            cout << "edges list check" << endl;
+            verify_results(graph, el_distances, seq_distances);
+
+            cout << "sharded check" << endl;
+            verify_results(graph, sharded_distances, push_distances);
+        }
     }
     catch (string error)
     {

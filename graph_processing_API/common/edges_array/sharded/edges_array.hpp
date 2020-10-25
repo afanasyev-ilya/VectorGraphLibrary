@@ -160,7 +160,7 @@ void EdgesArray_Sharded<_T>::print_shard(int _shard_id)
     }
     cout << endl;
 
-    /*cout << "incoming csr: ";
+    cout << "incoming csr: ";
     for(long long i = 0; i < incoming_csr_shards_sizes[_shard_id]; i++)
     {
         cout << incoming_csr_shards_ptrs[_shard_id][i] << " ";
@@ -172,7 +172,7 @@ void EdgesArray_Sharded<_T>::print_shard(int _shard_id)
     {
         cout << incoming_ve_shards_ptrs[_shard_id][i] << " ";
     }
-    cout << endl;*/
+    cout << endl;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -192,8 +192,14 @@ void EdgesArray_Sharded<_T>::copy_el_weights(int _shard_id, const EdgesArray_EL<
     sharded_graph_ptr->get_outgoing_shard_ptr(_shard_id)->get_ve_ptr()->copy_array_from_csr_to_ve(outgoing_ve_shards_ptrs[_shard_id],
                                                                                                   outgoing_csr_shards_ptrs[_shard_id]);
 
-    // init incoming part
-    // TODO
+    // copy edges list weights to sharded weights
+    /*sharded_graph_ptr->get_incoming_shard_ptr(_shard_id)->reorder_and_copy_edges_from_original_to_sorted(incoming_csr_shards_ptrs[_shard_id], _el_data.get_ptr());
+    sharded_graph_ptr->get_incoming_shard_ptr(_shard_id)->get_ve_ptr()->copy_array_from_csr_to_ve(incoming_ve_shards_ptrs[_shard_id],
+                                                                                                  incoming_csr_shards_ptrs[_shard_id]);
+    */
+     // TODO check last part correctness
+
+    MemoryAPI::free_array(buffer);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

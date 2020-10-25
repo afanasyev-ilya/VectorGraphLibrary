@@ -142,10 +142,6 @@ bool UndirectedCSRGraph::load_from_binary_file(string _file_name)
     
     fread(reinterpret_cast<char*>(adjacent_ids), sizeof(int), this->edges_count, graph_file);
 
-    #ifdef __USE_GPU__
-    estimate_gpu_thresholds();
-    #endif
-
     #ifdef __USE_NEC_SX_AURORA__
     double t1 = omp_get_wtime();
     estimate_nec_thresholds();
