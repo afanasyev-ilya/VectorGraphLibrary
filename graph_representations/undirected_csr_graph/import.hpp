@@ -215,15 +215,6 @@ void UndirectedCSRGraph::import(EdgesListGraph &_el_graph, long long *_edges_reo
     // save reordering information and free ASL array
     this->copy_edges_indexes(_edges_reorder_indexes, sort_indexes, el_edges_count);
 
-    cout << "SORT array: ";
-    for(int i = 0; i < el_edges_count; i++)
-        cout << sort_indexes[i] << " ";
-    cout << endl;
-    cout << "IMPORT INNER array 2: ";
-    for(int i = 0; i < el_edges_count; i++)
-        cout << edges_reorder_indexes[i] << " ";
-    cout << endl;
-
     MemoryAPI::free_array(sort_indexes);
 
     // construct CSR representation

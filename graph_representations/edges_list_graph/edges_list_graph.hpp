@@ -181,7 +181,6 @@ void EdgesListGraph::renumber_vertices(int *_conversion_array, int *_work_buffer
 
 void EdgesListGraph::operator = (const EdgesListGraph &_copy_graph)
 {
-    cout << "= operator is called " << endl;
     this->graph_type = _copy_graph.graph_type;
     this->vertices_count = _copy_graph.vertices_count;
     this->edges_count = _copy_graph.edges_count;
@@ -197,7 +196,6 @@ void EdgesListGraph::operator = (const EdgesListGraph &_copy_graph)
 
 EdgesListGraph::EdgesListGraph(const EdgesListGraph &_copy_graph)
 {
-    cout << "COPY constructor is called " << endl;
     this->graph_type = _copy_graph.graph_type;
     this->vertices_count = _copy_graph.vertices_count;
     this->edges_count = _copy_graph.edges_count;

@@ -107,7 +107,7 @@ void ShardedCSRGraph::import(EdgesListGraph &_el_graph)
     this->vertices_count = _el_graph.get_vertices_count();
     this->edges_count = _el_graph.get_edges_count();
 
-    max_cached_vertices = this->vertices_count/2; //1*1024*1024/(sizeof(int));
+    max_cached_vertices = this->vertices_count/4; //1*1024*1024/(sizeof(int));
     shards_number = (this->vertices_count - 1)/max_cached_vertices + 1;
     cout << "Shards number: " << shards_number << endl;
 

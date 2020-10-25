@@ -56,7 +56,6 @@ long long ShardedCSRGraph::get_direction_shift()
         long long ve_size = this->get_edges_count_in_ve_outgoing_shard(current_shard);
         direction_shift += (csr_size + ve_size);
     }
-    cout << "direction shift: " << direction_shift << endl;
     return direction_shift;
 }
 
