@@ -178,3 +178,36 @@ void EdgesListGraph::renumber_vertices(int *_conversion_array, int *_work_buffer
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+void EdgesListGraph::operator = (const EdgesListGraph &_copy_graph)
+{
+    cout << "= operator is called " << endl;
+    this->graph_type = _copy_graph.graph_type;
+    this->vertices_count = _copy_graph.vertices_count;
+    this->edges_count = _copy_graph.edges_count;
+    this->graph_on_device = _copy_graph.graph_on_device;
+
+    this->resize(this->vertices_count, this->edges_count);
+
+    MemoryAPI::copy(this->src_ids, _copy_graph.src_ids, this->edges_count);
+    MemoryAPI::copy(this->dst_ids, _copy_graph.dst_ids, this->edges_count);
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+EdgesListGraph::EdgesListGraph(const EdgesListGraph &_copy_graph)
+{
+    cout << "COPY constructor is called " << endl;
+    this->graph_type = _copy_graph.graph_type;
+    this->vertices_count = _copy_graph.vertices_count;
+    this->edges_count = _copy_graph.edges_count;
+    this->graph_on_device = _copy_graph.graph_on_device;
+
+    this->alloc(this->vertices_count, this->edges_count);
+
+    MemoryAPI::copy(this->src_ids, _copy_graph.src_ids, this->edges_count);
+    MemoryAPI::copy(this->dst_ids, _copy_graph.dst_ids, this->edges_count);
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+

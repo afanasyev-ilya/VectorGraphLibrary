@@ -115,11 +115,11 @@ void ShardedCSRGraph::import(EdgesListGraph &_el_graph)
 
     import_direction(_el_graph, SCATTER);
 
-    _el_graph.transpose();
+    //_el_graph.transpose();
 
-    import_direction(_el_graph, GATHER);
+    //import_direction(_el_graph, GATHER);
 
-    _el_graph.transpose();
+    //_el_graph.transpose();
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

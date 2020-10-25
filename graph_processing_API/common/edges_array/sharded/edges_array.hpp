@@ -186,7 +186,7 @@ void EdgesArray_Sharded<_T>::print_shard(int _shard_id)
     }
     cout << endl;
 
-    cout << "incoming csr: ";
+    /*cout << "incoming csr: ";
     for(long long i = 0; i < incoming_csr_shards_sizes[_shard_id]; i++)
     {
         cout << incoming_csr_shards_ptrs[_shard_id][i] << " ";
@@ -198,7 +198,7 @@ void EdgesArray_Sharded<_T>::print_shard(int _shard_id)
     {
         cout << incoming_ve_shards_ptrs[_shard_id][i] << " ";
     }
-    cout << endl;
+    cout << endl;*/
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

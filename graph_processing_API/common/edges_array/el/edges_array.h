@@ -14,6 +14,7 @@ public:
     /* initialization API */
     void set_all_constant(_T _const);
     void set_all_random(_T _max_rand);
+    void set_equal_to_index();
 
     /* print API */
     void print();

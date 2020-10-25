@@ -49,8 +49,10 @@ public:
     inline long long get_shard_shift(int _shard_id);
 
     /* print API */
-    void print() {};
+    void print();
     void print_size() {};
+    template <typename _T>
+    void print_in_csr_format(EdgesArray_Sharded<_T> &_weights);
     size_t get_size() {return 0;};
 
     /* file load/store API */
@@ -81,5 +83,6 @@ public:
 #include "sharded_csr_graph.hpp"
 #include "import.hpp"
 #include "reorder.hpp"
+#include "print.hpp"
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

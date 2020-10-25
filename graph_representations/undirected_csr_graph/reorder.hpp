@@ -78,15 +78,39 @@ void UndirectedCSRGraph::reorder_to_sorted(_T *_data, _T *_buffer)
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void UndirectedCSRGraph::save_edge_reorder_indexes(vgl_sort_indexes *_edges_reorder_indexes)
+void UndirectedCSRGraph::save_edge_reorder_indexes(vgl_sort_indexes *_outer_edges_reorder_indexes)
 {
-    MemoryAPI::copy(edges_reorder_indexes, _edges_reorder_indexes, this->edges_count);
-
+    cout << "inner: ";
     for(int i = 0; i < this->edges_count; i++)
     {
-        cout << " (" << i << " -> was taken from -> " << edges_reorder_indexes[i] << ") ";
+        //cout << " (" << i << " -> was taken from -> " << edges_reorder_indexes[i] << ") ";
+        cout << edges_reorder_indexes[i] << " ";
     }
     cout << endl;
+    cout << "outer: ";
+    for(int i = 0; i < this->edges_count; i++)
+    {
+        //cout << " (" << i << " -> was taken from -> " << _outer_edges_reorder_indexes[i] << ") ";
+        cout << _outer_edges_reorder_indexes[i] << " ";
+    }
+    cout << endl;
+    vgl_sort_indexes *buffer;
+    MemoryAPI::allocate_array(&buffer, this->edges_count);
+    for(int i = 0; i < this->edges_count; i++)
+    {
+        buffer[i] = _outer_edges_reorder_indexes[edges_reorder_indexes[i]];
+    }
+
+    cout << "new: ";
+    for(int i = 0; i < this->edges_count; i++)
+    {
+        //cout << " (" << i << " -> was taken from -> " << _outer_edges_reorder_indexes[i] << ") ";
+        cout << buffer[i] << " ";
+    }
+    cout << endl;
+
+    MemoryAPI::copy(edges_reorder_indexes, buffer, this->edges_count);
+    MemoryAPI::free_array(buffer);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -159,16 +183,22 @@ void UndirectedCSRGraph::copy_edges_from_original_to_sorted(_T *_dst_sorted, _T 
     if(_size != this->edges_count)
         throw " ERROR";
 
+    cout << "IDX check: " << endl;
+    for(vgl_sort_indexes i = 0; i < this->edges_count; i++)
+        cout << edges_reorder_indexes[i] << " ";
+    cout << endl;
+
     #if defined(__USE_NEC_SX_AURORA__) || defined(__USE_INTEL__)
-    #pragma _NEC ivdep
+    /*#pragma _NEC ivdep
     #pragma _NEC vovertake
     #pragma _NEC novob
     #pragma _NEC vector
-    #pragma omp parallel for
+    #pragma omp parallel for*/
     for(vgl_sort_indexes i = 0; i < this->edges_count; i++)
     {
         vgl_sort_indexes original_index = edges_reorder_indexes[i];
         _dst_sorted[i] = _src_original[original_index];
+        cout << "COPY " << _src_original[original_index] << " from index " << original_index << " to " << i << endl;
     }
     #endif
 

@@ -61,7 +61,7 @@ bool verify_results(VectCSRGraph &_graph,
     // print first results
     if(_first_printed_results > 0)
     {
-        cout << "first 10 results: " << endl;
+        cout << "first " << _first_printed_results << " results: " << endl;
         for(int i = 0; i < _first_printed_results; i++)
             cout << _first[i] << " & " << _second[i] << endl;
         cout << endl << endl;

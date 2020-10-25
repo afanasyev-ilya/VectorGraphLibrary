@@ -385,7 +385,11 @@ void SSSP::nec_dijkstra(ShardedCSRGraph &_graph,
         auto edge_op_push = [&_distances, &_weights, &reg_was_changes, &changes](int src_id, int dst_id, int local_edge_pos,
                 long long int global_edge_pos, int vector_index, DelayedWriteNEC &delayed_write)
         {
-            _T weight = 1;//_weights[global_edge_pos];
+            _T weight = _weights[global_edge_pos];
+            /*#pragma omp critical
+            {
+                cout << "(" << dst_id << ", " << weight << ") " << endl;
+            }*/
             _T src_weight = _distances[src_id];
 
             if(_distances[dst_id] > src_weight + weight)

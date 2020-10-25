@@ -18,15 +18,17 @@ class FrontierMulticore;
 
 template <typename _T>
 class VerticesArray;
-template <typename _T>
-class VerticesArray;
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template <typename _T>
 class EdgesArray;
 template <typename _T>
-class EdgesArray;
+class EdgesArray_EL;
+template <typename _T>
+class EdgesArray_Sharded;
+template <typename _T>
+class EdgesArray_Vect;
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 

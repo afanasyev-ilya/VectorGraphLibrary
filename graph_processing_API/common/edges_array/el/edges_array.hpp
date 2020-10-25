@@ -55,6 +55,17 @@ void EdgesArray_EL<_T>::set_all_random(_T _max_rand)
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template <typename _T>
+void EdgesArray_EL<_T>::set_equal_to_index()
+{
+    for(long long i = 0; i < this->total_array_size; i++)
+    {
+        this->edges_data[i] = i;
+    }
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+template <typename _T>
 void EdgesArray_EL<_T>::print()
 {
     cout << "Edges Array (Edges List)" << endl;

@@ -33,16 +33,18 @@ int main(int argc, const char * argv[])
             GraphGenerationAPI::random_uniform(el_graph, v, v * parser.get_avg_degree(), DIRECTED_GRAPH);
         el_graph.preprocess_into_csr_based();
 
+        EdgesListGraph original_graph = el_graph;
+        el_graph.print();
+        original_graph.print();
 
         EdgesArray_EL<int> el_weights(el_graph);
+        EdgesArray_EL<int> debug_weights(el_graph);
         //el_weights.set_all_constant(1);
-        cout << "set" << endl;
         el_weights.set_all_random(MAX_WEIGHT);
-        cout << "set done" << endl;
+        debug_weights.set_equal_to_index();
 
         VerticesArray<int> el_distances(el_graph, ORIGINAL);
         ShortestPaths::nec_dijkstra(el_graph, el_weights, el_distances, 0);
-        cout << "algo done" << endl;
 
         // create vect CSR graph
         VectCSRGraph graph;
@@ -71,19 +73,25 @@ int main(int argc, const char * argv[])
         ShortestPaths::seq_dijkstra(graph, vect_weights, seq_distances, 0);
 
         // sort back edges list graph into initial order
+        el_graph = original_graph;
         el_graph.preprocess_into_csr_based();
+        el_graph.print();
 
         // sharded test
         ShardedCSRGraph sharded_graph;
         sharded_graph.import(el_graph);
 
         EdgesArray_Sharded<int> sharded_weights(sharded_graph);
-        sharded_weights.set_all_constant(2);
 
-        //sharded_weights = el_weights;
-
-        sharded_weights.set_all_random(20);
+        sharded_weights = debug_weights;
         sharded_weights.print();
+
+        sharded_weights = el_weights;
+
+        // print
+        el_graph.preprocess_into_csr_based();
+        el_graph.print_in_csr_format(el_weights);
+        sharded_graph.print_in_csr_format(sharded_weights);
 
         VerticesArray<int> sharded_distances(sharded_graph, ORIGINAL);
 
@@ -105,7 +113,7 @@ int main(int argc, const char * argv[])
         verify_results(graph, el_distances, seq_distances);
 
         cout << "sharded check" << endl;
-        verify_results(graph, sharded_distances, push_distances);
+        verify_results(graph, sharded_distances, push_distances, sharded_graph.get_vertices_count());
     }
     catch (string error)
     {

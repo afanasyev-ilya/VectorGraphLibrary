@@ -100,12 +100,17 @@ void GraphAbstractionsNEC::scatter(ShardedCSRGraph &_graph,
 
         _graph.reorder_to_sorted_for_shard(_test_data, shard_id);
 
-        long long shard_shift = _graph.get_shard_shift();
+        long long shard_shift = _graph.get_shard_shift(shard_id);
         #pragma omp parallel
         {
             advance_worker(*current_shard, _frontier, edge_op, vertex_preprocess_op, vertex_postprocess_op,
                            collective_edge_op, collective_vertex_preprocess_op, collective_vertex_postprocess_op, 0, shard_shift);
         }
+
+        /*cout << "DIST CHECK: ";
+        for(int i = 0; i < _graph.get_vertices_count(); i++)
+            cout << _test_data[i] << " ";
+        cout << endl;*/
 
         _graph.reorder_to_original_for_shard(_test_data, shard_id);
     }
