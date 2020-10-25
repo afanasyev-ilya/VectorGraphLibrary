@@ -27,8 +27,8 @@ void UndirectedCSRGraph::reorder_to_original(_T *_data, _T *_buffer)
     #pragma omp parallel for
     for(int i = 0; i < this->vertices_count; i++)
     {
-        int sorted_index = i;
-        int original_index = backward_conversion[i];
+        int sorted_index = forward_conversion[i];
+        int original_index = i;
         _buffer[original_index] = _data[sorted_index];
     }
 
@@ -58,8 +58,8 @@ void UndirectedCSRGraph::reorder_to_sorted(_T *_data, _T *_buffer)
     #pragma omp parallel for
     for(int i = 0; i < this->vertices_count; i++)
     {
-        int original_index = i;
-        int sorted_index = forward_conversion[i];
+        int original_index = backward_conversion[i];
+        int sorted_index = i;
         _buffer[sorted_index] = _data[original_index];
     }
 
@@ -72,7 +72,7 @@ void UndirectedCSRGraph::reorder_to_sorted(_T *_data, _T *_buffer)
     #endif
 
     #if defined(__USE_GPU__)
-    cuda_reorder_wrapper(_data, _buffer, forward_conversion, this->vertices_count);
+    cuda_reorder_wrapper(_data, _buffer, forward_conversion, this->vertices_count); // TODO which direction is faster?
     #endif
 }
 

@@ -59,9 +59,9 @@ void ShardedCSRGraph::import_direction(EdgesListGraph &_el_graph, TraversalDirec
     }
     last_shard_edge[shards_number - 1] = this->edges_count;
     tm.end();
-    //#ifdef __PRINT_API_PERFORMANCE_STATS__
+    #ifdef __PRINT_API_PERFORMANCE_STATS__
     tm.print_time_stats("Sharded split");
-    //#endif
+    #endif
 
     // import each shard from edges list
     tm.start();
@@ -88,9 +88,9 @@ void ShardedCSRGraph::import_direction(EdgesListGraph &_el_graph, TraversalDirec
         }
     }
     tm.end();
-    //#ifdef __PRINT_API_PERFORMANCE_STATS__
+    #ifdef __PRINT_API_PERFORMANCE_STATS__
     tm.print_time_stats("Import shards");
-    //#endif
+    #endif
 
     delete []first_border;
     delete []last_border;
@@ -115,11 +115,9 @@ void ShardedCSRGraph::import(EdgesListGraph &_el_graph)
 
     import_direction(_el_graph, SCATTER);
 
-    //_el_graph.transpose();
-
-    //import_direction(_el_graph, GATHER);
-
-    //_el_graph.transpose();
+    _el_graph.transpose();
+    import_direction(_el_graph, GATHER);
+    _el_graph.transpose();
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
