@@ -89,19 +89,19 @@ int main(int argc, const char * argv[])
 
             // checks
             cout << "push check" << endl;
-            verify_results(graph, push_distances, seq_distances);
+            verify_results(push_distances, seq_distances);
 
             cout << "pull check" << endl;
-            verify_results(graph, pull_distances, seq_distances);
+            verify_results(pull_distances, seq_distances);
 
             cout << "partial check" << endl;
-            verify_results(graph, partial_active_distances, seq_distances);
+            verify_results(partial_active_distances, seq_distances);
 
             cout << "edges list check" << endl;
-            verify_results(graph, el_distances, seq_distances);
+            verify_results(el_distances, seq_distances);
 
             cout << "sharded check" << endl;
-            verify_results(graph, sharded_distances, push_distances);
+            verify_results(sharded_distances, push_distances);
         }
     }
     catch (string error)

@@ -6,6 +6,7 @@ template <typename _T>
 VerticesArray<_T>::VerticesArray(VectCSRGraph &_graph, TraversalDirection _direction)
 {
     object_type = VERTICES_ARRAY;
+    graph_ptr = &_graph;
 
     this->direction = _direction;
     this->vertices_count = _graph.get_vertices_count();
@@ -25,6 +26,7 @@ template <typename _T>
 VerticesArray<_T>::VerticesArray(ShardedCSRGraph &_graph, TraversalDirection _direction)
 {
     object_type = VERTICES_ARRAY;
+    graph_ptr = &_graph;
 
     this->direction = _direction;
     this->vertices_count = _graph.get_vertices_count();
@@ -44,6 +46,7 @@ template <typename _T>
 VerticesArray<_T>::VerticesArray(EdgesListGraph &_graph, TraversalDirection _direction)
 {
     object_type = VERTICES_ARRAY;
+    graph_ptr = &_graph;
 
     this->direction = _direction;
     this->vertices_count = _graph.get_vertices_count();

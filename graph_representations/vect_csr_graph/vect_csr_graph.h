@@ -27,6 +27,7 @@ private:
     void free();
     void resize(int _vertices_count, long long _edges_count);
 
+    // vertex reorder API (used in GraphAbstractions and VerticesArray)
     template <typename _T>
     bool vertices_buffer_can_be_used(VerticesArray<_T> &_data);
     template <typename _T>
@@ -35,6 +36,8 @@ private:
     void reorder_to_scatter(VerticesArray<_T> &_data);
     template <typename _T>
     void reorder_to_gather(VerticesArray<_T> &_data);
+
+    // edges reorder API (used in Graph import and EdgesArray)
 public:
     VectCSRGraph(int _vertices_count = 1, long long _edges_count = 1);
     ~VectCSRGraph();

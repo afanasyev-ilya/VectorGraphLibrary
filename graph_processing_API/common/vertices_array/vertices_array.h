@@ -6,6 +6,8 @@ template <typename _T>
 class VerticesArray
 {
 private:
+    BaseGraph *graph_ptr;
+
     ObjectType object_type;
     TraversalDirection direction;
 
@@ -44,6 +46,9 @@ public:
     TraversalDirection get_direction() {return direction;};
     void set_direction(TraversalDirection _direction) {direction = _direction;};
 
+    // allows to reorder verticesArray in arbitrary direction
+    void reorder(TraversalDirection _output_dir);
+
     /* initialization API */
     void set_all_constant(_T _const);
     void set_all_random(_T _max_rand);
@@ -63,5 +68,6 @@ public:
 
 #include "gpu_api.hpp"
 #include "vertices_array.hpp"
+#include "reorder.hpp"
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

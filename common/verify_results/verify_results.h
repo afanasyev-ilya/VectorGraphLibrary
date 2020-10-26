@@ -86,19 +86,77 @@ bool verify_results(VectCSRGraph &_graph,
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template <typename _T>
-bool equal_components(VectCSRGraph &_graph,
-                      VerticesArray<_T> &_first,
-                      VerticesArray<_T> &_second)
+bool verify_results(VerticesArray<_T> &_first,
+                    VerticesArray<_T> &_second,
+                    int _first_printed_results = 0,
+                    int _error_count_print = 30)
 {
-    int vertices_count = _graph.get_vertices_count();
-
     // remember current directions for both arrays
     TraversalDirection prev_first_direction = _first.get_direction();
     TraversalDirection prev_second_direction = _second.get_direction();
 
     // make both results stored in original order
-    _graph.reorder(_first, ORIGINAL);
-    _graph.reorder(_second, ORIGINAL);
+    _first.reorder(ORIGINAL);
+    _second.reorder(ORIGINAL);
+
+    if(_first.size() != _second.size())
+    {
+        cout << "Results are NOT equal, incorrect sizes";
+        return false;
+    }
+
+    // calculate error count
+    int error_count = 0;
+    int vertices_count = _first.size();
+    for(int i = 0; i < vertices_count; i++)
+    {
+        if(!are_same(_first[i], _second[i]))
+        {
+            error_count++;
+            if(error_count < _error_count_print)
+            {
+                cout << i << ": " << _first[i] << " " << _second[i] << endl;
+            }
+        }
+    }
+    cout << "error count: " << error_count << endl;
+
+    // print first results
+    if(_first_printed_results > 0)
+    {
+        cout << "first " << _first_printed_results << " results: " << endl;
+        for(int i = 0; i < _first_printed_results; i++)
+            cout << _first[i] << " & " << _second[i] << endl;
+        cout << endl << endl;
+    }
+
+    // restore order if required
+    _first.reorder(prev_first_direction);
+    _second.reorder(prev_second_direction);
+
+    if(error_count == 0)
+        cout << "Results are equal" << endl;
+    else
+        cout << "Results are NOT equal, error_count = " << error_count << endl;
+    cout << endl;
+
+    if(error_count == 0)
+        return true;
+    else
+        return false;
+}
+
+template <typename _T>
+bool equal_components(VerticesArray<_T> &_first,
+                      VerticesArray<_T> &_second)
+{
+    // remember current directions for both arrays
+    TraversalDirection prev_first_direction = _first.get_direction();
+    TraversalDirection prev_second_direction = _second.get_direction();
+
+    // make both results stored in original order
+    _first.reorder(ORIGINAL);
+    _second.reorder(ORIGINAL);
 
     // construct equality maps
     map<int, int> f_s_equality;

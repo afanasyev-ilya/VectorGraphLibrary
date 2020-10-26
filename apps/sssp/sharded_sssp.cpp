@@ -67,8 +67,7 @@ int main(int argc, const char * argv[])
             {
                 VerticesArray<int> el_distances(el_graph, ORIGINAL);
                 ShortestPaths::nec_dijkstra(el_graph, el_weights, el_distances, source_vertex);
-
-                //verify_results(graph, distances, el_distances);
+                verify_results(distances, el_distances);
             }
         }
     }
