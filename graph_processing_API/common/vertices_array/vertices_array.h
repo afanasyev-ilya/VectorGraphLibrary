@@ -2,8 +2,14 @@
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+class BasicVerticesArray
+{
+public:
+    virtual void test_reorder() = 0;
+};
+
 template <typename _T>
-class VerticesArray
+class VerticesArray : public BasicVerticesArray
 {
 private:
     BaseGraph *graph_ptr;
@@ -62,6 +68,8 @@ public:
     void move_to_device();
     void move_to_host();
     #endif
+
+    void test_reorder() {cout << "TEST " << sizeof(_T) << endl;};
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

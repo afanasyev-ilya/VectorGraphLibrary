@@ -65,7 +65,7 @@ int main(int argc, const char * argv[])
             {
                 VerticesArray<int> check_levels(graph, SCATTER);
                 BFS::seq_top_down(graph, check_levels, source_vertex);
-                verify_results(graph, levels, check_levels);
+                verify_results(levels, check_levels);
             }
         }
     }

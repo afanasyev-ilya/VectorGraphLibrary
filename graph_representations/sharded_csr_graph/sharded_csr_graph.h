@@ -31,6 +31,10 @@ private:
     void resize(int _shards_count, int _vertices_count);
     void init(int _shards_count, int _vertices_count);
     void free();
+
+    /* reorder API */
+    void reorder_to_sorted_for_shard(VerticesArrayContainer &_container, int _shard_id, TraversalDirection _direction);
+    void reorder_to_original_for_shard(VerticesArrayContainer &_container, int _shard_id, TraversalDirection _direction);
 public:
     ShardedCSRGraph();
     ~ShardedCSRGraph();
@@ -68,17 +72,16 @@ public:
 
     /* Further - ShardedCSRGraph specific API : reorder, working with double-directions, etc.*/
 
-    /* reorder API */
-    template <typename _T>
-    void reorder_to_sorted_for_shard(VerticesArray<_T> _data, int _shard_id);
-    template <typename _T>
-    void reorder_to_original_for_shard(VerticesArray<_T> _data, int _shard_id);
-
     // creates ShardedCSRGraph format from EdgesListGraph
     void import(EdgesListGraph &_el_graph);
 
     // selects random vertex with non-zero outgoing and incoming degree
     int select_random_vertex(TraversalDirection _direction = ORIGINAL);
+
+    friend class GraphAbstractions;
+    friend class GraphAbstractionsNEC;
+    friend class GraphAbstractionsGPU;
+    friend class GraphAbstractionsMulticore;
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

@@ -124,19 +124,7 @@ void GraphAbstractions::set_correct_direction()
 template<typename _T, typename ... Types>
 void GraphAbstractions::set_correct_direction(_T &_first_arg, Types &... _args)
 {
-    if(_first_arg.get_object_type() == VERTICES_ARRAY)
-    {
-        if(processed_graph_ptr->get_type() == VECT_CSR_GRAPH)
-        {
-            VectCSRGraph *tmp_ptr = (VectCSRGraph *)processed_graph_ptr;
-            tmp_ptr->reorder(_first_arg, current_traversal_direction);
-        }
-    }
-    else if(_first_arg.get_object_type() == FRONTIER)
-    {
-        _first_arg.set_direction(current_traversal_direction);
-    }
-    // TODO other types?
+    _first_arg.reorder(current_traversal_direction);
 
     set_correct_direction(_args...);
 }
@@ -146,9 +134,11 @@ void GraphAbstractions::set_correct_direction(_T &_first_arg, Types &... _args)
 template<typename _T>
 void GraphAbstractions::attach_data(VerticesArray<_T> &_array)
 {
-    //VerticesArrayContainer container((char*)(_array.get_ptr()), (int)sizeof(_T), _array.get_direction());
-    //vertices_arrays.push_back(container);
-    cout << "attach done" << endl;
+    VerticesArrayContainer container((char*)(_array.get_ptr()), (int)sizeof(_T), _array.get_direction());
+    vertices_arrays.push_back(container);
+    cout << "attach done " << (int)sizeof(_T) << " " << _array.get_direction() << endl;
+
+    test = &_array;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

@@ -72,7 +72,7 @@ int main(int argc, const char * argv[])
 
                 VerticesArray<int> check_distances(graph, SCATTER);
                 ShortestPaths::seq_dijkstra(graph, weights, check_distances, source_vertex);
-                verify_results(graph, distances, check_distances);
+                verify_results(distances, check_distances);
 
                 graph.move_to_device();
                 distances.move_to_device();

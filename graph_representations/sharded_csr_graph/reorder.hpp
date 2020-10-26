@@ -2,14 +2,35 @@
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-template <typename _T>
-void ShardedCSRGraph::reorder_to_sorted_for_shard(VerticesArray<_T> _data, int _shard_id)
+void ShardedCSRGraph::reorder_to_sorted_for_shard(VerticesArrayContainer &_container,
+                                                  int _shard_id,
+                                                  TraversalDirection _direction)
 {
     Timer tm;
     tm.start();
-    if(_data.get_direction() == ORIGINAL)
+
+    if(_container.get_direction() == ORIGINAL)
     {
-        outgoing_shards[_shard_id].reorder_to_sorted(_data.get_ptr(), (_T*)vertices_reorder_buffer);
+        if(_container.get_element_size() == sizeof(int))
+        {
+            int *data = (int *)_container.get_ptr();
+            if(_direction == SCATTER)
+                outgoing_shards[_shard_id].reorder_to_sorted(data, (int*)vertices_reorder_buffer);
+            else if(_direction == GATHER)
+                incoming_shards[_shard_id].reorder_to_sorted(data, (int*)vertices_reorder_buffer);
+        }
+        else if(_container.get_element_size() == sizeof(long long))
+        {
+            long long *data = (long long *)_container.get_ptr();
+            if(_direction == SCATTER)
+                outgoing_shards[_shard_id].reorder_to_sorted(data, (long long*)vertices_reorder_buffer);
+            else if(_direction == GATHER)
+                incoming_shards[_shard_id].reorder_to_sorted(data, (long long*)vertices_reorder_buffer);
+        }
+        else
+        {
+            throw "Error in ShardedCSRGraph::reorder_to_sorted_for_shard : unsupported element size";
+        }
     }
     else
     {
@@ -24,14 +45,34 @@ void ShardedCSRGraph::reorder_to_sorted_for_shard(VerticesArray<_T> _data, int _
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-template <typename _T>
-void ShardedCSRGraph::reorder_to_original_for_shard(VerticesArray<_T> _data, int _shard_id)
+void ShardedCSRGraph::reorder_to_original_for_shard(VerticesArrayContainer &_container,
+                                                    int _shard_id,
+                                                    TraversalDirection _direction)
 {
     Timer tm;
     tm.start();
-    if(_data.get_direction() == ORIGINAL)
+    if(_container.get_direction() == ORIGINAL)
     {
-        outgoing_shards[_shard_id].reorder_to_original(_data.get_ptr(), (_T*)vertices_reorder_buffer);
+        if(_container.get_element_size() == sizeof(int))
+        {
+            int *data = (int *)_container.get_ptr();
+            if(_direction == SCATTER)
+                outgoing_shards[_shard_id].reorder_to_original(data, (int*)vertices_reorder_buffer);
+            else if(_direction == GATHER)
+                incoming_shards[_shard_id].reorder_to_original(data, (int*)vertices_reorder_buffer);
+        }
+        else if(_container.get_element_size() == sizeof(long long))
+        {
+            long long *data = (long long *)_container.get_ptr();
+            if(_direction == SCATTER)
+                outgoing_shards[_shard_id].reorder_to_original(data, (long long*)vertices_reorder_buffer);
+            else if(_direction == GATHER)
+                incoming_shards[_shard_id].reorder_to_original(data, (long long*)vertices_reorder_buffer);
+        }
+        else
+        {
+            throw "Error in ShardedCSRGraph::reorder_to_original_for_shard : unsupported element size";
+        }
     }
     else
     {

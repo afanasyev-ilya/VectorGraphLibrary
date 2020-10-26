@@ -63,7 +63,7 @@ int main(int argc, const char * argv[])
         {
             VerticesArray<int> check_components(graph, SCATTER);
             SCC::seq_tarjan(graph, check_components);
-            equal_components(graph, components, check_components);
+            equal_components(components, check_components);
         }
     }
     catch (string error)

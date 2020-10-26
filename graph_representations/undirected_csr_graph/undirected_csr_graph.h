@@ -59,6 +59,7 @@ private:
     void estimate_nec_thresholds();
     #endif
 
+    // import functions
     void extract_connection_count(EdgesListGraph &_el_graph,
                                   int *_work_buffer, int *_connections_count);
 
@@ -69,6 +70,35 @@ private:
     void construct_CSR(EdgesListGraph &_el_graph);
 
     void copy_edges_indexes(vgl_sort_indexes *_sort_indexes);
+
+    /* reorder API */
+    // reorders a single vertex from original (edges list) to sorted (undirectedCSR)
+    int reorder_to_sorted(int _vertex_id);
+    // reorders a single vertex from sorted (undirectedCSR) to original (edges list)
+    int reorder_to_original(int _vertex_id);
+    // reorders a vertexArray(pointer) from original (edges list) to sorted (undirectedCSR)
+    template <typename _T>
+    void reorder_to_sorted(_T *_data, _T *_buffer);
+    // reorders a vertexArray(pointer)  from sorted (undirectedCSR) to original (edges list)
+    template <typename _T>
+    void reorder_to_original(_T *_data, _T *_buffer);
+    // allows to save edge reorder indexes
+    void update_edge_reorder_indexes_using_superposition(vgl_sort_indexes *_edges_reorder_indexes);
+    // in-place edges reorder from original to sorted, buffer can be provided for better speed
+    template <typename _T>
+    void reorder_edges_to_sorted(_T *_data, _T *_buffer = NULL);
+    // in-place edges reorder from sorted to original, buffer can be provided for better speed
+    template <typename _T>
+    void reorder_edges_to_original(_T *_data, _T *_buffer = NULL);
+    // allows to copy data from original (usually EdgesList weights) to sorted. Original array can be larger (used in sharded API).
+    template <typename _T>
+    void reorder_and_copy_edges_from_original_to_sorted(_T *_dst_sorted, _T *_src_original);
+
+    // allows to get position of specified edge in CSR representation
+    inline long long get_csr_edge_id(int _src_id, int _dst_id);
+
+    // allows to get position of specified edge in VE representation
+    inline long long get_ve_edge_id (int _src_id, int _dst_id) { return last_vertices_ve.get_ve_edge_id(_src_id, _dst_id); };
 public:
     UndirectedCSRGraph(int _vertices_count = 1, long long _edges_count = 1);
     ~UndirectedCSRGraph();
@@ -101,42 +131,6 @@ public:
     // resize graph
     void resize(int _vertices_count, long long _edges_count);
 
-    // allows to get position of specified edge in CSR representation
-    inline long long get_csr_edge_id(int _src_id, int _dst_id);
-
-    // allows to get position of specified edge in VE representation
-    inline long long get_ve_edge_id (int _src_id, int _dst_id) { return last_vertices_ve.get_ve_edge_id(_src_id, _dst_id); };
-
-    /* reorder API */
-    // reorders a single vertex from original (edges list) to sorted (undirectedCSR)
-    int reorder_to_sorted(int _vertex_id);
-
-    // reorders a single vertex from sorted (undirectedCSR) to original (edges list)
-    int reorder_to_original(int _vertex_id);
-
-    // reorders a vertexArray(pointer) from original (edges list) to sorted (undirectedCSR)
-    template <typename _T>
-    void reorder_to_sorted(_T *_data, _T *_buffer);
-
-    // reorders a vertexArray(pointer)  from sorted (undirectedCSR) to original (edges list)
-    template <typename _T>
-    void reorder_to_original(_T *_data, _T *_buffer);
-
-    // allows to save edge reorder indexes
-    void update_edge_reorder_indexes_using_superposition(vgl_sort_indexes *_edges_reorder_indexes);
-
-    // in-place edges reorder from original to sorted, buffer can be provided for better speed
-    template <typename _T>
-    void reorder_edges_to_sorted(_T *_data, _T *_buffer = NULL);
-
-    // in-place edges reorder from sorted to original, buffer can be provided for better speed
-    template <typename _T>
-    void reorder_edges_to_original(_T *_data, _T *_buffer = NULL);
-
-    // allows to copy data from original (usually EdgesList weights) to sorted. Original array can be larger (used in sharded API).
-    template <typename _T>
-    void reorder_and_copy_edges_from_original_to_sorted(_T *_dst_sorted, _T *_src_original);
-
     // API to calculate NEC and multicore thresholds
     #ifdef __USE_NEC_SX_AURORA__
     inline int get_vector_engine_threshold_vertex(){return vector_engine_threshold_vertex;};
@@ -154,6 +148,14 @@ public:
     /* import and preprocess API */
     // creates UndirectedCSRGraph format from EdgesListGraph
     void import(EdgesListGraph &_old_graph);
+
+    friend class GraphAbstractions;
+    friend class VectCSRGraph;
+    friend class ShardedCSRGraph;
+    friend class EdgesListGraph;
+    template<class _T> friend class EdgesArray_Vect;
+    template<class _T> friend class EdgesArray_Sharded;
+    template<class _T> friend class EdgesArray_EL;
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

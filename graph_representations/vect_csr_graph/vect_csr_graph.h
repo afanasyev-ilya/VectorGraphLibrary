@@ -36,8 +36,18 @@ private:
     void reorder_to_scatter(VerticesArray<_T> &_data);
     template <typename _T>
     void reorder_to_gather(VerticesArray<_T> &_data);
+    // allows to reorder verticesArray in arbitrary direction
+    template <typename _T>
+    void reorder(VerticesArray<_T> &_data, TraversalDirection _output_dir);
 
     // edges reorder API (used in Graph import and EdgesArray)
+    // allows to reorder edges array to primary direction (scatter, from original)
+    template <typename _T>
+    void reorder_edges_original_to_scatter(_T *_original_data, _T *_outgoing_data);
+    // allows to reorder edges array to secondary direction (gather, from original)
+    template <typename _T>
+    void reorder_edges_scatter_to_gather(_T *_incoming_data, _T *_outgoing_data);
+
 public:
     VectCSRGraph(int _vertices_count = 1, long long _edges_count = 1);
     ~VectCSRGraph();
@@ -77,25 +87,6 @@ public:
     // allows to reorder a single vertex ID in arbitrary direction
     int reorder(int _vertex_id, TraversalDirection _input_dir, TraversalDirection _output_dir);
 
-    // allows to reorder verticesArray in arbitrary direction
-    template <typename _T>
-    void reorder(VerticesArray<_T> &_data, TraversalDirection _output_dir);
-
-    // allows to reorder NEC frontier in arbitrary direction
-    void reorder(FrontierNEC &_data, TraversalDirection _output_dir);
-    // allows to reorder GPU frontier in arbitrary direction
-    #ifdef __USE_GPU__
-    void reorder(FrontierGPU &_data, TraversalDirection _output_dir); // TODO
-    #endif
-
-    // allows to reorder edges array to primary direction (scatter, from original)
-    template <typename _T>
-    void reorder_edges_original_to_scatter(_T *_original_data, _T *_outgoing_data);
-
-    // allows to reorder edges array to secondary direction (gather, from original)
-    template <typename _T>
-    void reorder_edges_scatter_to_gather(_T *_incoming_data, _T *_outgoing_data);
-
     // selects random vertex with non-zero outgoing and incoming degree
     int select_random_vertex(TraversalDirection _direction = ORIGINAL);
 
@@ -106,6 +97,18 @@ public:
     /* import and preprocess API */
     // creates VectCSRGraph format from EdgesListGraph
     void import(EdgesListGraph &_copy_graph);
+
+    template<class _T>
+    friend class VerticesArray;
+    template<class _T>
+    friend class EdgesArray;
+    template<class _T>
+    friend class EdgesArray_EL;
+    template<class _T>
+    friend class EdgesArray_Vect;
+    template<class _T>
+    friend class EdgesArray_Sharded;
+    friend class GraphAbstractions;
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

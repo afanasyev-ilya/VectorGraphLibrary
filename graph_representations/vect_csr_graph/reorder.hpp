@@ -209,22 +209,6 @@ void VectCSRGraph::reorder(VerticesArray<_T> &_data, TraversalDirection _output_
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void VectCSRGraph::reorder(FrontierNEC &_data, TraversalDirection _output_dir)
-{
-    throw "Error in VectCSRGraph::reorder : can not reorder a frontier";
-};
-
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-#ifdef __USE_GPU__
-void VectCSRGraph::reorder(FrontierGPU &_data, TraversalDirection _output_dir)
-{
-    throw "Error in VectCSRGraph::reorder : can not reorder a frontier";
-};
-#endif
-
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
 template <typename _T>
 void VectCSRGraph::reorder_edges_original_to_scatter(_T *_scatter_data, _T *_original_data)
 {

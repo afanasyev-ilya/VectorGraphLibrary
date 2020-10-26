@@ -2,26 +2,10 @@
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-class VerticesArrayContainer
-{
-private:
-    TraversalDirection direction;
-    char *pointer;
-    int element_size;
-public:
-    VerticesArrayContainer(char *_pointer, int _element_size, TraversalDirection _direction)
-    {
-        pointer = _pointer;
-        element_size = _element_size;
-        direction = _direction;
-    }
-};
-
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
 class GraphAbstractions
 {
 protected:
+    BasicVerticesArray *test;
     vector<VerticesArrayContainer> vertices_arrays;
 
     BaseGraph *processed_graph_ptr;
@@ -34,6 +18,9 @@ protected:
     void set_correct_direction();
     template<typename _T, typename ... Types>
     void set_correct_direction(_T &_first_arg, Types &... _args);
+
+    VerticesArrayContainer *get_containers_ptr() {return vertices_arrays.data();};
+    int get_containers_count() {return vertices_arrays.size();};
 public:
     // attaches graph-processing API to the specific graph
     GraphAbstractions();
