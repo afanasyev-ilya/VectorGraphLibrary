@@ -98,9 +98,10 @@ void GraphAbstractionsNEC::scatter(ShardedCSRGraph &_graph,
 
         UndirectedCSRGraph *current_shard = _graph.get_outgoing_shard_ptr(shard_id);
 
-        for(int container_id = 0; container_id < this->get_containers_count(); container_id++)
+        // prepare user data for current shard
+        for(auto& current_container : user_data_containers)
         {
-            container_cur->reorder_to_sorted_for_shard(current_traversal_direction, shard_id);
+            current_container->reorder_from_original_to_shard(current_traversal_direction, shard_id);
         }
 
         long long shard_shift = _graph.get_shard_shift(shard_id);
@@ -110,10 +111,10 @@ void GraphAbstractionsNEC::scatter(ShardedCSRGraph &_graph,
                            collective_edge_op, collective_vertex_preprocess_op, collective_vertex_postprocess_op, 0, shard_shift);
         }
 
-        for(int container_id = 0; container_id < this->get_containers_count(); container_id++)
+        // reorder user data back
+        for(auto& cur_container : user_data_containers)
         {
-            VerticesArrayContainer current_container = this->get_containers_ptr()[container_id];
-            _graph.reorder_to_original_for_shard(current_container, shard_id, current_traversal_direction);
+            current_container->reorder_from_shard_to_original(current_traversal_direction, shard_id);
         }
     }
 

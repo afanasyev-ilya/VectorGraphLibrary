@@ -2,14 +2,17 @@
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-class BasicVerticesArray
+class UserDataContainer
 {
 public:
-    virtual void test_reorder() = 0;
+    virtual void reorder_from_original_to_shard(TraversalDirection _direction, int _shard_id) = 0;
+    virtual void reorder_from_shard_to_original(TraversalDirection _direction, int _shard_id) = 0;
 };
 
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 template <typename _T>
-class VerticesArray : public BasicVerticesArray
+class VerticesArray : public UserDataContainer
 {
 private:
     BaseGraph *graph_ptr;
@@ -69,7 +72,8 @@ public:
     void move_to_host();
     #endif
 
-    void test_reorder() {cout << "TEST " << sizeof(_T) << endl;};
+    void reorder_from_original_to_shard(TraversalDirection _direction, int _shard_id);
+    void reorder_from_shard_to_original(TraversalDirection _direction, int _shard_id);
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

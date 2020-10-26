@@ -36,7 +36,6 @@ using namespace std;
 #include "common/parallel_primitives/copy_if.h"
 #include "common/parallel_primitives/get_elements_count.h"
 #include "common/performance_stats/performance_stats.h"
-#include "graph_processing_API/common/vertices_array/vertices_array_container.h"
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 

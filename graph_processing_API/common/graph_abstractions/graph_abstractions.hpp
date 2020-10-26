@@ -134,11 +134,7 @@ void GraphAbstractions::set_correct_direction(_T &_first_arg, Types &... _args)
 template<typename _T>
 void GraphAbstractions::attach_data(VerticesArray<_T> &_array)
 {
-    VerticesArrayContainer container((char*)(_array.get_ptr()), (int)sizeof(_T), _array.get_direction());
-    vertices_arrays.push_back(container);
-    cout << "attach done " << (int)sizeof(_T) << " " << _array.get_direction() << endl;
-
-    test = &_array;
+    user_data_containers.push_back(&_array);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

@@ -5,8 +5,7 @@
 class GraphAbstractions
 {
 protected:
-    BasicVerticesArray *test;
-    vector<VerticesArrayContainer> vertices_arrays;
+    vector<UserDataContainer*> user_data_containers;
 
     BaseGraph *processed_graph_ptr;
     TraversalDirection current_traversal_direction;

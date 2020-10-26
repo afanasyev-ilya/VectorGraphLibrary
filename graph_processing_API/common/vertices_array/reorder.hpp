@@ -27,3 +27,25 @@ void VerticesArray<_T>::reorder(TraversalDirection _output_dir)
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+template <typename _T>
+void VerticesArray<_T>::reorder_from_original_to_shard(TraversalDirection _direction, int _shard_id)
+{
+    if(graph_ptr->get_type() != SHARDED_CSR_GRAPH)
+    {
+        throw "Error in VerticesArray<_T>::reorder_to_shard : incorrect graph type for vertex array";
+    }
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+template <typename _T>
+void VerticesArray<_T>::reorder_from_shard_to_original(TraversalDirection _direction, int _shard_id)
+{
+    if(graph_ptr->get_type() != SHARDED_CSR_GRAPH)
+    {
+        throw "Error in VerticesArray<_T>::reorder_to_original : incorrect graph type for vertex array";
+    }
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
