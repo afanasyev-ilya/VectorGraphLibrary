@@ -17,10 +17,12 @@ fi
 
 declare -a test_names=("./sssp_$prefix -s 20 -e 32 -type rmat -push -all-active -check"
                        "./sssp_$prefix -s 20 -e 32 -type rmat -pull -all-active -check"
-                       "./sssp_$prefix -s 20 -e 32 -type rmat -partial-active -check"
+                       #"./sssp_$prefix -s 20 -e 32 -type rmat -partial-active -check"
                        "./sssp_$prefix -s 20 -e 32 -type ru -push -all-active -check"
                        "./sssp_$prefix -s 20 -e 32 -type ru -pull -all-active -check"
-                       "./sssp_$prefix -s 20 -e 32 -type ru -partial-active -check"
+                       #"./sssp_$prefix -s 20 -e 32 -type ru -partial-active -check"
+
+                       "./sharded_sssp_$prefix -s 23 -e 16 -type ru -check"
 
                        "./bfs_$prefix -s 20 -e 32 -type rmat -td -check"
                        "./bfs_$prefix -s 20 -e 32 -type ru -td -check"

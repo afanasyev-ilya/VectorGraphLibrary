@@ -46,7 +46,7 @@ private:
     void reorder_edges_original_to_scatter(_T *_original_data, _T *_outgoing_data);
     // allows to reorder edges array to secondary direction (gather, from original)
     template <typename _T>
-    void reorder_edges_scatter_to_gather(_T *_incoming_data, _T *_outgoing_data);
+    void reorder_edges_scatter_to_gather(_T *_gather_data, _T *_scatter_data);
 
 public:
     VectCSRGraph(int _vertices_count = 1, long long _edges_count = 1);

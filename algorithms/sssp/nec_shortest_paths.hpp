@@ -355,24 +355,22 @@ void SSSP::nec_dijkstra(ShardedCSRGraph &_graph,
     GraphAbstractionsNEC graph_API(_graph);
     FrontierNEC frontier(_graph);
 
-    //_source_vertex = _graph.reorder(_source_vertex, ORIGINAL, SCATTER);
-
     graph_API.attach_data(_distances);
-
-    graph_API.change_traversal_direction(SCATTER);
+    graph_API.change_traversal_direction(SCATTER); // TODO -- is it needed?
 
     Timer tm;
     tm.start();
 
     _T inf_val = std::numeric_limits<_T>::max() - MAX_WEIGHT;
-    #pragma omp parallel for
-    for(int i = 0; i < _graph.get_vertices_count(); i++)
+    auto init_distances = [&_distances, _source_vertex, inf_val] (int src_id, int connections_count, int vector_index)
     {
-        _distances[i] = inf_val;
-    }
-    _distances[_source_vertex] = 0;
+        if(src_id == _source_vertex)
+            _distances[src_id] = 0;
+        else
+            _distances[src_id] = inf_val;
+    };
     frontier.set_all_active();
-    // TODO compute
+    graph_API.compute(_graph, frontier, init_distances);
 
     int changes = 0, iterations_count = 0;
     do
@@ -386,10 +384,6 @@ void SSSP::nec_dijkstra(ShardedCSRGraph &_graph,
                 long long int global_edge_pos, int vector_index, DelayedWriteNEC &delayed_write)
         {
             _T weight = _weights[global_edge_pos];
-            /*#pragma omp critical
-            {
-                cout << "(" << dst_id << ", " << weight << ") " << endl;
-            }*/
             _T src_weight = _distances[src_id];
 
             if(_distances[dst_id] > src_weight + weight)
@@ -400,7 +394,7 @@ void SSSP::nec_dijkstra(ShardedCSRGraph &_graph,
         };
 
         graph_API.scatter(_graph, frontier, edge_op_push, EMPTY_VERTEX_OP, EMPTY_VERTEX_OP,
-                         edge_op_push, EMPTY_VERTEX_OP, EMPTY_VERTEX_OP, _distances);
+                         edge_op_push, EMPTY_VERTEX_OP, EMPTY_VERTEX_OP);
 
         changes += register_sum_reduce(reg_was_changes);
     }

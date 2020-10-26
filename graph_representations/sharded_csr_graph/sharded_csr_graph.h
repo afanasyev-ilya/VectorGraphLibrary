@@ -33,8 +33,10 @@ private:
     void free();
 
     /* reorder API */
-    void reorder_to_sorted_for_shard(VerticesArrayContainer &_container, int _shard_id, TraversalDirection _direction);
-    void reorder_to_original_for_shard(VerticesArrayContainer &_container, int _shard_id, TraversalDirection _direction);
+    template <typename _T>
+    void reorder_from_original_to_shard(VerticesArray<_T> _data, TraversalDirection _direction, int _shard_id);
+    template <typename _T>
+    void reorder_from_shard_to_original(VerticesArray<_T> _data, TraversalDirection _direction, int _shard_id);
 public:
     ShardedCSRGraph();
     ~ShardedCSRGraph();
@@ -78,10 +80,7 @@ public:
     // selects random vertex with non-zero outgoing and incoming degree
     int select_random_vertex(TraversalDirection _direction = ORIGINAL);
 
-    friend class GraphAbstractions;
-    friend class GraphAbstractionsNEC;
-    friend class GraphAbstractionsGPU;
-    friend class GraphAbstractionsMulticore;
+    template <typename _T> friend class VerticesArray;
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

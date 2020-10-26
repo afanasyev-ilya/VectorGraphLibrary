@@ -196,7 +196,7 @@ public:
     // performs user-defined "edge_op" operation over all OUTGOING edges, neighbouring specified frontier
     template <typename EdgeOperation, typename VertexPreprocessOperation, typename VertexPostprocessOperation,
             typename CollectiveEdgeOperation, typename CollectiveVertexPreprocessOperation,
-            typename CollectiveVertexPostprocessOperation, typename _T>
+            typename CollectiveVertexPostprocessOperation>
     void scatter(ShardedCSRGraph &_graph,
                  FrontierNEC &_frontier,
                  EdgeOperation &&edge_op,
@@ -204,8 +204,13 @@ public:
                  VertexPostprocessOperation &&vertex_postprocess_op,
                  CollectiveEdgeOperation &&collective_edge_op,
                  CollectiveVertexPreprocessOperation &&collective_vertex_preprocess_op,
-                 CollectiveVertexPostprocessOperation &&collective_vertex_postprocess_op,
-                 VerticesArray<_T> &_test_data);
+                 CollectiveVertexPostprocessOperation &&collective_vertex_postprocess_op);
+
+    // performs user-defined "edge_op" operation over all OUTGOING edges, neighbouring specified frontier
+    template <typename EdgeOperation>
+    void scatter(ShardedCSRGraph &_graph,
+                 FrontierNEC &_frontier,
+                 EdgeOperation &&edge_op);
 
     // performs user-defined "edge_op" operation over all OUTGOING edges, neighbouring specified frontier
     template <typename EdgeOperation>
@@ -231,9 +236,34 @@ public:
                 FrontierNEC &_frontier,
                 EdgeOperation &&edge_op);
 
+    // performs user-defined "edge_op" operation over all INCOMING edges, neighbouring specified frontier
+    template <typename EdgeOperation, typename VertexPreprocessOperation, typename VertexPostprocessOperation,
+            typename CollectiveEdgeOperation, typename CollectiveVertexPreprocessOperation,
+            typename CollectiveVertexPostprocessOperation>
+    void gather(ShardedCSRGraph &_graph,
+                FrontierNEC &_frontier,
+                EdgeOperation &&edge_op,
+                VertexPreprocessOperation &&vertex_preprocess_op,
+                VertexPostprocessOperation &&vertex_postprocess_op,
+                CollectiveEdgeOperation &&collective_edge_op,
+                CollectiveVertexPreprocessOperation &&collective_vertex_preprocess_op,
+                CollectiveVertexPostprocessOperation &&collective_vertex_postprocess_op);
+
+    // performs user-defined "edge_op" operation over all INCOMING edges, neighbouring specified frontier
+    template <typename EdgeOperation>
+    void gather(ShardedCSRGraph &_graph,
+                FrontierNEC &_frontier,
+                EdgeOperation &&edge_op);
+
     // performs user-defined "compute_op" operation for each element in the given frontier
     template <typename ComputeOperation>
     void compute(VectCSRGraph &_graph,
+                 FrontierNEC &_frontier,
+                 ComputeOperation &&compute_op);
+
+    // performs user-defined "compute_op" operation for each element in the given frontier
+    template <typename ComputeOperation>
+    void compute(ShardedCSRGraph &_graph,
                  FrontierNEC &_frontier,
                  ComputeOperation &&compute_op);
 

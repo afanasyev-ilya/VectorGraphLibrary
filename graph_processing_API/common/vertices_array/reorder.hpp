@@ -35,6 +35,9 @@ void VerticesArray<_T>::reorder_from_original_to_shard(TraversalDirection _direc
     {
         throw "Error in VerticesArray<_T>::reorder_to_shard : incorrect graph type for vertex array";
     }
+
+    ShardedCSRGraph *sharded_graph_ptr = (ShardedCSRGraph *)graph_ptr;
+    sharded_graph_ptr->reorder_from_original_to_shard(*this, _direction, _shard_id);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -46,6 +49,9 @@ void VerticesArray<_T>::reorder_from_shard_to_original(TraversalDirection _direc
     {
         throw "Error in VerticesArray<_T>::reorder_to_original : incorrect graph type for vertex array";
     }
+
+    ShardedCSRGraph *sharded_graph_ptr = (ShardedCSRGraph *)graph_ptr;
+    sharded_graph_ptr->reorder_from_shard_to_original(*this, _direction, _shard_id);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

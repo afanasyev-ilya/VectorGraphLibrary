@@ -17,9 +17,6 @@ protected:
     void set_correct_direction();
     template<typename _T, typename ... Types>
     void set_correct_direction(_T &_first_arg, Types &... _args);
-
-    VerticesArrayContainer *get_containers_ptr() {return vertices_arrays.data();};
-    int get_containers_count() {return vertices_arrays.size();};
 public:
     // attaches graph-processing API to the specific graph
     GraphAbstractions();

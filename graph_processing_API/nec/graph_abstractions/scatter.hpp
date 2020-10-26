@@ -62,7 +62,7 @@ void GraphAbstractionsNEC::scatter(VectCSRGraph &_graph,
 
 template <typename EdgeOperation, typename VertexPreprocessOperation,
         typename VertexPostprocessOperation, typename CollectiveEdgeOperation, typename CollectiveVertexPreprocessOperation,
-        typename CollectiveVertexPostprocessOperation, typename _T>
+        typename CollectiveVertexPostprocessOperation>
 void GraphAbstractionsNEC::scatter(ShardedCSRGraph &_graph,
                                    FrontierNEC &_frontier,
                                    EdgeOperation &&edge_op,
@@ -70,8 +70,7 @@ void GraphAbstractionsNEC::scatter(ShardedCSRGraph &_graph,
                                    VertexPostprocessOperation &&vertex_postprocess_op,
                                    CollectiveEdgeOperation &&collective_edge_op,
                                    CollectiveVertexPreprocessOperation &&collective_vertex_preprocess_op,
-                                   CollectiveVertexPostprocessOperation &&collective_vertex_postprocess_op,
-                                   VerticesArray<_T> &_test_data)
+                                   CollectiveVertexPostprocessOperation &&collective_vertex_postprocess_op)
 {
     Timer tm;
     tm.start();
@@ -112,7 +111,7 @@ void GraphAbstractionsNEC::scatter(ShardedCSRGraph &_graph,
         }
 
         // reorder user data back
-        for(auto& cur_container : user_data_containers)
+        for(auto& current_container : user_data_containers)
         {
             current_container->reorder_from_shard_to_original(current_traversal_direction, shard_id);
         }
@@ -120,6 +119,17 @@ void GraphAbstractionsNEC::scatter(ShardedCSRGraph &_graph,
 
     tm.end();
     performance_stats.update_scatter_time(tm);
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+template <typename EdgeOperation>
+void GraphAbstractionsNEC::scatter(ShardedCSRGraph &_graph,
+                                   FrontierNEC &_frontier,
+                                   EdgeOperation &&edge_op)
+{
+    scatter(_graph, _frontier, edge_op, EMPTY_VERTEX_OP, EMPTY_VERTEX_OP,
+            edge_op, EMPTY_VERTEX_OP, EMPTY_VERTEX_OP);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

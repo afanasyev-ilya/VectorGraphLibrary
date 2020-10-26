@@ -219,23 +219,23 @@ void VectCSRGraph::reorder_edges_original_to_scatter(_T *_scatter_data, _T *_ori
 
     tm.end();
     #ifdef __PRINT_API_PERFORMANCE_STATS__
-    tm.print_bandwidth_stats("vertices reorder", this->vertices_count, sizeof(_T)*2 + sizeof(_outgoing_data[0]));
+    tm.print_bandwidth_stats("vertices reorder", this->vertices_count, sizeof(_T)*2);
     #endif
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template <typename _T>
-void VectCSRGraph::reorder_edges_scatter_to_gather(_T *_incoming_data, _T *_outgoing_data)
+void VectCSRGraph::reorder_edges_scatter_to_gather(_T *_gather_data, _T *_scatter_data)
 {
     Timer tm;
     tm.start();
 
-    incoming_graph->reorder_and_copy_edges_from_original_to_sorted(_incoming_data, _outgoing_data);
+    incoming_graph->reorder_and_copy_edges_from_original_to_sorted(_gather_data, _scatter_data);
 
     tm.end();
     #ifdef __PRINT_API_PERFORMANCE_STATS__
-    tm.print_bandwidth_stats("vertices reorder", this->vertices_count, sizeof(_T)*2 + sizeof(_outgoing_data[0]));
+    tm.print_bandwidth_stats("vertices reorder", this->vertices_count, sizeof(_T)*2);
     #endif
 }
 

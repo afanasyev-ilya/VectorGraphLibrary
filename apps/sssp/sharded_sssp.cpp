@@ -24,6 +24,8 @@ int main(int argc, const char * argv[])
         Parser parser;
         parser.parse_args(argc, argv);
 
+        Timer tm;
+        tm.start();
         ShardedCSRGraph graph;
         EdgesListGraph el_graph;
         if(parser.get_compute_mode() == GENERATE_NEW_GRAPH)
@@ -45,12 +47,18 @@ int main(int argc, const char * argv[])
             double t2 = omp_get_wtime();
             cout << "file " << parser.get_graph_file_name() << " loaded in " << t2 - t1 << " sec" << endl;
         }
+        tm.end();
+        tm.print_time_stats("Generate and import");
+
+        tm.start();
         // generate weights
         EdgesArray_EL<int> el_weights(el_graph);
         el_weights.set_all_random(MAX_WEIGHT);
 
         EdgesArray_Sharded<int> weights(graph);
         weights = el_weights;
+        tm.end();
+        tm.print_time_stats("Generate weights");
 
         // compute SSSP
         cout << "Computations started..." << endl;
