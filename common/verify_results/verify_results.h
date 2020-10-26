@@ -131,9 +131,9 @@ bool equal_components(VectCSRGraph &_graph,
     _graph.reorder(_second, prev_second_direction);
 
     if(result == true)
-        cout << "Components are equal" << endl;
+        cout << "Results are equal" << endl;
     else
-        cout << "Components are NOT equal, error_count = " << error_count << endl;
+        cout << "Results are NOT equal, error_count = " << error_count << endl;
 
     return result;
 }

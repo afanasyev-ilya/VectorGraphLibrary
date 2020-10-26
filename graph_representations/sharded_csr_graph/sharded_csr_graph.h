@@ -76,6 +76,9 @@ public:
 
     // creates ShardedCSRGraph format from EdgesListGraph
     void import(EdgesListGraph &_el_graph);
+
+    // selects random vertex with non-zero outgoing and incoming degree
+    int select_random_vertex(TraversalDirection _direction = ORIGINAL);
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

@@ -25,6 +25,7 @@ public:
     /* get/set API */
     _T *get_ptr() {return vertices_data;};
     ObjectType get_object_type() {return object_type;};
+    int size() {return vertices_count;};
 
     #ifdef __USE_GPU__
     __host__ __device__ inline _T get(int _idx) const {return this->vertices_data[_idx];};

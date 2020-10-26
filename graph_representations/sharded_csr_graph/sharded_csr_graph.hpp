@@ -74,3 +74,28 @@ long long ShardedCSRGraph::get_shard_shift(int _shard_id)
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+int ShardedCSRGraph::select_random_vertex(TraversalDirection _direction)
+{
+    int attempt_num = 0;
+    while(attempt_num < ATTEMPTS_THRESHOLD)
+    {
+        int outgoing_vertex_id = outgoing_shards[0].select_random_vertex();
+        // TODO sharded incoming
+        /*int incoming_vertex_id = this->reorder(outgoing_vertex_id, SCATTER, GATHER);
+        if(incoming_shards[0]->get_connections_count(incoming_vertex_id) > 0)
+        {
+            int original_vertex_id = this->reorder(outgoing_vertex_id, SCATTER, ORIGINAL);
+            return original_vertex_id;
+        }*/
+        return outgoing_vertex_id;
+
+        attempt_num++;
+    }
+
+    throw "Error in ShardedCSRGraph::select_random_vertex: can not select non-zero degree vertex in ATTEMPTS_THRESHOLD attempts";
+
+    return -1;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
