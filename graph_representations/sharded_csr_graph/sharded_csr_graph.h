@@ -56,10 +56,10 @@ public:
 
     /* print API */
     void print();
-    void print_size() {};
+    void print_size();
     template <typename _T>
     void print_in_csr_format(EdgesArray_Sharded<_T> &_weights);
-    size_t get_size() {return 0;};
+    size_t get_size();
 
     /* file load/store API */
     void save_to_graphviz_file(string file_name, VisualisationMode _visualisation_mode = VISUALISE_AS_DIRECTED) {};

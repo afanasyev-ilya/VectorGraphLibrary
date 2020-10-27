@@ -23,7 +23,7 @@ void VectCSRGraph::print_size()
 {
     cout << "Outgoing graph size: " << outgoing_graph->get_size()/1e9 << " GB" << endl;
     cout << "Incoming graph size: " << incoming_graph->get_size()/1e9 << " GB" << endl;
-    cout << "Wall size: " << get_size()/1e9 << " GB" << endl;
+    cout << "Wall size (VectCSRGraph): " << get_size()/1e9 << " GB" << endl;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

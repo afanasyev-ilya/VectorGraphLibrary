@@ -28,8 +28,8 @@ public:
     void print_in_csr_format();
     template <typename _T>
     void print_in_csr_format(EdgesArray_EL<_T> &_weights);
-    void print_size() {};
-    size_t get_size() {return 0;};
+    void print_size();
+    size_t get_size();
 
     /* file load/store API */
     void save_to_graphviz_file(string file_name, VisualisationMode _visualisation_mode = VISUALISE_AS_DIRECTED);

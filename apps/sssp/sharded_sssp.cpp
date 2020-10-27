@@ -49,6 +49,7 @@ int main(int argc, const char * argv[])
         }
         tm.end();
         tm.print_time_stats("Generate and import");
+        graph.print_size();
 
         tm.start();
         // generate weights

@@ -4,7 +4,20 @@
 
 void ShardedCSRGraph::print()
 {
-
+    if(can_use_scatter())
+    {
+        for (int sh = 0; sh < shards_number; sh++)
+        {
+            outgoing_shards[sh].print();
+        }
+    }
+    if(can_use_gather())
+    {
+        for (int sh = 0; sh < shards_number; sh++)
+        {
+            incoming_shards[sh].print();
+        }
+    }
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -35,6 +48,36 @@ void ShardedCSRGraph::print_in_csr_format(EdgesArray_Sharded<_T> &_weights)
         cout << endl;
     }
     // TODO incoming part
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+size_t ShardedCSRGraph::get_size()
+{
+    size_t graph_size = 0;
+    if(can_use_scatter())
+    {
+        for (int sh = 0; sh < shards_number; sh++)
+        {
+            graph_size += outgoing_shards[sh].get_size();
+        }
+    }
+    if(can_use_gather())
+    {
+        for (int sh = 0; sh < shards_number; sh++)
+        {
+            graph_size += incoming_shards[sh].get_size();
+        }
+    }
+    graph_size += this->vertices_count * sizeof(vertices_reorder_buffer[0]);
+    return graph_size;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+void ShardedCSRGraph::print_size()
+{
+    cout << "Wall size (ShardedCSRGraph): " << get_size()/1e9 << " GB" << endl;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

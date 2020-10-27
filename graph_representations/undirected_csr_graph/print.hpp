@@ -80,7 +80,7 @@ void UndirectedCSRGraph::print_with_weights(EdgesArray<_T> &_weights, TraversalD
 
 void UndirectedCSRGraph::print_size()
 {
-    cout << "UndirectedCSRGraph size: " << get_size()/1e9 << "GB" << endl;
+    cout << "Wall size (UndirectedCSRGraph): " << get_size()/1e9 << "GB" << endl;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
