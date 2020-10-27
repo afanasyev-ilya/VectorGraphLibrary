@@ -11,6 +11,10 @@ protected:
     long long edges_count;
     
     bool graph_on_device;
+
+    SupportedDirection supported_direction;
+    bool can_use_gather();
+    bool can_use_scatter();
 public:
     BaseGraph() {this->graph_on_device = false;};
     ~BaseGraph() {};
@@ -37,3 +41,24 @@ public:
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+bool BaseGraph::can_use_gather()
+{
+    if((supported_direction == USE_BOTH) || (supported_direction == USE_GATHER_ONLY))
+        return true;
+    else
+        return false;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+bool BaseGraph::can_use_scatter()
+{
+    if((supported_direction == USE_BOTH) || (supported_direction == USE_SCATTER_ONLY))
+        return true;
+    else
+        return false;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+

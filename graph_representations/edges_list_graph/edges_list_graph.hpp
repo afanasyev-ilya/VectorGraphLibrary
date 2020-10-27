@@ -5,7 +5,8 @@
 EdgesListGraph::EdgesListGraph(int _vertices_count, long long _edges_count)
 {
     this->graph_type = EDGES_LIST_GRAPH;
-    
+    this->supported_direction = USE_BOTH;
+
     alloc(_vertices_count, _edges_count);
 }
 

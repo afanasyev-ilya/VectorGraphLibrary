@@ -113,11 +113,17 @@ void ShardedCSRGraph::import(EdgesListGraph &_el_graph)
 
     resize(shards_number, this->vertices_count);
 
-    import_direction(_el_graph, SCATTER);
+    if(can_use_scatter())
+    {
+        import_direction(_el_graph, SCATTER);
+    }
 
-    _el_graph.transpose();
-    import_direction(_el_graph, GATHER);
-    _el_graph.transpose();
+    if(can_use_gather())
+    {
+        _el_graph.transpose();
+        import_direction(_el_graph, GATHER);
+        _el_graph.transpose();
+    }
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

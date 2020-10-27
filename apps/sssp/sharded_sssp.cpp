@@ -26,7 +26,7 @@ int main(int argc, const char * argv[])
 
         Timer tm;
         tm.start();
-        ShardedCSRGraph graph;
+        ShardedCSRGraph graph(USE_SCATTER_ONLY);
         EdgesListGraph el_graph;
         if(parser.get_compute_mode() == GENERATE_NEW_GRAPH)
         {

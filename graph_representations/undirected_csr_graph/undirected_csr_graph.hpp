@@ -5,6 +5,8 @@
 UndirectedCSRGraph::UndirectedCSRGraph(int _vertices_count, long long _edges_count)
 {
     this->graph_type = UNDIRECTED_CSR_GRAPH;
+    this->supported_direction = USE_SCATTER_ONLY;
+
     alloc(_vertices_count, _edges_count);
 }
 

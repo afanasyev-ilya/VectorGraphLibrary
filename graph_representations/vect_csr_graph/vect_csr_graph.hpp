@@ -2,9 +2,12 @@
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-VectCSRGraph::VectCSRGraph(int _vertices_count, long long _edges_count)
+VectCSRGraph::VectCSRGraph(SupportedDirection _supported_direction,
+                           int _vertices_count,
+                           long long _edges_count)
 {
     this->graph_type = VECT_CSR_GRAPH;
+    this->supported_direction = _supported_direction;
 
     init(_vertices_count, _edges_count);
 }

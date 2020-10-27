@@ -9,9 +9,9 @@ void ShardedCSRGraph::reorder_from_original_to_shard(VerticesArray<_T> _data, Tr
     tm.start();
     if(_data.get_direction() == ORIGINAL)
     {
-        if(_direction == SCATTER)
+        if((_direction == SCATTER) && can_use_scatter())
             outgoing_shards[_shard_id].reorder_to_sorted(_data.get_ptr(), (_T*)vertices_reorder_buffer);
-        else if(_direction == GATHER)
+        else if((_direction == GATHER) && can_use_scatter())
             incoming_shards[_shard_id].reorder_to_sorted(_data.get_ptr(), (_T*)vertices_reorder_buffer);
     }
     else
@@ -34,9 +34,9 @@ void ShardedCSRGraph::reorder_from_shard_to_original(VerticesArray<_T> _data, Tr
     tm.start();
     if(_data.get_direction() == ORIGINAL)
     {
-        if(_direction == SCATTER)
+        if((_direction == SCATTER) && can_use_scatter())
             outgoing_shards[_shard_id].reorder_to_original(_data.get_ptr(), (_T*)vertices_reorder_buffer);
-        else if(_direction == GATHER)
+        else if((_direction == GATHER) && can_use_scatter())
             incoming_shards[_shard_id].reorder_to_original(_data.get_ptr(), (_T*)vertices_reorder_buffer);
     }
     else

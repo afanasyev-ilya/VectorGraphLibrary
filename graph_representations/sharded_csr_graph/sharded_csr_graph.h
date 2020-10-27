@@ -38,7 +38,7 @@ private:
     template <typename _T>
     void reorder_from_shard_to_original(VerticesArray<_T> _data, TraversalDirection _direction, int _shard_id);
 public:
-    ShardedCSRGraph();
+    ShardedCSRGraph(SupportedDirection _supported_direction = USE_BOTH);
     ~ShardedCSRGraph();
 
     /* get API */
@@ -52,7 +52,7 @@ public:
     inline long long get_edges_count_in_ve_incoming_shard(int _shard_id) {return incoming_shards[_shard_id].get_edges_count_in_ve();};
 
     inline long long get_direction_shift();
-    inline long long get_shard_shift(int _shard_id);
+    inline long long get_shard_shift(int _shard_id, TraversalDirection _direction);
 
     /* print API */
     void print();

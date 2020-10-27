@@ -104,7 +104,7 @@ void GraphAbstractionsNEC::gather(ShardedCSRGraph &_graph,
             current_container->reorder_from_original_to_shard(current_traversal_direction, shard_id);
         }
 
-        long long shard_shift = _graph.get_shard_shift(shard_id);
+        long long shard_shift = _graph.get_shard_shift(shard_id, current_traversal_direction);
         #pragma omp parallel
         {
             advance_worker(*current_shard, _frontier, edge_op, vertex_preprocess_op, vertex_postprocess_op,

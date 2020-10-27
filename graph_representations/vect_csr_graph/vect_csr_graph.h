@@ -49,7 +49,8 @@ private:
     void reorder_edges_scatter_to_gather(_T *_gather_data, _T *_scatter_data);
 
 public:
-    VectCSRGraph(int _vertices_count = 1, long long _edges_count = 1);
+    VectCSRGraph(SupportedDirection _supported_direction = USE_BOTH,
+                 int _vertices_count = 1, long long _edges_count = 1);
     ~VectCSRGraph();
 
     /* get/set API */
