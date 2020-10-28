@@ -18,7 +18,7 @@ Libraries = -fopenmp -report-all -ftrace -lasl_openmp_i64 #-ftrace
 # binaries
 ##########
 
-all: sssp sharded_sssp bfs scc gather
+all: sssp sharded_sssp bfs scc gather pr
 
 sssp: create_folders sssp.o
 	$(CXX) object_files/sssp.o $(Library_Path) $(Libraries) -o ./bin/sssp_sx
@@ -31,6 +31,9 @@ bfs: create_folders bfs.o
 
 scc: create_folders scc.o
 	$(CXX) object_files/scc.o $(Library_Path) $(Libraries) -o ./bin/scc_sx
+
+pr: create_folders pr.o
+	$(CXX) object_files/pr.o $(Library_Path) $(Libraries) -o ./bin/pr_sx
 
 gather: create_folders gather.o
 	$(CXX) object_files/gather.o $(Library_Path) $(Libraries) -o ./bin/gather_sx
@@ -50,6 +53,9 @@ bfs.o: bfs/bfs.cpp
 
 scc.o: scc/scc.cpp
 	$(CXX) $(Flags) $(Include_Path)  -c scc/scc.cpp -o object_files/scc.o -fopenmp
+
+pr.o: pr/pr.cpp
+	$(CXX) $(Flags) $(Include_Path)  -c pr/pr.cpp -o object_files/pr.o -fopenmp
 
 gather.o: misc/gather.cpp
 	$(CXX) $(Flags) $(Include_Path)  -c misc/gather.cpp -o object_files/gather.o -fopenmp

@@ -10,73 +10,14 @@
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-//#include "graph_library.h"
-
-#include <iostream>
-using namespace std;
-
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-inline void unpack(long long val, int &a, int &b)
-{
-    a = (int)((val & 0xFFFFFFFF00000000LL) >> 32);
-    b = (int)(val & 0xFFFFFFFFLL);
-}
-
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-inline void pack(long long &val, int a, int b)
-{
-    val = ((long long)a) << 32 | b;
-}
+#include "graph_library.h"
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
 int main(int argc, const char * argv[])
 {
-    int a[256];
-    int b[256];
-    long long c[256];
-    int idx[256];
-
-    for(int i = 0; i < 256; i++)
-    {
-        a[i] = i;
-        b[i] = i + 1;
-        c[i] = 0;
-        idx[i] = rand()%256;
-    }
-
-    // pack
-    #pragma _NEC ivdep
-    #pragma _NEC vector
-    for(int i = 0; i < 256; i++)
-    {
-        pack(c[i], a[i], b[i]);
-    }
-
-    for(int i = 0; i < 10; i++)
-    {
-        cout << c[i] << endl;
-    }
-
-    // unpack
-    #pragma _NEC ivdep
-    #pragma _NEC vector
-    for(int i = 0; i < 256; i++)
-    {
-        long long val = c[idx[i]];
-        unpack(val, a[i], b[i]);
-    }
-
-    for(int i = 0; i < 10; i++)
-    {
-        cout << a[i] << " " << b[i] << endl;
-    }
-    cout << endl;
-
-    /*try
+    try
     {
         cout << "SSSP (Single Source Shortest Paths) test..." << endl;
 
@@ -149,7 +90,7 @@ int main(int argc, const char * argv[])
     catch (const char * error)
     {
         cout << error << endl;
-    }*/
+    }
     return 0;
 }
 
