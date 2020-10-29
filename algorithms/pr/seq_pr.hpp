@@ -20,6 +20,7 @@ void PR::seq_page_rank(VectCSRGraph &_graph,
     VerticesArray<int> number_of_loops(_graph, SCATTER);
     VerticesArray<int> incoming_degrees(_graph, GATHER);
     VerticesArray<int> incoming_degrees_without_loops(_graph, SCATTER);
+    VerticesArray<_T> reversed_incoming_degrees(_graph, SCATTER);
     VerticesArray<_T> old_page_ranks(_graph, SCATTER);
 
     // init ranks and other data
@@ -59,6 +60,7 @@ void PR::seq_page_rank(VectCSRGraph &_graph,
     for(int i = 0; i < vertices_count; i++)
     {
         incoming_degrees_without_loops[i] = incoming_degrees[i] - number_of_loops[i];
+        reversed_incoming_degrees[i] = 1.0 / incoming_degrees_without_loops[i];
     }
 
     int iterations_count = 0;
@@ -94,7 +96,7 @@ void PR::seq_page_rank(VectCSRGraph &_graph,
                 int dst_id = outgoing_graph_ptr->get_adjacent_ids()[global_edge_pos];
 
                 float dst_rank = old_page_ranks[dst_id];
-                float dst_links_num = 1.0 / incoming_degrees_without_loops[dst_id];
+                float dst_links_num = reversed_incoming_degrees[dst_id];
 
                 if(src_id != dst_id)
                     _page_ranks[src_id] += dst_rank * dst_links_num;
@@ -102,6 +104,14 @@ void PR::seq_page_rank(VectCSRGraph &_graph,
 
             _page_ranks[src_id] = k + d * (_page_ranks[src_id] + dangling_input);
         }
+
+        for(int i = 0; i < vertices_count; i++)
+            cout << incoming_degrees_without_loops[i] << " ";
+        cout << endl;
+
+        for(int i = 0; i < vertices_count; i++)
+            cout << _page_ranks[i] << " ";
+        cout << endl;
 
         // calculate new ranks sum
         double ranks_sum = 0;
