@@ -11,6 +11,7 @@ void GraphAbstractionsNEC::compute_worker(UndirectedCSRGraph &_graph,
     int max_frontier_size = _frontier.max_size;
     if(_frontier.type == ALL_ACTIVE_FRONTIER)
     {
+        #pragma _NEC cncall
         #pragma _NEC ivdep
         #pragma _NEC vovertake
         #pragma _NEC novob
@@ -27,6 +28,7 @@ void GraphAbstractionsNEC::compute_worker(UndirectedCSRGraph &_graph,
     {
         int *frontier_flags = _frontier.flags;
 
+        #pragma _NEC cncall
         #pragma _NEC ivdep
         #pragma _NEC vovertake
         #pragma _NEC novob

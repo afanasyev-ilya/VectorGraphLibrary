@@ -14,38 +14,23 @@
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-inline void vgl_unpack(long long val, int &a, int &b)
-{
-    a = (int)((val & 0xFFFFFFFF00000000LL) >> 32);
-    b = (int)(val & 0xFFFFFFFFLL);
-}
-
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-inline void vgl_pack(long long &val, int a, int b)
-{
-    val = ((long long)a) << 32 | b;
-}
-
-
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
 int main(int argc, const char * argv[])
 {
-    int a[256];
+    float a[256];
     int b[256];
     long long c[256];
     int idx[256];
 
     for(int i = 0; i < 256; i++)
     {
-        a[i] = i;
-        b[i] = i + 1;
+        a[i] = i + 0.5;
+        b[i] = i + 10;
         c[i] = 0;
-        idx[i] = rand()%256;
+        idx[i] = i;
     }
 
     // pack
+    #pragma _NEC cncall
     #pragma _NEC ivdep
     #pragma _NEC vector
     for(int i = 0; i < 256; i++)
@@ -59,6 +44,7 @@ int main(int argc, const char * argv[])
     }
 
     // unpack
+    #pragma _NEC cncall
     #pragma _NEC ivdep
     #pragma _NEC vector
     for(int i = 0; i < 256; i++)
@@ -108,7 +94,7 @@ int main(int argc, const char * argv[])
         {
             VerticesArray<float> seq_page_ranks(graph);
             PageRank::seq_page_rank(graph, seq_page_ranks);
-            verify_results(page_ranks, seq_page_ranks, 10);
+            verify_results(page_ranks, seq_page_ranks);
         }
     }
     catch (string error)

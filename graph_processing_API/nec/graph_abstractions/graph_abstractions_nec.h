@@ -279,6 +279,16 @@ public:
     void generate_new_frontier(VectCSRGraph &_graph,
                                FrontierNEC &_frontier,
                                FilterCondition &&filter_cond);
+
+    template <typename _T1, typename _T2>
+    void pack_vertices_arrays(VerticesArray<VGL_PACK_TYPE> &_packed_data,
+                              VerticesArray<_T1> &_first,
+                              VerticesArray<_T2> &_second);
+
+    template <typename _T1, typename _T2>
+    void unpack_vertices_arrays(VerticesArray<VGL_PACK_TYPE> &_packed_data,
+                                VerticesArray<_T1> &_first,
+                                VerticesArray<_T2> &_second);
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -294,5 +304,6 @@ public:
 #include "advance_sparse.hpp"
 #include "generate_new_frontier.hpp"
 #include "reduce.hpp"
+#include "pack.hpp"
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

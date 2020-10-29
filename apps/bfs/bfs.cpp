@@ -51,13 +51,20 @@ int main(int argc, const char * argv[])
         cout << "Doing " << parser.get_number_of_rounds() << " BFS iterations..." << endl;
         for(int i = 0; i < parser.get_number_of_rounds(); i++)
         {
-            VerticesArray<int> levels(graph, SCATTER); // TODO selection for DO/BU
+            VerticesArray<int> levels(graph, SCATTER);
+            VerticesArray<int> parents(graph, SCATTER);
 
             int source_vertex = graph.select_random_vertex(ORIGINAL);
             cout << "selected source vertex " << source_vertex << endl;
 
             performance_stats.reset_timers();
             BFS::nec_top_down(graph, levels, source_vertex);
+            performance_stats.print_timers_stats();
+
+            cout << " ------------------------------- " << endl;
+
+            performance_stats.reset_timers();
+            BFS::nec_top_down(graph, levels, parents, source_vertex);
             performance_stats.print_timers_stats();
 
             // check if required

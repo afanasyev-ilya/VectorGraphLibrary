@@ -14,6 +14,7 @@ _T GraphAbstractionsNEC::reduce_sum(UndirectedCSRGraph &_graph,
     int max_frontier_size = _frontier.max_size;
     if(_frontier.type == ALL_ACTIVE_FRONTIER)
     {
+        #pragma _NEC cncall
         #pragma _NEC vovertake
         #pragma _NEC novob
         #pragma _NEC vector
@@ -30,6 +31,7 @@ _T GraphAbstractionsNEC::reduce_sum(UndirectedCSRGraph &_graph,
     else if((_frontier.type == DENSE_FRONTIER) || (_frontier.type == SPARSE_FRONTIER)) // TODO FIX SPARSE
     {
         int *frontier_flags = _frontier.flags;
+        #pragma _NEC cncall
         #pragma _NEC vovertake
         #pragma _NEC novob
         #pragma _NEC vector

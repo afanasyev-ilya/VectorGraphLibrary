@@ -35,6 +35,7 @@ void GraphAbstractionsNEC::vector_engine_per_vertex_kernel_all_active(Undirected
 
         vertex_preprocess_op(src_id, connections_count, 0, delayed_write);
 
+        #pragma _NEC cncall
         #pragma _NEC ivdep
         #pragma _NEC vovertake
         #pragma _NEC novob
@@ -96,6 +97,7 @@ void GraphAbstractionsNEC::vector_core_per_vertex_kernel_all_active(UndirectedCS
 
         vertex_preprocess_op(src_id, connections_count, 0, delayed_write);
 
+        #pragma _NEC cncall
         #pragma _NEC ivdep
         #pragma _NEC vovertake
         #pragma _NEC novob
@@ -184,6 +186,7 @@ void GraphAbstractionsNEC::ve_collective_vertex_processing_kernel_all_active(Und
 
         for(int edge_pos = _first_edge; edge_pos < segment_connections_count; edge_pos++)
         {
+            #pragma _NEC cncall
             #pragma _NEC ivdep
             #pragma _NEC vovertake
             #pragma _NEC novob
