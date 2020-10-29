@@ -16,49 +16,6 @@
 
 int main(int argc, const char * argv[])
 {
-    float a[256];
-    int b[256];
-    long long c[256];
-    int idx[256];
-
-    for(int i = 0; i < 256; i++)
-    {
-        a[i] = i + 0.5;
-        b[i] = i + 10;
-        c[i] = 0;
-        idx[i] = i;
-    }
-
-    // pack
-    #pragma _NEC cncall
-    #pragma _NEC ivdep
-    #pragma _NEC vector
-    for(int i = 0; i < 256; i++)
-    {
-        vgl_pack(c[i], a[i], b[i]);
-    }
-
-    for(int i = 0; i < 10; i++)
-    {
-        cout << c[i] << endl;
-    }
-
-    // unpack
-    #pragma _NEC cncall
-    #pragma _NEC ivdep
-    #pragma _NEC vector
-    for(int i = 0; i < 256; i++)
-    {
-        long long val = c[idx[i]];
-        vgl_unpack(val, a[i], b[i]);
-    }
-
-    for(int i = 0; i < 10; i++)
-    {
-        cout << a[i] << " " << b[i] << endl;
-    }
-    cout << endl;
-
     try
     {
         cout << "PR (Page Rank) test..." << endl;
@@ -94,6 +51,7 @@ int main(int argc, const char * argv[])
         {
             VerticesArray<float> seq_page_ranks(graph);
             PageRank::seq_page_rank(graph, seq_page_ranks);
+
             verify_results(page_ranks, seq_page_ranks);
         }
     }

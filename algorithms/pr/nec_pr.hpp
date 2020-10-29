@@ -19,6 +19,7 @@ void PR::nec_page_rank(VectCSRGraph &_graph,
     VerticesArray<int> incoming_degrees_without_loops(_graph, SCATTER);
     VerticesArray<_T> old_page_ranks(_graph, SCATTER);
     VerticesArray<_T> reversed_degrees(_graph, SCATTER);
+    VerticesArray<VGL_PACK_TYPE> packed_data(_graph, SCATTER);
 
     graph_API.change_traversal_direction(GATHER, frontier, incoming_degrees);
 
@@ -92,7 +93,7 @@ void PR::nec_page_rank(VectCSRGraph &_graph,
         };
         graph_API.compute(_graph, frontier, save_old_ranks);
 
-        //pack_array_data(old_page_ranks, reversed_degrees, packed_data, vertices_count);
+        graph_API.pack_vertices_arrays(packed_data, old_page_ranks, reversed_degrees);
 
         auto reduce_dangling_input = [incoming_degrees_without_loops, old_page_ranks, vertices_count](int src_id, int connections_count, int vector_index)->float
         {
@@ -105,10 +106,17 @@ void PR::nec_page_rank(VectCSRGraph &_graph,
         };
         double dangling_input = graph_API.reduce<double>(_graph, frontier, reduce_dangling_input, REDUCE_SUM);
 
-        auto edge_op = [_page_ranks, old_page_ranks, reversed_degrees](int src_id, int dst_id, int local_edge_pos,
+        auto edge_op = [_page_ranks, old_page_ranks, reversed_degrees, packed_data](int src_id, int dst_id, int local_edge_pos,
                     long long int global_edge_pos, int vector_index, DelayedWriteNEC &delayed_write)
         {
-            //uint64_t packed = packed_data[dst_id];
+            VGL_PACK_TYPE packed_val = packed_data[dst_id];
+
+            delayed_write.pack_int_1[vector_index] = (int)((packed_val & 0xFFFFFFFF00000000LL) >> 32);
+            delayed_write.pack_int_2[vector_index] = (int)(packed_val & 0xFFFFFFFFLL);
+
+            //float dst_rank = delayed_write.pack_int_1_to_flt[vector_index];
+            //float reversed_dst_links_num = delayed_write.pack_int_2_to_flt[vector_index];
+
             float dst_rank = old_page_ranks[dst_id];
             float reversed_dst_links_num = reversed_degrees[dst_id];
 

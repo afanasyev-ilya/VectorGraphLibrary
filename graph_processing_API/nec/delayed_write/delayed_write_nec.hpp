@@ -13,6 +13,9 @@ void DelayedWriteNEC::init()
         flt_vec_reg[i] = 0;
         dbl_vec_reg[i] = 0;
     }
+
+    pack_int_1_to_flt = (float*)pack_int_1;
+    pack_int_2_to_flt = (float*)pack_int_2;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
