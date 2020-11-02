@@ -5,7 +5,7 @@ CXX = nc++
 
 # Include paths...
 Include_Path = -I /opt/nec/ve/nlc/2.0.0/include/ -I ../
-Flags = -O4 -fopenmp -report-all -proginf -mparallel -mretain-list-vector -DASL_LIB_INT64 #-ftrace #-mno-vector #-ftrace
+Flags = -O3 -fopenmp -report-all -proginf -mparallel -mretain-list-vector -DASL_LIB_INT64 #-ftrace #-mno-vector #-ftrace
 
 # Library paths...
 Library_Path =

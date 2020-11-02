@@ -16,6 +16,89 @@
 
 int main(int argc, const char * argv[])
 {
+    int size = 4*1024*1024;
+    int *a_data = new int[size];
+    int *b_data = new int[size];
+    float *f_a_data = new float[size];
+    float *f_b_data = new float[size];
+    long long *packed_data = new long long[size];
+
+    #pragma omp parallel for
+    for(int i = 0; i < size; i++)
+    {
+        a_data[i] = i / 100;
+        b_data[i] = (size - i) / 100;
+        f_a_data[i] = i / 100;
+        f_b_data[i] = (size - i) / 100;
+    }
+
+    cout << "before : " << a_data[0] << " " << b_data[0] << endl;
+
+    Timer tm;
+    tm.start();
+    #pragma _NEC ivdep
+    #pragma omp parallel for
+    for(int i = 0; i < size; i++)
+    {
+        int a = a_data[i];
+        int b = b_data[i];
+        packed_data[i] = ((long long)a) << 32 | b;
+    }
+    tm.end();
+    tm.print_time_and_bandwidth_stats("int pack", size, 2.0*sizeof(int)+sizeof(long long));
+
+    tm.start();
+    #pragma _NEC ivdep
+    #pragma omp parallel for
+    for(int i = 0; i < size; i++)
+    {
+        long long packed_val = packed_data[i];
+        a_data[i] = (int)((packed_val & 0xFFFFFFFF00000000LL) >> 32);
+        b_data[i] = (int)(packed_val & 0xFFFFFFFFLL);
+    }
+    tm.end();
+    tm.print_time_and_bandwidth_stats("int unpack", size, 2.0*sizeof(int)+sizeof(long long));
+
+    cout << "after : " << a_data[0] << " " << b_data[0] << endl;
+
+    cout << "before : " << f_a_data[0] << " " << f_b_data[0] << endl;
+
+    tm.start();
+    #pragma _NEC ivdep
+    #pragma omp parallel for
+    for(int i = 0; i < size; i++)
+    {
+        float fa = f_a_data[i];
+        float fb = f_b_data[i];
+        int a = *(int*)& fa;
+        int b = *(int*)& fb;
+        packed_data[i] = ((long long)a) << 32 | b;
+    }
+    tm.end();
+    tm.print_time_and_bandwidth_stats("float pack", size, 2.0*sizeof(float)+sizeof(long long));
+
+    tm.start();
+    #pragma _NEC ivdep
+    #pragma omp parallel for
+    for(int i = 0; i < size; i++)
+    {
+        long long packed_val = packed_data[i];
+        int a = (int)((packed_val & 0xFFFFFFFF00000000LL) >> 32);
+        int b = (int)(packed_val & 0xFFFFFFFFLL);
+        f_a_data[i] = *(float*)& a;
+        f_b_data[i] = *(float*)& b;
+    }
+    tm.end();
+    tm.print_time_and_bandwidth_stats("float unpack", size, 2.0*sizeof(int)+sizeof(long long));
+
+    cout << "after : " << f_a_data[0] << " " << f_b_data[0] << endl;
+
+    delete[] a_data;
+    delete[] b_data;
+    delete[] f_a_data;
+    delete[] f_b_data;
+    delete[] packed_data;
+
     try
     {
         cout << "PR (Page Rank) test..." << endl;
