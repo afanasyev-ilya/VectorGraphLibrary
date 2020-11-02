@@ -12,8 +12,8 @@ public:
     float flt_vec_reg[VECTOR_LENGTH];
     double dbl_vec_reg[VECTOR_LENGTH];
 
-    int pack_int_1[VECTOR_LENGTH];
-    int pack_int_2[VECTOR_LENGTH];
+    int *pack_int_1;//[VECTOR_LENGTH];
+    int *pack_int_2;//[VECTOR_LENGTH];
     float *pack_int_1_to_flt;
     float *pack_int_2_to_flt;
 

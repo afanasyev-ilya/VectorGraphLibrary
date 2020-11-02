@@ -1,5 +1,10 @@
 #pragma once
 
+float *old_page_ranks_gl_p;
+float *page_ranks_gl_p;
+long long *packed_data_gl_p;
+float *reversed_degrees_gl_p;
+
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // architecture can be selected here or in apps files

@@ -137,6 +137,8 @@ void GraphAbstractionsNEC::ve_collective_vertex_processing_kernel_all_active(Und
                                                                              const int _first_edge,
                                                                              const long long _shard_shift)
 {
+    int pack_reg_int[VECTOR_LENGTH];
+    float *pack_reg_flt = (float*)pack_reg_int;
     Timer tm;
     tm.start();
 

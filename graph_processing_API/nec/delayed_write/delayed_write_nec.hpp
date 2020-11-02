@@ -14,6 +14,9 @@ void DelayedWriteNEC::init()
         dbl_vec_reg[i] = 0;
     }
 
+    pack_int_1 = new int[256];
+    pack_int_2 = new int[256];
+
     pack_int_1_to_flt = (float*)pack_int_1;
     pack_int_2_to_flt = (float*)pack_int_2;
 }

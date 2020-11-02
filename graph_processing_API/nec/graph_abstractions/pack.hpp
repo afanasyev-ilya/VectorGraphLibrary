@@ -78,8 +78,8 @@ inline void vgl_pack(VGL_PACK_TYPE &_val, float _a, float _b)
 
 inline void vgl_pack(VGL_PACK_TYPE &_val, int _a, int _b)
 {
-    int a = *(int*)&_a;
-    int b = *(int*)&_b;
+    int a = _a;
+    int b = _b;
     _val = ((VGL_PACK_TYPE)a) << 32 | b;
 }
 

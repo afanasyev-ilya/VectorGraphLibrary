@@ -21,6 +21,11 @@ void PR::nec_page_rank(VectCSRGraph &_graph,
     VerticesArray<_T> reversed_degrees(_graph, SCATTER);
     VerticesArray<VGL_PACK_TYPE> packed_data(_graph, SCATTER);
 
+    old_page_ranks_gl_p = old_page_ranks.get_ptr();
+    page_ranks_gl_p = _page_ranks.get_ptr();
+    packed_data_gl_p = packed_data.get_ptr();
+    reversed_degrees_gl_p = reversed_degrees.get_ptr();
+
     graph_API.change_traversal_direction(GATHER, frontier, incoming_degrees);
 
     auto get_incoming_degrees = [&incoming_degrees] (int src_id, int connections_count, int vector_index)
@@ -66,8 +71,8 @@ void PR::nec_page_rank(VectCSRGraph &_graph,
         delayed_write.finish_write_sum(number_of_loops.get_ptr(), src_id);
     };
 
-    graph_API.scatter(_graph, frontier, calculate_number_of_loops, EMPTY_VERTEX_OP, vertex_postprocess_calculate_number_of_loops,
-                      calculate_number_of_loops_collective, EMPTY_VERTEX_OP, EMPTY_VERTEX_OP);
+    //graph_API.scatter(_graph, frontier, calculate_number_of_loops, EMPTY_VERTEX_OP, vertex_postprocess_calculate_number_of_loops,
+    //                  calculate_number_of_loops_collective, EMPTY_VERTEX_OP, EMPTY_VERTEX_OP);
 
     auto calculate_degrees_without_loops = [incoming_degrees_without_loops, incoming_degrees, number_of_loops] (int src_id, int connections_count, int vector_index)
     {
@@ -109,13 +114,16 @@ void PR::nec_page_rank(VectCSRGraph &_graph,
         auto edge_op = [_page_ranks, old_page_ranks, reversed_degrees, packed_data](int src_id, int dst_id, int local_edge_pos,
                     long long int global_edge_pos, int vector_index, DelayedWriteNEC &delayed_write)
         {
-            VGL_PACK_TYPE packed_val = packed_data[dst_id];
+            /*VGL_PACK_TYPE packed_val = packed_data[dst_id];
 
             delayed_write.pack_int_1[vector_index] = (int)((packed_val & 0xFFFFFFFF00000000LL) >> 32);
             delayed_write.pack_int_2[vector_index] = (int)(packed_val & 0xFFFFFFFFLL);
 
-            //float dst_rank = delayed_write.pack_int_1_to_flt[vector_index];
-            //float reversed_dst_links_num = delayed_write.pack_int_2_to_flt[vector_index];
+            float dst_rank = delayed_write.pack_int_1_to_flt[vector_index];
+            float reversed_dst_links_num = delayed_write.pack_int_2_to_flt[vector_index];*/
+
+            //if(dst_rank != old_page_ranks[dst_id])
+            //    cout << dst_rank << " vs " << old_page_ranks[dst_id] << endl;
 
             float dst_rank = old_page_ranks[dst_id];
             float reversed_dst_links_num = reversed_degrees[dst_id];
