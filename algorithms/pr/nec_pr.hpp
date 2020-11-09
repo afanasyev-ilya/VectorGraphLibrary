@@ -21,11 +21,6 @@ void PR::nec_page_rank(VectCSRGraph &_graph,
     VerticesArray<_T> reversed_degrees(_graph, SCATTER);
     VerticesArray<VGL_PACK_TYPE> packed_data(_graph, SCATTER);
 
-    old_page_ranks_gl_p = old_page_ranks.get_ptr();
-    page_ranks_gl_p = _page_ranks.get_ptr();
-    packed_data_gl_p = packed_data.get_ptr();
-    reversed_degrees_gl_p = reversed_degrees.get_ptr();
-
     graph_API.change_traversal_direction(GATHER, frontier, incoming_degrees);
 
     auto get_incoming_degrees = [&incoming_degrees] (int src_id, int connections_count, int vector_index)

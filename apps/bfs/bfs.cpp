@@ -61,12 +61,6 @@ int main(int argc, const char * argv[])
             BFS::nec_top_down(graph, levels, source_vertex);
             performance_stats.print_timers_stats();
 
-            cout << " ------------------------------- " << endl;
-
-            performance_stats.reset_timers();
-            BFS::nec_top_down(graph, levels, parents, source_vertex);
-            performance_stats.print_timers_stats();
-
             // check if required
             if(parser.get_check_flag())
             {
