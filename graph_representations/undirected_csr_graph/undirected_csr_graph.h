@@ -116,6 +116,7 @@ public:
     /* print API */
     void print();
     void print_size();
+    void print_stats();
     size_t get_size();
     template <typename _T>
     void print_with_weights(EdgesArray<_T> &_weights, TraversalDirection _direction);

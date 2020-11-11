@@ -100,16 +100,18 @@ void GraphAbstractionsNEC::vector_core_per_vertex_kernel_all_active(UndirectedCS
         #pragma _NEC novector
         for(int vec_start = 0; vec_start < connections_count; vec_start += VECTOR_LENGTH)
         {
+            #pragma _NEC cncall
             #pragma _NEC ivdep
             #pragma _NEC vovertake
             #pragma _NEC novob
             #pragma _NEC vector
+            #pragma _NEC gather_reorder
             for(int i = 0; i < VECTOR_LENGTH; i++)
             {
                 int local_edge_pos = vec_start + i;
 
                 const long long internal_edge_pos = start + local_edge_pos;
-                const int vector_index = get_vector_index(local_edge_pos);
+                const int vector_index = i;
                 const int dst_id = adjacent_ids[internal_edge_pos];
                 const long long external_edge_pos = process_shift + internal_edge_pos;
 

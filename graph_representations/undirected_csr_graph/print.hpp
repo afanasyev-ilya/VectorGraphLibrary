@@ -113,3 +113,21 @@ void UndirectedCSRGraph::print_vertex_information(int _src_id, int _num_edges)
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+void UndirectedCSRGraph::print_stats()
+{
+    #ifdef __USE_NEC_SX_AURORA__
+    long long edges_in_ve_group = vertex_pointers[vector_engine_threshold_vertex] - vertex_pointers[0];
+    long long edges_in_vc_group = vertex_pointers[vector_core_threshold_vertex] - vertex_pointers[vector_engine_threshold_vertex];
+    long long edges_in_collective_group = vertex_pointers[this->vertices_count] - vertex_pointers[vector_core_threshold_vertex];
+
+    cout << "ve group size: " << 100.0*((float)edges_in_ve_group)/this->edges_count << " %" << endl;
+    cout << "vc group size: " << 100.0*((float)edges_in_vc_group)/this->edges_count << " %" << endl;
+    cout << "collective group size: " << 100.0*((float)edges_in_collective_group)/this->edges_count << " %" << endl;
+
+    cout << "thresholds: " << edges_in_ve_group << " " << edges_in_vc_group << " " << edges_in_collective_group << endl;
+    #endif
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
