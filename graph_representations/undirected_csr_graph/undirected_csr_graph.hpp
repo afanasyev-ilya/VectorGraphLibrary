@@ -97,20 +97,19 @@ void UndirectedCSRGraph::save_to_graphviz_file(string _file_name, VerticesArray<
 
 bool UndirectedCSRGraph::save_to_binary_file(string _file_name)
 {
-    FILE * graph_file = fopen(_file_name.c_str(), "wb");
+    _file_name += ".undcsr";
+    FILE *graph_file = fopen(_file_name.c_str(), "wb");
     if(graph_file == NULL)
         return false;
     
     int vertices_count = this->vertices_count;
     long long edges_count = this->edges_count;
-    /*fwrite(reinterpret_cast<const void*>(&(this->graph_type)), sizeof(GraphType), 1, graph_file);
-    fwrite(reinterpret_cast<const void*>(&vertices_count), sizeof(int), 1, graph_file);
-    fwrite(reinterpret_cast<const void*>(&edges_count), sizeof(long long), 1, graph_file);
 
-    //fwrite(reinterpret_cast<const char*>(reordered_vertex_ids), sizeof(int), vertices_count, graph_file);
-    fwrite(reinterpret_cast<const char*>(vertex_pointers), sizeof(long long), vertices_count + 1, graph_file);
-    
-    fwrite(reinterpret_cast<const char*>(adjacent_ids), sizeof(int), edges_count, graph_file);*/
+    fwrite(reinterpret_cast<const char*>(&(this->graph_type)), sizeof(GraphType), 1, graph_file);
+    fwrite(reinterpret_cast<const char*>(&vertices_count), sizeof(int), 1, graph_file);
+    fwrite(reinterpret_cast<const char*>(&edges_count), sizeof(long long), 1, graph_file);
+
+    save_main_content_to_binary_file(graph_file);
     
     fclose(graph_file);
     return true;
@@ -118,41 +117,26 @@ bool UndirectedCSRGraph::save_to_binary_file(string _file_name)
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-
 bool UndirectedCSRGraph::load_from_binary_file(string _file_name)
 {
+    _file_name += ".undcsr";
     FILE * graph_file = fopen(_file_name.c_str(), "rb");
     if(graph_file == NULL)
         return false;
-    
-    /*fread(reinterpret_cast<void*>(&this->vertices_count), sizeof(int), 1, graph_file);
-    fread(reinterpret_cast<void*>(&this->edges_count), sizeof(long long), 1, graph_file);
-    
-    this->resize(this->vertices_count, this->edges_count);
-    
-    fread(reinterpret_cast<void*>(&(this->graph_type)), sizeof(GraphType), 1, graph_file);
-    
-    if(this->graph_type != GraphTypeExtendedCSR)
-        throw "ERROR: loaded incorrect type of graph into UndirectedCSRGraph container";
-    
-    fread(reinterpret_cast<void*>(&vertices_state), sizeof(VerticesState), 1, graph_file);
-    fread(reinterpret_cast<void*>(&edges_state), sizeof(EdgesState), 1, graph_file);
-    fread(reinterpret_cast<void*>(&supported_vector_length), sizeof(int), 1, graph_file);
 
-    //fread(reinterpret_cast<char*>(reordered_vertex_ids), sizeof(int), this->vertices_count, graph_file);
-    fread(reinterpret_cast<char*>(vertex_pointers), sizeof(long long), (this->vertices_count + 1), graph_file);
-    
-    fread(reinterpret_cast<char*>(adjacent_ids), sizeof(int), this->edges_count, graph_file);
+    fread(reinterpret_cast<char*>(&(this->graph_type)), sizeof(GraphType), 1, graph_file);
+    if(this->graph_type != UNDIRECTED_CSR_GRAPH)
+    {
+        throw "Error in UndirectedCSRGraph::load_from_binary_file : graph type in file is not equal to UNDIRECTED_CSR_GRAPH";
+    }
 
-    #ifdef __USE_NEC_SX_AURORA__
-    double t1 = omp_get_wtime();
-    estimate_nec_thresholds();
-    last_vertices_ve.init_from_graph(this->vertex_pointers, this->adjacent_ids, this->adjacent_weights,
-                                     vector_core_threshold_vertex, this->vertices_count);
-    double t2 = omp_get_wtime();
-    cout << "NEC preprocess time: " << t2 - t1 << " sec" << endl;
-    #endif*/
-    
+    fread(reinterpret_cast<char*>(&this->vertices_count), sizeof(int), 1, graph_file);
+    fread(reinterpret_cast<char*>(&this->edges_count), sizeof(long long), 1, graph_file);
+
+    resize(this->vertices_count, this->edges_count);
+
+    load_main_content_to_binary_file(graph_file);
+
     fclose(graph_file);
     return true;
 }
@@ -195,6 +179,37 @@ int UndirectedCSRGraph::select_random_vertex()
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+void UndirectedCSRGraph::save_main_content_to_binary_file(FILE *_graph_file)
+{
+    fwrite(reinterpret_cast<const char*>(vertex_pointers), sizeof(long long), vertices_count + 1, _graph_file);
+    fwrite(reinterpret_cast<const char*>(adjacent_ids), sizeof(int), edges_count, _graph_file);
+
+    fwrite(reinterpret_cast<const char*>(forward_conversion), sizeof(int), vertices_count, _graph_file);
+    fwrite(reinterpret_cast<const char*>(backward_conversion), sizeof(int), vertices_count, _graph_file);
+    fwrite(reinterpret_cast<const char*>(edges_reorder_indexes), sizeof(vgl_sort_indexes), edges_count, _graph_file);
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+void UndirectedCSRGraph::load_main_content_to_binary_file(FILE *_graph_file)
+{
+    fread(reinterpret_cast<char*>(vertex_pointers), sizeof(long long), vertices_count + 1, _graph_file);
+    fread(reinterpret_cast<char*>(adjacent_ids), sizeof(int), edges_count, _graph_file);
+
+    fread(reinterpret_cast<char*>(forward_conversion), sizeof(int), vertices_count, _graph_file);
+    fread(reinterpret_cast<char*>(backward_conversion), sizeof(int), vertices_count, _graph_file);
+    fread(reinterpret_cast<char*>(edges_reorder_indexes), sizeof(vgl_sort_indexes), edges_count, _graph_file);
+
+    #ifdef __USE_NEC_SX_AURORA__
+    estimate_nec_thresholds();
+    last_vertices_ve.init_from_graph(this->vertex_pointers, this->adjacent_ids,
+                                     vector_core_threshold_vertex, this->vertices_count);
+    #endif
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 
 
 

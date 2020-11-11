@@ -4,6 +4,8 @@
 
 void VectCSRGraph::import(EdgesListGraph &_el_graph)
 {
+    cout << "CHECK VE SIZE: " << VECTOR_CORE_THRESHOLD_VALUE << endl;
+
     this->resize(_el_graph.get_vertices_count(), _el_graph.get_edges_count());
 
     Timer tm;

@@ -39,8 +39,8 @@ void VectCSRGraph::free()
     delete outgoing_graph;
     delete incoming_graph;
 
-    if(vertices_reorder_buffer != NULL)
-        MemoryAPI::free_array(vertices_reorder_buffer);
+    //if(vertices_reorder_buffer != NULL)
+    MemoryAPI::free_array(vertices_reorder_buffer);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -100,6 +100,55 @@ int VectCSRGraph::select_random_vertex(TraversalDirection _direction)
     throw "Error in VectCSRGraph::select_random_vertex: can not select non-zero degree vertex in ATTEMPTS_THRESHOLD attempts";
 
     return -1;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+bool VectCSRGraph::save_to_binary_file(string _file_name)
+{
+    _file_name += ".bvecsr";
+    FILE * graph_file = fopen(_file_name.c_str(), "wb");
+    if(graph_file == NULL)
+        return false;
+
+    int vertices_count = this->vertices_count;
+    long long edges_count = this->edges_count;
+    fwrite(reinterpret_cast<const char*>(&(this->graph_type)), sizeof(GraphType), 1, graph_file);
+    fwrite(reinterpret_cast<const char*>(&vertices_count), sizeof(int), 1, graph_file);
+    fwrite(reinterpret_cast<const char*>(&edges_count), sizeof(long long), 1, graph_file);
+
+    outgoing_graph->save_main_content_to_binary_file(graph_file);
+    incoming_graph->save_main_content_to_binary_file(graph_file);
+
+    fclose(graph_file);
+    return true;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+bool VectCSRGraph::load_from_binary_file(string _file_name)
+{
+    _file_name += ".bvecsr";
+    FILE * graph_file = fopen(_file_name.c_str(), "rb");
+    if(graph_file == NULL)
+        return false;
+
+    fread(reinterpret_cast<char*>(&(this->graph_type)), sizeof(GraphType), 1, graph_file);
+    if(this->graph_type != VECT_CSR_GRAPH)
+    {
+        throw "Error in VectCSRGraph::load_from_binary_file : graph type in file is not equal to VECT_CSR_GRAPH";
+    }
+
+    fread(reinterpret_cast<char*>(&this->vertices_count), sizeof(int), 1, graph_file);
+    fread(reinterpret_cast<char*>(&this->edges_count), sizeof(long long), 1, graph_file);
+
+    this->resize(this->vertices_count, this->edges_count);
+
+    outgoing_graph->load_main_content_to_binary_file(graph_file);
+    incoming_graph->load_main_content_to_binary_file(graph_file);
+
+    fclose(graph_file);
+    return true;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

@@ -119,15 +119,16 @@ void SSSP::nec_dijkstra_all_active_push(VectCSRGraph &_graph,
         {
             NEC_REGISTER_INT(was_changes, 0);
 
-            auto edge_op_push = [&_distances, &_weights, &reg_was_changes, &changes](int src_id, int dst_id, int local_edge_pos,
+            _T *distances_ptr = _distances.get_ptr();
+            auto edge_op_push = [&_distances, &_weights, &reg_was_changes, distances_ptr](int src_id, int dst_id, int local_edge_pos,
                             long long int global_edge_pos, int vector_index, DelayedWriteNEC &delayed_write)
             {
                 _T weight = _weights[global_edge_pos];
-                _T src_weight = _distances[src_id];
+                _T src_weight = distances_ptr[src_id];
 
-                if(_distances[dst_id] > src_weight + weight)
+                if(distances_ptr[dst_id] > src_weight + weight)
                 {
-                    _distances[dst_id] = src_weight + weight;
+                    distances_ptr[dst_id] = src_weight + weight;
                     reg_was_changes[vector_index] = 1;
                 }
             };

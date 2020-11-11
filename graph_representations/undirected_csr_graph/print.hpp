@@ -97,3 +97,19 @@ size_t UndirectedCSRGraph::get_size()
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+void UndirectedCSRGraph::print_vertex_information(int _src_id, int _num_edges)
+{
+    cout << "vertex " << _src_id << " connected to: ";
+    long long first = vertex_pointers[_src_id];
+    long long last = vertex_pointers[_src_id + 1];
+    for(long long edge_pos = 0; edge_pos < (last - first); edge_pos++)
+    {
+        int dst_id = adjacent_ids[first + edge_pos];
+        if(edge_pos < _num_edges)
+            cout << dst_id << " ";
+    }
+    cout << " (printed " << _num_edges << " edges, real count = " << last - first << ")" << endl;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

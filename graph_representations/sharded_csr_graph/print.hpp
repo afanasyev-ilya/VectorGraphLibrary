@@ -39,7 +39,7 @@ void ShardedCSRGraph::print_in_csr_format(EdgesArray_Sharded<_T> &_weights)
                 for(int edge_pos = start; edge_pos < end; edge_pos++)
                 {
                     int dst_id = shard_graph->get_adjacent_ids()[edge_pos];
-                    int weight_pos = this->get_shard_shift(sh) + edge_pos;
+                    int weight_pos = this->get_shard_shift(sh, SCATTER) + edge_pos; // TODO SCATTER FIX
                     cout << "(" << shard_graph->reorder_to_original(dst_id) << ", " << _weights[weight_pos] << ") ";
                 }
                 cout << endl;

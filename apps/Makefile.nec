@@ -18,7 +18,7 @@ Libraries = -fopenmp -report-all -ftrace -lasl_openmp_i64 #-ftrace
 # binaries
 ##########
 
-all: sssp sharded_sssp bfs scc gather pr
+all: sssp sharded_sssp bfs scc gather pr create_vgl_graphs
 
 sssp: create_folders sssp.o
 	$(CXX) object_files/sssp.o $(Library_Path) $(Libraries) -o ./bin/sssp_sx
@@ -38,27 +38,33 @@ pr: create_folders pr.o
 gather: create_folders gather.o
 	$(CXX) object_files/gather.o $(Library_Path) $(Libraries) -o ./bin/gather_sx
 
+create_vgl_graphs: create_folders create_vgl_graphs.o
+	g++ -fopenmp object_files/create_vgl_graphs.o -o ./bin/create_vgl_graphs_sx
+
 ##########
 # CPPs
 ##########
 
 sssp.o: sssp/sssp.cpp
-	$(CXX) $(Flags) $(Include_Path)  -c sssp/sssp.cpp -o object_files/sssp.o -fopenmp
+	$(CXX) $(Flags) $(Include_Path)  -c sssp/sssp.cpp -o object_files/sssp.o
 
 sharded_sssp.o: sssp/sharded_sssp.cpp
-	$(CXX) $(Flags) $(Include_Path)  -c sssp/sharded_sssp.cpp -o object_files/sharded_sssp.o -fopenmp
+	$(CXX) $(Flags) $(Include_Path)  -c sssp/sharded_sssp.cpp -o object_files/sharded_sssp.o
 
 bfs.o: bfs/bfs.cpp
-	$(CXX) $(Flags) $(Include_Path)  -c bfs/bfs.cpp -o object_files/bfs.o -fopenmp
+	$(CXX) $(Flags) $(Include_Path)  -c bfs/bfs.cpp -o object_files/bfs.o
 
 scc.o: scc/scc.cpp
-	$(CXX) $(Flags) $(Include_Path)  -c scc/scc.cpp -o object_files/scc.o -fopenmp
+	$(CXX) $(Flags) $(Include_Path)  -c scc/scc.cpp -o object_files/scc.o
 
 pr.o: pr/pr.cpp
-	$(CXX) $(Flags) $(Include_Path)  -c pr/pr.cpp -o object_files/pr.o -fopenmp
+	$(CXX) $(Flags) $(Include_Path)  -c pr/pr.cpp -o object_files/pr.o
 
 gather.o: misc/gather.cpp
-	$(CXX) $(Flags) $(Include_Path)  -c misc/gather.cpp -o object_files/gather.o -fopenmp
+	$(CXX) $(Flags) $(Include_Path)  -c misc/gather.cpp -o object_files/gather.o
+
+create_vgl_graphs.o: misc/create_vgl_graphs.cpp
+	g++ $(Include_Path) -fopenmp -c misc/create_vgl_graphs.cpp -o object_files/create_vgl_graphs.o
 
 create_folders:
 	-mkdir -p ./bin

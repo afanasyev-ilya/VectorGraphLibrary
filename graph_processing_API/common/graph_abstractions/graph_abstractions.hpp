@@ -66,7 +66,7 @@ _T GraphAbstractions::reduce(VectCSRGraph &_graph,
                              ReduceOperation &&reduce_op,
                              REDUCE_TYPE _reduce_type)
 {
-
+    return 0;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -76,7 +76,7 @@ void GraphAbstractions::generate_new_frontier(VectCSRGraph &_graph,
                                               FrontierNEC &_frontier,
                                               FilterCondition &&filter_cond)
 {
-    return 0;
+
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

@@ -5,7 +5,7 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #define INT_ELEMENTS_PER_EDGE 5.0
-#define VECTOR_ENGINE_THRESHOLD_VALUE VECTOR_LENGTH * MAX_SX_AURORA_THREADS * 4096
+#define VECTOR_ENGINE_THRESHOLD_VALUE VECTOR_LENGTH*MAX_SX_AURORA_THREADS*128
 #define VECTOR_CORE_THRESHOLD_VALUE 5*VECTOR_LENGTH
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -49,6 +49,8 @@ int main(int argc, const char * argv[])
 
         cout << "Computations started..." << endl;
         cout << "Doing " << parser.get_number_of_rounds() << " SSSP iterations..." << endl;
+
+        graph.print_vertex_information(SCATTER, 1, 40);
 
         EdgesArray_Vect<int> weights(graph);
         weights.set_all_random(MAX_WEIGHT);
