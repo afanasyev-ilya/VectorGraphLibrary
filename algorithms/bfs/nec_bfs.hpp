@@ -336,9 +336,9 @@ void BFS::nec_top_down(VectCSRGraph &_graph,
     GraphAbstractionsNEC graph_API(_graph);
     FrontierNEC frontier(_graph);
 
-    graph_API.change_traversal_direction(SCATTER, _levels, frontier);
+    //graph_API.change_traversal_direction(SCATTER, _levels, frontier);
 
-    _source_vertex = _graph.reorder(_source_vertex, ORIGINAL, SCATTER);
+    _source_vertex = 1;//_graph.reorder(_source_vertex, ORIGINAL, SCATTER);
 
     #pragma omp parallel
     {};

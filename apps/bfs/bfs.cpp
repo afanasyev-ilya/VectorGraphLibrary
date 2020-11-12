@@ -53,10 +53,13 @@ int main(int argc, const char * argv[])
         cout << "Doing " << parser.get_number_of_rounds() << " BFS iterations..." << endl;
         for(int i = 0; i < parser.get_number_of_rounds(); i++)
         {
+            cout << "h" << endl;
             VerticesArray<int> levels(graph, SCATTER);
+            cout << "3" << endl;
             VerticesArray<int> parents(graph, SCATTER);
+            cout << "4" << endl;
 
-            int source_vertex = graph.select_random_vertex(ORIGINAL);
+            int source_vertex = 1;//graph.select_random_vertex(ORIGINAL);
             cout << "selected source vertex " << source_vertex << endl;
 
             performance_stats.reset_timers();

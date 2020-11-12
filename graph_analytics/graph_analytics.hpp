@@ -45,62 +45,6 @@ void GraphAnalytics::analyse_component_stats(int *_components, int _vertices_cou
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void GraphAnalytics::analyse_graph_stats(VectCSRGraph &_graph, string _graph_name)
-{
-    /*
-    LOAD_UNDIRECTED_CSR_GRAPH_DATA(_graph);
-    long long *adjacent_ptrs = vertex_pointers;
-
-    cout << "------------------------------------- graph stats -----------------------------------------" << endl;
-    auto vertex_power_range = calculate_power_range(vertices_count);
-    cout << "vertices count: " << vertices_count << " | in range: (" << vertex_power_range.first << "," << vertex_power_range.second << ")" << endl;
-    cout << "approximate vc: " << vertices_count / 1e6 << " bn" << endl;
-
-    auto edges_power_range = calculate_power_range(edges_count);
-    cout << "edges count: " << edges_count << " | in range: (" << edges_power_range.first << "," << edges_power_range.second << ")" << endl;
-    cout << "approximate ec: " << edges_count / 1e6 << " bn" << endl;
-    cout << "average degree: " << edges_count/vertices_count << endl << endl;
-
-    cout << "highest vertex degree: " << adjacent_ptrs[1] - adjacent_ptrs[0] << ", " << 100.0*(adjacent_ptrs[1] - adjacent_ptrs[0])/edges_count << " % of all edges" << endl;
-    auto degree_distribution = calculate_degree_distribution(adjacent_ptrs, vertices_count);
-    cout << "degree_distribution:" << endl;
-    long long zero_nodes_count = 0;
-    for(auto it = degree_distribution.rbegin(); it != degree_distribution.rend(); it++)
-    {
-        if(it->first != -1)
-        {
-            cout << "(2^" << it->first << ",2^" << it->first + 1 << "): " << it->second << endl;
-        }
-        else
-        {
-            zero_nodes_count = it->second;
-            cout << "zero-nodes: " << it->second << endl;
-        }
-    }
-    cout << "zero-nodes percent: " << 100*zero_nodes_count/vertices_count << "% from total vertices" << endl;
-    cout << endl;
-
-    print_graph_memory_consumption(_graph);
-
-    analyse_graph_thresholds(_graph);
-
-    /*ConnectedComponents<int, float> cc_operation(_graph);
-    int *check_components;
-    cc_operation.allocate_result_memory(_graph.get_vertices_count(), &check_components);
-
-    #ifdef __USE_NEC_SX_AURORA__
-    cc_operation.nec_shiloach_vishkin(_graph, check_components);
-    #endif
-
-    analyse_component_stats(check_components, _graph.get_vertices_count());
-
-    cc_operation.free_result_memory(check_components);
-
-    cout << "---------------------------------------------------------------------------------------------" << endl << endl;*/
-}
-
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
 pair<long long, long long> GraphAnalytics::calculate_power_range(long long _val)
 {
     double val = _val;
@@ -112,13 +56,13 @@ pair<long long, long long> GraphAnalytics::calculate_power_range(long long _val)
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-map<int, int> GraphAnalytics::calculate_degree_distribution(long long *_adjacent_ptrs, int _vertices_count)
+map<int, int> GraphAnalytics::calculate_degree_distribution(long long *_vertex_pointers, int _vertices_count)
 {
     map<int, int> degree_distribution;
 
     for(int v = 0; v < _vertices_count; v++)
     {
-        int connections_count = _adjacent_ptrs[v + 1] - _adjacent_ptrs[v];
+        int connections_count = _vertex_pointers[v + 1] - _vertex_pointers[v];
         auto range = calculate_power_range(connections_count);
 
         if(connections_count == 0)
@@ -158,6 +102,43 @@ void GraphAnalytics::analyse_graph_thresholds(VectCSRGraph &_graph)
     cout << "medium interval: (" << _graph.get_vector_engine_threshold_vertex() << " ," << _graph.get_vector_core_threshold_vertex() << ")" << endl;
     cout << "small interval: (" << _graph.get_vector_core_threshold_vertex() << " ," << _graph.get_vertices_count() << ")" << endl << endl;
     #endif*/
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+void GraphAnalytics::analyse_degrees(UndirectedCSRGraph &_graph)
+{
+    int vertices_count = _graph.get_vertices_count();
+    long long edges_count = _graph.get_edges_count();
+    long long *vertex_pointers = _graph.get_vertex_pointers();
+
+    auto vertex_power_range = calculate_power_range(vertices_count);
+    cout << "vertices count: " << vertices_count << " | in range: (" << vertex_power_range.first << "," << vertex_power_range.second << ")" << endl;
+    cout << "approximate vc: " << vertices_count / 1e6 << " bn" << endl;
+
+    auto edges_power_range = calculate_power_range(edges_count);
+    cout << "edges count: " << edges_count << " | in range: (" << edges_power_range.first << "," << edges_power_range.second << ")" << endl;
+    cout << "approximate ec: " << edges_count / 1e6 << " bn" << endl;
+    cout << "average degree: " << edges_count/vertices_count << endl << endl;
+
+    cout << "highest vertex degree: " << vertex_pointers[1] - vertex_pointers[0] << ", " << 100.0*(vertex_pointers[1] - vertex_pointers[0])/edges_count << " % of all edges" << endl;
+    auto degree_distribution = calculate_degree_distribution(vertex_pointers, vertices_count);
+    cout << "degree_distribution:" << endl;
+    long long zero_nodes_count = 0;
+    for(auto it = degree_distribution.rbegin(); it != degree_distribution.rend(); it++)
+    {
+        if(it->first != -1)
+        {
+            cout << "(2^" << it->first << ",2^" << it->first + 1 << "): " << it->second << endl;
+        }
+        else
+        {
+            zero_nodes_count = it->second;
+            cout << "zero-nodes: " << it->second << endl;
+        }
+    }
+    cout << "zero-nodes percent: " << 100*zero_nodes_count/vertices_count << "% from total vertices" << endl;
+    cout << endl;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

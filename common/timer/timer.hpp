@@ -97,7 +97,7 @@ void Timer::print_time_and_bandwidth_stats(string _name, long long _elements, do
     #pragma omp master
     {
         double bytes = _elements * _bytes_per_element;
-        cout << _name << " time: " << this->get_time() << " (s)" << endl;
+        cout << _name << " time: " << this->get_time_in_ms() << " (ms)" << endl;
         cout << _name << " BW: " << bytes / (this->get_time() * 1e9) << " (GB/s)" << endl << endl;
     }
 }

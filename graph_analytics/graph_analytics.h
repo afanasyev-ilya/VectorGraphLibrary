@@ -3,22 +3,16 @@
 class GraphAnalytics
 {
 private:
-    pair<long long, long long> calculate_power_range(long long _val);
-    map<int, int> calculate_degree_distribution(long long *_adjacent_ptrs, int _vertices_count);
+    static pair<long long, long long> calculate_power_range(long long _val);
+    static map<int, int> calculate_degree_distribution(long long *_adjacent_ptrs, int _vertices_count);
 
+    static void print_graph_memory_consumption(VectCSRGraph &_graph);
 
-    void print_graph_memory_consumption(VectCSRGraph &_graph);
+    static void analyse_component_stats(int *_components, int _vertices_count);
 
-    void analyse_component_stats(int *_components, int _vertices_count);
-
-
-    void analyse_graph_thresholds(VectCSRGraph &_graph);
+    static void analyse_graph_thresholds(VectCSRGraph &_graph);
 public:
-    void analyse_graph_stats(VectCSRGraph &_graph, string _graph_name);
+    static void analyse_degrees(UndirectedCSRGraph &_graph);
 };
-
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-#include "graph_analytics.hpp"
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

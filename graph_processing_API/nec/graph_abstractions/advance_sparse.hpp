@@ -67,7 +67,7 @@ void GraphAbstractionsNEC::vector_engine_per_vertex_kernel_sparse(UndirectedCSRG
 
     #ifdef __PRINT_API_PERFORMANCE_STATS__
     long long work = _frontier.get_vector_engine_part_neighbours_count();
-    tm.print_bandwidth_stats("Advance (ve)", work, INT_ELEMENTS_PER_EDGE*sizeof(int));
+    tm.print_time_and_bandwidth_stats("Advance (sparse, ve)", work, INT_ELEMENTS_PER_EDGE*sizeof(int));
     #endif
 }
 
@@ -137,7 +137,7 @@ void GraphAbstractionsNEC::vector_core_per_vertex_kernel_sparse(UndirectedCSRGra
     performance_stats.update_advance_vc_part_time(tm);
     #ifdef __PRINT_API_PERFORMANCE_STATS__
     long long work = _frontier.get_vector_core_part_neighbours_count();
-    tm.print_bandwidth_stats("Advance (vc)", work, INT_ELEMENTS_PER_EDGE*sizeof(int));
+    tm.print_time_and_bandwidth_stats("Advance (sparse, vc)", work, INT_ELEMENTS_PER_EDGE*sizeof(int));
     #endif
 }
 
@@ -260,7 +260,7 @@ void GraphAbstractionsNEC::collective_vertex_processing_kernel_sparse(Undirected
     performance_stats.update_advance_collective_part_time(tm);
     #ifdef __PRINT_API_PERFORMANCE_STATS__
     long long work = _frontier.get_collective_part_neighbours_count();
-    tm.print_bandwidth_stats("Advance (collective)", work, INT_ELEMENTS_PER_EDGE*sizeof(int));
+    tm.print_time_and_bandwidth_stats("Advance (sparse, collective)", work, INT_ELEMENTS_PER_EDGE*sizeof(int));
     #endif
 }
 

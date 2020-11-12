@@ -145,9 +145,9 @@ void UndirectedCSRGraph::print_stats()
     cout << "ve group size: " << edges_in_ve_group << ", " << 100.0*((float)edges_in_ve_group)/this->edges_count << " %" << endl;
     cout << "vc group size: " << edges_in_vc_group << ", " << 100.0*((float)edges_in_vc_group)/this->edges_count << " %" << endl;
     cout << "collective group size: " << edges_in_collective_group << ", " << 100.0*((float)edges_in_collective_group)/this->edges_count << " %" << endl;
-
-    // TODO clustering efficiency
     #endif
+
+    GraphAnalytics::analyse_degrees(*this);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
