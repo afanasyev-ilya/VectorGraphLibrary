@@ -13,12 +13,6 @@ void DelayedWriteNEC::init()
         flt_vec_reg[i] = 0;
         dbl_vec_reg[i] = 0;
     }
-
-    pack_int_1 = new int[256];
-    pack_int_2 = new int[256];
-
-    pack_int_1_to_flt = (float*)pack_int_1;
-    pack_int_2_to_flt = (float*)pack_int_2;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -139,17 +133,3 @@ void DelayedWriteNEC::finish_write_min(double *_data, int _idx)
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-void DelayedWriteNEC::finish_write_sum(int *_data, int _idx)
-{
-    int sum = 0;
-
-    #pragma _NEC unroll(VECTOR_LENGTH)
-    for(int i = 0; i < VECTOR_LENGTH; i++)
-        sum += int_vec_reg[i];
-
-    _data[_idx] = sum;
-}
-
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-

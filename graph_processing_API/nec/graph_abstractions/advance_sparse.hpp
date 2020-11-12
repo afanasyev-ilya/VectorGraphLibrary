@@ -96,7 +96,7 @@ void GraphAbstractionsNEC::vector_core_per_vertex_kernel_sparse(UndirectedCSRGra
     DelayedWriteNEC delayed_write;
     delayed_write.init();
 
-    #pragma omp for schedule(static, 8)
+    #pragma omp for schedule(static, 2)
     for (int front_pos = 0; front_pos < frontier_segment_size; front_pos++)
     {
         const int src_id = frontier_ids[front_pos];
@@ -107,27 +107,19 @@ void GraphAbstractionsNEC::vector_core_per_vertex_kernel_sparse(UndirectedCSRGra
 
         vertex_preprocess_op(src_id, connections_count, 0, delayed_write);
 
-        #pragma _NEC novector
-        for(int vec_start = 0; vec_start < connections_count; vec_start += VECTOR_LENGTH)
+        #pragma _NEC ivdep
+        #pragma _NEC vovertake
+        #pragma _NEC novob
+        #pragma _NEC vector
+        #pragma _NEC gather_reorder
+        for (int local_edge_pos = 0; local_edge_pos < connections_count; local_edge_pos++)
         {
-            #pragma _NEC cncall
-            #pragma _NEC ivdep
-            #pragma _NEC vovertake
-            #pragma _NEC novob
-            #pragma _NEC vector
-            #pragma _NEC gather_reorder
-            for(int i = 0; i < VECTOR_LENGTH; i++)
-            {
-                int local_edge_pos = vec_start + i;
+            const long long internal_edge_pos = start + local_edge_pos;
+            const int vector_index = get_vector_index(local_edge_pos);
+            const int dst_id = adjacent_ids[internal_edge_pos];
+            const long long external_edge_pos = process_shift + internal_edge_pos;
 
-                const long long internal_edge_pos = start + local_edge_pos;
-                const int vector_index = i;
-                const int dst_id = adjacent_ids[internal_edge_pos];
-                const long long external_edge_pos = process_shift + internal_edge_pos;
-
-                if(local_edge_pos < connections_count)
-                    edge_op(src_id, dst_id, local_edge_pos, external_edge_pos, vector_index, delayed_write);
-            }
+            edge_op(src_id, dst_id, local_edge_pos, external_edge_pos, vector_index, delayed_write);
         }
 
         vertex_postprocess_op(src_id, connections_count, 0, delayed_write);
@@ -186,7 +178,7 @@ void GraphAbstractionsNEC::collective_vertex_processing_kernel_sparse(Undirected
     DelayedWriteNEC delayed_write;
     delayed_write.init();
 
-    #pragma omp for schedule(static, 8)
+    #pragma omp for schedule(static, 4)
     for(int front_pos = 0; front_pos < frontier_segment_size; front_pos += VECTOR_LENGTH)
     {
         #pragma _NEC vector

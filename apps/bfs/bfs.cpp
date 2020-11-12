@@ -5,8 +5,9 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #define INT_ELEMENTS_PER_EDGE 4.0
-#define VECTOR_ENGINE_THRESHOLD_VALUE VECTOR_LENGTH*8*128
-#define VECTOR_CORE_THRESHOLD_VALUE VECTOR_LENGTH //4.0*VECTOR_LENGTH
+#define NEC_VECTOR_ENGINE_THRESHOLD_VALUE  VECTOR_LENGTH * MAX_SX_AURORA_THREADS * 128
+#define VECTOR_CORE_THRESHOLD_VALUE VECTOR_LENGTH
+
 #define COLLECTIVE_FRONTIER_TYPE_CHANGE_THRESHOLD 0.35
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -53,13 +54,10 @@ int main(int argc, const char * argv[])
         cout << "Doing " << parser.get_number_of_rounds() << " BFS iterations..." << endl;
         for(int i = 0; i < parser.get_number_of_rounds(); i++)
         {
-            cout << "h" << endl;
             VerticesArray<int> levels(graph, SCATTER);
-            cout << "3" << endl;
             VerticesArray<int> parents(graph, SCATTER);
-            cout << "4" << endl;
 
-            int source_vertex = 1;//graph.select_random_vertex(ORIGINAL);
+            int source_vertex = graph.select_random_vertex(ORIGINAL);
             cout << "selected source vertex " << source_vertex << endl;
 
             performance_stats.reset_timers();

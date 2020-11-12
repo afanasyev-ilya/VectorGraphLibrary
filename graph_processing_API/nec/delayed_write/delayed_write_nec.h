@@ -12,11 +12,6 @@ public:
     float flt_vec_reg[VECTOR_LENGTH];
     double dbl_vec_reg[VECTOR_LENGTH];
 
-    int *pack_int_1;//[VECTOR_LENGTH];
-    int *pack_int_2;//[VECTOR_LENGTH];
-    float *pack_int_1_to_flt;
-    float *pack_int_2_to_flt;
-
     inline void init();
 
     inline void init(int *_array, int _val);
@@ -34,8 +29,6 @@ public:
     inline void finish_write_min(int *_data, int _idx);
     inline void finish_write_min(float *_data, int _idx);
     inline void finish_write_min(double *_data, int _idx);
-
-    inline void finish_write_sum(int *_data, int _idx);
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
