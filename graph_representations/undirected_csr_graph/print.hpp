@@ -80,7 +80,9 @@ void UndirectedCSRGraph::print_with_weights(EdgesArray<_T> &_weights, TraversalD
 
 void UndirectedCSRGraph::print_size()
 {
-    cout << "Wall size (UndirectedCSRGraph): " << get_size()/1e9 << "GB" << endl;
+    cout << "Wall size (UndirectedCSRGraph): " << get_size()/1e9 << " GB" << endl;
+    cout << "     CSR size: " << get_csr_size()/1e9 << " GB" << endl;
+    cout << "     VE  size: " << get_ve_size()/1e9 << " GB" << endl;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -94,6 +96,23 @@ size_t UndirectedCSRGraph::get_size()
     size += sizeof(edges_reorder_indexes[0])*this->edges_count;
     size += last_vertices_ve.get_size();
     return size;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+size_t UndirectedCSRGraph::get_csr_size()
+{
+    size_t size = 0;
+    size += sizeof(vertex_pointers[0])*(this->vertices_count+1);
+    size += sizeof(adjacent_ids[0])*(this->edges_count);
+    return size;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+size_t UndirectedCSRGraph::get_ve_size()
+{
+    return last_vertices_ve.get_size() + sizeof(edges_reorder_indexes[0])*this->edges_count;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -117,15 +136,17 @@ void UndirectedCSRGraph::print_vertex_information(int _src_id, int _num_edges)
 void UndirectedCSRGraph::print_stats()
 {
     #ifdef __USE_NEC_SX_AURORA__
+    cout << "threshold vertices: " << vector_engine_threshold_vertex << " " << vector_core_threshold_vertex << " " << vertices_count << endl;
+
     long long edges_in_ve_group = vertex_pointers[vector_engine_threshold_vertex] - vertex_pointers[0];
     long long edges_in_vc_group = vertex_pointers[vector_core_threshold_vertex] - vertex_pointers[vector_engine_threshold_vertex];
     long long edges_in_collective_group = vertex_pointers[this->vertices_count] - vertex_pointers[vector_core_threshold_vertex];
 
-    cout << "ve group size: " << 100.0*((float)edges_in_ve_group)/this->edges_count << " %" << endl;
-    cout << "vc group size: " << 100.0*((float)edges_in_vc_group)/this->edges_count << " %" << endl;
-    cout << "collective group size: " << 100.0*((float)edges_in_collective_group)/this->edges_count << " %" << endl;
+    cout << "ve group size: " << edges_in_ve_group << ", " << 100.0*((float)edges_in_ve_group)/this->edges_count << " %" << endl;
+    cout << "vc group size: " << edges_in_vc_group << ", " << 100.0*((float)edges_in_vc_group)/this->edges_count << " %" << endl;
+    cout << "collective group size: " << edges_in_collective_group << ", " << 100.0*((float)edges_in_collective_group)/this->edges_count << " %" << endl;
 
-    cout << "thresholds: " << edges_in_ve_group << " " << edges_in_vc_group << " " << edges_in_collective_group << endl;
+    // TODO clustering efficiency
     #endif
 }
 

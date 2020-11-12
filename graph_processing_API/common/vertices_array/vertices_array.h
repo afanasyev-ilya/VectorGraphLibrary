@@ -44,12 +44,12 @@ public:
     __host__ __device__ inline _T get(int _idx) const {return this->vertices_data[_idx];};
     __host__ __device__ inline _T set(int _idx, _T _val) const {this->vertices_data[_idx] = _val;};
     __host__ __device__ inline _T& operator[] (int _idx) const { return vertices_data[_idx]; };
-    #endif
-
+    #else
     inline _T get(int _idx) const {return this->vertices_data[_idx];};
     inline _T set(int _idx, _T _val) const {this->vertices_data[_idx] = _val;};
     inline _T& operator[](int _idx) { return vertices_data[_idx]; }
     inline _T& operator[] (int _idx) const { return vertices_data[_idx]; };
+    #endif
 
     /* direction API */
     TraversalDirection get_direction() {return direction;};

@@ -118,6 +118,8 @@ public:
     void print_size();
     void print_stats();
     size_t get_size();
+    size_t get_csr_size();
+    size_t get_ve_size();
     template <typename _T>
     void print_with_weights(EdgesArray<_T> &_weights, TraversalDirection _direction);
     void print_vertex_information(int _src_id, int _num_edges);

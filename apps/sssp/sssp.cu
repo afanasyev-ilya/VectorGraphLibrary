@@ -35,15 +35,17 @@ int main(int argc, const char * argv[])
         }
         else if(parser.get_compute_mode() == LOAD_GRAPH_FROM_FILE)
         {
-            double t1 = omp_get_wtime();
+            Timer tm;
+            tm.start();
             if(!graph.load_from_binary_file(parser.get_graph_file_name()))
                 throw "Error: graph file not found";
-            double t2 = omp_get_wtime();
-            cout << "file " << parser.get_graph_file_name() << " loaded in " << t2 - t1 << " sec" << endl;
+            tm.end();
+            tm.print_time_stats("Graph load");
         }
 
-        // print size of VectCSR graph
+        // print graphs stats
         graph.print_size();
+        graph.print_stats();
 
         cout << "Computations started..." << endl;
         cout << "Doing " << parser.get_number_of_rounds() << " SSSP iterations..." << endl;

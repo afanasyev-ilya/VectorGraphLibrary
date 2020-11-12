@@ -1,29 +1,22 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#define __USE_NEC_SX_AURORA__
-
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-#define INT_ELEMENTS_PER_EDGE 5.0
-#define VECTOR_ENGINE_THRESHOLD_VALUE VECTOR_LENGTH * MAX_SX_AURORA_THREADS * 4096
-#define VECTOR_CORE_THRESHOLD_VALUE 5*VECTOR_LENGTH
+#define __USE_GPU__
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #include "graph_library.h"
 
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 int main(int argc, const char * argv[])
 {
     try
     {
-        cout << "PR (Page Rank) test..." << endl;
-
         // parse args
         Parser parser;
         parser.parse_args(argc, argv);
 
+        // load graph
         VectCSRGraph graph;
         if(parser.get_compute_mode() == GENERATE_NEW_GRAPH)
         {
@@ -49,15 +42,24 @@ int main(int argc, const char * argv[])
         graph.print_size();
         graph.print_stats();
 
-        VerticesArray<float> page_ranks(graph);
-        PageRank::nec_page_rank(graph, page_ranks);
+        // compute SCC
+        cout << "SCC computations started..." << endl;
+        VerticesArray<int> components(graph, SCATTER);
 
+        // heat run
+        SCC::gpu_forward_backward(graph, components);
+
+        // timed run
+        performance_stats.reset_timers();
+        SCC::gpu_forward_backward(graph, components);
+        performance_stats.print_timers_stats();
+
+        // check if required
         if(parser.get_check_flag())
         {
-            VerticesArray<float> seq_page_ranks(graph);
-            PageRank::seq_page_rank(graph, seq_page_ranks);
-
-            verify_results(page_ranks, seq_page_ranks);
+            VerticesArray<int> check_components(graph, SCATTER);
+            SCC::seq_tarjan(graph, check_components);
+            equal_components(components, check_components);
         }
     }
     catch (string error)

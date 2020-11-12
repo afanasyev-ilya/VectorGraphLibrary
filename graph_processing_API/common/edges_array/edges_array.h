@@ -23,9 +23,7 @@ public:
     __host__ __device__ inline _T get(long long _global_idx) const {return edges_data[_global_idx];};
     __host__ __device__ inline _T set(long long _global_idx, _T _val) const {edges_data[_global_idx] = _val;};
     __host__ __device__ inline _T& operator[] (long long _global_idx) const { return edges_data[_global_idx]; };
-    #endif
-
-    #if defined(__USE_NEC_SX_AURORA__) || defined(__USE_INTEL__)
+    #else
     inline _T get(long long _global_idx) const {return edges_data[_global_idx];};
     inline void set(long long _global_idx, _T _val) const {edges_data[_global_idx] = _val;};
     inline _T& operator[] (long long _global_idx) const { return edges_data[_global_idx]; };

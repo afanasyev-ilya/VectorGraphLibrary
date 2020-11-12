@@ -106,7 +106,7 @@ int VectCSRGraph::select_random_vertex(TraversalDirection _direction)
 
 bool VectCSRGraph::save_to_binary_file(string _file_name)
 {
-    _file_name += ".bvecsr";
+    add_extension(_file_name, ".bvecsr");
     FILE * graph_file = fopen(_file_name.c_str(), "wb");
     if(graph_file == NULL)
         return false;
@@ -128,7 +128,7 @@ bool VectCSRGraph::save_to_binary_file(string _file_name)
 
 bool VectCSRGraph::load_from_binary_file(string _file_name)
 {
-    _file_name += ".bvecsr";
+    add_extension(_file_name, ".bvecsr");
     FILE * graph_file = fopen(_file_name.c_str(), "rb");
     if(graph_file == NULL)
         return false;
