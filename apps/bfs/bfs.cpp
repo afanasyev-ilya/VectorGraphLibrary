@@ -31,9 +31,9 @@ int main(int argc, const char * argv[])
             EdgesListGraph el_graph;
             int v = pow(2.0, parser.get_scale());
             if(parser.get_graph_type() == RMAT)
-                GraphGenerationAPI::R_MAT(el_graph, v, v * parser.get_avg_degree(), 57, 19, 19, 5, UNDIRECTED_GRAPH);
+                GraphGenerationAPI::R_MAT(el_graph, v, v * parser.get_avg_degree(), 57, 19, 19, 5, DIRECTED_GRAPH);
             else if(parser.get_graph_type() == RANDOM_UNIFORM)
-                GraphGenerationAPI::random_uniform(el_graph, v, v * parser.get_avg_degree(), UNDIRECTED_GRAPH);
+                GraphGenerationAPI::random_uniform(el_graph, v, v * parser.get_avg_degree(), DIRECTED_GRAPH);
             graph.import(el_graph);
         }
         else if(parser.get_compute_mode() == LOAD_GRAPH_FROM_FILE)

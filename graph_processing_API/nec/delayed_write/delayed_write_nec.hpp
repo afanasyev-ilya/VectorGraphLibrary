@@ -133,3 +133,38 @@ void DelayedWriteNEC::finish_write_min(double *_data, int _idx)
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+void DelayedWriteNEC::finish_write_sum(int *_data, int _idx)
+{
+    int sum = 0;
+
+    #pragma _NEC unroll(VECTOR_LENGTH)
+    for(int i = 0; i < VECTOR_LENGTH; i++)
+        sum += int_vec_reg[i];
+
+    _data[_idx] = sum;
+}
+
+void DelayedWriteNEC::finish_write_sum(float *_data, int _idx)
+{
+    float sum = 0.0;
+
+    #pragma _NEC unroll(VECTOR_LENGTH)
+    for(int i = 0; i < VECTOR_LENGTH; i++)
+        sum += int_vec_reg[i];
+
+    _data[_idx] = sum;
+}
+
+void DelayedWriteNEC::finish_write_sum(double *_data, int _idx)
+{
+    double sum = 0.0;
+
+    #pragma _NEC unroll(VECTOR_LENGTH)
+    for(int i = 0; i < VECTOR_LENGTH; i++)
+        sum += int_vec_reg[i];
+
+    _data[_idx] = sum;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
