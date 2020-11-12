@@ -16,7 +16,7 @@ void parse_cmd_params(int _argc, char **_argv, int &_scale, int &_avg_degree, st
     _avg_degree = 16;
     _graph_type = "RMAT";
     _output_format = "vect_csr";
-    _file_name = "rng_graph";
+    _file_name = "test.vgraph";
     _convert = false;
     _input_file_name = "wiki.txt";
     _append_with_reverse_edges = false;
@@ -132,9 +132,18 @@ int main(int argc, char ** argv)
         if((output_format.find("vect_csr") != string::npos) || (output_format.find("vect_CSR") != string::npos))
         {
             VectCSRGraph vect_csr_graph;
+            Timer tm;
+            tm.start();
             vect_csr_graph.import(rand_graph);
+            tm.end();
+            tm.print_time_stats("Import");
+
+            tm.start();
+            add_extension(file_name, ".vgraph");
             vect_csr_graph.save_to_binary_file(file_name);
             cout << "VectCSR graph is generated and saved to file " << file_name << endl;
+            tm.end();
+            tm.print_time_stats("Save");
         }
         cout << " ----------------------------------------------------------------------------------------- " << endl << endl;
     }

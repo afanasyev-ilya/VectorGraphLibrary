@@ -164,7 +164,6 @@ void UndirectedCSRGraph::load_main_content_to_binary_file(FILE *_graph_file)
 
 bool UndirectedCSRGraph::save_to_binary_file(string _file_name)
 {
-    add_extension(_file_name, ".undcsr");
     FILE *graph_file = fopen(_file_name.c_str(), "wb");
     if(graph_file == NULL)
         return false;
@@ -186,7 +185,6 @@ bool UndirectedCSRGraph::save_to_binary_file(string _file_name)
 
 bool UndirectedCSRGraph::load_from_binary_file(string _file_name)
 {
-    add_extension(_file_name, ".undcsr");
     FILE * graph_file = fopen(_file_name.c_str(), "rb");
     if(graph_file == NULL)
         return false;
