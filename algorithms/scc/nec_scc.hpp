@@ -60,8 +60,10 @@ void SCC::trim_step(VectCSRGraph &_graph,
             if(_active[dst_id] == IS_NOT_ACTIVE)
                 _out_degrees[src_id]--;
         };
-        _graph_API.scatter(_graph, out_frontier, update_out, EMPTY_VERTEX_OP, EMPTY_VERTEX_OP,
+        _graph_API.enable_safe_stores();
+        _graph_API.scatter(_graph, out_frontier, EMPTY_EDGE_OP, EMPTY_VERTEX_OP, EMPTY_VERTEX_OP,
                            update_out, EMPTY_VERTEX_OP, EMPTY_VERTEX_OP);
+        _graph_API.disable_safe_stores();
 
         /* process in-degrees */
         // work only with low-degree vertices
@@ -89,10 +91,12 @@ void SCC::trim_step(VectCSRGraph &_graph,
                 long long int global_edge_pos, int vector_index, DelayedWriteNEC &delayed_write)
         {
             if(_active[dst_id] == IS_NOT_ACTIVE)
-                _in_degrees[src_id]--;
+                _in_degrees[src_id] = _in_degrees[src_id] - 1;
         };
-        _graph_API.gather(_graph, in_frontier, update_in, EMPTY_VERTEX_OP, EMPTY_VERTEX_OP,
+        _graph_API.enable_safe_stores();
+        _graph_API.gather(_graph, in_frontier, EMPTY_EDGE_OP, EMPTY_VERTEX_OP, EMPTY_VERTEX_OP,
                           update_in, EMPTY_VERTEX_OP, EMPTY_VERTEX_OP);
+        _graph_API.disable_safe_stores();
 
         _graph_API.change_traversal_direction(SCATTER, _frontier, _in_degrees, _out_degrees, _trees, _active);
 
@@ -100,7 +104,7 @@ void SCC::trim_step(VectCSRGraph &_graph,
         NEC_REGISTER_INT(changes, 0);
         auto remove_trivial_and_init = [&_active, &_in_degrees, &_out_degrees, &_trees, &reg_changes, vertices_count] (int src_id, int connections_count, int vector_index)
         {
-            if((_active[src_id] == IS_ACTIVE) && ((_in_degrees[src_id] == 0) || (_out_degrees[src_id] == 0)))
+            if((_active[src_id] == IS_ACTIVE) && ((_in_degrees[src_id] <= 0) || (_out_degrees[src_id] <= 0)))
             {
                 _trees[src_id] = src_id + vertices_count;
                 _active[src_id] = IS_NOT_ACTIVE;
@@ -282,10 +286,10 @@ void SCC::FB_step(VectCSRGraph &_graph,
         return;
     int gather_pivot = _graph.reorder(scatter_pivot, SCATTER, GATHER);
 
-    cout << "non-trivial FB step with pivot " << scatter_pivot << endl;
+    /*cout << "non-trivial FB step with pivot " << scatter_pivot << endl;
     _graph.print_vertex_information(SCATTER, scatter_pivot, 20);
     _graph.print_vertex_information(GATHER, gather_pivot, 20);
-    cout << " --------------- " << endl;
+    cout << " --------------- " << endl;*/
 
     bfs_reach(_graph, _graph_API, _frontier, _forward_result, scatter_pivot, SCATTER);
     bfs_reach(_graph, _graph_API, _frontier, _backward_result, gather_pivot, GATHER);

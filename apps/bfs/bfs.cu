@@ -74,6 +74,9 @@ int main(int argc, const char * argv[])
                 levels.move_to_device();
             }
         }
+
+        performance_stats.print_max_perf(graph.get_edges_count());
+        performance_stats.print_avg_perf(graph.get_edges_count());
     }
     catch (string error)
     {

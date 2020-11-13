@@ -4,23 +4,34 @@ PROG_NAME=$1
 PROG_ARGS=$2
 
 FILE_PREFIX=" -load ./input_graphs/"
-FILE_SUFIX="_ext_CSR.gbin"
+FILE_SUFIX=".vgraph"
 
-PERF_PATTERN="INNER perf"
+PERF_PATTERN="MAX_PERF"
 
-declare -a file_names=("rmat_20_32.vgraph"
-                       "rmat_21_32.vgraph"
-                       "rmat_22_32.vgraph"
-                       "rmat_23_32.vgraph"
-                       "rmat_24_32.vgraph"
-                       "rmat_25_32.vgraph"
-                       "orkut.vgraph"
-                       "soc_pokec.vgraph"
-                       "soc_lj.vgraph"
-                       "wiki_topcats.vgraph"
+declare -a file_names=("rmat_20_32"
+                       "rmat_21_32"
+                       "rmat_22_32"
+                       "rmat_23_32"
+                       "rmat_24_32"
+                       "rmat_25_32"
+                       "ru_20_32"
+                       "ru_21_32"
+                       "ru_22_32"
+                       "ru_23_32"
+                       "ru_24_32"
+                       "ru_25_32"
+                       #"soc_friendster"
+                       "soc_stackoverflow"
+                       "soc_orkut"
+                       "soc_lj"
+                       "soc_pokec"
+                       "wiki_talk"
+                       "wiki_topcats"
+                       "berk_stan"
+                       "cit_patents"
+                       "skitter"
+                       "roads_ca"
                        )
-
-
 
 rm "$PROG_NAME"_*
 rm perf_file.txt

@@ -109,7 +109,8 @@ void GraphAbstractionsNEC::vector_core_per_vertex_kernel_sparse(UndirectedCSRGra
 
         #pragma _NEC ivdep
         #pragma _NEC vovertake
-        #pragma _NEC novob
+        //#pragma _NEC novob
+        #pragma _NEC vob
         #pragma _NEC vector
         #pragma _NEC gather_reorder
         for (int local_edge_pos = 0; local_edge_pos < connections_count; local_edge_pos++)
@@ -212,26 +213,57 @@ void GraphAbstractionsNEC::collective_vertex_processing_kernel_sparse(Undirected
 
         if(max_connections > 0)
         {
-            for (int edge_pos = _first_edge; edge_pos < max_connections; edge_pos++)
+            if(use_safe_stores) // all vector stores are safe in this branch (vob)
             {
-                #pragma _NEC cncall
-                #pragma _NEC ivdep
-                #pragma _NEC vovertake
-                #pragma _NEC novob
-                #pragma _NEC vector
-                #pragma _NEC gather_reorder
-                for (int i = 0; i < VECTOR_LENGTH; i++)
+                for (int edge_pos = _first_edge; edge_pos < max_connections; edge_pos++)
                 {
-                    if (((front_pos + i) < frontier_segment_size) && (edge_pos < reg_connections[i]))
+                    #pragma _NEC cncall
+                    #pragma _NEC ivdep
+                    //#pragma _NEC vovertake
+                    //#pragma _NEC vob
+                    #pragma _NEC vector
+                    #pragma _NEC sparse
+                    #pragma _NEC gather_reorder
+                    for (int i = 0; i < VECTOR_LENGTH; i++)
                     {
-                        const int src_id = frontier_ids[front_pos + i];
-                        const int vector_index = i;
-                        const long long int internal_edge_pos = reg_start[i] + edge_pos;
-                        const int local_edge_pos = edge_pos;
-                        const int dst_id = adjacent_ids[internal_edge_pos];
-                        const long long external_edge_pos = process_shift + internal_edge_pos;
+                        if (((front_pos + i) < frontier_segment_size) && (edge_pos < reg_connections[i]))
+                        {
+                            const int src_id = frontier_ids[front_pos + i];
+                            const int vector_index = i;
+                            const long long int internal_edge_pos = reg_start[i] + edge_pos;
+                            const int local_edge_pos = edge_pos;
+                            const int dst_id = adjacent_ids[internal_edge_pos];
+                            const long long external_edge_pos = process_shift + internal_edge_pos;
 
-                        edge_op(src_id, dst_id, local_edge_pos, external_edge_pos, vector_index, delayed_write);
+                            edge_op(src_id, dst_id, local_edge_pos, external_edge_pos, vector_index, delayed_write);
+                        }
+                    }
+                }
+            }
+            else // all vector stores are NOT safe in this branch (novob)
+            {
+                for (int edge_pos = _first_edge; edge_pos < max_connections; edge_pos++)
+                {
+                    #pragma _NEC cncall
+                    #pragma _NEC ivdep
+                    #pragma _NEC vovertake
+                    #pragma _NEC novob
+                    #pragma _NEC vector
+                    #pragma _NEC sparse
+                    #pragma _NEC gather_reorder
+                    for (int i = 0; i < VECTOR_LENGTH; i++)
+                    {
+                        if (((front_pos + i) < frontier_segment_size) && (edge_pos < reg_connections[i]))
+                        {
+                            const int src_id = frontier_ids[front_pos + i];
+                            const int vector_index = i;
+                            const long long int internal_edge_pos = reg_start[i] + edge_pos;
+                            const int local_edge_pos = edge_pos;
+                            const int dst_id = adjacent_ids[internal_edge_pos];
+                            const long long external_edge_pos = process_shift + internal_edge_pos;
+
+                            edge_op(src_id, dst_id, local_edge_pos, external_edge_pos, vector_index, delayed_write);
+                        }
                     }
                 }
             }
