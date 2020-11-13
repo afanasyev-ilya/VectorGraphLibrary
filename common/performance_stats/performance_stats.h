@@ -10,6 +10,10 @@
 class PerformanceStats
 {
 private:
+    int number_of_runs;
+    double avg_time;
+    double best_time;
+
     double inner_wall_time;
     double advance_time;
     double gather_time, scatter_time;
@@ -46,6 +50,10 @@ public:
     void update_advance_collective_part_time(Timer &_timer);
 
     void print_timers_stats();
+    void update_timer_stats();
+
+    void print_max_perf(long long _edges_count);
+    void print_avg_perf(long long _edges_count);
 
     static void print_algorithm_performance_stats(string _name, double _time, long long _edges_count, int _iterations_count);
 

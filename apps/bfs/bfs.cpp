@@ -52,6 +52,8 @@ int main(int argc, const char * argv[])
         // compute BFS
         cout << "Computations started..." << endl;
         cout << "Doing " << parser.get_number_of_rounds() << " BFS iterations..." << endl;
+        double avg_perf = 0.0;
+        double max_perf = 0.0;
         for(int i = 0; i < parser.get_number_of_rounds(); i++)
         {
             VerticesArray<int> levels(graph, SCATTER);
@@ -72,6 +74,9 @@ int main(int argc, const char * argv[])
                 verify_results(levels, check_levels);
             }
         }
+
+        performance_stats.print_max_perf(graph.get_edges_count());
+        performance_stats.print_avg_perf(graph.get_edges_count());
     }
     catch (string error)
     {

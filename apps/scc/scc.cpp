@@ -2,10 +2,14 @@
 
 #define __USE_NEC_SX_AURORA__
 
+//#define __PRINT_API_PERFORMANCE_STATS__
+
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #define INT_ELEMENTS_PER_EDGE 4.0
-#define VECTOR_CORE_THRESHOLD_VALUE 4.0*VECTOR_LENGTH
+#define NEC_VECTOR_ENGINE_THRESHOLD_VALUE  VECTOR_LENGTH * MAX_SX_AURORA_THREADS * 128
+#define VECTOR_CORE_THRESHOLD_VALUE VECTOR_LENGTH
+
 #define COLLECTIVE_FRONTIER_TYPE_CHANGE_THRESHOLD 0.35
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

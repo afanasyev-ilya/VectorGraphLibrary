@@ -282,6 +282,11 @@ void SCC::FB_step(VectCSRGraph &_graph,
         return;
     int gather_pivot = _graph.reorder(scatter_pivot, SCATTER, GATHER);
 
+    cout << "non-trivial FB step with pivot " << scatter_pivot << endl;
+    _graph.print_vertex_information(SCATTER, scatter_pivot, 20);
+    _graph.print_vertex_information(GATHER, gather_pivot, 20);
+    cout << " --------------- " << endl;
+
     bfs_reach(_graph, _graph_API, _frontier, _forward_result, scatter_pivot, SCATTER);
     bfs_reach(_graph, _graph_API, _frontier, _backward_result, gather_pivot, GATHER);
 

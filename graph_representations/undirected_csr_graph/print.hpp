@@ -128,7 +128,7 @@ void UndirectedCSRGraph::print_vertex_information(int _src_id, int _num_edges)
         if(edge_pos < _num_edges)
             cout << dst_id << " ";
     }
-    cout << " (printed " << _num_edges << " edges, real count = " << last - first << ")" << endl;
+    cout << " (printed " << min((int)_num_edges, (int)(last - first)) << " edges, real count = " << last - first << ")" << endl;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
