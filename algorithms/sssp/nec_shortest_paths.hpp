@@ -182,6 +182,7 @@ void SSSP::nec_dijkstra_all_active_pull(VectCSRGraph &_graph,
     frontier.set_all_active();
     graph_API.compute(_graph, frontier, init_distances);
 
+    //graph_API.enable_safe_stores();
     int changes = 0, iterations_count = 0;
     do
     {
@@ -255,6 +256,7 @@ void SSSP::nec_dijkstra_all_active_pull(VectCSRGraph &_graph,
         changes = graph_API.reduce<int>(_graph, frontier, reduce_changes, REDUCE_SUM);
     }
     while(changes);
+    //graph_API.disable_safe_stores();
 
     tm.end();
     #ifdef __PRINT_SAMPLES_PERFORMANCE_STATS__

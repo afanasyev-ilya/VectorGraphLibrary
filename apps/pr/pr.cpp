@@ -50,7 +50,11 @@ int main(int argc, const char * argv[])
         graph.print_stats();
 
         VerticesArray<float> page_ranks(graph);
-        PageRank::nec_page_rank(graph, page_ranks);
+        performance_stats.reset_timers();
+        PageRank::nec_page_rank(graph, page_ranks, );
+        performance_stats.print_timers_stats();
+        performance_stats.print_max_perf(graph.get_edges_count());
+        performance_stats.print_avg_perf(graph.get_edges_count());
 
         if(parser.get_check_flag())
         {

@@ -66,10 +66,10 @@ void PR::nec_page_rank(VectCSRGraph &_graph,
         delayed_write.finish_write_sum(number_of_loops.get_ptr(), src_id);
     };
 
-    _graph_API.enable_safe_stores();
+    graph_API.enable_safe_stores();
     graph_API.scatter(_graph, frontier, calculate_number_of_loops, EMPTY_VERTEX_OP, vertex_postprocess_calculate_number_of_loops,
                       calculate_number_of_loops_collective, EMPTY_VERTEX_OP, EMPTY_VERTEX_OP);
-    _graph_API.disable_safe_stores();
+    graph_API.disable_safe_stores();
 
     auto calculate_degrees_without_loops = [incoming_degrees_without_loops, incoming_degrees, number_of_loops] (int src_id, int connections_count, int vector_index)
     {

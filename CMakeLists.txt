@@ -49,7 +49,6 @@ add_executable(VectorGraphLibrary
         algorithms/bfs/nec_bfs.hpp
         algorithms/bfs/seq_bfs.hpp
         algorithms/cc/cc.h
-        algorithms/cc/cc.hpp
         algorithms/cc/gpu_shiloach_vishkin.hpp
         algorithms/cc/nec_bfs_based.hpp
         algorithms/cc/nec_shiloach_vishkin.hpp
