@@ -51,7 +51,11 @@ int main(int argc, const char * argv[])
 
         // do calculations
         VerticesArray<int> components(graph, SCATTER);
+        performance_stats.reset_timers();
         ConnectedComponents::nec_shiloach_vishkin(graph, components);
+        performance_stats.print_timers_stats();
+        performance_stats.print_max_perf(graph.get_edges_count());
+        performance_stats.print_avg_perf(graph.get_edges_count());
     }
     catch (string error)
     {

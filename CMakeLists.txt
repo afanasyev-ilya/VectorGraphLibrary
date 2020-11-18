@@ -66,7 +66,7 @@ add_executable(VectorGraphLibrary
         algorithms/sswp/widest_paths.hpp
         apps/bfs/bfs.cpp
         apps/cc/cc.cpp
-        apps/misc/create_vgl_graphs.cpp
+        apps/utilites/create_vgl_graphs.cpp
         apps/graph_library.sh
         apps/Makefile.gpu
         apps/Makefile.nec
