@@ -57,7 +57,6 @@ int main(int argc, const char * argv[])
         for(int i = 0; i < parser.get_number_of_rounds(); i++)
         {
             VerticesArray<int> levels(graph, SCATTER);
-            VerticesArray<int> parents(graph, SCATTER);
 
             int source_vertex = graph.select_random_vertex(ORIGINAL);
             cout << "selected source vertex " << source_vertex << endl;
