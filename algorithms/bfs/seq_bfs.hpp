@@ -9,10 +9,18 @@ using namespace std;
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-template <typename _TVertexValue, typename _TEdgeWeight>
-void BFS<_TVertexValue, _TEdgeWeight>::seq_top_down(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph, int *_levels, int _source_vertex)
+template <typename _T>
+void BFS::seq_top_down(VectCSRGraph &_graph,
+                       VerticesArray<_T> &_levels,
+                       int _source_vertex)
 {
-    LOAD_EXTENDED_CSR_GRAPH_DATA(_graph);
+    UndirectedCSRGraph *outgoing_graph_ptr = _graph.get_outgoing_graph_ptr();
+    LOAD_UNDIRECTED_CSR_GRAPH_DATA((*outgoing_graph_ptr));
+
+    _source_vertex = _graph.reorder(_source_vertex, ORIGINAL, SCATTER);
+
+    Timer tm;
+    tm.start();
 
     // Mark all the vertices as not visited
     for(int i = 0; i < vertices_count; i++)
@@ -31,13 +39,13 @@ void BFS<_TVertexValue, _TEdgeWeight>::seq_top_down(ExtendedCSRGraph<_TVertexVal
         int s = queue.front();
         queue.pop_front();
 
-        const long long edge_start = outgoing_ptrs[s];
-        const int connections_count = outgoing_ptrs[s + 1] - outgoing_ptrs[s];
+        const long long edge_start = vertex_pointers[s];
+        const int connections_count = vertex_pointers[s + 1] - vertex_pointers[s];
 
         for(int edge_pos = 0; edge_pos < connections_count; edge_pos++)
         {
             long long int global_edge_pos = edge_start + edge_pos;
-            int v = outgoing_ids[global_edge_pos];
+            int v = adjacent_ids[global_edge_pos];
             if (_levels[v] == UNVISITED_VERTEX)
             {
                 _levels[v] = _levels[s] + 1;
@@ -45,6 +53,11 @@ void BFS<_TVertexValue, _TEdgeWeight>::seq_top_down(ExtendedCSRGraph<_TVertexVal
             }
         }
     }
+
+    tm.end();
+    #ifdef __PRINT_SAMPLES_PERFORMANCE_STATS__
+    PerformanceStats::print_algorithm_performance_stats("BFS (Top-Down, Sequential)", tm.get_time(), _graph.get_edges_count());
+    #endif
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

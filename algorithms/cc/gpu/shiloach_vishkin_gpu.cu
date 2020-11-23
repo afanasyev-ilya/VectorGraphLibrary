@@ -2,18 +2,19 @@
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#include "../../../graph_processing_API/gpu/cuda_API_include.h"
+#include "architectures.h"
+#include "graph_processing_API/gpu/cuda_API_include.h"
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-template <typename _TVertexValue, typename _TEdgeWeight>
-void shiloach_vishkin_wrapper(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
+
+void shiloach_vishkin_wrapper(UndirectedCSRGraph &_graph,
                               int *_components,
                               int &_iterations_count)
 {
-    LOAD_EXTENDED_CSR_GRAPH_DATA(_graph);
+    LOAD_UNDIRECTED_CSR_GRAPH_DATA(_graph);
 
-    GraphPrimitivesGPU graph_API;
+    GraphAbstractionsGPU graph_API;
     FrontierGPU frontier(_graph.get_vertices_count());
     frontier.set_all_active();
 
@@ -32,18 +33,20 @@ void shiloach_vishkin_wrapper(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_gr
     {
         hook_changes[0] = 0;
 
-        auto edge_op = [_components, hook_changes]__device__(int src_id, int dst_id, int local_edge_pos, long long int global_edge_pos)
+        auto edge_op = [_components, hook_changes, _iterations_count] __device__(int src_id, int dst_id, int local_edge_pos, long long int global_edge_pos, int position_in_frontier)
         {
             int src_val = _components[src_id];
             int dst_val = _components[dst_id];
 
-            int dst_dst_val = -1;
             if(src_val < dst_val)
-                dst_dst_val = _components[dst_val];
-
-            if((src_val < dst_val) && (dst_val == dst_dst_val))
             {
-                _components[dst_val] = src_val;
+                _components[dst_id] = src_val;
+                hook_changes[0] = 1;
+            }
+
+            if(src_val > dst_val)
+            {
+                _components[src_id] = dst_val;
                 hook_changes[0] = 1;
             }
         };
@@ -55,12 +58,12 @@ void shiloach_vishkin_wrapper(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_gr
             jump_changes[0] = 0;
             auto jump_op = [_components, jump_changes] __device__(int src_id, int position_in_frontier, int connections_count)
             {
-                int src_val = _components[src_id];
-                int src_src_val = _components[src_val];
+                int src_label = _components[src_id];
+                int parent_label = _components[src_label];
 
-                if(src_val != src_src_val)
+                if(src_label != parent_label)
                 {
-                    _components[src_id] = src_src_val;
+                    _components[src_id] = parent_label;
                     jump_changes[0] = 0;
                 }
             };
@@ -77,7 +80,7 @@ void shiloach_vishkin_wrapper(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_gr
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-template void shiloach_vishkin_wrapper<int, float>(ExtendedCSRGraph<int, float> &_graph, int *_components,
+template void shiloach_vishkin_wrapper<int, float>(UndirectedCSRGraph<int, float> &_graph, int *_components,
                                                    int &_iterations_count);
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

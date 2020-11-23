@@ -2,25 +2,25 @@
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-template <typename _TVertexValue, typename _TEdgeWeight>
-void PR::seq_page_rank(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
-                       float *_page_ranks,
-                       float _convergence_factor,
+template <typename _T>
+void PR::seq_page_rank(VectCSRGraph &_graph,
+                       VerticesArray<_T> &_page_ranks,
+                       _T _convergence_factor,
                        int _max_iterations)
 {
-    LOAD_EXTENDED_CSR_GRAPH_DATA(_graph);
+    // get graph pointers
+    UndirectedCSRGraph *outgoing_graph_ptr = _graph.get_outgoing_graph_ptr();
+    UndirectedCSRGraph *incoming_graph_ptr = _graph.get_outgoing_graph_ptr();
+    int vertices_count = _graph.get_vertices_count();
 
     // set PR parameters
-    float d = 0.85;
-    float k = (1.0 - d) / ((float)vertices_count);
+    _T d = 0.85;
+    _T k = (1.0 - d) / ((float)vertices_count);
 
-    int   *number_of_loops;
-    int   *incoming_degrees_without_loops;
-    float *old_page_ranks;
-
-    MemoryAPI::allocate_array(&number_of_loops, vertices_count);
-    MemoryAPI::allocate_array(&incoming_degrees_without_loops, vertices_count);
-    MemoryAPI::allocate_array(&old_page_ranks, vertices_count);
+    VerticesArray<int> number_of_loops(_graph, SCATTER);
+    VerticesArray<int> incoming_degrees(_graph, GATHER);
+    VerticesArray<int> incoming_degrees_without_loops(_graph, SCATTER);
+    VerticesArray<_T> old_page_ranks(_graph, SCATTER);
 
     // init ranks and other data
     for(int i = 0; i < vertices_count; i++)
@@ -32,18 +32,28 @@ void PR::seq_page_rank(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
     // calculate number of loops
     for(int src_id = 0; src_id < vertices_count; src_id++)
     {
-        const long long edge_start = outgoing_ptrs[src_id];
-        const int connections_count = outgoing_ptrs[src_id + 1] - outgoing_ptrs[src_id];
+        const long long first_edge = outgoing_graph_ptr->get_vertex_pointers()[src_id];
+        const long long last_edge = outgoing_graph_ptr->get_vertex_pointers()[src_id + 1];
+        const int connections_count = last_edge - first_edge;
 
         for (int edge_pos = 0; edge_pos < connections_count; edge_pos++)
         {
-            long long int global_edge_pos = edge_start + edge_pos;
-            int dst_id = outgoing_ids[global_edge_pos];
+            long long int global_edge_pos = first_edge + edge_pos;
+            int dst_id = outgoing_graph_ptr->get_adjacent_ids()[global_edge_pos];
 
             if(src_id == dst_id)
                 number_of_loops[src_id]++;
         }
     }
+
+    // calculate incoming degrees without loops
+    for(int i = 0; i < vertices_count; i++)
+    {
+        const long long first_edge = incoming_graph_ptr->get_vertex_pointers()[i];
+        const long long last_edge = incoming_graph_ptr->get_vertex_pointers()[i + 1];
+        incoming_degrees[i] = last_edge - first_edge;
+    }
+    incoming_degrees.reorder(SCATTER);
 
     // calculate incoming degrees without loops
     for(int i = 0; i < vertices_count; i++)
@@ -74,13 +84,14 @@ void PR::seq_page_rank(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
         // traverse graph and calculate page ranks
         for(int src_id = 0; src_id < vertices_count; src_id++)
         {
-            const long long edge_start = outgoing_ptrs[src_id];
-            const int connections_count = outgoing_ptrs[src_id + 1] - outgoing_ptrs[src_id];
+            const long long first_edge = outgoing_graph_ptr->get_vertex_pointers()[src_id];
+            const long long last_edge = outgoing_graph_ptr->get_vertex_pointers()[src_id + 1];
+            const int connections_count = last_edge - first_edge;
 
             for (int edge_pos = 0; edge_pos < connections_count; edge_pos++)
             {
-                long long int global_edge_pos = edge_start + edge_pos;
-                int dst_id = outgoing_ids[global_edge_pos];
+                long long int global_edge_pos = first_edge + edge_pos;
+                int dst_id = outgoing_graph_ptr->get_adjacent_ids()[global_edge_pos];
 
                 float dst_rank = old_page_ranks[dst_id];
                 float dst_links_num = 1.0 / incoming_degrees_without_loops[dst_id];
@@ -98,17 +109,14 @@ void PR::seq_page_rank(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
         {
             ranks_sum += _page_ranks[i];
         }
+        cout << "seq ranks sum: " << ranks_sum << endl;
 
-        if(fabs(ranks_sum - 1.0) > _convergence_factor)
+        /*if(fabs(ranks_sum - 1.0) > _convergence_factor)
         {
             cout << "ranks sum: " << ranks_sum << endl;
             throw "ERROR: page rank sum is incorrect";
-        }
+        }*/
     }
-
-    MemoryAPI::free_array(number_of_loops);
-    MemoryAPI::free_array(incoming_degrees_without_loops);
-    MemoryAPI::free_array(old_page_ranks);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

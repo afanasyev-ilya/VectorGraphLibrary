@@ -6,8 +6,7 @@
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-template <typename _TVertexValue, typename _TEdgeWeight>
-void gpu_lp_wrapper(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph, int *_labels, int &_iterations_count,
+void gpu_lp_wrapper(UndirectedCSRGraph &_graph, int *_labels, int &_iterations_count,
                     GpuActiveConditionType _gpu_active_condition_type, int _max_iterations);
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

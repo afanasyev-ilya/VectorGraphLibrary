@@ -11,10 +11,6 @@
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#include "../../framework_types.h"
-
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
 #define GPU_VWP_16_THRESHOLD_VALUE 16
 #define GPU_VWP_8_THRESHOLD_VALUE 8
 #define GPU_VWP_4_THRESHOLD_VALUE 4
@@ -22,18 +18,16 @@
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-class FrontierGPU
+class FrontierGPU : public Frontier
 {
 private:
+    // this is how NEC frontier is represented
     int *ids;
     int *flags;
 
-    FrontierType type;
+    void init();
 
-    int max_size;
-    int current_size;
-
-    void split_sorted_frontier(const long long *_vertex_pointers, int &_grid_threshold_start, int &_grid_threshold_end,
+    void split_sorted_frontier(const long long *_vertex_pointers,
                                int &_block_threshold_start, int &_block_threshold_end,
                                int &_warp_threshold_start, int &_warp_threshold_end,
                                int &_vwp_16_threshold_start, int &_vwp_16_threshold_end,
@@ -42,25 +36,30 @@ private:
                                int &_vwp_2_threshold_start, int &_vwp_2_threshold_end,
                                int &_thread_threshold_start, int &_thread_threshold_end);
 public:
-    FrontierGPU(int _vertices_count);
-
-    void set_all_active();
-
+    /* constructors and destructors */
+    FrontierGPU(VectCSRGraph &_graph, TraversalDirection _direction = SCATTER);
     ~FrontierGPU();
 
-    int size() {return current_size;};
-    void clear() {current_size = 0; type = SPARSE_FRONTIER;};
+    /* Get API */
+    int *get_flags() {return flags;};
+    int *get_ids() {return ids;};
 
-    FrontierType get_type() {return type;};
+    /* Print API */
+    void print_stats();
+    void print();
 
-    template <typename _TVertexValue, typename _TEdgeWeight>
-    void add_vertex(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph, int src_id);
+    /* frontier modification API */
+    inline void set_all_active();
+    inline void add_vertex(int src_id);
+    inline void add_group_of_vertices(int *_vertex_ids, int _number_of_vertices);
 
-    friend class GraphPrimitivesGPU;
+    friend class GraphAbstractionsGPU;
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #include "frontier_gpu.cu"
+#include "modification.cu"
+#include "print.cu"
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

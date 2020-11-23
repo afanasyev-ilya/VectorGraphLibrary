@@ -4,6 +4,7 @@
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+#include "architectures.h"
 #define INT_ELEMENTS_PER_EDGE 3.0
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -18,11 +19,11 @@
 #include <curand.h>
 #include <curand_kernel.h>
 #include "../lp_constants.h"
-#include "../../../graph_processing_API/gpu/cuda_API_include.h"
-#include "../../../external_libraries/moderngpu/src/moderngpu/kernel_segsort.hxx"
-#include "../../../external_libraries/moderngpu/src/moderngpu/memory.hxx"
-#include "../../../external_libraries/moderngpu/src/moderngpu/kernel_segreduce.hxx"
-#include "../../../external_libraries/moderngpu/src/moderngpu/kernel_scan.hxx"
+#include "graph_processing_API/gpu/cuda_API_include.h"
+#include "external_libraries/moderngpu/src/moderngpu/kernel_segsort.hxx"
+#include "external_libraries/moderngpu/src/moderngpu/memory.hxx"
+#include "external_libraries/moderngpu/src/moderngpu/kernel_segreduce.hxx"
+#include "external_libraries/moderngpu/src/moderngpu/kernel_scan.hxx"
 #include "active_conditions.cuh"
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -124,7 +125,7 @@ void print_active_percentages(int *_node_states, int _vertices_count)
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void print_active_ids(int *_node_states, int *_shifts, long long *_outgoing_ptrs, int _vertices_count)
+void print_active_ids(int *_node_states, int *_shifts, long long *_vertex_pointers, int _vertices_count)
 {
     if(_vertices_count < 30)
     {
@@ -132,7 +133,7 @@ void print_active_ids(int *_node_states, int *_shifts, long long *_outgoing_ptrs
         for (int src_id = 0; src_id < _vertices_count; src_id++)
         {
             if (_node_states[src_id] == LP_BOUNDARY_ACTIVE)
-                printf("id=%d(CC=%ld, shift=%d) ", src_id, _outgoing_ptrs[src_id + 1] - _outgoing_ptrs[src_id], _shifts[src_id]);
+                printf("id=%d(CC=%ld, shift=%d) ", src_id, _vertex_pointers[src_id + 1] - _vertex_pointers[src_id], _shifts[src_id]);
         }
         cout << endl;
     }
@@ -181,14 +182,14 @@ void print_segmented_array(string _name, DataType *_data, SegmentType *_segments
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template<typename _TVertexValue, typename _TEdgeWeight>
-void gpu_lp_wrapper(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
+void gpu_lp_wrapper(UndirectedCSRGraph &_graph,
                     int *_labels,
                     int &_iterations_count,
                     GpuActiveConditionType _gpu_active_condition_type,
                     int _max_iterations)
 {
-    LOAD_EXTENDED_CSR_GRAPH_DATA(_graph);
-    GraphPrimitivesGPU graph_API;
+    LOAD_UNDIRECTED_CSR_GRAPH_DATA(_graph);
+    GraphAbstractionsGPU graph_API;
     FrontierGPU frontier(_graph.get_vertices_count());
 
     mgpu::standard_context_t context;
@@ -414,21 +415,21 @@ void gpu_lp_wrapper(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
     }
     while((_iterations_count < _max_iterations) && (updated[0] > 0));
 
-    MemoryAPI::free_device_array(new_ptr);
-    MemoryAPI::free_device_array(array_1);
-    MemoryAPI::free_device_array(array_2);
-    MemoryAPI::free_device_array(seg_reduce_indices);
-    MemoryAPI::free_device_array(seg_reduce_result);
-    MemoryAPI::free_device_array(gathered_labels);
-    MemoryAPI::free_device_array(node_states);
-    MemoryAPI::free_device_array(shifts);
+    MemoryAPI::free_array(new_ptr);
+    MemoryAPI::free_array(array_1);
+    MemoryAPI::free_array(array_2);
+    MemoryAPI::free_array(seg_reduce_indices);
+    MemoryAPI::free_array(seg_reduce_result);
+    MemoryAPI::free_array(gathered_labels);
+    MemoryAPI::free_array(node_states);
+    MemoryAPI::free_array(shifts);
 
     cudaFree(updated);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-template void gpu_lp_wrapper<int, float>(ExtendedCSRGraph<int, float> &_graph, int *_labels, int &_iterations_count,
+template void gpu_lp_wrapper<int, float>(UndirectedCSRGraph<int, float> &_graph, int *_labels, int &_iterations_count,
                                          GpuActiveConditionType _gpu_active_condition_type, int _max_iterations);
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

@@ -2,11 +2,11 @@
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-template <typename _TVertexValue, typename _TEdgeWeight>
-void CC::seq_bfs_based(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
+
+void CC::seq_bfs_based(UndirectedCSRGraph &_graph,
                        int *_components)
 {
-    LOAD_EXTENDED_CSR_GRAPH_DATA(_graph);
+    LOAD_UNDIRECTED_CSR_GRAPH_DATA(_graph);
 
     BFS<int, float> bfs_operation(_graph);
 
@@ -23,7 +23,7 @@ void CC::seq_bfs_based(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
     {
         if(_components[v] == COMPONENT_UNSET)
         {
-            int connections_count = outgoing_ptrs[v + 1] - outgoing_ptrs[v];
+            int connections_count = vertex_pointers[v + 1] - vertex_pointers[v];
 
             if(connections_count >= 1)
             {

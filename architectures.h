@@ -2,27 +2,33 @@
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+// architecture can be selected here or in apps files
 //#define __USE_GPU__
+//#define __USE_NEC_SX_AURORA__
 //#define __USE_INTEL__
-#define __USE_NEC_SX_AURORA__
+//#define __USE_KNL__
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // SX-Aurora properties
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-//#define __USE_ASL__
+#ifdef __USE_NEC_SX_AURORA__
+#define __USE_ASL__
+#endif
+
 #define VECTOR_LENGTH 256
 #define VECTOR_LENGTH_POW 8
 #define MAX_SX_AURORA_THREADS 8
+#define LLC_CACHE_SIZE 16*1024*1024
 
 // main framework settings
 // define user hasn't set any
-#ifndef NEC_VECTOR_ENGINE_THRESHOLD_VALUE
-#define NEC_VECTOR_ENGINE_THRESHOLD_VALUE VECTOR_LENGTH * MAX_SX_AURORA_THREADS * 128
+#ifndef VECTOR_ENGINE_THRESHOLD_VALUE
+#define VECTOR_ENGINE_THRESHOLD_VALUE VECTOR_LENGTH * MAX_SX_AURORA_THREADS * 128
 #endif
 
-#ifndef NEC_VECTOR_CORE_THRESHOLD_VALUE
-#define NEC_VECTOR_CORE_THRESHOLD_VALUE VECTOR_LENGTH
+#ifndef VECTOR_CORE_THRESHOLD_VALUE
+#define VECTOR_CORE_THRESHOLD_VALUE VECTOR_LENGTH
 #endif
 
 #ifndef FRONTIER_TYPE_CHANGE_THRESHOLD
@@ -59,22 +65,35 @@
 // Common properties
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#define __USE_WEIGHTED_GRAPHS__
+#define MAX_WEIGHT 100
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#define __PRINT_API_PERFORMANCE_STATS__ // prints inner api detailed performance stats, causes significant delays when active
-//#define __PRINT_SAMPLES_PERFORMANCE_STATS__ // prints samples stats (iterations, bandwidths, components stats)
-#define __SAVE_PERFORMANCE_STATS_TO_FILE__ // saves performance stats to files (useful for multiple batch launches)
+//#define __PRINT_API_PERFORMANCE_STATS__ // prints inner api detailed performance stats, causes significant delays when active
+#define __PRINT_SAMPLES_PERFORMANCE_STATS__ // prints samples stats (iterations, bandwidths, components stats)
+//#define __SAVE_PERFORMANCE_STATS_TO_FILE__ // saves performance stats to files (useful for multiple batch launches)
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #define VISUALISATION_SMALL_GRAPH_VERTEX_THRESHOLD 30
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Variables, used for API performance stats
 
 #ifndef INT_ELEMENTS_PER_EDGE
 #define INT_ELEMENTS_PER_EDGE 3.0
+#endif
+
+#ifndef COMPUTE_INT_ELEMENTS
+#define COMPUTE_INT_ELEMENTS 2.0
+#endif
+
+#ifndef REDUCE_INT_ELEMENTS
+#define REDUCE_INT_ELEMENTS 2.0
+#endif
+
+#ifndef GNF_INT_ELEMENTS
+#define GNF_INT_ELEMENTS 1.0
 #endif
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

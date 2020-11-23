@@ -2,15 +2,16 @@
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-AlgorithmCommandOptionsParser::AlgorithmCommandOptionsParser()
+Parser::Parser()
 {
     scale = 10;
     avg_degree = 5;
+    graph_type = RMAT;
     compute_mode = GENERATE_NEW_GRAPH;
     algorithm_frontier_type = ALL_ACTIVE;
     traversal_direction = PUSH_TRAVERSAL;
     check_flag = false;
-    graph_file_name = "test.gbin";
+    graph_file_name = "test.graph";
     number_of_rounds = 1;
     algorithm_bfs = DIRECTION_OPTIMIZING_BFS_ALGORITHM;
     algorithm_cc = SHILOACH_VISHKIN_ALGORITHM;
@@ -18,7 +19,7 @@ AlgorithmCommandOptionsParser::AlgorithmCommandOptionsParser()
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void AlgorithmCommandOptionsParser::parse_args(int _argc, const char * _argv[])
+void Parser::parse_args(int _argc, const char * _argv[])
 {
     // get params from cmd line
     for (int i = 1; i < _argc; i++)
@@ -40,7 +41,26 @@ void AlgorithmCommandOptionsParser::parse_args(int _argc, const char * _argv[])
         {
             scale = atoi(_argv[++i]);
         }
-        
+
+        if ((option.compare("-random_uniform") == 0) || (option.compare("-ru") == 0))
+        {
+            graph_type = RANDOM_UNIFORM;
+        }
+
+        if ((option.compare("-rmat") == 0) || (option.compare("-RMAT") == 0))
+        {
+            graph_type = RMAT;
+        }
+
+        if ((option.compare("-type") == 0))
+        {
+            string tmp_type = _argv[++i];
+            if((tmp_type == "rmat") || (tmp_type == "RMAT"))
+                graph_type = RMAT;
+            if((tmp_type == "random_uniform") || (tmp_type == "ru"))
+                graph_type = RANDOM_UNIFORM;
+        }
+
         if ((option.compare("-edges") == 0) || (option.compare("-e") == 0))
         {
             avg_degree = atoi(_argv[++i]);
@@ -107,6 +127,26 @@ void AlgorithmCommandOptionsParser::parse_args(int _argc, const char * _argv[])
             algorithm_cc = BFS_BASED_ALGORITHM;
         }
     }
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+TraversalDirection Parser::convert_traversal_type(AlgorithmTraversalType _algo_type)
+{
+    if(_algo_type == PUSH_TRAVERSAL)
+        return SCATTER;
+    if(_algo_type == PULL_TRAVERSAL)
+        return GATHER;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+AlgorithmTraversalType Parser::convert_traversal_type(TraversalDirection _direction_type)
+{
+    if(_direction_type == SCATTER)
+        return PUSH_TRAVERSAL;
+    if(_direction_type == GATHER)
+        return PULL_TRAVERSAL;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

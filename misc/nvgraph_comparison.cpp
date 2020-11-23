@@ -4,7 +4,7 @@
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#include "../graph_library.h"
+#include "graph_library.h"
 #include "nvgraph.h"
 #include <iostream>
 
@@ -33,7 +33,7 @@ void check_status(nvgraphStatus_t status)
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 void nvgraph_sssp(int vertices_count, int edges_count, int *source_indices, int *destination_offsets, float *weights,
-                  float *sssp, ExtendedCSRGraph<int, float> &_graph)
+                  float *sssp, UndirectedCSRGraph<int, float> &_graph)
 {
     nvgraphHandle_t handle;
     nvgraphGraphDescr_t graph;
@@ -111,7 +111,7 @@ void nvgraph_sssp(int vertices_count, int edges_count, int *source_indices, int 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 void nvgraph_page_rank(int vertices_count, int edges_count, int *source_indices, int *destination_offsets, float *weights,
-                       float *sssp, ExtendedCSRGraph<int, float> &_graph)
+                       float *sssp, UndirectedCSRGraph<int, float> &_graph)
 {
     size_t vert_sets = 2, edge_sets = 1;
     float alpha1 = 0.85f; void *alpha1_p = (void *) &alpha1;
@@ -184,7 +184,7 @@ void nvgraph_page_rank(int vertices_count, int edges_count, int *source_indices,
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 void nvgraph_bfs(int vertices_count, int edges_count, int *source_indices, int *destination_offsets,
-                 ExtendedCSRGraph<int, float> &_graph)
+                 UndirectedCSRGraph<int, float> &_graph)
 {
     const size_t  n = vertices_count, nnz = edges_count, vertex_numsets = 2, edge_numset = 0;
     int *source_offsets_h = destination_offsets;
@@ -260,10 +260,10 @@ void nvgraph_bfs(int vertices_count, int edges_count, int *source_indices, int *
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-template <typename _TVertexValue, typename _TEdgeWeight>
-void convert_and_test(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph, string alg)
+
+void convert_and_test(UndirectedCSRGraph &_graph, string alg)
 {
-    LOAD_EXTENDED_CSR_GRAPH_DATA(_graph)
+    LOAD_UNDIRECTED_CSR_GRAPH_DATA(_graph)
 
     vector<vector<TempEdgeData<float> > > csc_tmp_graph;
 
@@ -275,14 +275,14 @@ void convert_and_test(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph, str
 
     for(int src_id = 0; src_id < vertices_count; src_id++)
     {
-        const long long int start = outgoing_ptrs[src_id];
-        const long long int end = outgoing_ptrs[src_id + 1];
+        const long long int start = vertex_pointers[src_id];
+        const long long int end = vertex_pointers[src_id + 1];
         int connections_count = end - start;
 
         for(int edge_pos = 0; edge_pos < connections_count; edge_pos++)
         {
-            int dst_id = outgoing_ids[start + edge_pos];
-            _TEdgeWeight weight = outgoing_weights[start + edge_pos];
+            int dst_id = adjacent_ids[start + edge_pos];
+            _TEdgeWeight weight = adjacent_weights[start + edge_pos];
             csc_tmp_graph[src_id].push_back(TempEdgeData<_TEdgeWeight>(dst_id, weight));
         }
     }
@@ -329,7 +329,7 @@ int main(int argc, char **argv)
         string input_graph_name = string(argv[1]);
         cout << input_graph_name << endl;
         
-        ExtendedCSRGraph<int, float> graph;
+        UndirectedCSRGraph<int, float> graph;
         if(!graph.load_from_binary_file(input_graph_name))
             throw "ERROR: no such file " + input_graph_name + " in nvgraph test";
         

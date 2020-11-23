@@ -1,0 +1,53 @@
+CXX = icpc
+
+# Include paths...
+
+# Include paths...
+Include_Path = -I ../
+Flags = -O3 -fpermissive -w -m64 -std=c++11 -qopenmp -qopt-report-phase=vec -qopt-streaming-stores always
+
+# Library paths...
+Library_Path =
+Libraries = -fopenmp
+
+# CPU Compiler flags...
+
+
+#  -floop-normalize -floop-interchange -floop-collapse -mretain-list-vector
+
+.DEFAULT_GOAL := all
+
+##########
+# binaries
+##########
+
+all: test sssp
+
+sssp: create_folders sssp.o
+	$(CXX) object_files/sssp.o $(Library_Path) $(Libraries) -o ./bin/sssp_knl
+
+test: create_folders test.o
+	$(CXX) object_files/test.o $(Library_Path) $(Libraries) -o ./bin/test_knl
+
+##########
+# CPPs
+##########
+
+sssp.o: sssp/sssp_knl.cpp
+	$(CXX) $(Flags) $(Include_Path)  -c sssp/sssp_knl.cpp -o object_files/sssp.o -fopenmp
+
+test.o: misc/test.cpp
+	$(CXX) $(Flags) $(Include_Path)  -c misc/test.cpp -o object_files/test.o -fopenmp
+
+create_folders:
+	-mkdir -p ./bin
+	-cp graph_library.sh ./bin
+	-mkdir -p ./object_files
+
+clean:
+	-rm -f object_files/*.o
+
+#################
+# CUDA operations
+#################
+

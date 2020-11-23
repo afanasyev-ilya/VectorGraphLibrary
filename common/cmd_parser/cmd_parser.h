@@ -6,15 +6,16 @@
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-class AlgorithmCommandOptionsParser
+class Parser
 {
 private:
     ComputeMode compute_mode;
     AlgorithmFrontierType algorithm_frontier_type;
-    TraversalDirection traversal_direction;
+    AlgorithmTraversalType traversal_direction;
     
     int scale;
     int avg_degree;
+    SyntheticGraphType graph_type;
 
     string graph_file_name;
 
@@ -25,7 +26,7 @@ private:
     AlgorithmBFS algorithm_bfs;
     AlgorithmCC algorithm_cc;
 public:
-    AlgorithmCommandOptionsParser();
+    Parser();
     
     int get_scale() { return scale; };
     int get_avg_degree() { return avg_degree; };
@@ -34,13 +35,19 @@ public:
     bool get_check_flag() { return check_flag; };
     int get_number_of_rounds() { return number_of_rounds; };
 
+    SyntheticGraphType get_graph_type() {return graph_type;};
+
     AlgorithmFrontierType get_algorithm_frontier_type() {return algorithm_frontier_type;};
-    TraversalDirection get_traversal_direction() {return traversal_direction;};
+    AlgorithmTraversalType get_traversal_direction() {return traversal_direction;};
 
     AlgorithmBFS get_algorithm_bfs() {return algorithm_bfs;};
     AlgorithmCC get_algorithm_cc() {return algorithm_cc;};
     
     void parse_args(int _argc, const char * _argv[]);
+
+    static TraversalDirection convert_traversal_type(AlgorithmTraversalType _algo_type);
+    static AlgorithmTraversalType convert_traversal_type(TraversalDirection _direction_type);
+
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

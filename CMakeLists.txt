@@ -18,7 +18,7 @@ include_directories(common/gpu_API)
 include_directories(common/memory_API)
 include_directories(common/parallel_primitives)
 include_directories(common/random_generator)
-include_directories(common/sorting)
+include_directories(common/sorter)
 include_directories(common/verify_results)
 include_directories(export_graphs)
 include_directories(graph_analytics)
@@ -33,24 +33,22 @@ include_directories(graph_processing_API/nec/vector_register)
 include_directories(graph_representations)
 include_directories(graph_representations/common)
 include_directories(graph_representations/edges_list_graph)
-include_directories(graph_representations/extended_CSR_graph)
-include_directories(graph_representations/extended_CSR_graph/vector_extension)
-include_directories(graph_representations/sharded_graph)
-include_directories(graph_representations/sharded_graph/shard_base)
-include_directories(graph_representations/sharded_graph/shard_CSR)
-include_directories(graph_representations/sharded_graph/shard_vect_CSR)
+include_directories(graph_representations/undirected_csr_graph)
+include_directories(graph_representations/undirected_csr_graph/vector_extension)
+include_directories(graph_representations/sharded_csr_graph)
+include_directories(graph_representations/sharded_csr_graph/shard_base)
+include_directories(graph_representations/sharded_csr_graph/shard_CSR)
+include_directories(graph_representations/sharded_csr_graph/shard_vect_csr)
 include_directories(verification)
 
 add_executable(VectorGraphLibrary
         algorithms/bfs/change_state/change_state.h
         algorithms/bfs/change_state/change_state.hpp
         algorithms/bfs/bfs.h
-        algorithms/bfs/bfs.hpp
         algorithms/bfs/gpu_bfs.hpp
         algorithms/bfs/nec_bfs.hpp
         algorithms/bfs/seq_bfs.hpp
         algorithms/cc/cc.h
-        algorithms/cc/cc.hpp
         algorithms/cc/gpu_shiloach_vishkin.hpp
         algorithms/cc/nec_bfs_based.hpp
         algorithms/cc/nec_shiloach_vishkin.hpp
@@ -60,27 +58,21 @@ add_executable(VectorGraphLibrary
         algorithms/lp/lp.h
         algorithms/lp/lp.hpp
         algorithms/pr/pr.h
-        algorithms/pr/pr.hpp
         algorithms/sssp/gpu_shortest_paths.hpp
         algorithms/sssp/nec_shortest_paths.hpp
         algorithms/sssp/seq_shortest_paths.hpp
         algorithms/sssp/shortest_paths.h
-        algorithms/sssp/shortest_paths.hpp
         algorithms/sswp/widest_paths.h
         algorithms/sswp/widest_paths.hpp
-        apps/analyse_graph.cpp
-        apps/bfs.cpp
-        apps/cc.cpp
-        apps/generate_test_data.cpp
+        apps/bfs/bfs.cpp
+        apps/cc/cc.cpp
+        apps/utilites/create_vgl_graphs.cpp
         apps/graph_library.sh
-        apps/kcore.cpp
-        apps/Makefile.gcc
-        apps/Makefile.intel
         apps/Makefile.gpu
-        apps/Makefile.tohoku
-        apps/pr.cpp
-        apps/sssp.cpp
-        apps/sswp.cpp
+        apps/Makefile.nec
+        apps/pr/pr.cpp
+        apps/sssp/sssp.cpp
+        apps/sswp/sswp.cpp
         common/cmd_parser/cmd_parser.h
         common/cmd_parser/cmd_parser.hpp
         common/cmd_parser/parser_options.h
@@ -89,19 +81,18 @@ add_executable(VectorGraphLibrary
         common/memory_API/memory_API.hpp
         common/parallel_primitives/copy_if.h
         common/parallel_primitives/get_elements_count.h
-        common/random_generator/ASL_random_generator.h
-        common/random_generator/ASL_random_generator.hpp
-        common/random_generator/common_random_generator.h
-        common/random_generator/random_generation_API.h
-        common/sorting/sorting.h
+        common/random_generator/asl_generator/asl_generator.h
+        common/random_generator/asl_generator/asl_generator.hpp
+        common/random_generator/common_generator/common_generator.h
+        common/random_generator/random_generator.h
+        common/sorter/sorter.h
         common/verify_results/verify_results.h
-        export_graphs/gapbs_export.h
+        export_graphs/edges_list_export.h
         export_graphs/ligra_export.h
         graph_analytics/graph_analytics.h
         graph_analytics/graph_analytics.hpp
         graph_generation_API/graph_generation_API.h
         graph_generation_API/graph_generation_API.hpp
-        graph_processing_API/gpu/cuda_API_include.h
         graph_processing_API/nec/delayed_write/delayed_write_nec.h
         graph_processing_API/nec/delayed_write/delayed_write_nec.hpp
         graph_processing_API/nec/frontier/frontier_nec.h
@@ -119,26 +110,25 @@ add_executable(VectorGraphLibrary
         graph_processing_API/nec/graph_primitives/tests.hpp
         graph_processing_API/nec/vector_register/vector_registers.h
         graph_representations/common/graph_types.h
-        graph_representations/common/tmp_edge_data.h
         graph_representations/edges_list_graph/edges_list_graph.h
         graph_representations/edges_list_graph/edges_list_graph.hpp
-        graph_representations/extended_CSR_graph/vector_extension/vector_extension.h
-        graph_representations/extended_CSR_graph/vector_extension/vector_extension.hpp
-        graph_representations/extended_CSR_graph/extended_CSR_graph.h
-        graph_representations/extended_CSR_graph/extended_CSR_graph.hpp
-        graph_representations/extended_CSR_graph/gpu_api.hpp
-        graph_representations/extended_CSR_graph/init_graph.hpp
-        graph_representations/extended_CSR_graph/nec_api.hpp
-        graph_representations/sharded_graph/shard_base/shard_base.h
-        graph_representations/sharded_graph/shard_base/shard_base.hpp
-        graph_representations/sharded_graph/shard_CSR/shard_CSR.h
-        graph_representations/sharded_graph/shard_CSR/shard_CSR.hpp
-        graph_representations/sharded_graph/shard_CSR/shard_CSR_pointer_data.h
-        graph_representations/sharded_graph/shard_vect_CSR/shard_vect_CSR.h
-        graph_representations/sharded_graph/shard_vect_CSR/shard_vect_CSR.hpp
-        graph_representations/sharded_graph/shard_vect_CSR/shard_vect_CSR_pointer_data.h
-        graph_representations/sharded_graph/sharded_graph.h
-        graph_representations/sharded_graph/sharded_graph.hpp
+        graph_representations/undirected_csr_graph/vector_extension/vector_extension.h
+        graph_representations/undirected_csr_graph/vector_extension/vector_extension.hpp
+        graph_representations/undirected_csr_graph/undirected_csr_graph.h
+        graph_representations/undirected_csr_graph/undirected_csr_graph.hpp
+        graph_representations/undirected_csr_graph/gpu_api.hpp
+        graph_representations/undirected_csr_graph/import.hpp
+        graph_representations/undirected_csr_graph/nec_api.hpp
+        graph_representations/sharded_csr_graph/shard_base/shard_base.h
+        graph_representations/sharded_csr_graph/shard_base/shard_base.hpp
+        graph_representations/sharded_csr_graph/shard_CSR/shard_CSR.h
+        graph_representations/sharded_csr_graph/shard_CSR/shard_CSR.hpp
+        graph_representations/sharded_csr_graph/shard_CSR/shard_CSR_pointer_data.h
+        graph_representations/sharded_csr_graph/shard_vect_csr/shard_vect_CSR.h
+        graph_representations/sharded_csr_graph/shard_vect_csr/shard_vect_CSR.hpp
+        graph_representations/sharded_csr_graph/shard_vect_csr/shard_vect_CSR_pointer_data.h
+        graph_representations/sharded_csr_graph/sharded_csr_graph.h
+        graph_representations/sharded_csr_graph/sharded_csr_graph.hpp
         graph_representations/base_graph.h
         misc/custom_test.cpp
         misc/generate_memory_traces.cpp
@@ -147,4 +137,3 @@ add_executable(VectorGraphLibrary
         verification/page_rank_verification.hpp
         verification/shortest_paths_verification.hpp
         architectures.h
-        graph_library.h graph_processing_API/framework_types.h algorithms/lp/lp_constants.h algorithms/lp/gpu/active_conditions.cuh misc/memory_access_patterns.cpp misc/memory_access_patterns.cu algorithms/sswp/nec_widest_paths.hpp algorithms/sswp/seq_widest_paths.hpp apps/gather.cpp)

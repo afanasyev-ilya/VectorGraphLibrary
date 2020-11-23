@@ -2,59 +2,154 @@
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void PerformanceStats::save_performance_to_file(string _operation_name, string _graph_name, double _perf)
+PerformanceStats::PerformanceStats()
 {
-    string file_name = _operation_name + "_performance_data.txt";
-    string short_file_name = _operation_name + "_performance_data_short.txt";
-
-    ofstream perf_file;
-    perf_file.open(file_name.c_str(), std::ios_base::app);
-    perf_file << _graph_name << ": " << _perf << " MTEPS" << endl;
-    perf_file.close();
-
-    ofstream short_perf_file;
-    short_perf_file.open(short_file_name.c_str(), std::ios_base::app);
-    short_perf_file << _perf << endl;
-    short_perf_file.close();
+    number_of_runs = 0;
+    avg_time = 0;
+    best_time = 0;
+    reset_timers();
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void PerformanceStats::component_stats(int *_components, int _vertices_count)
+void PerformanceStats::update_advance_time(Timer &_timer)
 {
-    map<int, int> component_sizes;
-    for(int i = 0; i < _vertices_count; i++)
+    #pragma omp master
     {
-        int current_component = _components[i];
-        component_sizes[current_component]++;
+        advance_time += _timer.get_time();
     }
-
-    map<int, int> sizes_stats;
-
-    cout << " -------------------------------- CC stats --------------------------------- " << endl;
-    for(auto it = component_sizes.begin(); it != component_sizes.end(); it++)
-    {
-        sizes_stats[it->second]++;
-    }
-
-    std::vector<std::pair<int, int>> size_pairs;
-    for (auto itr = sizes_stats.begin(); itr != sizes_stats.end(); ++itr)
-        size_pairs.push_back(*itr);
-
-    auto cmp_func = [=](const std::pair<int, int>& a, const std::pair<int, int>& b) { return a.first >= b.first; };
-
-    sort(size_pairs.begin(), size_pairs.end(), cmp_func);
-
-    for(auto it = size_pairs.begin(); it != size_pairs.end(); it++)
-    {
-        cout << "there are " << it->second << " components of size " << it->first << endl;
-    }
-    cout << " ---------------------------------------------------------------------------- " << endl << endl;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void PerformanceStats::print_performance_stats(string _name, double _time, long long _edges_count, int _iterations_count)
+void PerformanceStats::update_advance_ve_part_time(Timer &_timer)
+{
+    #pragma omp master
+    {
+        advance_ve_part_time += _timer.get_time();
+    }
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+void PerformanceStats::update_advance_vc_part_time(Timer &_timer)
+{
+    #pragma omp master
+    {
+        advance_vc_part_time += _timer.get_time();
+    }
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+void PerformanceStats::update_advance_collective_part_time(Timer &_timer)
+{
+    #pragma omp master
+    {
+        advance_collective_part_time += _timer.get_time();
+    }
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+void PerformanceStats::update_scatter_time(Timer &_timer)
+{
+    #pragma omp master
+    {
+        inner_wall_time += _timer.get_time();
+        scatter_time += _timer.get_time();
+    }
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+void PerformanceStats::update_gather_time(Timer &_timer)
+{
+    #pragma omp master
+    {
+        inner_wall_time += _timer.get_time();
+        gather_time += _timer.get_time();
+    }
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+void PerformanceStats::update_compute_time(Timer &_timer)
+{
+    #pragma omp master
+    {
+        inner_wall_time += _timer.get_time();
+        compute_time += _timer.get_time();
+    }
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+void PerformanceStats::update_reduce_time(Timer &_timer)
+{
+    #pragma omp master
+    {
+        inner_wall_time += _timer.get_time();
+        reduce_time += _timer.get_time();
+    }
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+void PerformanceStats::update_gnf_time(Timer &_timer)
+{
+    #pragma omp master
+    {
+        inner_wall_time += _timer.get_time();
+        gnf_time += _timer.get_time();
+    }
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+void PerformanceStats::update_pack_time(Timer &_timer)
+{
+    #pragma omp master
+    {
+        inner_wall_time += _timer.get_time();
+        pack_time += _timer.get_time();
+    }
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+void PerformanceStats::update_reorder_time(Timer &_timer)
+{
+    #pragma omp master
+    {
+        inner_wall_time += _timer.get_time();
+        reorder_time += _timer.get_time();
+    }
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+void PerformanceStats::reset_timers()
+{
+    inner_wall_time = 0;
+    advance_time = 0;
+    gather_time = 0;
+    scatter_time = 0;
+
+    advance_ve_part_time = 0;
+    advance_vc_part_time = 0;
+    advance_collective_part_time = 0;
+
+    compute_time = 0;
+    gnf_time = 0;
+    reduce_time = 0;
+    reorder_time = 0;
+    pack_time = 0;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+void PerformanceStats::print_algorithm_performance_stats(string _name, double _time, long long _edges_count, int _iterations_count)
 {
     cout << " --------------------------- " << _name << " performance stats --------------------------- " << endl;
     cout << "wall time: " << _time*1000.0 << " ms" << endl;
@@ -66,3 +161,80 @@ void PerformanceStats::print_performance_stats(string _name, double _time, long 
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+void PerformanceStats::print_algorithm_performance_stats(string _name, double _time, long long _edges_count)
+{
+    cout << " --------------------------- " << _name << " performance stats --------------------------- " << endl;
+    cout << "wall time: " << _time*1000.0 << " ms" << endl;
+    cout << "wall perf: " << _edges_count / (_time * 1e6) << " MTEPS" << endl;
+    cout << " ----------------------------------------------------------------------------------------- " << endl << endl;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+void PerformanceStats::print_timers_stats()
+{
+    cout << endl;
+    print_abstraction_stats("Inner wall    ", inner_wall_time);
+    print_abstraction_stats("Advance       ", advance_time);
+    #ifdef __USE_NEC_SX_AURORA__
+    print_detailed_advance_stats("Advance (ve) time        ", advance_ve_part_time);
+    print_detailed_advance_stats("Advance (vc) time        ", advance_vc_part_time);
+    print_detailed_advance_stats("Advance (collective) time", advance_collective_part_time);
+    #endif
+    print_abstraction_stats("Gather        ", gather_time);
+    print_abstraction_stats("Scatter       ", scatter_time);
+    print_abstraction_stats("Compute       ", compute_time);
+    print_abstraction_stats("Reduce        ", reduce_time);
+    print_abstraction_stats("GNF           ", gnf_time);
+    print_abstraction_stats("Reorder       ", reorder_time);
+    print_abstraction_stats("Pack          ", pack_time);
+    cout << endl;
+
+    update_timer_stats();
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+void PerformanceStats::update_timer_stats()
+{
+    if(best_time < inner_wall_time)
+        best_time = inner_wall_time;
+    avg_time += inner_wall_time;
+    number_of_runs++;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+void PerformanceStats::print_max_perf(long long _edges_count)
+{
+    cout << "MAX_PERF: " << _edges_count / (best_time * 1e6) << " MTEPS (among " << number_of_runs << " runs)" << endl;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+void PerformanceStats::print_avg_perf(long long _edges_count)
+{
+    avg_time /= number_of_runs;
+    cout << "AVG_PERF: " << _edges_count / (avg_time * 1e6) << " MTEPS (among " << number_of_runs << " runs)" << endl;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+void PerformanceStats::print_abstraction_stats(string _name, double _time)
+{
+    if(_time > 0)
+        cout << _name << " : " << to_ms(_time) << " (ms), " << to_percent(_time) << "%" << endl;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+void PerformanceStats::print_detailed_advance_stats(string _name, double _time)
+{
+    if(_time > 0)
+        cout << "    "  << _name << " : " << to_ms(_time) << " (ms), " << to_percent(_time) << "%" << endl;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+

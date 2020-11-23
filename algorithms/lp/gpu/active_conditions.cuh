@@ -3,8 +3,8 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template<typename _TVertexValue, typename _TEdgeWeight>
-void always_active(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
-                   GraphPrimitivesGPU &graph_API,
+void always_active(UndirectedCSRGraph &_graph,
+                   GraphAbstractionsGPU &graph_API,
                    FrontierGPU &frontier,
                    int *new_ptr,
                    int *gathered_labels,
@@ -36,8 +36,8 @@ void always_active(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template<typename _TVertexValue, typename _TEdgeWeight>
-void active_passive_inner(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
-                          GraphPrimitivesGPU &graph_API,
+void active_passive_inner(UndirectedCSRGraph &_graph,
+                          GraphAbstractionsGPU &graph_API,
                           FrontierGPU &frontier,
                           int *new_ptr,
                           int *gathered_labels,
@@ -135,8 +135,8 @@ void active_passive_inner(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template<typename _TVertexValue, typename _TEdgeWeight>
-void label_changed_on_previous_iteration(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
-                                         GraphPrimitivesGPU &graph_API,
+void label_changed_on_previous_iteration(UndirectedCSRGraph &_graph,
+                                         GraphAbstractionsGPU &graph_API,
                                          FrontierGPU &frontier,
                                          int *new_ptr,
                                          int *gathered_labels,
@@ -174,8 +174,8 @@ void label_changed_on_previous_iteration(ExtendedCSRGraph<_TVertexValue, _TEdgeW
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template<typename _TVertexValue, typename _TEdgeWeight>
-void label_changed_recently(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
-                            GraphPrimitivesGPU &graph_API,
+void label_changed_recently(UndirectedCSRGraph &_graph,
+                            GraphAbstractionsGPU &graph_API,
                             FrontierGPU &frontier,
                             int *new_ptr,
                             int *gathered_labels,

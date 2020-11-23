@@ -2,7 +2,7 @@
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#define SSWP WidestPaths<_TVertexValue, _TEdgeWeight>
+#define SSWP WidestPaths
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -11,7 +11,7 @@
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-template <typename _TVertexValue, typename _TEdgeWeight>
+
 class WidestPaths
 {
 private:
@@ -22,18 +22,18 @@ private:
     #endif
 
 public:
-    WidestPaths(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph);
+    WidestPaths(UndirectedCSRGraph &_graph);
     ~WidestPaths();
 
     void allocate_result_memory(int _vertices_count, _TEdgeWeight **_widths);
     void free_result_memory    (_TEdgeWeight *_widths);
 
     #ifdef __USE_NEC_SX_AURORA__
-    void nec_dijkstra(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph, _TEdgeWeight *_widths, int _source_vertex,
-                      TraversalDirection _traversal_direction);
+    void nec_dijkstra(UndirectedCSRGraph &_graph, _TEdgeWeight *_widths, int _source_vertex,
+                      AlgorithmTraversalType _traversal_direction);
     #endif
 
-    void seq_dijkstra(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph, _TEdgeWeight *_widths, int _source_vertex);
+    void seq_dijkstra(UndirectedCSRGraph &_graph, _TEdgeWeight *_widths, int _source_vertex);
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

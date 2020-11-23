@@ -2,53 +2,60 @@
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#include "../../framework_types.h"
-
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-class FrontierNEC
+class FrontierNEC : public Frontier
 {
 private:
+    // this is how NEC frontier is represented
     int *flags;
     int *ids;
     int *work_buffer;
-
-    FrontierType type;
 
     int vector_engine_part_size;
     int vector_core_part_size;
     int collective_part_size;
 
+    long long vector_engine_part_neighbours_count;
+    long long vector_core_part_neighbours_count;
+    long long collective_part_neighbours_count;
+
     FrontierType vector_engine_part_type;
     FrontierType vector_core_part_type;
     FrontierType collective_part_type;
 
-    int current_size;
-    int max_size;
+    void init();
 public:
-    template <typename _TVertexValue, typename _TEdgeWeight>
-    FrontierNEC(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph);
-    FrontierNEC(int _vertices_count);
+    /* constructors and destructors */
+    FrontierNEC(VectCSRGraph &_graph, TraversalDirection _direction = SCATTER);
+    FrontierNEC(ShardedCSRGraph &_graph, TraversalDirection _direction = SCATTER);
     ~FrontierNEC();
 
-    int size() {return current_size;};
-    FrontierType get_type() {return type;};
+    /* Get API */
+    int *get_flags() {return flags;};
+    int *get_ids() {return ids;};
+    int get_vector_engine_part_size(){return vector_engine_part_size;};
+    int get_vector_core_part_size(){return vector_core_part_size;};
+    int get_collective_part_size(){return collective_part_size;};
 
-    void set_all_active();
+    long long get_vector_engine_part_neighbours_count(){return vector_engine_part_neighbours_count;};
+    long long get_vector_core_part_neighbours_count(){return vector_core_part_neighbours_count;};
+    long long get_collective_part_neighbours_count(){return collective_part_neighbours_count;};
 
-    void change_size(int _size) {max_size = _size;};
+    /* Print API */
+    void print_stats();
+    void print();
 
-    template <typename _TVertexValue, typename _TEdgeWeight>
-    void print_frontier_info(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph);
+    /* frontier modification API */
+    inline void set_all_active();
+    inline void add_vertex(int src_id);
+    inline void add_group_of_vertices(int *_vertex_ids, int _number_of_vertices);
 
-    template <typename _TVertexValue, typename _TEdgeWeight>
-    void add_vertex(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph, int src_id);
-
-    friend class GraphPrimitivesNEC;
+    friend class GraphAbstractionsNEC;
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #include "frontier_nec.hpp"
+#include "modification.hpp"
+#include "print.hpp"
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

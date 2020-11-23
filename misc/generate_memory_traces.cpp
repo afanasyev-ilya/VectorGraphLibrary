@@ -9,7 +9,7 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #include <stdio.h>
-#include "../graph_library.h"
+#include "graph_library.h"
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -330,15 +330,15 @@ void generate_simple_memory_profiles(EdgesListGraph<int, float> &rand_graph)
 
 void ext_csr_trace(EdgesListGraph<int, float> &rand_graph, int VECT_LEN, float *distances)
 {
-    ExtendedCSRGraph<int, float> ext_graph;
-    ext_graph.import_graph(rand_graph, VERTICES_SORTED, EDGES_RANDOM_SHUFFLED, VECT_LEN, PULL_TRAVERSAL);
+    UndirectedCSRGraph<int, float> ext_graph;
+    ext_graph.import(rand_graph, VERTICES_SORTED, EDGES_RANDOM_SHUFFLED, VECT_LEN, PULL_TRAVERSAL);
     cout << "ext csr graph generated" << endl;
     
     int vertices_count    = ext_graph.get_vertices_count();
     long long edges_count = ext_graph.get_edges_count   ();
-    long long    *outgoing_ptrs    = ext_graph.get_outgoing_ptrs();
-    int          *outgoing_ids     = ext_graph.get_outgoing_ids ();
-    float        *outgoing_weights = ext_graph.get_outgoing_weights();
+    long long    *vertex_pointers    = ext_graph.get_vertex_pointers();
+    int          *adjacent_ids     = ext_graph.get_adjacent_ids ();
+    float        *adjacent_weights = ext_graph.get_adjacent_weights();
     
     int iters = 0;
     INIT_TRACE();
@@ -350,11 +350,11 @@ void ext_csr_trace(EdgesListGraph<int, float> &rand_graph, int VECT_LEN, float *
         for(int i = 0; i < VECT_LEN; i++)
         {
             int src_id = vec_start + i;
-            connections_reg[i] = outgoing_ptrs[src_id + 1] - outgoing_ptrs[src_id];
-            SAVE_ADDRESS(outgoing_ptrs[src_id]);
-            SAVE_ADDRESS(outgoing_ptrs[src_id + 1]);
+            connections_reg[i] = vertex_pointers[src_id + 1] - vertex_pointers[src_id];
+            SAVE_ADDRESS(vertex_pointers[src_id]);
+            SAVE_ADDRESS(vertex_pointers[src_id + 1]);
             
-            start_pos_reg[i] = outgoing_ptrs[src_id];
+            start_pos_reg[i] = vertex_pointers[src_id];
         }
         
         int total_connections = 0;
@@ -369,11 +369,11 @@ void ext_csr_trace(EdgesListGraph<int, float> &rand_graph, int VECT_LEN, float *
         {
             for(int i = 0; i < VECT_LEN; i++)
             {
-                int dst_id = outgoing_ids[start_pos_reg[i] + edge_pos];
-                SAVE_ADDRESS(outgoing_ids[start_pos_reg[i] + edge_pos]);
+                int dst_id = adjacent_ids[start_pos_reg[i] + edge_pos];
+                SAVE_ADDRESS(adjacent_ids[start_pos_reg[i] + edge_pos]);
                 
-                float weight = outgoing_weights[start_pos_reg[i] + edge_pos];
-                SAVE_ADDRESS(outgoing_weights[start_pos_reg[i] + edge_pos]);
+                float weight = adjacent_weights[start_pos_reg[i] + edge_pos];
+                SAVE_ADDRESS(adjacent_weights[start_pos_reg[i] + edge_pos]);
                                                           
                 float dst_weight = distances[dst_id] + weight;
                 SAVE_ADDRESS(distances[dst_id]);
@@ -391,15 +391,15 @@ void ext_csr_trace(EdgesListGraph<int, float> &rand_graph, int VECT_LEN, float *
 
 void ext_csr_trace_small_vectors(EdgesListGraph<int, float> &rand_graph, int VECT_LEN, float *distances)
 {
-    ExtendedCSRGraph<int, float> ext_graph;
-    ext_graph.import_graph(rand_graph, VERTICES_SORTED, EDGES_RANDOM_SHUFFLED, VECT_LEN, PULL_TRAVERSAL);
+    UndirectedCSRGraph<int, float> ext_graph;
+    ext_graph.import(rand_graph, VERTICES_SORTED, EDGES_RANDOM_SHUFFLED, VECT_LEN, PULL_TRAVERSAL);
     cout << "ext csr graph small vectors generated" << endl;
     
     int vertices_count    = ext_graph.get_vertices_count();
     long long edges_count = ext_graph.get_edges_count   ();
-    long long    *outgoing_ptrs    = ext_graph.get_outgoing_ptrs();
-    int          *outgoing_ids     = ext_graph.get_outgoing_ids ();
-    float        *outgoing_weights = ext_graph.get_outgoing_weights();
+    long long    *vertex_pointers    = ext_graph.get_vertex_pointers();
+    int          *adjacent_ids     = ext_graph.get_adjacent_ids ();
+    float        *adjacent_weights = ext_graph.get_adjacent_weights();
     
     INIT_TRACE();
     
@@ -407,19 +407,19 @@ void ext_csr_trace_small_vectors(EdgesListGraph<int, float> &rand_graph, int VEC
     for(int idx = 0; idx < vertices_count; idx++)
     {
         int src_id = idx;
-        int connections = outgoing_ptrs[src_id + 1] - outgoing_ptrs[src_id];
-        SAVE_ADDRESS(outgoing_ptrs[src_id]);
-        SAVE_ADDRESS(outgoing_ptrs[src_id + 1]);
+        int connections = vertex_pointers[src_id + 1] - vertex_pointers[src_id];
+        SAVE_ADDRESS(vertex_pointers[src_id]);
+        SAVE_ADDRESS(vertex_pointers[src_id + 1]);
         
-        int start_pos = outgoing_ptrs[src_id];
+        int start_pos = vertex_pointers[src_id];
         
         for(int edge_pos = 0; edge_pos < connections; edge_pos ++)
         {
-            int dst_id = outgoing_ids[start_pos + edge_pos];
-            SAVE_ADDRESS(outgoing_ids[start_pos + edge_pos]);
+            int dst_id = adjacent_ids[start_pos + edge_pos];
+            SAVE_ADDRESS(adjacent_ids[start_pos + edge_pos]);
             
-            float weight = outgoing_weights[start_pos + edge_pos];
-            SAVE_ADDRESS(outgoing_weights[start_pos + edge_pos]);
+            float weight = adjacent_weights[start_pos + edge_pos];
+            SAVE_ADDRESS(adjacent_weights[start_pos + edge_pos]);
             
             int dst_level = distances[dst_id] + weight;
             SAVE_ADDRESS(distances[dst_id]);
@@ -436,7 +436,7 @@ void ext_csr_trace_small_vectors(EdgesListGraph<int, float> &rand_graph, int VEC
 void vect_csr_trace(EdgesListGraph<int, float> &rand_graph, int VECT_LEN, float *distances)
 {
     VectorisedCSRGraph<int, float> vect_graph;
-    vect_graph.import_graph(rand_graph, VERTICES_SORTED, EDGES_RANDOM_SHUFFLED, VECT_LEN, PULL_TRAVERSAL, true);
+    vect_graph.import(rand_graph, VERTICES_SORTED, EDGES_RANDOM_SHUFFLED, VECT_LEN, PULL_TRAVERSAL, true);
     cout << "vect csr graph generated" << endl;
     
     int vertices_count                   = vect_graph.get_vertices_count                  ();
@@ -449,8 +449,8 @@ void vect_csr_trace(EdgesListGraph<int, float> &rand_graph, int VECT_LEN, float 
     int           *first_part_sizes     = vect_graph.get_first_part_sizes         ();
     long long     *vector_group_ptrs    = vect_graph.get_vector_group_ptrs        ();
     int           *vector_group_sizes   = vect_graph.get_vector_group_sizes       ();
-    int           *incoming_ids         = vect_graph.get_outgoing_ids             ();
-    float  *incoming_weights     = vect_graph.get_outgoing_weights         ();
+    int           *incoming_ids         = vect_graph.get_adjacent_ids             ();
+    float  *incoming_weights     = vect_graph.get_adjacent_weights         ();
     
     INIT_TRACE();
     

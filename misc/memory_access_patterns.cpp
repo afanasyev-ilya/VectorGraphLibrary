@@ -1,6 +1,6 @@
 #define INT_ELEMENTS_PER_EDGE 1.0
 
-#include "../graph_library.h"
+#include "graph_library.h"
 #include <iostream>
 
 using namespace std;

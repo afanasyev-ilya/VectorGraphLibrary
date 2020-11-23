@@ -17,11 +17,10 @@ int calculate_remaining_count(int *_components, int _vertices_count)
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #ifdef __USE_NEC_SX_AURORA__
-template <typename _TVertexValue, typename _TEdgeWeight>
-void CC::nec_bfs_based(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
+void CC::nec_bfs_based(UndirectedCSRGraph &_graph,
                        int *_components)
 {
-    LOAD_EXTENDED_CSR_GRAPH_DATA(_graph);
+    LOAD_UNDIRECTED_CSR_GRAPH_DATA(_graph);
 
     int *bfs_levels;
     BFS<_TVertexValue,_TEdgeWeight> bfs_operation(_graph);
@@ -57,7 +56,7 @@ void CC::nec_bfs_based(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
     {
         if(_components[v] == COMPONENT_UNSET)
         {
-            bfs_operation.nec_direction_optimizing(_graph, bfs_levels, v);
+            bfs_operation.nec_top_down(_graph, bfs_levels, v);
             auto copy_levels_to_components_op = [_components, bfs_levels, current_component] (int src_id, int connections_count, int vector_index)
             {
                 if(bfs_levels[src_id] > 0)
@@ -83,16 +82,18 @@ void CC::nec_bfs_based(ExtendedCSRGraph<_TVertexValue, _TEdgeWeight> &_graph,
         else if(_components[v] == DUO_VERTEX_COMPONENT)
         {
             _components[v] = current_component;
-            _components[outgoing_ids[outgoing_ptrs[v]]] = current_component;
+            _components[adjacent_ids[vertex_pointers[v]]] = current_component;
             current_component++;
         }
     }
     double t2 = omp_get_wtime();
 
+    performance = edges_count / ((t2 - t1)*1e6);
+
     bfs_operation.free_result_memory(bfs_levels);
 
     #ifdef __PRINT_SAMPLES_PERFORMANCE_STATS__
-    PerformanceStats::print_performance_stats("nec bfs based", t2 - t1, edges_count, iterations_count);
+    PerformanceStats::print_algorithm_performance_stats("nec bfs based", t2 - t1, edges_count, iterations_count);
     PerformanceStats::component_stats(_components, vertices_count);
     #endif
 }
