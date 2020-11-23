@@ -182,7 +182,6 @@ void SSSP::nec_dijkstra_all_active_pull(VectCSRGraph &_graph,
     frontier.set_all_active();
     graph_API.compute(_graph, frontier, init_distances);
 
-    //graph_API.enable_safe_stores();
     int changes = 0, iterations_count = 0;
     do
     {
@@ -213,6 +212,7 @@ void SSSP::nec_dijkstra_all_active_pull(VectCSRGraph &_graph,
 
             auto preprocess = [&reg_distances, inf_val] (int src_id, int connections_count, int vector_index, DelayedWriteNEC &delayed_write)
             {
+                #pragma _NEC ivdep
                 for(int i = 0; i < VECTOR_LENGTH; i++)
                     reg_distances[i] = inf_val;
             };
@@ -220,6 +220,7 @@ void SSSP::nec_dijkstra_all_active_pull(VectCSRGraph &_graph,
             auto postprocess = [&_distances, &reg_distances, inf_val] (int src_id, int connections_count, int vector_index, DelayedWriteNEC &delayed_write)
             {
                 _T min = inf_val;
+                #pragma _NEC ivdep
                 for(int i = 0; i < VECTOR_LENGTH; i++)
                     if(min > reg_distances[i])
                         min = reg_distances[i];
@@ -227,21 +228,31 @@ void SSSP::nec_dijkstra_all_active_pull(VectCSRGraph &_graph,
                     _distances[src_id] = min;
             };
 
-
-            auto edge_op_collective_pull = [&_distances, &_weights]
+            auto edge_op_collective_pull = [&_distances, &_weights, &reg_distances]
                    (int src_id, int dst_id, int local_edge_pos, long long int global_edge_pos,
                     int vector_index, DelayedWriteNEC &delayed_write)
             {
                 _T weight = _weights[global_edge_pos];
                 _T dst_weight = _distances[dst_id];
-                if(_distances[src_id] > dst_weight + weight)
+                if(reg_distances[vector_index] > dst_weight + weight)
                 {
-                    _distances[src_id] = dst_weight + weight;
+                    reg_distances[vector_index] = dst_weight + weight;
                 }
             };
 
+            auto preprocess_collective = [&reg_distances, inf_val] (int src_id, int connections_count, int vector_index, DelayedWriteNEC &delayed_write)
+            {
+                reg_distances[vector_index] = inf_val;
+            };
+
+            auto postprocess_collective = [&_distances, &reg_distances, inf_val] (int src_id, int connections_count, int vector_index, DelayedWriteNEC &delayed_write)
+            {
+                if(_distances[src_id] > reg_distances[vector_index])
+                    _distances[src_id] = reg_distances[vector_index];
+            };
+
             graph_API.gather(_graph, frontier, edge_op_pull, preprocess, postprocess,
-                             edge_op_collective_pull, EMPTY_VERTEX_OP, EMPTY_VERTEX_OP);
+                             edge_op_collective_pull, preprocess_collective, postprocess_collective);
         }
 
         auto reduce_changes = [&_distances, &prev_distances](int src_id, int connections_count, int vector_index)->int
@@ -256,7 +267,6 @@ void SSSP::nec_dijkstra_all_active_pull(VectCSRGraph &_graph,
         changes = graph_API.reduce<int>(_graph, frontier, reduce_changes, REDUCE_SUM);
     }
     while(changes);
-    //graph_API.disable_safe_stores();
 
     tm.end();
     #ifdef __PRINT_SAMPLES_PERFORMANCE_STATS__

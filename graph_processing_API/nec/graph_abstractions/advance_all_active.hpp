@@ -35,11 +35,11 @@ void GraphAbstractionsNEC::vector_engine_per_vertex_kernel_all_active(Undirected
 
         vertex_preprocess_op(src_id, connections_count, 0, delayed_write);
 
-        #pragma _NEC novector
-        #pragma omp for schedule(static, 8)
-        for(int vec_start = 0; vec_start < connections_count; vec_start += VECTOR_LENGTH)
+        if(use_safe_stores) // all vector stores are safe in this branch (vob)
         {
-            if(use_safe_stores) // all vector stores are safe in this branch (vob)
+            #pragma _NEC novector
+            #pragma omp for schedule(static, 8)
+            for(int vec_start = 0; vec_start < connections_count; vec_start += VECTOR_LENGTH)
             {
                 #pragma _NEC cncall
                 #pragma _NEC ivdep
@@ -60,7 +60,12 @@ void GraphAbstractionsNEC::vector_engine_per_vertex_kernel_all_active(Undirected
                     }
                 }
             }
-            else
+        }
+        else
+        {
+            #pragma _NEC novector
+            #pragma omp for schedule(static, 8)
+            for(int vec_start = 0; vec_start < connections_count; vec_start += VECTOR_LENGTH)
             {
                 #pragma _NEC cncall
                 #pragma _NEC ivdep
@@ -129,10 +134,10 @@ void GraphAbstractionsNEC::vector_core_per_vertex_kernel_all_active(UndirectedCS
 
         vertex_preprocess_op(src_id, connections_count, 0, delayed_write);
 
-        #pragma _NEC novector
-        for(int vec_start = 0; vec_start < connections_count; vec_start += VECTOR_LENGTH)
+        if(use_safe_stores) // all vector stores are safe in this branch (vob)
         {
-            if(use_safe_stores) // all vector stores are safe in this branch (vob)
+            #pragma _NEC novector
+            for (int vec_start = 0; vec_start < connections_count; vec_start += VECTOR_LENGTH)
             {
                 #pragma _NEC cncall
                 #pragma _NEC ivdep
@@ -154,7 +159,11 @@ void GraphAbstractionsNEC::vector_core_per_vertex_kernel_all_active(UndirectedCS
                     }
                 }
             }
-            else
+        }
+        else
+        {
+            #pragma _NEC novector
+            for (int vec_start = 0; vec_start < connections_count; vec_start += VECTOR_LENGTH)
             {
                 #pragma _NEC cncall
                 #pragma _NEC ivdep
