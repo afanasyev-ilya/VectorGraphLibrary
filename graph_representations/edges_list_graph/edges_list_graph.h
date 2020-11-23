@@ -16,6 +16,7 @@ private:
     void free();
 public:
     EdgesListGraph(int _vertices_count = 1, long long _edges_count = 1);
+    EdgesListGraph(const EdgesListGraph &_copy_graph);
     ~EdgesListGraph();
 
     /* get API */
@@ -25,8 +26,10 @@ public:
     /* print API */
     void print();
     void print_in_csr_format();
-    void print_size() {};
-    size_t get_size() {return 0;};
+    template <typename _T>
+    void print_in_csr_format(EdgesArray_EL<_T> &_weights);
+    void print_size();
+    size_t get_size();
 
     /* file load/store API */
     void save_to_graphviz_file(string file_name, VisualisationMode _visualisation_mode = VISUALISE_AS_DIRECTED);
@@ -59,6 +62,9 @@ public:
 
     // CSR-based preprocessing (vertices are sorted based on src_ids)
     void preprocess_into_csr_based(int *_work_buffer = NULL, vgl_sort_indexes *_sort_buffer = NULL);
+
+    /* remaining API */
+    void operator = (const EdgesListGraph &_copy_graph);
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

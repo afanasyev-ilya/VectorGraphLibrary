@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../../../architectures.h"
+#include "architectures.h"
 #include <cfloat>
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -31,6 +31,8 @@ public:
     inline void finish_write_min(double *_data, int _idx);
 
     inline void finish_write_sum(int *_data, int _idx);
+    inline void finish_write_sum(float *_data, int _idx);
+    inline void finish_write_sum(double *_data, int _idx);
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

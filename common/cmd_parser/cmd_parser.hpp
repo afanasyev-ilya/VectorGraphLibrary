@@ -6,12 +6,12 @@ Parser::Parser()
 {
     scale = 10;
     avg_degree = 5;
-    graph_type = RANDOM_UNIFORM;
+    graph_type = RMAT;
     compute_mode = GENERATE_NEW_GRAPH;
     algorithm_frontier_type = ALL_ACTIVE;
     traversal_direction = PUSH_TRAVERSAL;
     check_flag = false;
-    graph_file_name = "test.gbin";
+    graph_file_name = "test.graph";
     number_of_rounds = 1;
     algorithm_bfs = DIRECTION_OPTIMIZING_BFS_ALGORITHM;
     algorithm_cc = SHILOACH_VISHKIN_ALGORITHM;

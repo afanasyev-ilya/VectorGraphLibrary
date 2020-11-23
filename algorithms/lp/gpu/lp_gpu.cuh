@@ -6,7 +6,6 @@
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-
 void gpu_lp_wrapper(UndirectedCSRGraph &_graph, int *_labels, int &_iterations_count,
                     GpuActiveConditionType _gpu_active_condition_type, int _max_iterations);
 

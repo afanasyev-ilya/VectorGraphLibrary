@@ -5,12 +5,14 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #define INT_ELEMENTS_PER_EDGE 4.0
-#define VECTOR_CORE_THRESHOLD_VALUE 4.0*VECTOR_LENGTH
+#define NEC_VECTOR_ENGINE_THRESHOLD_VALUE  VECTOR_LENGTH * MAX_SX_AURORA_THREADS * 128
+#define VECTOR_CORE_THRESHOLD_VALUE VECTOR_LENGTH
+
 #define COLLECTIVE_FRONTIER_TYPE_CHANGE_THRESHOLD 0.35
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#include "../../graph_library.h"
+#include "graph_library.h"
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -36,22 +38,25 @@ int main(int argc, const char * argv[])
         }
         else if(parser.get_compute_mode() == LOAD_GRAPH_FROM_FILE)
         {
-            double t1 = omp_get_wtime();
+            Timer tm;
+            tm.start();
             if(!graph.load_from_binary_file(parser.get_graph_file_name()))
                 throw "Error: graph file not found";
-            double t2 = omp_get_wtime();
-            cout << "file " << parser.get_graph_file_name() << " loaded in " << t2 - t1 << " sec" << endl;
+            tm.end();
+            tm.print_time_stats("Graph load");
         }
-
-        // print size of VectCSR graph
+        // print graphs stats
         graph.print_size();
+        graph.print_stats();
 
         // compute BFS
         cout << "Computations started..." << endl;
         cout << "Doing " << parser.get_number_of_rounds() << " BFS iterations..." << endl;
+        double avg_perf = 0.0;
+        double max_perf = 0.0;
         for(int i = 0; i < parser.get_number_of_rounds(); i++)
         {
-            VerticesArray<int> levels(graph, SCATTER); // TODO selection for DO/BU
+            VerticesArray<int> levels(graph, SCATTER);
 
             int source_vertex = graph.select_random_vertex(ORIGINAL);
             cout << "selected source vertex " << source_vertex << endl;
@@ -65,9 +70,12 @@ int main(int argc, const char * argv[])
             {
                 VerticesArray<int> check_levels(graph, SCATTER);
                 BFS::seq_top_down(graph, check_levels, source_vertex);
-                verify_results(graph, levels, check_levels);
+                verify_results(levels, check_levels);
             }
         }
+
+        performance_stats.print_max_perf(graph.get_edges_count());
+        performance_stats.print_avg_perf(graph.get_edges_count());
     }
     catch (string error)
     {

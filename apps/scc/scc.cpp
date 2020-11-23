@@ -1,12 +1,20 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+#define __USE_NEC_SX_AURORA__
+
+//#define __PRINT_API_PERFORMANCE_STATS__
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 #define INT_ELEMENTS_PER_EDGE 4.0
-#define VECTOR_CORE_THRESHOLD_VALUE 4.0*VECTOR_LENGTH
+#define NEC_VECTOR_ENGINE_THRESHOLD_VALUE  VECTOR_LENGTH * MAX_SX_AURORA_THREADS * 128
+#define VECTOR_CORE_THRESHOLD_VALUE VECTOR_LENGTH
+
 #define COLLECTIVE_FRONTIER_TYPE_CHANGE_THRESHOLD 0.35
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#include "../../graph_library.h"
+#include "graph_library.h"
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -32,35 +40,38 @@ int main(int argc, const char * argv[])
         }
         else if(parser.get_compute_mode() == LOAD_GRAPH_FROM_FILE)
         {
-            double t1 = omp_get_wtime();
+            Timer tm;
+            tm.start();
             if(!graph.load_from_binary_file(parser.get_graph_file_name()))
                 throw "Error: graph file not found";
-            double t2 = omp_get_wtime();
-            cout << "file " << parser.get_graph_file_name() << " loaded in " << t2 - t1 << " sec" << endl;
+            tm.end();
+            tm.print_time_stats("Graph load");
         }
 
-        // print size of VectCSR graph
+        // print graphs stats
         graph.print_size();
+        graph.print_stats();
 
         // compute SCC
         cout << "SCC computations started..." << endl;
+        VerticesArray<int> components(graph, SCATTER);
 
-        VerticesArray<int> components(graph, SCATTER); // TODO selection for DO/BU
-
-        performance_stats.reset_timers();
-
-        #ifdef __USE_NEC_SX_AURORA__
+        // heat run
         SCC::nec_forward_backward(graph, components);
-        #endif
 
+        // timed run
+        performance_stats.reset_timers();
+        SCC::nec_forward_backward(graph, components);
         performance_stats.print_timers_stats();
+        performance_stats.print_max_perf(graph.get_edges_count());
+        performance_stats.print_avg_perf(graph.get_edges_count());
 
         // check if required
         if(parser.get_check_flag())
         {
             VerticesArray<int> check_components(graph, SCATTER);
             SCC::seq_tarjan(graph, check_components);
-            equal_components(graph, components, check_components);
+            equal_components(components, check_components);
         }
     }
     catch (string error)

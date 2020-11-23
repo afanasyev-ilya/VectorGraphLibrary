@@ -4,6 +4,9 @@
 
 PerformanceStats::PerformanceStats()
 {
+    number_of_runs = 0;
+    avg_time = 0;
+    best_time = 0;
     reset_timers();
 }
 
@@ -187,6 +190,33 @@ void PerformanceStats::print_timers_stats()
     print_abstraction_stats("Reorder       ", reorder_time);
     print_abstraction_stats("Pack          ", pack_time);
     cout << endl;
+
+    update_timer_stats();
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+void PerformanceStats::update_timer_stats()
+{
+    if(best_time < inner_wall_time)
+        best_time = inner_wall_time;
+    avg_time += inner_wall_time;
+    number_of_runs++;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+void PerformanceStats::print_max_perf(long long _edges_count)
+{
+    cout << "MAX_PERF: " << _edges_count / (best_time * 1e6) << " MTEPS (among " << number_of_runs << " runs)" << endl;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+void PerformanceStats::print_avg_perf(long long _edges_count)
+{
+    avg_time /= number_of_runs;
+    cout << "AVG_PERF: " << _edges_count / (avg_time * 1e6) << " MTEPS (among " << number_of_runs << " runs)" << endl;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

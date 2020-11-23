@@ -3,46 +3,43 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template <typename _T>
-EdgesArray<_T>::EdgesArray(VectCSRGraph &_graph)
+EdgesArray_Vect<_T>::EdgesArray_Vect(VectCSRGraph &_graph)
 {
-    edges_count = _graph.get_edges_count();
+    long long edges_count = _graph.get_edges_count();
     edges_count_in_outgoing_ve = _graph.get_edges_count_in_outgoing_ve();
     edges_count_in_incoming_ve = _graph.get_edges_count_in_incoming_ve();
-    total_array_size = edges_count/*outgoing csr*/ + edges_count/*incoming csr*/ +
+    this->total_array_size = edges_count/*outgoing csr*/ + edges_count/*incoming csr*/ +
                       edges_count_in_outgoing_ve + edges_count_in_incoming_ve;
 
     cout << "edges_count_in_outgoing_ve: " << edges_count_in_outgoing_ve << endl;
     cout << "edges_count_in_incoming_ve: " << edges_count_in_incoming_ve << endl;
 
-    MemoryAPI::allocate_array(&edges_data, total_array_size);
-    outgoing_csr_ptr = &edges_data[0];
-    outgoing_ve_ptr = &edges_data[edges_count];
-    incoming_csr_ptr = &edges_data[edges_count + edges_count_in_outgoing_ve];
-    incoming_ve_ptr = &edges_data[edges_count + edges_count_in_outgoing_ve + edges_count];
+    MemoryAPI::allocate_array(&this->edges_data, this->total_array_size);
+    outgoing_csr_ptr = &this->edges_data[0];
+    outgoing_ve_ptr = &this->edges_data[edges_count];
+    incoming_csr_ptr = &this->edges_data[edges_count + edges_count_in_outgoing_ve];
+    incoming_ve_ptr = &this->edges_data[edges_count + edges_count_in_outgoing_ve + edges_count];
 
-    graph_ptr = &_graph;
-
-    is_copy = false;
+    this->graph_ptr = &_graph;
+    this->is_copy = false;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template <typename _T>
-EdgesArray<_T>::EdgesArray(const EdgesArray<_T> &_copy_obj)
+EdgesArray_Vect<_T>::EdgesArray_Vect(const EdgesArray_Vect<_T> &_copy_obj)
 {
     this->graph_ptr = _copy_obj.graph_ptr;
-
     this->edges_data = _copy_obj.edges_data;
 
-    this->outgoing_csr_ptr = _copy_obj.outgoing_csr_ptr;
-    this->incoming_csr_ptr = _copy_obj.incoming_csr_ptr;
+    outgoing_csr_ptr = _copy_obj.outgoing_csr_ptr;
+    incoming_csr_ptr = _copy_obj.incoming_csr_ptr;
 
-    this->outgoing_ve_ptr = _copy_obj.outgoing_ve_ptr;
-    this->incoming_ve_ptr = _copy_obj.incoming_ve_ptr;
+    outgoing_ve_ptr = _copy_obj.outgoing_ve_ptr;
+    incoming_ve_ptr = _copy_obj.incoming_ve_ptr;
 
-    this->edges_count = _copy_obj.edges_count;
-    this->edges_count_in_outgoing_ve = _copy_obj.edges_count_in_outgoing_ve;
-    this->edges_count_in_incoming_ve = _copy_obj.edges_count_in_incoming_ve;
+    edges_count_in_outgoing_ve = _copy_obj.edges_count_in_outgoing_ve;
+    edges_count_in_incoming_ve = _copy_obj.edges_count_in_incoming_ve;
     this->total_array_size = _copy_obj.total_array_size;
 
     this->is_copy = true;
@@ -51,42 +48,50 @@ EdgesArray<_T>::EdgesArray(const EdgesArray<_T> &_copy_obj)
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template <typename _T>
-EdgesArray<_T>::~EdgesArray()
+EdgesArray_Vect<_T>::~EdgesArray_Vect()
 {
-    if(!is_copy)
+    if(!this->is_copy)
     {
-        MemoryAPI::free_array(edges_data);
+        MemoryAPI::free_array(this->edges_data);
     }
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template <typename _T>
-void EdgesArray<_T>::set_all_constant(_T _const)
+void EdgesArray_Vect<_T>::set_all_constant(_T _const)
 {
-    MemoryAPI::set(edges_data, _const, total_array_size);
+    MemoryAPI::set(this->edges_data, _const, this->total_array_size);
 }
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template <typename _T>
-void EdgesArray<_T>::set_all_random(_T _max_rand)
+void EdgesArray_Vect<_T>::set_all_random(_T _max_rand)
 {
+    // get correct pointer
+    VectCSRGraph *vect_ptr = (VectCSRGraph *)this->graph_ptr;
+    long long edges_count = this->graph_ptr->get_edges_count();
+
     // init CSR parts
     RandomGenerator rng_api;
     rng_api.generate_array_of_random_values<_T>(outgoing_csr_ptr, edges_count, _max_rand);
 
-    graph_ptr->reorder_edges_to_gather(incoming_csr_ptr, outgoing_csr_ptr);
+    vect_ptr->reorder_edges_scatter_to_gather(incoming_csr_ptr, outgoing_csr_ptr);
 
     // copy data from CSR parts to VE parts
-    graph_ptr->get_outgoing_graph_ptr()->get_ve_ptr()->copy_array_from_csr_to_ve(outgoing_ve_ptr, outgoing_csr_ptr);
-    graph_ptr->get_incoming_graph_ptr()->get_ve_ptr()->copy_array_from_csr_to_ve(incoming_ve_ptr, incoming_csr_ptr);
+    vect_ptr->get_outgoing_graph_ptr()->get_ve_ptr()->copy_array_from_csr_to_ve(outgoing_ve_ptr, outgoing_csr_ptr);
+    vect_ptr->get_incoming_graph_ptr()->get_ve_ptr()->copy_array_from_csr_to_ve(incoming_ve_ptr, incoming_csr_ptr);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template <typename _T>
-void EdgesArray<_T>::set(int _src_id, int _dst_id, _T _val, TraversalDirection _direction)
+void EdgesArray_Vect<_T>::set(int _src_id, int _dst_id, _T _val, TraversalDirection _direction)
 {
+    // get correct pointer
+    VectCSRGraph *vect_ptr = (VectCSRGraph *)this->graph_ptr;
+    long long edges_count = this->graph_ptr->get_edges_count();
+
     // set into both CSR and VE for Advance API
     _T *target_csr_buffer, *target_ve_buffer;
     if(_direction == SCATTER)
@@ -100,7 +105,7 @@ void EdgesArray<_T>::set(int _src_id, int _dst_id, _T _val, TraversalDirection _
         target_ve_buffer = incoming_ve_ptr;
     }
 
-    UndirectedCSRGraph *direction_graph_ptr = graph_ptr->get_direction_graph_ptr(_direction);
+    UndirectedCSRGraph *direction_graph_ptr = vect_ptr->get_direction_graph_ptr(_direction);
 
     long long csr_edge_pos = direction_graph_ptr->get_csr_edge_id(_src_id, _dst_id);
     target_csr_buffer[csr_edge_pos] = _val;
@@ -112,8 +117,12 @@ void EdgesArray<_T>::set(int _src_id, int _dst_id, _T _val, TraversalDirection _
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template <typename _T>
-_T EdgesArray<_T>::get(int _src_id, int _dst_id, TraversalDirection _direction)
+_T EdgesArray_Vect<_T>::get(int _src_id, int _dst_id, TraversalDirection _direction)
 {
+    // get correct pointer
+    VectCSRGraph *vect_ptr = (VectCSRGraph *)this->graph_ptr;
+    long long edges_count = this->graph_ptr->get_edges_count();
+
     // always get from CSR since it's faster
     _T *answer_csr_buffer_ptr;
     _T *answer_ve_buffer_ptr;
@@ -128,7 +137,7 @@ _T EdgesArray<_T>::get(int _src_id, int _dst_id, TraversalDirection _direction)
         answer_ve_buffer_ptr = incoming_ve_ptr;
     }
 
-    UndirectedCSRGraph *direction_graph_ptr = graph_ptr->get_direction_graph_ptr(_direction);
+    UndirectedCSRGraph *direction_graph_ptr = vect_ptr->get_direction_graph_ptr(_direction);
 
     long long csr_edge_pos = direction_graph_ptr->get_csr_edge_id(_src_id, _dst_id);
     long long ve_edge_pos = direction_graph_ptr->get_ve_edge_id(_src_id, _dst_id);
@@ -139,8 +148,10 @@ _T EdgesArray<_T>::get(int _src_id, int _dst_id, TraversalDirection _direction)
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template <typename _T>
-void EdgesArray<_T>::print()
+void EdgesArray_Vect<_T>::print()
 {
+    long long edges_count = this->graph_ptr->get_edges_count();
+    cout << "Edges Array (VectCSR)" << endl;
     cout << "outgoing_csr_ptr: ";
     for(long long i = 0; i < edges_count; i++)
     {
@@ -169,7 +180,25 @@ void EdgesArray<_T>::print()
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-template class EdgesArray<int>;
-template class EdgesArray<float>;
+template <typename _T>
+void EdgesArray_Vect<_T>::operator = (const EdgesArray_EL<_T> &_el_data)
+{
+    // get correct pointer
+    VectCSRGraph *vect_ptr = (VectCSRGraph *)this->graph_ptr;
+    long long edges_count = this->graph_ptr->get_edges_count();
+
+    _T *el_data_ptr = _el_data.get_ptr();
+    vect_ptr->reorder_edges_original_to_scatter(outgoing_csr_ptr, el_data_ptr);
+    vect_ptr->reorder_edges_scatter_to_gather(incoming_csr_ptr, outgoing_csr_ptr);
+
+    // copy data from CSR parts to VE parts
+    vect_ptr->get_outgoing_graph_ptr()->get_ve_ptr()->copy_array_from_csr_to_ve(outgoing_ve_ptr, outgoing_csr_ptr);
+    vect_ptr->get_incoming_graph_ptr()->get_ve_ptr()->copy_array_from_csr_to_ve(incoming_ve_ptr, incoming_csr_ptr);
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+template class EdgesArray_Vect<int>;
+template class EdgesArray_Vect<float>;
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

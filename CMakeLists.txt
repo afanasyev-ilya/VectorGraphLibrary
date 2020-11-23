@@ -49,7 +49,6 @@ add_executable(VectorGraphLibrary
         algorithms/bfs/nec_bfs.hpp
         algorithms/bfs/seq_bfs.hpp
         algorithms/cc/cc.h
-        algorithms/cc/cc.hpp
         algorithms/cc/gpu_shiloach_vishkin.hpp
         algorithms/cc/nec_bfs_based.hpp
         algorithms/cc/nec_shiloach_vishkin.hpp
@@ -59,20 +58,16 @@ add_executable(VectorGraphLibrary
         algorithms/lp/lp.h
         algorithms/lp/lp.hpp
         algorithms/pr/pr.h
-        algorithms/pr/pr.hpp
         algorithms/sssp/gpu_shortest_paths.hpp
         algorithms/sssp/nec_shortest_paths.hpp
         algorithms/sssp/seq_shortest_paths.hpp
         algorithms/sssp/shortest_paths.h
         algorithms/sswp/widest_paths.h
         algorithms/sswp/widest_paths.hpp
-        apps/misc/analyse_graph.cpp
         apps/bfs/bfs.cpp
         apps/cc/cc.cpp
-        apps/misc/generate_test_data.cpp
+        apps/utilites/create_vgl_graphs.cpp
         apps/graph_library.sh
-        apps/Makefile.gcc
-        apps/Makefile.intel
         apps/Makefile.gpu
         apps/Makefile.nec
         apps/pr/pr.cpp

@@ -14,15 +14,16 @@ void GraphAbstractionsNEC::vector_engine_per_vertex_kernel_sparse(UndirectedCSRG
     Timer tm;
     tm.start();
 
-    TraversalDirection traversal = current_traversal_direction;
-    int storage = CSR_STORAGE;
-
-    DelayedWriteNEC delayed_write;
-    delayed_write.init();
-
     LOAD_UNDIRECTED_CSR_GRAPH_DATA(_graph);
     int *frontier_ids = &(_frontier.get_ids()[0]);
     int frontier_segment_size = _frontier.get_vector_engine_part_size();
+
+    TraversalDirection traversal = current_traversal_direction;
+    int storage = CSR_STORAGE;
+    long long process_shift = traversal * direction_shift + storage * edges_count;
+
+    DelayedWriteNEC delayed_write;
+    delayed_write.init();
 
     for (int front_pos = 0; front_pos < frontier_segment_size; front_pos++)
     {
@@ -34,20 +35,28 @@ void GraphAbstractionsNEC::vector_engine_per_vertex_kernel_sparse(UndirectedCSRG
 
         vertex_preprocess_op(src_id, connections_count, 0, delayed_write);
 
-        #pragma _NEC ivdep
-        #pragma _NEC vovertake
-        #pragma _NEC novob
-        #pragma _NEC vector
-        #pragma _NEC gather_reorder
-        #pragma omp for schedule(static)
-        for (int local_edge_pos = 0; local_edge_pos < connections_count; local_edge_pos++)
+        #pragma _NEC novector
+        #pragma omp for schedule(static, 8)
+        for(int vec_start = 0; vec_start < connections_count; vec_start += VECTOR_LENGTH)
         {
-            const long long int internal_edge_pos = start + local_edge_pos;
-            const int vector_index = get_vector_index(local_edge_pos);
-            const int dst_id = adjacent_ids[internal_edge_pos];
-            const long long external_edge_pos = traversal * direction_shift + storage * edges_count + internal_edge_pos;
+            #pragma _NEC cncall
+            #pragma _NEC ivdep
+            #pragma _NEC vovertake
+            #pragma _NEC novob
+            #pragma _NEC vector
+            #pragma _NEC gather_reorder
+            for(int i = 0; i < VECTOR_LENGTH; i++)
+            {
+                int local_edge_pos = vec_start + i;
 
-            edge_op(src_id, dst_id, local_edge_pos, external_edge_pos, vector_index, delayed_write);
+                const long long internal_edge_pos = start + local_edge_pos;
+                const int vector_index = i;
+                const int dst_id = adjacent_ids[internal_edge_pos];
+                const long long external_edge_pos = process_shift + internal_edge_pos;
+
+                if(local_edge_pos < connections_count)
+                    edge_op(src_id, dst_id, local_edge_pos, external_edge_pos, vector_index, delayed_write);
+            }
         }
 
         vertex_postprocess_op(src_id, connections_count, 0, delayed_write);
@@ -57,8 +66,8 @@ void GraphAbstractionsNEC::vector_engine_per_vertex_kernel_sparse(UndirectedCSRG
     performance_stats.update_advance_ve_part_time(tm);
 
     #ifdef __PRINT_API_PERFORMANCE_STATS__
-    long long work = 0;//count_frontier_neighbours((*processed_graph_ptr), _frontier);
-    tm.print_bandwidth_stats("Advance (ve)", work, INT_ELEMENTS_PER_EDGE*sizeof(int));
+    long long work = _frontier.get_vector_engine_part_neighbours_count();
+    tm.print_time_and_bandwidth_stats("Advance (sparse, ve)", work, INT_ELEMENTS_PER_EDGE*sizeof(int));
     #endif
 }
 
@@ -76,17 +85,18 @@ void GraphAbstractionsNEC::vector_core_per_vertex_kernel_sparse(UndirectedCSRGra
     Timer tm;
     tm.start();
 
-    TraversalDirection traversal = current_traversal_direction;
-    int storage = CSR_STORAGE;
-
-    DelayedWriteNEC delayed_write;
-    delayed_write.init();
-
     LOAD_UNDIRECTED_CSR_GRAPH_DATA(_graph);
     int *frontier_ids = &(_frontier.get_ids()[_frontier.get_vector_engine_part_size()]);
     int frontier_segment_size = _frontier.get_vector_core_part_size();
 
-    #pragma omp for schedule(static, 8)
+    TraversalDirection traversal = current_traversal_direction;
+    int storage = CSR_STORAGE;
+    long long process_shift = traversal * direction_shift + storage * edges_count;
+
+    DelayedWriteNEC delayed_write;
+    delayed_write.init();
+
+    #pragma omp for schedule(static, 2)
     for (int front_pos = 0; front_pos < frontier_segment_size; front_pos++)
     {
         const int src_id = frontier_ids[front_pos];
@@ -99,15 +109,16 @@ void GraphAbstractionsNEC::vector_core_per_vertex_kernel_sparse(UndirectedCSRGra
 
         #pragma _NEC ivdep
         #pragma _NEC vovertake
-        #pragma _NEC novob
+        //#pragma _NEC novob
+        #pragma _NEC vob
         #pragma _NEC vector
         #pragma _NEC gather_reorder
         for (int local_edge_pos = 0; local_edge_pos < connections_count; local_edge_pos++)
         {
-            const long long int internal_edge_pos = start + local_edge_pos;
+            const long long internal_edge_pos = start + local_edge_pos;
             const int vector_index = get_vector_index(local_edge_pos);
             const int dst_id = adjacent_ids[internal_edge_pos];
-            const long long external_edge_pos = traversal * direction_shift + storage * edges_count + internal_edge_pos;
+            const long long external_edge_pos = process_shift + internal_edge_pos;
 
             edge_op(src_id, dst_id, local_edge_pos, external_edge_pos, vector_index, delayed_write);
         }
@@ -118,8 +129,8 @@ void GraphAbstractionsNEC::vector_core_per_vertex_kernel_sparse(UndirectedCSRGra
     tm.end();
     performance_stats.update_advance_vc_part_time(tm);
     #ifdef __PRINT_API_PERFORMANCE_STATS__
-    long long work = 0;//count_frontier_neighbours((*processed_graph_ptr), _frontier);
-    tm.print_bandwidth_stats("Advance (vc)", work, INT_ELEMENTS_PER_EDGE*sizeof(int));
+    long long work = _frontier.get_vector_core_part_neighbours_count();
+    tm.print_time_and_bandwidth_stats("Advance (sparse, vc)", work, INT_ELEMENTS_PER_EDGE*sizeof(int));
     #endif
 }
 
@@ -147,6 +158,7 @@ void GraphAbstractionsNEC::collective_vertex_processing_kernel_sparse(Undirected
 
     TraversalDirection traversal = current_traversal_direction;
     int storage = CSR_STORAGE;
+    long long process_shift = traversal * direction_shift + storage * edges_count;
 
     long long int reg_start[VECTOR_LENGTH];
     long long int reg_end[VECTOR_LENGTH];
@@ -167,7 +179,7 @@ void GraphAbstractionsNEC::collective_vertex_processing_kernel_sparse(Undirected
     DelayedWriteNEC delayed_write;
     delayed_write.init();
 
-    #pragma omp for schedule(static, 8)
+    #pragma omp for schedule(static, 4)
     for(int front_pos = 0; front_pos < frontier_segment_size; front_pos += VECTOR_LENGTH)
     {
         #pragma _NEC vector
@@ -201,24 +213,57 @@ void GraphAbstractionsNEC::collective_vertex_processing_kernel_sparse(Undirected
 
         if(max_connections > 0)
         {
-            for (int edge_pos = _first_edge; edge_pos < max_connections; edge_pos++)
+            if(use_safe_stores) // all vector stores are safe in this branch (vob)
             {
-                #pragma _NEC ivdep
-                #pragma _NEC vovertake
-                #pragma _NEC novob
-                #pragma _NEC vector
-                for (int i = 0; i < VECTOR_LENGTH; i++)
+                for (int edge_pos = _first_edge; edge_pos < max_connections; edge_pos++)
                 {
-                    if (((front_pos + i) < frontier_segment_size) && (edge_pos < reg_connections[i]))
+                    #pragma _NEC cncall
+                    #pragma _NEC ivdep
+                    //#pragma _NEC vovertake
+                    //#pragma _NEC vob
+                    #pragma _NEC vector
+                    #pragma _NEC sparse
+                    #pragma _NEC gather_reorder
+                    for (int i = 0; i < VECTOR_LENGTH; i++)
                     {
-                        const int src_id = frontier_ids[front_pos + i];
-                        const int vector_index = i;
-                        const long long int internal_edge_pos = reg_start[i] + edge_pos;
-                        const int local_edge_pos = edge_pos;
-                        const int dst_id = adjacent_ids[internal_edge_pos];
-                        const long long external_edge_pos = traversal * direction_shift + storage * edges_count + internal_edge_pos;
+                        if (((front_pos + i) < frontier_segment_size) && (edge_pos < reg_connections[i]))
+                        {
+                            const int src_id = frontier_ids[front_pos + i];
+                            const int vector_index = i;
+                            const long long int internal_edge_pos = reg_start[i] + edge_pos;
+                            const int local_edge_pos = edge_pos;
+                            const int dst_id = adjacent_ids[internal_edge_pos];
+                            const long long external_edge_pos = process_shift + internal_edge_pos;
 
-                        edge_op(src_id, dst_id, local_edge_pos, external_edge_pos, vector_index, delayed_write);
+                            edge_op(src_id, dst_id, local_edge_pos, external_edge_pos, vector_index, delayed_write);
+                        }
+                    }
+                }
+            }
+            else // all vector stores are NOT safe in this branch (novob)
+            {
+                for (int edge_pos = _first_edge; edge_pos < max_connections; edge_pos++)
+                {
+                    #pragma _NEC cncall
+                    #pragma _NEC ivdep
+                    #pragma _NEC vovertake
+                    #pragma _NEC novob
+                    #pragma _NEC vector
+                    #pragma _NEC sparse
+                    #pragma _NEC gather_reorder
+                    for (int i = 0; i < VECTOR_LENGTH; i++)
+                    {
+                        if (((front_pos + i) < frontier_segment_size) && (edge_pos < reg_connections[i]))
+                        {
+                            const int src_id = frontier_ids[front_pos + i];
+                            const int vector_index = i;
+                            const long long int internal_edge_pos = reg_start[i] + edge_pos;
+                            const int local_edge_pos = edge_pos;
+                            const int dst_id = adjacent_ids[internal_edge_pos];
+                            const long long external_edge_pos = process_shift + internal_edge_pos;
+
+                            edge_op(src_id, dst_id, local_edge_pos, external_edge_pos, vector_index, delayed_write);
+                        }
                     }
                 }
             }
@@ -238,8 +283,8 @@ void GraphAbstractionsNEC::collective_vertex_processing_kernel_sparse(Undirected
     tm.end();
     performance_stats.update_advance_collective_part_time(tm);
     #ifdef __PRINT_API_PERFORMANCE_STATS__
-    long long work = 0;//count_frontier_neighbours((*processed_graph_ptr), _frontier);
-    tm.print_bandwidth_stats("Advance (collective)", work, INT_ELEMENTS_PER_EDGE*sizeof(int));
+    long long work = _frontier.get_collective_part_neighbours_count();
+    tm.print_time_and_bandwidth_stats("Advance (sparse, collective)", work, INT_ELEMENTS_PER_EDGE*sizeof(int));
     #endif
 }
 

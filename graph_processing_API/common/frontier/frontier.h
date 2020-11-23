@@ -8,7 +8,7 @@ protected:
     ObjectType object_type;
 
     // pointer to base graph
-    VectCSRGraph *graph_ptr;
+    BaseGraph *graph_ptr;
     TraversalDirection direction;
 
     // frontier type - sparse, dense, all-active
@@ -41,6 +41,7 @@ public:
     // frontier direction API
     TraversalDirection get_direction() {return direction;};
     void set_direction(TraversalDirection _direction) {direction = _direction;};
+    void reorder(TraversalDirection _direction) {set_direction(_direction);}; //TODO more complex for different frontiers?};
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -50,11 +51,15 @@ public:
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #ifdef __USE_NEC_SX_AURORA__
-#include "../../nec/frontier/frontier_nec.h"
+#include "graph_processing_API/nec/frontier/frontier_nec.h"
 #endif
 
 #if defined(__USE_GPU__)
-#include "../../gpu/frontier/frontier_gpu.cuh"
+#include "graph_processing_API/gpu/frontier/frontier_gpu.cuh"
+#endif
+
+#if defined(__USE_INTEL__) || defined(__USE_KNL__)
+#include "graph_processing_API/multicore/frontier/frontier_multicore.h"
 #endif
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

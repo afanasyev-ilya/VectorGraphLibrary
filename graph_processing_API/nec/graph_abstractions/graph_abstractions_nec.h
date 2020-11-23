@@ -2,8 +2,8 @@
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#include "../vector_register/vector_registers.h"
-#include "../delayed_write/delayed_write_nec.h"
+#include "graph_processing_API/nec/vector_register/vector_registers.h"
+#include "graph_processing_API/nec/delayed_write/delayed_write_nec.h"
 #include <cstdarg>
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -26,6 +26,8 @@ class GraphAbstractionsNEC : public GraphAbstractions
 private:
     // current the number of vertices, neighbouring a frontier (for Advance perf)
     long long count_frontier_neighbours(VectCSRGraph &_graph, FrontierNEC &_frontier);
+
+    bool use_safe_stores;
 
     // compute inner implementation
     template <typename ComputeOperation>
@@ -50,7 +52,11 @@ private:
                         CollectiveEdgeOperation &&collective_edge_op,
                         CollectiveVertexPreprocessOperation &&collective_vertex_preprocess_op,
                         CollectiveVertexPostprocessOperation &&collective_vertex_postprocess_op,
-                        int _first_edge);
+                        int _first_edge,
+                        const long long _shard_shift);
+
+    template <typename EdgeOperation>
+    void advance_worker(EdgesListGraph &_graph, EdgeOperation &&edge_op);
 
     // all-active advance inner implementation
     template <typename EdgeOperation, typename VertexPreprocessOperation,
@@ -61,7 +67,8 @@ private:
                                                            EdgeOperation edge_op,
                                                            VertexPreprocessOperation vertex_preprocess_op,
                                                            VertexPostprocessOperation vertex_postprocess_op,
-                                                           const int _first_edge);
+                                                           const int _first_edge,
+                                                           const long long _shard_shift);
 
     // all-active advance inner implementation
     template <typename EdgeOperation, typename VertexPreprocessOperation,
@@ -72,7 +79,8 @@ private:
                                                          EdgeOperation edge_op,
                                                          VertexPreprocessOperation vertex_preprocess_op,
                                                          VertexPostprocessOperation vertex_postprocess_op,
-                                                         const int _first_edge);
+                                                         const int _first_edge,
+                                                         const long long _shard_shift);
 
     // all-active advance inner implementation
     template <typename EdgeOperation, typename VertexPreprocessOperation,
@@ -83,7 +91,8 @@ private:
                                                                   EdgeOperation edge_op,
                                                                   VertexPreprocessOperation vertex_preprocess_op,
                                                                   VertexPostprocessOperation vertex_postprocess_op,
-                                                                  const int _first_edge);
+                                                                  const int _first_edge,
+                                                                  const long long _shard_shift);
 
     // dense advance implementation
     template <typename EdgeOperation, typename VertexPreprocessOperation,
@@ -154,15 +163,18 @@ private:
                                                            const int _first_edge);
 
     template <typename FilterCondition>
-    int estimate_sorted_frontier_part_size(FrontierNEC &_frontier,
-                                           long long *_vertex_pointers,
-                                           int _first_vertex,
-                                           int _last_vertex,
-                                           FilterCondition &&filter_cond);
+    void estimate_sorted_frontier_part_size(FrontierNEC &_frontier,
+                                            long long *_vertex_pointers,
+                                            int _first_vertex,
+                                            int _last_vertex,
+                                            FilterCondition &&filter_cond,
+                                            int &_elements_count,
+                                            long long &_neighbours_count);
 public:
     // attaches graph-processing API to the specific graph
     GraphAbstractionsNEC(VectCSRGraph &_graph, TraversalDirection _initial_traversal = SCATTER);
     GraphAbstractionsNEC(ShardedCSRGraph &_graph, TraversalDirection _initial_traversal = SCATTER);
+    GraphAbstractionsNEC(EdgesListGraph &_graph, TraversalDirection _initial_traversal = ORIGINAL);
 
     // performs user-defined "edge_op" operation over all OUTGOING edges, neighbouring specified frontier
     template <typename EdgeOperation, typename VertexPreprocessOperation, typename VertexPostprocessOperation,
@@ -186,7 +198,7 @@ public:
     // performs user-defined "edge_op" operation over all OUTGOING edges, neighbouring specified frontier
     template <typename EdgeOperation, typename VertexPreprocessOperation, typename VertexPostprocessOperation,
             typename CollectiveEdgeOperation, typename CollectiveVertexPreprocessOperation,
-            typename CollectiveVertexPostprocessOperation, typename _T>
+            typename CollectiveVertexPostprocessOperation>
     void scatter(ShardedCSRGraph &_graph,
                  FrontierNEC &_frontier,
                  EdgeOperation &&edge_op,
@@ -194,8 +206,18 @@ public:
                  VertexPostprocessOperation &&vertex_postprocess_op,
                  CollectiveEdgeOperation &&collective_edge_op,
                  CollectiveVertexPreprocessOperation &&collective_vertex_preprocess_op,
-                 CollectiveVertexPostprocessOperation &&collective_vertex_postprocess_op,
-                 VerticesArray<_T> &_test_data);
+                 CollectiveVertexPostprocessOperation &&collective_vertex_postprocess_op);
+
+    // performs user-defined "edge_op" operation over all OUTGOING edges, neighbouring specified frontier
+    template <typename EdgeOperation>
+    void scatter(ShardedCSRGraph &_graph,
+                 FrontierNEC &_frontier,
+                 EdgeOperation &&edge_op);
+
+    // performs user-defined "edge_op" operation over all OUTGOING edges, neighbouring specified frontier
+    template <typename EdgeOperation>
+    void scatter(EdgesListGraph &_graph,
+                 EdgeOperation &&edge_op);
 
     // performs user-defined "edge_op" operation over all INCOMING edges, neighbouring specified frontier
     template <typename EdgeOperation, typename VertexPreprocessOperation, typename VertexPostprocessOperation,
@@ -216,9 +238,34 @@ public:
                 FrontierNEC &_frontier,
                 EdgeOperation &&edge_op);
 
+    // performs user-defined "edge_op" operation over all INCOMING edges, neighbouring specified frontier
+    template <typename EdgeOperation, typename VertexPreprocessOperation, typename VertexPostprocessOperation,
+            typename CollectiveEdgeOperation, typename CollectiveVertexPreprocessOperation,
+            typename CollectiveVertexPostprocessOperation>
+    void gather(ShardedCSRGraph &_graph,
+                FrontierNEC &_frontier,
+                EdgeOperation &&edge_op,
+                VertexPreprocessOperation &&vertex_preprocess_op,
+                VertexPostprocessOperation &&vertex_postprocess_op,
+                CollectiveEdgeOperation &&collective_edge_op,
+                CollectiveVertexPreprocessOperation &&collective_vertex_preprocess_op,
+                CollectiveVertexPostprocessOperation &&collective_vertex_postprocess_op);
+
+    // performs user-defined "edge_op" operation over all INCOMING edges, neighbouring specified frontier
+    template <typename EdgeOperation>
+    void gather(ShardedCSRGraph &_graph,
+                FrontierNEC &_frontier,
+                EdgeOperation &&edge_op);
+
     // performs user-defined "compute_op" operation for each element in the given frontier
     template <typename ComputeOperation>
     void compute(VectCSRGraph &_graph,
+                 FrontierNEC &_frontier,
+                 ComputeOperation &&compute_op);
+
+    // performs user-defined "compute_op" operation for each element in the given frontier
+    template <typename ComputeOperation>
+    void compute(ShardedCSRGraph &_graph,
                  FrontierNEC &_frontier,
                  ComputeOperation &&compute_op);
 
@@ -234,10 +281,24 @@ public:
     void generate_new_frontier(VectCSRGraph &_graph,
                                FrontierNEC &_frontier,
                                FilterCondition &&filter_cond);
+
+    template <typename _T1, typename _T2>
+    void pack_vertices_arrays(VerticesArray<VGL_PACK_TYPE> &_packed_data,
+                              VerticesArray<_T1> &_first,
+                              VerticesArray<_T2> &_second);
+
+    template <typename _T1, typename _T2>
+    void unpack_vertices_arrays(VerticesArray<VGL_PACK_TYPE> &_packed_data,
+                                VerticesArray<_T1> &_first,
+                                VerticesArray<_T2> &_second);
+
+    void enable_safe_stores() {use_safe_stores = true;};
+    void disable_safe_stores() {use_safe_stores = false;};
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+#include "pack.hpp"
 #include "helpers.hpp"
 #include "graph_abstractions_nec.hpp"
 #include "compute.hpp"

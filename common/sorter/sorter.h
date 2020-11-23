@@ -29,7 +29,6 @@ private:
     #ifdef __USE_ASL__
     static void inner_sort(int *_data, vgl_sort_indexes *_indexes, long long _size, SortOrder _sort_order)
     {
-        cout << "insde ASL sort v2.0" << endl;
         ASL_CALL(asl_library_initialize());
         asl_sort_t hnd;
         if(_sort_order == SORT_ASCENDING)

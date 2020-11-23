@@ -5,51 +5,38 @@
 template <typename _T>
 class EdgesArray
 {
-private:
-    VectCSRGraph *graph_ptr;
+protected:
+    BaseGraph *graph_ptr;
 
     _T *edges_data;
-
-    _T *outgoing_csr_ptr;
-    _T *incoming_csr_ptr;
-
-    _T *outgoing_ve_ptr;
-    _T *incoming_ve_ptr;
-
     long long edges_count;
-    long long edges_count_in_outgoing_ve;
-    long long edges_count_in_incoming_ve;
     long long total_array_size;
 
     bool is_copy;
 public:
     /* constructors and destructors */
-    EdgesArray(VectCSRGraph &_graph);
-    EdgesArray(const EdgesArray<_T> &_copy_obj);
-    ~EdgesArray();
+    EdgesArray() {};
+    ~EdgesArray() {};
 
     /* get/set API */
     #ifdef __USE_GPU__
     __host__ __device__ inline _T get(long long _global_idx) const {return edges_data[_global_idx];};
     __host__ __device__ inline _T set(long long _global_idx, _T _val) const {edges_data[_global_idx] = _val;};
     __host__ __device__ inline _T& operator[] (long long _global_idx) const { return edges_data[_global_idx]; };
-    #endif
-
-    #if defined(__USE_NEC_SX_AURORA__) || defined(__USE_INTEL__)
+    #else
     inline _T get(long long _global_idx) const {return edges_data[_global_idx];};
-    inline _T set(long long _global_idx, _T _val) const {edges_data[_global_idx] = _val;};
+    inline void set(long long _global_idx, _T _val) const {edges_data[_global_idx] = _val;};
     inline _T& operator[] (long long _global_idx) const { return edges_data[_global_idx]; };
     #endif
 
-    void set(int _src_id, int _dst_id, _T _val, TraversalDirection _direction);
-    _T get(int _src_id, int _dst_id, TraversalDirection _direction);
+    inline _T *get_ptr() const {return edges_data;};
 
     /* initialization API */
-    void set_all_constant(_T _const);
-    void set_all_random(_T _max_rand);
+    virtual void set_all_constant(_T _const) = 0;
+    virtual void set_all_random(_T _max_rand) = 0;
 
     /* print API */
-    void print();
+    virtual void print() = 0;
 
     /* GPU specific (copy) API */
     #ifdef __USE_GPU__
@@ -60,7 +47,9 @@ public:
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#include "edges_array.hpp"
 #include "gpu_api.hpp"
+#include "el/edges_array.h"
+#include "vect/edges_array.h"
+#include "sharded/edges_array.h"
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

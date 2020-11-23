@@ -8,6 +8,10 @@ void FrontierNEC::set_all_active()
     current_size = max_size;
     neighbours_count = graph_ptr->get_edges_count();
 
+    vector_engine_part_neighbours_count = 0;
+    vector_core_part_neighbours_count = 0;
+    collective_part_neighbours_count = graph_ptr->get_edges_count(); // TODO
+
     #pragma omp parallel // dummy for performance evaluation
     {};
 }
@@ -21,7 +25,17 @@ void FrontierNEC::add_vertex(int src_id)
         throw "Error in FrontierNEC::add_vertex: VGL can not add vertex to non-empty frontier";
     }
 
-    UndirectedCSRGraph *current_direction_graph = graph_ptr->get_direction_graph_ptr(direction);
+    UndirectedCSRGraph *current_direction_graph;
+    if(graph_ptr->get_type() == VECT_CSR_GRAPH)
+    {
+        VectCSRGraph *vect_csr_ptr = (VectCSRGraph*)graph_ptr;
+        current_direction_graph = vect_csr_ptr->get_direction_graph_ptr(direction);
+    }
+    else
+    {
+        throw "Error in FrontierNEC::add_vertex : unsupported graph type";
+    }
+
     const int ve_threshold = current_direction_graph->get_vector_engine_threshold_vertex();
     const int vc_threshold = current_direction_graph->get_vector_core_threshold_vertex();
     const int vertices_count = current_direction_graph->get_vertices_count();
@@ -37,17 +51,27 @@ void FrontierNEC::add_vertex(int src_id)
     vector_core_part_size = 0;
     collective_part_size = 0;
 
+    vector_engine_part_neighbours_count = 0;
+    vector_core_part_neighbours_count = 0;
+    collective_part_neighbours_count = 0;
+
     if(src_id < ve_threshold)
     {
         vector_engine_part_size = 1;
+        vector_engine_part_neighbours_count = current_direction_graph->get_vertex_pointers()[src_id + 1] -
+                                              current_direction_graph->get_vertex_pointers()[src_id];
     }
     if((src_id >= ve_threshold) && (src_id < vc_threshold))
     {
         vector_core_part_size = 1;
+        vector_core_part_neighbours_count = current_direction_graph->get_vertex_pointers()[src_id + 1] -
+                                            current_direction_graph->get_vertex_pointers()[src_id];
     }
     if((src_id >= vc_threshold) && (src_id < vertices_count))
     {
         collective_part_size = 1;
+        collective_part_neighbours_count = current_direction_graph->get_vertex_pointers()[src_id + 1] -
+                                           current_direction_graph->get_vertex_pointers()[src_id];
     }
 
     type = SPARSE_FRONTIER;
@@ -58,13 +82,13 @@ void FrontierNEC::add_vertex(int src_id)
 
 void FrontierNEC::add_group_of_vertices(int *_vertex_ids, int _number_of_vertices)
 {
-    UndirectedCSRGraph *current_direction_graph = graph_ptr->get_direction_graph_ptr(direction);
+    /*UndirectedCSRGraph *current_direction_graph = graph_ptr->get_direction_graph_ptr(direction);
     LOAD_UNDIRECTED_CSR_GRAPH_DATA((*current_direction_graph));
 
-    /*if(current_size > 0)
+    if(current_size > 0)
     {
         throw "VGL ERROR: can not add vertices to non-empty frontier";
-    }*/
+    }
 
     // sort input array
     std::sort(&_vertex_ids[0], &_vertex_ids[_number_of_vertices]);
@@ -108,7 +132,7 @@ void FrontierNEC::add_group_of_vertices(int *_vertex_ids, int _number_of_vertice
 
     vector_engine_part_type = SPARSE_FRONTIER;
     vector_core_part_type = SPARSE_FRONTIER;
-    collective_part_type = SPARSE_FRONTIER;
+    collective_part_type = SPARSE_FRONTIER;*/
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

@@ -5,7 +5,7 @@
 #ifdef __USE_GPU__
 template <typename _T>
 void SSSP::gpu_dijkstra_all_active_push(VectCSRGraph &_graph,
-                                        EdgesArray<_T> &_weights,
+                                        EdgesArray_Vect<_T> &_weights,
                                         VerticesArray<_T> &_distances,
                                         int _source_vertex)
 {
@@ -66,7 +66,7 @@ void SSSP::gpu_dijkstra_all_active_push(VectCSRGraph &_graph,
 #ifdef __USE_GPU__
 template <typename _T>
 void SSSP::gpu_dijkstra_all_active_pull(VectCSRGraph &_graph,
-                                        EdgesArray<_T> &_weights,
+                                        EdgesArray_Vect<_T> &_weights,
                                         VerticesArray<_T> &_distances,
                                         int _source_vertex)
 {
@@ -127,7 +127,7 @@ void SSSP::gpu_dijkstra_all_active_pull(VectCSRGraph &_graph,
 #ifdef __USE_GPU__
 template <typename _T>
 void SSSP::gpu_dijkstra_partial_active(VectCSRGraph &_graph,
-                                       EdgesArray<_T> &_weights,
+                                       EdgesArray_Vect<_T> &_weights,
                                        VerticesArray<_T> &_distances,
                                        int _source_vertex)
 {
@@ -194,7 +194,7 @@ void SSSP::gpu_dijkstra_partial_active(VectCSRGraph &_graph,
 #ifdef __USE_GPU__
 template <typename _T>
 void SSSP::gpu_dijkstra(VectCSRGraph &_graph,
-                        EdgesArray<_T> &_weights,
+                        EdgesArray_Vect<_T> &_weights,
                         VerticesArray<_T> &_distances,
                         int _source_vertex,
                         AlgorithmFrontierType _frontier_type,

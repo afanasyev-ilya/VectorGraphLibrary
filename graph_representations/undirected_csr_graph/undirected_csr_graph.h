@@ -9,9 +9,9 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "../../common/cmd_parser/parser_options.h"
+#include "common/cmd_parser/parser_options.h"
 #include "vector_extension/vector_extension.h"
-#include "../../common/memory_API/memory_API.h"
+#include "common/memory_API/memory_API.h"
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -37,7 +37,9 @@ private:
     int *forward_conversion; // forward = to sorted, forward(i) = sorted
     int *backward_conversion; // backward = to original, backward(i) = original
 
-    VectorExtension last_vertices_ve;
+    vgl_sort_indexes *edges_reorder_indexes; // allows to convert UndirectedCSRGraph edges (and weights) from sorted to original order
+
+    VectorExtension last_vertices_ve; // store last vertices in the vector extension
     
     #ifdef __USE_GPU__
     int gpu_grid_threshold_vertex;
@@ -53,14 +55,11 @@ private:
     void alloc(int _vertices_count, long long _edges_count);
     void free();
 
-    #ifdef __USE_GPU__
-    void estimate_gpu_thresholds();
-    #endif
-
     #ifdef __USE_NEC_SX_AURORA__
     void estimate_nec_thresholds();
     #endif
 
+    // import functions
     void extract_connection_count(EdgesListGraph &_el_graph,
                                   int *_work_buffer, int *_connections_count);
 
@@ -70,7 +69,39 @@ private:
 
     void construct_CSR(EdgesListGraph &_el_graph);
 
-    void copy_edges_indexes(long long *_edges_reorder_indexes, vgl_sort_indexes *_sort_indexes, long long _edges_count);
+    void copy_edges_indexes(vgl_sort_indexes *_sort_indexes);
+
+    /* reorder API */
+    // reorders a single vertex from original (edges list) to sorted (undirectedCSR)
+    int reorder_to_sorted(int _vertex_id);
+    // reorders a single vertex from sorted (undirectedCSR) to original (edges list)
+    int reorder_to_original(int _vertex_id);
+    // reorders a vertexArray(pointer) from original (edges list) to sorted (undirectedCSR)
+    template <typename _T>
+    void reorder_to_sorted(_T *_data, _T *_buffer);
+    // reorders a vertexArray(pointer)  from sorted (undirectedCSR) to original (edges list)
+    template <typename _T>
+    void reorder_to_original(_T *_data, _T *_buffer);
+    // allows to save edge reorder indexes
+    void update_edge_reorder_indexes_using_superposition(vgl_sort_indexes *_edges_reorder_indexes);
+    // in-place edges reorder from original to sorted, buffer can be provided for better speed
+    template <typename _T>
+    void reorder_edges_to_sorted(_T *_data, _T *_buffer = NULL);
+    // in-place edges reorder from sorted to original, buffer can be provided for better speed
+    template <typename _T>
+    void reorder_edges_to_original(_T *_data, _T *_buffer = NULL);
+    // allows to copy data from original (usually EdgesList weights) to sorted. Original array can be larger (used in sharded API).
+    template <typename _T>
+    void reorder_and_copy_edges_from_original_to_sorted(_T *_dst_sorted, _T *_src_original);
+
+    // allows to get position of specified edge in CSR representation
+    inline long long get_csr_edge_id(int _src_id, int _dst_id);
+
+    // allows to get position of specified edge in VE representation
+    inline long long get_ve_edge_id (int _src_id, int _dst_id) { return last_vertices_ve.get_ve_edge_id(_src_id, _dst_id); };
+
+    void save_main_content_to_binary_file(FILE *_graph_file);
+    void load_main_content_to_binary_file(FILE *_graph_file);
 public:
     UndirectedCSRGraph(int _vertices_count = 1, long long _edges_count = 1);
     ~UndirectedCSRGraph();
@@ -85,9 +116,13 @@ public:
     /* print API */
     void print();
     void print_size();
+    void print_stats();
     size_t get_size();
+    size_t get_csr_size();
+    size_t get_ve_size();
     template <typename _T>
     void print_with_weights(EdgesArray<_T> &_weights, TraversalDirection _direction);
+    void print_vertex_information(int _src_id, int _num_edges);
 
     /* file load/store API */
     bool save_to_binary_file(string file_name);
@@ -103,42 +138,11 @@ public:
     // resize graph
     void resize(int _vertices_count, long long _edges_count);
 
-    // allows to get position of specified edge in CSR representation
-    inline long long get_csr_edge_id(int _src_id, int _dst_id);
-
-    // allows to get position of specified edge in VE representation
-    inline long long get_ve_edge_id (int _src_id, int _dst_id) { return last_vertices_ve.get_ve_edge_id(_src_id, _dst_id); };
-
-    /* reorder API */
-    // reorders a single vertex from original (edges list) to sorted (undirectedCSR)
-    int reorder_to_sorted(int _vertex_id);
-
-    // reorders a single vertex from sorted (undirectedCSR) to original (edges list)
-    int reorder_to_original(int _vertex_id);
-
-    // reorders a vertexArray(pointer) from original (edges list) to sorted (undirectedCSR)
-    template <typename _T>
-    void reorder_to_sorted(_T *_data, _T *_buffer);
-
-    // reorders a vertexArray(pointer)  from sorted (undirectedCSR) to original (edges list)
-    template <typename _T>
-    void reorder_to_original(_T *_data, _T *_buffer);
-
-    // API to calculate GPU thresholds // TODO remove
-    #ifdef __USE_GPU__
-    inline int get_gpu_grid_threshold_vertex(){return gpu_grid_threshold_vertex;};
-    inline int get_gpu_block_threshold_vertex(){return gpu_block_threshold_vertex;};
-    inline int get_gpu_warp_threshold_vertex(){return gpu_warp_threshold_vertex;};
-    #endif
-
     // API to calculate NEC and multicore thresholds
     #ifdef __USE_NEC_SX_AURORA__
     inline int get_vector_engine_threshold_vertex(){return vector_engine_threshold_vertex;};
     inline int get_vector_core_threshold_vertex(){return vector_core_threshold_vertex;};
     #endif
-
-    template <typename _T>
-    _T& get_edge_data(_T *_data_array, int _src_id, int _dst_id); // TODO remove, needed in max Flow?
 
     // selects random vertex with non-zero degree
     int select_random_vertex();
@@ -150,7 +154,15 @@ public:
 
     /* import and preprocess API */
     // creates UndirectedCSRGraph format from EdgesListGraph
-    void import(EdgesListGraph &_old_graph, long long *_edges_reorder_indexes);
+    void import(EdgesListGraph &_old_graph);
+
+    friend class GraphAbstractions;
+    friend class VectCSRGraph;
+    friend class ShardedCSRGraph;
+    friend class EdgesListGraph;
+    template<class _T> friend class EdgesArray_Vect;
+    template<class _T> friend class EdgesArray_Sharded;
+    template<class _T> friend class EdgesArray_EL;
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

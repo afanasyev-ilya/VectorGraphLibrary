@@ -153,24 +153,19 @@ void UndirectedCSRGraph::construct_CSR(EdgesListGraph &_el_graph)
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void UndirectedCSRGraph::copy_edges_indexes(long long *_edges_reorder_indexes,
-                                            vgl_sort_indexes *_sort_indexes,
-                                            long long _edges_count)
+void UndirectedCSRGraph::copy_edges_indexes(vgl_sort_indexes *_sort_indexes)
 {
-    if(_edges_reorder_indexes != NULL)
+    #pragma _NEC ivdep
+    #pragma omp parallel for
+    for(long long i = 0; i < this->edges_count; i++)
     {
-        #pragma _NEC ivdep
-        #pragma omp parallel for
-        for(long long i = 0; i < _edges_count; i++)
-        {
-            _edges_reorder_indexes[i] = _sort_indexes[i];
-        }
+        edges_reorder_indexes[i] = _sort_indexes[i];
     }
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void UndirectedCSRGraph::import(EdgesListGraph &_el_graph, long long *_edges_reorder_indexes)
+void UndirectedCSRGraph::import(EdgesListGraph &_el_graph)
 {
     // get size of edges list graph
     int el_vertices_count = _el_graph.get_vertices_count();
@@ -203,12 +198,13 @@ void UndirectedCSRGraph::import(EdgesListGraph &_el_graph, long long *_edges_reo
     // sorting preprocessed edges list graph
     _el_graph.preprocess_into_csr_based(work_buffer, sort_indexes);
 
-    // save reordering information and free ASL array
-    this->copy_edges_indexes(_edges_reorder_indexes, sort_indexes, el_edges_count);
-    MemoryAPI::free_array(sort_indexes);
-
     // resize constructed graph
     this->resize(el_vertices_count, el_edges_count);
+
+    // save reordering information and free ASL array
+    this->copy_edges_indexes(sort_indexes);
+
+    MemoryAPI::free_array(sort_indexes);
 
     // construct CSR representation
     this->construct_CSR(_el_graph);
@@ -226,10 +222,6 @@ void UndirectedCSRGraph::import(EdgesListGraph &_el_graph, long long *_edges_reo
 
     // free buffer
     MemoryAPI::free_array(work_buffer);
-
-    #ifdef __USE_GPU__
-    estimate_gpu_thresholds();
-    #endif
 
     #ifdef __USE_NEC_SX_AURORA__
     estimate_nec_thresholds();

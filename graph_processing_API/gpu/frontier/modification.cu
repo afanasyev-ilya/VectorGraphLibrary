@@ -35,7 +35,20 @@ void FrontierGPU::add_vertex(int src_id)
     ids[0] = src_id;
     flags[src_id] = IN_FRONTIER_FLAG;
     current_size = 1;
-    //neighbours_count = 1; // TODO set from GRAPH
+
+    UndirectedCSRGraph *current_direction_graph;
+    if(graph_ptr->get_type() == VECT_CSR_GRAPH)
+    {
+        VectCSRGraph *vect_csr_ptr = (VectCSRGraph*)graph_ptr;
+        current_direction_graph = vect_csr_ptr->get_direction_graph_ptr(direction);
+    }
+    else
+    {
+        throw "Error in FrontierNEC::add_vertex : unsupported graph type";
+    }
+
+    neighbours_count = current_direction_graph->get_vertex_pointers()[src_id + 1] -
+            current_direction_graph->get_vertex_pointers()[src_id];
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

@@ -10,7 +10,7 @@
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#include "../../graph_library.h"
+#include "graph_library.h"
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -68,12 +68,15 @@ int main(int argc, const char * argv[])
 
                 VerticesArray<int> check_levels(graph, SCATTER);
                 BFS::seq_top_down(graph, check_levels, source_vertex);
-                verify_results(graph, levels, check_levels);
+                verify_results(levels, check_levels);
 
                 graph.move_to_device();
                 levels.move_to_device();
             }
         }
+
+        performance_stats.print_max_perf(graph.get_edges_count());
+        performance_stats.print_avg_perf(graph.get_edges_count());
     }
     catch (string error)
     {

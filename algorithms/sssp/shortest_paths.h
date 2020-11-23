@@ -20,7 +20,7 @@ public:
     #ifdef __USE_NEC_SX_AURORA__
     template <typename _T>
     static void nec_dijkstra_all_active_push(VectCSRGraph &_graph,
-                                             EdgesArray<_T> &_weights,
+                                             EdgesArray_Vect<_T> &_weights,
                                              VerticesArray<_T> &_distances,
                                              int _source_vertex);
     #endif
@@ -28,7 +28,7 @@ public:
     #ifdef __USE_NEC_SX_AURORA__
     template <typename _T>
     static void nec_dijkstra_all_active_pull(VectCSRGraph &_graph,
-                                             EdgesArray<_T> &_weights,
+                                             EdgesArray_Vect<_T> &_weights,
                                              VerticesArray<_T> &_distances,
                                              int _source_vertex);
     #endif
@@ -36,7 +36,7 @@ public:
     #ifdef __USE_NEC_SX_AURORA__
     template <typename _T>
     static void nec_dijkstra_partial_active(VectCSRGraph &_graph,
-                                            EdgesArray<_T> &_weights,
+                                            EdgesArray_Vect<_T> &_weights,
                                             VerticesArray<_T> &_distances,
                                             int _source_vertex);
     #endif
@@ -44,53 +44,63 @@ public:
     #ifdef __USE_GPU__
     template <typename _T>
     static void gpu_dijkstra_partial_active(VectCSRGraph &_graph,
-                                     EdgesArray<_T> &_weights,
-                                     VerticesArray<_T> &_distances,
-                                     int _source_vertex);
+                                            EdgesArray_Vect<_T> &_weights,
+                                            VerticesArray<_T> &_distances,
+                                            int _source_vertex);
     #endif
 
     #ifdef __USE_GPU__
     template <typename _T>
     static void gpu_dijkstra_all_active_push(VectCSRGraph &_graph,
-                                      EdgesArray<_T> &_weights,
-                                      VerticesArray<_T> &_distances,
-                                      int _source_vertex);
+                                             EdgesArray_Vect<_T> &_weights,
+                                             VerticesArray<_T> &_distances,
+                                             int _source_vertex);
     #endif
 
     #ifdef __USE_GPU__
     template <typename _T>
     static void gpu_dijkstra_all_active_pull(VectCSRGraph &_graph,
-                                      EdgesArray<_T> &_weights,
-                                      VerticesArray<_T> &_distances,
-                                      int _source_vertex);
+                                             EdgesArray_Vect<_T> &_weights,
+                                             VerticesArray<_T> &_distances,
+                                             int _source_vertex);
     #endif
 
     // --------------------------------- main interfaces ----------------------------------------
     template <typename _T>
-    static void seq_dijkstra(VectCSRGraph &_graph, EdgesArray<_T> &_weights, VerticesArray<_T> &_distances,
+    static void seq_dijkstra(VectCSRGraph &_graph, EdgesArray_Vect<_T> &_weights, VerticesArray<_T> &_distances,
                              int _source_vertex);
 
     #ifdef __USE_NEC_SX_AURORA__
     template <typename _T>
-    static void nec_dijkstra(VectCSRGraph &_graph, EdgesArray<_T> &_weights, VerticesArray<_T> &_distances,
+    static void nec_dijkstra(VectCSRGraph &_graph, EdgesArray_Vect<_T> &_weights, VerticesArray<_T> &_distances,
                              int _source_vertex, AlgorithmFrontierType _frontier_type = ALL_ACTIVE,
                              AlgorithmTraversalType _traversal_direction = PUSH_TRAVERSAL);
     #endif
 
     #ifdef __USE_NEC_SX_AURORA__
     template <typename _T>
+    static void nec_dijkstra(EdgesListGraph &_graph, EdgesArray_EL<_T> &_weights, VerticesArray<_T> &_distances,
+                             int _source_vertex);
+    #endif
+
+    #ifdef __USE_NEC_SX_AURORA__
+    template <typename _T>
     static void nec_dijkstra(ShardedCSRGraph &_graph,
-                             EdgesArray<_T> &_weights,
+                             EdgesArray_Sharded<_T> &_weights, // TODO
                              VerticesArray<_T> &_distances,
                              int _source_vertex);
     #endif
 
     #ifdef __USE_GPU__
     template <typename _T>
-    static void gpu_dijkstra(VectCSRGraph &_graph, EdgesArray<_T> &_weights, VerticesArray<_T> &_distances,
+    static void gpu_dijkstra(VectCSRGraph &_graph, EdgesArray_Vect<_T> &_weights, VerticesArray<_T> &_distances,
                              int _source_vertex, AlgorithmFrontierType _frontier_type = ALL_ACTIVE,
                              AlgorithmTraversalType _traversal_direction = PUSH_TRAVERSAL);
     #endif
+
+    template <typename _T>
+    static void multicore_dijkstra(VectCSRGraph &_graph, EdgesArray_Vect<_T> &_weights, VerticesArray<_T> &_distances,
+                                   int _source_vertex);
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -98,6 +108,7 @@ public:
 #include "gpu_shortest_paths.hpp"
 #include "seq_shortest_paths.hpp"
 #include "nec_shortest_paths.hpp"
+#include "multicore_shortest_paths.hpp"
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 

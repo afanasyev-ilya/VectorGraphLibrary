@@ -16,7 +16,7 @@ FrontierNEC::FrontierNEC(ShardedCSRGraph &_graph, TraversalDirection _direction)
 {
     max_size = _graph.get_vertices_count();
     direction = _direction;
-    graph_ptr = NULL; //TODO graph type?
+    graph_ptr = &_graph;
     init();
 }
 

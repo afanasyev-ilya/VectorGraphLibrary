@@ -36,6 +36,11 @@ using namespace std;
 #include "common/parallel_primitives/copy_if.h"
 #include "common/parallel_primitives/get_elements_count.h"
 #include "common/performance_stats/performance_stats.h"
+#include "common/misc/extensions.h"
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+#include "graph_analytics/graph_analytics.h"
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -63,9 +68,10 @@ using namespace std;
 // algorithm implementations
 #include "algorithms/bfs/bfs.h"
 #include "algorithms/sssp/shortest_paths.h"
-//#include "algorithms/scc/scc.h"
-/*#include "algorithms/sswp/widest_paths.h"
+#include "algorithms/scc/scc.h"
+#include "algorithms/pr/pr.h"
 #include "algorithms/cc/cc.h"
+/*#include "algorithms/sswp/widest_paths.h"
 #include "algorithms/pr/pr.h"
 #include "algorithms/lp/lp.h"
 #include "algorithms/mf/mf.h"*/
@@ -77,10 +83,14 @@ using namespace std;
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-//#include "graph_analytics/graph_analytics.h"
 #include "common/verify_results/verify_results.h"
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+#include "graph_analytics/graph_analytics.hpp"
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 
 
 

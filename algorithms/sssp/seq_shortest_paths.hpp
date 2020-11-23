@@ -10,7 +10,7 @@ typedef pair<float, int> iPair;
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template <typename _T>
-void SSSP::seq_dijkstra(VectCSRGraph &_graph, EdgesArray<_T> &_weights, VerticesArray<_T> &_distances,
+void SSSP::seq_dijkstra(VectCSRGraph &_graph, EdgesArray_Vect<_T> &_weights, VerticesArray<_T> &_distances,
                         int _source_vertex)
 {
     UndirectedCSRGraph *outgoing_graph_ptr = _graph.get_outgoing_graph_ptr();
@@ -56,7 +56,7 @@ void SSSP::seq_dijkstra(VectCSRGraph &_graph, EdgesArray<_T> &_weights, Vertices
         {
             long long int global_edge_pos = edge_start + edge_pos;
             int dst_id = adjacent_ids[global_edge_pos];
-            _T weight = _weights.get(global_edge_pos);
+            _T weight = _weights[global_edge_pos];
 
             if (_distances[dst_id] > _distances[src_id] + weight)
             {

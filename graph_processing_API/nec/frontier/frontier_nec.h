@@ -14,6 +14,10 @@ private:
     int vector_core_part_size;
     int collective_part_size;
 
+    long long vector_engine_part_neighbours_count;
+    long long vector_core_part_neighbours_count;
+    long long collective_part_neighbours_count;
+
     FrontierType vector_engine_part_type;
     FrontierType vector_core_part_type;
     FrontierType collective_part_type;
@@ -31,6 +35,10 @@ public:
     int get_vector_engine_part_size(){return vector_engine_part_size;};
     int get_vector_core_part_size(){return vector_core_part_size;};
     int get_collective_part_size(){return collective_part_size;};
+
+    long long get_vector_engine_part_neighbours_count(){return vector_engine_part_neighbours_count;};
+    long long get_vector_core_part_neighbours_count(){return vector_core_part_neighbours_count;};
+    long long get_collective_part_neighbours_count(){return collective_part_neighbours_count;};
 
     /* Print API */
     void print_stats();

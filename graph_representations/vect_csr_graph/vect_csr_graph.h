@@ -10,8 +10,8 @@
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#include "../../common/cmd_parser/parser_options.h"
-#include "../../common/memory_API/memory_API.h"
+#include "common/cmd_parser/parser_options.h"
+#include "common/memory_API/memory_API.h"
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -22,10 +22,12 @@ private:
     UndirectedCSRGraph *incoming_graph;
 
     long long *vertices_reorder_buffer;
-    long long *edges_reorder_indexes;
 
-    void resize_helper_arrays();
+    void init(int _vertices_count, long long _edges_count);
+    void free();
+    void resize(int _vertices_count, long long _edges_count);
 
+    // vertex reorder API (used in GraphAbstractions and VerticesArray)
     template <typename _T>
     bool vertices_buffer_can_be_used(VerticesArray<_T> &_data);
     template <typename _T>
@@ -34,20 +36,38 @@ private:
     void reorder_to_scatter(VerticesArray<_T> &_data);
     template <typename _T>
     void reorder_to_gather(VerticesArray<_T> &_data);
+    // allows to reorder verticesArray in arbitrary direction
+    template <typename _T>
+    void reorder(VerticesArray<_T> &_data, TraversalDirection _output_dir);
+
+    // edges reorder API (used in Graph import and EdgesArray)
+    // allows to reorder edges array to primary direction (scatter, from original)
+    template <typename _T>
+    void reorder_edges_original_to_scatter(_T *_original_data, _T *_outgoing_data);
+    // allows to reorder edges array to secondary direction (gather, from original)
+    template <typename _T>
+    void reorder_edges_scatter_to_gather(_T *_gather_data, _T *_scatter_data);
+
 public:
-    VectCSRGraph(int _vertices_count = 1, long long _edges_count = 1);
+    VectCSRGraph(SupportedDirection _supported_direction = USE_BOTH,
+                 int _vertices_count = 1, long long _edges_count = 1);
     ~VectCSRGraph();
+
+    /* get/set API */
+    long long get_direction_shift() {return (this->edges_count + this->get_edges_count_in_outgoing_ve());};
 
     /* print API */
     void print();
     void print_size();
+    void print_stats();
     size_t get_size();
     template <typename _T>
     void print_with_weights(EdgesArray<_T> &_weights);
+    void print_vertex_information(TraversalDirection _direction, int _src_id, int _num_edges);
 
     /* file load/store API */
-    bool save_to_binary_file(string file_name) {};
-    bool load_from_binary_file(string file_name) {};
+    bool save_to_binary_file(string file_name);
+    bool load_from_binary_file(string file_name);
 
     /* GPU specific (copy) API */
     #ifdef __USE_GPU__
@@ -70,21 +90,6 @@ public:
     // allows to reorder a single vertex ID in arbitrary direction
     int reorder(int _vertex_id, TraversalDirection _input_dir, TraversalDirection _output_dir);
 
-    // allows to reorder verticesArray in arbitrary direction
-    template <typename _T>
-    void reorder(VerticesArray<_T> &_data, TraversalDirection _output_dir);
-
-    // allows to reorder NEC frontier in arbitrary direction
-    void reorder(FrontierNEC &_data, TraversalDirection _output_dir);
-    // allows to reorder GPU frontier in arbitrary direction
-    #ifdef __USE_GPU__
-    void reorder(FrontierGPU &_data, TraversalDirection _output_dir); // TODO
-    #endif
-
-    // allows to reorder edges array to secondary direction (gather)
-    template <typename _T>
-    void reorder_edges_to_gather(_T *_incoming_csr_ptr, _T *_outgoing_csr_ptr); // TODO name fix?
-
     // selects random vertex with non-zero outgoing and incoming degree
     int select_random_vertex(TraversalDirection _direction = ORIGINAL);
 
@@ -95,6 +100,18 @@ public:
     /* import and preprocess API */
     // creates VectCSRGraph format from EdgesListGraph
     void import(EdgesListGraph &_copy_graph);
+
+    template<class _T>
+    friend class VerticesArray;
+    template<class _T>
+    friend class EdgesArray;
+    template<class _T>
+    friend class EdgesArray_EL;
+    template<class _T>
+    friend class EdgesArray_Vect;
+    template<class _T>
+    friend class EdgesArray_Sharded;
+    friend class GraphAbstractions;
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

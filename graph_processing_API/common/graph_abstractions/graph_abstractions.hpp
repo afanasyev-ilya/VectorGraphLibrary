@@ -66,7 +66,7 @@ _T GraphAbstractions::reduce(VectCSRGraph &_graph,
                              ReduceOperation &&reduce_op,
                              REDUCE_TYPE _reduce_type)
 {
-
+    return 0;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -76,7 +76,7 @@ void GraphAbstractions::generate_new_frontier(VectCSRGraph &_graph,
                                               FrontierNEC &_frontier,
                                               FilterCondition &&filter_cond)
 {
-    return 0;
+
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -124,18 +124,20 @@ void GraphAbstractions::set_correct_direction()
 template<typename _T, typename ... Types>
 void GraphAbstractions::set_correct_direction(_T &_first_arg, Types &... _args)
 {
-    if(_first_arg.get_object_type() == VERTICES_ARRAY)
-    {
-        processed_graph_ptr->reorder(_first_arg, current_traversal_direction);
-    }
-    else if(_first_arg.get_object_type() == FRONTIER)
-    {
-        _first_arg.set_direction(current_traversal_direction);
-    }
-    // TODO other types?
+    _first_arg.reorder(current_traversal_direction);
 
     set_correct_direction(_args...);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+template<typename _T>
+void GraphAbstractions::attach_data(VerticesArray<_T> &_array)
+{
+    user_data_containers.push_back(&_array);
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
 

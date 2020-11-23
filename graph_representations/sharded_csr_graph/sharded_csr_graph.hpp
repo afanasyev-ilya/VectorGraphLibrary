@@ -2,113 +2,122 @@
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-ShardedCSRGraph::ShardedCSRGraph()
+ShardedCSRGraph::ShardedCSRGraph(SupportedDirection _supported_direction)
 {
+    this->vertices_count = 1;
+    this->edges_count = 1;
     this->graph_type = SHARDED_CSR_GRAPH;
     max_cached_vertices = 1;
-    shards_number = 0;
-    outgoing_shards = NULL;
-    incoming_shards = NULL;
+    shards_number = 1;
+    init(shards_number, this->vertices_count);
 
-    vertices_reorder_buffer = NULL;
+    this->supported_direction = _supported_direction;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+void ShardedCSRGraph::resize(int _shards_count, int _vertices_count)
+{
+    free();
+    init(_shards_count, _vertices_count);
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+void ShardedCSRGraph::init(int _shards_count, int _vertices_count)
+{
+    if(can_use_scatter())
+    {
+        outgoing_shards = new UndirectedCSRGraph[_shards_count]; // MemoryAPI doesnt work here
+    }
+    if(can_use_gather())
+    {
+        incoming_shards = new UndirectedCSRGraph[_shards_count];
+    }
+    MemoryAPI::allocate_array(&vertices_reorder_buffer, _vertices_count);
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+void ShardedCSRGraph::free()
+{
+    if(can_use_scatter())
+    {
+        delete[]outgoing_shards;
+    }
+    if(can_use_gather())
+    {
+        delete[]incoming_shards;
+    }
+    MemoryAPI::free_array(vertices_reorder_buffer);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 ShardedCSRGraph::~ShardedCSRGraph()
 {
-    MemoryAPI::free_array(outgoing_shards);
-    MemoryAPI::free_array(incoming_shards);
-    MemoryAPI::free_array(vertices_reorder_buffer);
+    free();
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-/*
-void process()
+long long ShardedCSRGraph::get_direction_shift()
 {
-    Frontier frontier; // need to process verices {1, 2, 3, 10, 15}
-    // problem: each shard can have different enumeration...
-    // если сначала сортируем, потом фиксируем номера внутри каждой shard в таком же порядке
-    // - может происходить разброс степеней соседних
-    //
+    long long direction_shift = 0;
 
-    // если сортируем каждую шарду - разная нумерация, как работать с фронтом?
-    // можно смотреть на тип фронта
-    // all-active - нет проблемы
-    // dense - нет проблемы
-    // если есть sparse-часть - её перенумеровывать для каждой шарды (внутри advance)
-*/
+    if(can_use_scatter())
+    {
+        for (int current_shard = 0; current_shard < shards_number; current_shard++)
+        {
+            long long csr_size = this->get_edges_count_outgoing_shard(current_shard);
+            long long ve_size = this->get_edges_count_in_ve_outgoing_shard(current_shard);
+            direction_shift += (csr_size + ve_size);
+        }
+    }
+    return direction_shift;
+}
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-/*void ShardedCSRGraph::import(EdgesListGraph &_old_graph,
-                            AlgorithmTraversalType _traversal_type)
+long long ShardedCSRGraph::get_shard_shift(int _shard_id, TraversalDirection _direction)
 {
-    LOAD_EDGES_LIST_GRAPH_DATA(_old_graph);
-    this->vertices_count = vertices_count;
-    this->edges_count    = edges_count;
-    
-    number_of_shards = (vertices_count - 1) / max_cached_vertices + 1;
-    
-    shards_data = new ShardBase<_TEdgeWeight>*[number_of_shards];
-    for(int i = 0; i < number_of_shards; i++)
+    long long shard_shift = 0;
+    for (int current_shard = 0; current_shard < _shard_id; current_shard++)
     {
-        if(type_of_shard == SHARD_CSR_TYPE)
-            shards_data[i] = new ShardCSR<_TEdgeWeight>;
-        else if(type_of_shard == SHARD_VECT_CSR_TYPE)
-            shards_data[i] = new ShardVectCSR<_TEdgeWeight>;
-    }
-    
-    int total_threads_num = omp_get_max_threads();
-    
-    double t1 = omp_get_wtime();
-    #pragma omp parallel num_threads(total_threads_num)
-    {
-        int tid = omp_get_thread_num();
-        
-        for(long long i = 0; i < this->edges_count; i++)
+        long long csr_size = 0, ve_size = 0;
+        if(_direction == SCATTER)
         {
-            int src_id, dst_id;
-            if(_traversal_type == PUSH_TRAVERSAL)
-            {
-                src_id = src_ids[i];
-                dst_id = dst_ids[i];
-            }
-            else if(_traversal_type == PULL_TRAVERSAL)
-            {
-                dst_id = src_ids[i];
-                src_id = dst_ids[i];
-            }
-            int shard_id = this->get_shard_id(dst_id);
-            
-            if((shard_id % total_threads_num) == tid)
-            {
-                _TEdgeWeight weight = weights[i];
-                shards_data[shard_id]->add_edge_to_tmp_map(src_id, dst_id, weight);
-            }
+            csr_size = this->get_edges_count_outgoing_shard(current_shard);
+            ve_size = this->get_edges_count_in_ve_outgoing_shard(current_shard);
         }
+        else if(_direction == GATHER)
+        {
+            csr_size = this->get_edges_count_incoming_shard(current_shard);
+            ve_size = this->get_edges_count_in_ve_incoming_shard(current_shard);
+        }
+        else
+        {
+            throw "Error in ShardedCSRGraph::get_shard_shift : unsupported direction";
+        }
+        shard_shift += (csr_size + ve_size);
     }
-    double t2 = omp_get_wtime();
-    cout << "init map time: " << t2 - t1 << " sec" << endl;
-    
-    t1 = omp_get_wtime();
-    #pragma omp parallel for num_threads(total_threads_num)
-    for(int i = 0; i < number_of_shards; i++)
+    return shard_shift;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+int ShardedCSRGraph::select_random_vertex(TraversalDirection _direction)
+{
+    int vertex_id = 0;
+    if(_direction == SCATTER || _direction == ORIGINAL)
     {
-        shards_data[i]->init_shard_from_tmp_map();
+        vertex_id = outgoing_shards[0].select_random_vertex();
     }
-    t2 = omp_get_wtime();
-    cout << "convert from map to shard time: " << t2 - t1 << " sec" << endl;
-    
-    cout << "old edges count: " << this->edges_count << endl;
-    long long new_edges_count = 0;
-    for(int i = 0; i < number_of_shards; i++)
+    else if(_direction == GATHER)
     {
-        new_edges_count += shards_data[i]->get_edges_in_shard();
+        vertex_id = incoming_shards[0].select_random_vertex();
     }
-    cout << "new edges count: " << new_edges_count << endl;
-    this->edges_count = new_edges_count;
-}*/
+    return vertex_id;
+}
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

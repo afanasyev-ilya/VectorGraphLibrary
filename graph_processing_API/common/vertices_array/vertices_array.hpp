@@ -23,10 +23,49 @@ VerticesArray<_T>::VerticesArray(VectCSRGraph &_graph, TraversalDirection _direc
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template <typename _T>
+VerticesArray<_T>::VerticesArray(ShardedCSRGraph &_graph, TraversalDirection _direction)
+{
+    object_type = VERTICES_ARRAY;
+    graph_ptr = &_graph;
+
+    this->direction = _direction;
+    this->vertices_count = _graph.get_vertices_count();
+    MemoryAPI::allocate_array(&this->vertices_data, this->vertices_count);
+
+    is_copy = false;
+
+    #ifdef __USE_NEC_SX_AURORA__
+    #pragma omp parallel
+    {};
+    #endif
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+template <typename _T>
+VerticesArray<_T>::VerticesArray(EdgesListGraph &_graph, TraversalDirection _direction)
+{
+    object_type = VERTICES_ARRAY;
+    graph_ptr = &_graph;
+
+    this->direction = _direction;
+    this->vertices_count = _graph.get_vertices_count();
+    MemoryAPI::allocate_array(&this->vertices_data, this->vertices_count);
+
+    is_copy = false;
+
+    #ifdef __USE_NEC_SX_AURORA__
+    #pragma omp parallel
+    {};
+    #endif
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+template <typename _T>
 VerticesArray<_T>::VerticesArray(const VerticesArray<_T> &_copy_obj)
 {
     this->object_type = _copy_obj.object_type;
-    this->graph_ptr = _copy_obj.graph_ptr;
     this->vertices_count = _copy_obj.vertices_count;
     this->direction = _copy_obj.direction;
     this->vertices_data = _copy_obj.vertices_data;

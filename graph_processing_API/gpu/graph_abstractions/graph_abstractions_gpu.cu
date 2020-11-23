@@ -22,7 +22,7 @@ GraphAbstractionsGPU::GraphAbstractionsGPU(VectCSRGraph &_graph, TraversalDirect
 
 GraphAbstractionsGPU::GraphAbstractionsGPU(ShardedCSRGraph &_graph, TraversalDirection _initial_traversal)
 {
-    processed_graph_ptr = NULL; // TODO
+    processed_graph_ptr = &_graph;
     current_traversal_direction = _initial_traversal;
     direction_shift = _graph.get_edges_count(); // TODO
 
