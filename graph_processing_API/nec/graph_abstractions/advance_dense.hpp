@@ -113,7 +113,7 @@ void GraphAbstractionsNEC::vector_core_per_vertex_kernel_dense(UndirectedCSRGrap
             vertex_preprocess_op(src_id, connections_count, 0, delayed_write);
 
             #pragma _NEC ivdep
-            #pragma _NEC vovertake
+            //#pragma _NEC vovertake
             #pragma _NEC novob
             #pragma _NEC vector
             #pragma _NEC gather_reorder
@@ -130,45 +130,6 @@ void GraphAbstractionsNEC::vector_core_per_vertex_kernel_dense(UndirectedCSRGrap
             vertex_postprocess_op(src_id, connections_count, 0, delayed_write);
         }
     }
-
-    /*#pragma omp for schedule(static, 8)
-    for (int front_pos = _first_vertex; front_pos < _last_vertex; front_pos++)
-    {
-        const int src_id = front_pos;
-        if(frontier_flags[src_id] > 0)
-        {
-            const long long int start = vertex_pointers[src_id];
-            const long long int end = vertex_pointers[src_id + 1];
-            const int connections_count = end - start;
-
-            vertex_preprocess_op(src_id, connections_count, 0, delayed_write);
-
-            #pragma _NEC novector
-            for(int vec_start = 0; vec_start < connections_count; vec_start += VECTOR_LENGTH)
-            {
-                #pragma _NEC cncall
-                #pragma _NEC ivdep
-                #pragma _NEC vovertake
-                #pragma _NEC novob
-                #pragma _NEC vector
-                #pragma _NEC gather_reorder
-                for(int i = 0; i < VECTOR_LENGTH; i++)
-                {
-                    int local_edge_pos = vec_start + i;
-
-                    const long long internal_edge_pos = start + local_edge_pos;
-                    const int vector_index = i;
-                    const int dst_id = adjacent_ids[internal_edge_pos];
-                    const long long external_edge_pos = process_shift + internal_edge_pos;
-
-                    if(local_edge_pos < connections_count)
-                        edge_op(src_id, dst_id, local_edge_pos, external_edge_pos, vector_index, delayed_write);
-                }
-            }
-
-            vertex_postprocess_op(src_id, connections_count, 0, delayed_write);
-        }
-    }*/
 
     tm.end();
     performance_stats.update_advance_vc_part_time(tm);
@@ -247,7 +208,7 @@ void GraphAbstractionsNEC::ve_collective_vertex_processing_kernel_dense(Undirect
                 #pragma _NEC cncall
                 #pragma _NEC ivdep
                 //#pragma _NEC vovertake
-                //#pragma _NEC vob
+                #pragma _NEC novob
                 #pragma _NEC vector
                 #pragma _NEC sparse
                 #pragma _NEC gather_reorder
@@ -276,7 +237,7 @@ void GraphAbstractionsNEC::ve_collective_vertex_processing_kernel_dense(Undirect
             {
                 #pragma _NEC cncall
                 #pragma _NEC ivdep
-                #pragma _NEC vovertake
+                //#pragma _NEC vovertake
                 #pragma _NEC novob
                 #pragma _NEC vector
                 #pragma _NEC sparse

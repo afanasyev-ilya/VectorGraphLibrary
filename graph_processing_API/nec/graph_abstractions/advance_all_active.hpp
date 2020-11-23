@@ -39,23 +39,47 @@ void GraphAbstractionsNEC::vector_engine_per_vertex_kernel_all_active(Undirected
         #pragma omp for schedule(static, 8)
         for(int vec_start = 0; vec_start < connections_count; vec_start += VECTOR_LENGTH)
         {
-            #pragma _NEC cncall
-            #pragma _NEC ivdep
-            #pragma _NEC vovertake
-            #pragma _NEC novob
-            #pragma _NEC vector
-            #pragma _NEC gather_reorder
-            for(int i = 0; i < VECTOR_LENGTH; i++)
+            if(use_safe_stores) // all vector stores are safe in this branch (vob)
             {
-                int local_edge_pos = vec_start + i;
-                const long long internal_edge_pos = start + local_edge_pos;
-                const int vector_index = i;
-                const long long external_edge_pos = process_shift + internal_edge_pos;
-
-                if(local_edge_pos < connections_count)
+                #pragma _NEC cncall
+                #pragma _NEC ivdep
+                #pragma _NEC novob
+                #pragma _NEC vector
+                #pragma _NEC gather_reorder
+                for (int i = 0; i < VECTOR_LENGTH; i++)
                 {
-                    const int dst_id = adjacent_ids[internal_edge_pos];
-                    edge_op(src_id, dst_id, local_edge_pos, external_edge_pos, vector_index, delayed_write);
+                    int local_edge_pos = vec_start + i;
+                    const long long internal_edge_pos = start + local_edge_pos;
+                    const int vector_index = i;
+                    const long long external_edge_pos = process_shift + internal_edge_pos;
+
+                    if (local_edge_pos < connections_count)
+                    {
+                        const int dst_id = adjacent_ids[internal_edge_pos];
+                        edge_op(src_id, dst_id, local_edge_pos, external_edge_pos, vector_index, delayed_write);
+                    }
+                }
+            }
+            else
+            {
+                #pragma _NEC cncall
+                #pragma _NEC ivdep
+                #pragma _NEC vovertake
+                #pragma _NEC novob
+                #pragma _NEC vector
+                #pragma _NEC gather_reorder
+                for (int i = 0; i < VECTOR_LENGTH; i++)
+                {
+                    int local_edge_pos = vec_start + i;
+                    const long long internal_edge_pos = start + local_edge_pos;
+                    const int vector_index = i;
+                    const long long external_edge_pos = process_shift + internal_edge_pos;
+
+                    if (local_edge_pos < connections_count)
+                    {
+                        const int dst_id = adjacent_ids[internal_edge_pos];
+                        edge_op(src_id, dst_id, local_edge_pos, external_edge_pos, vector_index, delayed_write);
+                    }
                 }
             }
         }
@@ -108,24 +132,49 @@ void GraphAbstractionsNEC::vector_core_per_vertex_kernel_all_active(UndirectedCS
         #pragma _NEC novector
         for(int vec_start = 0; vec_start < connections_count; vec_start += VECTOR_LENGTH)
         {
-            #pragma _NEC cncall
-            #pragma _NEC ivdep
-            #pragma _NEC vovertake
-            #pragma _NEC novob
-            #pragma _NEC vector
-            #pragma _NEC gather_reorder
-            for(int i = 0; i < VECTOR_LENGTH; i++)
+            if(use_safe_stores) // all vector stores are safe in this branch (vob)
             {
-                int local_edge_pos = vec_start + i;
-                const long long internal_edge_pos = start + local_edge_pos;
-                const long long int global_edge_pos = start + local_edge_pos;
-                const int vector_index = i;
-                const long long external_edge_pos = process_shift + internal_edge_pos;
-
-                if(local_edge_pos < connections_count)
+                #pragma _NEC cncall
+                #pragma _NEC ivdep
+                #pragma _NEC novob
+                #pragma _NEC vector
+                #pragma _NEC gather_reorder
+                for (int i = 0; i < VECTOR_LENGTH; i++)
                 {
-                    const int dst_id = adjacent_ids[internal_edge_pos];
-                    edge_op(src_id, dst_id, local_edge_pos, external_edge_pos, vector_index, delayed_write);
+                    int local_edge_pos = vec_start + i;
+                    const long long internal_edge_pos = start + local_edge_pos;
+                    const long long int global_edge_pos = start + local_edge_pos;
+                    const int vector_index = i;
+                    const long long external_edge_pos = process_shift + internal_edge_pos;
+
+                    if (local_edge_pos < connections_count)
+                    {
+                        const int dst_id = adjacent_ids[internal_edge_pos];
+                        edge_op(src_id, dst_id, local_edge_pos, external_edge_pos, vector_index, delayed_write);
+                    }
+                }
+            }
+            else
+            {
+                #pragma _NEC cncall
+                #pragma _NEC ivdep
+                #pragma _NEC vovertake
+                #pragma _NEC novob
+                #pragma _NEC vector
+                #pragma _NEC gather_reorder
+                for (int i = 0; i < VECTOR_LENGTH; i++)
+                {
+                    int local_edge_pos = vec_start + i;
+                    const long long internal_edge_pos = start + local_edge_pos;
+                    const long long int global_edge_pos = start + local_edge_pos;
+                    const int vector_index = i;
+                    const long long external_edge_pos = process_shift + internal_edge_pos;
+
+                    if (local_edge_pos < connections_count)
+                    {
+                        const int dst_id = adjacent_ids[internal_edge_pos];
+                        edge_op(src_id, dst_id, local_edge_pos, external_edge_pos, vector_index, delayed_write);
+                    }
                 }
             }
         }
@@ -207,8 +256,7 @@ void GraphAbstractionsNEC::ve_collective_vertex_processing_kernel_all_active(Und
             {
                 #pragma _NEC cncall
                 #pragma _NEC ivdep
-                //#pragma _NEC novovertake
-                //#pragma _NEC vob
+                #pragma _NEC novob
                 #pragma _NEC vector
                 #pragma _NEC gather_reorder
                 for (int i = 0; i < VECTOR_LENGTH; i++)
@@ -226,7 +274,7 @@ void GraphAbstractionsNEC::ve_collective_vertex_processing_kernel_all_active(Und
                 }
             }
         }
-        else // all vector stores are NOT safe in this branch (novob)
+        else // all vector stores are NOT safe in this branch
         {
             for(int edge_pos = _first_edge; edge_pos < segment_connections_count; edge_pos++)
             {

@@ -21,6 +21,9 @@ void PR::nec_page_rank(VectCSRGraph &_graph,
     VerticesArray<_T> reversed_degrees(_graph, SCATTER);
     VerticesArray<VGL_PACK_TYPE> packed_data(_graph, SCATTER);
 
+    #pragma omp parallel
+    {};
+
     graph_API.change_traversal_direction(GATHER, frontier, incoming_degrees);
 
     auto get_incoming_degrees = [&incoming_degrees] (int src_id, int connections_count, int vector_index)
@@ -95,7 +98,7 @@ void PR::nec_page_rank(VectCSRGraph &_graph,
         };
         graph_API.compute(_graph, frontier, save_old_ranks);
 
-        graph_API.pack_vertices_arrays(packed_data, old_page_ranks, reversed_degrees);
+        //graph_API.pack_vertices_arrays(packed_data, old_page_ranks, reversed_degrees);
 
         auto reduce_dangling_input = [incoming_degrees_without_loops, old_page_ranks, vertices_count](int src_id, int connections_count, int vector_index)->float
         {
@@ -134,7 +137,9 @@ void PR::nec_page_rank(VectCSRGraph &_graph,
             _page_ranks[src_id] = k + d * (_page_ranks[src_id] + dangling_input);
         };
 
+        //graph_API.enable_safe_stores();
         graph_API.scatter(_graph, frontier, edge_op, EMPTY_VERTEX_OP, vertex_postprocess_op, edge_op, EMPTY_VERTEX_OP, vertex_postprocess_op);
+        //graph_API.disable_safe_stores();
 
         auto reduce_ranks_sum = [_page_ranks](int src_id, int connections_count, int vector_index)->float
         {
