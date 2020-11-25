@@ -43,7 +43,6 @@ void GraphAbstractionsNEC::vector_engine_per_vertex_kernel_sparse(UndirectedCSRG
             {
                 #pragma _NEC cncall
                 #pragma _NEC ivdep
-                #pragma _NEC novob
                 #pragma _NEC vector
                 #pragma _NEC gather_reorder
                 for (int i = 0; i < VECTOR_LENGTH; i++)
@@ -139,7 +138,6 @@ void GraphAbstractionsNEC::vector_core_per_vertex_kernel_sparse(UndirectedCSRGra
         {
             #pragma _NEC cncall
             #pragma _NEC ivdep
-            #pragma _NEC novob
             #pragma _NEC vob
             #pragma _NEC vector
             #pragma _NEC gather_reorder
@@ -269,7 +267,6 @@ void GraphAbstractionsNEC::collective_vertex_processing_kernel_sparse(Undirected
                 {
                     #pragma _NEC cncall
                     #pragma _NEC ivdep
-                    #pragma _NEC novob
                     #pragma _NEC vector
                     #pragma _NEC sparse
                     #pragma _NEC gather_reorder

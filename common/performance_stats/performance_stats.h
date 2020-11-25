@@ -52,8 +52,8 @@ public:
     void print_timers_stats();
     void update_timer_stats();
 
-    void print_max_perf(long long _edges_count);
-    void print_avg_perf(long long _edges_count);
+    void print_max_perf(long long _edges_count, int _k = 1);
+    void print_avg_perf(long long _edges_count, int _k = 1);
 
     static void print_algorithm_performance_stats(string _name, double _time, long long _edges_count, int _iterations_count);
 

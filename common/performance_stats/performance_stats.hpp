@@ -206,17 +206,17 @@ void PerformanceStats::update_timer_stats()
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void PerformanceStats::print_max_perf(long long _edges_count)
+void PerformanceStats::print_max_perf(long long _edges_count, int _k)
 {
-    cout << "MAX_PERF: " << _edges_count / (best_time * 1e6) << " MTEPS (among " << number_of_runs << " runs)" << endl;
+    cout << "MAX_PERF: " << _k*(_edges_count / (best_time * 1e6)) << " MTEPS (among " << number_of_runs << " runs)" << endl;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void PerformanceStats::print_avg_perf(long long _edges_count)
+void PerformanceStats::print_avg_perf(long long _edges_count, int _k)
 {
     avg_time /= number_of_runs;
-    cout << "AVG_PERF: " << _edges_count / (avg_time * 1e6) << " MTEPS (among " << number_of_runs << " runs)" << endl;
+    cout << "AVG_PERF: " << _k*(_edges_count / (avg_time * 1e6)) << " MTEPS (among " << number_of_runs << " runs)" << endl;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

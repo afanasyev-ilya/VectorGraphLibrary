@@ -251,8 +251,10 @@ void SSSP::nec_dijkstra_all_active_pull(VectCSRGraph &_graph,
                     _distances[src_id] = reg_distances[vector_index];
             };
 
+            graph_API.enable_safe_stores();
             graph_API.gather(_graph, frontier, edge_op_pull, preprocess, postprocess,
                              edge_op_collective_pull, preprocess_collective, postprocess_collective);
+            graph_API.disable_safe_stores();
         }
 
         auto reduce_changes = [&_distances, &prev_distances](int src_id, int connections_count, int vector_index)->int

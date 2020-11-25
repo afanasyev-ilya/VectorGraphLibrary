@@ -28,7 +28,6 @@ void GraphAbstractionsNEC::gather(VectCSRGraph &_graph,
     }
     current_direction_graph = _graph.get_incoming_graph_ptr();
 
-    this->enable_safe_stores();
     if(omp_in_parallel())
     {
         #pragma omp barrier
@@ -44,7 +43,6 @@ void GraphAbstractionsNEC::gather(VectCSRGraph &_graph,
                            collective_edge_op, collective_vertex_preprocess_op, collective_vertex_postprocess_op, 0, 0);
         }
     }
-    this->disable_safe_stores();
 
     tm.end();
     performance_stats.update_gather_time(tm);

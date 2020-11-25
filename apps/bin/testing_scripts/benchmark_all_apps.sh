@@ -7,5 +7,5 @@ rm $file_name
 ./testing_scripts/benchmark_specific_app.sh "./sssp_sx" "-all-active -push -it 10"
 ./testing_scripts/benchmark_specific_app.sh "./sssp_sx" "-all-active -pull -it 10"
 ./testing_scripts/benchmark_specific_app.sh "./sssp_sx" "-partial-active -it 10"
+./testing_scripts/benchmark_specific_app.sh "./pr_sx" "-it 10"
 ./testing_scripts/benchmark_specific_app.sh "./cc_sx" ""
-./testing_scripts/benchmark_specific_app.sh "./pr_sx" "-it 1"

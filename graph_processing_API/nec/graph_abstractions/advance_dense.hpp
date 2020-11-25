@@ -45,7 +45,6 @@ void GraphAbstractionsNEC::vector_engine_per_vertex_kernel_dense(UndirectedCSRGr
                 {
                     #pragma _NEC cncall
                     #pragma _NEC ivdep
-                    #pragma _NEC novob
                     #pragma _NEC vector
                     #pragma _NEC gather_reorder
                     for (int i = 0; i < VECTOR_LENGTH; i++)
@@ -144,7 +143,6 @@ void GraphAbstractionsNEC::vector_core_per_vertex_kernel_dense(UndirectedCSRGrap
             {
                 #pragma _NEC cncall
                 #pragma _NEC ivdep
-                #pragma _NEC novob
                 #pragma _NEC vector
                 #pragma _NEC gather_reorder
                 for (int local_edge_pos = 0; local_edge_pos < connections_count; local_edge_pos++)
@@ -256,7 +254,6 @@ void GraphAbstractionsNEC::ve_collective_vertex_processing_kernel_dense(Undirect
             {
                 #pragma _NEC cncall
                 #pragma _NEC ivdep
-                #pragma _NEC novob
                 #pragma _NEC vector
                 #pragma _NEC sparse
                 #pragma _NEC gather_reorder

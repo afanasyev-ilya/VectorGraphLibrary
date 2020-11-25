@@ -56,13 +56,13 @@ int main(int argc, const char * argv[])
         cout << "SCC computations started..." << endl;
         VerticesArray<int> components(graph, SCATTER);
 
-        // heat run
-        SCC::nec_forward_backward(graph, components);
+        for(int i = 0; i < parser.get_number_of_rounds(); i++)
+        {
+            performance_stats.reset_timers();
+            SCC::nec_forward_backward(graph, components);
+            performance_stats.print_timers_stats();
+        }
 
-        // timed run
-        performance_stats.reset_timers();
-        SCC::nec_forward_backward(graph, components);
-        performance_stats.print_timers_stats();
         performance_stats.print_max_perf(graph.get_edges_count());
         performance_stats.print_avg_perf(graph.get_edges_count());
 

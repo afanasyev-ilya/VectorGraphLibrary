@@ -54,8 +54,8 @@ int main(int argc, const char * argv[])
         float convergence_factor = 1.0e-4;
         PageRank::nec_page_rank(graph, page_ranks, convergence_factor, parser.get_number_of_rounds());
         performance_stats.print_timers_stats();
-        performance_stats.print_max_perf(graph.get_edges_count());
-        performance_stats.print_avg_perf(graph.get_edges_count());
+        performance_stats.print_max_perf(graph.get_edges_count(), parser.get_number_of_rounds());
+        performance_stats.print_avg_perf(graph.get_edges_count(), parser.get_number_of_rounds());
 
         if(parser.get_check_flag())
         {

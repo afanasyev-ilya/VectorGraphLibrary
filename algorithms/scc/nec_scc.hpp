@@ -161,11 +161,9 @@ void SCC::bfs_reach(VectCSRGraph &_graph,
         };
 
         if(_traversal_direction == SCATTER)
-            _graph_API.scatter(_graph, _frontier, edge_op, EMPTY_VERTEX_OP, EMPTY_VERTEX_OP,
-                               edge_op, EMPTY_VERTEX_OP, EMPTY_VERTEX_OP);
+            _graph_API.scatter(_graph, _frontier, edge_op);
         else if(_traversal_direction == GATHER)
-            _graph_API.gather(_graph, _frontier, edge_op, EMPTY_VERTEX_OP, EMPTY_VERTEX_OP,
-                              edge_op, EMPTY_VERTEX_OP, EMPTY_VERTEX_OP);
+            _graph_API.gather(_graph, _frontier, edge_op);
 
         auto on_next_level = [&_bfs_result, current_level] (int src_id, int connections_count)->int
         {
@@ -317,17 +315,23 @@ void SCC::nec_forward_backward(VectCSRGraph &_graph, VerticesArray<_T> &_compone
     VerticesArray<_T> backward_result(_graph, GATHER);
     VerticesArray<_T> active(_graph, SCATTER);
 
-    Timer tm;
-    tm.start();
+    Timer trim_tm;
+    trim_tm.start();
     trim_step(_graph, graph_API, frontier, forward_result, backward_result, _components, active);
+    trim_tm.end();
 
     int last_tree = INIT_TREE;
+    Timer bfs_tm;
+    bfs_tm.start();
     FB_step(_graph, graph_API, frontier, _components, forward_result, backward_result, active, INIT_TREE, last_tree);
-    tm.end();
-    cout << "last tree: " << last_tree << endl;
+    bfs_tm.end();
 
     #ifdef __PRINT_SAMPLES_PERFORMANCE_STATS__
-    PerformanceStats::print_algorithm_performance_stats("SCC (Forward-Backward)", tm.get_time(), _graph.get_edges_count());
+    cout << "last tree: " << last_tree << endl;
+    cout << "trim time: " << trim_tm.get_time_in_ms() << " ms" << endl;
+    cout << "bfs time:" << bfs_tm.get_time_in_ms() << " ms" << endl;
+    PerformanceStats::print_algorithm_performance_stats("SCC (Forward-Backward)", trim_tm.get_time() + bfs_tm.get_time(),
+                                                        _graph.get_edges_count());
     #endif
     print_component_sizes(_graph, _components);
 }

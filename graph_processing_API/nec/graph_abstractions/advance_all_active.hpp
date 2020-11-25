@@ -43,7 +43,6 @@ void GraphAbstractionsNEC::vector_engine_per_vertex_kernel_all_active(Undirected
             {
                 #pragma _NEC cncall
                 #pragma _NEC ivdep
-                #pragma _NEC novob
                 #pragma _NEC vector
                 #pragma _NEC gather_reorder
                 for (int i = 0; i < VECTOR_LENGTH; i++)
@@ -141,7 +140,6 @@ void GraphAbstractionsNEC::vector_core_per_vertex_kernel_all_active(UndirectedCS
             {
                 #pragma _NEC cncall
                 #pragma _NEC ivdep
-                #pragma _NEC novob
                 #pragma _NEC vector
                 #pragma _NEC gather_reorder
                 for (int i = 0; i < VECTOR_LENGTH; i++)
@@ -265,7 +263,6 @@ void GraphAbstractionsNEC::ve_collective_vertex_processing_kernel_all_active(Und
             {
                 #pragma _NEC cncall
                 #pragma _NEC ivdep
-                #pragma _NEC novob
                 #pragma _NEC vector
                 #pragma _NEC gather_reorder
                 for (int i = 0; i < VECTOR_LENGTH; i++)
