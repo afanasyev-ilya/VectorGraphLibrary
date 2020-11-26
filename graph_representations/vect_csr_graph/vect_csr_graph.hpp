@@ -26,21 +26,31 @@ void VectCSRGraph::init(int _vertices_count, long long _edges_count)
     this->vertices_count = _vertices_count;
     this->edges_count = _edges_count;
 
-    outgoing_graph = new UndirectedCSRGraph(this->vertices_count, this->edges_count );
-    incoming_graph = new UndirectedCSRGraph(this->vertices_count, this->edges_count );
+    outgoing_graph = NULL;
+    incoming_graph = NULL;
 
-    MemoryAPI::allocate_array(&vertices_reorder_buffer, this->vertices_count);
+    if(outgoing_is_stored())
+        outgoing_graph = new UndirectedCSRGraph(this->vertices_count, this->edges_count );
+
+    if(incoming_is_stored())
+        incoming_graph = new UndirectedCSRGraph(this->vertices_count, this->edges_count );
+
+    if(incoming_is_stored())
+        MemoryAPI::allocate_array(&vertices_reorder_buffer, this->vertices_count);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 void VectCSRGraph::free()
 {
-    delete outgoing_graph;
-    delete incoming_graph;
+    if(outgoing_is_stored())
+        delete outgoing_graph;
 
-    //if(vertices_reorder_buffer != NULL)
-    MemoryAPI::free_array(vertices_reorder_buffer);
+    if(incoming_is_stored())
+        delete incoming_graph;
+
+    if(incoming_is_stored())
+        MemoryAPI::free_array(vertices_reorder_buffer);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -57,44 +67,21 @@ template <typename _TVertexValue>
 void VectCSRGraph::save_to_graphviz_file(string _file_name, VerticesArray<_TVertexValue> &_vertex_data)
 {
     // if undirected - take from TODO variable
-    outgoing_graph->save_to_graphviz_file(_file_name, _vertex_data, VISUALISE_AS_DIRECTED);
-}
-
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-UndirectedCSRGraph *VectCSRGraph::get_direction_graph_ptr(TraversalDirection _direction)
-{
-    if(_direction == SCATTER)
-    {
-        return get_outgoing_graph_ptr();
-    }
-    else if(_direction == GATHER)
-    {
-        return get_incoming_graph_ptr();
-    }
-    else
-    {
-        throw "Error in UndirectedCSRGraph::get_direction_graph_ptr, incorrect _direction type";
-        return NULL;
-    }
+    if(outgoing_is_stored())
+        outgoing_graph->save_to_graphviz_file(_file_name, _vertex_data, VISUALISE_AS_DIRECTED);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 int VectCSRGraph::select_random_vertex(TraversalDirection _direction)
 {
-    int attempt_num = 0;
-    while(attempt_num < ATTEMPTS_THRESHOLD)
+    if(outgoing_is_stored())
     {
-        int outgoing_vertex_id = outgoing_graph->select_random_vertex();
-        int incoming_vertex_id = this->reorder(outgoing_vertex_id, SCATTER, GATHER);
-        if(incoming_graph->get_connections_count(incoming_vertex_id) > 0)
-        {
-            int original_vertex_id = this->reorder(outgoing_vertex_id, SCATTER, ORIGINAL);
-            return original_vertex_id;
-        }
-
-        attempt_num++;
+        return outgoing_graph->select_random_vertex();
+    }
+    else if(incoming_is_stored())
+    {
+        return incoming_graph->select_random_vertex();
     }
 
     throw "Error in VectCSRGraph::select_random_vertex: can not select non-zero degree vertex in ATTEMPTS_THRESHOLD attempts";
@@ -109,6 +96,11 @@ bool VectCSRGraph::save_to_binary_file(string _file_name)
     FILE * graph_file = fopen(_file_name.c_str(), "wb");
     if(graph_file == NULL)
         return false;
+
+    if(!incoming_is_stored())
+    {
+        throw "Error in VectCSRGraph::save_to_binary_file : saved graph must have both directions";
+    }
 
     int vertices_count = this->vertices_count;
     long long edges_count = this->edges_count;
@@ -142,8 +134,13 @@ bool VectCSRGraph::load_from_binary_file(string _file_name)
 
     this->resize(this->vertices_count, this->edges_count);
 
-    outgoing_graph->load_main_content_to_binary_file(graph_file);
-    incoming_graph->load_main_content_to_binary_file(graph_file);
+    if(outgoing_is_stored())
+        outgoing_graph->load_main_content_to_binary_file(graph_file);
+    else
+        incoming_graph->load_main_content_to_binary_file(graph_file); // TODO this should be equal to skip
+
+    if(incoming_is_stored())
+        incoming_graph->load_main_content_to_binary_file(graph_file);
 
     fclose(graph_file);
     return true;

@@ -11,7 +11,8 @@ void GraphAbstractionsNEC::vector_engine_per_vertex_kernel_dense(UndirectedCSRGr
                                                                  EdgeOperation edge_op,
                                                                  VertexPreprocessOperation vertex_preprocess_op,
                                                                  VertexPostprocessOperation vertex_postprocess_op,
-                                                                 const int _first_edge)
+                                                                 const int _first_edge,
+                                                                 bool _outgoing_graph_is_stored)
 {
     Timer tm;
     tm.start();
@@ -21,7 +22,7 @@ void GraphAbstractionsNEC::vector_engine_per_vertex_kernel_dense(UndirectedCSRGr
 
     TraversalDirection traversal = current_traversal_direction;
     int storage = CSR_STORAGE;
-    long long process_shift = traversal * direction_shift + storage * edges_count;
+    long long process_shift = compute_process_shift(0/*shard shift*/, traversal, storage, edges_count, _outgoing_graph_is_stored);
 
     DelayedWriteNEC delayed_write;
     delayed_write.init();
@@ -112,7 +113,8 @@ void GraphAbstractionsNEC::vector_core_per_vertex_kernel_dense(UndirectedCSRGrap
                                                                EdgeOperation edge_op,
                                                                VertexPreprocessOperation vertex_preprocess_op,
                                                                VertexPostprocessOperation vertex_postprocess_op,
-                                                               const int _first_edge)
+                                                               const int _first_edge,
+                                                               bool _outgoing_graph_is_stored)
 {
     Timer tm;
     tm.start();
@@ -122,7 +124,7 @@ void GraphAbstractionsNEC::vector_core_per_vertex_kernel_dense(UndirectedCSRGrap
 
     TraversalDirection traversal = current_traversal_direction;
     int storage = CSR_STORAGE;
-    long long process_shift = traversal * direction_shift + storage * edges_count;
+    long long process_shift = compute_process_shift(0/*shard shift*/, traversal, storage, edges_count, _outgoing_graph_is_stored);
 
     DelayedWriteNEC delayed_write;
     delayed_write.init();
@@ -198,7 +200,8 @@ void GraphAbstractionsNEC::ve_collective_vertex_processing_kernel_dense(Undirect
                                                                         EdgeOperation edge_op,
                                                                         VertexPreprocessOperation vertex_preprocess_op,
                                                                         VertexPostprocessOperation vertex_postprocess_op,
-                                                                        const int _first_edge)
+                                                                        const int _first_edge,
+                                                                        bool _outgoing_graph_is_stored)
 {
     Timer tm;
     tm.start();
@@ -211,7 +214,7 @@ void GraphAbstractionsNEC::ve_collective_vertex_processing_kernel_dense(Undirect
 
     TraversalDirection traversal = current_traversal_direction;
     int storage = VE_STORAGE;
-    long long process_shift = traversal * direction_shift + storage * edges_count;
+    long long process_shift = compute_process_shift(0/*shard shift*/, traversal, storage, edges_count, _outgoing_graph_is_stored);
 
     long long reg_real_start[VECTOR_LENGTH];
     int reg_real_connections_count[VECTOR_LENGTH];

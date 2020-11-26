@@ -9,8 +9,12 @@ void VectCSRGraph::move_to_device()
     tm.start();
     if(this->graph_on_device)
         return;
-    outgoing_graph->move_to_device();
-    incoming_graph->move_to_device();
+
+    if(outgoing_is_stored())
+        outgoing_graph->move_to_device();
+
+    if(incoming_is_stored())
+        incoming_graph->move_to_device();
 
     this->graph_on_device = true;
 
@@ -30,8 +34,12 @@ void VectCSRGraph::move_to_host()
     tm.start();
     if(!this->graph_on_device)
         return;
-    outgoing_graph->move_to_host();
-    incoming_graph->move_to_host();
+
+    if(outgoing_is_stored())
+        outgoing_graph->move_to_host();
+
+    if(incoming_is_stored())
+        incoming_graph->move_to_host();
 
     this->graph_on_device = false;
     tm.end();

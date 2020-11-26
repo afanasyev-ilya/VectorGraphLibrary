@@ -28,11 +28,14 @@ void GraphAbstractionsNEC::scatter(VectCSRGraph &_graph,
     }
     current_direction_graph = _graph.get_outgoing_graph_ptr();
 
+    bool outgoing_graph_is_stored = _graph.outgoing_is_stored();
+
     if(omp_in_parallel())
     {
         #pragma omp barrier
         advance_worker(*current_direction_graph, _frontier, edge_op, vertex_preprocess_op, vertex_postprocess_op,
-                       collective_edge_op, collective_vertex_preprocess_op, collective_vertex_postprocess_op, 0, 0);
+                       collective_edge_op, collective_vertex_preprocess_op, collective_vertex_postprocess_op, 0, 0,
+                       outgoing_graph_is_stored);
         #pragma omp barrier
     }
     else
@@ -40,7 +43,8 @@ void GraphAbstractionsNEC::scatter(VectCSRGraph &_graph,
         #pragma omp parallel
         {
             advance_worker(*current_direction_graph, _frontier, edge_op, vertex_preprocess_op, vertex_postprocess_op,
-                           collective_edge_op, collective_vertex_preprocess_op, collective_vertex_postprocess_op, 0, 0);
+                           collective_edge_op, collective_vertex_preprocess_op, collective_vertex_postprocess_op, 0, 0,
+                           outgoing_graph_is_stored);
         }
     }
     tm.end();
@@ -88,6 +92,8 @@ void GraphAbstractionsNEC::scatter(ShardedCSRGraph &_graph,
         throw "Error in GraphAbstractionsNEC::scatter : sharded version can not be called inside parallel region";
     }
 
+    bool outgoing_graph_is_stored = true;
+
     for(int shard_id = 0; shard_id < _graph.get_shards_number(); shard_id++)
     {
         if(_frontier.get_type() != ALL_ACTIVE_FRONTIER)
@@ -107,7 +113,8 @@ void GraphAbstractionsNEC::scatter(ShardedCSRGraph &_graph,
         #pragma omp parallel
         {
             advance_worker(*current_shard, _frontier, edge_op, vertex_preprocess_op, vertex_postprocess_op,
-                           collective_edge_op, collective_vertex_preprocess_op, collective_vertex_postprocess_op, 0, shard_shift);
+                           collective_edge_op, collective_vertex_preprocess_op, collective_vertex_postprocess_op, 0, shard_shift,
+                           outgoing_graph_is_stored);
         }
 
         // reorder user data back

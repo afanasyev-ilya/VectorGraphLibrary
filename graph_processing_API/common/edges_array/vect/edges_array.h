@@ -12,6 +12,8 @@ private:
     _T *outgoing_ve_ptr;
     _T *incoming_ve_ptr;
 
+    long long edges_count_in_outgoing_csr;
+    long long edges_count_in_incoming_csr;
     long long edges_count_in_outgoing_ve;
     long long edges_count_in_incoming_ve;
 public:

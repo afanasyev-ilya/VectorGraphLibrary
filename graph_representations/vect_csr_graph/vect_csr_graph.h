@@ -47,7 +47,6 @@ private:
     // allows to reorder edges array to secondary direction (gather, from original)
     template <typename _T>
     void reorder_edges_scatter_to_gather(_T *_gather_data, _T *_scatter_data);
-
 public:
     VectCSRGraph(SupportedDirection _supported_direction = USE_BOTH,
                  int _vertices_count = 1, long long _edges_count = 1);
@@ -55,6 +54,9 @@ public:
 
     /* get/set API */
     long long get_direction_shift() {return (this->edges_count + this->get_edges_count_in_outgoing_ve());};
+    
+    bool outgoing_is_stored() { return can_use_scatter(); };
+    bool incoming_is_stored() { return can_use_gather(); };
 
     /* print API */
     void print();
@@ -78,13 +80,15 @@ public:
     /* Further - VectCSRGraph specific API : reorder, working with double-directions, etc.*/
 
     // get pointers to the specific undirected part of graph (incoming or outgoing ids)
-    UndirectedCSRGraph *get_outgoing_graph_ptr() {return outgoing_graph;};
-    UndirectedCSRGraph *get_incoming_graph_ptr() {return incoming_graph;};
+    UndirectedCSRGraph *get_outgoing_graph_ptr();
+    UndirectedCSRGraph *get_incoming_graph_ptr();
     UndirectedCSRGraph *get_direction_graph_ptr(TraversalDirection _direction);
 
     // allows to get vector engine size
-    inline long long get_edges_count_in_outgoing_ve() {return outgoing_graph->get_edges_count_in_ve();};
-    inline long long get_edges_count_in_incoming_ve() {return incoming_graph->get_edges_count_in_ve();};
+    inline long long get_edges_count_in_outgoing_ve();
+    inline long long get_edges_count_in_incoming_ve();
+    inline long long get_edges_count_in_outgoing_csr();
+    inline long long get_edges_count_in_incoming_csr();
 
     /* reorder API */
     // allows to reorder a single vertex ID in arbitrary direction
@@ -120,6 +124,7 @@ public:
 #include "reorder.hpp"
 #include "print.hpp"
 #include "import.hpp"
+#include "get_api.hpp"
 #include "gpu_api.hpp"
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

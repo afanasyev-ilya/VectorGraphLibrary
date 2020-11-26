@@ -6,19 +6,23 @@ template <typename _T>
 EdgesArray_Vect<_T>::EdgesArray_Vect(VectCSRGraph &_graph)
 {
     long long edges_count = _graph.get_edges_count();
+    edges_count_in_outgoing_csr = _graph.get_edges_count_in_outgoing_csr();
+    edges_count_in_incoming_csr = _graph.get_edges_count_in_incoming_csr();
     edges_count_in_outgoing_ve = _graph.get_edges_count_in_outgoing_ve();
     edges_count_in_incoming_ve = _graph.get_edges_count_in_incoming_ve();
-    this->total_array_size = edges_count/*outgoing csr*/ + edges_count/*incoming csr*/ +
+    this->total_array_size = edges_count_in_outgoing_csr + edges_count_in_incoming_csr +
                       edges_count_in_outgoing_ve + edges_count_in_incoming_ve;
 
+    cout << "edges_count_in_outgoing_csr: " << edges_count_in_outgoing_csr << endl;
+    cout << "edges_count_in_incoming_csr: " << edges_count_in_incoming_csr << endl;
     cout << "edges_count_in_outgoing_ve: " << edges_count_in_outgoing_ve << endl;
     cout << "edges_count_in_incoming_ve: " << edges_count_in_incoming_ve << endl;
 
     MemoryAPI::allocate_array(&this->edges_data, this->total_array_size);
     outgoing_csr_ptr = &this->edges_data[0];
-    outgoing_ve_ptr = &this->edges_data[edges_count];
-    incoming_csr_ptr = &this->edges_data[edges_count + edges_count_in_outgoing_ve];
-    incoming_ve_ptr = &this->edges_data[edges_count + edges_count_in_outgoing_ve + edges_count];
+    outgoing_ve_ptr = &this->edges_data[edges_count_in_outgoing_csr];
+    incoming_csr_ptr = &this->edges_data[edges_count_in_outgoing_csr + edges_count_in_outgoing_ve];
+    incoming_ve_ptr = &this->edges_data[edges_count_in_outgoing_csr + edges_count_in_outgoing_ve + edges_count_in_incoming_csr];
 
     this->graph_ptr = &_graph;
     this->is_copy = false;
@@ -38,6 +42,8 @@ EdgesArray_Vect<_T>::EdgesArray_Vect(const EdgesArray_Vect<_T> &_copy_obj)
     outgoing_ve_ptr = _copy_obj.outgoing_ve_ptr;
     incoming_ve_ptr = _copy_obj.incoming_ve_ptr;
 
+    edges_count_in_outgoing_csr = _copy_obj.edges_count_in_outgoing_csr;
+    edges_count_in_incoming_csr = _copy_obj.edges_count_in_incoming_csr;
     edges_count_in_outgoing_ve = _copy_obj.edges_count_in_outgoing_ve;
     edges_count_in_incoming_ve = _copy_obj.edges_count_in_incoming_ve;
     this->total_array_size = _copy_obj.total_array_size;
@@ -74,14 +80,42 @@ void EdgesArray_Vect<_T>::set_all_random(_T _max_rand)
 
     // init CSR parts
     RandomGenerator rng_api;
-    rng_api.generate_array_of_random_values<_T>(outgoing_csr_ptr, edges_count, _max_rand);
 
+    // init each part with different values
+    if(vect_ptr->outgoing_is_stored())
+        rng_api.generate_array_of_random_values<_T>(outgoing_csr_ptr, edges_count_in_outgoing_csr, _max_rand);
+    if(vect_ptr->incoming_is_stored())
+        rng_api.generate_array_of_random_values<_T>(incoming_csr_ptr, edges_count_in_incoming_csr, _max_rand);
+
+    // if both incoming and outgoing graphs are stored, copy outgoing edges data to incoming
+    if(vect_ptr->outgoing_is_stored() && vect_ptr->incoming_is_stored())
+        vect_ptr->reorder_edges_scatter_to_gather(incoming_csr_ptr, outgoing_csr_ptr);
+
+    // copy data from CSR parts to VE parts TODO functions (maybe)
+    if(vect_ptr->outgoing_is_stored())
+        vect_ptr->get_outgoing_graph_ptr()->get_ve_ptr()->copy_array_from_csr_to_ve(outgoing_ve_ptr, outgoing_csr_ptr);
+    if(vect_ptr->incoming_is_stored())
+        vect_ptr->get_incoming_graph_ptr()->get_ve_ptr()->copy_array_from_csr_to_ve(incoming_ve_ptr, incoming_csr_ptr);
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+template <typename _T>
+void EdgesArray_Vect<_T>::operator = (const EdgesArray_EL<_T> &_el_data)
+{
+    // get correct pointer
+    VectCSRGraph *vect_ptr = (VectCSRGraph *)this->graph_ptr;
+    long long edges_count = this->graph_ptr->get_edges_count();
+
+    _T *el_data_ptr = _el_data.get_ptr(); // TODO
+    vect_ptr->reorder_edges_original_to_scatter(outgoing_csr_ptr, el_data_ptr);
     vect_ptr->reorder_edges_scatter_to_gather(incoming_csr_ptr, outgoing_csr_ptr);
 
     // copy data from CSR parts to VE parts
     vect_ptr->get_outgoing_graph_ptr()->get_ve_ptr()->copy_array_from_csr_to_ve(outgoing_ve_ptr, outgoing_csr_ptr);
     vect_ptr->get_incoming_graph_ptr()->get_ve_ptr()->copy_array_from_csr_to_ve(incoming_ve_ptr, incoming_csr_ptr);
 }
+
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -150,10 +184,9 @@ _T EdgesArray_Vect<_T>::get(int _src_id, int _dst_id, TraversalDirection _direct
 template <typename _T>
 void EdgesArray_Vect<_T>::print()
 {
-    long long edges_count = this->graph_ptr->get_edges_count();
     cout << "Edges Array (VectCSR)" << endl;
     cout << "outgoing_csr_ptr: ";
-    for(long long i = 0; i < edges_count; i++)
+    for(long long i = 0; i < edges_count_in_outgoing_csr; i++)
     {
         cout << outgoing_csr_ptr[i] << " ";
     }
@@ -165,7 +198,7 @@ void EdgesArray_Vect<_T>::print()
     }
     cout << endl;
 
-    for(long long i = 0; i < edges_count; i++)
+    for(long long i = 0; i < edges_count_in_incoming_csr; i++)
     {
         cout << incoming_csr_ptr[i] << " ";
     }
@@ -176,24 +209,6 @@ void EdgesArray_Vect<_T>::print()
         cout << incoming_ve_ptr[i] << " ";
     }
     cout << endl << endl;
-}
-
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-template <typename _T>
-void EdgesArray_Vect<_T>::operator = (const EdgesArray_EL<_T> &_el_data)
-{
-    // get correct pointer
-    VectCSRGraph *vect_ptr = (VectCSRGraph *)this->graph_ptr;
-    long long edges_count = this->graph_ptr->get_edges_count();
-
-    _T *el_data_ptr = _el_data.get_ptr();
-    vect_ptr->reorder_edges_original_to_scatter(outgoing_csr_ptr, el_data_ptr);
-    vect_ptr->reorder_edges_scatter_to_gather(incoming_csr_ptr, outgoing_csr_ptr);
-
-    // copy data from CSR parts to VE parts
-    vect_ptr->get_outgoing_graph_ptr()->get_ve_ptr()->copy_array_from_csr_to_ve(outgoing_ve_ptr, outgoing_csr_ptr);
-    vect_ptr->get_incoming_graph_ptr()->get_ve_ptr()->copy_array_from_csr_to_ve(incoming_ve_ptr, incoming_csr_ptr);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

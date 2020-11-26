@@ -54,7 +54,8 @@ void GraphAbstractionsNEC::advance_worker(UndirectedCSRGraph &_graph,
                                           CollectiveVertexPreprocessOperation &&collective_vertex_preprocess_op,
                                           CollectiveVertexPostprocessOperation &&collective_vertex_postprocess_op,
                                           int _first_edge,
-                                          const long long _shard_shift)
+                                          const long long _shard_shift,
+                                          bool _outgoing_graph_is_stored)
 {
     Timer tm;
     tm.start();
@@ -72,17 +73,20 @@ void GraphAbstractionsNEC::advance_worker(UndirectedCSRGraph &_graph,
         if((vector_engine_threshold_end - vector_engine_threshold_start) > 0)
             vector_engine_per_vertex_kernel_all_active(_graph, vector_engine_threshold_start,
                                                        vector_engine_threshold_end, edge_op, vertex_preprocess_op,
-                                                       vertex_postprocess_op, _first_edge, _shard_shift);
+                                                       vertex_postprocess_op, _first_edge, _shard_shift,
+                                                       _outgoing_graph_is_stored);
 
         if((vector_core_threshold_end - vector_core_threshold_start) > 0)
             vector_core_per_vertex_kernel_all_active(_graph, vector_core_threshold_start,
                                                      vector_core_threshold_end, edge_op, vertex_preprocess_op,
-                                                     vertex_postprocess_op, _first_edge, _shard_shift);
+                                                     vertex_postprocess_op, _first_edge, _shard_shift,
+                                                     _outgoing_graph_is_stored);
 
         if((collective_threshold_end - collective_threshold_start) > 0)
             ve_collective_vertex_processing_kernel_all_active(_graph, collective_threshold_start, collective_threshold_end,
                                                               collective_edge_op, collective_vertex_preprocess_op,
-                                                              collective_vertex_postprocess_op, _first_edge, _shard_shift);
+                                                              collective_vertex_postprocess_op, _first_edge, _shard_shift,
+                                                              _outgoing_graph_is_stored);
     }
     else
     {
@@ -92,12 +96,12 @@ void GraphAbstractionsNEC::advance_worker(UndirectedCSRGraph &_graph,
             {
                 vector_engine_per_vertex_kernel_dense(_graph, _frontier, vector_engine_threshold_start, vector_engine_threshold_end,
                                                       edge_op, vertex_preprocess_op, vertex_postprocess_op,
-                                                      _first_edge);
+                                                      _first_edge, _outgoing_graph_is_stored);
             }
             else if (_frontier.vector_engine_part_type == SPARSE_FRONTIER)
             {
                 vector_engine_per_vertex_kernel_sparse(_graph, _frontier, edge_op, vertex_preprocess_op, vertex_postprocess_op,
-                                                       _first_edge);
+                                                       _first_edge, _outgoing_graph_is_stored);
             }
         }
 
@@ -106,11 +110,12 @@ void GraphAbstractionsNEC::advance_worker(UndirectedCSRGraph &_graph,
             if(_frontier.vector_core_part_type == DENSE_FRONTIER)
             {
                 vector_core_per_vertex_kernel_dense(_graph, _frontier, vector_core_threshold_start, vector_core_threshold_end, edge_op,
-                                                    vertex_preprocess_op, vertex_postprocess_op, _first_edge);
+                                                    vertex_preprocess_op, vertex_postprocess_op, _first_edge, _outgoing_graph_is_stored);
             }
             else if(_frontier.vector_core_part_type == SPARSE_FRONTIER)
             {
-                vector_core_per_vertex_kernel_sparse(_graph, _frontier, edge_op, vertex_preprocess_op, vertex_postprocess_op, _first_edge);
+                vector_core_per_vertex_kernel_sparse(_graph, _frontier, edge_op, vertex_preprocess_op, vertex_postprocess_op, _first_edge,
+                                                     _outgoing_graph_is_stored);
             }
         }
 
@@ -120,14 +125,16 @@ void GraphAbstractionsNEC::advance_worker(UndirectedCSRGraph &_graph,
             {
                 ve_collective_vertex_processing_kernel_dense(_graph, _frontier, collective_threshold_start, collective_threshold_end,
                                                              collective_edge_op, collective_vertex_preprocess_op,
-                                                             collective_vertex_postprocess_op, _first_edge);
+                                                             collective_vertex_postprocess_op, _first_edge,
+                                                             _outgoing_graph_is_stored);
             }
             else if(_frontier.collective_part_type == SPARSE_FRONTIER)
             {
                 collective_vertex_processing_kernel_sparse(_graph, _frontier, collective_threshold_start,
                                                            collective_threshold_end, collective_edge_op,
                                                            collective_vertex_preprocess_op,
-                                                           collective_vertex_postprocess_op, _first_edge);
+                                                           collective_vertex_postprocess_op, _first_edge,
+                                                           _outgoing_graph_is_stored);
             }
         }
     }

@@ -6,6 +6,11 @@ void VectCSRGraph::import(EdgesListGraph &_el_graph)
 {
     this->resize(_el_graph.get_vertices_count(), _el_graph.get_edges_count());
 
+    if(!incoming_is_stored())
+    {
+        throw "Error in VectCSRGraph::import : imported graph must have both directions";
+    }
+
     Timer tm;
     tm.start();
     outgoing_graph->import(_el_graph);

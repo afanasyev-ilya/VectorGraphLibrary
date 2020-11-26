@@ -26,16 +26,45 @@ int main(int argc, const char * argv[])
         parser.parse_args(argc, argv);
 
         // generate random graph
-        EdgesListGraph el_graph;
+        /*EdgesListGraph el_graph;
         int v = pow(2.0, parser.get_scale());
         if(parser.get_graph_type() == RMAT)
             GraphGenerationAPI::R_MAT(el_graph, v, v * parser.get_avg_degree(), 57, 19, 19, 5, DIRECTED_GRAPH);
         else if(parser.get_graph_type() == RANDOM_UNIFORM)
             GraphGenerationAPI::random_uniform(el_graph, v, v * parser.get_avg_degree(), DIRECTED_GRAPH);
-        el_graph.preprocess_into_csr_based();
+        el_graph.preprocess_into_csr_based();*/
+
+        VectCSRGraph graph(USE_BOTH);
+        graph.load_from_binary_file(parser.get_graph_file_name());
+        graph.print_size();
+
+        VectCSRGraph scatter_graph(USE_SCATTER_ONLY); // TODO USE_VE_ONLY
+        scatter_graph.load_from_binary_file(parser.get_graph_file_name());
+        scatter_graph.print_size();
+
+        VectCSRGraph gather_graph(USE_GATHER_ONLY); // TODO USE_VE_ONLY
+        gather_graph.load_from_binary_file(parser.get_graph_file_name());
+        gather_graph.print_size();
+
+        // push
+        EdgesArray_Vect<int> scatter_weights(scatter_graph);
+        scatter_weights.set_all_constant(1.0);
+        VerticesArray<int> push_distances(scatter_graph, SCATTER);
+        ShortestPaths::nec_dijkstra(scatter_graph, scatter_weights, push_distances, source_vertex, ALL_ACTIVE, PUSH_TRAVERSAL);
+        cout << "push done" << endl;
+
+        // pull
+        EdgesArray_Vect<int> gather_weights(gather_graph);
+        gather_weights.set_all_constant(1.0);
+        VerticesArray<int> pull_distances(gather_graph, GATHER);
+        cout << "bef alg" << endl;
+        ShortestPaths::nec_dijkstra(gather_graph, gather_weights, pull_distances, source_vertex, ALL_ACTIVE, PULL_TRAVERSAL);
+        cout << "pull done" << endl;
+
+
 
         // save graph order
-        EdgesListGraph original_graph = el_graph;
+        /*EdgesListGraph original_graph = el_graph;
 
         // create EdgesList weights (used in all other tests)
         EdgesArray_EL<int> el_weights(el_graph);
@@ -102,7 +131,7 @@ int main(int argc, const char * argv[])
 
             cout << "sharded check" << endl;
             verify_results(sharded_distances, push_distances);
-        }
+        }*/
     }
     catch (string error)
     {
