@@ -26,25 +26,35 @@ int main(int argc, const char * argv[])
         parser.parse_args(argc, argv);
 
         // generate random graph
-        /*EdgesListGraph el_graph;
+        EdgesListGraph el_graph;
         int v = pow(2.0, parser.get_scale());
         if(parser.get_graph_type() == RMAT)
             GraphGenerationAPI::R_MAT(el_graph, v, v * parser.get_avg_degree(), 57, 19, 19, 5, DIRECTED_GRAPH);
         else if(parser.get_graph_type() == RANDOM_UNIFORM)
             GraphGenerationAPI::random_uniform(el_graph, v, v * parser.get_avg_degree(), DIRECTED_GRAPH);
-        el_graph.preprocess_into_csr_based();*/
 
         VectCSRGraph graph(USE_BOTH);
-        graph.load_from_binary_file(parser.get_graph_file_name());
+        //graph.load_from_binary_file(parser.get_graph_file_name());
+        graph.import(el_graph);
         graph.print_size();
+        EdgesArray_Vect<int> weights(graph);
+        weights.set_all_constant(1.0);
+
+        cout << "both done" << endl;
 
         VectCSRGraph scatter_graph(USE_SCATTER_ONLY); // TODO USE_VE_ONLY
-        scatter_graph.load_from_binary_file(parser.get_graph_file_name());
+        //scatter_graph.load_from_binary_file(parser.get_graph_file_name());
+        scatter_graph.import(el_graph);
         scatter_graph.print_size();
 
+        cout << "scatter done" << endl;
+
         VectCSRGraph gather_graph(USE_GATHER_ONLY); // TODO USE_VE_ONLY
-        gather_graph.load_from_binary_file(parser.get_graph_file_name());
+        //gather_graph.load_from_binary_file(parser.get_graph_file_name());
+        gather_graph.import(el_graph);
         gather_graph.print_size();
+
+        cout << "gather done" << endl;
 
         // push
         EdgesArray_Vect<int> scatter_weights(scatter_graph);
@@ -57,11 +67,21 @@ int main(int argc, const char * argv[])
         EdgesArray_Vect<int> gather_weights(gather_graph);
         gather_weights.set_all_constant(1.0);
         VerticesArray<int> pull_distances(gather_graph, GATHER);
-        cout << "bef alg" << endl;
         ShortestPaths::nec_dijkstra(gather_graph, gather_weights, pull_distances, source_vertex, ALL_ACTIVE, PULL_TRAVERSAL);
         cout << "pull done" << endl;
 
+        if(parser.get_check_flag())
+        {
+            VerticesArray<int> seq_distances(graph, SCATTER);
+            ShortestPaths::seq_dijkstra(graph, weights, seq_distances, source_vertex);
 
+            // checks
+            cout << "push check" << endl;
+            verify_results(push_distances, seq_distances, 10);
+
+            cout << "pull check" << endl;
+            verify_results(pull_distances, seq_distances, 10);
+        }
 
         // save graph order
         /*EdgesListGraph original_graph = el_graph;

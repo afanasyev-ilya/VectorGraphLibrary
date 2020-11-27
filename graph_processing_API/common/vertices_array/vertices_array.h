@@ -55,7 +55,6 @@ public:
     TraversalDirection get_direction() {return direction;};
     void set_direction(TraversalDirection _direction) {direction = _direction;};
 
-
     /* initialization API */
     void set_all_constant(_T _const);
     void set_all_random(_T _max_rand);

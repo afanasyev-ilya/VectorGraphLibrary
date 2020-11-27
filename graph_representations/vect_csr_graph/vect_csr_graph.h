@@ -54,7 +54,7 @@ public:
 
     /* get/set API */
     long long get_direction_shift() {return (this->edges_count + this->get_edges_count_in_outgoing_ve());};
-    
+
     bool outgoing_is_stored() { return can_use_scatter(); };
     bool incoming_is_stored() { return can_use_gather(); };
 

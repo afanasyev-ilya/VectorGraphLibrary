@@ -54,17 +54,15 @@ void VectorExtension::init_from_graph(long long *_csr_adjacent_ptrs,
     starting_vertex = _first_vertex;
     vector_segments_count = (vertices_count - 1) / VECTOR_LENGTH + 1;
 
-    long long edges_count = 0;
+    edges_count_in_ve = 0;
     for(int cur_vector_segment = 0; cur_vector_segment < vector_segments_count; cur_vector_segment++)
     {
         int vec_start = cur_vector_segment * VECTOR_LENGTH + starting_vertex;
         int cur_max_connections_count = _csr_adjacent_ptrs[vec_start + 1] - _csr_adjacent_ptrs[vec_start];
-        edges_count += cur_max_connections_count * VECTOR_LENGTH;
+        edges_count_in_ve += cur_max_connections_count * VECTOR_LENGTH;
     }
-    edges_count_in_ve = edges_count;
-
     free();
-    alloc(edges_count + VECTOR_LENGTH);
+    alloc(edges_count_in_ve + VECTOR_LENGTH);
 
     this->csr_adjacent_ptrs_ptr = _csr_adjacent_ptrs;
     this->first_vertex = _first_vertex;

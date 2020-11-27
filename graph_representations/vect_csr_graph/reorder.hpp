@@ -71,11 +71,17 @@ void VectCSRGraph::reorder_to_original(VerticesArray<_T> &_data)
     }
     else if(_data.get_direction() == SCATTER)
     {
-        outgoing_graph->reorder_to_original(_data.get_ptr(), buffer);
+        if(outgoing_is_stored())
+            outgoing_graph->reorder_to_original(_data.get_ptr(), buffer);
+        else
+            throw "Error in VectCSRGraph::reorder_to_original : outgoing graph is not stored";
     }
     else if(_data.get_direction() == GATHER)
     {
-        incoming_graph->reorder_to_original(_data.get_ptr(), buffer);
+        if(incoming_is_stored())
+            incoming_graph->reorder_to_original(_data.get_ptr(), buffer);
+        else
+            throw "Error in VectCSRGraph::reorder_to_original : incoming graph is not stored";
     }
 
     _data.set_direction(ORIGINAL);
@@ -245,6 +251,8 @@ void VectCSRGraph::reorder_edges_scatter_to_gather(_T *_gather_data, _T *_scatte
 template <typename _T>
 bool VectCSRGraph::vertices_buffer_can_be_used(VerticesArray<_T> &_data)
 {
+    if(!incoming_is_stored())
+        return false;
     if(sizeof(_T) <= sizeof(vertices_reorder_buffer[0]))
         return true;
     else
