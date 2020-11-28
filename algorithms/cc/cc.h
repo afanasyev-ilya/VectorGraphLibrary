@@ -26,10 +26,11 @@ public:
     #endif
 
     #ifdef __USE_GPU__
-    void gpu_shiloach_vishkin(UndirectedCSRGraph &_graph, int *_components);
+    template <typename _T>
+    static void gpu_shiloach_vishkin(VectCSRGraph &_graph, VerticesArray<_T> &_components);
     #endif
 
-    //void seq_bfs_based(UndirectedCSRGraph &_graph, int *_components);
+    //void seq_bfs_based(VectCSRGraph &_graph, VerticesArray<_T> &_components);
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -37,6 +38,6 @@ public:
 #include "nec_shiloach_vishkin.hpp"
 //#include "nec_bfs_based.hpp"
 //#include "seq_bfs_based.hpp"
-//#include "gpu_shiloach_vishkin.hpp"
+#include "gpu_shiloach_vishkin.hpp"
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

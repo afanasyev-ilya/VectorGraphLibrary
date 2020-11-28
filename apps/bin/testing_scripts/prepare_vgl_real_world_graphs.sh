@@ -12,8 +12,7 @@ declare -a snap_names=("web-BerkStan.txt.gz"
                        "roadNet-CA.txt.gz"
                        "cit-Patents.txt.gz"
                        "sx-stackoverflow.txt.gz"
-                       "as-skitter.txt.gz"
-                       "com-friendster.ungraph.txt.gz")
+                       "as-skitter.txt.gz")
 
 declare -a vgl_names=("web_berk_stan"
                       "soc_lj"
@@ -24,8 +23,7 @@ declare -a vgl_names=("web_berk_stan"
                       "roads_ca"
                       "cit_patents"
                       "soc_stackoverflow"
-                      "skitter"
-                      "soc_friendster")
+                      "skitter")
 
 for name in "${snap_names[@]}"
 do

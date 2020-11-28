@@ -32,13 +32,17 @@ int main(int argc, const char * argv[])
             GraphGenerationAPI::R_MAT(el_graph, v, v * parser.get_avg_degree(), 57, 19, 19, 5, DIRECTED_GRAPH);
         else if(parser.get_graph_type() == RANDOM_UNIFORM)
             GraphGenerationAPI::random_uniform(el_graph, v, v * parser.get_avg_degree(), DIRECTED_GRAPH);
+        EdgesArray_EL<int> el_weights(el_graph);
+        el_weights.set_all_random(10.0);
 
         VectCSRGraph graph(USE_BOTH);
         //graph.load_from_binary_file(parser.get_graph_file_name());
         graph.import(el_graph);
         graph.print_size();
         EdgesArray_Vect<int> weights(graph);
-        weights.set_all_constant(1.0);
+        weights = el_weights;
+        //weights.set_all_constant(1.0);
+        //weights.set_all_random(10.0);
 
         cout << "both done" << endl;
 
@@ -58,14 +62,16 @@ int main(int argc, const char * argv[])
 
         // push
         EdgesArray_Vect<int> scatter_weights(scatter_graph);
-        scatter_weights.set_all_constant(1.0);
+        scatter_weights = el_weights;
+        //scatter_weights.set_all_constant(1.0);
         VerticesArray<int> push_distances(scatter_graph, SCATTER);
         ShortestPaths::nec_dijkstra(scatter_graph, scatter_weights, push_distances, source_vertex, ALL_ACTIVE, PUSH_TRAVERSAL);
         cout << "push done" << endl;
 
         // pull
         EdgesArray_Vect<int> gather_weights(gather_graph);
-        gather_weights.set_all_constant(1.0);
+        //gather_weights.set_all_constant(1.0);
+        gather_weights = el_weights;
         VerticesArray<int> pull_distances(gather_graph, GATHER);
         ShortestPaths::nec_dijkstra(gather_graph, gather_weights, pull_distances, source_vertex, ALL_ACTIVE, PULL_TRAVERSAL);
         cout << "pull done" << endl;

@@ -56,6 +56,13 @@ int main(int argc, const char * argv[])
         performance_stats.print_timers_stats();
         performance_stats.print_max_perf(graph.get_edges_count());
         performance_stats.print_avg_perf(graph.get_edges_count());
+
+        /*if(parser.get_check_flag()) // TODO
+        {
+            VerticesArray<int> check_components(graph, SCATTER);
+            BFS::seq_top_down(graph, check_components);
+            verify_results(levels, check_levels);
+        }*/
     }
     catch (string error)
     {

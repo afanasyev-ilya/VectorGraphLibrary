@@ -5,8 +5,6 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #define INT_ELEMENTS_PER_EDGE 4.0
-#define VECTOR_CORE_THRESHOLD_VALUE 4.0*VECTOR_LENGTH
-#define COLLECTIVE_FRONTIER_TYPE_CHANGE_THRESHOLD 0.35
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -18,11 +16,12 @@ int main(int argc, const char * argv[])
 {
     try
     {
+        cout << "CC (Connected Components) test..." << endl;
+
         // parse args
         Parser parser;
         parser.parse_args(argc, argv);
 
-        // load graph
         VectCSRGraph graph;
         if(parser.get_compute_mode() == GENERATE_NEW_GRAPH)
         {
@@ -44,38 +43,15 @@ int main(int argc, const char * argv[])
             tm.print_time_stats("Graph load");
         }
 
-        // print size of VectCSR graph
+        // print graphs stats
         graph.print_size();
+        graph.print_stats();
 
-        // compute BFS
-        cout << "Computations started..." << endl;
-        cout << "Doing " << parser.get_number_of_rounds() << " BFS iterations..." << endl;
-        for(int i = 0; i < parser.get_number_of_rounds(); i++)
-        {
-            VerticesArray<int> levels(graph, SCATTER); // TODO selection for DO/BU
-
-            int source_vertex = graph.select_random_vertex(ORIGINAL);
-            cout << "selected source vertex " << source_vertex << endl;
-
-            performance_stats.reset_timers();
-            BFS::gpu_top_down(graph, levels, source_vertex);
-            performance_stats.print_timers_stats();
-
-            // check if required
-            if(parser.get_check_flag())
-            {
-                graph.move_to_host();
-                levels.move_to_host();
-
-                VerticesArray<int> check_levels(graph, SCATTER);
-                BFS::seq_top_down(graph, check_levels, source_vertex);
-                verify_results(levels, check_levels);
-
-                graph.move_to_device();
-                levels.move_to_device();
-            }
-        }
-
+        // do calculations
+        VerticesArray<int> components(graph, SCATTER);
+        performance_stats.reset_timers();
+        ConnectedComponents::gpu_shiloach_vishkin(graph, components);
+        performance_stats.print_timers_stats();
         performance_stats.print_max_perf(graph.get_edges_count());
         performance_stats.print_avg_perf(graph.get_edges_count());
     }

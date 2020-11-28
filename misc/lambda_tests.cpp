@@ -11,7 +11,7 @@ using namespace std;
 void f1()
 {
     cout << "Here I just create 8 omp threads" << endl;
-    #pragma omp parallel num_threads(8)
+    #pragma omp parallel num_threads(MAX_SX_AURORA_THREADS)
     {
         printf("Hello World... from thread = %d\n", omp_get_thread_num());
     }
@@ -21,7 +21,7 @@ void f1()
 void f2()
 {
     cout << "here I don't want to create 8 threads, since FOR-loop inside lambda :(" << endl;
-    #pragma omp parallel num_threads(8)
+    #pragma omp parallel num_threads(MAX_SX_AURORA_THREADS)
     {
         auto test_lambda = [] (int _a, int _b)
         {
@@ -45,7 +45,7 @@ void f2()
 void f3()
 {
     cout << "Here I create 8 threads again, since my lambda doesn't include any loops (loop is manually unrolled)" << endl;
-    #pragma omp parallel num_threads(8)
+    #pragma omp parallel num_threads(MAX_SX_AURORA_THREADS)
     {
         auto test_lambda = [] (int _a, int _b) {
             int a = _a;
@@ -67,7 +67,7 @@ void f3()
 void f4()
 {
     cout << "if/else return problem" << endl;
-    #pragma omp parallel num_threads(8)
+    #pragma omp parallel num_threads(MAX_SX_AURORA_THREADS)
     {
         auto test_lambda = [] (int _a, int _b)->int {
             if(_a > _b)
@@ -87,7 +87,7 @@ void f4()
 void f5()
 {
     cout << "if/else return NO problem" << endl;
-    #pragma omp parallel num_threads(8)
+    #pragma omp parallel num_threads(MAX_SX_AURORA_THREADS)
     {
         auto test_lambda = [] (int _a, int _b)->int {
             int res = 0;
@@ -109,7 +109,7 @@ void f5()
 int main(int argc, const char * argv[])
 {
     omp_set_dynamic(0);     // Explicitly disable dynamic teams
-    omp_set_num_threads(8);  // Use 8 threads for all consecutive parallel regions
+    omp_set_num_threads(MAX_SX_AURORA_THREADS);  // Use 8 threads for all consecutive parallel regions
 
     f1();
     f2();

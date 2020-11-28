@@ -2,9 +2,7 @@
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-
-void CC::seq_bfs_based(UndirectedCSRGraph &_graph,
-                       int *_components)
+void CC::seq_bfs_based(VectCSRGraph &_graph, VerticesArray<_T> &_components)
 {
     LOAD_UNDIRECTED_CSR_GRAPH_DATA(_graph);
 

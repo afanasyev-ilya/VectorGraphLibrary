@@ -221,11 +221,14 @@ void VectCSRGraph::reorder_edges_original_to_scatter(_T *_scatter_data, _T *_ori
     Timer tm;
     tm.start();
 
-    outgoing_graph->reorder_and_copy_edges_from_original_to_sorted(_scatter_data, _original_data);
+    if(outgoing_is_stored())
+        outgoing_graph->reorder_and_copy_edges_from_original_to_sorted(_scatter_data, _original_data);
+    else
+        throw "Error in VectCSRGraph::reorder_edges_original_to_scatter : outgoing graph is not stored";
 
     tm.end();
     #ifdef __PRINT_API_PERFORMANCE_STATS__
-    tm.print_bandwidth_stats("vertices reorder", this->vertices_count, sizeof(_T)*2);
+    tm.print_bandwidth_stats("edges reorder", this->edges_count, sizeof(_T)*2);
     #endif
 }
 
@@ -237,22 +240,22 @@ void VectCSRGraph::reorder_edges_scatter_to_gather(_T *_gather_data, _T *_scatte
     Timer tm;
     tm.start();
 
-    incoming_graph->reorder_and_copy_edges_from_original_to_sorted(_gather_data, _scatter_data);
+    if(incoming_is_stored())
+        incoming_graph->reorder_and_copy_edges_from_original_to_sorted(_gather_data, _scatter_data);
+    else
+        throw "Error in VectCSRGraph::reorder_edges_scatter_to_gather : incoming graph is not stored";
 
     tm.end();
     #ifdef __PRINT_API_PERFORMANCE_STATS__
-    tm.print_bandwidth_stats("vertices reorder", this->vertices_count, sizeof(_T)*2);
+    tm.print_bandwidth_stats("edges reorder", this->edges_count, sizeof(_T)*2);
     #endif
 }
-
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template <typename _T>
 bool VectCSRGraph::vertices_buffer_can_be_used(VerticesArray<_T> &_data)
 {
-    if(!incoming_is_stored())
-        return false;
     if(sizeof(_T) <= sizeof(vertices_reorder_buffer[0]))
         return true;
     else

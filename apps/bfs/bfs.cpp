@@ -45,6 +45,7 @@ int main(int argc, const char * argv[])
             tm.end();
             tm.print_time_stats("Graph load");
         }
+
         // print graphs stats
         graph.print_size();
         graph.print_stats();

@@ -35,8 +35,7 @@ void VectCSRGraph::init(int _vertices_count, long long _edges_count)
     if(incoming_is_stored())
         incoming_graph = new UndirectedCSRGraph(this->vertices_count, this->edges_count );
 
-    if(incoming_is_stored()) // TODO
-        MemoryAPI::allocate_array(&vertices_reorder_buffer, this->vertices_count);
+    MemoryAPI::allocate_array(&vertices_reorder_buffer, this->vertices_count);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -49,8 +48,7 @@ void VectCSRGraph::free()
     if(incoming_is_stored())
         delete incoming_graph;
 
-    if(incoming_is_stored())
-        MemoryAPI::free_array(vertices_reorder_buffer);
+    MemoryAPI::free_array(vertices_reorder_buffer);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -144,11 +142,6 @@ bool VectCSRGraph::load_from_binary_file(string _file_name)
 
     fclose(graph_file);
     return true;
-}
-
-skip_loading_outgoing_graph()
-{
-
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

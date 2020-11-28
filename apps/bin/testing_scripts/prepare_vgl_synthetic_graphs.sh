@@ -1,7 +1,7 @@
 #!/bin/bash
 
 SMALLEST=20
-LARGEST=22
+LARGEST=25
 
 TYPE="rmat"
 for ((SCALE=SMALLEST;SCALE<=LARGEST;SCALE++)); do

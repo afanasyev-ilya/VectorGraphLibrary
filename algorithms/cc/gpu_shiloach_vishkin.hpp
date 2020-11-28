@@ -3,27 +3,77 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #ifdef __USE_GPU__
-void CC::gpu_shiloach_vishkin(UndirectedCSRGraph &_graph,
-                              int *_components)
+template <typename _T>
+void CC::gpu_shiloach_vishkin(VectCSRGraph &_graph, VerticesArray<_T> &_components)
 {
-    LOAD_UNDIRECTED_CSR_GRAPH_DATA(_graph);
+    GraphAbstractionsGPU graph_API(_graph);
+    FrontierGPU frontier(_graph);
+    graph_API.change_traversal_direction(SCATTER, _components, frontier);
 
-    int *device_components;
-    MemoryAPI::allocate_device_array(&device_components, vertices_count);
+    Timer tm;
+    tm.start();
 
-    int iterations_count = 0;
-    double t1 = omp_get_wtime();
-    shiloach_vishkin_wrapper(_graph, device_components, iterations_count);
-    double t2 = omp_get_wtime();
+    frontier.set_all_active();
+    auto init_components_op = [_components] __device__ (int src_id, int connections_count, int vector_index)
+    {
+        _components[src_id] = src_id;
+    };
+    graph_API.compute(_graph, frontier, init_components_op);
 
-    MemoryAPI::copy_array_to_host(_components, device_components, vertices_count);
-    MemoryAPI::free_array(device_components);
+    int *hook_changes, *jump_changes;
+    cudaMallocManaged(&hook_changes, sizeof(int));
+    cudaMallocManaged(&jump_changes, sizeof(int));
 
-    performance = edges_count / ((t2 - t1)*1e6);
+    int iteration = 0;
+    do
+    {
+        hook_changes[0] = 0;
+
+        auto edge_op = [_components, hook_changes] __device__(int src_id, int dst_id, int local_edge_pos,
+                long long int global_edge_pos, int vector_index)
+        {
+            int src_val = _components[src_id];
+            int dst_val = _components[dst_id];
+
+            if(src_val < dst_val)
+            {
+                _components[dst_id] = src_val;
+                hook_changes[0] = 1;
+            }
+
+            if(src_val > dst_val)
+            {
+                _components[src_id] = dst_val;
+                hook_changes[0] = 1;
+            }
+        };
+
+        graph_API.scatter(_graph, frontier, edge_op);
+
+        do
+        {
+            jump_changes[0] = 0;
+            auto jump_op = [_components, jump_changes] __device__(int src_id, int connections_count, int vector_index)
+            {
+                int src_label = _components[src_id];
+                int parent_label = _components[src_label];
+
+                if(src_label != parent_label)
+                {
+                    _components[src_id] = parent_label;
+                    jump_changes[0] = 0;
+                }
+            };
+
+            graph_API.compute(_graph, frontier, jump_op);
+        } while(jump_changes[0] > 0);
+
+        iteration++;
+    } while(hook_changes[0] > 0);
+    tm.end();
 
     #ifdef __PRINT_SAMPLES_PERFORMANCE_STATS__
-    PerformanceStats::print_algorithm_performance_stats("shiloach vishkin", t2 - t1, edges_count, iterations_count);
-    PerformanceStats::component_stats(_components, vertices_count);
+    PerformanceStats::print_algorithm_performance_stats("CC (Shiloach-Vishkin, NEC)", tm.get_time(), _graph.get_edges_count());
     #endif
 }
 #endif
