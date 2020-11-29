@@ -17,10 +17,7 @@ declare -a app_names=("./bfs_sx -td "
 
 declare -a app_column_names=("./bfs_sx|-td"
                          "./sssp_sx|-pull|-all-active"
-                         "./sssp_sx|-push|-all-active"
-                         "./sssp_sx|-partial-active"
-                         "./cc_sx"
-                         "./pr_sx")
+                         "./sssp_sx|-push|-all-active")
 
 num_rows=5
 num_columns=7

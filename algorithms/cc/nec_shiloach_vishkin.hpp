@@ -25,7 +25,7 @@ void CC::nec_shiloach_vishkin(VectCSRGraph &_graph,
     graph_API.compute(_graph, frontier, init_components_op);
 
     int hook_changes = 1, jump_changes = 1;
-    int iteration = 0;
+    int iterations_count = 0;
     while(hook_changes)
     {
         #pragma omp parallel
@@ -114,12 +114,14 @@ void CC::nec_shiloach_vishkin(VectCSRGraph &_graph,
             jump_changes += register_sum_reduce(reg_jump_changes);
         }
 
-        iteration++;
+        iterations_count++;
     }
     tm.end();
 
     #ifdef __PRINT_SAMPLES_PERFORMANCE_STATS__
-    PerformanceStats::print_algorithm_performance_stats("CC (Shiloach-Vishkin, NEC)", tm.get_time(), _graph.get_edges_count());
+    PerformanceStats::print_algorithm_performance_stats("CC (Shiloach-Vishkin, NEC)", tm.get_time(),
+                                                        _graph.get_edges_count(), iterations_count);
+    print_component_sizes(_components);
     #endif
 }
 #endif

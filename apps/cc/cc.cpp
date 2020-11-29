@@ -30,9 +30,9 @@ int main(int argc, const char * argv[])
             EdgesListGraph el_graph;
             int v = pow(2.0, parser.get_scale());
             if(parser.get_graph_type() == RMAT)
-                GraphGenerationAPI::R_MAT(el_graph, v, v * parser.get_avg_degree(), 57, 19, 19, 5, DIRECTED_GRAPH);
+                GraphGenerationAPI::R_MAT(el_graph, v, v * parser.get_avg_degree(), 57, 19, 19, 5, UNDIRECTED_GRAPH);
             else if(parser.get_graph_type() == RANDOM_UNIFORM)
-                GraphGenerationAPI::random_uniform(el_graph, v, v * parser.get_avg_degree(), DIRECTED_GRAPH);
+                GraphGenerationAPI::random_uniform(el_graph, v, v * parser.get_avg_degree(), UNDIRECTED_GRAPH);
             graph.import(el_graph);
         }
         else if(parser.get_compute_mode() == LOAD_GRAPH_FROM_FILE)
@@ -57,12 +57,13 @@ int main(int argc, const char * argv[])
         performance_stats.print_max_perf(graph.get_edges_count());
         performance_stats.print_avg_perf(graph.get_edges_count());
 
-        /*if(parser.get_check_flag()) // TODO
+        // check correctness
+        if(parser.get_check_flag())
         {
             VerticesArray<int> check_components(graph, SCATTER);
-            BFS::seq_top_down(graph, check_components);
-            verify_results(levels, check_levels);
-        }*/
+            ConnectedComponents::seq_bfs_based(graph, check_components);
+            equal_components(components, check_components);
+        }
     }
     catch (string error)
     {

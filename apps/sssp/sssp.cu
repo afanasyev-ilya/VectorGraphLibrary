@@ -22,6 +22,8 @@ int main(int argc, const char * argv[])
         Parser parser;
         parser.parse_args(argc, argv);
 
+        select_device(parser.get_device_num());
+
         VectCSRGraph graph;
         if(parser.get_compute_mode() == GENERATE_NEW_GRAPH)
         {

@@ -24,6 +24,7 @@ using namespace std;
 #include <cuda_runtime.h>
 #include "common/gpu_API/cuda_error_handling.h"
 #include "common/gpu_API/cuda_reorder.cuh"
+#include "common/gpu_API/select_device.cuh"
 #endif
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

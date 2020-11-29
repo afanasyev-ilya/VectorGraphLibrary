@@ -149,25 +149,58 @@ void PerformanceStats::reset_timers()
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+#define SEPARATORS_LENGTH 90
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+string get_separators_upper_string(string _name)
+{
+    string result = " ";
+    int side_size = (SEPARATORS_LENGTH - _name.length() - 2) / 2;
+    for(int i = 0; i < side_size; i++)
+        result += "-";
+    result += " ";
+    result += _name;
+    result += " ";
+    for(int i = 0; i < side_size; i++)
+        result += "-";
+    result += " ";
+    return result;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+string get_separators_bottom_string()
+{
+    string result = " ";
+    for(int i = 0; i < SEPARATORS_LENGTH; i++)
+        result += "-";
+    result += " ";
+    return result;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 void PerformanceStats::print_algorithm_performance_stats(string _name, double _time, long long _edges_count, int _iterations_count)
 {
-    cout << " --------------------------- " << _name << " performance stats --------------------------- " << endl;
+    cout << get_separators_upper_string(_name) << endl;
     cout << "wall time: " << _time*1000.0 << " ms" << endl;
     cout << "wall perf: " << _edges_count / (_time * 1e6) << " MTEPS" << endl;
     cout << "iterations count: " << _iterations_count << endl;
     cout << "perf per iteration: " << _iterations_count * (_edges_count / (_time * 1e6)) << " MTEPS" << endl;
     cout << "band per iteration: " << INT_ELEMENTS_PER_EDGE * sizeof(int) * _iterations_count * (_edges_count / (_time * 1e9)) << " GB/s" << endl;
-    cout << " ----------------------------------------------------------------------------------------- " << endl << endl;
+    cout << get_separators_bottom_string() << endl << endl;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+
 void PerformanceStats::print_algorithm_performance_stats(string _name, double _time, long long _edges_count)
 {
-    cout << " --------------------------- " << _name << " performance stats --------------------------- " << endl;
+    cout << get_separators_upper_string(_name) << endl;
     cout << "wall time: " << _time*1000.0 << " ms" << endl;
     cout << "wall perf: " << _edges_count / (_time * 1e6) << " MTEPS" << endl;
-    cout << " ----------------------------------------------------------------------------------------- " << endl << endl;
+    cout << get_separators_bottom_string() << endl << endl;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

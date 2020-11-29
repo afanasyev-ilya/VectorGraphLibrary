@@ -136,12 +136,13 @@ bool equal_components(VerticesArray<_T> &_first,
             error_count++;
         }
     }
+    cout << "error count: " << error_count << endl;
 
     // restore order if required
     _first.reorder(prev_first_direction);
     _second.reorder(prev_second_direction);
 
-    if(result == true)
+    if(error_count == 0)
         cout << "Results are equal" << endl;
     else
         cout << "Results are NOT equal, error_count = " << error_count << endl;
@@ -152,9 +153,9 @@ bool equal_components(VerticesArray<_T> &_first,
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template <typename _T>
-void print_component_sizes(VectCSRGraph &_graph, VerticesArray<_T> &_components)
+void print_component_sizes(VerticesArray<_T> &_components)
 {
-    int vertices_count = _graph.get_vertices_count();
+    int vertices_count = _components.size();
 
     // calculate sizes of each component
     map<int, int> components_sizes;

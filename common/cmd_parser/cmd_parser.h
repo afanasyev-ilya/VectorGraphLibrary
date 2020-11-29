@@ -25,6 +25,8 @@ private:
 
     AlgorithmBFS algorithm_bfs;
     AlgorithmCC algorithm_cc;
+
+    int device_num;
 public:
     Parser();
     
@@ -34,6 +36,7 @@ public:
     string get_graph_file_name() { return graph_file_name; };
     bool get_check_flag() { return check_flag; };
     int get_number_of_rounds() { return number_of_rounds; };
+    int get_device_num() { return device_num; };
 
     SyntheticGraphType get_graph_type() {return graph_type;};
 
@@ -47,7 +50,6 @@ public:
 
     static TraversalDirection convert_traversal_type(AlgorithmTraversalType _algo_type);
     static AlgorithmTraversalType convert_traversal_type(TraversalDirection _direction_type);
-
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

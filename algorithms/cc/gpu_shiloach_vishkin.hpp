@@ -10,9 +10,6 @@ void CC::gpu_shiloach_vishkin(VectCSRGraph &_graph, VerticesArray<_T> &_componen
     FrontierGPU frontier(_graph);
     graph_API.change_traversal_direction(SCATTER, _components, frontier);
 
-    Timer tm;
-    tm.start();
-
     frontier.set_all_active();
     auto init_components_op = [_components] __device__ (int src_id, int connections_count, int vector_index)
     {
@@ -20,11 +17,14 @@ void CC::gpu_shiloach_vishkin(VectCSRGraph &_graph, VerticesArray<_T> &_componen
     };
     graph_API.compute(_graph, frontier, init_components_op);
 
+    Timer tm;
+    tm.start();
+
     int *hook_changes, *jump_changes;
     cudaMallocManaged(&hook_changes, sizeof(int));
     cudaMallocManaged(&jump_changes, sizeof(int));
 
-    int iteration = 0;
+    int iterations_count = 0;
     do
     {
         hook_changes[0] = 0;
@@ -68,12 +68,14 @@ void CC::gpu_shiloach_vishkin(VectCSRGraph &_graph, VerticesArray<_T> &_componen
             graph_API.compute(_graph, frontier, jump_op);
         } while(jump_changes[0] > 0);
 
-        iteration++;
+        iterations_count++;
     } while(hook_changes[0] > 0);
     tm.end();
 
     #ifdef __PRINT_SAMPLES_PERFORMANCE_STATS__
-    PerformanceStats::print_algorithm_performance_stats("CC (Shiloach-Vishkin, NEC)", tm.get_time(), _graph.get_edges_count());
+    PerformanceStats::print_algorithm_performance_stats("CC (Shiloach-Vishkin, GPU)", tm.get_time(),
+                                                        _graph.get_edges_count(), iterations_count);
+    print_component_sizes(_components);
     #endif
 }
 #endif

@@ -22,6 +22,8 @@ int main(int argc, const char * argv[])
         Parser parser;
         parser.parse_args(argc, argv);
 
+        select_device(parser.get_device_num());
+
         VectCSRGraph graph;
         if(parser.get_compute_mode() == GENERATE_NEW_GRAPH)
         {
@@ -43,10 +45,6 @@ int main(int argc, const char * argv[])
             tm.print_time_stats("Graph load");
         }
 
-        // print graphs stats
-        graph.print_size();
-        graph.print_stats();
-
         // do calculations
         VerticesArray<int> components(graph, SCATTER);
         performance_stats.reset_timers();
@@ -54,6 +52,14 @@ int main(int argc, const char * argv[])
         performance_stats.print_timers_stats();
         performance_stats.print_max_perf(graph.get_edges_count());
         performance_stats.print_avg_perf(graph.get_edges_count());
+
+        // check correctness
+        if(parser.get_check_flag())
+        {
+            VerticesArray<int> check_components(graph, SCATTER);
+            ConnectedComponents::seq_bfs_based(graph, check_components);
+            equal_components(components, check_components);
+        }
     }
     catch (string error)
     {

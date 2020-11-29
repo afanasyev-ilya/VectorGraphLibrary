@@ -30,14 +30,15 @@ public:
     static void gpu_shiloach_vishkin(VectCSRGraph &_graph, VerticesArray<_T> &_components);
     #endif
 
-    //void seq_bfs_based(VectCSRGraph &_graph, VerticesArray<_T> &_components);
+    template <typename _T>
+    static void seq_bfs_based(VectCSRGraph &_graph, VerticesArray<_T> &_components);
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #include "nec_shiloach_vishkin.hpp"
 //#include "nec_bfs_based.hpp"
-//#include "seq_bfs_based.hpp"
+#include "seq_bfs_based.hpp"
 #include "gpu_shiloach_vishkin.hpp"
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

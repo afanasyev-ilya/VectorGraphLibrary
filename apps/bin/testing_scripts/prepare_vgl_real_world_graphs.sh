@@ -3,6 +3,8 @@
 mkdir source_graphs
 cd source_graphs
 
+mkdir ./input_graphs
+
 declare -a snap_names=("web-BerkStan.txt.gz"
                        "soc-LiveJournal1.txt.gz"
                        "soc-pokec-relationships.txt.gz"

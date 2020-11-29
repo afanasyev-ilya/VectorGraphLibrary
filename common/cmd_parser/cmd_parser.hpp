@@ -15,6 +15,8 @@ Parser::Parser()
     number_of_rounds = 1;
     algorithm_bfs = DIRECTION_OPTIMIZING_BFS_ALGORITHM;
     algorithm_cc = SHILOACH_VISHKIN_ALGORITHM;
+
+    device_num = 0;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -125,6 +127,11 @@ void Parser::parse_args(int _argc, const char * _argv[])
         else if (option.compare("-bfs-based") == 0)
         {
             algorithm_cc = BFS_BASED_ALGORITHM;
+        }
+
+        if ((option.compare("-dev") == 0) || (option.compare("-device") == 0))
+        {
+            device_num = atoi(_argv[++i]);
         }
     }
 }
