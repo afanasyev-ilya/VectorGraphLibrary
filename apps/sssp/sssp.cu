@@ -45,9 +45,11 @@ int main(int argc, const char * argv[])
             tm.print_time_stats("Graph load");
         }
 
-        // print graphs stats
+        // print size of VectCSR graph
         graph.print_size();
-        graph.print_stats();
+
+        // move graph to device for better performance
+        graph.move_to_device();
 
         cout << "Computations started..." << endl;
         cout << "Doing " << parser.get_number_of_rounds() << " SSSP iterations..." << endl;

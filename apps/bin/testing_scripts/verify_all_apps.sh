@@ -1,9 +1,19 @@
 #!/bin/bash
 
-FILE_PREFIX=" -load ./input_graphs/"
-FILE_SUFIX=".vgraph"
-CHECK_PATTERN="error count: "
-file_name="./nec_check.csv"
+arch="sx"
+
+if [ $# -eq 1 ]
+  then
+    arch=$1
+fi
+
+file_name="./"$arch"_check.csv"
+rm $file_name
+
+file_prefix=" -load ./input_graphs/"
+file_sufix=".vgraph"
+check_pattern="error count: "
+
 declare -A matrix
 
 declare -a graph_names=("ru_20_32"
@@ -11,13 +21,15 @@ declare -a graph_names=("ru_20_32"
                         "soc_pokec"
                         "wiki_topcats")
 
-declare -a app_names=("./bfs_sx -td "
-                      "./sssp_sx -pull -all-active "
-                      "./sssp_sx -push -all-active ")
+declare -a app_names=("./bfs_"$arch" -td "
+                      "./sssp_"$arch" -pull -all-active "
+                      "./sssp_"$arch" -push -all-active "
+                      "./cc_"$arch" -shiloach_vishkin")
 
-declare -a app_column_names=("./bfs_sx|-td"
-                         "./sssp_sx|-pull|-all-active"
-                         "./sssp_sx|-push|-all-active")
+declare -a app_column_names=("./bfs_"$arch"|-td"
+                             "./sssp_"$arch"|-pull|-all-active"
+                             "./sssp_"$arch"|-push|-all-active"
+                             "./cc_"$arch"|-shiloach_vishkin")
 
 num_rows=5
 num_columns=7
@@ -53,10 +65,10 @@ do
     row="2"
     for graph_name in "${graph_names[@]}"
     do
-        CMD_RUN="$app $FILE_PREFIX$graph_name$FILE_SUFIX -check"
+        CMD_RUN="$app $file_prefix$graph_name$file_sufix -check"
         #echo "running $CMD_RUN ..."
         eval $CMD_RUN > tmp_file.txt
-        search_result=$(grep -R "$CHECK_PATTERN" tmp_file.txt)
+        search_result=$(grep -R "$check_pattern" tmp_file.txt)
         error_count=`echo $search_result | sed -r 's/^([^.]+).*$/\1/; s/^[^0-9]*([0-9]+).*$/\1/'`
         #echo "$error_count"
 

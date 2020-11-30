@@ -66,6 +66,7 @@ template <typename _T>
 void MemoryAPI::move_array_to_device(_T *_ptr, size_t _size)
 {
     int device_id = 0;
+    SAFE_CALL(cudaGetDevice(&device_id));
     SAFE_CALL(cudaMemPrefetchAsync(_ptr, _size*sizeof(_T), device_id, NULL));
 }
 #endif

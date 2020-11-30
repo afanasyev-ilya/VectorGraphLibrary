@@ -41,11 +41,11 @@ void CC::gpu_shiloach_vishkin(VectCSRGraph &_graph, VerticesArray<_T> &_componen
                 hook_changes[0] = 1;
             }
 
-            if(src_val > dst_val)
+            /*if(src_val > dst_val)
             {
                 _components[src_id] = dst_val;
                 hook_changes[0] = 1;
-            }
+            }*/
         };
 
         graph_API.scatter(_graph, frontier, edge_op);

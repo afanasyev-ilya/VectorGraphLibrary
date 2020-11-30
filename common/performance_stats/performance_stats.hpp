@@ -6,7 +6,7 @@ PerformanceStats::PerformanceStats()
 {
     number_of_runs = 0;
     avg_time = 0;
-    best_time = 0;
+    best_time = std::numeric_limits<double>::max();
     reset_timers();
 }
 
@@ -231,7 +231,7 @@ void PerformanceStats::print_timers_stats()
 
 void PerformanceStats::update_timer_stats()
 {
-    if(best_time < inner_wall_time)
+    if(best_time > inner_wall_time)
         best_time = inner_wall_time;
     avg_time += inner_wall_time;
     number_of_runs++;

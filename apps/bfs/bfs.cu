@@ -49,6 +49,9 @@ int main(int argc, const char * argv[])
         // print size of VectCSR graph
         graph.print_size();
 
+        // move graph to device for better performance
+        graph.move_to_device();
+
         // compute BFS
         cout << "Computations started..." << endl;
         cout << "Doing " << parser.get_number_of_rounds() << " BFS iterations..." << endl;
@@ -71,7 +74,7 @@ int main(int argc, const char * argv[])
 
                 VerticesArray<int> check_levels(graph, SCATTER);
                 BFS::seq_top_down(graph, check_levels, source_vertex);
-                verify_results(levels, check_levels);
+                verify_results(levels, check_levels, 10);
 
                 graph.move_to_device();
                 levels.move_to_device();

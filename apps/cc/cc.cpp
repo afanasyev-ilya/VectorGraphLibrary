@@ -50,20 +50,26 @@ int main(int argc, const char * argv[])
         graph.print_stats();
 
         // do calculations
-        VerticesArray<int> components(graph, SCATTER);
-        performance_stats.reset_timers();
-        ConnectedComponents::nec_shiloach_vishkin(graph, components);
-        performance_stats.print_timers_stats();
+        cout << "Computations started..." << endl;
+        cout << "Running CC algorithm " << parser.get_number_of_rounds() << " times..." << endl;
+        for(int i = 0; i < parser.get_number_of_rounds(); i++)
+        {
+            VerticesArray<int> components(graph, SCATTER);
+            performance_stats.reset_timers();
+            ConnectedComponents::nec_shiloach_vishkin(graph, components);
+            performance_stats.print_timers_stats();
+
+            // check correctness
+            if(parser.get_check_flag())
+            {
+                VerticesArray<int> check_components(graph, SCATTER);
+                ConnectedComponents::seq_bfs_based(graph, check_components);
+                equal_components(components, check_components);
+            }
+        }
+
         performance_stats.print_max_perf(graph.get_edges_count());
         performance_stats.print_avg_perf(graph.get_edges_count());
-
-        // check correctness
-        if(parser.get_check_flag())
-        {
-            VerticesArray<int> check_components(graph, SCATTER);
-            ConnectedComponents::seq_bfs_based(graph, check_components);
-            equal_components(components, check_components);
-        }
     }
     catch (string error)
     {
