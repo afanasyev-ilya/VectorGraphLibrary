@@ -124,7 +124,7 @@ void Parser::parse_args(int _argc, const char * _argv[])
         {
             algorithm_cc = SHILOACH_VISHKIN_ALGORITHM;
         }
-        else if (option.compare("-bfs-based") == 0)
+        else if ((option.compare("-bfs-based") == 0) || (option.compare("-bfs_based") == 0))
         {
             algorithm_cc = BFS_BASED_ALGORITHM;
         }

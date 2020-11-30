@@ -22,7 +22,8 @@ public:
     #endif
 
     #ifdef __USE_NEC_SX_AURORA__
-    //void nec_bfs_based(UndirectedCSRGraph &_graph, int *_components);
+    template <typename _T>
+    static void nec_bfs_based(VectCSRGraph &_graph, VerticesArray<_T> &_components);
     #endif
 
     #ifdef __USE_GPU__
@@ -37,7 +38,7 @@ public:
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #include "nec_shiloach_vishkin.hpp"
-//#include "nec_bfs_based.hpp"
+#include "nec_bfs_based.hpp"
 #include "seq_bfs_based.hpp"
 #include "gpu_shiloach_vishkin.hpp"
 

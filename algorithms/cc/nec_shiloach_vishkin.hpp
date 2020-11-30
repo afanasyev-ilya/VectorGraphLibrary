@@ -4,8 +4,7 @@
 
 #ifdef __USE_NEC_SX_AURORA__
 template <typename _T>
-void CC::nec_shiloach_vishkin(VectCSRGraph &_graph,
-                              VerticesArray<_T> &_components)
+void CC::nec_shiloach_vishkin(VectCSRGraph &_graph, VerticesArray<_T> &_components)
 {
     GraphAbstractionsNEC graph_API(_graph);
     FrontierNEC frontier(_graph);

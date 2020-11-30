@@ -16,8 +16,6 @@ void CC::seq_bfs_based(VectCSRGraph &_graph, VerticesArray<_T> &_components)
         _components[v] = COMPONENT_UNSET;
     }
 
-    VerticesArray<int> bfs_levels(_graph);
-
     int current_component_num = FIRST_COMPONENT;
     for(int current_vertex = 0; current_vertex < vertices_count; current_vertex++)
     {

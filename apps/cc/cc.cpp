@@ -56,7 +56,10 @@ int main(int argc, const char * argv[])
         {
             VerticesArray<int> components(graph, SCATTER);
             performance_stats.reset_timers();
-            ConnectedComponents::nec_shiloach_vishkin(graph, components);
+            if(parser.get_algorithm_cc() == SHILOACH_VISHKIN_ALGORITHM)
+                ConnectedComponents::nec_shiloach_vishkin(graph, components);
+            else if(parser.get_algorithm_cc() == BFS_BASED_ALGORITHM)
+                ConnectedComponents::nec_bfs_based(graph, components);
             performance_stats.print_timers_stats();
 
             // check correctness
