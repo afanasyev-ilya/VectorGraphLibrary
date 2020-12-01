@@ -107,15 +107,15 @@ void Parser::parse_args(int _argc, const char * _argv[])
             cout << "cmd parser selected pull traversal" << endl;
         }
 
-        if (option.compare("-top-down") == 0)
+        if ((option.compare("-top-down") == 0) || (option.compare("-td") == 0))
         {
             algorithm_bfs = TOP_DOWN_BFS_ALGORITHM;
         }
-        else if (option.compare("-bottom-up") == 0)
+        else if ((option.compare("-bottom-up") == 0) || (option.compare("-bu") == 0))
         {
             algorithm_bfs = BOTTOM_UP_BFS_ALGORITHM;
         }
-        else if (option.compare("-do") == 0 || option.compare("-direction-optimizing") == 0)
+        else if ((option.compare("-direction-optimizing") == 0) || (option.compare("-do") == 0))
         {
             algorithm_bfs = DIRECTION_OPTIMIZING_BFS_ALGORITHM;
         }

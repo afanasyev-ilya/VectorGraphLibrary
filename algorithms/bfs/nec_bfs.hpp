@@ -329,6 +329,129 @@ double BFS::nec_direction_optimizing(VectCSRGraph &_graph,
 
 #ifdef __USE_NEC_SX_AURORA__
 template <typename _T>
+void BFS::nec_direction_optimizing(VectCSRGraph &_graph,
+                                   VerticesArray<_T> &_levels,
+                                   int _source_vertex)
+{
+    GraphAbstractionsNEC graph_API(_graph);
+    FrontierNEC frontier(_graph);
+    int vertices_count = _graph.get_vertices_count();
+    long long edges_count = _graph.get_edges_count();
+
+    frontier.set_all_active();
+    auto init_levels = [_levels, _source_vertex] (int src_id, int connections_count, int vector_index)
+    {
+        if(src_id == _source_vertex)
+            _levels[_source_vertex] = FIRST_LEVEL_VERTEX;
+        else
+            _levels[src_id] = UNVISITED_VERTEX;
+    };
+    graph_API.compute(_graph, frontier, init_levels);
+
+    frontier.clear();
+    frontier.add_vertex(_source_vertex);
+
+    int vis = 1, in_lvl = 0;
+    int current_level = FIRST_LEVEL_VERTEX;
+    StateOfBFS current_state = TOP_DOWN;
+    bool _use_vect_CSR_extension = false;
+    int current_frontier_size = 1, prev_frontier_size = 0;
+    while(vis > 0)
+    {
+        vis = 0, in_lvl = 0;
+        if(current_state == TOP_DOWN)
+        {
+            cout << "in TD state" << endl;
+            NEC_REGISTER_INT(vis, 0);
+            NEC_REGISTER_INT(in_lvl, 0);
+
+            auto edge_op_with_stats = [_levels, current_level, &reg_vis, &reg_in_lvl](int src_id, int dst_id, int local_edge_pos,
+                long long int global_edge_pos, int vector_index, DelayedWriteNEC &delayed_write)
+            {
+                int dst_level = _levels[dst_id];
+                reg_in_lvl[vector_index]++;
+                if(dst_level == UNVISITED_VERTEX)
+                {
+                    _levels[dst_id] = current_level + 1;
+                    reg_vis[vector_index]++;
+                }
+            };
+
+            graph_API.scatter(_graph, frontier, edge_op_with_stats);
+
+            int local_vis = register_sum_reduce(reg_vis);
+            int local_in_lvl = register_sum_reduce(reg_in_lvl);
+
+            vis += local_vis;
+            in_lvl += local_in_lvl;
+        }
+        else if(current_state == BOTTOM_UP)
+        {
+            cout << "in BU state" << endl;
+            NEC_REGISTER_INT(vis, 0);
+            NEC_REGISTER_INT(in_lvl, 0);
+
+            auto is_unvisited = [_levels] (int src_id, int connections_count)->int
+            {
+                int result = NOT_IN_FRONTIER_FLAG;
+                if(_levels[src_id] == UNVISITED_VERTEX)
+                    result = IN_FRONTIER_FLAG;
+                return result;
+            };
+            graph_API.generate_new_frontier(_graph, frontier, is_unvisited);
+
+            auto edge_op = [_levels, current_level, &reg_vis, &reg_in_lvl](int src_id, int dst_id, int local_edge_pos,
+                long long int global_edge_pos, int vector_index, DelayedWriteNEC &delayed_write)
+            {
+                reg_in_lvl[vector_index]++;
+                if((_levels[src_id] == UNVISITED_VERTEX) && (_levels[dst_id] == current_level))
+                {
+                    _levels[src_id] = current_level + 1;
+                    reg_vis[vector_index]++;
+                }
+            };
+
+            auto edge_collective_op = [_levels, current_level, &reg_vis, &reg_in_lvl](int src_id, int dst_id, int local_edge_pos,
+                long long int global_edge_pos, int vector_index, DelayedWriteNEC &delayed_write)
+            {
+                reg_in_lvl[vector_index]++;
+                if((_levels[src_id] == UNVISITED_VERTEX) && (_levels[dst_id] == current_level))
+                {
+                    _levels[src_id] = current_level + 1;
+                    reg_vis[vector_index]++;
+                }
+            };
+
+            graph_API.scatter(_graph, frontier, edge_op, EMPTY_VERTEX_OP, EMPTY_VERTEX_OP, edge_collective_op, EMPTY_VERTEX_OP, EMPTY_VERTEX_OP);
+        }
+
+        prev_frontier_size = current_frontier_size;
+        current_frontier_size = vis;
+
+        current_state = nec_change_state(prev_frontier_size, current_frontier_size, vertices_count, edges_count, current_state,
+                                         vis, in_lvl, _use_vect_CSR_extension, current_level, POWER_LAW_GRAPH, _levels.get_ptr());
+        if(current_state == TOP_DOWN)
+        {
+            auto on_next_level = [&_levels, current_level] (int src_id, int connections_count)->int
+            {
+                int result = NOT_IN_FRONTIER_FLAG;
+                if(_levels[src_id] == (current_level + 1))
+                    result = IN_FRONTIER_FLAG;
+                return result;
+            };
+            graph_API.generate_new_frontier(_graph, frontier, on_next_level);
+        }
+        current_level++;
+    }
+
+    cout << "iterations count: " << current_level << endl;
+}
+#endif
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+#ifdef __USE_NEC_SX_AURORA__
+template <typename _T>
 void BFS::nec_top_down(VectCSRGraph &_graph,
                        VerticesArray<_T> &_levels,
                        int _source_vertex)

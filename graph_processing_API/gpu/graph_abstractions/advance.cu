@@ -24,7 +24,9 @@ void __global__ block_per_vertex_kernel(const long long *_vertex_pointers,
         const int src_id = _frontier_ids[frontier_pos];
         const long long edge_start = _vertex_pointers[src_id];
         const int connections_count =  _vertex_pointers[src_id + 1] - _vertex_pointers[src_id];
-        vertex_preprocess_op(src_id, frontier_pos, connections_count);
+
+        if(threadIdx.x == 0)
+            vertex_preprocess_op(src_id, frontier_pos, connections_count);
 
         for(register int edge_pos = threadIdx.x; edge_pos < connections_count; edge_pos += BLOCK_SIZE)
         {
@@ -40,7 +42,8 @@ void __global__ block_per_vertex_kernel(const long long *_vertex_pointers,
             }
         }
 
-        vertex_postprocess_op(src_id, frontier_pos, connections_count);
+        if(threadIdx.x == 0)
+            vertex_postprocess_op(src_id, frontier_pos, connections_count);
     }
 }
 
@@ -71,7 +74,9 @@ void __global__ warp_per_vertex_kernel(const long long *_vertex_pointers,
         const int src_id = _frontier_ids[frontier_pos];
         const long long edge_start = _vertex_pointers[src_id];
         const int connections_count = _vertex_pointers[src_id + 1] - _vertex_pointers[src_id];
-        vertex_preprocess_op(src_id, frontier_pos, connections_count);
+
+        if(lane_id == 0)
+            vertex_preprocess_op(src_id, frontier_pos, connections_count);
 
         for(register int edge_pos = lane_id; edge_pos < connections_count; edge_pos += WARP_SIZE)
         {
@@ -87,7 +92,8 @@ void __global__ warp_per_vertex_kernel(const long long *_vertex_pointers,
             }
         }
 
-        vertex_postprocess_op(src_id, frontier_pos, connections_count);
+        if(lane_id == 0)
+            vertex_postprocess_op(src_id, frontier_pos, connections_count);
     }
 }
 
@@ -168,7 +174,8 @@ void __global__ virtual_warp_per_vertex_kernel(const long long *_vertex_pointers
         const long long edge_start = _vertex_pointers[src_id];
         const int connections_count = _vertex_pointers[src_id + 1] - _vertex_pointers[src_id];
 
-        vertex_preprocess_op(src_id, frontier_pos, connections_count);
+        if(position_in_virtual_warp == 0)
+            vertex_preprocess_op(src_id, frontier_pos, connections_count);
 
         for(register int edge_pos = position_in_virtual_warp; edge_pos < connections_count; edge_pos += VirtualWarpSize)
         {
@@ -184,7 +191,8 @@ void __global__ virtual_warp_per_vertex_kernel(const long long *_vertex_pointers
             }
         }
 
-        vertex_postprocess_op(src_id, frontier_pos, connections_count);
+        if(position_in_virtual_warp == 0)
+            vertex_postprocess_op(src_id, frontier_pos, connections_count);
     }
 }
 
@@ -296,6 +304,7 @@ void GraphAbstractionsGPU::advance_worker(UndirectedCSRGraph &_graph,
                                                                                                    current_traversal_direction, direction_shift);
     }
     cudaDeviceSynchronize();
+
     tm.end();
     performance_stats.update_advance_time(tm);
 }

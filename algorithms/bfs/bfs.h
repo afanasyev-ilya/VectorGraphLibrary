@@ -36,6 +36,11 @@ public:
 
     #ifdef __USE_NEC_SX_AURORA__
     template <typename _T>
+    static void nec_direction_optimizing(VectCSRGraph &_graph, VerticesArray<_T> &_levels, int _source_vertex);
+    #endif
+
+    #ifdef __USE_NEC_SX_AURORA__
+    template <typename _T>
     static void nec_top_down(VectCSRGraph &_graph, VerticesArray<_T> &_levels, int _source_vertex);
     #endif
 

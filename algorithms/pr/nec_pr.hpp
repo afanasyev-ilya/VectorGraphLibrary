@@ -130,10 +130,10 @@ void PR::nec_page_rank(VectCSRGraph &_graph,
                 _page_ranks[src_id] += dst_rank * reversed_dst_links_num;
         };
 
-        auto vertex_postprocess_op = [_page_ranks, k, d, dangling_input](int src_id, int connections_count, int vector_index, DelayedWriteNEC &delayed_write)
+        /*auto vertex_postprocess_op = [_page_ranks, k, d, dangling_input](int src_id, int connections_count, int vector_index, DelayedWriteNEC &delayed_write)
         {
             _page_ranks[src_id] = k + d * (_page_ranks[src_id] + dangling_input);
-        };
+        };*/
 
         //graph_API.enable_safe_stores();
         graph_API.scatter(_graph, frontier, edge_op, EMPTY_VERTEX_OP, vertex_postprocess_op, edge_op, EMPTY_VERTEX_OP, vertex_postprocess_op);
@@ -149,7 +149,7 @@ void PR::nec_page_rank(VectCSRGraph &_graph,
     tm.end();
 
     #ifdef __PRINT_SAMPLES_PERFORMANCE_STATS__
-    PerformanceStats::print_algorithm_performance_stats("page ranks", tm.get_time(), edges_count, iterations_count);
+    PerformanceStats::print_algorithm_performance_stats("PR (Page Rank, NEC)", tm.get_time(), edges_count, iterations_count);
     #endif
 }
 #endif

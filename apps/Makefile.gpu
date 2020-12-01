@@ -15,7 +15,7 @@ Libraries = -lcudart -lcudadevrt -lcudadevrt -Xcompiler -fopenmp
 # binaries
 ##########
 
-all: install sssp bfs cc
+all: install sssp bfs cc pr
 
 sssp: create_folders sssp.o
 	$(CUDA_COMPILER) object_files/sssp.o $(Library_Path) $(Libraries) -o ./bin/sssp_cu
@@ -25,6 +25,9 @@ bfs: create_folders bfs.o
 
 cc: create_folders cc.o
 	$(CUDA_COMPILER) object_files/cc.o $(Library_Path) $(Libraries) -o ./bin/cc_cu
+
+pr: create_folders pr.o
+	$(CUDA_COMPILER) object_files/pr.o $(Library_Path) $(Libraries) -o ./bin/pr_cu
 
 ##########
 # CPPs
@@ -46,6 +49,9 @@ bfs.o: bfs/bfs.cu
 
 cc.o: cc/cc.cu
 	$(CUDA_COMPILER) $(Flags) $(Include_Path) -c cc/cc.cu -o object_files/cc.o
+
+pr.o: pr/pr.cu
+	$(CUDA_COMPILER) $(Flags) $(Include_Path) -c pr/pr.cu -o object_files/pr.o
 
 create_folders:
 	-mkdir -p ./bin

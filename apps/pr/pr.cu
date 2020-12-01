@@ -1,16 +1,14 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#define __USE_NEC_SX_AURORA__
+#define __USE_GPU__
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #define INT_ELEMENTS_PER_EDGE 5.0
-#define VECTOR_ENGINE_THRESHOLD_VALUE VECTOR_LENGTH * MAX_SX_AURORA_THREADS * 4096
-#define VECTOR_CORE_THRESHOLD_VALUE 5*VECTOR_LENGTH
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#define __PRINT_API_PERFORMANCE_STATS__
+//#define __PRINT_API_PERFORMANCE_STATS__
 
 #include "graph_library.h"
 
@@ -47,23 +45,22 @@ int main(int argc, const char * argv[])
             tm.print_time_stats("Graph load");
         }
 
-        // print graphs stats
-        graph.print_size();
-        graph.print_stats();
+        graph.move_to_device();
 
         VerticesArray<float> page_ranks(graph);
         performance_stats.reset_timers();
         float convergence_factor = 1.0e-4;
-        PageRank::nec_page_rank(graph, page_ranks, convergence_factor, parser.get_number_of_rounds());
+        PageRank::gpu_page_rank(graph, page_ranks, convergence_factor, parser.get_number_of_rounds());
         performance_stats.print_timers_stats();
         performance_stats.print_max_perf(graph.get_edges_count(), parser.get_number_of_rounds());
         performance_stats.print_avg_perf(graph.get_edges_count(), parser.get_number_of_rounds());
+
+        graph.move_to_host();
 
         if(parser.get_check_flag())
         {
             VerticesArray<float> seq_page_ranks(graph);
             PageRank::seq_page_rank(graph, seq_page_ranks);
-
             verify_results(page_ranks, seq_page_ranks);
         }
     }

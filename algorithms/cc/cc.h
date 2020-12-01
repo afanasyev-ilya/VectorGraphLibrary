@@ -6,6 +6,7 @@
 #define FIRST_COMPONENT 1
 #define SINGLE_VERTEX_COMPONENT -2
 #define DUO_VERTEX_COMPONENT -3
+#define COMPONENT_FIRST_BFS_LEVEL -4
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -15,6 +16,12 @@
 
 class ConnectedComponents
 {
+private:
+    #ifdef __USE_NEC_SX_AURORA__
+    template <typename _T>
+    static int select_pivot(VectCSRGraph &_graph, GraphAbstractionsNEC &_graph_API, FrontierNEC &_frontier,
+                            VerticesArray<_T> &_components);
+    #endif
 public:
     #ifdef __USE_NEC_SX_AURORA__
     template <typename _T>

@@ -12,6 +12,8 @@
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+#define __PRINT_API_PERFORMANCE_STATS__
+
 #include "graph_library.h"
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -31,9 +33,9 @@ int main(int argc, const char * argv[])
             EdgesListGraph el_graph;
             int v = pow(2.0, parser.get_scale());
             if(parser.get_graph_type() == RMAT)
-                GraphGenerationAPI::R_MAT(el_graph, v, v * parser.get_avg_degree(), 57, 19, 19, 5, DIRECTED_GRAPH);
+                GraphGenerationAPI::R_MAT(el_graph, v, v * parser.get_avg_degree(), 57, 19, 19, 5, UNDIRECTED_GRAPH);
             else if(parser.get_graph_type() == RANDOM_UNIFORM)
-                GraphGenerationAPI::random_uniform(el_graph, v, v * parser.get_avg_degree(), DIRECTED_GRAPH);
+                GraphGenerationAPI::random_uniform(el_graph, v, v * parser.get_avg_degree(), UNDIRECTED_GRAPH);
             graph.import(el_graph);
         }
         else if(parser.get_compute_mode() == LOAD_GRAPH_FROM_FILE)
@@ -61,7 +63,10 @@ int main(int argc, const char * argv[])
             cout << "selected source vertex " << source_vertex << endl;
 
             performance_stats.reset_timers();
-            BFS::nec_top_down(graph, levels, source_vertex);
+            if(parser.get_algorithm_bfs() == TOP_DOWN_BFS_ALGORITHM)
+                BFS::nec_top_down(graph, levels, source_vertex);
+            else if(parser.get_algorithm_bfs() == DIRECTION_OPTIMIZING_BFS_ALGORITHM)
+                BFS::nec_direction_optimizing(graph, levels, source_vertex);
             performance_stats.print_timers_stats();
 
             // check if required

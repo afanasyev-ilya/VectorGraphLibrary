@@ -8,6 +8,7 @@ FrontierGPU::FrontierGPU(VectCSRGraph &_graph, TraversalDirection _direction)
     direction = _direction;
     graph_ptr = &_graph;
     init();
+    this->set_all_active();
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

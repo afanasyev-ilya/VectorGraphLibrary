@@ -12,7 +12,6 @@
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-
 class PageRank
 {
 public:
@@ -24,14 +23,13 @@ public:
                               int _max_iterations = 5);
     #endif
 
-    /*#ifdef __USE_GPU__
+    #ifdef __USE_GPU__
     template <typename _T>
-    static void gpu_page_rank(UndirectedCSRGraph &_graph,
-                             float *_page_ranks,
-                             float _convergence_factor = 1.0e-4,
-                             int _max_iterations = 5,
-                             AlgorithmTraversalType _traversal_direction = PULL_TRAVERSAL);
-    #endif*/
+    static void gpu_page_rank(VectCSRGraph &_graph,
+                              VerticesArray<_T> &_page_ranks,
+                              _T _convergence_factor = 1.0e-4,
+                              int _max_iterations = 5);
+    #endif
 
     template <typename _T>
     static void seq_page_rank(VectCSRGraph &_graph,
@@ -44,6 +42,6 @@ public:
 
 #include "seq_pr.hpp"
 #include "nec_pr.hpp"
-//#include "gpu_pr.hpp"
+#include "gpu_pr.hpp"
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

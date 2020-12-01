@@ -181,7 +181,7 @@ _T GraphAbstractionsGPU::reduce(VectCSRGraph &_graph,
         current_direction_graph = _graph.get_incoming_graph_ptr();
     }
 
-    _T reduce_result = reduce_worker(*current_direction_graph, _frontier, reduce_op, _reduce_type);
+    _T reduce_result = reduce_worker<_T>(*current_direction_graph, _frontier, reduce_op, _reduce_type);
 
     tm.end();
     performance_stats.update_reduce_time(tm);
