@@ -85,7 +85,6 @@ void PR::seq_page_rank(VectCSRGraph &_graph,
                 dangling_input += old_page_ranks[i] / vertices_count;
             }
         }
-        cout << "dangling_input seq: " << dangling_input << endl;
 
         // traverse graph and calculate page ranks
         for(int src_id = 0; src_id < vertices_count; src_id++)

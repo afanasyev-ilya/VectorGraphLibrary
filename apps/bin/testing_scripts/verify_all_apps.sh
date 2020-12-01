@@ -24,12 +24,14 @@ declare -a graph_names=("ru_20_32"
 declare -a app_names=("./bfs_"$arch" -td "
                       "./sssp_"$arch" -pull -all-active "
                       "./sssp_"$arch" -push -all-active "
-                      "./cc_"$arch" -shiloach_vishkin")
+                      "./cc_"$arch" -shiloach_vishkin",
+                      "./pr_"$arch)
 
 declare -a app_column_names=("./bfs_"$arch"|-td"
                              "./sssp_"$arch"|-pull|-all-active"
                              "./sssp_"$arch"|-push|-all-active"
-                             "./cc_"$arch"|-shiloach_vishkin")
+                             "./cc_"$arch"|-shiloach_vishkin",
+                             "./pr"$arch)
 
 num_rows=5
 num_columns=7

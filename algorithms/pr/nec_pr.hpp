@@ -11,29 +11,27 @@ void PR::nec_page_rank(VectCSRGraph &_graph,
 {
     int vertices_count = _graph.get_vertices_count();
     long long edges_count = _graph.get_edges_count();
-    GraphAbstractionsNEC graph_API(_graph, SCATTER);
+    GraphAbstractionsNEC graph_API(_graph, GATHER);
     FrontierNEC frontier(_graph, SCATTER);
 
-    VerticesArray<int> number_of_loops(_graph, SCATTER);
+    VerticesArray<int> number_of_loops(_graph, GATHER);
     VerticesArray<int> incoming_degrees(_graph, GATHER);
-    VerticesArray<int> incoming_degrees_without_loops(_graph, SCATTER);
+    VerticesArray<int> incoming_degrees_without_loops(_graph, GATHER);
+    VerticesArray<_T> reversed_degrees(_graph, GATHER);
     VerticesArray<_T> old_page_ranks(_graph, SCATTER);
-    VerticesArray<_T> reversed_degrees(_graph, SCATTER);
     VerticesArray<VGL_PACK_TYPE> packed_data(_graph, SCATTER);
 
     #pragma omp parallel
     {};
 
-    graph_API.change_traversal_direction(GATHER, frontier, incoming_degrees);
+    graph_API.change_traversal_direction(GATHER, frontier, number_of_loops, incoming_degrees,
+                                         incoming_degrees_without_loops, reversed_degrees);
 
     auto get_incoming_degrees = [&incoming_degrees] (int src_id, int connections_count, int vector_index)
     {
         incoming_degrees[src_id] = connections_count;
     };
     graph_API.compute(_graph, frontier, get_incoming_degrees);
-
-    graph_API.change_traversal_direction(SCATTER, frontier, incoming_degrees, number_of_loops, incoming_degrees_without_loops,
-            old_page_ranks, reversed_degrees, _page_ranks);
 
     float d = 0.85;
     float k = (1.0 - d) / ((float)vertices_count);
@@ -69,8 +67,8 @@ void PR::nec_page_rank(VectCSRGraph &_graph,
         delayed_write.finish_write_sum(number_of_loops.get_ptr(), src_id);
     };
 
-    graph_API.scatter(_graph, frontier, calculate_number_of_loops, EMPTY_VERTEX_OP, vertex_postprocess_calculate_number_of_loops,
-                      calculate_number_of_loops_collective, EMPTY_VERTEX_OP, EMPTY_VERTEX_OP);
+    graph_API.gather(_graph, frontier, calculate_number_of_loops, EMPTY_VERTEX_OP, vertex_postprocess_calculate_number_of_loops,
+                     calculate_number_of_loops_collective, EMPTY_VERTEX_OP, EMPTY_VERTEX_OP);
 
     auto calculate_degrees_without_loops = [incoming_degrees_without_loops, incoming_degrees, number_of_loops] (int src_id, int connections_count, int vector_index)
     {
@@ -81,8 +79,12 @@ void PR::nec_page_rank(VectCSRGraph &_graph,
     auto calculate_reversed_degrees = [reversed_degrees, incoming_degrees_without_loops] (int src_id, int connections_count, int vector_index)
     {
         reversed_degrees[src_id] = 1.0 / incoming_degrees_without_loops[src_id];
+        if(incoming_degrees_without_loops[src_id] == 0)
+            reversed_degrees[src_id] = 0;
     };
     graph_API.compute(_graph, frontier, calculate_reversed_degrees);
+
+    graph_API.change_traversal_direction(SCATTER, frontier, old_page_ranks, reversed_degrees, _page_ranks, incoming_degrees_without_loops);
 
     Timer tm;
     tm.start();
@@ -130,10 +132,10 @@ void PR::nec_page_rank(VectCSRGraph &_graph,
                 _page_ranks[src_id] += dst_rank * reversed_dst_links_num;
         };
 
-        /*auto vertex_postprocess_op = [_page_ranks, k, d, dangling_input](int src_id, int connections_count, int vector_index, DelayedWriteNEC &delayed_write)
+        auto vertex_postprocess_op = [_page_ranks, k, d, dangling_input](int src_id, int connections_count, int vector_index, DelayedWriteNEC &delayed_write)
         {
             _page_ranks[src_id] = k + d * (_page_ranks[src_id] + dangling_input);
-        };*/
+        };
 
         //graph_API.enable_safe_stores();
         graph_API.scatter(_graph, frontier, edge_op, EMPTY_VERTEX_OP, vertex_postprocess_op, edge_op, EMPTY_VERTEX_OP, vertex_postprocess_op);

@@ -100,7 +100,7 @@ void PR::gpu_page_rank(VectCSRGraph &_graph,
             float reversed_dst_links_num = reversed_degrees[dst_id];
 
             if(src_id != dst_id)
-                atomicAdd(&_page_ranks[src_id], dst_rank * dst_links_num);
+                atomicAdd(&_page_ranks[src_id], dst_rank * reversed_dst_links_num);
         };
         /*auto EMPTY_VERTEX_OP = [] __device__(int src_id, int position_in_frontier, int connections_count){};
 
