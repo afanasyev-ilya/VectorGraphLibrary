@@ -2,8 +2,11 @@
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-template <typename _T>
-void cuda_reorder_wrapper(_T *_data, _T *_data_buffer, int *_indexes, int _size);
+template <typename _T, typename _TIndex>
+void cuda_reorder_wrapper_scatter(_T *_data, _T *_data_buffer, _TIndex *_indexes, _TIndex _size);
+
+template <typename _T, typename _TIndex>
+void cuda_reorder_wrapper_gather_copy(_T *_dst, _T *_src, _TIndex *_indexes, _TIndex _size);
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 

@@ -111,35 +111,61 @@ void PR::nec_page_rank(VectCSRGraph &_graph,
         };
         double dangling_input = graph_API.reduce<double>(_graph, frontier, reduce_dangling_input, REDUCE_SUM);
 
-        auto edge_op = [_page_ranks, old_page_ranks, reversed_degrees, packed_data](int src_id, int dst_id, int local_edge_pos,
+        #pragma omp parallel
+        {
+            NEC_REGISTER_FLT(ranks, 0);
+
+            auto first_vertex_preprocess_op = [_page_ranks, k, d, dangling_input, &reg_ranks](int src_id, int connections_count, int vector_index, DelayedWriteNEC &delayed_write)
+            {
+                #pragma _NEC vector
+                for(int i = 0; i < VECTOR_LENGTH; i++)
+                {
+                    reg_ranks[i] = 0;
+                }
+            };
+
+            auto first_edge_op = [_page_ranks, old_page_ranks, reversed_degrees, &reg_ranks](int src_id, int dst_id, int local_edge_pos,
                     long long int global_edge_pos, int vector_index, DelayedWriteNEC &delayed_write)
-        {
-            /*VGL_PACK_TYPE packed_val = packed_data[dst_id];
+            {
+                float dst_rank = old_page_ranks[dst_id];
+                float reversed_dst_links_num = reversed_degrees[dst_id];
 
-            delayed_write.pack_int_1[vector_index] = (int)((packed_val & 0xFFFFFFFF00000000LL) >> 32);
-            delayed_write.pack_int_2[vector_index] = (int)(packed_val & 0xFFFFFFFFLL);
+                if(src_id != dst_id)
+                    reg_ranks[vector_index] += dst_rank * reversed_dst_links_num;
+            };
 
-            float dst_rank = delayed_write.pack_int_1_to_flt[vector_index];
-            float reversed_dst_links_num = delayed_write.pack_int_2_to_flt[vector_index];*/
+            auto first_vertex_postprocess_op = [_page_ranks, k, d, dangling_input, reg_ranks](int src_id, int connections_count, int vector_index, DelayedWriteNEC &delayed_write)
+            {
+                float sum = 0;
+                #pragma _NEC vector
+                for(int i = 0; i < VECTOR_LENGTH; i++)
+                {
+                    sum += reg_ranks[i];
+                }
+                _page_ranks[src_id] = k + d * (sum + dangling_input);
+            };
 
-            //if(dst_rank != old_page_ranks[dst_id])
-            //    cout << dst_rank << " vs " << old_page_ranks[dst_id] << endl;
+            auto edge_op = [_page_ranks, old_page_ranks, reversed_degrees, packed_data](int src_id, int dst_id, int local_edge_pos,
+                    long long int global_edge_pos, int vector_index, DelayedWriteNEC &delayed_write)
+            {
+                float dst_rank = old_page_ranks[dst_id];
+                float reversed_dst_links_num = reversed_degrees[dst_id];
 
-            float dst_rank = old_page_ranks[dst_id];
-            float reversed_dst_links_num = reversed_degrees[dst_id];
+                if(src_id != dst_id)
+                    _page_ranks[src_id] += dst_rank * reversed_dst_links_num;
+            };
 
-            if(src_id != dst_id)
-                _page_ranks[src_id] += dst_rank * reversed_dst_links_num;
+            auto vertex_postprocess_op = [_page_ranks, k, d, dangling_input](int src_id, int connections_count, int vector_index, DelayedWriteNEC &delayed_write)
+            {
+                _page_ranks[src_id] = k + d * (_page_ranks[src_id] + dangling_input);
+            };
+
+            //graph_API.enable_safe_stores();
+            //graph_API.scatter(_graph, frontier, first_edge_op, first_vertex_preprocess_op, first_vertex_postprocess_op, edge_op, EMPTY_VERTEX_OP, vertex_postprocess_op);
+            graph_API.scatter(_graph, frontier, edge_op, EMPTY_VERTEX_OP, vertex_postprocess_op, edge_op, EMPTY_VERTEX_OP, vertex_postprocess_op);
+            //graph_API.disable_safe_stores();
         };
 
-        auto vertex_postprocess_op = [_page_ranks, k, d, dangling_input](int src_id, int connections_count, int vector_index, DelayedWriteNEC &delayed_write)
-        {
-            _page_ranks[src_id] = k + d * (_page_ranks[src_id] + dangling_input);
-        };
-
-        //graph_API.enable_safe_stores();
-        graph_API.scatter(_graph, frontier, edge_op, EMPTY_VERTEX_OP, vertex_postprocess_op, edge_op, EMPTY_VERTEX_OP, vertex_postprocess_op);
-        //graph_API.disable_safe_stores();
 
         auto reduce_ranks_sum = [_page_ranks](int src_id, int connections_count, int vector_index)->float
         {

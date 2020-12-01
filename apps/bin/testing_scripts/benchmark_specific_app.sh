@@ -1,9 +1,10 @@
 #!/bin/bash
 
 declare -A matrix
-file_name="./nec_stats.csv"
 PROG_NAME=$1
 PROG_ARGS=$2
+arch=$3
+file_name="./"$arch"_performance_stats.csv"
 algorithm_name=$PROG_NAME" "$PROG_ARGS
 algorithm_name=$(sed 's/ /|/g' <<< "$algorithm_name")
 

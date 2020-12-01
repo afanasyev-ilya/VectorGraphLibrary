@@ -41,7 +41,7 @@ void UndirectedCSRGraph::reorder_to_original(_T *_data, _T *_buffer)
     #endif
 
     #if defined(__USE_GPU__)
-    cuda_reorder_wrapper(_data, _buffer, backward_conversion, this->vertices_count);
+    cuda_reorder_wrapper_scatter(_data, _buffer, backward_conversion, this->vertices_count);
     #endif
 }
 
@@ -72,7 +72,7 @@ void UndirectedCSRGraph::reorder_to_sorted(_T *_data, _T *_buffer)
     #endif
 
     #if defined(__USE_GPU__)
-    cuda_reorder_wrapper(_data, _buffer, forward_conversion, this->vertices_count); // TODO which direction is faster?
+    cuda_reorder_wrapper_scatter(_data, _buffer, forward_conversion, this->vertices_count); // TODO which direction is faster?
     #endif
 }
 
@@ -196,7 +196,8 @@ void UndirectedCSRGraph::reorder_and_copy_edges_from_original_to_sorted(_T *_dst
     #endif
 
     #if defined(__USE_GPU__)
-    throw "Error UndirectedCSRGraph::reorder_and_copy_edges_from_original_to_sorted : not implemented yet";
+    cuda_reorder_wrapper_gather_copy(_dst_sorted, _src_original, edges_reorder_indexes, this->edges_count);
+    //throw "Error UndirectedCSRGraph::reorder_and_copy_edges_from_original_to_sorted : not implemented yet";
     #endif
 }
 
