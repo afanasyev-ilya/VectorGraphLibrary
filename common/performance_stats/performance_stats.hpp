@@ -7,6 +7,7 @@ PerformanceStats::PerformanceStats()
     number_of_runs = 0;
     avg_time = 0;
     best_time = std::numeric_limits<double>::max();
+    worst_time = 0;
     reset_timers();
 }
 
@@ -233,8 +234,21 @@ void PerformanceStats::update_timer_stats()
 {
     if(best_time > inner_wall_time)
         best_time = inner_wall_time;
+
+    if(worst_time < inner_wall_time)
+        worst_time = inner_wall_time;
+
     avg_time += inner_wall_time;
     number_of_runs++;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+void PerformanceStats::print_perf(long long _edges_count, int _k)
+{
+    print_min_perf(_edges_count, _k);
+    print_avg_perf(_edges_count, _k);
+    print_max_perf(_edges_count, _k);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -242,6 +256,13 @@ void PerformanceStats::update_timer_stats()
 void PerformanceStats::print_max_perf(long long _edges_count, int _k)
 {
     cout << "MAX_PERF: " << _k*(_edges_count / (best_time * 1e6)) << " MTEPS (among " << number_of_runs << " runs)" << endl;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+void PerformanceStats::print_min_perf(long long _edges_count, int _k)
+{
+    cout << "MIN_PERF: " << _k*(_edges_count / (worst_time * 1e6)) << " MTEPS (among " << number_of_runs << " runs)" << endl;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

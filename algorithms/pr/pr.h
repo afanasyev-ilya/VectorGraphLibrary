@@ -22,7 +22,8 @@ public:
     static void gpu_page_rank(VectCSRGraph &_graph,
                               VerticesArray<_T> &_page_ranks,
                               _T _convergence_factor = 1.0e-4,
-                              int _max_iterations = 5);
+                              int _max_iterations = 5,
+                              AlgorithmTraversalType _traversal_direction = PULL_TRAVERSAL);
     #endif
 
     template <typename _T>

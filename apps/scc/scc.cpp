@@ -64,7 +64,7 @@ int main(int argc, const char * argv[])
         }
 
         performance_stats.print_max_perf(graph.get_edges_count());
-        performance_stats.print_avg_perf(graph.get_edges_count());
+        arch
 
         // check if required
         if(parser.get_check_flag())

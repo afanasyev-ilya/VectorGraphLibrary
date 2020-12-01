@@ -7,7 +7,8 @@ template <typename _T>
 void PR::gpu_page_rank(VectCSRGraph &_graph,
                        VerticesArray<_T> &_page_ranks,
                        _T _convergence_factor,
-                       int _max_iterations)
+                       int _max_iterations,
+                       AlgorithmTraversalType _traversal_direction)
 {
     int vertices_count = _graph.get_vertices_count();
     long long edges_count = _graph.get_edges_count();
@@ -15,13 +16,27 @@ void PR::gpu_page_rank(VectCSRGraph &_graph,
     FrontierGPU frontier(_graph);
     frontier.set_all_active();
 
-    VerticesArray<int> number_of_loops(_graph, GATHER);
-    VerticesArray<int> incoming_degrees(_graph, GATHER);
-    VerticesArray<int> incoming_degrees_without_loops(_graph, GATHER);
-    VerticesArray<_T> reversed_degrees(_graph, GATHER);
-    VerticesArray<_T> old_page_ranks(_graph, SCATTER);
+    TraversalDirection reversed_direction = GATHER;
+    TraversalDirection primary_direction = SCATTER;
 
-    graph_API.change_traversal_direction(GATHER, frontier, incoming_degrees, number_of_loops, incoming_degrees_without_loops, reversed_degrees);
+    if(_traversal_direction == PUSH_TRAVERSAL)
+    {
+        reversed_direction = GATHER;
+        primary_direction = SCATTER;
+    }
+    else if(_traversal_direction == PULL_TRAVERSAL)
+    {
+        reversed_direction = SCATTER;
+        primary_direction = GATHER;
+    }
+
+    VerticesArray<int> number_of_loops(_graph, reversed_direction);
+    VerticesArray<int> incoming_degrees(_graph, reversed_direction);
+    VerticesArray<int> incoming_degrees_without_loops(_graph, reversed_direction);
+    VerticesArray<_T> reversed_degrees(_graph, reversed_direction);
+    VerticesArray<_T> old_page_ranks(_graph, primary_direction);
+
+    graph_API.change_traversal_direction(reversed_direction, frontier, incoming_degrees, number_of_loops, incoming_degrees_without_loops, reversed_degrees);
 
     auto get_incoming_degrees = [incoming_degrees] __device__ (int src_id, int connections_count, int vector_index)
     {
@@ -39,16 +54,30 @@ void PR::gpu_page_rank(VectCSRGraph &_graph,
     };
     graph_API.compute(_graph, frontier, init_data);
 
-    auto calculate_number_of_loops = [number_of_loops] __device__ (int src_id, int dst_id, int local_edge_pos, long long int global_edge_pos,
-                    int vector_index)
+    if(reversed_direction == GATHER)
     {
-        if(src_id == dst_id)
+        auto calculate_number_of_loops = [number_of_loops] __device__ (int src_id, int dst_id, int local_edge_pos, long long int global_edge_pos,
+                    int vector_index)
         {
-            atomicAdd(&number_of_loops[src_id], 1);
-        }
-    };
-
-    graph_API.gather(_graph, frontier, calculate_number_of_loops);
+            if(src_id == dst_id)
+            {
+                atomicAdd(&number_of_loops[src_id], 1);
+            }
+        };
+        graph_API.gather(_graph, frontier, calculate_number_of_loops);
+    }
+    else if(reversed_direction == SCATTER)
+    {
+        auto calculate_number_of_loops = [number_of_loops] __device__ (int src_id, int dst_id, int local_edge_pos, long long int global_edge_pos,
+                    int vector_index)
+        {
+            if(src_id == dst_id)
+            {
+                atomicAdd(&number_of_loops[dst_id], 1);
+            }
+        };
+        graph_API.scatter(_graph, frontier, calculate_number_of_loops);
+    }
 
     auto calculate_degrees_without_loops = [incoming_degrees_without_loops, incoming_degrees, number_of_loops] __device__ (int src_id, int connections_count, int vector_index)
     {
@@ -64,10 +93,7 @@ void PR::gpu_page_rank(VectCSRGraph &_graph,
     };
     graph_API.compute(_graph, frontier, calculate_reversed_degrees);
 
-    graph_API.change_traversal_direction(SCATTER, frontier, old_page_ranks, reversed_degrees, _page_ranks, incoming_degrees_without_loops);
-
-    incoming_degrees_without_loops.reorder(SCATTER);
-    reversed_degrees.reorder(SCATTER);
+    graph_API.change_traversal_direction(primary_direction, frontier, old_page_ranks, reversed_degrees, _page_ranks, incoming_degrees_without_loops);
 
     Timer tm;
     tm.start();
@@ -93,25 +119,32 @@ void PR::gpu_page_rank(VectCSRGraph &_graph,
         };
         double dangling_input = graph_API.reduce<double>(_graph, frontier, reduce_dangling_input, REDUCE_SUM);
 
-        auto edge_op = [_page_ranks, old_page_ranks, reversed_degrees, incoming_degrees_without_loops] __device__ (int src_id, int dst_id, int local_edge_pos,
+        if(primary_direction == SCATTER)
+        {
+            auto edge_op = [_page_ranks, old_page_ranks, reversed_degrees, incoming_degrees_without_loops] __device__ (int src_id, int dst_id, int local_edge_pos,
                     long long int global_edge_pos, int vector_index)
+            {
+                float src_rank = old_page_ranks[src_id];
+                float reversed_src_links_num = reversed_degrees[src_id];
+
+                if(src_id != dst_id)
+                    atomicAdd(&_page_ranks[dst_id], src_rank * reversed_src_links_num);
+            };
+            graph_API.scatter(_graph, frontier, edge_op);
+        }
+        else if(primary_direction == GATHER)
         {
-            float dst_rank = old_page_ranks[dst_id];
-            float reversed_dst_links_num = reversed_degrees[dst_id];
+            auto edge_op = [_page_ranks, old_page_ranks, reversed_degrees, incoming_degrees_without_loops] __device__ (int src_id, int dst_id, int local_edge_pos,
+                    long long int global_edge_pos, int vector_index)
+            {
+                float dst_rank = old_page_ranks[dst_id];
+                float reversed_dst_links_num = reversed_degrees[dst_id];
 
-            if(src_id != dst_id)
-                atomicAdd(&_page_ranks[src_id], dst_rank * reversed_dst_links_num);
-        };
-        /*auto EMPTY_VERTEX_OP = [] __device__(int src_id, int position_in_frontier, int connections_count){};
-
-        auto vertex_postprocess_op = [_page_ranks, k, d, dangling_input] __device__ (int src_id, int connections_count, int vector_index)
-        {
-            _page_ranks[src_id] = k + d * (_page_ranks[src_id] + dangling_input);
-        };
-
-        graph_API.scatter(_graph, frontier, edge_op, EMPTY_VERTEX_OP, vertex_postprocess_op, edge_op, EMPTY_VERTEX_OP, vertex_postprocess_op);*/
-
-        graph_API.scatter(_graph, frontier, edge_op);
+                if(src_id != dst_id)
+                    atomicAdd(&_page_ranks[src_id], dst_rank * reversed_dst_links_num);
+            };
+            graph_API.gather(_graph, frontier, edge_op);
+        }
 
         auto save_ranks = [_page_ranks, k, d, dangling_input] __device__ (int src_id, int connections_count, int vector_index)
         {

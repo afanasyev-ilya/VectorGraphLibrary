@@ -12,8 +12,6 @@
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#define __PRINT_API_PERFORMANCE_STATS__
-
 #include "graph_library.h"
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -78,8 +76,7 @@ int main(int argc, const char * argv[])
             }
         }
 
-        performance_stats.print_max_perf(graph.get_edges_count());
-        performance_stats.print_avg_perf(graph.get_edges_count());
+        performance_stats.print_perf(graph.get_edges_count());
     }
     catch (string error)
     {

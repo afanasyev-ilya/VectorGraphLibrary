@@ -73,8 +73,7 @@ int main(int argc, const char * argv[])
                 verify_results(distances, check_distances);
             }
         }
-        performance_stats.print_max_perf(graph.get_edges_count());
-        performance_stats.print_avg_perf(graph.get_edges_count());
+        performance_stats.print_perf(graph.get_edges_count(), parser.get_number_of_rounds());
     }
     catch (string error)
     {

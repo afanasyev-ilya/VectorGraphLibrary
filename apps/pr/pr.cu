@@ -50,10 +50,9 @@ int main(int argc, const char * argv[])
         VerticesArray<float> page_ranks(graph);
         performance_stats.reset_timers();
         float convergence_factor = 1.0e-4;
-        PageRank::gpu_page_rank(graph, page_ranks, convergence_factor, parser.get_number_of_rounds());
+        PageRank::gpu_page_rank(graph, page_ranks, convergence_factor, parser.get_number_of_rounds(), parser.get_traversal_direction());
         performance_stats.print_timers_stats();
-        performance_stats.print_max_perf(graph.get_edges_count(), parser.get_number_of_rounds());
-        performance_stats.print_avg_perf(graph.get_edges_count(), parser.get_number_of_rounds());
+        performance_stats.print_perf(graph.get_edges_count(), parser.get_number_of_rounds());
 
         graph.move_to_host();
 

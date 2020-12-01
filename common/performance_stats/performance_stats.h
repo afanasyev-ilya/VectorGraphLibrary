@@ -13,6 +13,7 @@ private:
     int number_of_runs;
     double avg_time;
     double best_time;
+    double worst_time;
 
     double inner_wall_time;
     double advance_time;
@@ -52,6 +53,8 @@ public:
     void print_timers_stats();
     void update_timer_stats();
 
+    void print_perf(long long _edges_count, int _k = 1);
+    void print_min_perf(long long _edges_count, int _k = 1);
     void print_max_perf(long long _edges_count, int _k = 1);
     void print_avg_perf(long long _edges_count, int _k = 1);
 
