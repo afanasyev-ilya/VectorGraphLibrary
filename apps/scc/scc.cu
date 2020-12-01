@@ -53,6 +53,7 @@ int main(int argc, const char * argv[])
         performance_stats.reset_timers();
         SCC::gpu_forward_backward(graph, components);
         performance_stats.print_timers_stats();
+        performance_stats.print_perf(graph.get_edges_count());
 
         // check if required
         if(parser.get_check_flag())
