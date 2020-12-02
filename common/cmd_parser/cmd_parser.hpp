@@ -13,7 +13,7 @@ Parser::Parser()
     check_flag = false;
     graph_file_name = "test.graph";
     number_of_rounds = 1;
-    algorithm_bfs = DIRECTION_OPTIMIZING_BFS_ALGORITHM;
+    algorithm_bfs = TOP_DOWN_BFS_ALGORITHM;
     algorithm_cc = SHILOACH_VISHKIN_ALGORITHM;
 
     device_num = 0;
