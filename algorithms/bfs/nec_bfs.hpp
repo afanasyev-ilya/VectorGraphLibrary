@@ -405,35 +405,39 @@ void BFS::nec_direction_optimizing(VectCSRGraph &_graph,
             auto is_unvisited = [_levels] (int src_id, int connections_count)->int
             {
                 int result = NOT_IN_FRONTIER_FLAG;
-                if(_levels[src_id] == UNVISITED_VERTEX)
+                if((_levels[src_id] == UNVISITED_VERTEX) && (connections_count > 0))
                     result = IN_FRONTIER_FLAG;
                 return result;
             };
             graph_API.generate_new_frontier(_graph, frontier, is_unvisited);
+
+            frontier.print_stats();
 
             #pragma omp parallel
             {
                 NEC_REGISTER_INT(vis, 0);
                 NEC_REGISTER_INT(in_lvl, 0);
 
-                auto edge_op = [_levels, current_level, &reg_vis, &reg_in_lvl](int src_id, int dst_id, int local_edge_pos,
+                int *levels_ptr = _levels.get_ptr();
+
+                auto edge_op = [levels_ptr, current_level, &reg_vis, &reg_in_lvl](int src_id, int dst_id, int local_edge_pos,
                     long long int global_edge_pos, int vector_index, DelayedWriteNEC &delayed_write)
                 {
-                    reg_in_lvl[vector_index]++;
-                    if((_levels[src_id] == UNVISITED_VERTEX) && (_levels[dst_id] == current_level))
+                    //reg_in_lvl[vector_index]++;
+                    if((levels_ptr[src_id] == UNVISITED_VERTEX) && (levels_ptr[dst_id] == current_level))
                     {
-                        _levels[src_id] = current_level + 1;
+                        levels_ptr[src_id] = current_level + 1;
                         reg_vis[vector_index]++;
                     }
                 };
 
-                auto edge_collective_op = [_levels, current_level, &reg_vis, &reg_in_lvl](int src_id, int dst_id, int local_edge_pos,
+                auto edge_collective_op = [levels_ptr, current_level, &reg_vis, &reg_in_lvl](int src_id, int dst_id, int local_edge_pos,
                     long long int global_edge_pos, int vector_index, DelayedWriteNEC &delayed_write)
                 {
-                    reg_in_lvl[vector_index]++;
-                    if((_levels[src_id] == UNVISITED_VERTEX) && (_levels[dst_id] == current_level))
+                    //reg_in_lvl[vector_index]++;
+                    if((levels_ptr[src_id] == UNVISITED_VERTEX) && (levels_ptr[dst_id] == current_level))
                     {
-                        _levels[src_id] = current_level + 1;
+                        levels_ptr[src_id] = current_level + 1;
                         reg_vis[vector_index]++;
                     }
                 };
