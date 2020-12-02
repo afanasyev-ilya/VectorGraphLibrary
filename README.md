@@ -6,7 +6,7 @@ CONTENTS OF THIS FILE
  * Installation
  * Maintainers
 
-To learn more about VGL framework, please visit [vgl.parallel.ru](vgl.parallel.ru) website.
+To learn more about VGL framework, please visit [vgl.parallel.ru](https://www.vgl.parallel.ru) website.
 
 INTRODUCTION
 ------------
