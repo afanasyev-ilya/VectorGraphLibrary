@@ -2,157 +2,6 @@
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#ifdef __USE_NEC_SX_AURORA__
-void BFS::nec_top_down_compute_step(VectCSRGraph &_graph,
-                                    VerticesArray<int> &_levels,
-                                    int _current_level,
-                                    int &_vis,
-                                    int &_in_lvl,
-                                    bool _compute_stats)
-{
-    /*if(_compute_stats)
-    {
-        #pragma omp parallel
-        {
-            NEC_REGISTER_INT(vis, 0);
-            NEC_REGISTER_INT(in_lvl, 0);
-
-            auto edge_op_with_stats = [_levels, _current_level, &reg_vis, &reg_in_lvl](int src_id, int dst_id, int local_edge_pos,
-                    long long int global_edge_pos, int vector_index, DelayedWriteNEC &delayed_write)
-            {
-                int src_level = _levels[src_id];
-                int dst_level = _levels[dst_id];
-                reg_in_lvl[vector_index]++;
-                if((src_level == _current_level) && (dst_level == UNVISITED_VERTEX))
-                {
-                    _levels[dst_id] = _current_level + 1;
-                    reg_vis[vector_index]++;
-                }
-            };
-
-            graph_API.advance(_graph, frontier, edge_op_with_stats);
-
-            int local_vis = register_sum_reduce(reg_vis);
-            int local_in_lvl = register_sum_reduce(reg_in_lvl);
-
-            #pragma omp atomic
-            _vis += local_vis;
-
-            #pragma omp atomic
-            _in_lvl += local_in_lvl;
-        }
-    }
-    else
-    {
-        auto edge_op = [_levels, _current_level](int src_id, int dst_id, int local_edge_pos,
-                long long int global_edge_pos, int vector_index, DelayedWriteNEC &delayed_write)
-        {
-            int src_level = _levels[src_id];
-            int dst_level = _levels[dst_id];
-            if((src_level == _current_level) && (dst_level == UNVISITED_VERTEX))
-            {
-                _levels[dst_id] = _current_level + 1;
-            }
-        };
-
-        graph_API.advance(_graph, frontier, edge_op);
-    }*/
-}
-#endif
-
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-#ifdef __USE_NEC_SX_AURORA__
-void BFS::nec_bottom_up_compute_step(VectCSRGraph &_graph,
-                                     VerticesArray<int> &_levels,
-                                     int *_connections_array,
-                                     int _current_level,
-                                     int &_vis,
-                                     int &_in_lvl,
-                                     bool _use_vector_extension)
-{
-    /*int first_edge = 0;
-    if(_use_vector_extension)
-    {
-        frontier.set_all_active();
-
-        first_edge = 4;
-        #pragma omp parallel
-        {
-            NEC_REGISTER_INT(vis, 0);
-            NEC_REGISTER_INT(in_lvl, 0);
-
-            auto edge_op = [_levels, _current_level, &reg_vis, &reg_in_lvl](int src_id, int dst_id, int local_edge_pos,
-                    long long int global_edge_pos, int vector_index, DelayedWriteNEC &delayed_write)
-            {
-                if((_levels[src_id] == UNVISITED_VERTEX) && (_levels[dst_id] == _current_level))
-                {
-                    _levels[src_id] = _current_level + 1;
-                    reg_vis[vector_index]++;
-                }
-            };
-
-            graph_API.partial_advance(_graph, frontier, edge_op, 0, first_edge);
-
-            int local_vis = register_sum_reduce(reg_vis);
-
-            #pragma omp atomic
-            _vis += local_vis;
-        }
-    }
-
-    auto vertex_value_is_unset = [_levels, _connections_array, first_edge] (int src_id)->int
-    {
-        int result = NOT_IN_FRONTIER_FLAG;
-        if((_levels[src_id] == UNVISITED_VERTEX) && (_connections_array[src_id] > 0))
-            result = IN_FRONTIER_FLAG;
-        return result;
-    };
-    graph_API.generate_new_frontier(_graph, frontier, vertex_value_is_unset); // TODO replace with filter
-
-    #pragma omp parallel
-    {
-        NEC_REGISTER_INT(vis, 0);
-        NEC_REGISTER_INT(in_lvl, 0);
-
-        auto edge_op = [_levels, _current_level, &reg_vis, &reg_in_lvl](int src_id, int dst_id, int local_edge_pos,
-                long long int global_edge_pos, int vector_index, DelayedWriteNEC &delayed_write)
-        {
-            reg_in_lvl[vector_index]++;
-            if((_levels[src_id] == UNVISITED_VERTEX) && (_levels[dst_id] == _current_level))
-            {
-                _levels[src_id] = _current_level + 1;
-                reg_vis[vector_index]++;
-            }
-        };
-
-        auto edge_collective_op = [_levels, _current_level, &reg_vis, &reg_in_lvl](int src_id, int dst_id, int local_edge_pos,
-                long long int global_edge_pos, int vector_index, DelayedWriteNEC &delayed_write)
-        {
-            reg_in_lvl[vector_index]++;
-            if((_levels[src_id] == UNVISITED_VERTEX) && (_levels[dst_id] == _current_level))
-            {
-                _levels[src_id] = _current_level + 1;
-                reg_vis[vector_index]++;
-            }
-        };
-
-        graph_API.advance(_graph, frontier, edge_op);
-
-        int local_vis = register_sum_reduce(reg_vis);
-        int local_in_lvl = register_sum_reduce(reg_in_lvl);
-
-        #pragma omp atomic
-        _vis += local_vis;
-
-        #pragma omp atomic
-        _in_lvl += local_in_lvl;
-    }*/
-}
-#endif
-
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
 /*#ifdef __USE_NEC_SX_AURORA__
 double BFS::nec_direction_optimizing(VectCSRGraph &_graph,
                                      int *_levels,
@@ -327,38 +176,27 @@ double BFS::nec_direction_optimizing(VectCSRGraph &_graph,
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#define BFS_VE_SIZE 5
-
 #ifdef __USE_NEC_SX_AURORA__
 template <typename _T>
 void BFS::nec_direction_optimizing(VectCSRGraph &_graph,
                                    VerticesArray<_T> &_levels,
-                                   int _source_vertex)
+                                   int _source_vertex,
+                                   BFS_GraphVE &_vector_extension)
 {
     GraphAbstractionsNEC graph_API(_graph);
     FrontierNEC frontier(_graph);
+
     int vertices_count = _graph.get_vertices_count();
     long long edges_count = _graph.get_edges_count();
-    frontier.set_all_active();
-
-    int *bfs_vector_extension;
-    MemoryAPI::allocate_array(&bfs_vector_extension, vertices_count * BFS_VE_SIZE);
-    for(int i = 0; i < vertices_count * BFS_VE_SIZE; i++)
-        bfs_vector_extension[i] = -1;
-
-    auto copy_edge_to_ve = [bfs_vector_extension, vertices_count](int src_id, int dst_id, int local_edge_pos,
-                long long int global_edge_pos, int vector_index, DelayedWriteNEC &delayed_write)
-    {
-        if(local_edge_pos < BFS_VE_SIZE)
-            bfs_vector_extension[src_id + vertices_count*local_edge_pos] = dst_id;
-    };
-    graph_API.scatter(_graph, frontier, copy_edge_to_ve); // TODO GATHER if directed
-
-    performance_stats.reset_timers();
 
     graph_API.change_traversal_direction(SCATTER, _levels, frontier);
     _source_vertex = _graph.reorder(_source_vertex, ORIGINAL, SCATTER);
 
+    vector<StateOfBFS> step_states;
+    vector<double> step_times;
+
+    Timer tm;
+    tm.start();
     auto init_levels = [_levels, _source_vertex] (int src_id, int connections_count, int vector_index)
     {
         if(src_id == _source_vertex)
@@ -366,13 +204,12 @@ void BFS::nec_direction_optimizing(VectCSRGraph &_graph,
         else
             _levels[src_id] = UNVISITED_VERTEX;
     };
+    frontier.set_all_active();
     graph_API.compute(_graph, frontier, init_levels);
 
     frontier.clear();
     frontier.add_vertex(_source_vertex);
 
-    Timer tm;
-    tm.start();
     int BU_count = 0;
     int vis = 1, in_lvl = 0;
     int current_level = FIRST_LEVEL_VERTEX;
@@ -381,22 +218,27 @@ void BFS::nec_direction_optimizing(VectCSRGraph &_graph,
     int current_frontier_size = 1, prev_frontier_size = 0;
     while(vis > 0)
     {
+        Timer tm_step;
+        tm_step.start();
+        step_states.push_back(current_state);
+
         vis = 0, in_lvl = 0;
         if(current_state == TOP_DOWN)
         {
-            cout << "level " << current_level << " in TD state" << endl;
             int *levels_ptr = _levels.get_ptr();
 
-            auto on_this_level = [levels_ptr, current_level] (int src_id, int connections_count)->int
-            {
-                int result = NOT_IN_FRONTIER_FLAG;
-                if(levels_ptr[src_id] == (current_level))
-                    result = IN_FRONTIER_FLAG;
-                return result;
-            };
-
             if(current_level > FIRST_LEVEL_VERTEX)
+            {
+                auto on_this_level = [levels_ptr, current_level] (int src_id, int connections_count)->int
+                {
+                    int result = NOT_IN_FRONTIER_FLAG;
+                    if(levels_ptr[src_id] == (current_level))
+                        result = IN_FRONTIER_FLAG;
+                    return result;
+                };
                 graph_API.generate_new_frontier(_graph, frontier, on_this_level);
+            }
+
 
             auto edge_op = [levels_ptr, &current_level](int src_id, int dst_id, int local_edge_pos,
                 long long int global_edge_pos, int vector_index, DelayedWriteNEC &delayed_write)
@@ -422,7 +264,6 @@ void BFS::nec_direction_optimizing(VectCSRGraph &_graph,
         else if(current_state == BOTTOM_UP)
         {
             BU_count++;
-            cout << "level " << current_level << " in BU state" << endl;
             int *levels_ptr = _levels.get_ptr();
 
             Timer tm_ve;
@@ -436,9 +277,9 @@ void BFS::nec_direction_optimizing(VectCSRGraph &_graph,
                 #pragma _NEC vector
                 #pragma _NEC gather_reorder
                 #pragma omp parallel for
-                for(int src_id = 0; src_id < vertices_count; src_id++)
+                for(int src_id = 0; src_id < _vector_extension.ve_vertices_count; src_id++)
                 {
-                    int dst_id = bfs_vector_extension[src_id + step * vertices_count];
+                    int dst_id = _vector_extension.ve_dst_ids[src_id + step * _vector_extension.ve_vertices_count];
                     if(dst_id != -1)
                     {
                         int src_level = levels_ptr[src_id];
@@ -451,7 +292,7 @@ void BFS::nec_direction_optimizing(VectCSRGraph &_graph,
                 }
             }
             tm_ve.end();
-            //tm.print_bandwidth_stats("BFS VE", vertices_count * BFS_VE_SIZE, sizeof(int)*3);
+            tm.print_bandwidth_stats("BFS VE", vertices_count * BFS_VE_SIZE, sizeof(int)*3);
             performance_stats.update_non_api_time(tm_ve);
 
             auto is_unvisited = [_levels] (int src_id, int connections_count)->int
@@ -533,13 +374,17 @@ void BFS::nec_direction_optimizing(VectCSRGraph &_graph,
         if(BU_count == 2)
             current_state = TOP_DOWN;
         current_level++;
+        tm_step.end();
+        step_times.push_back(tm_step.get_time());
     }
     tm.end();
-    cout << "iterations count: " << current_level << endl;
-
-    MemoryAPI::free_array(bfs_vector_extension);
 
     #ifdef __PRINT_SAMPLES_PERFORMANCE_STATS__
+    cout << "iterations count: " << current_level << endl;
+    for(int i = 0; i < step_times.size(); i++)
+    {
+        cout << "step " << i << " perf: " << edges_count/(step_times[i]*1e6) << " MTEPS, time: " << 1000.0 * step_times[i] << " ms, " << " % in state " << step_states[i] << endl;
+    }
     PerformanceStats::print_algorithm_performance_stats("BFS (Direction-optimizing, NEC)", tm.get_time(), _graph.get_edges_count(), current_level);
     #endif
 }

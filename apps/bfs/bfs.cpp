@@ -52,6 +52,9 @@ int main(int argc, const char * argv[])
         // print graphs stats
         graph.print_size();
 
+        // init ve
+        BFS_GraphVE vector_extension_for_bfs(graph);
+
         // compute BFS
         cout << "Computations started..." << endl;
         cout << "Doing " << parser.get_number_of_rounds() << " BFS iterations..." << endl;
@@ -66,7 +69,7 @@ int main(int argc, const char * argv[])
             if(parser.get_algorithm_bfs() == TOP_DOWN_BFS_ALGORITHM)
                 BFS::nec_top_down(graph, levels, source_vertex);
             else if(parser.get_algorithm_bfs() == DIRECTION_OPTIMIZING_BFS_ALGORITHM)
-                BFS::nec_direction_optimizing(graph, levels, source_vertex);
+                BFS::nec_direction_optimizing(graph, levels, source_vertex, vector_extension_for_bfs);
             performance_stats.print_timers_stats();
 
             // check if required
