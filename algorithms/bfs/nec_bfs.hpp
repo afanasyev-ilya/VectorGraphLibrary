@@ -268,6 +268,8 @@ void BFS::nec_direction_optimizing(VectCSRGraph &_graph,
 
             Timer tm_ve;
             tm_ve.start();
+            int ve_vertices_count = _vector_extension.ve_vertices_count;
+            int *ve_dst_ids = _vector_extension.ve_dst_ids;
             #pragma _NEC unroll(BFS_VE_SIZE)
             for(int step = 0; step < BFS_VE_SIZE; step++)
             {
@@ -277,9 +279,9 @@ void BFS::nec_direction_optimizing(VectCSRGraph &_graph,
                 #pragma _NEC vector
                 #pragma _NEC gather_reorder
                 #pragma omp parallel for
-                for(int src_id = 0; src_id < _vector_extension.ve_vertices_count; src_id++)
+                for(int src_id = 0; src_id < ve_vertices_count; src_id++)
                 {
-                    int dst_id = _vector_extension.ve_dst_ids[src_id + step * _vector_extension.ve_vertices_count];
+                    int dst_id = ve_dst_ids[src_id + step * ve_vertices_count];
                     if(dst_id != -1)
                     {
                         int src_level = levels_ptr[src_id];
@@ -292,7 +294,7 @@ void BFS::nec_direction_optimizing(VectCSRGraph &_graph,
                 }
             }
             tm_ve.end();
-            tm.print_bandwidth_stats("BFS VE", vertices_count * BFS_VE_SIZE, sizeof(int)*3);
+            //tm_ve.print_bandwidth_stats("BFS VE", ve_vertices_count * BFS_VE_SIZE, sizeof(int)*3.0);
             performance_stats.update_non_api_time(tm_ve);
 
             auto is_unvisited = [_levels] (int src_id, int connections_count)->int
