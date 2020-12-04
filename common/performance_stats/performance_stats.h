@@ -26,6 +26,7 @@ private:
     double reduce_time;
     double reorder_time;
     double pack_time;
+    double non_api_time;
 
     void print_abstraction_stats(string _name, double _time);
     void print_detailed_advance_stats(string _name, double _time);
@@ -45,6 +46,7 @@ public:
     void update_gnf_time(Timer &_timer);
     void update_pack_time(Timer &_timer);
     void update_reorder_time(Timer &_timer);
+    void update_non_api_time(Timer &_timer);
 
     void update_advance_ve_part_time(Timer &_timer);
     void update_advance_vc_part_time(Timer &_timer);

@@ -130,6 +130,17 @@ void PerformanceStats::update_reorder_time(Timer &_timer)
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+void PerformanceStats::update_non_api_time(Timer &_timer)
+{
+    #pragma omp master
+    {
+        inner_wall_time += _timer.get_time();
+        non_api_time += _timer.get_time();
+    }
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 void PerformanceStats::reset_timers()
 {
     inner_wall_time = 0;
@@ -146,6 +157,8 @@ void PerformanceStats::reset_timers()
     reduce_time = 0;
     reorder_time = 0;
     pack_time = 0;
+
+    non_api_time = 0;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -223,6 +236,7 @@ void PerformanceStats::print_timers_stats()
     print_abstraction_stats("GNF           ", gnf_time);
     print_abstraction_stats("Reorder       ", reorder_time);
     print_abstraction_stats("Pack          ", pack_time);
+    print_abstraction_stats("Non-API       ", non_api_time);
     cout << endl;
 
     update_timer_stats();
