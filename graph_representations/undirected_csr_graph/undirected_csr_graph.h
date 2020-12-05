@@ -156,6 +156,8 @@ public:
     // creates UndirectedCSRGraph format from EdgesListGraph
     void import(EdgesListGraph &_old_graph);
 
+    void sort_adjacent_edges();
+
     friend class GraphAbstractions;
     friend class VectCSRGraph;
     friend class ShardedCSRGraph;

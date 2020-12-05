@@ -231,3 +231,34 @@ void UndirectedCSRGraph::import(EdgesListGraph &_el_graph)
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+void UndirectedCSRGraph::sort_adjacent_edges()
+{
+    #ifdef __USE_ASL__
+    ASL_CALL(asl_library_initialize());
+    asl_sort_t hnd;
+    ASL_CALL(asl_sort_create_i32(&hnd, ASL_SORTORDER_ASCENDING, ASL_SORTALGORITHM_AUTO));
+
+    Timer tm;
+    tm.start();
+    #pragma omp parallel for
+    for(int src_id = 0; src_id < this->vertices_count; src_id++)
+    {
+        int connections_count = vertex_pointers[src_id + 1] - vertex_pointers[src_id];
+        if(connections_count >= VECTOR_LENGTH)
+        {
+            long long first = vertex_pointers[src_id];
+            long long last = vertex_pointers[src_id + 1];
+            ASL_CALL(asl_sort_execute_i32(hnd, connections_count, &adjacent_ids[first],
+                                          NULL, &adjacent_ids[first], NULL));
+        }
+    }
+    tm.end();
+    tm.print_time_stats("edges segmented sort");
+
+    ASL_CALL(asl_sort_destroy(hnd));
+    ASL_CALL(asl_library_finalize());
+    #endif
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
