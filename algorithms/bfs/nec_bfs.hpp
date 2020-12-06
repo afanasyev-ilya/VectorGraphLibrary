@@ -266,37 +266,62 @@ void BFS::nec_direction_optimizing(VectCSRGraph &_graph,
             BU_count++;
             int *levels_ptr = _levels.get_ptr();
 
-            Timer tm_ve;
-            tm_ve.start();
-            int ve_vertices_count = _vector_extension.ve_vertices_count;
-            int *ve_dst_ids = _vector_extension.ve_dst_ids;
-            #pragma _NEC unroll(BFS_VE_SIZE)
-            for(int step = 0; step < BFS_VE_SIZE; step++)
+            if(BU_count == 1)
             {
-                #pragma _NEC ivdep
-                #pragma _NEC vovertake
-                #pragma _NEC novob
-                #pragma _NEC vector
-                #pragma _NEC gather_reorder
-                #pragma omp parallel for
-                for(int src_id = 0; src_id < ve_vertices_count; src_id++)
+                Timer tm_ve;
+                tm_ve.start();
+                int ve_vertices_count = _vector_extension.ve_vertices_count;
+                int *ve_dst_ids = _vector_extension.ve_dst_ids;
+                #pragma omp parallel
                 {
-                    int dst_id = ve_dst_ids[src_id + step * ve_vertices_count];
-                    if(dst_id != -1)
+                    NEC_REGISTER_INT(vis, 0);
+                    NEC_REGISTER_INT(in_lvl, 0);
+
+                    #pragma _NEC unroll(BFS_VE_SIZE)
+                    for(int step = 0; step < BFS_VE_SIZE; step++)
                     {
-                        int src_level = levels_ptr[src_id];
-                        int dst_level = levels_ptr[dst_id];
-                        if((src_level == UNVISITED_VERTEX) && (dst_level == current_level))
+                        #pragma omp for schedule(static, 8)
+                        for(int vec_start = 0; vec_start < ve_vertices_count; vec_start += VECTOR_LENGTH)
                         {
-                            levels_ptr[src_id] = current_level + 1;
+                            #pragma _NEC ivdep
+                            #pragma _NEC vovertake
+                            #pragma _NEC novob
+                            #pragma _NEC vector
+                            #pragma _NEC gather_reorder
+                            for(int i = 0; i < VECTOR_LENGTH; i++)
+                            {
+                                int src_id = vec_start + i;
+                                int dst_id = ve_dst_ids[src_id + step * ve_vertices_count];
+                                if(dst_id != -1)
+                                {
+                                    reg_in_lvl[i]++;
+                                    int src_level = levels_ptr[src_id];
+                                    int dst_level = levels_ptr[dst_id];
+                                    if((src_level == UNVISITED_VERTEX) && (dst_level == current_level))
+                                    {
+                                        levels_ptr[src_id] = current_level + 1;
+                                        reg_vis[i]++;
+                                    }
+                                }
+                            }
                         }
                     }
+
+                    int local_vis = register_sum_reduce(reg_vis);
+                    int local_in_lvl = register_sum_reduce(reg_in_lvl);
+
+                    #pragma omp atomic
+                    vis += local_vis;
+
+                    #pragma omp atomic
+                    in_lvl += local_in_lvl;
                 }
+
+                tm_ve.end();
+                ve_time += tm_ve.get_time_in_ms();
+                //tm_ve.print_bandwidth_stats("BFS VE", ve_vertices_count * BFS_VE_SIZE, sizeof(int)*3.0);
+                performance_stats.update_non_api_time(tm_ve);
             }
-            tm_ve.end();
-            ve_time += tm_ve.get_time_in_ms();
-            //tm_ve.print_bandwidth_stats("BFS VE", ve_vertices_count * BFS_VE_SIZE, sizeof(int)*3.0);
-            performance_stats.update_non_api_time(tm_ve);
 
             auto is_unvisited = [_levels] (int src_id, int connections_count)->int
             {
@@ -350,7 +375,8 @@ void BFS::nec_direction_optimizing(VectCSRGraph &_graph,
                     }
                 };
 
-                graph_API.gather(_graph, frontier, edge_op, EMPTY_VERTEX_OP, postprocess, edge_collective_op, EMPTY_VERTEX_OP, EMPTY_VERTEX_OP);
+                //graph_API.gather(_graph, frontier, edge_op, EMPTY_VERTEX_OP, postprocess, edge_collective_op, EMPTY_VERTEX_OP, EMPTY_VERTEX_OP);
+                graph_API.scatter(_graph, frontier, edge_op, EMPTY_VERTEX_OP, postprocess, edge_collective_op, EMPTY_VERTEX_OP, EMPTY_VERTEX_OP);
 
                 int local_vis = register_sum_reduce(reg_vis);
                 int local_in_lvl = register_sum_reduce(reg_in_lvl);
@@ -361,8 +387,8 @@ void BFS::nec_direction_optimizing(VectCSRGraph &_graph,
                 #pragma omp atomic
                 in_lvl += local_in_lvl;
             }
-            cout << "vis BU: " << vis << endl;
-            cout << "in lvl BU: " << in_lvl << endl;
+            //cout << "vis BU: " << vis << endl;
+            //cout << "in lvl BU: " << in_lvl << endl;
         }
 
         prev_frontier_size = current_frontier_size;
@@ -375,13 +401,13 @@ void BFS::nec_direction_optimizing(VectCSRGraph &_graph,
             new_state = TOP_DOWN;
         }
 
-        if(new_state != current_state)
+        /*if(new_state != current_state)
         {
             if(new_state == BOTTOM_UP)
                 graph_API.change_traversal_direction(GATHER, _levels, frontier);
             if(new_state == TOP_DOWN)
                 graph_API.change_traversal_direction(SCATTER, _levels, frontier);
-        }
+        }*/
 
         current_state = new_state;
         current_level++;

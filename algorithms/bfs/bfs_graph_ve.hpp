@@ -5,8 +5,10 @@
 BFS_GraphVE::BFS_GraphVE(VectCSRGraph &_graph)
 {
     #ifdef __USE_NEC_SX_AURORA__
-    GraphAbstractionsNEC graph_API(_graph, GATHER);
-    FrontierNEC frontier(_graph, GATHER);
+    GraphAbstractionsNEC graph_API(_graph, SCATTER);
+    FrontierNEC frontier(_graph, SCATTER);
+    //GraphAbstractionsNEC graph_API(_graph, GATHER);
+    //FrontierNEC frontier(_graph, GATHER);
 
     _graph.get_incoming_graph_ptr()->sort_adjacent_edges();
 
@@ -22,8 +24,14 @@ BFS_GraphVE::BFS_GraphVE(VectCSRGraph &_graph)
     };
     int non_zero_count = graph_API.reduce<int>(_graph, frontier, calculate_non_zero_count, REDUCE_SUM);
 
+    while(non_zero_count % VECTOR_LENGTH != 0)
+    {
+        non_zero_count++;
+    }
     ve_vertices_count = non_zero_count; // TODO only non-zero
     ve_edges_per_vertex = BFS_VE_SIZE;
+
+    cout << "non_zero_count: " << non_zero_count << endl;
 
     MemoryAPI::allocate_array(&ve_dst_ids, ve_vertices_count * ve_edges_per_vertex);
     #pragma _NEC vector
@@ -42,7 +50,8 @@ BFS_GraphVE::BFS_GraphVE(VectCSRGraph &_graph)
             l_ve_dst_ids[src_id + l_ve_vertices_count*local_edge_pos] = dst_id;
     };
     frontier.set_all_active();
-    graph_API.gather(_graph, frontier, copy_edge_to_ve); // TODO GATHER if directed
+    //graph_API.gather(_graph, frontier, copy_edge_to_ve); // TODO GATHER if directed
+    graph_API.scatter(_graph, frontier, copy_edge_to_ve);
     #endif
 }
 
