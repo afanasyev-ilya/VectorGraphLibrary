@@ -26,6 +26,7 @@ int main(int argc, const char * argv[])
     try
     {
         cout << "SSSP (Single Source Shortest Paths) test..." << endl;
+        cout << "max threads: " << omp_get_max_threads() << endl;
 
         // parse args
         Parser parser;

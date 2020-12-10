@@ -224,7 +224,7 @@ void PerformanceStats::print_timers_stats()
     cout << endl;
     print_abstraction_stats("Inner wall    ", inner_wall_time);
     print_abstraction_stats("Advance       ", advance_time);
-    #ifdef __USE_NEC_SX_AURORA__
+    #if defined(__USE_NEC_SX_AURORA__) || defined(__USE_MULTICORE__)
     print_detailed_advance_stats("Advance (ve) time        ", advance_ve_part_time);
     print_detailed_advance_stats("Advance (vc) time        ", advance_vc_part_time);
     print_detailed_advance_stats("Advance (collective) time", advance_collective_part_time);
