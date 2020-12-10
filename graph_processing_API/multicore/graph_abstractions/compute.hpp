@@ -12,13 +12,22 @@ void GraphAbstractionsMulticore::compute(VectCSRGraph &_graph,
 
     int max_frontier_size = _frontier.max_size;
 
-    #pragma omp parallel for schedule(static)
+    Timer tm;
+    tm.start();
+    #pragma simd
+    #pragma ivdep
+    #pragma omp parallel for
     for(int src_id = 0; src_id < max_frontier_size; src_id++)
     {
         int connections_count = vertex_pointers[src_id + 1] - vertex_pointers[src_id];
-        int vector_index = 0;//get_vector_index(src_id);
+        int vector_index = src_id % VECTOR_LENGTH;
         compute_op(src_id, connections_count, vector_index);
     }
+    tm.end();
+    performance_stats.update_compute_time(tm);
+    #ifdef __PRINT_API_PERFORMANCE_STATS__
+    tm.print_time_and_bandwidth_stats("Compute", _frontier.size(), COMPUTE_INT_ELEMENTS*sizeof(int));
+    #endif
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

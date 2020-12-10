@@ -13,7 +13,7 @@
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-//#define __PRINT_API_PERFORMANCE_STATS__
+#define __PRINT_API_PERFORMANCE_STATS__
 
 #include "graph_library.h"
 
@@ -23,6 +23,8 @@ int main(int argc, const char * argv[])
 {
     try
     {
+        DirectionType direction = UNDIRECTED_GRAPH;
+
         // parse args
         Parser parser;
         parser.parse_args(argc, argv);
@@ -38,6 +40,7 @@ int main(int argc, const char * argv[])
             else if(parser.get_graph_type() == RANDOM_UNIFORM)
                 GraphGenerationAPI::random_uniform(el_graph, v, v * parser.get_avg_degree(), UNDIRECTED_GRAPH);
             graph.import(el_graph);
+            direction = UNDIRECTED_GRAPH;
         }
         else if(parser.get_compute_mode() == LOAD_GRAPH_FROM_FILE)
         {
@@ -47,9 +50,11 @@ int main(int argc, const char * argv[])
                 throw "Error: graph file not found";
             tm.end();
             tm.print_time_stats("Graph load");
+            direction = UNDIRECTED_GRAPH;
         }
 
         // print graphs stats
+        graph.print_stats();
         graph.print_size();
 
         // init ve
@@ -65,11 +70,12 @@ int main(int argc, const char * argv[])
             int source_vertex = graph.select_random_vertex(ORIGINAL);
             cout << "selected source vertex " << source_vertex << endl;
 
+            cout << "Direction: " << direction << endl;
             performance_stats.reset_timers();
             if(parser.get_algorithm_bfs() == TOP_DOWN_BFS_ALGORITHM)
                 BFS::nec_top_down(graph, levels, source_vertex);
             else if(parser.get_algorithm_bfs() == DIRECTION_OPTIMIZING_BFS_ALGORITHM)
-                BFS::nec_direction_optimizing(graph, levels, source_vertex, vector_extension_for_bfs);
+                BFS::nec_direction_optimizing(graph, levels, source_vertex, vector_extension_for_bfs, direction);
             performance_stats.print_timers_stats();
 
             // check if required

@@ -181,8 +181,10 @@ template <typename _T>
 void BFS::nec_direction_optimizing(VectCSRGraph &_graph,
                                    VerticesArray<_T> &_levels,
                                    int _source_vertex,
-                                   BFS_GraphVE &_vector_extension)
+                                   BFS_GraphVE &_vector_extension,
+                                   DirectionType _direction)
 {
+    //StateOfBFS man_states[11] = {TOP_DOWN, TOP_DOWN, TOP_DOWN, BOTTOM_UP, BOTTOM_UP, BOTTOM_UP, TOP_DOWN, TOP_DOWN, TOP_DOWN, TOP_DOWN, TOP_DOWN};
     GraphAbstractionsNEC graph_API(_graph, SCATTER);
     FrontierNEC frontier(_graph, SCATTER);
 
@@ -243,9 +245,8 @@ void BFS::nec_direction_optimizing(VectCSRGraph &_graph,
             auto edge_op = [levels_ptr, &current_level](int src_id, int dst_id, int local_edge_pos,
                 long long int global_edge_pos, int vector_index, DelayedWriteNEC &delayed_write)
             {
-                int src_level = levels_ptr[src_id];
                 int dst_level = levels_ptr[dst_id];
-                if((src_level == current_level) && (dst_level == UNVISITED_VERTEX))
+                if(dst_level == UNVISITED_VERTEX)
                 {
                     levels_ptr[dst_id] = current_level + 1;
                 }
@@ -345,7 +346,7 @@ void BFS::nec_direction_optimizing(VectCSRGraph &_graph,
                     long long int global_edge_pos, int vector_index, DelayedWriteNEC &delayed_write)
                 {
                     reg_in_lvl[vector_index]++;
-                    if((levels_ptr[src_id] == UNVISITED_VERTEX) && (levels_ptr[dst_id] == current_level))
+                    if(levels_ptr[dst_id] == current_level)
                     {
                         //levels_ptr[dst_id] = current_level + 1;
                         reg_levels[vector_index] = current_level + 1;
@@ -368,15 +369,21 @@ void BFS::nec_direction_optimizing(VectCSRGraph &_graph,
                     long long int global_edge_pos, int vector_index, DelayedWriteNEC &delayed_write)
                 {
                     reg_in_lvl[vector_index]++;
-                    if((levels_ptr[src_id] == UNVISITED_VERTEX) && (levels_ptr[dst_id] == current_level))
+                    if(levels_ptr[dst_id] == current_level)
                     {
                         levels_ptr[src_id] = current_level + 1;
                         reg_vis[vector_index]++;
                     }
                 };
 
-                //graph_API.gather(_graph, frontier, edge_op, EMPTY_VERTEX_OP, postprocess, edge_collective_op, EMPTY_VERTEX_OP, EMPTY_VERTEX_OP);
-                graph_API.scatter(_graph, frontier, edge_op, EMPTY_VERTEX_OP, postprocess, edge_collective_op, EMPTY_VERTEX_OP, EMPTY_VERTEX_OP);
+                if(_direction == UNDIRECTED_GRAPH)
+                {
+                    graph_API.scatter(_graph, frontier, edge_op, EMPTY_VERTEX_OP, postprocess, edge_collective_op, EMPTY_VERTEX_OP, EMPTY_VERTEX_OP);
+                }
+                else
+                {
+                    graph_API.gather(_graph, frontier, edge_op, EMPTY_VERTEX_OP, postprocess, edge_collective_op, EMPTY_VERTEX_OP, EMPTY_VERTEX_OP);
+                }
 
                 int local_vis = register_sum_reduce(reg_vis);
                 int local_in_lvl = register_sum_reduce(reg_in_lvl);
@@ -396,20 +403,23 @@ void BFS::nec_direction_optimizing(VectCSRGraph &_graph,
 
         StateOfBFS new_state = nec_change_state(prev_frontier_size, current_frontier_size, vertices_count, edges_count, current_state,
                                          vis, in_lvl, _use_vect_CSR_extension, current_level, POWER_LAW_GRAPH, _levels.get_ptr());
+
         if(BU_count == 2)
         {
             new_state = TOP_DOWN;
         }
 
-        /*if(new_state != current_state)
+        if((_direction == DIRECTED_GRAPH) && (new_state != current_state))
         {
             if(new_state == BOTTOM_UP)
                 graph_API.change_traversal_direction(GATHER, _levels, frontier);
             if(new_state == TOP_DOWN)
                 graph_API.change_traversal_direction(SCATTER, _levels, frontier);
-        }*/
-
+        }
         current_state = new_state;
+
+        //current_state = man_states[current_level];
+
         current_level++;
         tm_step.end();
         step_times.push_back(tm_step.get_time());

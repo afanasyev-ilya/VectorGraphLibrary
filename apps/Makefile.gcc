@@ -1,0 +1,91 @@
+VE_CXX = g++
+VH_CXX = g++
+
+# Include paths...
+
+# Include paths...
+Include_Path = -I ../
+Flags = -O4 -fopenmp -Wno-unused-result
+
+# Library paths...
+Library_Path =
+Libraries = -fopenmp
+
+.DEFAULT_GOAL := all
+
+##########
+# binaries
+##########
+
+all: sssp sharded_sssp bfs scc gather pr cc print_graph_info create_vgl_graphs
+
+sssp: create_folders sssp.o
+	$(VE_CXX) object_files/sssp.o $(Library_Path) $(Libraries) -o ./bin/sssp_sx
+
+sharded_sssp: create_folders sharded_sssp.o
+	$(VE_CXX) object_files/sharded_sssp.o $(Library_Path) $(Libraries) -o ./bin/sharded_sssp_sx
+
+bfs: create_folders bfs.o
+	$(VE_CXX) object_files/bfs.o $(Library_Path) $(Libraries) -o ./bin/bfs_sx
+
+scc: create_folders scc.o
+	$(VE_CXX) object_files/scc.o $(Library_Path) $(Libraries) -o ./bin/scc_sx
+
+cc: create_folders cc.o
+	$(VE_CXX) object_files/cc.o $(Library_Path) $(Libraries) -o ./bin/cc_sx
+
+pr: create_folders pr.o
+	$(VE_CXX) object_files/pr.o $(Library_Path) $(Libraries) -o ./bin/pr_sx
+
+gather: create_folders gather.o
+	$(VE_CXX) object_files/gather.o $(Library_Path) $(Libraries) -o ./bin/gather_sx
+
+print_graph_info: create_folders print_graph_info.o
+	$(VE_CXX) object_files/print_graph_info.o $(Library_Path) $(Libraries) -o ./bin/print_graph_info_sx
+
+create_vgl_graphs: create_folders create_vgl_graphs.o
+	$(VH_CXX) -fopenmp object_files/create_vgl_graphs.o -o ./bin/create_vgl_graphs_sx
+
+##########
+# CPPs
+##########
+
+sssp.o: sssp/sssp.cpp
+	$(VE_CXX) $(Flags) $(Include_Path)  -c sssp/sssp.cpp -o object_files/sssp.o
+
+sharded_sssp.o: sssp/sharded_sssp.cpp
+	$(VE_CXX) $(Flags) $(Include_Path)  -c sssp/sharded_sssp.cpp -o object_files/sharded_sssp.o
+
+bfs.o: bfs/bfs.cpp
+	$(VE_CXX) $(Flags) $(Include_Path)  -c bfs/bfs.cpp -o object_files/bfs.o
+
+scc.o: scc/scc.cpp
+	$(VE_CXX) $(Flags) $(Include_Path)  -c scc/scc.cpp -o object_files/scc.o
+
+cc.o: cc/cc.cpp
+	$(VE_CXX) $(Flags) $(Include_Path)  -c cc/cc.cpp -o object_files/cc.o
+
+pr.o: pr/pr.cpp
+	$(VE_CXX) $(Flags) $(Include_Path)  -c pr/pr.cpp -o object_files/pr.o
+
+gather.o: misc/gather.cpp
+	$(VE_CXX) $(Flags) $(Include_Path)  -c misc/gather.cpp -o object_files/gather.o
+
+print_graph_info.o: utilites/print_graph_info.cpp
+	$(VE_CXX) $(Flags) $(Include_Path)  -c utilites/print_graph_info.cpp -o object_files/print_graph_info.o
+
+create_vgl_graphs.o: utilites/create_vgl_graphs.cpp
+	$(VH_CXX) $(Include_Path) -fopenmp -c utilites/create_vgl_graphs.cpp -o object_files/create_vgl_graphs.o
+
+create_folders:
+	-mkdir -p ./bin
+	-cp graph_library.sh ./bin
+	-mkdir -p ./object_files
+
+clean:
+	-rm -f object_files/*.o
+
+#################
+# CUDA operations
+#################
+
