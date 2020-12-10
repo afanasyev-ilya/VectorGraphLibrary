@@ -223,7 +223,7 @@ void UndirectedCSRGraph::import(EdgesListGraph &_el_graph)
     // free buffer
     MemoryAPI::free_array(work_buffer);
 
-    #ifdef __USE_NEC_SX_AURORA__
+    #if defined(__USE_NEC_SX_AURORA__) || defined(__USE_MULTICORE__)
     estimate_nec_thresholds();
     last_vertices_ve.init_from_graph(this->vertex_pointers, this->adjacent_ids,
                                      vector_core_threshold_vertex, this->vertices_count);

@@ -58,7 +58,7 @@ public:
 #include "graph_processing_API/gpu/frontier/frontier_gpu.cuh"
 #endif
 
-#if defined(__USE_MULTICORE__) || defined(__USE_INTEL__) || defined(__USE_KNL__)
+#if defined(__USE_MULTICORE__) || defined(__USE_MULTICORE__)
 #include "graph_processing_API/multicore/frontier/frontier_multicore.h"
 #endif
 

@@ -94,7 +94,7 @@ public:
 #include "graph_processing_API/gpu/graph_abstractions/graph_abstractions_gpu.cuh"
 #endif
 
-#if defined(__USE_MULTICORE__) || defined(__USE_INTEL__) || defined(__USE_KNL__)
+#if defined(__USE_MULTICORE__)
 #include "graph_processing_API/multicore/graph_abstractions/graph_abstractions_multicore.h"
 #endif
 

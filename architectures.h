@@ -5,8 +5,19 @@
 // architecture can be selected here or in apps files
 //#define __USE_GPU__
 //#define __USE_NEC_SX_AURORA__
-//#define __USE_INTEL__
-//#define __USE_KNL__
+//#define __USE_MULTICORE__
+
+#ifdef __USE_NEC_SX_AURORA__
+#pragma message("NEC SX-Aurora TSUBASA API is used!")
+#endif
+
+#ifdef __USE_MULTICORE__
+#pragma message("Multicore API is used!")
+#endif
+
+#ifdef __USE_GPU__
+#pragma message("GPU API is used!")
+#endif
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // SX-Aurora properties

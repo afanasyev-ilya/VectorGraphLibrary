@@ -5,7 +5,7 @@ VH_CXX = g++
 
 # Include paths...
 Include_Path = -I ../
-Flags = -O4 -fopenmp -Wno-unused-result
+Flags = -O3 -fopenmp -Wno-unused-result -Wno-return-type
 
 # Library paths...
 Library_Path =
