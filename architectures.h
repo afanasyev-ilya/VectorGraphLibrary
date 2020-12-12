@@ -8,14 +8,17 @@
 //#define __USE_MULTICORE__
 
 #ifdef __USE_NEC_SX_AURORA__
+#warning "NEC SX-Aurora TSUBASA API is used!"
 #pragma message("NEC SX-Aurora TSUBASA API is used!")
 #endif
 
 #ifdef __USE_MULTICORE__
+#warning "Multicore API is used!"
 #pragma message("Multicore API is used!")
 #endif
 
 #ifdef __USE_GPU__
+#warning "GPU API is used!"
 #pragma message("GPU API is used!")
 #endif
 
@@ -36,6 +39,7 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #ifdef __USE_GPU__
+#define _GLIBCXX_PARALLEL
 #define VECTOR_LENGTH 32
 #define VECTOR_LENGTH_POW 5
 #define MAX_SX_AURORA_THREADS 8
@@ -43,15 +47,18 @@
 #endif
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// ARM properties
+// AMD properties
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #ifdef __USE_MULTICORE__
+#define _GLIBCXX_PARALLEL
 #define VECTOR_LENGTH 32
 #define VECTOR_LENGTH_POW 5
 #define MAX_SX_AURORA_THREADS 256
 #define LLC_CACHE_SIZE 512*1024*1024
 #endif
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // main framework settings
 // define user hasn't set any
@@ -101,7 +108,7 @@
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#define __PRINT_API_PERFORMANCE_STATS__ // prints inner api detailed performance stats, causes significant delays when active
+//#define __PRINT_API_PERFORMANCE_STATS__ // prints inner api detailed performance stats, causes significant delays when active
 #define __PRINT_SAMPLES_PERFORMANCE_STATS__ // prints samples stats (iterations, bandwidths, components stats)
 //#define __SAVE_PERFORMANCE_STATS_TO_FILE__ // saves performance stats to files (useful for multiple batch launches)
 

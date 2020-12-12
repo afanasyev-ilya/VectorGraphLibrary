@@ -72,7 +72,6 @@ add_executable(VectorGraphLibrary
         apps/Makefile.nec
         apps/pr/pr.cpp
         apps/sssp/sssp.cpp
-        apps/sswp/sswp.cpp
         common/cmd_parser/cmd_parser.h
         common/cmd_parser/cmd_parser.hpp
         common/cmd_parser/parser_options.h

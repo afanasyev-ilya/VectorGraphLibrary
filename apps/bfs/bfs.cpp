@@ -6,14 +6,13 @@
 
 #define INT_ELEMENTS_PER_EDGE 4.0
 #define NEC_VECTOR_ENGINE_THRESHOLD_VALUE  VECTOR_LENGTH * MAX_SX_AURORA_THREADS * 128
-//#define VECTOR_CORE_THRESHOLD_VALUE VECTOR_LENGTH
-#define VECTOR_CORE_THRESHOLD_VALUE 2*VECTOR_LENGTH
+#define VECTOR_CORE_THRESHOLD_VALUE VECTOR_LENGTH
+//#define VECTOR_CORE_THRESHOLD_VALUE 2*VECTOR_LENGTH
 
 #define COLLECTIVE_FRONTIER_TYPE_CHANGE_THRESHOLD 0.35
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-#define __PRINT_API_PERFORMANCE_STATS__
+//#define __PRINT_API_PERFORMANCE_STATS__
 
 #include "graph_library.h"
 
@@ -55,7 +54,9 @@ int main(int argc, const char * argv[])
 
         // print graphs stats
         graph.print_stats();
-        graph.print_size();
+        #ifndef __USE_NEC_SX_AURORA__
+        graph.print_stats();
+        #endif
 
         // init ve
         BFS_GraphVE vector_extension_for_bfs(graph);
