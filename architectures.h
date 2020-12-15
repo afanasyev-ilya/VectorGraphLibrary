@@ -39,7 +39,7 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #ifdef __USE_GPU__
-#define _GLIBCXX_PARALLEL
+//#define _GLIBCXX_PARALLEL
 #define VECTOR_LENGTH 32
 #define VECTOR_LENGTH_POW 5
 #define MAX_SX_AURORA_THREADS 8

@@ -63,7 +63,6 @@ add_executable(VectorGraphLibrary
         algorithms/sssp/seq_shortest_paths.hpp
         algorithms/sssp/shortest_paths.h
         algorithms/sswp/widest_paths.h
-        algorithms/sswp/widest_paths.hpp
         apps/bfs/bfs.cpp
         apps/cc/cc.cpp
         apps/utilites/create_vgl_graphs.cpp

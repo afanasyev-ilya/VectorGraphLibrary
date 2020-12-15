@@ -62,25 +62,23 @@ int main(int argc, const char * argv[])
         // do calculations
         cout << "Computations started..." << endl;
         cout << "Doing " << parser.get_number_of_rounds() << " SSSP iterations..." << endl;
-        EdgesArray_Vect<float> weights(graph);
-        weights.set_all_random(1.0);
+        EdgesArray_Vect<float> capacities(graph);
+        capacities.set_all_random(MAX_WEIGHT);
         for(int i = 0; i < parser.get_number_of_rounds(); i++)
         {
             int source_vertex = graph.select_random_vertex(ORIGINAL);
-            VerticesArray<float> distances(graph, Parser::convert_traversal_type(parser.get_traversal_direction()));
+            VerticesArray<float> widths(graph, SCATTER);
 
             performance_stats.reset_timers();
-            ShortestPaths::nec_dijkstra(graph, weights, distances, source_vertex,
-                                        parser.get_algorithm_frontier_type(),
-                                        parser.get_traversal_direction());
+            SSWP::vgl_dijkstra(graph, capacities, widths, source_vertex);
             performance_stats.print_timers_stats();
 
             // check if required
             if(parser.get_check_flag())
             {
-                VerticesArray<float> check_distances(graph, SCATTER);
-                ShortestPaths::seq_dijkstra(graph, weights, check_distances, source_vertex);
-                verify_results(distances, check_distances);
+                VerticesArray<float> check_widths(graph, SCATTER);
+                SSWP::seq_dijkstra(graph, capacities, widths, source_vertex);
+                verify_results(widths, check_widths, 20);
             }
         }
         performance_stats.print_perf(graph.get_edges_count());

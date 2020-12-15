@@ -54,35 +54,34 @@ int main(int argc, const char * argv[])
         cout << "Computations started..." << endl;
         cout << "Doing " << parser.get_number_of_rounds() << " SSSP iterations..." << endl;
 
-        EdgesArray_Vect<int> weights(graph);
-        weights.set_all_random(MAX_WEIGHT);
+        // do calculations
+        cout << "Computations started..." << endl;
+        cout << "Doing " << parser.get_number_of_rounds() << " SSSP iterations..." << endl;
+        EdgesArray_Vect<float> capacities(graph);
+        capacities.set_all_random(MAX_WEIGHT);
         for(int i = 0; i < parser.get_number_of_rounds(); i++)
         {
             int source_vertex = graph.select_random_vertex(ORIGINAL);
-            VerticesArray<int> distances(graph, Parser::convert_traversal_type(parser.get_traversal_direction()));
+            VerticesArray<float> widths(graph, SCATTER);
 
             performance_stats.reset_timers();
-
-            ShortestPaths::gpu_dijkstra(graph, weights, distances, source_vertex,
-                                        parser.get_algorithm_frontier_type(),
-                                        parser.get_traversal_direction());
-
+            SSWP::vgl_dijkstra(graph, capacities, widths, source_vertex);
             performance_stats.print_timers_stats();
 
             // check if required
             if(parser.get_check_flag())
             {
                 graph.move_to_host();
-                distances.move_to_host();
-                weights.move_to_host();
+                widths.move_to_host();
+                capacities.move_to_host();
 
-                VerticesArray<int> check_distances(graph, SCATTER);
-                ShortestPaths::seq_dijkstra(graph, weights, check_distances, source_vertex);
-                verify_results(distances, check_distances);
+                VerticesArray<float> check_widths(graph, SCATTER);
+                SSWP::seq_dijkstra(graph, capacities, widths, source_vertex);
+                verify_results(widths, check_widths, 20);
 
                 graph.move_to_device();
-                distances.move_to_device();
-                weights.move_to_device();
+                widths.move_to_device();
+                capacities.move_to_device();
             }
         }
         performance_stats.print_perf(graph.get_edges_count());

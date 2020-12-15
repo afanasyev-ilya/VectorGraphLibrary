@@ -88,6 +88,11 @@ public:
     static void nec_forward_backward(VectCSRGraph &_graph, VerticesArray<_T> &_components);
     #endif
 
+    #ifdef __USE_GPU__
+    template <typename _T>
+    static void gpu_forward_backward(VectCSRGraph &_graph, VerticesArray<_T> &_components);
+    #endif
+
     static void seq_tarjan(VectCSRGraph &_graph, VerticesArray<int> &_components);
 };
 
