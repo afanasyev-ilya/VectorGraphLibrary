@@ -76,7 +76,7 @@ int main(int argc, const char * argv[])
                 capacities.move_to_host();
 
                 VerticesArray<float> check_widths(graph, SCATTER);
-                SSWP::seq_dijkstra(graph, capacities, widths, source_vertex);
+                SSWP::seq_dijkstra(graph, capacities, check_widths, source_vertex);
                 verify_results(widths, check_widths, 20);
 
                 graph.move_to_device();
