@@ -17,7 +17,7 @@ void SSSP::gpu_dijkstra_all_active_push(VectCSRGraph &_graph,
     tm.start();
 
     _T inf_val = std::numeric_limits<_T>::max() - MAX_WEIGHT;
-    auto init_op = [_distances, _source_vertex, inf_val] __device__  (int src_id, int connections_count, int vector_index) {
+    auto init_op = [_distances, _source_vertex, inf_val] __device__  __VGL_COMPUTE_ARGS__ {
         if(src_id == _source_vertex)
             _distances[_source_vertex] = 0;
         else
@@ -78,7 +78,7 @@ void SSSP::gpu_dijkstra_all_active_pull(VectCSRGraph &_graph,
     tm.start();
 
     _T inf_val = std::numeric_limits<_T>::max() - MAX_WEIGHT;
-    auto init_op = [_distances, _source_vertex, inf_val] __device__  (int src_id, int connections_count, int vector_index) {
+    auto init_op = [_distances, _source_vertex, inf_val] __device__  __VGL_COMPUTE_ARGS__ {
         if(src_id == _source_vertex)
             _distances[_source_vertex] = 0;
         else
@@ -140,7 +140,7 @@ void SSSP::gpu_dijkstra_partial_active(VectCSRGraph &_graph,
     tm.start();
 
     _T inf_val = std::numeric_limits<_T>::max() - MAX_WEIGHT;
-    auto init_op = [_distances, _source_vertex, inf_val] __device__  (int src_id, int connections_count, int vector_index) {
+    auto init_op = [_distances, _source_vertex, inf_val] __device__  __VGL_COMPUTE_ARGS__ {
         if(src_id == _source_vertex)
             _distances[_source_vertex] = 0;
         else

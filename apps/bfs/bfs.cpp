@@ -6,13 +6,13 @@
 
 #define INT_ELEMENTS_PER_EDGE 4.0
 #define NEC_VECTOR_ENGINE_THRESHOLD_VALUE  VECTOR_LENGTH * MAX_SX_AURORA_THREADS * 128
-#define VECTOR_CORE_THRESHOLD_VALUE VECTOR_LENGTH
-//#define VECTOR_CORE_THRESHOLD_VALUE 2*VECTOR_LENGTH
+//#define VECTOR_CORE_THRESHOLD_VALUE VECTOR_LENGTH
+#define VECTOR_CORE_THRESHOLD_VALUE 2*VECTOR_LENGTH
 
 #define COLLECTIVE_FRONTIER_TYPE_CHANGE_THRESHOLD 0.35
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//#define __PRINT_API_PERFORMANCE_STATS__
+#define __PRINT_API_PERFORMANCE_STATS__
 
 #include "graph_library.h"
 
@@ -64,7 +64,7 @@ int main(int argc, const char * argv[])
         // compute BFS
         cout << "Computations started..." << endl;
         cout << "Doing " << parser.get_number_of_rounds() << " BFS iterations..." << endl;
-        for(int i = 0; i < parser.get_number_of_rounds(); i++)
+        /*for(int i = 0; i < parser.get_number_of_rounds(); i++)
         {
             VerticesArray<int> levels(graph, SCATTER);
 
@@ -86,7 +86,33 @@ int main(int argc, const char * argv[])
                 BFS::seq_top_down(graph, check_levels, source_vertex);
                 verify_results(levels, check_levels);
             }
-        }
+        }*/
+
+        int source_vertex = graph.select_random_vertex(ORIGINAL);
+        /*cout << "TEST selected source vertex " << source_vertex << endl;
+        for(int i = 1; i < 10; i++)
+        {
+            for(int j = 1; j < 10; j++)
+            {
+                VerticesArray<int> levels(graph, SCATTER);
+
+                int first_threshold = i;
+                int second_threshold = j;
+                if(second_threshold <= first_threshold)
+                {
+                    continue;
+                }
+                cout << "selected: " << first_threshold << " - " << second_threshold << endl;
+                performance_stats.reset_timers();
+                BFS::nec_direction_optimizing(graph, levels, source_vertex, vector_extension_for_bfs, direction, first_threshold, second_threshold);
+                //performance_stats.print_timers_stats();
+            }
+        }*/
+
+        VerticesArray<int> levels(graph, SCATTER);
+        performance_stats.reset_timers();
+        BFS::nec_direction_optimizing(graph, levels, source_vertex, vector_extension_for_bfs, direction, 3, 6);
+        performance_stats.print_timers_stats();
 
         performance_stats.print_perf(graph.get_edges_count());
     }

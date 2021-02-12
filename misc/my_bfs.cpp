@@ -41,7 +41,7 @@ int main(int argc, const char * argv[])
     int source_vertex = graph.reorder(10, ORIGINAL, SCATTER);
 
     // Use Compute abstraction to initialize initial levels for each vertex
-    auto init_levels = [levels_ptr, source_vertex] (int src_id, int connections_count, int vector_index)
+    auto init_levels = [levels_ptr, source_vertex] __VGL_COMPUTE_ARGS__
     {
         if(src_id == source_vertex)
             levels_ptr[source_vertex] = FIRST_LEVEL_VERTEX;

@@ -15,7 +15,7 @@ bool MF::nec_bfs(UndirectedCSRGraph &_graph,
     LOAD_UNDIRECTED_CSR_GRAPH_DATA(_graph);
     _frontier.set_all_active();
 
-    auto init = [_parents, _source, _levels] (int src_id, int connections_count, int vector_index)
+    auto init = [_parents, _source, _levels] __VGL_COMPUTE_ARGS__
     {
         _parents[src_id] = -1;
         if(src_id == _source)

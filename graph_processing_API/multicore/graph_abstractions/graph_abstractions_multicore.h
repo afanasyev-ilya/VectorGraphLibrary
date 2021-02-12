@@ -17,7 +17,7 @@ auto ALL_ACTIVE_FRONTIER_CONDITION = [] (int src_id)->int
     return IN_FRONTIER_FLAG;
 };
 
-auto EMPTY_COMPUTE_OP = [] (int src_id, int connections_count, int vector_index) {};
+auto EMPTY_COMPUTE_OP = [] __VGL_COMPUTE_ARGS__ {};
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 

@@ -13,7 +13,7 @@ double BFS::nec_direction_optimizing(VectCSRGraph &_graph,
     MemoryAPI::allocate_array(&connections_array, vertices_count);
     frontier.set_all_active();
 
-    auto calculate_non_zero_count = [](int src_id, int connections_count, int vector_index)->int
+    auto calculate_non_zero_count = []__VGL_COMPUTE_ARGS__->int
     {
         int result = 0;
         if(connections_count > 0)
@@ -24,7 +24,7 @@ double BFS::nec_direction_optimizing(VectCSRGraph &_graph,
     };
     int non_zero_count = graph_API.reduce<int>(_graph, frontier, calculate_non_zero_count, REDUCE_SUM);
 
-    auto set_reminder = [_levels, non_zero_count](int src_id, int connections_count, int vector_index)
+    auto set_reminder = [_levels, non_zero_count]__VGL_COMPUTE_ARGS__
     {
         if(src_id >= non_zero_count)
             _levels[src_id] = UNVISITED_VERTEX;
@@ -34,7 +34,7 @@ double BFS::nec_direction_optimizing(VectCSRGraph &_graph,
     frontier.change_size(non_zero_count);
     frontier.set_all_active();
 
-    auto init_connections = [connections_array] (int src_id, int connections_count, int vector_index)
+    auto init_connections = [connections_array] __VGL_COMPUTE_ARGS__
     {
         connections_array[src_id] = connections_count;
     };
@@ -42,7 +42,7 @@ double BFS::nec_direction_optimizing(VectCSRGraph &_graph,
 
     double t1 = omp_get_wtime();
 
-    auto init_levels = [_levels, _source_vertex] (int src_id, int connections_count, int vector_index)
+    auto init_levels = [_levels, _source_vertex] __VGL_COMPUTE_ARGS__
     {
         if(src_id == _source_vertex)
             _levels[_source_vertex] = FIRST_LEVEL_VERTEX;
@@ -182,7 +182,9 @@ void BFS::nec_direction_optimizing(VectCSRGraph &_graph,
                                    VerticesArray<_T> &_levels,
                                    int _source_vertex,
                                    BFS_GraphVE &_vector_extension,
-                                   DirectionType _direction)
+                                   DirectionType _direction,
+                                   int first_switch,
+                                   int second_switch)
 {
     //StateOfBFS man_states[11] = {TOP_DOWN, TOP_DOWN, TOP_DOWN, BOTTOM_UP, BOTTOM_UP, BOTTOM_UP, TOP_DOWN, TOP_DOWN, TOP_DOWN, TOP_DOWN, TOP_DOWN};
     GraphAbstractionsNEC graph_API(_graph, SCATTER);
@@ -198,7 +200,7 @@ void BFS::nec_direction_optimizing(VectCSRGraph &_graph,
 
     Timer tm;
     tm.start();
-    auto init_levels = [_levels, _source_vertex] (int src_id, int connections_count, int vector_index)
+    auto init_levels = [_levels, _source_vertex] __VGL_COMPUTE_ARGS__
     {
         if(src_id == _source_vertex)
             _levels[_source_vertex] = FIRST_LEVEL_VERTEX;
@@ -227,6 +229,7 @@ void BFS::nec_direction_optimizing(VectCSRGraph &_graph,
         vis = 0, in_lvl = 0;
         if(current_state == TOP_DOWN)
         {
+            cout << " -------------- IN TOP DOWN STATE ----------------- " << endl;
             int *levels_ptr = _levels.get_ptr();
 
             if(current_level > FIRST_LEVEL_VERTEX)
@@ -241,17 +244,17 @@ void BFS::nec_direction_optimizing(VectCSRGraph &_graph,
                 graph_API.generate_new_frontier(_graph, frontier, on_this_level);
             }
 
-
-            auto edge_op = [levels_ptr, &current_level](int src_id, int dst_id, int local_edge_pos,
+            auto edge_op = [_levels, &current_level](int src_id, int dst_id, int local_edge_pos,
                 long long int global_edge_pos, int vector_index, DelayedWriteNEC &delayed_write)
             {
-                int dst_level = levels_ptr[dst_id];
+                int dst_level = _levels[dst_id];
                 if(dst_level == UNVISITED_VERTEX)
                 {
-                    levels_ptr[dst_id] = current_level + 1;
+                    _levels[dst_id] = current_level + 1;
                 }
             };
 
+            frontier.print_stats();
             graph_API.scatter(_graph, frontier, edge_op, EMPTY_VERTEX_OP, EMPTY_VERTEX_OP,
                               edge_op, EMPTY_VERTEX_OP, EMPTY_VERTEX_OP);
 
@@ -264,10 +267,12 @@ void BFS::nec_direction_optimizing(VectCSRGraph &_graph,
         }
         else if(current_state == BOTTOM_UP)
         {
+            cout << " -------------- IN BOTTOM UP STATE ----------------- " << endl;
+
             BU_count++;
             int *levels_ptr = _levels.get_ptr();
 
-            if(BU_count == 1)
+            if(BU_count <= 2)
             {
                 Timer tm_ve;
                 tm_ve.start();
@@ -317,10 +322,10 @@ void BFS::nec_direction_optimizing(VectCSRGraph &_graph,
                     #pragma omp atomic
                     in_lvl += local_in_lvl;
                 }
-
                 tm_ve.end();
                 ve_time += tm_ve.get_time_in_ms();
                 //tm_ve.print_bandwidth_stats("BFS VE", ve_vertices_count * BFS_VE_SIZE, sizeof(int)*3.0);
+                cout << tm_ve.get_time_in_ms() << " (ms) VE time" << endl;
                 performance_stats.update_non_api_time(tm_ve);
             }
 
@@ -331,47 +336,54 @@ void BFS::nec_direction_optimizing(VectCSRGraph &_graph,
                     result = IN_FRONTIER_FLAG;
                 return result;
             };
+            Timer tm_my;
+            tm_my.start();
             graph_API.generate_new_frontier(_graph, frontier, is_unvisited);
+            tm_my.end();
+            cout << tm_my.get_time_in_ms() << " (ms) GNF time" << endl;
 
+            frontier.print_stats();
             //vis = frontier.size();
             //in_lvl = frontier.get_neighbours_count();
 
+            tm_my.start();
             #pragma omp parallel
             {
                 NEC_REGISTER_INT(vis, 0);
                 NEC_REGISTER_INT(in_lvl, 0);
                 NEC_REGISTER_INT(levels, 0);
 
-                auto edge_op = [levels_ptr, current_level, &reg_vis, &reg_in_lvl, &reg_levels](int src_id, int dst_id, int local_edge_pos,
+                auto edge_op = [_levels, current_level, &reg_vis, &reg_in_lvl, &reg_levels] (int src_id, int dst_id, int local_edge_pos,
                     long long int global_edge_pos, int vector_index, DelayedWriteNEC &delayed_write)
                 {
                     reg_in_lvl[vector_index]++;
-                    if(levels_ptr[dst_id] == current_level)
+                    if(_levels[dst_id] == current_level)
                     {
-                        //levels_ptr[dst_id] = current_level + 1;
+                        //levels_ptr[src_id] = current_level + 1;
                         reg_levels[vector_index] = current_level + 1;
                         reg_vis[vector_index]++;
                     }
                 };
 
-                auto postprocess = [levels_ptr, current_level, &reg_levels] (int src_id, int connections_count, int vector_index, DelayedWriteNEC &delayed_write)
+                auto postprocess = [_levels, current_level, &reg_levels] (int src_id, int connections_count, int vector_index, DelayedWriteNEC &delayed_write)
                 {
-                    int new_level = levels_ptr[src_id];
+                    int new_level = _levels[src_id];
                     #pragma _NEC vector
+                    #pragma _NEC ivdep
                     for(int i = 0; i < VECTOR_LENGTH; i++)
                         if(reg_levels[i] == (current_level + 1))
                             new_level = reg_levels[i];
 
-                    levels_ptr[src_id] = new_level;
+                    _levels[src_id] = new_level;
                 };
 
-                auto edge_collective_op = [levels_ptr, current_level, &reg_vis, &reg_in_lvl](int src_id, int dst_id, int local_edge_pos,
+                auto edge_collective_op = [_levels, current_level, &reg_vis, &reg_in_lvl](int src_id, int dst_id, int local_edge_pos,
                     long long int global_edge_pos, int vector_index, DelayedWriteNEC &delayed_write)
                 {
                     reg_in_lvl[vector_index]++;
-                    if(levels_ptr[dst_id] == current_level)
+                    if(_levels[dst_id] == current_level)
                     {
-                        levels_ptr[src_id] = current_level + 1;
+                        _levels[src_id] = current_level + 1;
                         reg_vis[vector_index]++;
                     }
                 };
@@ -385,6 +397,15 @@ void BFS::nec_direction_optimizing(VectCSRGraph &_graph,
                     graph_API.gather(_graph, frontier, edge_op, EMPTY_VERTEX_OP, postprocess, edge_collective_op, EMPTY_VERTEX_OP, EMPTY_VERTEX_OP);
                 }
 
+                /*if(_direction == UNDIRECTED_GRAPH)
+                {
+                    graph_API.scatter(_graph, frontier, edge_op);
+                }
+                else
+                {
+                    graph_API.gather(_graph, frontier, edge_op);
+                }*/
+
                 int local_vis = register_sum_reduce(reg_vis);
                 int local_in_lvl = register_sum_reduce(reg_in_lvl);
 
@@ -394,6 +415,8 @@ void BFS::nec_direction_optimizing(VectCSRGraph &_graph,
                 #pragma omp atomic
                 in_lvl += local_in_lvl;
             }
+            tm_my.end();
+            cout << tm_my.get_time_in_ms() << " (ms) VGL sparse time" << endl;
             //cout << "vis BU: " << vis << endl;
             //cout << "in lvl BU: " << in_lvl << endl;
         }
@@ -401,7 +424,7 @@ void BFS::nec_direction_optimizing(VectCSRGraph &_graph,
         prev_frontier_size = current_frontier_size;
         current_frontier_size = vis;
 
-        StateOfBFS new_state = nec_change_state(prev_frontier_size, current_frontier_size, vertices_count, edges_count, current_state,
+        /*StateOfBFS new_state = nec_change_state(prev_frontier_size, current_frontier_size, vertices_count, edges_count, current_state,
                                          vis, in_lvl, _use_vect_CSR_extension, current_level, POWER_LAW_GRAPH, _levels.get_ptr());
 
         if(BU_count == 2)
@@ -415,8 +438,14 @@ void BFS::nec_direction_optimizing(VectCSRGraph &_graph,
                 graph_API.change_traversal_direction(GATHER, _levels, frontier);
             if(new_state == TOP_DOWN)
                 graph_API.change_traversal_direction(SCATTER, _levels, frontier);
-        }
-        current_state = new_state;
+        }*/
+        //StateOfBFS new_state;
+        if(current_level == first_switch)
+            current_state = BOTTOM_UP;
+        if(current_level == second_switch)
+            current_state = TOP_DOWN;
+
+        //current_state = new_state;
 
         //current_state = man_states[current_level];
 
@@ -435,6 +464,7 @@ void BFS::nec_direction_optimizing(VectCSRGraph &_graph,
     cout << " only ve time: " << ve_time << " ms" << endl;
     PerformanceStats::print_algorithm_performance_stats("BFS (Direction-optimizing, NEC)", tm.get_time(), _graph.get_edges_count(), current_level);
     #endif
+    cout << _graph.get_edges_count() / (1e6*tm.get_time()) << " MTEPS" << endl;
 }
 #endif
 
@@ -456,7 +486,7 @@ void BFS::nec_top_down(VectCSRGraph &_graph,
     #pragma omp parallel
     {};
 
-    auto init_levels = [&_levels, _source_vertex] (int src_id, int connections_count, int vector_index)
+    auto init_levels = [&_levels, _source_vertex] __VGL_COMPUTE_ARGS__
     {
         if(src_id == _source_vertex)
             _levels[_source_vertex] = FIRST_LEVEL_VERTEX;

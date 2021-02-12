@@ -13,7 +13,7 @@ BFS_GraphVE::BFS_GraphVE(VectCSRGraph &_graph)
     _graph.get_incoming_graph_ptr()->sort_adjacent_edges();
 
     frontier.set_all_active();
-    auto calculate_non_zero_count = [](int src_id, int connections_count, int vector_index)->int
+    auto calculate_non_zero_count = []__VGL_COMPUTE_ARGS__->int
     {
         int result = 0;
         if(connections_count > 0)

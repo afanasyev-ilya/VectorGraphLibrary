@@ -91,7 +91,7 @@ void SSWP::nec_dijkstra(UndirectedCSRGraph &_graph,
 
     frontier.set_all_active();
 
-    auto init_widths = [_widths, _source_vertex] (int src_id, int connections_count, int vector_index)
+    auto init_widths = [_widths, _source_vertex] __VGL_COMPUTE_ARGS__
     {
         if(src_id == _source_vertex)
             _widths[_source_vertex] = FLT_MAX;
@@ -107,7 +107,7 @@ void SSWP::nec_dijkstra(UndirectedCSRGraph &_graph,
         changes = 0;
         float *collective_adjacent_widths = graph_API.get_collective_widths(_graph, frontier);
 
-        auto save_old_widths = [_widths, old_widths] (int src_id, int connections_count, int vector_index)
+        auto save_old_widths = [_widths, old_widths] __VGL_COMPUTE_ARGS__
         {
             old_widths[src_id] = _widths[src_id];
         };
@@ -143,7 +143,7 @@ void SSWP::nec_dijkstra(UndirectedCSRGraph &_graph,
             throw "Error: push traversal not supported yet";
         }
 
-        auto calculate_changes_count = [_widths, old_widths] (int src_id, int connections_count, int vector_index)->int
+        auto calculate_changes_count = [_widths, old_widths] __VGL_COMPUTE_ARGS__->int
         {
             int result = 0;
             if(old_widths[src_id] != _widths[src_id])

@@ -76,7 +76,7 @@ void GraphAbstractionsGPU::generate_new_frontier(VectCSRGraph &_graph,
         _frontier.type = ALL_ACTIVE_FRONTIER;
 
     // calculate neighbours count
-    auto reduce_connections = [] __device__ (int src_id, int connections_count, int vector_index)->int
+    auto reduce_connections = [] __VGL_COMPUTE_ARGS__->int
     {
         return connections_count;
     };

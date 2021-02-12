@@ -259,6 +259,26 @@ void UndirectedCSRGraph::sort_adjacent_edges()
     ASL_CALL(asl_sort_destroy(hnd));
     ASL_CALL(asl_library_finalize());
     #endif*/
+
+    /*int src_id = 100000;
+    int connections_count = vertex_pointers[src_id + 1] - vertex_pointers[src_id];
+    long long first = vertex_pointers[src_id];
+    long long last = vertex_pointers[src_id + 1];
+    for(int i = first; i < last; i++)
+    {
+        cout << adjacent_ids[i] << " ";
+    }
+    cout << endl;
+
+    src_id = 104000;
+    connections_count = vertex_pointers[src_id + 1] - vertex_pointers[src_id];
+    first = vertex_pointers[src_id];
+    last = vertex_pointers[src_id + 1];
+    for(int i = first; i < last; i++)
+    {
+        cout << adjacent_ids[i] << " ";
+    }
+    cout << endl;*/
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

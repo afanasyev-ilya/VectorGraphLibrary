@@ -7,7 +7,7 @@
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#define BFS_VE_SIZE 5
+#define BFS_VE_SIZE 6
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -34,7 +34,8 @@ public:
     #ifdef __USE_NEC_SX_AURORA__
     template <typename _T>
     static void nec_direction_optimizing(VectCSRGraph &_graph, VerticesArray<_T> &_levels, int _source_vertex,
-                                         BFS_GraphVE &_vector_extension, DirectionType _direction);
+                                         BFS_GraphVE &_vector_extension, DirectionType _direction,
+                                         int first_switch, int second_switch);
     #endif
 
     #ifdef __USE_NEC_SX_AURORA__
