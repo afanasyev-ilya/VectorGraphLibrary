@@ -54,13 +54,6 @@ BFS_GraphVE::BFS_GraphVE(VectCSRGraph &_graph)
     //graph_API.gather(_graph, frontier, copy_edge_to_ve); // TODO GATHER if directed
     graph_API.scatter(_graph, frontier, copy_edge_to_ve);
     #endif
-
-    _graph.print_vertex_information(SCATTER, 1, 200);
-    _graph.print_vertex_information(SCATTER, 2, 200);
-    _graph.print_vertex_information(SCATTER, 3, 200);
-    _graph.print_vertex_information(SCATTER, 50, 200);
-    _graph.print_vertex_information(SCATTER, 100, 200);
-    _graph.print_vertex_information(SCATTER, 1000, 200);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

@@ -52,11 +52,12 @@ int main(int argc, const char * argv[])
             direction = UNDIRECTED_GRAPH;
         }
 
+        cout << " read done " << endl;
+
         // print graphs stats
         graph.print_stats();
-        #ifndef __USE_NEC_SX_AURORA__
-        graph.print_stats();
-        #endif
+
+        cout << " after stats " << endl;
 
         // init ve
         BFS_GraphVE vector_extension_for_bfs(graph);

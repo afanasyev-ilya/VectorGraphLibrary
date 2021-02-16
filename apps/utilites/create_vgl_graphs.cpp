@@ -117,6 +117,8 @@ int main(int argc, char ** argv)
 
         if((output_format.find("vect_csr") != string::npos) || (output_format.find("vect_CSR") != string::npos))
         {
+            rand_graph.remove_loops_and_multiple_arcs();
+
             VectCSRGraph vect_csr_graph;
             Timer tm;
             tm.start();

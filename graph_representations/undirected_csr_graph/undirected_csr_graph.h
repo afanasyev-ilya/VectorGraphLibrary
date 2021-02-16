@@ -69,8 +69,6 @@ private:
 
     void construct_CSR(EdgesListGraph &_el_graph);
 
-    void remove_loops_and_multiple_arcs();
-
     void copy_edges_indexes(vgl_sort_indexes *_sort_indexes);
 
     /* reorder API */
@@ -157,6 +155,8 @@ public:
     /* import and preprocess API */
     // creates UndirectedCSRGraph format from EdgesListGraph
     void import(EdgesListGraph &_old_graph);
+
+    void remove_loops_and_multiple_arcs(); // WARNING! this function is unsafe to call
 
     void sort_adjacent_edges();
 

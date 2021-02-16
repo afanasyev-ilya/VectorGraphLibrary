@@ -282,7 +282,7 @@ void BFS::nec_direction_optimizing(VectCSRGraph &_graph,
 
                 for(int i = 0; i < 256; i++)
                 {
-                    int dst_id = ve_dst_ids[i + 1 * ve_vertices_count];
+                    int dst_id = ve_dst_ids[200+ i + 2 * ve_vertices_count];
                     cout << dst_id << " ";
                 }
                 cout << endl;
@@ -312,7 +312,7 @@ void BFS::nec_direction_optimizing(VectCSRGraph &_graph,
                                 if(dst_id != -1)
                                 {
                                     int src_level = levels_ptr[src_id];
-                                    int dst_level = levels_ptr[dst_id];
+                                    int dst_level = dst_id; //levels_ptr[dst_id];
                                     if((src_level == UNVISITED_VERTEX)/* && (dst_level == current_level)*/)
                                     {
                                         levels_ptr[vec_start + i] = current_level + 1 + dst_level;
@@ -334,7 +334,7 @@ void BFS::nec_direction_optimizing(VectCSRGraph &_graph,
                 }
                 tm_ve.end();
                 ve_time += tm_ve.get_time_in_ms();
-                tm_ve.print_bandwidth_stats("BFS VE v6", ve_vertices_count * BFS_VE_SIZE, sizeof(int)*3.0);
+                tm_ve.print_bandwidth_stats("BFS VE v7", ve_vertices_count * BFS_VE_SIZE, sizeof(int)*3.0);
                 //cout << tm_ve.get_time_in_ms() << " (ms) VE time" << endl;
                 performance_stats.update_non_api_time(tm_ve);
             }
