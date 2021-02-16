@@ -47,12 +47,6 @@ BFS_GraphVE::BFS_GraphVE(VectCSRGraph &_graph)
     auto copy_edge_to_ve = [l_ve_vertices_count,l_ve_edges_per_vertex,l_ve_dst_ids](int src_id, int dst_id, int local_edge_pos,
                               long long int global_edge_pos, int vector_index, DelayedWriteNEC &delayed_write)
     {
-        if((src_id < 256) && (local_edge_pos < l_ve_edges_per_vertex))
-        {
-            #pragma omp critical
-            cout << src_id << ") " << dst_id << endl;
-        }
-
         if(local_edge_pos < l_ve_edges_per_vertex)
             l_ve_dst_ids[src_id + l_ve_vertices_count*local_edge_pos] = dst_id;
     };

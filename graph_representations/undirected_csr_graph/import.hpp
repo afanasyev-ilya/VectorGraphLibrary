@@ -167,6 +167,97 @@ void UndirectedCSRGraph::copy_edges_indexes(vgl_sort_indexes *_sort_indexes)
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+void UndirectedCSRGraph::remove_loops_and_multiple_arcs()
+{
+    int *new_connections_count, *new_adjacent_ids;
+    long long int *new_vertex_pointers;
+    MemoryAPI::allocate_array(&new_connections_count, this->vertices_count);
+    MemoryAPI::allocate_array(&new_vertex_pointers, this->vertices_count + 1);
+
+    // calculate duplicates count and new connections cound
+    #pragma omp parallel for
+    for(int src_id = 0; src_id < this->vertices_count; src_id++)
+    {
+        long long int start = this->vertex_pointers[src_id];
+        long long int end = this->vertex_pointers[src_id + 1];
+        int connections_count = end - start;
+        int duplicates_count = 0;
+        for(long long cur_edge = start + 1; cur_edge < end; cur_edge++)
+        {
+            if((this->adjacent_ids[cur_edge] == this->adjacent_ids[cur_edge - 1]) || (this->adjacent_ids[cur_edge] == src_id))
+                duplicates_count++;
+        }
+
+        new_connections_count[src_id] = connections_count - duplicates_count;
+    }
+
+    // calculate new edges count
+    long long new_edges_count = 0;
+    #pragma omp parallel for reduction(+: new_edges_count)
+    for(int src_id = 0; src_id < this->vertices_count; src_id++)
+    {
+        new_edges_count += new_connections_count[src_id];
+    }
+
+    cout << "UndirectedCSRGraph::remove_loops_and_multiple_arcs reduced edges from " << this->edges_count << " to " << new_edges_count << endl;
+    MemoryAPI::allocate_array(&new_adjacent_ids, new_edges_count);
+
+    // obtain new vertex pointers
+    new_vertex_pointers[0] = 0;
+    for(int src_id = 1; src_id < this->vertices_count + 1; src_id++) // TODO in parallel
+    {
+        new_vertex_pointers[src_id] = new_vertex_pointers[src_id - 1] + new_connections_count[src_id - 1];
+    }
+
+    // free tmp connections array
+    MemoryAPI::free_array(new_connections_count);
+
+    // copy edges
+    #pragma omp parallel for
+    for(int src_id = 0; src_id < this->vertices_count; src_id++)
+    {
+        long long int start = this->vertex_pointers[src_id];
+        long long int end = this->vertex_pointers[src_id + 1];
+
+        long long int new_dst = new_vertex_pointers[src_id];
+
+        for(long long int old_pos = start; old_pos < end; old_pos++)
+        {
+            if(old_pos == start)
+            {
+                new_adjacent_ids[new_dst] = this->adjacent_ids[old_pos];
+                new_dst++;
+            }
+            else
+            {
+                if((this->adjacent_ids[old_pos] == this->adjacent_ids[old_pos - 1]) || (this->adjacent_ids[old_pos] == src_id))
+                {
+                    continue;
+                }
+                else
+                {
+                    new_adjacent_ids[new_dst] = this->adjacent_ids[old_pos];
+                    new_dst++;
+                }
+            }
+        }
+    }
+
+    // free old data
+    MemoryAPI::free_array(this->vertex_pointers);
+    MemoryAPI::free_array(this->adjacent_ids);
+
+    // copy new data into graph
+    this->vertices_count = this->vertices_count;
+    this->edges_count = new_edges_count;
+    this->vertex_pointers = new_vertex_pointers;
+    this->adjacent_ids = new_adjacent_ids;
+
+    this->print();
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 void UndirectedCSRGraph::import(EdgesListGraph &_el_graph)
 {
     // get size of edges list graph
@@ -214,7 +305,10 @@ void UndirectedCSRGraph::import(EdgesListGraph &_el_graph)
     this->construct_CSR(_el_graph);
 
     // sort edges
-    sort_adjacent_edges();
+    this->sort_adjacent_edges();
+
+    // remove loops and multiple arcs
+    this->remove_loops_and_multiple_arcs();
 
     // save conversion arrays into graph
     MemoryAPI::copy(forward_conversion, loc_forward_conversion, this->vertices_count);

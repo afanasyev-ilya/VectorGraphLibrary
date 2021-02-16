@@ -146,12 +146,18 @@ void UndirectedCSRGraph::save_main_content_to_binary_file(FILE *_graph_file)
 
 void UndirectedCSRGraph::load_main_content_to_binary_file(FILE *_graph_file)
 {
+    cout << "read 1" << endl;
     fread(reinterpret_cast<char*>(vertex_pointers), sizeof(long long), vertices_count + 1, _graph_file);
+    cout << "read 2" << endl;
     fread(reinterpret_cast<char*>(adjacent_ids), sizeof(int), edges_count, _graph_file);
+    cout << "read 3" << endl;
 
     fread(reinterpret_cast<char*>(forward_conversion), sizeof(int), vertices_count, _graph_file);
+    cout << "read 4" << endl;
     fread(reinterpret_cast<char*>(backward_conversion), sizeof(int), vertices_count, _graph_file);
+    cout << "read 5" << endl;
     fread(reinterpret_cast<char*>(edges_reorder_indexes), sizeof(vgl_sort_indexes), edges_count, _graph_file);
+    cout << "read 6" << endl;
 
     #ifdef __USE_NEC_SX_AURORA__
     estimate_nec_thresholds();

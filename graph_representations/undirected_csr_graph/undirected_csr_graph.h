@@ -69,6 +69,8 @@ private:
 
     void construct_CSR(EdgesListGraph &_el_graph);
 
+    void remove_loops_and_multiple_arcs();
+
     void copy_edges_indexes(vgl_sort_indexes *_sort_indexes);
 
     /* reorder API */
