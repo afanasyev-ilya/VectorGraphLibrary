@@ -229,7 +229,7 @@ void BFS::nec_direction_optimizing(VectCSRGraph &_graph,
         vis = 0, in_lvl = 0;
         if(current_state == TOP_DOWN)
         {
-            cout << " -------------- IN TOP DOWN STATE ----------------- " << endl;
+            //cout << " -------------- IN TOP DOWN STATE ----------------- " << endl;
             int *levels_ptr = _levels.get_ptr();
 
             if(current_level > FIRST_LEVEL_VERTEX)
@@ -254,9 +254,10 @@ void BFS::nec_direction_optimizing(VectCSRGraph &_graph,
                 }
             };
 
-            frontier.print_stats();
+            //frontier.print_stats();
             graph_API.scatter(_graph, frontier, edge_op, EMPTY_VERTEX_OP, EMPTY_VERTEX_OP,
                               edge_op, EMPTY_VERTEX_OP, EMPTY_VERTEX_OP);
+            //cout << "inner: " << (t2 - t1)*1000 << " ms" << endl;
 
             vis = frontier.size();
             in_lvl = frontier.get_neighbours_count();
@@ -267,7 +268,7 @@ void BFS::nec_direction_optimizing(VectCSRGraph &_graph,
         }
         else if(current_state == BOTTOM_UP)
         {
-            cout << " -------------- IN BOTTOM UP STATE ----------------- " << endl;
+            //cout << " -------------- IN BOTTOM UP STATE ----------------- " << endl;
 
             BU_count++;
             int *levels_ptr = _levels.get_ptr();
@@ -278,6 +279,14 @@ void BFS::nec_direction_optimizing(VectCSRGraph &_graph,
                 tm_ve.start();
                 int ve_vertices_count = _vector_extension.ve_vertices_count;
                 int *ve_dst_ids = _vector_extension.ve_dst_ids;
+
+                for(int i = 0; i < 256; i++)
+                {
+                    int dst_id = ve_dst_ids[i + 1 * ve_vertices_count];
+                    cout << dst_id << " ";
+                }
+                cout << endl;
+
                 #pragma omp parallel
                 {
                     NEC_REGISTER_INT(vis, 0);
@@ -298,15 +307,16 @@ void BFS::nec_direction_optimizing(VectCSRGraph &_graph,
                             {
                                 int src_id = vec_start + i;
                                 int dst_id = ve_dst_ids[src_id + step * ve_vertices_count];
+
+                                //reg_in_lvl[i]++;
                                 if(dst_id != -1)
                                 {
-                                    reg_in_lvl[i]++;
                                     int src_level = levels_ptr[src_id];
                                     int dst_level = levels_ptr[dst_id];
-                                    if((src_level == UNVISITED_VERTEX) && (dst_level == current_level))
+                                    if((src_level == UNVISITED_VERTEX)/* && (dst_level == current_level)*/)
                                     {
-                                        levels_ptr[src_id] = current_level + 1;
-                                        reg_vis[i]++;
+                                        levels_ptr[vec_start + i] = current_level + 1 + dst_level;
+                                        //reg_vis[i]++;
                                     }
                                 }
                             }
@@ -324,8 +334,8 @@ void BFS::nec_direction_optimizing(VectCSRGraph &_graph,
                 }
                 tm_ve.end();
                 ve_time += tm_ve.get_time_in_ms();
-                //tm_ve.print_bandwidth_stats("BFS VE", ve_vertices_count * BFS_VE_SIZE, sizeof(int)*3.0);
-                cout << tm_ve.get_time_in_ms() << " (ms) VE time" << endl;
+                tm_ve.print_bandwidth_stats("BFS VE v6", ve_vertices_count * BFS_VE_SIZE, sizeof(int)*3.0);
+                //cout << tm_ve.get_time_in_ms() << " (ms) VE time" << endl;
                 performance_stats.update_non_api_time(tm_ve);
             }
 
@@ -340,9 +350,9 @@ void BFS::nec_direction_optimizing(VectCSRGraph &_graph,
             tm_my.start();
             graph_API.generate_new_frontier(_graph, frontier, is_unvisited);
             tm_my.end();
-            cout << tm_my.get_time_in_ms() << " (ms) GNF time" << endl;
+            //cout << tm_my.get_time_in_ms() << " (ms) GNF time" << endl;
 
-            frontier.print_stats();
+            //frontier.print_stats();
             //vis = frontier.size();
             //in_lvl = frontier.get_neighbours_count();
 

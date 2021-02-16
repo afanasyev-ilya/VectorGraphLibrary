@@ -13,13 +13,15 @@ void UndirectedCSRGraph::extract_connection_count(EdgesListGraph &_el_graph,
     long long el_edges_count = _el_graph.get_edges_count();
     int *el_src_ids = _el_graph.get_src_ids();
 
+    int threads_num = omp_get_max_threads();
+
     memset(_connections_array, 0, el_vertices_count*sizeof(int));
-    memset(_work_buffer, 0, el_vertices_count*MAX_SX_AURORA_THREADS*sizeof(int));
+    memset(_work_buffer, 0, el_vertices_count*threads_num*sizeof(int));
 
     #pragma omp parallel
     {};
 
-    #pragma omp parallel num_threads(MAX_SX_AURORA_THREADS)
+    #pragma omp parallel num_threads(threads_num)
     {
         int tid = omp_get_thread_num();
 
@@ -38,7 +40,7 @@ void UndirectedCSRGraph::extract_connection_count(EdgesListGraph &_el_graph,
         }
 
         #pragma _NEC novector
-        for(int core = 0; core < MAX_SX_AURORA_THREADS; core++)
+        for(int core = 0; core < threads_num; core++)
         {
             #pragma _NEC ivdep
             #pragma omp for
@@ -176,13 +178,15 @@ void UndirectedCSRGraph::import(EdgesListGraph &_el_graph)
     MemoryAPI::allocate_array(&loc_forward_conversion, el_vertices_count);
     MemoryAPI::allocate_array(&loc_backward_conversion, el_vertices_count);
 
+    int threads_num = omp_get_max_threads();
+
     // allocate buffers
     int *connections_array;
     int *work_buffer;
     vgl_sort_indexes *sort_indexes;
     MemoryAPI::allocate_array(&connections_array, el_vertices_count);
     MemoryAPI::allocate_array(&sort_indexes, el_edges_count);
-    MemoryAPI::allocate_array(&work_buffer, max(el_edges_count, (long long)el_vertices_count*MAX_SX_AURORA_THREADS));
+    MemoryAPI::allocate_array(&work_buffer, max(el_edges_count, (long long)el_vertices_count*threads_num));
 
     // obtain connections array from edges list graph
     extract_connection_count(_el_graph, work_buffer, connections_array);
@@ -209,6 +213,9 @@ void UndirectedCSRGraph::import(EdgesListGraph &_el_graph)
     // construct CSR representation
     this->construct_CSR(_el_graph);
 
+    // sort edges
+    sort_adjacent_edges();
+
     // save conversion arrays into graph
     MemoryAPI::copy(forward_conversion, loc_forward_conversion, this->vertices_count);
     MemoryAPI::copy(backward_conversion, loc_backward_conversion, this->vertices_count);
@@ -234,51 +241,15 @@ void UndirectedCSRGraph::import(EdgesListGraph &_el_graph)
 
 void UndirectedCSRGraph::sort_adjacent_edges()
 {
-    /*#ifdef __USE_ASL__
-    ASL_CALL(asl_library_initialize());
-    asl_sort_t hnd;
-    ASL_CALL(asl_sort_create_i32(&hnd, ASL_SORTORDER_ASCENDING, ASL_SORTALGORITHM_AUTO));
-
-    Timer tm;
-    tm.start();
-    #pragma omp parallel for
-    for(int src_id = 0; src_id < this->vertices_count; src_id++)
+    for(long long cur_vertex = 0; cur_vertex < this->vertices_count; cur_vertex++)
     {
-        int connections_count = vertex_pointers[src_id + 1] - vertex_pointers[src_id];
-        if(connections_count >= VECTOR_LENGTH)
+        int connections_count = this->vertex_pointers[cur_vertex + 1] - this->vertex_pointers[cur_vertex];
+        long long start = this->vertex_pointers[cur_vertex];
+        if(connections_count >= 2)
         {
-            long long first = vertex_pointers[src_id];
-            long long last = vertex_pointers[src_id + 1];
-            ASL_CALL(asl_sort_execute_i32(hnd, connections_count, &adjacent_ids[first],
-                                          NULL, &adjacent_ids[first], NULL));
+            Sorter::sort(&(this->adjacent_ids[start]), NULL, connections_count, SORT_ASCENDING);
         }
     }
-    tm.end();
-    tm.print_time_stats("edges segmented sort");
-
-    ASL_CALL(asl_sort_destroy(hnd));
-    ASL_CALL(asl_library_finalize());
-    #endif*/
-
-    /*int src_id = 100000;
-    int connections_count = vertex_pointers[src_id + 1] - vertex_pointers[src_id];
-    long long first = vertex_pointers[src_id];
-    long long last = vertex_pointers[src_id + 1];
-    for(int i = first; i < last; i++)
-    {
-        cout << adjacent_ids[i] << " ";
-    }
-    cout << endl;
-
-    src_id = 104000;
-    connections_count = vertex_pointers[src_id + 1] - vertex_pointers[src_id];
-    first = vertex_pointers[src_id];
-    last = vertex_pointers[src_id + 1];
-    for(int i = first; i < last; i++)
-    {
-        cout << adjacent_ids[i] << " ";
-    }
-    cout << endl;*/
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

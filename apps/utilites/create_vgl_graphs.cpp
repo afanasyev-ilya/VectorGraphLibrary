@@ -132,6 +132,8 @@ int main(int argc, char ** argv)
             cout << "VectCSR graph is generated and saved to file " << file_name << endl;
             tm.end();
             tm.print_time_stats("Save");
+
+            //vect_csr_graph.print();
         }
         cout << " ----------------------------------------------------------------------------------------- " << endl << endl;
     }

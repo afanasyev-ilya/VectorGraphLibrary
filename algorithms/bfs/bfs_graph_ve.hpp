@@ -10,7 +10,8 @@ BFS_GraphVE::BFS_GraphVE(VectCSRGraph &_graph)
     //GraphAbstractionsNEC graph_API(_graph, GATHER);
     //FrontierNEC frontier(_graph, GATHER);
 
-    _graph.get_incoming_graph_ptr()->sort_adjacent_edges();
+    // already should be sorted
+    //_graph.get_incoming_graph_ptr()->sort_adjacent_edges();
 
     frontier.set_all_active();
     auto calculate_non_zero_count = []__VGL_COMPUTE_ARGS__->int
@@ -46,6 +47,12 @@ BFS_GraphVE::BFS_GraphVE(VectCSRGraph &_graph)
     auto copy_edge_to_ve = [l_ve_vertices_count,l_ve_edges_per_vertex,l_ve_dst_ids](int src_id, int dst_id, int local_edge_pos,
                               long long int global_edge_pos, int vector_index, DelayedWriteNEC &delayed_write)
     {
+        if((src_id < 256) && (local_edge_pos < l_ve_edges_per_vertex))
+        {
+            #pragma omp critical
+            cout << src_id << ") " << dst_id << endl;
+        }
+
         if(local_edge_pos < l_ve_edges_per_vertex)
             l_ve_dst_ids[src_id + l_ve_vertices_count*local_edge_pos] = dst_id;
     };
@@ -53,6 +60,13 @@ BFS_GraphVE::BFS_GraphVE(VectCSRGraph &_graph)
     //graph_API.gather(_graph, frontier, copy_edge_to_ve); // TODO GATHER if directed
     graph_API.scatter(_graph, frontier, copy_edge_to_ve);
     #endif
+
+    _graph.print_vertex_information(SCATTER, 1, 200);
+    _graph.print_vertex_information(SCATTER, 2, 200);
+    _graph.print_vertex_information(SCATTER, 3, 200);
+    _graph.print_vertex_information(SCATTER, 50, 200);
+    _graph.print_vertex_information(SCATTER, 100, 200);
+    _graph.print_vertex_information(SCATTER, 1000, 200);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

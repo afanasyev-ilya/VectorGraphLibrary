@@ -12,7 +12,7 @@
 #define COLLECTIVE_FRONTIER_TYPE_CHANGE_THRESHOLD 0.35
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-#define __PRINT_API_PERFORMANCE_STATS__
+//#define __PRINT_API_PERFORMANCE_STATS__
 
 #include "graph_library.h"
 
@@ -88,9 +88,12 @@ int main(int argc, const char * argv[])
             }
         }*/
 
-        int source_vertex = graph.select_random_vertex(ORIGINAL);
-        /*cout << "TEST selected source vertex " << source_vertex << endl;
-        for(int i = 1; i < 10; i++)
+        double best_perf = 0;
+        int best_low = 0, best_large = 0;
+
+        int source_vertex = 5; //graph.select_random_vertex(ORIGINAL);
+        cout << "TEST selected source vertex " << source_vertex << endl;
+        /*for(int i = 1; i < 10; i++)
         {
             for(int j = 1; j < 10; j++)
             {
@@ -103,18 +106,34 @@ int main(int argc, const char * argv[])
                     continue;
                 }
                 cout << "selected: " << first_threshold << " - " << second_threshold << endl;
+
+                performance_stats.reset_perf_stats();
                 performance_stats.reset_timers();
                 BFS::nec_direction_optimizing(graph, levels, source_vertex, vector_extension_for_bfs, direction, first_threshold, second_threshold);
-                //performance_stats.print_timers_stats();
+                performance_stats.print_timers_stats();
+
+                double cur_perf = performance_stats.get_max_perf(graph.get_edges_count(), 1);
+                if(cur_perf > best_perf)
+                {
+                    best_low = i;
+                    best_large = j;
+                    best_perf = cur_perf;
+                }
             }
-        }*/
+        }
+
+        cout << "best perf " << best_perf << " at " << best_low << " " << best_large << endl;*/
 
         VerticesArray<int> levels(graph, SCATTER);
+        performance_stats.reset_perf_stats();
         performance_stats.reset_timers();
-        BFS::nec_direction_optimizing(graph, levels, source_vertex, vector_extension_for_bfs, direction, 3, 6);
+        BFS::nec_direction_optimizing(graph, levels, source_vertex, vector_extension_for_bfs, direction, 1, 4);
         performance_stats.print_timers_stats();
 
-        performance_stats.print_perf(graph.get_edges_count());
+        performance_stats.reset_perf_stats();
+        performance_stats.reset_timers();
+        BFS::nec_direction_optimizing(graph, levels, source_vertex, vector_extension_for_bfs, direction, 1, 4);
+        performance_stats.print_timers_stats();
     }
     catch (string error)
     {

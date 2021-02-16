@@ -304,7 +304,10 @@ void GraphGenerationAPI::init_from_txt_file(EdgesListGraph &_graph, string _txt_
 
     cout << "direction type: " << _direction_type << endl;
     cout << "loaded " << vertices_count << " vertices_count" << endl;
-    cout << "loaded " << i << " edges, expected amount " << edges_count << endl;
+    if(_direction_type == DIRECTED_GRAPH)
+        cout << "loaded " << i << " edges" << endl;
+    else
+        cout << "loaded " << i << " directed edges, " << i/2 << " undirected" << endl;
     
     edges_count = i;
     

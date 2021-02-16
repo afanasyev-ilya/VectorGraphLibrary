@@ -56,6 +56,13 @@ public:
     void update_timer_stats();
 
     void print_perf(long long _edges_count, int _k = 1);
+
+    void reset_perf_stats();
+
+    double get_max_perf(long long _edges_count, int _k = 1);
+    double get_min_perf(long long _edges_count, int _k = 1);
+    double get_avg_perf(long long _edges_count, int _k = 1);
+
     void print_min_perf(long long _edges_count, int _k = 1);
     void print_max_perf(long long _edges_count, int _k = 1);
     void print_avg_perf(long long _edges_count, int _k = 1);
