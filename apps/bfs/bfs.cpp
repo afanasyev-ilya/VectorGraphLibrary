@@ -131,10 +131,12 @@ int main(int argc, const char * argv[])
         BFS::nec_direction_optimizing(graph, levels, source_vertex, vector_extension_for_bfs, direction, 1, 4);
         performance_stats.print_timers_stats();
 
-        performance_stats.reset_perf_stats();
-        performance_stats.reset_timers();
-        BFS::nec_direction_optimizing(graph, levels, source_vertex, vector_extension_for_bfs, direction, 1, 4);
-        performance_stats.print_timers_stats();
+        if(parser.get_check_flag())
+        {
+            VerticesArray<int> check_levels(graph, SCATTER);
+            BFS::seq_top_down(graph, check_levels, source_vertex);
+            verify_results(levels, check_levels);
+        }
     }
     catch (string error)
     {
