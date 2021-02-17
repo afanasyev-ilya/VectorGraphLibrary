@@ -280,14 +280,50 @@ void BFS::nec_direction_optimizing(VectCSRGraph &_graph,
                 int ve_vertices_count = _vector_extension.ve_vertices_count;
                 int *ve_dst_ids = _vector_extension.ve_dst_ids;
 
-                for(int i = 0; i < 256; i++)
-                {
-                    int dst_id = ve_dst_ids[200+ i + 2 * ve_vertices_count];
-                    cout << dst_id << " ";
-                }
-                cout << endl;
+                int ve_starting_vertex = 0;
+                int ve_vector_segments_count = ve_vertices_count / VECTOR_LENGTH;
 
-                #pragma omp parallel
+                #pragma omp parallel for schedule(static, 8)
+                for(int cur_vector_segment = 0; cur_vector_segment < ve_vector_segments_count; cur_vector_segment++)
+                {
+                    int segment_first_vertex = cur_vector_segment * VECTOR_LENGTH + ve_starting_vertex;
+
+                    long long segment_edges_start = cur_vector_segment * VECTOR_LENGTH;
+                    int segment_connections_count = BFS_VE_SIZE;
+
+                    for(int edge_pos = 0; edge_pos < segment_connections_count; edge_pos++)
+                    {
+                        #pragma _NEC cncall
+                        #pragma _NEC ivdep
+                        #pragma _NEC vovertake
+                        #pragma _NEC novob
+                        #pragma _NEC vector
+                        #pragma _NEC gather_reorder
+                        for (int i = 0; i < VECTOR_LENGTH; i++)
+                        {
+                            const int src_id = segment_first_vertex + i;
+
+                            const int vector_index = i;
+                            const long long internal_edge_pos = segment_edges_start + edge_pos * VECTOR_LENGTH + i;
+                            const int dst_id = ve_dst_ids[internal_edge_pos];
+
+                            if(src_id < ve_vertices_count)
+                            {
+                                int src_level = levels_ptr[src_id];
+                                int dst_level = 0;
+                                if(dst_id != -1)
+                                {
+                                    dst_level = levels_ptr[dst_id];
+                                }
+
+                                if((dst_id != -1) && (src_level == UNVISITED_VERTEX) && (dst_level == current_level))
+                                    levels_ptr[src_id] = current_level + 1;
+                            }
+                        }
+                    }
+                }
+
+                /*#pragma omp parallel
                 {
                     NEC_REGISTER_INT(vis, 0);
                     NEC_REGISTER_INT(in_lvl, 0);
@@ -295,13 +331,41 @@ void BFS::nec_direction_optimizing(VectCSRGraph &_graph,
                     #pragma _NEC unroll(BFS_VE_SIZE)
                     for(int step = 0; step < BFS_VE_SIZE; step++)
                     {
-                        #pragma omp for schedule(static, 8)
+                        #pragma _NEC cncall
+                        #pragma _NEC ivdep
+                        #pragma _NEC vovertake
+                        #pragma _NEC novob
+                        #pragma _NEC vector
+                        #pragma _NEC sparse
+                        #pragma omp for schedule(static)
+                        for(int src_id = 0; src_id < ve_vertices_count; src_id++)
+                        {
+                            int dst_id = ve_dst_ids[src_id + step * ve_vertices_count];
+
+                            int src_level = levels_ptr[src_id];
+                            int dst_level = 0;
+                            if(dst_id != -1)
+                            {
+                                dst_level = levels_ptr[dst_id];
+                            }
+
+                            if((dst_id != -1) && (src_level == UNVISITED_VERTEX) && (dst_level == current_level))
+                                levels_ptr[src_id] = current_level + 1;
+                        }
+                    }
+
+                    #pragma _NEC unroll(BFS_VE_SIZE)
+                    for(int step = 0; step < BFS_VE_SIZE; step++)
+                    {
+                        #pragma omp for schedule(static)
                         for(int vec_start = 0; vec_start < ve_vertices_count; vec_start += VECTOR_LENGTH)
                         {
+                            #pragma _NEC cncall
                             #pragma _NEC ivdep
                             #pragma _NEC vovertake
                             #pragma _NEC novob
                             #pragma _NEC vector
+                            #pragma _NEC sparse
                             #pragma _NEC gather_reorder
                             for(int i = 0; i < VECTOR_LENGTH; i++)
                             {
@@ -309,16 +373,16 @@ void BFS::nec_direction_optimizing(VectCSRGraph &_graph,
                                 int dst_id = ve_dst_ids[src_id + step * ve_vertices_count];
 
                                 //reg_in_lvl[i]++;
-                                if(dst_id != -1)
+                                //if(dst_id != -1)
+                                //{
+                                int src_level = levels_ptr[src_id];
+                                int dst_level = levels_ptr[dst_id];
+                                if((src_level == UNVISITED_VERTEX) && (dst_level == current_level))
                                 {
-                                    int src_level = levels_ptr[src_id];
-                                    int dst_level = dst_id; //levels_ptr[dst_id];
-                                    if((src_level == UNVISITED_VERTEX)/* && (dst_level == current_level)*/)
-                                    {
-                                        levels_ptr[vec_start + i] = current_level + 1 + dst_level;
-                                        //reg_vis[i]++;
-                                    }
+                                    //levels_ptr[vec_start + i] = current_level + 1 + dst_level;
+                                    reg_vis[i] = current_level + 1 + dst_level;
                                 }
+                                //}
                             }
                         }
                     }
@@ -331,10 +395,10 @@ void BFS::nec_direction_optimizing(VectCSRGraph &_graph,
 
                     #pragma omp atomic
                     in_lvl += local_in_lvl;
-                }
+                }*/
                 tm_ve.end();
                 ve_time += tm_ve.get_time_in_ms();
-                tm_ve.print_bandwidth_stats("BFS VE v7", ve_vertices_count * BFS_VE_SIZE, sizeof(int)*3.0);
+                tm_ve.print_time_and_bandwidth_stats("BFS VE v7", ve_vertices_count * BFS_VE_SIZE, sizeof(int)*3.0);
                 //cout << tm_ve.get_time_in_ms() << " (ms) VE time" << endl;
                 performance_stats.update_non_api_time(tm_ve);
             }
