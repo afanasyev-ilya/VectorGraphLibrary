@@ -53,7 +53,7 @@ public:
 #include "gpu_bfs.hpp"
 #include "nec_bfs.hpp"
 #include "change_state/change_state.hpp"
-//#inclide "manually_optimized.hpp"
+#include "manually_optimized.hpp"
 #include "bfs_graph_ve.hpp"
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

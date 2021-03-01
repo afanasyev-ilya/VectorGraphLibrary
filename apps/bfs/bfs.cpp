@@ -65,78 +65,17 @@ int main(int argc, const char * argv[])
         cout << " after stats " << endl;
 
         // init ve
-        BFS_GraphVE vector_extension_for_bfs(graph);
+        //BFS_GraphVE vector_extension_for_bfs(graph);
 
         // compute BFS
         cout << "Computations started..." << endl;
         cout << "Doing " << parser.get_number_of_rounds() << " BFS iterations..." << endl;
-        /*for(int i = 0; i < parser.get_number_of_rounds(); i++)
-        {
-            VerticesArray<int> levels(graph, SCATTER);
-
-            int source_vertex = graph.select_random_vertex(ORIGINAL);
-            cout << "selected source vertex " << source_vertex << endl;
-
-            cout << "Direction: " << direction << endl;
-            performance_stats.reset_timers();
-            if(parser.get_algorithm_bfs() == TOP_DOWN_BFS_ALGORITHM)
-                BFS::nec_top_down(graph, levels, source_vertex);
-            else if(parser.get_algorithm_bfs() == DIRECTION_OPTIMIZING_BFS_ALGORITHM)
-                BFS::nec_direction_optimizing(graph, levels, source_vertex, vector_extension_for_bfs, direction);
-            performance_stats.print_timers_stats();
-
-            // check if required
-            if(parser.get_check_flag())
-            {
-                VerticesArray<int> check_levels(graph, SCATTER);
-                BFS::seq_top_down(graph, check_levels, source_vertex);
-                verify_results(levels, check_levels);
-            }
-        }*/
-
-        double best_perf = 0;
-        int best_low = 0, best_large = 0;
-
-        int source_vertex = 19; //graph.select_random_vertex(ORIGINAL);
-        /*cout << "TEST selected source vertex " << source_vertex << endl;
-        for(int i = 1; i < 10; i++)
-        {
-            for(int j = 1; j < 10; j++)
-            {
-                VerticesArray<int> levels(graph, SCATTER);
-
-                int first_threshold = i;
-                int second_threshold = j;
-                if(second_threshold <= first_threshold)
-                {
-                    continue;
-                }
-                cout << "selected: " << first_threshold << " - " << second_threshold << endl;
-
-                performance_stats.reset_perf_stats();
-                performance_stats.reset_timers();
-                BFS::nec_direction_optimizing(graph, levels, source_vertex, vector_extension_for_bfs, direction, first_threshold, second_threshold);
-                performance_stats.print_timers_stats();
-
-                double cur_perf = performance_stats.get_max_perf(graph.get_edges_count(), 1);
-                if(cur_perf > best_perf)
-                {
-                    best_low = i;
-                    best_large = j;
-                    best_perf = cur_perf;
-                }
-            }
-        }*/
-
-        cout << "best perf " << best_perf << " at " << best_low << " " << best_large << endl;
-        best_low = 2;
-        best_large = 4;
 
         VerticesArray<int> levels(graph, SCATTER);
-        performance_stats.reset_perf_stats();
-        performance_stats.reset_timers();
-        BFS::nec_direction_optimizing(graph, levels, source_vertex, vector_extension_for_bfs, direction, best_low, best_large);
-        performance_stats.print_timers_stats();
+
+        cout << " !!!!!!!!!!!!!!!!!  " << endl;
+
+        man_opt_nec_bfs(graph, levels, 0);
 
         /*if(parser.get_check_flag())
         {
