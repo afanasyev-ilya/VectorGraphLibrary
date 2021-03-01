@@ -186,14 +186,16 @@ void BFS::nec_direction_optimizing(VectCSRGraph &_graph,
                                    int first_switch,
                                    int second_switch)
 {
-    //StateOfBFS man_states[11] = {TOP_DOWN, TOP_DOWN, TOP_DOWN, BOTTOM_UP, BOTTOM_UP, BOTTOM_UP, TOP_DOWN, TOP_DOWN, TOP_DOWN, TOP_DOWN, TOP_DOWN};
     GraphAbstractionsNEC graph_API(_graph, SCATTER);
     FrontierNEC frontier(_graph, SCATTER);
+
+    int *segment_needs_processing;
+    MemoryAPI::allocate_array(&segment_needs_processing, _vector_extension.ve_vertices_count / VECTOR_LENGTH);
 
     int vertices_count = _graph.get_vertices_count();
     long long edges_count = _graph.get_edges_count();
 
-    _source_vertex = _graph.reorder(_source_vertex, ORIGINAL, SCATTER);
+    _source_vertex = 4000; //_graph.reorder(_source_vertex, ORIGINAL, SCATTER);
 
     vector<StateOfBFS> step_states;
     vector<double> step_times;
@@ -341,7 +343,7 @@ void BFS::nec_direction_optimizing(VectCSRGraph &_graph,
                 }
                 tm_ve.end();
                 ve_time += tm_ve.get_time_in_ms();
-                tm_ve.print_time_and_bandwidth_stats("BFS VE v7", ve_vertices_count * BFS_VE_SIZE, sizeof(int)*3.0);
+                //tm_ve.print_time_and_bandwidth_stats("BFS VE v7", ve_vertices_count * BFS_VE_SIZE, sizeof(int)*3.0);
                 //cout << tm_ve.get_time_in_ms() << " (ms) VE time" << endl;
                 performance_stats.update_non_api_time(tm_ve);
             }
@@ -349,7 +351,7 @@ void BFS::nec_direction_optimizing(VectCSRGraph &_graph,
             auto is_unvisited = [_levels] (int src_id, int connections_count)->int
             {
                 int result = NOT_IN_FRONTIER_FLAG;
-                if((_levels[src_id] == UNVISITED_VERTEX) && (connections_count > 0))
+                if((_levels[src_id] == UNVISITED_VERTEX) && (connections_count >= BFS_VE_SIZE))
                     result = IN_FRONTIER_FLAG;
                 return result;
             };
@@ -357,14 +359,120 @@ void BFS::nec_direction_optimizing(VectCSRGraph &_graph,
             tm_my.start();
             graph_API.generate_new_frontier(_graph, frontier, is_unvisited);
             tm_my.end();
-            //cout << tm_my.get_time_in_ms() << " (ms) GNF time" << endl;
+            //tm_my.print_time_stats("gen time BU front");
 
-            //frontier.print_stats();
-            //vis = frontier.size();
-            //in_lvl = frontier.get_neighbours_count();
+            int front_size = frontier.size();
+            int *front_ids = frontier.get_ids();
+            long long    *vertex_pointers = _graph.get_outgoing_graph_ptr()->get_vertex_pointers();
+            int          *adjacent_ids = _graph.get_outgoing_graph_ptr()->get_adjacent_ids();
+            int vc_border = frontier.get_vector_engine_part_size() + frontier.get_vector_core_part_size();
 
             tm_my.start();
+
             #pragma omp parallel
+            {
+                int reg_in_lvl[VECTOR_LENGTH];
+                int reg_vis[VECTOR_LENGTH];
+                int reg_connections[VECTOR_LENGTH];
+                int reg_starts[VECTOR_LENGTH];
+
+                #pragma _NEC vreg(reg_connections)
+                #pragma _NEC vreg(reg_starts)
+                #pragma _NEC vreg(reg_in_lvl)
+                #pragma _NEC vreg(reg_vis)
+
+                #pragma _NEC vector
+                for(int i = 0; i < VECTOR_LENGTH; i++)
+                {
+                    reg_in_lvl[i] = 0;
+                    reg_vis[i] = 0;
+                }
+
+                #pragma omp for schedule(static, 8)
+                for(int front_pos = 0; front_pos < vc_border; front_pos++)
+                {
+                    int src_id = front_ids[front_pos];
+                    int connections_count = vertex_pointers[src_id + 1] - vertex_pointers[src_id];
+                    long long start = vertex_pointers[src_id];
+
+                    #pragma _NEC cncall
+                    #pragma _NEC ivdep
+                    #pragma _NEC vovertake
+                    #pragma _NEC novob
+                    #pragma _NEC vector
+                    #pragma _NEC gather_reorder
+                    for(int edge_pos = BFS_VE_SIZE; edge_pos < connections_count; edge_pos++)
+                    {
+                        int dst_id = adjacent_ids[start + edge_pos];
+                        if(levels_ptr[dst_id] == current_level)
+                        {
+                            levels_ptr[src_id] = current_level + 1;
+                        }
+                    }
+                }
+
+                #pragma omp for schedule(static)
+                for(int front_pos = vc_border; front_pos < front_size; front_pos += VECTOR_LENGTH)
+                {
+                    int max_connections = 0;
+                    #pragma _NEC vector
+                    #pragma _NEC ivdep
+                    for(int i = 0; i < VECTOR_LENGTH; i++)
+                    {
+                        if((front_pos + i) < front_size)
+                        {
+                            int src_id = front_ids[front_pos + i];
+                            int connections_count = vertex_pointers[src_id + 1] - vertex_pointers[src_id];
+                            if(max_connections < connections_count)
+                                max_connections = connections_count;
+
+                            reg_connections[i] = connections_count;
+                            reg_starts[i] = vertex_pointers[src_id];
+                        }
+                    }
+
+                    for(int edge_pos = BFS_VE_SIZE; edge_pos < max_connections; edge_pos++)
+                    {
+                        #pragma _NEC cncall
+                        #pragma _NEC ivdep
+                        #pragma _NEC vovertake
+                        #pragma _NEC novob
+                        #pragma _NEC vector
+                        #pragma _NEC gather_reorder
+                        for(int i = 0; i < VECTOR_LENGTH; i++)
+                        {
+                            if((front_pos + i) < front_size)
+                            {
+                                int src_id = front_ids[front_pos + i];
+                                int real_connections_count = reg_connections[i];
+                                long long start = reg_starts[i];
+                                reg_in_lvl[i]++;
+
+                                if(real_connections_count < max_connections)
+                                {
+                                    int dst_id = adjacent_ids[start + edge_pos];
+                                    if(levels_ptr[dst_id] == current_level)
+                                    {
+                                        levels_ptr[src_id] = current_level + 1;
+                                        reg_vis[i]++;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+
+                int local_vis = register_sum_reduce(reg_vis);
+                int local_in_lvl = register_sum_reduce(reg_in_lvl);
+
+                #pragma omp atomic
+                vis += local_vis;
+
+                #pragma omp atomic
+                in_lvl += local_in_lvl;
+            }
+
+            /*#pragma omp parallel
             {
                 NEC_REGISTER_INT(vis, 0);
                 NEC_REGISTER_INT(in_lvl, 0);
@@ -414,15 +522,6 @@ void BFS::nec_direction_optimizing(VectCSRGraph &_graph,
                     graph_API.gather(_graph, frontier, edge_op, EMPTY_VERTEX_OP, postprocess, edge_collective_op, EMPTY_VERTEX_OP, EMPTY_VERTEX_OP);
                 }
 
-                /*if(_direction == UNDIRECTED_GRAPH)
-                {
-                    graph_API.scatter(_graph, frontier, edge_op);
-                }
-                else
-                {
-                    graph_API.gather(_graph, frontier, edge_op);
-                }*/
-
                 int local_vis = register_sum_reduce(reg_vis);
                 int local_in_lvl = register_sum_reduce(reg_in_lvl);
 
@@ -431,9 +530,13 @@ void BFS::nec_direction_optimizing(VectCSRGraph &_graph,
 
                 #pragma omp atomic
                 in_lvl += local_in_lvl;
-            }
+            }*/
+
             tm_my.end();
-            cout << tm_my.get_time_in_ms() << " (ms) VGL sparse time" << endl;
+            performance_stats.update_non_api_time(tm_my);
+            long long work = frontier.get_vector_engine_part_neighbours_count() + frontier.get_vector_core_part_neighbours_count() + frontier.get_collective_part_neighbours_count() - BFS_VE_SIZE*front_size;
+            //tm_my.print_time_and_bandwidth_stats("new BU BFS", work, sizeof(int)*3.0);
+            //cout << tm_my.get_time_in_ms() << " (ms) VGL sparse time" << endl;
             //cout << "vis BU: " << vis << endl;
             //cout << "in lvl BU: " << in_lvl << endl;
         }

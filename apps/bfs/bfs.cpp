@@ -92,9 +92,9 @@ int main(int argc, const char * argv[])
         double best_perf = 0;
         int best_low = 0, best_large = 0;
 
-        int source_vertex = 5; //graph.select_random_vertex(ORIGINAL);
-        cout << "TEST selected source vertex " << source_vertex << endl;
-        /*for(int i = 1; i < 10; i++)
+        int source_vertex = 19; //graph.select_random_vertex(ORIGINAL);
+        /*cout << "TEST selected source vertex " << source_vertex << endl;
+        for(int i = 1; i < 10; i++)
         {
             for(int j = 1; j < 10; j++)
             {
@@ -121,22 +121,24 @@ int main(int argc, const char * argv[])
                     best_perf = cur_perf;
                 }
             }
-        }
+        }*/
 
-        cout << "best perf " << best_perf << " at " << best_low << " " << best_large << endl;*/
+        cout << "best perf " << best_perf << " at " << best_low << " " << best_large << endl;
+        best_low = 2;
+        best_large = 4;
 
         VerticesArray<int> levels(graph, SCATTER);
         performance_stats.reset_perf_stats();
         performance_stats.reset_timers();
-        BFS::nec_direction_optimizing(graph, levels, source_vertex, vector_extension_for_bfs, direction, 1, 4);
+        BFS::nec_direction_optimizing(graph, levels, source_vertex, vector_extension_for_bfs, direction, best_low, best_large);
         performance_stats.print_timers_stats();
 
-        if(parser.get_check_flag())
+        /*if(parser.get_check_flag())
         {
             VerticesArray<int> check_levels(graph, SCATTER);
             BFS::seq_top_down(graph, check_levels, source_vertex);
             verify_results(levels, check_levels);
-        }
+        }*/
     }
     catch (string error)
     {
