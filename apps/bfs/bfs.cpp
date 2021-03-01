@@ -11,6 +11,11 @@
 
 #define COLLECTIVE_FRONTIER_TYPE_CHANGE_THRESHOLD 0.35
 
+/*#define FRONTIER_TYPE_CHANGE_THRESHOLD 1.0
+#define VE_FRONTIER_TYPE_CHANGE_THRESHOLD 1.0
+#define VC_FRONTIER_TYPE_CHANGE_THRESHOLD 1.0
+#define COLLECTIVE_FRONTIER_TYPE_CHANGE_THRESHOLD 1.0*/
+
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //#define __PRINT_API_PERFORMANCE_STATS__
 

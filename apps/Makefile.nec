@@ -19,7 +19,7 @@ Libraries = -fopenmp -ftrace -lasl_openmp_i64 # -report-all -ftrace
 # binaries
 ##########
 
-all: sssp sswp sharded_sssp bfs scc gather pr cc print_graph_info create_vgl_graphs
+all: sssp sswp sharded_sssp bfs scc pr cc print_graph_info create_vgl_graphs
 
 sssp: create_folders sssp.o
 	$(VE_CXX) object_files/sssp.o $(Library_Path) $(Libraries) -o ./bin/sssp_sx

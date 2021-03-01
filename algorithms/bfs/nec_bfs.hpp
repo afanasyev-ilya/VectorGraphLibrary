@@ -215,7 +215,7 @@ void BFS::nec_direction_optimizing(VectCSRGraph &_graph,
     frontier.clear();
     frontier.add_vertex(_source_vertex);
 
-    double ve_time = 0;
+    double bu_ve_time = 0, bu_time = 0, td_time = 0, gnf_time = 0;
     int BU_count = 0;
     int vis = 1, in_lvl = 0;
     int current_level = FIRST_LEVEL_VERTEX;
@@ -229,11 +229,17 @@ void BFS::nec_direction_optimizing(VectCSRGraph &_graph,
         step_states.push_back(current_state);
 
         vis = 0, in_lvl = 0;
+
         if(current_state == TOP_DOWN)
         {
+            Timer tm_td;
+            tm_td.start();
+
             //cout << " -------------- IN TOP DOWN STATE ----------------- " << endl;
             int *levels_ptr = _levels.get_ptr();
 
+            Timer tm_gnf;
+            tm_gnf.start();
             if(current_level > FIRST_LEVEL_VERTEX)
             {
                 auto on_this_level = [levels_ptr, current_level] (int src_id, int connections_count)->int
@@ -245,6 +251,8 @@ void BFS::nec_direction_optimizing(VectCSRGraph &_graph,
                 };
                 graph_API.generate_new_frontier(_graph, frontier, on_this_level);
             }
+            tm_gnf.end();
+            gnf_time +=tm_gnf.get_time_in_ms();
 
             auto edge_op = [_levels, &current_level](int src_id, int dst_id, int local_edge_pos,
                 long long int global_edge_pos, int vector_index, DelayedWriteNEC &delayed_write)
@@ -267,6 +275,8 @@ void BFS::nec_direction_optimizing(VectCSRGraph &_graph,
             //cout << "vis TD: " << vis << " vs " << frontier.size() << endl;
             //cout << "in lvl TD: " << in_lvl << " vs " << frontier.get_neighbours_count() << endl;
 
+            tm_td.end();
+            td_time += tm_td.get_time_in_ms();
         }
         else if(current_state == BOTTOM_UP)
         {
@@ -342,10 +352,10 @@ void BFS::nec_direction_optimizing(VectCSRGraph &_graph,
                     in_lvl += local_in_lvl;
                 }
                 tm_ve.end();
-                ve_time += tm_ve.get_time_in_ms();
+                performance_stats.update_non_api_time(tm_ve);
                 //tm_ve.print_time_and_bandwidth_stats("BFS VE v7", ve_vertices_count * BFS_VE_SIZE, sizeof(int)*3.0);
                 //cout << tm_ve.get_time_in_ms() << " (ms) VE time" << endl;
-                performance_stats.update_non_api_time(tm_ve);
+                bu_ve_time += tm_ve.get_time_in_ms();
             }
 
             auto is_unvisited = [_levels] (int src_id, int connections_count)->int
@@ -536,9 +546,8 @@ void BFS::nec_direction_optimizing(VectCSRGraph &_graph,
             performance_stats.update_non_api_time(tm_my);
             long long work = frontier.get_vector_engine_part_neighbours_count() + frontier.get_vector_core_part_neighbours_count() + frontier.get_collective_part_neighbours_count() - BFS_VE_SIZE*front_size;
             //tm_my.print_time_and_bandwidth_stats("new BU BFS", work, sizeof(int)*3.0);
+            bu_time += tm_my.get_time_in_ms();
             //cout << tm_my.get_time_in_ms() << " (ms) VGL sparse time" << endl;
-            //cout << "vis BU: " << vis << endl;
-            //cout << "in lvl BU: " << in_lvl << endl;
         }
 
         prev_frontier_size = current_frontier_size;
@@ -581,7 +590,10 @@ void BFS::nec_direction_optimizing(VectCSRGraph &_graph,
     {
         cout << "step " << i << " perf: " << edges_count/(step_times[i]*1e6) << " MTEPS, time: " << 1000.0 * step_times[i] << " ms, " << " % in state " << step_states[i] << endl;
     }
-    cout << " only ve time: " << ve_time << " ms" << endl;
+    cout << "BU ve time: " << bu_ve_time << " ms" << endl;
+    cout << "BU time: " << bu_time << " ms" << endl;
+    cout << "TD time: " << td_time << " ms" << endl;
+    cout << "GNF time: " << gnf_time << " ms" << endl;
     PerformanceStats::print_algorithm_performance_stats("BFS (Direction-optimizing, NEC)", tm.get_time(), _graph.get_edges_count(), current_level);
     #endif
     cout << _graph.get_edges_count() / (1e6*tm.get_time()) << " MTEPS" << endl;
