@@ -44,7 +44,7 @@ StateOfBFS nec_change_state(int _current_queue_size, int _next_queue_size, int _
 {
     StateOfBFS new_state = _old_state;
     int factor = (_edges_count / _vertices_count) / 2;
-    
+
     if(_current_queue_size < _next_queue_size) // growing phase
     {
         if(_old_state == TOP_DOWN)
@@ -73,19 +73,13 @@ StateOfBFS nec_change_state(int _current_queue_size, int _next_queue_size, int _
             }
         }
     }
-    
-    if((_old_state == TOP_DOWN) && (_graph_structure == POWER_LAW_GRAPH) && (_cur_level <= 3))
-    {
-        int high_degree_was_visited = 0;
-        for(int i = 0; i < 1; i++)
-            if(_levels[i] != UNVISITED_VERTEX)
-                high_degree_was_visited = 1;
 
-        if(high_degree_was_visited)
-            new_state = BOTTOM_UP;  // in the case of RMAT graph better switch to bottom up early
+    if((_old_state == TOP_DOWN) && (_graph_structure == POWER_LAW_GRAPH) && (_cur_level == 1))
+    {
+        new_state = BOTTOM_UP;  // in the case of RMAT graph better switch to bottom up early
     }
-    
-    if((_graph_structure == POWER_LAW_GRAPH) && (_cur_level <= 2)) // tofix
+
+    if((_graph_structure == POWER_LAW_GRAPH) && (_cur_level == 1) || (_cur_level == 2)) // tofix
     {
         _use_vect_CSR_extension = true;
     }
@@ -93,7 +87,7 @@ StateOfBFS nec_change_state(int _current_queue_size, int _next_queue_size, int _
     {
         _use_vect_CSR_extension = false;
     }
-    
+
     return new_state;
 }
 

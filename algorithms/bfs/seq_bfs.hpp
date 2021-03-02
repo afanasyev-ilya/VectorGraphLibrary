@@ -17,7 +17,7 @@ void BFS::seq_top_down(VectCSRGraph &_graph,
     UndirectedCSRGraph *outgoing_graph_ptr = _graph.get_outgoing_graph_ptr();
     LOAD_UNDIRECTED_CSR_GRAPH_DATA((*outgoing_graph_ptr));
 
-    _source_vertex = _graph.reorder(_source_vertex, ORIGINAL, SCATTER);
+    //_source_vertex = _graph.reorder(_source_vertex, ORIGINAL, SCATTER);
 
     Timer tm;
     tm.start();

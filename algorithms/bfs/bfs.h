@@ -8,6 +8,7 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #define BFS_VE_SIZE 4
+#define BOTTOM_UP_THRESHOLD 5
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -42,6 +43,9 @@ public:
     template <typename _T>
     static void nec_top_down(VectCSRGraph &_graph, VerticesArray<_T> &_levels, int _source_vertex);
     #endif
+
+    template <typename _T>
+    static void manually_optimised_nec_bfs(VectCSRGraph &_graph, VerticesArray<int> &_levels, int _source_vertex, BFS_GraphVE &_vector_extension);
 
     template <typename _T>
     static void seq_top_down(VectCSRGraph &_graph, VerticesArray<_T> &_levels, int _source_vertex);

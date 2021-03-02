@@ -4,7 +4,7 @@
 
 BFS_GraphVE::BFS_GraphVE(VectCSRGraph &_graph)
 {
-    #ifdef __USE_NEC_SX_AURORA__
+    /*#ifdef __USE_NEC_SX_AURORA__
     GraphAbstractionsNEC graph_API(_graph, SCATTER);
     FrontierNEC frontier(_graph, SCATTER);
     //GraphAbstractionsNEC graph_API(_graph, GATHER);
@@ -55,7 +55,7 @@ BFS_GraphVE::BFS_GraphVE(VectCSRGraph &_graph)
     frontier.set_all_active();
     graph_API.scatter(_graph, frontier, copy_edge_to_ve);
 
-    /*// copy into local variables
+    // copy into local variables
     int l_ve_vertices_count = ve_vertices_count;
     int l_ve_edges_per_vertex = ve_edges_per_vertex;
     int *l_ve_dst_ids = ve_dst_ids;
@@ -67,8 +67,49 @@ BFS_GraphVE::BFS_GraphVE(VectCSRGraph &_graph)
     };
     frontier.set_all_active();
     //graph_API.gather(_graph, frontier, copy_edge_to_ve); // TODO GATHER if directed
-    graph_API.scatter(_graph, frontier, copy_edge_to_ve);*/
-    #endif
+    graph_API.scatter(_graph, frontier, copy_edge_to_ve);
+    #endif*/
+
+    int vertices_count       = _graph.get_vertices_count();
+    long long *outgoing_ptrs = _graph.get_outgoing_graph_ptr()->get_vertex_pointers();
+    int       *outgoing_ids  = _graph.get_outgoing_graph_ptr()->get_adjacent_ids();
+
+    int zero_nodes_count = 0;
+    #pragma _NEC vector
+    #pragma omp parallel for schedule(static) reduction(+: zero_nodes_count)
+    for(int src_id = 0; src_id < vertices_count; src_id++)
+    {
+        int connections = outgoing_ptrs[src_id + 1] - outgoing_ptrs[src_id];
+        if(connections == 0)
+        {
+            zero_nodes_count++;
+        }
+    }
+    int non_zero_vertices_count = vertices_count - zero_nodes_count;
+
+    ve_vertices_count = non_zero_vertices_count;
+    ve_edges_per_vertex = BOTTOM_UP_THRESHOLD;
+    MemoryAPI::allocate_array(&ve_dst_ids, non_zero_vertices_count * BOTTOM_UP_THRESHOLD);
+
+    for(int step = 0; step < BOTTOM_UP_THRESHOLD; step++)
+    {
+        #pragma omp parallel for schedule(static)
+        for(int src_id = 0; src_id < non_zero_vertices_count; src_id++)
+        {
+            int connections = outgoing_ptrs[src_id + 1] - outgoing_ptrs[src_id];
+            long long start_pos = outgoing_ptrs[src_id];
+
+            if(step < connections)
+            {
+                int shift = step;
+                int dst_id = outgoing_ids[start_pos + shift];
+                ve_dst_ids[src_id + non_zero_vertices_count * step] = dst_id;
+            }
+        }
+    }
+
+    #pragma omp parallel
+    {}
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

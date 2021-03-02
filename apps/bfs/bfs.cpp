@@ -57,32 +57,27 @@ int main(int argc, const char * argv[])
             direction = UNDIRECTED_GRAPH;
         }
 
-        cout << " read done " << endl;
-
         // print graphs stats
         graph.print_stats();
 
-        cout << " after stats " << endl;
-
         // init ve
-        //BFS_GraphVE vector_extension_for_bfs(graph);
+        BFS_GraphVE vector_extension_for_bfs(graph);
 
         // compute BFS
         cout << "Computations started..." << endl;
         cout << "Doing " << parser.get_number_of_rounds() << " BFS iterations..." << endl;
 
+        int source_vertex = 14;
+
         VerticesArray<int> levels(graph, SCATTER);
+        BFS::manually_optimised_nec_bfs<int>(graph, levels, source_vertex, vector_extension_for_bfs);
 
-        cout << " !!!!!!!!!!!!!!!!!  " << endl;
-
-        man_opt_nec_bfs(graph, levels, 0);
-
-        /*if(parser.get_check_flag())
+        if(parser.get_check_flag())
         {
             VerticesArray<int> check_levels(graph, SCATTER);
             BFS::seq_top_down(graph, check_levels, source_vertex);
             verify_results(levels, check_levels);
-        }*/
+        }
     }
     catch (string error)
     {
