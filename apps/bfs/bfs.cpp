@@ -69,8 +69,10 @@ int main(int argc, const char * argv[])
 
         int source_vertex = 14;
 
-        VerticesArray<int> levels(graph, SCATTER);
+        VerticesArray<int> levels(graph, SCATTER, USE_CACHED_MODE);
         BFS::manually_optimised_nec_bfs<int>(graph, levels, source_vertex, vector_extension_for_bfs);
+
+        BFS::new_nec_bfs<int>(graph, levels, source_vertex, vector_extension_for_bfs);
 
         if(parser.get_check_flag())
         {

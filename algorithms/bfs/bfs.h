@@ -45,7 +45,10 @@ public:
     #endif
 
     template <typename _T>
-    static void manually_optimised_nec_bfs(VectCSRGraph &_graph, VerticesArray<int> &_levels, int _source_vertex, BFS_GraphVE &_vector_extension);
+    static void manually_optimised_nec_bfs(VectCSRGraph &_graph, VerticesArray<_T> &_levels, int _source_vertex, BFS_GraphVE &_vector_extension);
+
+    template <typename _T>
+    static void new_nec_bfs(VectCSRGraph &_graph, VerticesArray<_T> &_levels, int _source_vertex, BFS_GraphVE &_vector_extension);
 
     template <typename _T>
     static void seq_top_down(VectCSRGraph &_graph, VerticesArray<_T> &_levels, int _source_vertex);
@@ -58,6 +61,7 @@ public:
 #include "nec_bfs.hpp"
 #include "change_state/change_state.hpp"
 #include "manually_optimized.hpp"
+#include "new_nec_bfs.hpp"
 #include "bfs_graph_ve.hpp"
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
