@@ -7,7 +7,6 @@
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#define BFS_VE_SIZE 4
 #define BOTTOM_UP_THRESHOLD 5
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -45,10 +44,8 @@ public:
     #endif
 
     template <typename _T>
-    static void manually_optimised_nec_bfs(VectCSRGraph &_graph, VerticesArray<_T> &_levels, int _source_vertex, BFS_GraphVE &_vector_extension);
-
-    template <typename _T>
-    static void new_nec_bfs(VectCSRGraph &_graph, VerticesArray<_T> &_levels, int _source_vertex, BFS_GraphVE &_vector_extension);
+    static void hardwired_do_bfs(VectCSRGraph &_graph, VerticesArray<_T> &_levels, int _source_vertex, BFS_GraphVE &_vector_extension,
+                                 int *_buffer1, int *_buffer2);
 
     template <typename _T>
     static void seq_top_down(VectCSRGraph &_graph, VerticesArray<_T> &_levels, int _source_vertex);
@@ -60,8 +57,7 @@ public:
 #include "gpu_bfs.hpp"
 #include "nec_bfs.hpp"
 #include "change_state/change_state.hpp"
-#include "manually_optimized.hpp"
-#include "new_nec_bfs.hpp"
+#include "hardwired_do_bfs.hpp"
 #include "bfs_graph_ve.hpp"
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

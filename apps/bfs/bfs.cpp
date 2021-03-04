@@ -60,26 +60,46 @@ int main(int argc, const char * argv[])
         // print graphs stats
         graph.print_stats();
 
-        // init ve
+        // init ve and tmp datastructures
         BFS_GraphVE vector_extension_for_bfs(graph);
+        int *buffer1, *buffer2;
+        MemoryAPI::allocate_array(&buffer1, graph.get_vertices_count());
+        MemoryAPI::allocate_array(&buffer2, graph.get_vertices_count());
 
         // compute BFS
         cout << "Computations started..." << endl;
         cout << "Doing " << parser.get_number_of_rounds() << " BFS iterations..." << endl;
 
-        int source_vertex = 14;
-
+        // do runs
+        double avg_time = 0;
         VerticesArray<int> levels(graph, SCATTER, USE_CACHED_MODE);
-        BFS::manually_optimised_nec_bfs<int>(graph, levels, source_vertex, vector_extension_for_bfs);
-
-        BFS::new_nec_bfs<int>(graph, levels, source_vertex, vector_extension_for_bfs);
-
-        if(parser.get_check_flag())
+        for(int i = 0; i < parser.get_number_of_rounds(); i++)
         {
-            VerticesArray<int> check_levels(graph, SCATTER);
-            BFS::seq_top_down(graph, check_levels, source_vertex);
-            verify_results(levels, check_levels);
+            int source_vertex = graph.select_random_vertex(ORIGINAL);
+            cout << "selected source vertex " << source_vertex << endl;
+
+            Timer tm;
+            tm.start();
+            //performance_stats.reset_timers();
+            BFS::hardwired_do_bfs(graph, levels, source_vertex, vector_extension_for_bfs, buffer1, buffer2);
+            //performance_stats.print_timers_stats();
+            tm.end();
+            avg_time += tm.get_time()/(parser.get_number_of_rounds());
+            cout << "cur perf: " << graph.get_edges_count()/(tm.get_time() * 1e6) << " MTEPS" << endl;
+
+            // check if required
+            if(parser.get_check_flag())
+            {
+                VerticesArray<int> check_levels(graph, SCATTER);
+                BFS::seq_top_down(graph, check_levels, source_vertex);
+
+                verify_results(levels, check_levels, 0);
+            }
         }
+        cout << "AVG perf: " << graph.get_edges_count()/(avg_time * 1e6) << " MTEPS" << endl;
+
+        MemoryAPI::free_array(buffer1);
+        MemoryAPI::free_array(buffer2);
     }
     catch (string error)
     {

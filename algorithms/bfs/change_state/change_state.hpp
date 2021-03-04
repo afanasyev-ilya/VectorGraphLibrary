@@ -40,7 +40,7 @@ bool check_if_vector_extension_should_be_used(int _non_zero_vertices_count, int 
 
 StateOfBFS nec_change_state(int _current_queue_size, int _next_queue_size, int _vertices_count, long long _edges_count,
                             StateOfBFS _old_state, int _vis, int _in_lvl, bool &_use_vect_CSR_extension, int _cur_level,
-                            GraphStructure _graph_structure, int *_levels)
+                            GraphStructure _graph_structure, int *_levels, int _number_of_bu_steps)
 {
     StateOfBFS new_state = _old_state;
     int factor = (_edges_count / _vertices_count) / 2;
@@ -49,13 +49,21 @@ StateOfBFS nec_change_state(int _current_queue_size, int _next_queue_size, int _
     {
         if(_old_state == TOP_DOWN)
         {
-            if(_in_lvl < ((_vertices_count - _vis) * factor + _vertices_count) / ALPHA)
+            //cout << " in lvl " << _in_lvl << " vs " << ((_vertices_count - _vis) * factor/* + _vertices_count*/) / ALPHA << endl;
+            if((_levels[0] != UNVISITED_VERTEX) || (_levels[1] != UNVISITED_VERTEX))
             {
-                new_state = TOP_DOWN;
+                new_state = BOTTOM_UP;
             }
             else
             {
-                new_state = BOTTOM_UP;
+                if(_in_lvl < ((_vertices_count - _vis) * factor + _vertices_count) / ALPHA)
+                {
+                    new_state = TOP_DOWN;
+                }
+                else
+                {
+                    new_state = BOTTOM_UP;
+                }
             }
         }
     }
@@ -74,12 +82,9 @@ StateOfBFS nec_change_state(int _current_queue_size, int _next_queue_size, int _
         }
     }
 
-    if((_old_state == TOP_DOWN) && (_graph_structure == POWER_LAW_GRAPH) && (_cur_level == 1))
-    {
-        new_state = BOTTOM_UP;  // in the case of RMAT graph better switch to bottom up early
-    }
+    _use_vect_CSR_extension = true;
 
-    if((_graph_structure == POWER_LAW_GRAPH) && (_cur_level == 1) || (_cur_level == 2)) // tofix
+    if(_number_of_bu_steps <= 1)
     {
         _use_vect_CSR_extension = true;
     }

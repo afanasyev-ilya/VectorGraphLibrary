@@ -1,7 +1,173 @@
 #pragma once
 
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+GraphStructure check_graph_structure(VectCSRGraph &_graph)
+{
+    int vertices_count    = _graph.get_vertices_count();
+    long long edges_count = _graph.get_edges_count   ();
+    long long    *outgoing_ptrs = _graph.get_outgoing_graph_ptr()->get_vertex_pointers();
+    int          *outgoing_ids = _graph.get_outgoing_graph_ptr()->get_adjacent_ids();
+
+    int portion_of_first_vertices = 0.01 * vertices_count + 1;
+    long long number_of_edges_in_first_portion = outgoing_ptrs[portion_of_first_vertices];
+
+    if((100.0 * number_of_edges_in_first_portion) / edges_count > POWER_LAW_EDGES_THRESHOLD)
+        return POWER_LAW_GRAPH;
+    else
+        return UNIFORM_GRAPH;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+int nec_remove_zero_nodes(long long *_outgoing_ptrs, int _vertices_count, int *_levels)
+{
+    int zero_nodes_count = 0;
+    #pragma _NEC vector
+    #pragma omp parallel for schedule(static) reduction(+: zero_nodes_count)
+    for(int src_id = 0; src_id < _vertices_count; src_id++)
+    {
+        int connections = _outgoing_ptrs[src_id + 1] - _outgoing_ptrs[src_id];
+        if(connections == 0)
+        {
+            _levels[src_id] = ISOLATED_VERTEX;
+            zero_nodes_count++;
+        }
+    }
+    return _vertices_count - zero_nodes_count;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+void nec_mark_zero_nodes(int _vertices_count, int *_levels)
+{
+    #pragma _NEC vector
+    #pragma omp parallel for schedule(static)
+    for(int src_id = 0; src_id < _vertices_count; src_id++)
+    {
+        if(_levels[src_id] == ISOLATED_VERTEX)
+        {
+            _levels[src_id] = UNVISITED_VERTEX;
+        }
+    }
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+inline int fast_sparse_copy_if(const int *_in_data,
+                               int *_out_data,
+                               int *_tmp_buffer,
+                               const int _buffer_size,
+                               const int _start,
+                               const int _end,
+                               const int _desired_value,
+                               const int _threads_count = MAX_SX_AURORA_THREADS)
+{
+    int size = _end - _start;
+    int elements_per_thread = (_buffer_size - 1)/_threads_count + 1;
+    int elements_per_vector = (elements_per_thread - 1)/VECTOR_LENGTH + 1;
+    int shifts_array[MAX_SX_AURORA_THREADS];
+
+    int elements_count = 0;
+    #pragma omp parallel num_threads(_threads_count) shared(elements_count)
+    {
+        int tid = omp_get_thread_num();
+        int start_pointers_reg[VECTOR_LENGTH];
+        int current_pointers_reg[VECTOR_LENGTH];
+        int last_pointers_reg[VECTOR_LENGTH];
+
+        #pragma _NEC vreg(start_pointers_reg)
+        #pragma _NEC vreg(current_pointers_reg)
+        #pragma _NEC vreg(last_pointers_reg)
+
+        #pragma _NEC vector
+        for(int i = 0; i < VECTOR_LENGTH; i++)
+        {
+            start_pointers_reg[i] = tid * elements_per_thread + i * elements_per_vector;
+            current_pointers_reg[i] = tid * elements_per_thread + i * elements_per_vector;
+            last_pointers_reg[i] = tid * elements_per_thread + i * elements_per_vector;
+        }
+
+        #pragma omp for schedule(static)
+        for(int vec_start = _start; vec_start < _end; vec_start += VECTOR_LENGTH)
+        {
+            #pragma _NEC vovertake
+            #pragma _NEC novob
+            #pragma _NEC vector
+            for(int i = 0; i < VECTOR_LENGTH; i++)
+            {
+                int src_id = vec_start + i;
+                if((src_id < _end) && (_in_data[src_id] == _desired_value))
+                {
+                    _tmp_buffer[current_pointers_reg[i]] = src_id;
+                    current_pointers_reg[i]++;
+                }
+            }
+        }
+
+        int max_difference = 0;
+        int save_values_per_thread = 0;
+        for(int i = 0; i < VECTOR_LENGTH; i++)
+        {
+            int difference = current_pointers_reg[i] - start_pointers_reg[i];
+            save_values_per_thread += difference;
+            if(difference > max_difference)
+                max_difference = difference;
+        }
+
+        shifts_array[tid] = save_values_per_thread;
+        #pragma omp barrier
+
+        #pragma omp master
+        {
+            int cur_shift = 0;
+            for(int i = 1; i < _threads_count; i++)
+            {
+                shifts_array[i] += shifts_array[i - 1];
+            }
+
+            elements_count = shifts_array[_threads_count - 1];
+
+            for(int i = (_threads_count - 1); i >= 1; i--)
+            {
+                shifts_array[i] = shifts_array[i - 1];
+            }
+            shifts_array[0] = 0;
+        }
+
+        #pragma omp barrier
+
+        int tid_shift = shifts_array[tid];
+        int *private_ptr = &(_out_data[tid_shift]);
+
+        int local_pos = 0;
+        #pragma _NEC novector
+        for(int pos = 0; pos < max_difference; pos++)
+        {
+            #pragma _NEC vovertake
+            #pragma _NEC novob
+            #pragma _NEC vector
+            for(int i = 0; i < VECTOR_LENGTH; i++)
+            {
+                int loc_size = current_pointers_reg[i] - start_pointers_reg[i];
+
+                if(pos < loc_size)
+                {
+                    private_ptr[local_pos] = _tmp_buffer[last_pointers_reg[i]];
+                    last_pointers_reg[i]++;
+                    local_pos++;
+                }
+            }
+        }
+    }
+
+    return elements_count;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 template <typename _T>
-void vgl_nec_top_down_step(long long *_outgoing_ptrs,
+void hardwired_nec_top_down_step(long long *_outgoing_ptrs,
                            int *_outgoing_ids,
                            int _vertices_count,
                            int _active_count,
@@ -9,7 +175,6 @@ void vgl_nec_top_down_step(long long *_outgoing_ptrs,
                            int _cur_level,
                            int &_vis,
                            int &_in_lvl,
-                           int _threads_count,
                            int *active_ids)
 {
     int vis = 0, in_lvl = 0;
@@ -52,7 +217,7 @@ void vgl_nec_top_down_step(long long *_outgoing_ptrs,
 
                 #pragma _NEC novector
                 #pragma omp for schedule(static)
-                for(int edge_pos = 0; edge_pos < connections - VECTOR_LENGTH; edge_pos += VECTOR_LENGTH)
+                for(int edge_pos = 0; edge_pos < connections; edge_pos += VECTOR_LENGTH)
                 {
                     #pragma _NEC ivdep
                     #pragma _NEC vovertake
@@ -60,32 +225,16 @@ void vgl_nec_top_down_step(long long *_outgoing_ptrs,
                     #pragma _NEC vector
                     for(int i = 0; i < VECTOR_LENGTH; i++)
                     {
-                        int dst_id = _outgoing_ids[start_pos + edge_pos + i];
-                        int dst_level = _levels.cached_load(dst_id, private_levels);
-
-                        if(dst_level == UNVISITED_VERTEX)
+                        if((edge_pos + i) < connections)
                         {
-                            _levels[dst_id] = _cur_level + 1;
-                            local_vis_reg[i]++;
-                        }
-                    }
-                }
-                #pragma omp single
-                {
-                    #pragma _NEC ivdep
-                    #pragma _NEC vovertake
-                    #pragma _NEC novob
-                    #pragma _NEC vector
-                    for(int edge_pos = connections - VECTOR_LENGTH; edge_pos < connections; edge_pos++)
-                    {
-                        int i = edge_pos - (connections - VECTOR_LENGTH);
-                        int dst_id = _outgoing_ids[start_pos + edge_pos];
-                        int dst_level = _levels.cached_load(dst_id, private_levels);
+                            int dst_id = _outgoing_ids[start_pos + edge_pos + i];
+                            int dst_level = _levels.cached_load(dst_id, private_levels);
 
-                        if(dst_level == UNVISITED_VERTEX)
-                        {
-                            _levels[dst_id] = _cur_level + 1;
-                            local_vis_reg[i]++;
+                            if(dst_level == UNVISITED_VERTEX)
+                            {
+                                _levels[dst_id] = _cur_level + 1;
+                                local_vis_reg[i]++;
+                            }
                         }
                     }
                 }
@@ -173,40 +322,27 @@ void vgl_nec_top_down_step(long long *_outgoing_ptrs,
 
                 #pragma _NEC novector
                 #pragma omp for schedule(static)
-                for(int edge_pos = 0; edge_pos < connections - VECTOR_LENGTH; edge_pos += VECTOR_LENGTH)
+                for(int edge_pos = 0; edge_pos < connections; edge_pos += VECTOR_LENGTH)
                 {
+                    #pragma _NEC cncall
                     #pragma _NEC ivdep
                     #pragma _NEC vovertake
                     #pragma _NEC novob
                     #pragma _NEC vector
+                    #pragma _NEC sparse
+                    #pragma _NEC gather_reorder
                     for(int i = 0; i < VECTOR_LENGTH; i++)
                     {
-                        int dst_id = _outgoing_ids[start_pos + edge_pos + i];
-                        int dst_level = _levels.cached_load(dst_id, private_levels);
-
-                        if(dst_level == UNVISITED_VERTEX)
+                        if((edge_pos + i) < connections)
                         {
-                            _levels[dst_id] = _cur_level + 1;
-                            vis_reg[i]++;
-                        }
-                    }
-                }
-                #pragma omp single
-                {
-                    #pragma _NEC ivdep
-                    #pragma _NEC vovertake
-                    #pragma _NEC novob
-                    #pragma _NEC vector
-                    for(int edge_pos = connections - VECTOR_LENGTH; edge_pos < connections; edge_pos++)
-                    {
-                        int i = edge_pos - (connections - VECTOR_LENGTH);
-                        int dst_id = _outgoing_ids[start_pos + edge_pos];
-                        int dst_level = _levels.cached_load(dst_id, private_levels);
+                            int dst_id = _outgoing_ids[start_pos + edge_pos + i];
+                            int dst_level = _levels.cached_load(dst_id, private_levels);
 
-                        if(dst_level == UNVISITED_VERTEX)
-                        {
-                            _levels[dst_id] = _cur_level + 1;
-                            vis_reg[i]++;
+                            if(dst_level == UNVISITED_VERTEX)
+                            {
+                                _levels[dst_id] = _cur_level + 1;
+                                vis_reg[i]++;
+                            }
                         }
                     }
                 }
@@ -222,20 +358,29 @@ void vgl_nec_top_down_step(long long *_outgoing_ptrs,
                 long long start_pos = _outgoing_ptrs[src_id];
                 local_in_lvl += connections;
 
-                #pragma _NEC ivdep
-                #pragma _NEC vovertake
-                #pragma _NEC novob
-                #pragma _NEC vector
-                for(int edge_pos = 0; edge_pos < connections; edge_pos++)
+                #pragma _NEC novector
+                for(int edge_pos = 0; edge_pos < connections; edge_pos += VECTOR_LENGTH)
                 {
-                    int i = edge_pos % VECTOR_LENGTH;
-                    int dst_id = _outgoing_ids[start_pos + edge_pos];
-                    int dst_level = _levels.cached_load(dst_id, private_levels);
-
-                    if(dst_level == UNVISITED_VERTEX)
+                    #pragma _NEC cncall
+                    #pragma _NEC ivdep
+                    #pragma _NEC vovertake
+                    #pragma _NEC novob
+                    #pragma _NEC vector
+                    #pragma _NEC sparse
+                    #pragma _NEC gather_reorder
+                    for(int i = 0; i < VECTOR_LENGTH; i++)
                     {
-                        _levels[dst_id] = _cur_level + 1;
-                        vis_reg[i]++;
+                        if ((edge_pos + i) < connections)
+                        {
+                            int dst_id = _outgoing_ids[start_pos + edge_pos + i];
+                            int dst_level = _levels.cached_load(dst_id, private_levels);
+
+                            if(dst_level == UNVISITED_VERTEX)
+                            {
+                                _levels[dst_id] = _cur_level + 1;
+                                vis_reg[i]++;
+                            }
+                        }
                     }
                 }
             }
@@ -269,10 +414,13 @@ void vgl_nec_top_down_step(long long *_outgoing_ptrs,
 
                 for(int edge_pos = 0; edge_pos < max_connections; edge_pos++)
                 {
+                    #pragma _NEC cncall
                     #pragma _NEC ivdep
                     #pragma _NEC vovertake
                     #pragma _NEC novob
                     #pragma _NEC vector
+                    #pragma _NEC sparse
+                    #pragma _NEC gather_reorder
                     for(int i = 0; i < VECTOR_LENGTH; i++)
                     {
                         int src_id = active_reg[i];
@@ -313,12 +461,38 @@ void vgl_nec_top_down_step(long long *_outgoing_ptrs,
     }
     _vis = vis;
     _in_lvl = in_lvl;
+    //tm_old.end();
+    //cout << "OLD time: " << tm_old.get_time_in_ms() << " ms" << endl;
+
+    /*Timer tm_vgl;
+    tm_vgl.start();
+    #pragma omp parallel
+    {
+        int *private_levels = _levels.get_private_data_pointer();
+
+        auto edge_op = [&_levels, _cur_level, private_levels](int src_id, int dst_id, int local_edge_pos,
+                                             long long int global_edge_pos, int vector_index, DelayedWriteNEC &delayed_write)
+        {
+            int dst_level = _levels.cached_load(dst_id, private_levels);
+            if(dst_level == UNVISITED_VERTEX)
+            {
+                _levels[dst_id] = _cur_level + 1;
+            }
+        };
+        graph_API.scatter(_graph, frontier, edge_op);
+    }
+
+    _vis = frontier.size();
+    _in_lvl = frontier.get_neighbours_count();
+
+    tm_vgl.end();
+    //cout << "VGL BU time: " << tm_vgl.get_time_in_ms() << " ms" << endl;*/
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template <typename _T>
-void vgl_nec_bottom_up_step(long long *_outgoing_ptrs,
+void hardwired_nec_bottom_up_step(long long *_outgoing_ptrs,
                         int *_outgoing_ids,
                         int *_vectorised_outgoing_ids,
                         int _vertices_count,
@@ -329,7 +503,6 @@ void vgl_nec_bottom_up_step(long long *_outgoing_ptrs,
                         int _cur_level,
                         int &_vis,
                         int &_in_lvl,
-                        int _threads_count,
                         bool _use_vect_CSR_extension,
                         int _non_zero_vertices_count,
                         double &_t_first, double &_t_second, double &_t_third)
@@ -432,8 +605,8 @@ void vgl_nec_bottom_up_step(long long *_outgoing_ptrs,
         }
     }
 
-    int active_vertices_left = new_sparse_copy_if(_levels.get_ptr(), _active_ids, _active_vertices_buffer, _non_zero_vertices_count,
-                                              BOTTOM_UP_REMINDER_VERTEX, _threads_count);
+    int active_vertices_left = fast_sparse_copy_if(_levels.get_ptr(), _active_ids, _active_vertices_buffer,
+                        _non_zero_vertices_count, 0, _non_zero_vertices_count, BOTTOM_UP_REMINDER_VERTEX);
 
     t2 = omp_get_wtime();
     _t_second = t2 - t1;
@@ -581,47 +754,34 @@ void vgl_nec_bottom_up_step(long long *_outgoing_ptrs,
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template <typename _T>
-void BFS::new_nec_bfs(VectCSRGraph &_graph, VerticesArray<_T> &_levels, int _source_vertex, BFS_GraphVE &_vector_extension)
+void BFS::hardwired_do_bfs(VectCSRGraph &_graph,
+                           VerticesArray<_T> &_levels,
+                           int _source_vertex,
+                           BFS_GraphVE &_vector_extension,
+                           int *_buffer1,
+                           int *_buffer2)
 {
-    // TODO SOURCE CONVERSION
-
-    GraphAbstractionsNEC graph_API(_graph, SCATTER);
-    FrontierNEC frontier(_graph, SCATTER);
+    _source_vertex = _graph.reorder(_source_vertex, ORIGINAL, SCATTER);
 
     double t1, t2, t3, t4;
     int vertices_count    = _graph.get_vertices_count();
     long long edges_count = _graph.get_edges_count   ();
     long long    *outgoing_ptrs = _graph.get_outgoing_graph_ptr()->get_vertex_pointers();
     int          *outgoing_ids = _graph.get_outgoing_graph_ptr()->get_adjacent_ids();
-    int *levels_ptr = _levels.get_ptr();
-    int *cached_levels = allocate_private_caches<int>(8);
-    int *active_ids;
-    int *active_vertices_buffer;
-    MemoryAPI::allocate_array(&active_ids, vertices_count);
-    MemoryAPI::allocate_array(&active_vertices_buffer, vertices_count);
+    int *active_ids = _buffer1;
+    int *active_vertices_buffer = _buffer2;
 
     GraphStructure graph_structure = check_graph_structure(_graph);
 
-    int threads_count = omp_get_max_threads();
-
-    int cur_level = FIRST_LEVEL_VERTEX;
-    auto init_levels = [_levels, active_ids, _source_vertex] __VGL_COMPUTE_ARGS__
+    int cur_level = FIRST_LEVEL_VERTEX, active_count = 1;
+    #pragma omp parallel for
+    for(int i = 0; i < vertices_count; i++)
     {
-        active_ids[src_id] = 0;
-        if(src_id == _source_vertex)
-            _levels[_source_vertex] = FIRST_LEVEL_VERTEX;
-        else
-            _levels[src_id] = UNVISITED_VERTEX;
-    };
-    frontier.set_all_active();
-    graph_API.compute(_graph, frontier, init_levels);
-
-    frontier.clear();
-    frontier.add_vertex(_source_vertex);
-
-    // OLD
+        _levels[i] = UNVISITED_VERTEX;
+        active_ids[i] = 0;
+    }
+    _levels[_source_vertex] = cur_level;
     active_ids[0] = _source_vertex;
-    int active_count = 1;
 
     #pragma omp parallel
     {};
@@ -631,17 +791,20 @@ void BFS::new_nec_bfs(VectCSRGraph &_graph, VerticesArray<_T> &_levels, int _sou
     double total_time = 0;
 
     t1 = omp_get_wtime();
-    int non_zero_vertices_count = nec_remove_zero_nodes(outgoing_ptrs, vertices_count, levels_ptr);
+    int non_zero_vertices_count = nec_remove_zero_nodes(outgoing_ptrs, vertices_count, _levels.get_ptr());
     t2 = omp_get_wtime();
     total_time += t2 - t1;
 
+    #ifdef __PRINT_API_PERFORMANCE_STATS__
     vector<double> each_kernel_time;
     vector<double> each_remider_time;
     vector<double> each_first_time, each_second_time, each_third_time;
     vector<StateOfBFS> each_step_type;
+    #endif
 
     double total_kernel_time = 0, total_reminder_time = 0;
 
+    int number_of_bu_steps = 0;
     bool use_vect_CSR_extension = false;
     while(active_count > 0)
     {
@@ -655,15 +818,16 @@ void BFS::new_nec_bfs(VectCSRGraph &_graph, VerticesArray<_T> &_levels, int _sou
 
         if(current_state == TOP_DOWN)
         {
-            vgl_nec_top_down_step(outgoing_ptrs, outgoing_ids, vertices_count, active_count, _levels,
-                                  cur_level, vis, in_lvl, threads_count, active_ids);
+            hardwired_nec_top_down_step(outgoing_ptrs, outgoing_ids, vertices_count, active_count, _levels,
+                                  cur_level, vis, in_lvl, active_ids);
         }
         else if(current_state == BOTTOM_UP)
         {
-            vgl_nec_bottom_up_step(outgoing_ptrs, outgoing_ids, _vector_extension.ve_dst_ids, vertices_count, active_ids,
+            hardwired_nec_bottom_up_step(outgoing_ptrs, outgoing_ids, _vector_extension.ve_dst_ids, vertices_count, active_ids,
                                active_vertices_buffer, active_count, _levels,
-                               cur_level, vis, in_lvl, threads_count, use_vect_CSR_extension,
+                               cur_level, vis, in_lvl, use_vect_CSR_extension,
                                non_zero_vertices_count, t_first, t_second, t_third);
+            number_of_bu_steps++;
         }
 
         t4 = omp_get_wtime();
@@ -673,28 +837,30 @@ void BFS::new_nec_bfs(VectCSRGraph &_graph, VerticesArray<_T> &_levels, int _sou
         total_kernel_time += kernel_time;
 
         t3 = omp_get_wtime();
-        int next_active_count = get_elements_count(levels_ptr, non_zero_vertices_count, cur_level + 1);
+        int next_active_count = get_elements_count(_levels.get_ptr(), non_zero_vertices_count, cur_level + 1);
         int frontier_size = next_active_count;
 
         if(frontier_size == 0)
             break;
 
         StateOfBFS next_state = nec_change_state(current_active_count, next_active_count, vertices_count, edges_count, current_state,
-                                             vis, in_lvl, use_vect_CSR_extension, cur_level, graph_structure, levels_ptr);
+                                             vis, in_lvl, use_vect_CSR_extension, cur_level, graph_structure, _levels.get_ptr(), number_of_bu_steps);
 
         if(next_state == TOP_DOWN)
         {
-            active_count = new_sparse_copy_if(levels_ptr, active_ids, active_vertices_buffer, non_zero_vertices_count, cur_level + 1,
-                                          threads_count);
+            active_count = fast_sparse_copy_if(_levels.get_ptr(), active_ids, active_vertices_buffer,
+                                non_zero_vertices_count, 0, non_zero_vertices_count,
+                                cur_level + 1);
         }
         else if(next_state == BOTTOM_UP)
         {
-            active_count = get_elements_count(levels_ptr, non_zero_vertices_count, UNVISITED_VERTEX);
+            active_count = get_elements_count(_levels.get_ptr(), non_zero_vertices_count, UNVISITED_VERTEX);
         }
         t4 = omp_get_wtime();
         double reminder_time = t4 - t3;
         total_time += reminder_time;
 
+        #ifdef __PRINT_API_PERFORMANCE_STATS__
         total_reminder_time += reminder_time;
         each_kernel_time.push_back(kernel_time);
         each_remider_time.push_back(reminder_time);
@@ -702,17 +868,18 @@ void BFS::new_nec_bfs(VectCSRGraph &_graph, VerticesArray<_T> &_levels, int _sou
         each_second_time.push_back(t_second);
         each_third_time.push_back(t_third);
         each_step_type.push_back(current_state);
+        #endif
 
         current_state = next_state;
         cur_level++;
     }
 
     t1 = omp_get_wtime();
-    nec_mark_zero_nodes(vertices_count, levels_ptr);
+    nec_mark_zero_nodes(vertices_count, _levels.get_ptr());
     t2 = omp_get_wtime();
     total_time += t2 - t1;
 
-    //#ifdef PRINT_DETAILED_STATS
+    #ifdef __PRINT_API_PERFORMANCE_STATS__
     for(int i = 0; i < each_kernel_time.size(); i++)
     {
         string state = "top_down";
@@ -731,14 +898,8 @@ void BFS::new_nec_bfs(VectCSRGraph &_graph, VerticesArray<_T> &_levels, int _sou
     cout << "kernel input: " << 100.0*total_kernel_time/total_time << " %" << endl;
     cout << "reminder input: " << 100.0*total_reminder_time/total_time << " %" << endl << endl;
     cout << total_kernel_time << " vs " << total_reminder_time << endl;
-    //cout << "TOTAL BFS Perf: " << ((double)edges_count)/(total_time*1e6) << " MTEPS" << endl << endl << endl;
-    //#endif
-    cout << "NEW NEC total time V2: " << total_time*1000.0 << " ms" << endl;
-    cout << "NEW NEC Performance V2: " << ((double)edges_count)/(total_time*1e6) << " MTEPS" << endl << endl << endl;
-
-    MemoryAPI::free_array(active_ids);
-    MemoryAPI::free_array(active_vertices_buffer);
-    MemoryAPI::free_array(cached_levels);
+    cout << "TOTAL BFS Perf: " << ((double)edges_count)/(total_time*1e6) << " MTEPS" << endl << endl << endl;
+    #endif
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
