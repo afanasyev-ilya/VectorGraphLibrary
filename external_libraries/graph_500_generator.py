@@ -42,7 +42,7 @@ def kronecker_generator(SCALE, edgefactor):
     return ijw
 
 
-SCALE = 23
+SCALE = 25
 edgefactor = 16
 
 ijw = kronecker_generator(SCALE, edgefactor)

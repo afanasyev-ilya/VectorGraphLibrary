@@ -83,7 +83,10 @@ int main(int argc, const char * argv[])
             Timer tm;
             tm.start();
             //performance_stats.reset_timers();
-            BFS::hardwired_do_bfs(graph, levels, source_vertex, vector_extension_for_bfs, buffer1, buffer2);
+            if(parser.get_algorithm_bfs() == DIRECTION_OPTIMIZING_BFS_ALGORITHM)
+                BFS::hardwired_do_bfs(graph, levels, source_vertex, vector_extension_for_bfs, buffer1, buffer2);
+            else if(parser.get_algorithm_bfs() == TOP_DOWN_BFS_ALGORITHM)
+                BFS::nec_top_down(graph, levels, source_vertex);
             //performance_stats.print_timers_stats();
             tm.end();
             avg_time += tm.get_time()/(parser.get_number_of_rounds());
