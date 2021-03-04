@@ -11,7 +11,7 @@ int CC::select_pivot(VectCSRGraph &_graph,
 {
     NEC_REGISTER_INT(pivots, _graph.get_vertices_count() + 1);
 
-    auto select_pivot = [&_components, &reg_pivots] (int src_id, int connections_count, int vector_index)
+    auto select_pivot = [&_components, &reg_pivots] __VGL_COMPUTE_ARGS__
     {
         if(_components[src_id] == COMPONENT_UNSET)
             reg_pivots[vector_index] = src_id;
@@ -57,7 +57,7 @@ void CC::nec_bfs_based(VectCSRGraph &_graph, VerticesArray<_T> &_components)
     //int vertices_count = _graph.get_vertices_count();
 
     frontier.set_all_active();
-    auto init_and_remove_zero_nodes = [&_components, vertices_count] (int src_id, int connections_count, int vector_index)
+    auto init_and_remove_zero_nodes = [&_components, vertices_count] __VGL_COMPUTE_ARGS__
     {
         if(connections_count == 0)
             _components[src_id] = src_id + vertices_count;
@@ -110,7 +110,7 @@ void CC::nec_bfs_based(VectCSRGraph &_graph, VerticesArray<_T> &_components)
         }
 
         frontier.set_all_active();
-        auto mark_component = [&_components, current_component_num] (int src_id, int connections_count, int vector_index)
+        auto mark_component = [&_components, current_component_num] __VGL_COMPUTE_ARGS__
         {
             if(_components[src_id] <= COMPONENT_FIRST_BFS_LEVEL)
                 _components[src_id] = current_component_num;

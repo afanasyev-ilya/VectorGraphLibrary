@@ -2,7 +2,7 @@
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#ifdef __USE_INTEL__
+#ifdef __USE_MULTICORE__
 #include <limits>
 #include <cfloat>
 #endif
@@ -17,7 +17,7 @@ class ShortestPaths
 {
 public:
     // worker functions
-    #ifdef __USE_NEC_SX_AURORA__
+    #if defined(__USE_NEC_SX_AURORA__) || defined(__USE_MULTICORE__)
     template <typename _T>
     static void nec_dijkstra_all_active_push(VectCSRGraph &_graph,
                                              EdgesArray_Vect<_T> &_weights,
@@ -25,7 +25,7 @@ public:
                                              int _source_vertex);
     #endif
 
-    #ifdef __USE_NEC_SX_AURORA__
+    #if defined(__USE_NEC_SX_AURORA__) || defined(__USE_MULTICORE__)
     template <typename _T>
     static void nec_dijkstra_all_active_pull(VectCSRGraph &_graph,
                                              EdgesArray_Vect<_T> &_weights,
@@ -33,7 +33,7 @@ public:
                                              int _source_vertex);
     #endif
 
-    #ifdef __USE_NEC_SX_AURORA__
+    #if defined(__USE_NEC_SX_AURORA__) || defined(__USE_MULTICORE__)
     template <typename _T>
     static void nec_dijkstra_partial_active(VectCSRGraph &_graph,
                                             EdgesArray_Vect<_T> &_weights,
@@ -70,20 +70,20 @@ public:
     static void seq_dijkstra(VectCSRGraph &_graph, EdgesArray_Vect<_T> &_weights, VerticesArray<_T> &_distances,
                              int _source_vertex);
 
-    #ifdef __USE_NEC_SX_AURORA__
+    #if defined(__USE_NEC_SX_AURORA__) || defined(__USE_MULTICORE__)
     template <typename _T>
     static void nec_dijkstra(VectCSRGraph &_graph, EdgesArray_Vect<_T> &_weights, VerticesArray<_T> &_distances,
                              int _source_vertex, AlgorithmFrontierType _frontier_type = ALL_ACTIVE,
                              AlgorithmTraversalType _traversal_direction = PUSH_TRAVERSAL);
     #endif
 
-    #ifdef __USE_NEC_SX_AURORA__
+    #if defined(__USE_NEC_SX_AURORA__) || defined(__USE_MULTICORE__)
     template <typename _T>
     static void nec_dijkstra(EdgesListGraph &_graph, EdgesArray_EL<_T> &_weights, VerticesArray<_T> &_distances,
                              int _source_vertex);
     #endif
 
-    #ifdef __USE_NEC_SX_AURORA__
+    #if defined(__USE_NEC_SX_AURORA__) || defined(__USE_MULTICORE__)
     template <typename _T>
     static void nec_dijkstra(ShardedCSRGraph &_graph,
                              EdgesArray_Sharded<_T> &_weights, // TODO
@@ -108,7 +108,6 @@ public:
 #include "gpu_shortest_paths.hpp"
 #include "seq_shortest_paths.hpp"
 #include "nec_shortest_paths.hpp"
-#include "multicore_shortest_paths.hpp"
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 

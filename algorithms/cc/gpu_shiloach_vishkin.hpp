@@ -11,7 +11,7 @@ void CC::gpu_shiloach_vishkin(VectCSRGraph &_graph, VerticesArray<_T> &_componen
     graph_API.change_traversal_direction(SCATTER, _components, frontier);
 
     frontier.set_all_active();
-    auto init_components_op = [_components] __device__ (int src_id, int connections_count, int vector_index)
+    auto init_components_op = [_components] __VGL_COMPUTE_ARGS__
     {
         _components[src_id] = src_id;
     };
@@ -53,7 +53,7 @@ void CC::gpu_shiloach_vishkin(VectCSRGraph &_graph, VerticesArray<_T> &_componen
         do
         {
             jump_changes[0] = 0;
-            auto jump_op = [_components, jump_changes] __device__(int src_id, int connections_count, int vector_index)
+            auto jump_op = [_components, jump_changes] __VGL_COMPUTE_ARGS__
             {
                 int src_label = _components[src_id];
                 int parent_label = _components[src_label];

@@ -51,33 +51,41 @@ private:
     #ifndef __USE_ASL__
     static void inner_sort(int *_data, vgl_sort_indexes *_indexes, long long _size, SortOrder _sort_order)
     {
-        int *work_buffer;
-        MemoryAPI::allocate_array(&work_buffer, _size);
-
-        if(_sort_order == SORT_ASCENDING)
+        if(_indexes != NULL)
         {
-            stable_sort(_indexes, _indexes + _size, [&_data](long long _i1, long long _i2) {return _data[_i1] < _data[_i2];});
-        }
-        else if(_sort_order == SORT_DESCENDING)
-        {
-            stable_sort(_indexes, _indexes + _size, [&_data](long long _i1, long long _i2) {return _data[_i1] > _data[_i2];});
-        }
+            int *work_buffer;
+            MemoryAPI::allocate_array(&work_buffer, _size);
 
-        #pragma _NEC ivdep
-        #pragma omp parallel for
-        for(long long i = 0; i < _size; i++)
-        {
-            work_buffer[i] = _data[_indexes[i]];
-        }
+            if(_sort_order == SORT_ASCENDING)
+            {
+                stable_sort(_indexes, _indexes + _size, [&_data](long long _i1, long long _i2) {return _data[_i1] < _data[_i2];});
+            }
+            else if(_sort_order == SORT_DESCENDING)
+            {
+                stable_sort(_indexes, _indexes + _size, [&_data](long long _i1, long long _i2) {return _data[_i1] > _data[_i2];});
+            }
 
-        #pragma _NEC ivdep
-        #pragma omp parallel for
-        for(long long i = 0; i < _size; i++)
-        {
-            _data[i] = work_buffer[i];
-        }
+            #pragma _NEC ivdep
+            #pragma omp parallel for
+            for(long long i = 0; i < _size; i++)
+            {
+                work_buffer[i] = _data[_indexes[i]];
+            }
 
-        MemoryAPI::free_array(work_buffer);
+            #pragma _NEC ivdep
+            #pragma omp parallel for
+            for(long long i = 0; i < _size; i++)
+            {
+                _data[i] = work_buffer[i];
+            }
+        }
+        else
+        {
+            if(_sort_order == SORT_ASCENDING)
+                stable_sort(_data, _data + _size);
+            else if(_sort_order == SORT_DESCENDING)
+                stable_sort(_data, _data + _size, greater<int>());
+        }
     };
     #endif
 public:

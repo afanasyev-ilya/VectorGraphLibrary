@@ -13,6 +13,17 @@ public:
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+enum CachedMode
+{
+    USE_CACHED_MODE = 0,
+    DONT_USE_CACHED_MODE = 1
+};
+
+#define CACHED_VERTICES 3500
+#define CACHE_STEP 7
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 template <typename _T>
 class VerticesArray : public UserDataContainer
 {
@@ -25,12 +36,18 @@ private:
     _T *vertices_data;
     int vertices_count;
 
+    _T *cached_data;
+    CachedMode cached_mode;
+
     bool is_copy;
+
+    void allocate_cached_array();
+    void free_cached_array();
 public:
     /* constructors and destructors */
-    VerticesArray(VectCSRGraph &_graph, TraversalDirection _direction = SCATTER);
-    VerticesArray(ShardedCSRGraph &_graph, TraversalDirection _direction = SCATTER);
-    VerticesArray(EdgesListGraph &_graph, TraversalDirection _direction = ORIGINAL);
+    VerticesArray(VectCSRGraph &_graph, TraversalDirection _direction = SCATTER, CachedMode _cached_mode = DONT_USE_CACHED_MODE);
+    VerticesArray(ShardedCSRGraph &_graph, TraversalDirection _direction = SCATTER, CachedMode _cached_mode = DONT_USE_CACHED_MODE);
+    VerticesArray(EdgesListGraph &_graph, TraversalDirection _direction = ORIGINAL, CachedMode _cached_mode = DONT_USE_CACHED_MODE);
 
     VerticesArray(const VerticesArray<_T> &_copy_obj);
     ~VerticesArray();
@@ -49,7 +66,12 @@ public:
     inline _T set(int _idx, _T _val) const {this->vertices_data[_idx] = _val;};
     inline _T& operator[](int _idx) { return vertices_data[_idx]; }
     inline _T& operator[] (int _idx) const { return vertices_data[_idx]; };
+
+    inline _T cached_load(int _idx, _T *_private_data);
     #endif
+
+    inline void prefetch_data_into_cache();
+    inline _T* get_private_data_pointer();
 
     /* direction API */
     TraversalDirection get_direction() {return direction;};

@@ -5,10 +5,6 @@
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-typedef pair<float, int> iPair;
-
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
 template <typename _T>
 void SSSP::seq_dijkstra(VectCSRGraph &_graph, EdgesArray_Vect<_T> &_weights, VerticesArray<_T> &_distances,
                         int _source_vertex)
@@ -22,7 +18,8 @@ void SSSP::seq_dijkstra(VectCSRGraph &_graph, EdgesArray_Vect<_T> &_weights, Ver
     tm.start();
 
     // Create a priority queue to store vertices that
-    // are being preprocessed. This is weird syntax in C++.
+    // are being preprocessed.
+    typedef pair<_T, int> iPair;
     std::priority_queue< iPair, vector <iPair> , greater<iPair> > pq;
 
     // Create a vector for distances and initialize all

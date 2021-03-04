@@ -47,7 +47,7 @@ private:
     int gpu_warp_threshold_vertex;
     #endif
 
-    #ifdef __USE_NEC_SX_AURORA__
+    #if defined(__USE_NEC_SX_AURORA__) || defined(__USE_MULTICORE__)
     int vector_engine_threshold_vertex;
     int vector_core_threshold_vertex;
     #endif
@@ -55,7 +55,7 @@ private:
     void alloc(int _vertices_count, long long _edges_count);
     void free();
 
-    #ifdef __USE_NEC_SX_AURORA__
+    #if defined(__USE_NEC_SX_AURORA__) || defined(__USE_MULTICORE__)
     void estimate_nec_thresholds();
     #endif
 
@@ -139,7 +139,7 @@ public:
     void resize(int _vertices_count, long long _edges_count);
 
     // API to calculate NEC and multicore thresholds
-    #ifdef __USE_NEC_SX_AURORA__
+    #if defined(__USE_NEC_SX_AURORA__) || defined(__USE_MULTICORE__)
     inline int get_vector_engine_threshold_vertex(){return vector_engine_threshold_vertex;};
     inline int get_vector_core_threshold_vertex(){return vector_core_threshold_vertex;};
     #endif
@@ -155,6 +155,10 @@ public:
     /* import and preprocess API */
     // creates UndirectedCSRGraph format from EdgesListGraph
     void import(EdgesListGraph &_old_graph);
+
+    void remove_loops_and_multiple_arcs(); // WARNING! this function is unsafe to call
+
+    void sort_adjacent_edges();
 
     friend class GraphAbstractions;
     friend class VectCSRGraph;

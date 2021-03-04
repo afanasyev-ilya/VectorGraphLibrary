@@ -7,27 +7,24 @@
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+#define BOTTOM_UP_THRESHOLD 5
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+struct BFS_GraphVE
+{
+    int ve_vertices_count;
+    int ve_edges_per_vertex;
+    int *ve_dst_ids;
+
+    BFS_GraphVE(VectCSRGraph &_graph);
+    ~BFS_GraphVE();
+};
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 class BFS
 {
-private:
-    #ifdef __USE_NEC_SX_AURORA__
-    static void nec_top_down_compute_step(VectCSRGraph &_graph,
-                                          VerticesArray<int> &_levels,
-                                          int _current_level,
-                                          int &_vis,
-                                          int &_in_lvl,
-                                          bool _compute_stats);
-    #endif
-
-    #ifdef __USE_NEC_SX_AURORA__
-    static void nec_bottom_up_compute_step(VectCSRGraph &_graph,
-                                           VerticesArray<int> &_levels,
-                                           int *_connections_array,
-                                           int _current_level,
-                                           int &_vis,
-                                           int &_in_lvl,
-                                           bool _use_vector_extension);
-    #endif
 public:
     #ifdef __USE_GPU__
     template <typename _T>
@@ -36,13 +33,19 @@ public:
 
     #ifdef __USE_NEC_SX_AURORA__
     template <typename _T>
-    static void nec_direction_optimizing(VectCSRGraph &_graph, VerticesArray<_T> &_levels, int _source_vertex);
+    static void nec_direction_optimizing(VectCSRGraph &_graph, VerticesArray<_T> &_levels, int _source_vertex,
+                                         BFS_GraphVE &_vector_extension, DirectionType _direction,
+                                         int first_switch, int second_switch);
     #endif
 
     #ifdef __USE_NEC_SX_AURORA__
     template <typename _T>
     static void nec_top_down(VectCSRGraph &_graph, VerticesArray<_T> &_levels, int _source_vertex);
     #endif
+
+    template <typename _T>
+    static void hardwired_do_bfs(VectCSRGraph &_graph, VerticesArray<_T> &_levels, int _source_vertex, BFS_GraphVE &_vector_extension,
+                                 int *_buffer1, int *_buffer2);
 
     template <typename _T>
     static void seq_top_down(VectCSRGraph &_graph, VerticesArray<_T> &_levels, int _source_vertex);
@@ -54,6 +57,8 @@ public:
 #include "gpu_bfs.hpp"
 #include "nec_bfs.hpp"
 #include "change_state/change_state.hpp"
+#include "hardwired_do_bfs.hpp"
+#include "bfs_graph_ve.hpp"
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 

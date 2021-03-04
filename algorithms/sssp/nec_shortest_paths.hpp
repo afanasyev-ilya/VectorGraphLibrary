@@ -2,16 +2,25 @@
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#ifdef __USE_NEC_SX_AURORA__
+#if defined(__USE_NEC_SX_AURORA__) || defined(__USE_MULTICORE__)
 template <typename _T>
 void SSSP::nec_dijkstra_partial_active(VectCSRGraph &_graph,
                                        EdgesArray_Vect<_T> &_weights,
                                        VerticesArray<_T> &_distances,
                                        int _source_vertex)
 {
+    #if defined(__USE_NEC_SX_AURORA__)
     GraphAbstractionsNEC graph_API(_graph);
     FrontierNEC work_frontier(_graph);
     FrontierNEC all_active_frontier(_graph);
+    #endif
+
+    #if defined(__USE_MULTICORE__)
+    GraphAbstractionsMulticore graph_API(_graph);
+    FrontierMulticore work_frontier(_graph);
+    FrontierMulticore all_active_frontier(_graph);
+    #endif
+
     VerticesArray<_T> prev_distances(_graph);
 
     graph_API.change_traversal_direction(SCATTER, _distances, work_frontier, all_active_frontier, prev_distances);
@@ -20,7 +29,7 @@ void SSSP::nec_dijkstra_partial_active(VectCSRGraph &_graph,
     tm.start();
 
     _T inf_val = std::numeric_limits<_T>::max() - MAX_WEIGHT;
-    auto init_distances = [&_distances, _source_vertex, inf_val] (int src_id, int connections_count, int vector_index)
+    auto init_distances = [&_distances, _source_vertex, inf_val] __VGL_COMPUTE_ARGS__
     {
         if(src_id == _source_vertex)
             _distances[src_id] = 0;
@@ -36,7 +45,7 @@ void SSSP::nec_dijkstra_partial_active(VectCSRGraph &_graph,
     int iterations_count = 0;
     while(work_frontier.size() > 0)
     {
-        auto copy_distances = [&_distances, &prev_distances] (int src_id, int connections_count, int vector_index)
+        auto copy_distances = [&_distances, &prev_distances] __VGL_COMPUTE_ARGS__
         {
             prev_distances[src_id] = _distances[src_id];
         };
@@ -84,22 +93,30 @@ void SSSP::nec_dijkstra_partial_active(VectCSRGraph &_graph,
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#ifdef __USE_NEC_SX_AURORA__
+#if defined(__USE_NEC_SX_AURORA__) || defined(__USE_MULTICORE__)
 template <typename _T>
 void SSSP::nec_dijkstra_all_active_push(VectCSRGraph &_graph,
                                         EdgesArray_Vect<_T> &_weights,
                                         VerticesArray<_T> &_distances,
                                         int _source_vertex)
 {
+    #if defined(__USE_NEC_SX_AURORA__)
     GraphAbstractionsNEC graph_API(_graph);
     FrontierNEC frontier(_graph);
+    #endif
+
+    #if defined(__USE_MULTICORE__)
+    GraphAbstractionsMulticore graph_API(_graph);
+    FrontierMulticore frontier(_graph);
+    #endif
+
     graph_API.change_traversal_direction(SCATTER, _distances, frontier);
 
     Timer tm;
     tm.start();
 
     _T inf_val = std::numeric_limits<_T>::max() - MAX_WEIGHT;
-    auto init_distances = [&_distances, _source_vertex, inf_val] (int src_id, int connections_count, int vector_index)
+    auto init_distances = [&_distances, _source_vertex, inf_val] __VGL_COMPUTE_ARGS__
     {
         if(src_id == _source_vertex)
             _distances[src_id] = 0;
@@ -155,15 +172,23 @@ void SSSP::nec_dijkstra_all_active_push(VectCSRGraph &_graph,
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#ifdef __USE_NEC_SX_AURORA__
+#if defined(__USE_NEC_SX_AURORA__) || defined(__USE_MULTICORE__)
 template <typename _T>
 void SSSP::nec_dijkstra_all_active_pull(VectCSRGraph &_graph,
                                         EdgesArray_Vect<_T> &_weights,
                                         VerticesArray<_T> &_distances,
                                         int _source_vertex)
 {
+    #if defined(__USE_NEC_SX_AURORA__)
     GraphAbstractionsNEC graph_API(_graph);
     FrontierNEC frontier(_graph);
+    #endif
+
+    #if defined(__USE_MULTICORE__)
+    GraphAbstractionsMulticore graph_API(_graph);
+    FrontierMulticore frontier(_graph);
+    #endif
+
     VerticesArray<_T> prev_distances(_graph, GATHER);
 
     graph_API.change_traversal_direction(GATHER, _distances, frontier);
@@ -172,7 +197,7 @@ void SSSP::nec_dijkstra_all_active_pull(VectCSRGraph &_graph,
     tm.start();
 
     _T inf_val = std::numeric_limits<_T>::max() - MAX_WEIGHT;
-    auto init_distances = [&_distances, _source_vertex, inf_val] (int src_id, int connections_count, int vector_index)
+    auto init_distances = [&_distances, _source_vertex, inf_val] __VGL_COMPUTE_ARGS__
     {
         if(src_id == _source_vertex)
             _distances[src_id] = 0;
@@ -188,7 +213,7 @@ void SSSP::nec_dijkstra_all_active_pull(VectCSRGraph &_graph,
         changes = 0;
         iterations_count++;
 
-        auto save_old_distances = [&_distances, &prev_distances] (int src_id, int connections_count, int vector_index)
+        auto save_old_distances = [&_distances, &prev_distances] __VGL_COMPUTE_ARGS__
         {
             prev_distances[src_id] = _distances[src_id];
         };
@@ -257,7 +282,7 @@ void SSSP::nec_dijkstra_all_active_pull(VectCSRGraph &_graph,
             graph_API.disable_safe_stores();
         }
 
-        auto reduce_changes = [&_distances, &prev_distances](int src_id, int connections_count, int vector_index)->int
+        auto reduce_changes = [&_distances, &prev_distances]__VGL_COMPUTE_ARGS__->int
         {
             int result = 0.0;
             if(prev_distances[src_id] != _distances[src_id])
@@ -280,7 +305,7 @@ void SSSP::nec_dijkstra_all_active_pull(VectCSRGraph &_graph,
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#ifdef __USE_NEC_SX_AURORA__
+#if defined(__USE_NEC_SX_AURORA__) || defined(__USE_MULTICORE__)
 template <typename _T>
 void SSSP::nec_dijkstra(VectCSRGraph &_graph,
                         EdgesArray_Vect<_T> &_weights,
@@ -305,12 +330,18 @@ void SSSP::nec_dijkstra(VectCSRGraph &_graph,
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#ifdef __USE_NEC_SX_AURORA__
+#if defined(__USE_NEC_SX_AURORA__) || defined(__USE_MULTICORE__)
 template <typename _T>
 void SSSP::nec_dijkstra(EdgesListGraph &_graph, EdgesArray_EL<_T> &_weights, VerticesArray<_T> &_distances,
                         int _source_vertex)
 {
+    #if defined(__USE_NEC_SX_AURORA__)
     GraphAbstractionsNEC graph_API(_graph);
+    #endif
+
+    #if defined(__USE_MULTICORE__)
+    GraphAbstractionsMulticore graph_API(_graph);
+    #endif
 
     Timer tm;
     tm.start();
@@ -360,15 +391,22 @@ void SSSP::nec_dijkstra(EdgesListGraph &_graph, EdgesArray_EL<_T> &_weights, Ver
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#ifdef __USE_NEC_SX_AURORA__
+#if defined(__USE_NEC_SX_AURORA__) || defined(__USE_MULTICORE__)
 template <typename _T>
 void SSSP::nec_dijkstra(ShardedCSRGraph &_graph,
                         EdgesArray_Sharded<_T> &_weights,
                         VerticesArray<_T> &_distances,
                         int _source_vertex)
 {
+    #if defined(__USE_NEC_SX_AURORA__)
     GraphAbstractionsNEC graph_API(_graph);
     FrontierNEC frontier(_graph);
+    #endif
+
+    #if defined(__USE_MULTICORE__)
+    GraphAbstractionsMulticore graph_API(_graph);
+    FrontierMulticore frontier(_graph);
+    #endif
 
     graph_API.attach_data(_distances);
     graph_API.change_traversal_direction(SCATTER); // TODO -- is it needed?
@@ -377,7 +415,7 @@ void SSSP::nec_dijkstra(ShardedCSRGraph &_graph,
     tm.start();
 
     _T inf_val = std::numeric_limits<_T>::max() - MAX_WEIGHT;
-    auto init_distances = [&_distances, _source_vertex, inf_val] (int src_id, int connections_count, int vector_index)
+    auto init_distances = [&_distances, _source_vertex, inf_val] __VGL_COMPUTE_ARGS__
     {
         if(src_id == _source_vertex)
             _distances[src_id] = 0;

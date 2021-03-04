@@ -35,7 +35,7 @@ GraphAbstractionsNEC::GraphAbstractionsNEC(EdgesListGraph &_graph, TraversalDire
 long long GraphAbstractionsNEC::count_frontier_neighbours(VectCSRGraph &_graph,
                                                           FrontierNEC &_frontier)
 {
-    auto sum_connections = [](int src_id, int connections_count, int vector_index)->int
+    auto sum_connections = []__VGL_COMPUTE_ARGS__->int
     {
         return connections_count;
     };

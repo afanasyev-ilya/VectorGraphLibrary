@@ -46,8 +46,11 @@ int main(int argc, const char * argv[])
         }
 
         // print graphs stats
-        graph.print_size();
+        // print graphs stats
         graph.print_stats();
+        #ifndef __USE_NEC_SX_AURORA__
+        graph.print_stats();
+        #endif
 
         VerticesArray<float> page_ranks(graph);
         performance_stats.reset_timers();

@@ -4,6 +4,7 @@
 
 #include "architectures.h"
 #include "framework_types.h"
+#include "architecture_independent_api.h"
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -72,10 +73,7 @@ using namespace std;
 #include "algorithms/scc/scc.h"
 #include "algorithms/pr/pr.h"
 #include "algorithms/cc/cc.h"
-/*#include "algorithms/sswp/widest_paths.h"
-#include "algorithms/pr/pr.h"
-#include "algorithms/lp/lp.h"
-#include "algorithms/mf/mf.h"*/
+#include "algorithms/sswp/widest_paths.h"
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 

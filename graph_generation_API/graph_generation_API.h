@@ -52,7 +52,7 @@ public:
     
     static void init_from_txt_file(EdgesListGraph &_graph,
                                    string _txt_file_name,
-                                   bool _append_with_reverse_edges = true);
+                                   DirectionType _direction_type = DIRECTED_GRAPH);
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

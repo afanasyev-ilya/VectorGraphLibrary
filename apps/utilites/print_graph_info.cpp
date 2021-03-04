@@ -60,7 +60,7 @@ int main(int argc, const char * argv[])
             }
             work_array[id] = thread_work;
         }
-        int max = 0, min = INT_MAX, avg = 0;
+        int max = 0, min = numeric_limits<int>::max(), avg = 0;
         for(int id = 0; id < threads_count; id++)
         {
             avg += work_array[id];

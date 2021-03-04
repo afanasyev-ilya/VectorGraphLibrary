@@ -18,7 +18,7 @@ void SCC::trim_step(VectCSRGraph &_graph,
     // set everythig as active
     _graph_API.change_traversal_direction(SCATTER, _frontier, _trees, _active);
 
-    auto init = [&_trees, &_active] (int src_id, int connections_count, int vector_index)
+    auto init = [&_trees, &_active] __VGL_COMPUTE_ARGS__
     {
         _trees[src_id] = INIT_TREE;
         _active[src_id] = IS_ACTIVE;
@@ -47,7 +47,7 @@ void SCC::trim_step(VectCSRGraph &_graph,
 
         // init out-degrees
         _frontier.set_all_active();
-        auto init_out_degrees = [&_out_degrees] (int src_id, int connections_count, int vector_index)
+        auto init_out_degrees = [&_out_degrees] __VGL_COMPUTE_ARGS__
         {
             _out_degrees[src_id] = connections_count;
         };
@@ -80,7 +80,7 @@ void SCC::trim_step(VectCSRGraph &_graph,
 
         // init out-degrees
         _frontier.set_all_active();
-        auto init_in_degrees = [&_in_degrees] (int src_id, int connections_count, int vector_index)
+        auto init_in_degrees = [&_in_degrees] __VGL_COMPUTE_ARGS__
         {
             _in_degrees[src_id] = connections_count;
         };
@@ -102,7 +102,7 @@ void SCC::trim_step(VectCSRGraph &_graph,
 
         int vertices_count = _graph.get_vertices_count();
         NEC_REGISTER_INT(changes, 0);
-        auto remove_trivial_and_init = [&_active, &_in_degrees, &_out_degrees, &_trees, &reg_changes, vertices_count] (int src_id, int connections_count, int vector_index)
+        auto remove_trivial_and_init = [&_active, &_in_degrees, &_out_degrees, &_trees, &reg_changes, vertices_count] __VGL_COMPUTE_ARGS__
         {
             if((_active[src_id] == IS_ACTIVE) && ((_in_degrees[src_id] <= 0) || (_out_degrees[src_id] <= 0)))
             {
@@ -134,7 +134,7 @@ void SCC::bfs_reach(VectCSRGraph &_graph,
 {
     _graph_API.change_traversal_direction(_traversal_direction, _bfs_result, _frontier, _bfs_result);
 
-    auto init_levels = [&_bfs_result, _source_vertex] (int src_id, int connections_count, int vector_index)
+    auto init_levels = [&_bfs_result, _source_vertex] __VGL_COMPUTE_ARGS__
     {
         if(src_id == _source_vertex)
             _bfs_result[_source_vertex] = FIRST_LEVEL_VERTEX;
@@ -197,7 +197,7 @@ int SCC::select_pivot(VectCSRGraph &_graph,
 
     NEC_REGISTER_INT(pivots, _graph.get_vertices_count() + 1);
 
-    auto select_pivot = [&_trees, _tree_num, &reg_pivots] (int src_id, int connections_count, int vector_index)
+    auto select_pivot = [&_trees, _tree_num, &reg_pivots] __VGL_COMPUTE_ARGS__
     {
         if(_trees[src_id] == _tree_num)
             reg_pivots[vector_index] = src_id;
@@ -235,7 +235,7 @@ void SCC::process_result(VectCSRGraph &_graph,
 {
     _graph_API.change_traversal_direction(SCATTER, _frontier, _forward_result, _backward_result, _trees, _active);
 
-    auto locate_scc = [&_forward_result, &_backward_result, &_trees, &_active, _last_tree] (int src_id, int connections_count, int vector_index)
+    auto locate_scc = [&_forward_result, &_backward_result, &_trees, &_active, _last_tree] __VGL_COMPUTE_ARGS__
     {
         _T fwd_res = _forward_result[src_id];
         _T bwd_res = _backward_result[src_id];
