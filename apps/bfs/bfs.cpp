@@ -17,7 +17,7 @@
 #define COLLECTIVE_FRONTIER_TYPE_CHANGE_THRESHOLD 1.0*/
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-#define __PRINT_API_PERFORMANCE_STATS__
+//#define __PRINT_API_PERFORMANCE_STATS__
 
 #include "graph_library.h"
 
@@ -74,11 +74,9 @@ int main(int argc, const char * argv[])
         double avg_time = 0;
         VerticesArray<int> levels(graph, SCATTER, USE_CACHED_MODE);
 
-        int test_vertices[2] = {8865083, 9053202};
-
         for(int i = 0; i < parser.get_number_of_rounds(); i++)
         {
-            int source_vertex = test_vertices[i];//graph.select_random_vertex(ORIGINAL);
+            int source_vertex = graph.select_random_vertex(ORIGINAL);
             cout << "selected source vertex " << source_vertex << " on run № " << i << endl;
             cout << "this vertex is " << graph.reorder(source_vertex, ORIGINAL, SCATTER) << ", " << 100.0*graph.reorder(source_vertex, ORIGINAL, SCATTER)/graph.get_vertices_count() << " % pos" << endl;
 

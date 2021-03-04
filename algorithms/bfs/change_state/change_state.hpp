@@ -49,8 +49,7 @@ StateOfBFS nec_change_state(int _current_queue_size, int _next_queue_size, int _
     {
         if(_old_state == TOP_DOWN)
         {
-            //cout << " in lvl " << _in_lvl << " vs " << ((_vertices_count - _vis) * factor/* + _vertices_count*/) / ALPHA << endl;
-            if((_levels[0] != UNVISITED_VERTEX) || (_levels[1] != UNVISITED_VERTEX))
+            if(((_levels[0] != UNVISITED_VERTEX) || (_levels[1] != UNVISITED_VERTEX)) && (_next_queue_size > 500))
             {
                 new_state = BOTTOM_UP;
             }

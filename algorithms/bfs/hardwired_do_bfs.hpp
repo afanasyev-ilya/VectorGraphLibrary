@@ -367,7 +367,7 @@ void hardwired_nec_top_down_step(long long *_outgoing_ptrs,
 
             // traverse group of "medium" vertices
             #pragma _NEC novector
-            #pragma omp for schedule(static)
+            #pragma omp for schedule(static, 8)
             for(int idx = border_large; idx < border_medium; idx++)
             {
                 int src_id = active_ids[idx];
@@ -402,7 +402,7 @@ void hardwired_nec_top_down_step(long long *_outgoing_ptrs,
                 }
             }
 
-            #pragma omp for schedule(static)
+            #pragma omp for schedule(static, 8)
             for(int vec_start = border_medium; vec_start < _active_count; vec_start += VECTOR_LENGTH)
             {
                 for(int i = 0; i < VECTOR_LENGTH; i++)
@@ -509,7 +509,8 @@ void hardwired_nec_top_down_step(long long *_outgoing_ptrs,
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template <typename _T>
-void hardwired_nec_bottom_up_step(long long *_outgoing_ptrs,
+void hardwired_nec_bottom_up_step(VectCSRGraph &_graph,
+                        long long *_outgoing_ptrs,
                         int *_outgoing_ids,
                         int *_vectorised_outgoing_ids,
                         int _vertices_count,
@@ -623,13 +624,23 @@ void hardwired_nec_bottom_up_step(long long *_outgoing_ptrs,
         }
     }
 
-    int active_vertices_left = fast_sparse_copy_if(_levels.get_ptr(), _active_ids, _active_vertices_buffer,
-                        _non_zero_vertices_count, 0, _non_zero_vertices_count, BOTTOM_UP_REMINDER_VERTEX);
+    int active_vertices_left = 0;
+
+    int large_border = 0, medium_border = 0;
+    if(_cur_level != 2)
+    {
+        active_vertices_left = fast_sparse_copy_if(_levels.get_ptr(), _active_ids, _active_vertices_buffer,
+                            _non_zero_vertices_count, 0, _non_zero_vertices_count, BOTTOM_UP_REMINDER_VERTEX);
+    }
+    else
+    {
+        active_vertices_left = new_sorted_copy_if(_graph, _levels.get_ptr(), _active_ids, _active_vertices_buffer,
+                                                   _non_zero_vertices_count, 0, _non_zero_vertices_count, BOTTOM_UP_REMINDER_VERTEX, large_border, medium_border);
+    }
+
 
     t2 = omp_get_wtime();
     _t_second = t2 - t1;
-
-    //cout << "active_vertices_left: " << active_vertices_left << endl;
 
     t1 = omp_get_wtime();
     int border_large = 0;
@@ -668,8 +679,81 @@ void hardwired_nec_bottom_up_step(long long *_outgoing_ptrs,
         }
 
         #pragma _NEC novector
-        #pragma omp for schedule(static, 1)
-        for(int vec_start = 0; vec_start < active_vertices_left; vec_start += VECTOR_LENGTH) // process "small" vertices
+        for(int idx = 0; idx < border_large; idx++)
+        {
+            int src_id = _active_ids[idx];
+            int src_level = _levels[src_id];
+            int connections = _outgoing_ptrs[src_id + 1] - _outgoing_ptrs[src_id];
+            int start_pos = _outgoing_ptrs[src_id];
+
+            #pragma _NEC novector
+            #pragma omp for schedule(static)
+            for(int edge_pos = 0; edge_pos < connections; edge_pos += VECTOR_LENGTH)
+            {
+                #pragma _NEC cncall
+                #pragma _NEC ivdep
+                #pragma _NEC vovertake
+                #pragma _NEC novob
+                #pragma _NEC vector
+                #pragma _NEC sparse
+                #pragma _NEC gather_reorder
+                for(int i = 0; i < VECTOR_LENGTH; i++)
+                {
+                    if((edge_pos + i) < connections)
+                    {
+                        int dst_id = _outgoing_ids[start_pos + edge_pos + i];
+                        int dst_level = _levels.cached_load(dst_id, private_levels);
+                        in_lvl_reg[i]++;
+
+                        if(dst_level == _cur_level)
+                        {
+                            _levels[src_id] = _cur_level + 1;
+                            vis_reg[i]++;
+                        }
+                    }
+                }
+            }
+        }
+
+        #pragma _NEC novector
+        #pragma omp for schedule(static, 8)
+        for(int idx = large_border; idx < medium_border; idx++) // process "medium" vertices
+        {
+            int src_id = _active_ids[idx];
+            int connections = _outgoing_ptrs[src_id + 1] - _outgoing_ptrs[src_id];
+            long long start_pos = _outgoing_ptrs[src_id];
+
+            #pragma _NEC novector
+            for(int edge_pos = 0; edge_pos < connections; edge_pos += VECTOR_LENGTH)
+            {
+                #pragma _NEC cncall
+                #pragma _NEC ivdep
+                #pragma _NEC vovertake
+                #pragma _NEC novob
+                #pragma _NEC vector
+                #pragma _NEC sparse
+                #pragma _NEC gather_reorder
+                for(int i = 0; i < VECTOR_LENGTH; i++)
+                {
+                    if ((edge_pos + i) < connections)
+                    {
+                        int dst_id = _outgoing_ids[start_pos + edge_pos + i];
+                        int dst_level = _levels.cached_load(dst_id, private_levels);
+                        in_lvl_reg[i]++;
+
+                        if(dst_level == _cur_level)
+                        {
+                            _levels[src_id] = _cur_level + 1;
+                            vis_reg[i]++;
+                        }
+                    }
+                }
+            }
+        }
+
+        #pragma _NEC novector
+        #pragma omp for schedule(static, 8)
+        for(int vec_start = medium_border; vec_start < active_vertices_left; vec_start += VECTOR_LENGTH) // process "small" vertices
         {
             for(int i = 0; i < VECTOR_LENGTH; i++)
             {
@@ -842,7 +926,7 @@ void BFS::hardwired_do_bfs(VectCSRGraph &_graph,
         }
         else if(current_state == BOTTOM_UP)
         {
-            hardwired_nec_bottom_up_step(outgoing_ptrs, outgoing_ids, _vector_extension.ve_dst_ids, vertices_count, active_ids,
+            hardwired_nec_bottom_up_step(_graph, outgoing_ptrs, outgoing_ids, _vector_extension.ve_dst_ids, vertices_count, active_ids,
                                active_vertices_buffer, active_count, _levels,
                                cur_level, vis, in_lvl, use_vect_CSR_extension,
                                non_zero_vertices_count, t_first, t_second, t_third);
