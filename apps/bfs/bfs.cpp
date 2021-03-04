@@ -17,7 +17,7 @@
 #define COLLECTIVE_FRONTIER_TYPE_CHANGE_THRESHOLD 1.0*/
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//#define __PRINT_API_PERFORMANCE_STATS__
+#define __PRINT_API_PERFORMANCE_STATS__
 
 #include "graph_library.h"
 
@@ -74,10 +74,12 @@ int main(int argc, const char * argv[])
         double avg_time = 0;
         VerticesArray<int> levels(graph, SCATTER, USE_CACHED_MODE);
 
+        int test_vertices[2] = {8865083, 9053202};
+
         for(int i = 0; i < parser.get_number_of_rounds(); i++)
         {
-            int source_vertex = graph.select_random_vertex(ORIGINAL);
-            cout << "selected source vertex " << source_vertex << endl;
+            int source_vertex = test_vertices[i];//graph.select_random_vertex(ORIGINAL);
+            cout << "selected source vertex " << source_vertex << " on run № " << i << endl;
             cout << "this vertex is " << graph.reorder(source_vertex, ORIGINAL, SCATTER) << ", " << 100.0*graph.reorder(source_vertex, ORIGINAL, SCATTER)/graph.get_vertices_count() << " % pos" << endl;
 
             Timer tm;
@@ -87,7 +89,7 @@ int main(int argc, const char * argv[])
             //performance_stats.print_timers_stats();
             tm.end();
             avg_time += tm.get_time()/(parser.get_number_of_rounds());
-            cout << "cur perf: " << graph.get_edges_count()/(tm.get_time() * 1e6) << " MTEPS" << endl << endl;
+            cout << "Performance of run: " << graph.get_edges_count()/(tm.get_time() * 1e6) << " MTEPS" << endl << endl;
 
             // check if required
             if(parser.get_check_flag())
@@ -98,7 +100,7 @@ int main(int argc, const char * argv[])
                 verify_results(levels, check_levels, 0);
             }
         }
-        cout << "AVG perf: " << graph.get_edges_count()/(avg_time * 1e6) << " MTEPS" << endl;
+        cout << "Average performance: " << graph.get_edges_count()/(avg_time * 1e6) << " MTEPS" << endl;
 
         MemoryAPI::free_array(buffer1);
         MemoryAPI::free_array(buffer2);

@@ -71,7 +71,7 @@ StateOfBFS nec_change_state(int _current_queue_size, int _next_queue_size, int _
     {
         if(_old_state == BOTTOM_UP)
         {
-            if(_next_queue_size < ((_vertices_count - _vis) * factor + _vertices_count) / (factor * BETA))
+            if((_next_queue_size < ((_vertices_count - _vis) * factor) / (factor * BETA)) && (_number_of_bu_steps > 1))
             {
                 new_state = TOP_DOWN;
             }

@@ -596,6 +596,7 @@ void hardwired_nec_bottom_up_step(long long *_outgoing_ptrs,
                 #pragma omp single
                 {
                     vis += updated_count;
+                    in_lvl += _non_zero_vertices_count;
                 }
 
                 if ((100.0 * updated_count / _vertices_count) < 1)

@@ -122,7 +122,7 @@ int UndirectedCSRGraph::select_random_vertex()
     while(attempt_num < ATTEMPTS_THRESHOLD)
     {
         int vertex_id = rand() % this->vertices_count;
-        if(get_connections_count(vertex_id) > 0)
+        if(get_connections_count(vertex_id) > 1) // TODO 0
             return vertex_id;
         attempt_num++;
     }
