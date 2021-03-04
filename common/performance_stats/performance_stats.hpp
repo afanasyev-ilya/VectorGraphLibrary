@@ -4,10 +4,7 @@
 
 PerformanceStats::PerformanceStats()
 {
-    number_of_runs = 0;
-    avg_time = 0;
-    best_time = std::numeric_limits<double>::max();
-    worst_time = 0;
+    reset_perf_stats();
     reset_timers();
 }
 
@@ -130,6 +127,17 @@ void PerformanceStats::update_reorder_time(Timer &_timer)
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+void PerformanceStats::update_non_api_time(Timer &_timer)
+{
+    #pragma omp master
+    {
+        inner_wall_time += _timer.get_time();
+        non_api_time += _timer.get_time();
+    }
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 void PerformanceStats::reset_timers()
 {
     inner_wall_time = 0;
@@ -146,6 +154,8 @@ void PerformanceStats::reset_timers()
     reduce_time = 0;
     reorder_time = 0;
     pack_time = 0;
+
+    non_api_time = 0;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -211,7 +221,7 @@ void PerformanceStats::print_timers_stats()
     cout << endl;
     print_abstraction_stats("Inner wall    ", inner_wall_time);
     print_abstraction_stats("Advance       ", advance_time);
-    #ifdef __USE_NEC_SX_AURORA__
+    #if defined(__USE_NEC_SX_AURORA__) || defined(__USE_MULTICORE__)
     print_detailed_advance_stats("Advance (ve) time        ", advance_ve_part_time);
     print_detailed_advance_stats("Advance (vc) time        ", advance_vc_part_time);
     print_detailed_advance_stats("Advance (collective) time", advance_collective_part_time);
@@ -223,6 +233,7 @@ void PerformanceStats::print_timers_stats()
     print_abstraction_stats("GNF           ", gnf_time);
     print_abstraction_stats("Reorder       ", reorder_time);
     print_abstraction_stats("Pack          ", pack_time);
+    print_abstraction_stats("Non-API       ", non_api_time);
     cout << endl;
 
     update_timer_stats();
@@ -253,24 +264,55 @@ void PerformanceStats::print_perf(long long _edges_count, int _k)
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+void PerformanceStats::reset_perf_stats()
+{
+    number_of_runs = 0;
+    avg_time = 0;
+    best_time = std::numeric_limits<double>::max();
+    worst_time = 0;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+double PerformanceStats::get_max_perf(long long _edges_count, int _k)
+{
+    return _k*(_edges_count / (best_time * 1e6));
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 void PerformanceStats::print_max_perf(long long _edges_count, int _k)
 {
-    cout << "MAX_PERF: " << _k*(_edges_count / (best_time * 1e6)) << " MTEPS (among " << number_of_runs << " runs)" << endl;
+    cout << "MAX_PERF: " << get_max_perf(_edges_count, _k) << " MTEPS (among " << number_of_runs << " runs)" << endl;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+double PerformanceStats::get_min_perf(long long _edges_count, int _k)
+{
+    return _k*(_edges_count / (worst_time * 1e6));
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 void PerformanceStats::print_min_perf(long long _edges_count, int _k)
 {
-    cout << "MIN_PERF: " << _k*(_edges_count / (worst_time * 1e6)) << " MTEPS (among " << number_of_runs << " runs)" << endl;
+    cout << "MIN_PERF: " << get_min_perf(_edges_count, _k) << " MTEPS (among " << number_of_runs << " runs)" << endl;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+double PerformanceStats::get_avg_perf(long long _edges_count, int _k)
+{
+    double local_avg_time = avg_time / number_of_runs;
+    return _k*(_edges_count / (local_avg_time * 1e6));
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 void PerformanceStats::print_avg_perf(long long _edges_count, int _k)
 {
-    avg_time /= number_of_runs;
-    cout << "AVG_PERF: " << _k*(_edges_count / (avg_time * 1e6)) << " MTEPS (among " << number_of_runs << " runs)" << endl;
+    cout << "AVG_PERF: " << get_avg_perf(_edges_count, _k) << " MTEPS (among " << number_of_runs << " runs)" << endl;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

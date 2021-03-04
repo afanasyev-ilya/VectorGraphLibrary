@@ -2,7 +2,7 @@
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#ifdef __USE_NEC_SX_AURORA__
+#if defined(__USE_NEC_SX_AURORA__) || defined(__USE_MULTICORE__)
 void UndirectedCSRGraph::estimate_nec_thresholds()
 {
     Timer tm;

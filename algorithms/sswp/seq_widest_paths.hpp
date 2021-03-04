@@ -2,11 +2,16 @@
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void SSWP::seq_dijkstra(UndirectedCSRGraph &_graph,
-                        _TEdgeWeight *_widths,
+template <typename _T>
+void SSWP::seq_dijkstra(VectCSRGraph &_graph,
+                        EdgesArray_Vect<_T> &_edges_capacities,
+                        VerticesArray<_T> &_widths,
                         int _source_vertex)
 {
-    LOAD_UNDIRECTED_CSR_GRAPH_DATA(_graph);
+    UndirectedCSRGraph *outgoing_graph_ptr = _graph.get_outgoing_graph_ptr();
+    LOAD_UNDIRECTED_CSR_GRAPH_DATA((*outgoing_graph_ptr));
+
+    _source_vertex = _graph.reorder(_source_vertex, ORIGINAL, SCATTER);
 
     for(int i = 0; i < vertices_count; i++)
     {
@@ -16,13 +21,13 @@ void SSWP::seq_dijkstra(UndirectedCSRGraph &_graph,
 
     // Use of Minimum Priority Queue to keep track minimum
     // widest distance vertex so far in the algorithm
-    priority_queue<pair<float, int>, vector<pair<float, int> >, greater<pair<float, int> > > container;
+    priority_queue<pair<_T, int>, vector<pair<_T, int> >, greater<pair<_T, int> > > container;
 
     container.push(make_pair(0, _source_vertex));
 
-    while (container.empty() == false)
+    while(!container.empty())
     {
-        pair<float, int> temp = container.top();
+        pair<_T, int> temp = container.top();
 
         int src_id = temp.second;
 
@@ -34,12 +39,12 @@ void SSWP::seq_dijkstra(UndirectedCSRGraph &_graph,
         for(int edge_pos = 0; edge_pos < connections_count; edge_pos++)
         {
             int dst_id = adjacent_ids[edge_start + edge_pos];
-            _TEdgeWeight weight = adjacent_weights[edge_start + edge_pos];
+            _T weight = _edges_capacities[edge_start + edge_pos];
 
             // Finding the widest distance to the vertex
             // using current_source vertex's widest distance
             // and its widest distance so far
-            float distance = max(_widths[dst_id], min(_widths[src_id], weight));
+            _T distance = max(_widths[dst_id], min(_widths[src_id], weight));
 
             // Relaxation of edge and adding into Priority Queue
             if (distance > _widths[dst_id])

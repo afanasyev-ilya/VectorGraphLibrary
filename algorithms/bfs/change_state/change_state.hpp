@@ -1,11 +1,3 @@
-//
-//  change_state.hpp
-//  ParallelGraphLibrary
-//
-//  Created by Elijah Afanasiev on 30/06/2019.
-//  Copyright © 2019 MSU. All rights reserved.
-//
-
 #pragma once
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -14,7 +6,6 @@
 #define BETA 18
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
 
 GraphStructure check_graph_structure(UndirectedCSRGraph &_graph)
 {
@@ -49,22 +40,29 @@ bool check_if_vector_extension_should_be_used(int _non_zero_vertices_count, int 
 
 StateOfBFS nec_change_state(int _current_queue_size, int _next_queue_size, int _vertices_count, long long _edges_count,
                             StateOfBFS _old_state, int _vis, int _in_lvl, bool &_use_vect_CSR_extension, int _cur_level,
-                            GraphStructure _graph_structure, int *_levels)
+                            GraphStructure _graph_structure, int *_levels, int _number_of_bu_steps)
 {
     StateOfBFS new_state = _old_state;
     int factor = (_edges_count / _vertices_count) / 2;
-    
+
     if(_current_queue_size < _next_queue_size) // growing phase
     {
         if(_old_state == TOP_DOWN)
         {
-            if(_in_lvl < ((_vertices_count - _vis) * factor + _vertices_count) / ALPHA)
+            if(((_levels[0] != UNVISITED_VERTEX) || (_levels[1] != UNVISITED_VERTEX)) && (_next_queue_size > 500))
             {
-                new_state = TOP_DOWN;
+                new_state = BOTTOM_UP;
             }
             else
             {
-                new_state = BOTTOM_UP;
+                if(_in_lvl < ((_vertices_count - _vis) * factor + _vertices_count) / ALPHA)
+                {
+                    new_state = TOP_DOWN;
+                }
+                else
+                {
+                    new_state = BOTTOM_UP;
+                }
             }
         }
     }
@@ -72,7 +70,7 @@ StateOfBFS nec_change_state(int _current_queue_size, int _next_queue_size, int _
     {
         if(_old_state == BOTTOM_UP)
         {
-            if(_next_queue_size < ((_vertices_count - _vis) * factor + _vertices_count) / (factor * BETA))
+            if((_next_queue_size < ((_vertices_count - _vis) * factor) / (factor * BETA)) && (_number_of_bu_steps > 1))
             {
                 new_state = TOP_DOWN;
             }
@@ -82,19 +80,10 @@ StateOfBFS nec_change_state(int _current_queue_size, int _next_queue_size, int _
             }
         }
     }
-    
-    if((_old_state == TOP_DOWN) && (_graph_structure == POWER_LAW_GRAPH) && (_cur_level <= 3))
-    {
-        int high_degree_was_visited = 0;
-        for(int i = 0; i < 1; i++)
-            if(_levels[i] != UNVISITED_VERTEX)
-                high_degree_was_visited = 1;
 
-        if(high_degree_was_visited)
-            new_state = BOTTOM_UP;  // in the case of RMAT graph better switch to bottom up early
-    }
-    
-    if((_graph_structure == POWER_LAW_GRAPH) && (_cur_level <= 2)) // tofix
+    _use_vect_CSR_extension = true;
+
+    if(_number_of_bu_steps <= 1)
     {
         _use_vect_CSR_extension = true;
     }
@@ -102,7 +91,7 @@ StateOfBFS nec_change_state(int _current_queue_size, int _next_queue_size, int _
     {
         _use_vect_CSR_extension = false;
     }
-    
+
     return new_state;
 }
 

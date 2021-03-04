@@ -6,11 +6,11 @@ VH_CXX = g++
 
 # Include paths...
 Include_Path = -I /opt/nec/ve/nlc/2.0.0/include/ -I ../
-Flags = -O3 -fopenmp -report-all -proginf -mparallel -mretain-list-vector -DASL_LIB_INT64 #-ftrace #-mno-vector #-ftrace
+Flags = -O3 -fopenmp -proginf -mparallel -mretain-list-vector -DASL_LIB_INT64 #-report-all #-ftrace #-mno-vector #-ftrace
 
 # Library paths...
 Library_Path =
-Libraries = -fopenmp -report-all -ftrace -lasl_openmp_i64 #-ftrace
+Libraries = -fopenmp -ftrace -lasl_openmp_i64 # -report-all -ftrace
 #  -floop-normalize -floop-interchange -floop-collapse -mretain-list-vector
 
 .DEFAULT_GOAL := all
@@ -19,10 +19,13 @@ Libraries = -fopenmp -report-all -ftrace -lasl_openmp_i64 #-ftrace
 # binaries
 ##########
 
-all: sssp sharded_sssp bfs scc gather pr cc print_graph_info create_vgl_graphs
+all: sssp sswp sharded_sssp bfs scc pr cc print_graph_info create_vgl_graphs
 
 sssp: create_folders sssp.o
 	$(VE_CXX) object_files/sssp.o $(Library_Path) $(Libraries) -o ./bin/sssp_sx
+
+sswp: create_folders sswp.o
+	$(VE_CXX) object_files/sswp.o $(Library_Path) $(Libraries) -o ./bin/sswp_sx
 
 sharded_sssp: create_folders sharded_sssp.o
 	$(VE_CXX) object_files/sharded_sssp.o $(Library_Path) $(Libraries) -o ./bin/sharded_sssp_sx
@@ -54,6 +57,9 @@ create_vgl_graphs: create_folders create_vgl_graphs.o
 
 sssp.o: sssp/sssp.cpp
 	$(VE_CXX) $(Flags) $(Include_Path)  -c sssp/sssp.cpp -o object_files/sssp.o
+
+sswp.o: sswp/sswp.cpp
+	$(VE_CXX) $(Flags) $(Include_Path)  -c sswp/sswp.cpp -o object_files/sswp.o
 
 sharded_sssp.o: sssp/sharded_sssp.cpp
 	$(VE_CXX) $(Flags) $(Include_Path)  -c sssp/sharded_sssp.cpp -o object_files/sharded_sssp.o

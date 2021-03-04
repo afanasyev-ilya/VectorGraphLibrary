@@ -15,7 +15,7 @@ void BFS::gpu_top_down(VectCSRGraph &_graph,
 
     _source_vertex = _graph.reorder(_source_vertex, ORIGINAL, SCATTER);
 
-    auto init_levels = [_levels, _source_vertex] __device__ (int src_id, int connections_count, int vector_index)
+    auto init_levels = [_levels, _source_vertex] __VGL_COMPUTE_ARGS__
     {
         if(src_id == _source_vertex)
             _levels[_source_vertex] = FIRST_LEVEL_VERTEX;

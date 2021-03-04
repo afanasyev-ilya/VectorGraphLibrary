@@ -13,13 +13,15 @@ void UndirectedCSRGraph::extract_connection_count(EdgesListGraph &_el_graph,
     long long el_edges_count = _el_graph.get_edges_count();
     int *el_src_ids = _el_graph.get_src_ids();
 
+    int threads_num = omp_get_max_threads();
+
     memset(_connections_array, 0, el_vertices_count*sizeof(int));
-    memset(_work_buffer, 0, el_vertices_count*MAX_SX_AURORA_THREADS*sizeof(int));
+    memset(_work_buffer, 0, el_vertices_count*threads_num*sizeof(int));
 
     #pragma omp parallel
     {};
 
-    #pragma omp parallel num_threads(MAX_SX_AURORA_THREADS)
+    #pragma omp parallel num_threads(threads_num)
     {
         int tid = omp_get_thread_num();
 
@@ -38,7 +40,7 @@ void UndirectedCSRGraph::extract_connection_count(EdgesListGraph &_el_graph,
         }
 
         #pragma _NEC novector
-        for(int core = 0; core < MAX_SX_AURORA_THREADS; core++)
+        for(int core = 0; core < threads_num; core++)
         {
             #pragma _NEC ivdep
             #pragma omp for
@@ -165,6 +167,94 @@ void UndirectedCSRGraph::copy_edges_indexes(vgl_sort_indexes *_sort_indexes)
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+void UndirectedCSRGraph::remove_loops_and_multiple_arcs()
+{
+    int *new_connections_count, *new_adjacent_ids;
+    long long *new_vertex_pointers;
+    MemoryAPI::allocate_array(&new_connections_count, this->vertices_count);
+    MemoryAPI::allocate_array(&new_vertex_pointers, this->vertices_count + 1);
+
+    // calculate duplicates count and new connections cound
+    #pragma omp parallel for
+    for(int src_id = 0; src_id < this->vertices_count; src_id++)
+    {
+        long long start = this->vertex_pointers[src_id];
+        long long end = this->vertex_pointers[src_id + 1];
+        int connections_count = end - start;
+        int duplicates_count = 0;
+        for(long long cur_edge = start + 1; cur_edge < end; cur_edge++)
+        {
+            if((this->adjacent_ids[cur_edge] == this->adjacent_ids[cur_edge - 1]))
+                duplicates_count++;
+        }
+
+        new_connections_count[src_id] = connections_count - duplicates_count;
+    }
+
+    // calculate new edges count
+    long long new_edges_count = 0;
+    #pragma omp parallel for reduction(+: new_edges_count)
+    for(int src_id = 0; src_id < this->vertices_count; src_id++)
+    {
+        new_edges_count += new_connections_count[src_id];
+    }
+
+    cout << "UndirectedCSRGraph::remove_loops_and_multiple_arcs reduced edges from " << this->edges_count << " to " << new_edges_count << endl;
+    MemoryAPI::allocate_array(&new_adjacent_ids, new_edges_count);
+
+    // obtain new vertex pointers
+    new_vertex_pointers[0] = 0;
+    for(int src_id = 1; src_id < this->vertices_count + 1; src_id++) // TODO in parallel
+    {
+        new_vertex_pointers[src_id] = new_vertex_pointers[src_id - 1] + new_connections_count[src_id - 1];
+    }
+
+    // free tmp connections array
+    MemoryAPI::free_array(new_connections_count);
+
+    // copy edges
+    #pragma omp parallel for
+    for(int src_id = 0; src_id < this->vertices_count; src_id++)
+    {
+        long long start = this->vertex_pointers[src_id];
+        long long end = this->vertex_pointers[src_id + 1];
+
+        long long new_dst = new_vertex_pointers[src_id];
+
+        for(long long old_pos = start; old_pos < end; old_pos++)
+        {
+            if(old_pos == start)
+            {
+                new_adjacent_ids[new_dst] = this->adjacent_ids[old_pos];
+                new_dst++;
+            }
+            else
+            {
+                if((this->adjacent_ids[old_pos] == this->adjacent_ids[old_pos - 1]))
+                {
+                    continue;
+                }
+                else
+                {
+                    new_adjacent_ids[new_dst] = this->adjacent_ids[old_pos];
+                    new_dst++;
+                }
+            }
+        }
+    }
+
+    // free old data
+    MemoryAPI::free_array(new_vertex_pointers);
+    MemoryAPI::free_array(new_adjacent_ids);
+
+    // copy new data into graph
+    this->edges_count = new_edges_count;
+    this->vertex_pointers = new_vertex_pointers;
+    this->adjacent_ids = new_adjacent_ids;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 void UndirectedCSRGraph::import(EdgesListGraph &_el_graph)
 {
     // get size of edges list graph
@@ -176,13 +266,15 @@ void UndirectedCSRGraph::import(EdgesListGraph &_el_graph)
     MemoryAPI::allocate_array(&loc_forward_conversion, el_vertices_count);
     MemoryAPI::allocate_array(&loc_backward_conversion, el_vertices_count);
 
+    int threads_num = omp_get_max_threads();
+
     // allocate buffers
     int *connections_array;
     int *work_buffer;
     vgl_sort_indexes *sort_indexes;
     MemoryAPI::allocate_array(&connections_array, el_vertices_count);
     MemoryAPI::allocate_array(&sort_indexes, el_edges_count);
-    MemoryAPI::allocate_array(&work_buffer, max(el_edges_count, (long long)el_vertices_count*MAX_SX_AURORA_THREADS));
+    MemoryAPI::allocate_array(&work_buffer, max(el_edges_count, (long long)el_vertices_count*threads_num));
 
     // obtain connections array from edges list graph
     extract_connection_count(_el_graph, work_buffer, connections_array);
@@ -209,6 +301,9 @@ void UndirectedCSRGraph::import(EdgesListGraph &_el_graph)
     // construct CSR representation
     this->construct_CSR(_el_graph);
 
+    // sort edges
+    this->sort_adjacent_edges();
+
     // save conversion arrays into graph
     MemoryAPI::copy(forward_conversion, loc_forward_conversion, this->vertices_count);
     MemoryAPI::copy(backward_conversion, loc_backward_conversion, this->vertices_count);
@@ -223,11 +318,26 @@ void UndirectedCSRGraph::import(EdgesListGraph &_el_graph)
     // free buffer
     MemoryAPI::free_array(work_buffer);
 
-    #ifdef __USE_NEC_SX_AURORA__
+    #if defined(__USE_NEC_SX_AURORA__) || defined(__USE_MULTICORE__)
     estimate_nec_thresholds();
     last_vertices_ve.init_from_graph(this->vertex_pointers, this->adjacent_ids,
                                      vector_core_threshold_vertex, this->vertices_count);
     #endif
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+void UndirectedCSRGraph::sort_adjacent_edges()
+{
+    for(long long cur_vertex = 0; cur_vertex < this->vertices_count; cur_vertex++)
+    {
+        int connections_count = this->vertex_pointers[cur_vertex + 1] - this->vertex_pointers[cur_vertex];
+        long long start = this->vertex_pointers[cur_vertex];
+        if(connections_count >= 2)
+        {
+            Sorter::sort(&(this->adjacent_ids[start]), NULL, connections_count, SORT_ASCENDING);
+        }
+    }
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

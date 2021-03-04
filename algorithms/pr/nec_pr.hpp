@@ -27,7 +27,7 @@ void PR::nec_page_rank(VectCSRGraph &_graph,
     graph_API.change_traversal_direction(GATHER, frontier, number_of_loops, incoming_degrees,
                                          incoming_degrees_without_loops, reversed_degrees);
 
-    auto get_incoming_degrees = [&incoming_degrees] (int src_id, int connections_count, int vector_index)
+    auto get_incoming_degrees = [&incoming_degrees] __VGL_COMPUTE_ARGS__
     {
         incoming_degrees[src_id] = connections_count;
     };
@@ -36,7 +36,7 @@ void PR::nec_page_rank(VectCSRGraph &_graph,
     float d = 0.85;
     float k = (1.0 - d) / ((float)vertices_count);
 
-    auto init_data = [&_page_ranks, &number_of_loops, vertices_count] (int src_id, int connections_count, int vector_index)
+    auto init_data = [&_page_ranks, &number_of_loops, vertices_count] __VGL_COMPUTE_ARGS__
     {
         _page_ranks[src_id] = 1.0/vertices_count;
         number_of_loops[src_id] = 0;
@@ -70,13 +70,13 @@ void PR::nec_page_rank(VectCSRGraph &_graph,
     graph_API.gather(_graph, frontier, calculate_number_of_loops, EMPTY_VERTEX_OP, vertex_postprocess_calculate_number_of_loops,
                      calculate_number_of_loops_collective, EMPTY_VERTEX_OP, EMPTY_VERTEX_OP);
 
-    auto calculate_degrees_without_loops = [incoming_degrees_without_loops, incoming_degrees, number_of_loops] (int src_id, int connections_count, int vector_index)
+    auto calculate_degrees_without_loops = [incoming_degrees_without_loops, incoming_degrees, number_of_loops] __VGL_COMPUTE_ARGS__
     {
         incoming_degrees_without_loops[src_id] = incoming_degrees[src_id] - number_of_loops[src_id];
     };
     graph_API.compute(_graph, frontier, calculate_degrees_without_loops);
 
-    auto calculate_reversed_degrees = [reversed_degrees, incoming_degrees_without_loops] (int src_id, int connections_count, int vector_index)
+    auto calculate_reversed_degrees = [reversed_degrees, incoming_degrees_without_loops] __VGL_COMPUTE_ARGS__
     {
         reversed_degrees[src_id] = 1.0 / incoming_degrees_without_loops[src_id];
         if(incoming_degrees_without_loops[src_id] == 0)
@@ -91,7 +91,7 @@ void PR::nec_page_rank(VectCSRGraph &_graph,
     int iterations_count = 0;
     for(iterations_count = 0; iterations_count < _max_iterations; iterations_count++)
     {
-        auto save_old_ranks = [old_page_ranks, _page_ranks] (int src_id, int connections_count, int vector_index)
+        auto save_old_ranks = [old_page_ranks, _page_ranks] __VGL_COMPUTE_ARGS__
         {
             old_page_ranks[src_id] = _page_ranks[src_id];
             _page_ranks[src_id] = 0;
@@ -100,7 +100,7 @@ void PR::nec_page_rank(VectCSRGraph &_graph,
 
         //graph_API.pack_vertices_arrays(packed_data, old_page_ranks, reversed_degrees);
 
-        auto reduce_dangling_input = [incoming_degrees_without_loops, old_page_ranks, vertices_count](int src_id, int connections_count, int vector_index)->float
+        auto reduce_dangling_input = [incoming_degrees_without_loops, old_page_ranks, vertices_count]__VGL_COMPUTE_ARGS__->float
         {
             float result = 0.0;
             if(incoming_degrees_without_loops[src_id] == 0)
@@ -167,7 +167,7 @@ void PR::nec_page_rank(VectCSRGraph &_graph,
         };
 
 
-        auto reduce_ranks_sum = [_page_ranks](int src_id, int connections_count, int vector_index)->float
+        auto reduce_ranks_sum = [_page_ranks]__VGL_COMPUTE_ARGS__->float
         {
             return _page_ranks[src_id];
         };

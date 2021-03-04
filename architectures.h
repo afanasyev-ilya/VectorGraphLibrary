@@ -5,8 +5,22 @@
 // architecture can be selected here or in apps files
 //#define __USE_GPU__
 //#define __USE_NEC_SX_AURORA__
-//#define __USE_INTEL__
-//#define __USE_KNL__
+//#define __USE_MULTICORE__
+
+#ifdef __USE_NEC_SX_AURORA__
+#warning "NEC SX-Aurora TSUBASA API is used!"
+#pragma message("NEC SX-Aurora TSUBASA API is used!")
+#endif
+
+#ifdef __USE_MULTICORE__
+#warning "Multicore API is used!"
+#pragma message("Multicore API is used!")
+#endif
+
+#ifdef __USE_GPU__
+#warning "GPU API is used!"
+#pragma message("GPU API is used!")
+#endif
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // SX-Aurora properties
@@ -14,12 +28,37 @@
 
 #ifdef __USE_NEC_SX_AURORA__
 #define __USE_ASL__
-#endif
-
 #define VECTOR_LENGTH 256
 #define VECTOR_LENGTH_POW 8
 #define MAX_SX_AURORA_THREADS 8
 #define LLC_CACHE_SIZE 16*1024*1024
+#endif
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// ARM properties
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+#ifdef __USE_GPU__
+//#define _GLIBCXX_PARALLEL
+#define VECTOR_LENGTH 32
+#define VECTOR_LENGTH_POW 5
+#define MAX_SX_AURORA_THREADS 8
+#define LLC_CACHE_SIZE 6*1024*1024
+#endif
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// AMD properties
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+#ifdef __USE_MULTICORE__
+#define _GLIBCXX_PARALLEL
+#define VECTOR_LENGTH 32
+#define VECTOR_LENGTH_POW 5
+#define MAX_SX_AURORA_THREADS 256
+#define LLC_CACHE_SIZE 512*1024*1024
+#endif
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // main framework settings
 // define user hasn't set any

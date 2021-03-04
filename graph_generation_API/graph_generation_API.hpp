@@ -257,7 +257,7 @@ void GraphGenerationAPI::SCC_uniform(EdgesListGraph &_graph,
 
 
 void GraphGenerationAPI::init_from_txt_file(EdgesListGraph &_graph, string _txt_file_name,
-                                            bool _append_with_reverse_edges)
+                                            DirectionType _direction_type)
 {
     ifstream infile(_txt_file_name.c_str());
     if (!infile.is_open())
@@ -265,44 +265,12 @@ void GraphGenerationAPI::init_from_txt_file(EdgesListGraph &_graph, string _txt_
     
     int vertices_count = 0;
     long long edges_count = 0;
-    bool directed = true;
     string line;
     getline(infile, line); // read first line
-    if(line == string("asym positive")) // try to understand which header it is
-    {
-        getline(infile, line); // get edges and vertices count line
-        istringstream vert_iss(line);
-        vert_iss >> edges_count >> vertices_count;
-    }
-    else if(line == string("% asym unweighted"))
-    {
-        cout << "asym positive detected" << endl;
+
+    for(int i = 0; i < 5;i++)
         getline(infile, line);
-    }
-    else if(line == string("% bip unweighted"))
-    {
-        cout << "bip unweighted" << endl;
-        directed = false;
-    }
-    else if(line == string("% sym unweighted"))
-    {
-        cout << "sym unweighted" << endl;
-        directed = false;
-        getline(infile, line); // get edges and vertices count line
-        istringstream vert_iss(line);
-        vert_iss >> edges_count >> vertices_count;
-        cout << "edges: " << edges_count << " and vertices: " << vertices_count << endl;
-    }
-    else
-    {
-        getline(infile, line); // skip second line
-        getline(infile, line); // get vertices and edges count line
-        istringstream vert_iss(line);
-        vert_iss >> vertices_count >> edges_count;
-        getline(infile, line); // skip forth line
-    }
-    cout << "vc: " << vertices_count << " ec: " << edges_count << endl;
-    
+
     vector<int>tmp_src_ids;
     vector<int>tmp_dst_ids;
     
@@ -324,22 +292,22 @@ void GraphGenerationAPI::init_from_txt_file(EdgesListGraph &_graph, string _txt_
         
         tmp_src_ids.push_back(src_id);
         tmp_dst_ids.push_back(dst_id);
+        i++;
         
-        if(!directed)
+        if(_direction_type == UNDIRECTED_GRAPH)
         {
             tmp_src_ids.push_back(dst_id);
             tmp_dst_ids.push_back(src_id);
+            i++;
         }
-        i++;
-        
-        /*if((edges_count != 0) && (i > edges_count))
-        {
-            throw "ERROR: graph file is larger than expected";
-        }*/
     }
-    
+
+    cout << "direction type: " << _direction_type << endl;
     cout << "loaded " << vertices_count << " vertices_count" << endl;
-    cout << "loaded " << i << " edges, expected amount " << edges_count << endl;
+    if(_direction_type == DIRECTED_GRAPH)
+        cout << "loaded " << i << " edges" << endl;
+    else
+        cout << "loaded " << i << " directed edges, " << i/2 << " undirected" << endl;
     
     edges_count = i;
     

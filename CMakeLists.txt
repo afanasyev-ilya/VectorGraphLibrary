@@ -63,7 +63,6 @@ add_executable(VectorGraphLibrary
         algorithms/sssp/seq_shortest_paths.hpp
         algorithms/sssp/shortest_paths.h
         algorithms/sswp/widest_paths.h
-        algorithms/sswp/widest_paths.hpp
         apps/bfs/bfs.cpp
         apps/cc/cc.cpp
         apps/utilites/create_vgl_graphs.cpp
@@ -72,7 +71,6 @@ add_executable(VectorGraphLibrary
         apps/Makefile.nec
         apps/pr/pr.cpp
         apps/sssp/sssp.cpp
-        apps/sswp/sswp.cpp
         common/cmd_parser/cmd_parser.h
         common/cmd_parser/cmd_parser.hpp
         common/cmd_parser/parser_options.h

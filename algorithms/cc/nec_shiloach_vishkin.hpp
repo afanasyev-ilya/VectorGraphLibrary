@@ -17,7 +17,7 @@ void CC::nec_shiloach_vishkin(VectCSRGraph &_graph, VerticesArray<_T> &_componen
     tm.start();
 
     frontier.set_all_active();
-    auto init_components_op = [&_components] (int src_id, int connections_count, int vector_index)
+    auto init_components_op = [&_components] __VGL_COMPUTE_ARGS__
     {
         _components[src_id] = src_id;
     };
@@ -59,7 +59,7 @@ void CC::nec_shiloach_vishkin(VectCSRGraph &_graph, VerticesArray<_T> &_componen
             jump_changes = 0;
             NEC_REGISTER_INT(jump_changes, 0);
 
-            auto jump_op = [_components, &reg_jump_changes](int src_id, int connections_count, int vector_index)
+            auto jump_op = [_components, &reg_jump_changes]__VGL_COMPUTE_ARGS__
             {
                 int src_val = _components[src_id];
                 int src_src_val = _components[src_val];

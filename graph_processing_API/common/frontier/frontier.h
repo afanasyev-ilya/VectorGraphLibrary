@@ -36,7 +36,7 @@ public:
     virtual inline void set_all_active() = 0;
     virtual inline void add_vertex(int src_id) = 0;
     virtual inline void add_group_of_vertices(int *_vertex_ids, int _number_of_vertices) = 0;
-    inline void clear() { current_size = 0; neighbours_count = 0; };
+    inline void clear() { current_size = 0; neighbours_count = 0; type = SPARSE_FRONTIER; };
 
     // frontier direction API
     TraversalDirection get_direction() {return direction;};
@@ -58,7 +58,7 @@ public:
 #include "graph_processing_API/gpu/frontier/frontier_gpu.cuh"
 #endif
 
-#if defined(__USE_INTEL__) || defined(__USE_KNL__)
+#if defined(__USE_MULTICORE__) || defined(__USE_MULTICORE__)
 #include "graph_processing_API/multicore/frontier/frontier_multicore.h"
 #endif
 

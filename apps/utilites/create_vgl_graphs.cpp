@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#define __USE_INTEL__
+#define __USE_MULTICORE__
 
 #include "graph_library.h"
 
@@ -8,8 +8,7 @@
 
 void parse_cmd_params(int _argc, char **_argv, int &_scale, int &_avg_degree, string &_graph_type,
                       string &_output_format, string &_file_name, bool &_convert, string &_input_file_name,
-                      bool &_append_with_reverse_edges, EdgesState &_edges_state,
-                      MultipleArcsState &_multiple_arcs_state)
+                      DirectionType &_direction_type)
 {
     // set deafualt params
     _scale = 10;
@@ -19,9 +18,7 @@ void parse_cmd_params(int _argc, char **_argv, int &_scale, int &_avg_degree, st
     _file_name = "test.vgraph";
     _convert = false;
     _input_file_name = "wiki.txt";
-    _append_with_reverse_edges = false;
-    _edges_state = EDGES_SORTED;
-    _multiple_arcs_state = MULTIPLE_ARCS_PRESENT;
+    _direction_type = DIRECTED_GRAPH;
     
     // get params from cmd line
     for (int i = 1; i < _argc; i++)
@@ -59,24 +56,15 @@ void parse_cmd_params(int _argc, char **_argv, int &_scale, int &_avg_degree, st
             _input_file_name = _argv[++i];
         }
         
-        if(option.compare("-append-with-reverse-edges") == 0)
+        if(option.compare("-directed") == 0)
         {
-            _append_with_reverse_edges = true;
-        }
-        
-        if(option.compare("-edges-random-shuffled") == 0)
-        {
-            _edges_state = EDGES_RANDOM_SHUFFLED;
-        }
-        
-        if(option.compare("-edges-unsorted") == 0)
-        {
-            _edges_state = EDGES_UNSORTED;
+            _direction_type = DIRECTED_GRAPH;
         }
 
-        if(option.compare("-multiple-arcs-removed") == 0 || option.compare("-no-multiple-arcs") == 0)
+        if(option.compare("-undirected") == 0)
         {
-            _multiple_arcs_state = MULTIPLE_ARCS_REMOVED;
+            cout << "undirected is selected!" << endl;
+            _direction_type = UNDIRECTED_GRAPH;
         }
     }
 }
@@ -91,18 +79,16 @@ int main(int argc, char ** argv)
         string graph_type, output_format, file_name;
         bool convert;
         string input_file_name;
-        bool append_with_reverse_edges;
-        EdgesState edges_state;
-        MultipleArcsState multiple_arcs_state;
+        DirectionType direction_type;
         
         parse_cmd_params(argc, argv, scale, avg_degree, graph_type, output_format, file_name, convert, input_file_name,
-                         append_with_reverse_edges, edges_state, multiple_arcs_state);
+                         direction_type);
 
         EdgesListGraph rand_graph;
         if(convert)
         {
             cout << " --------------------------- " << "converting " << file_name << "--------------------------- " << endl;
-            GraphGenerationAPI::init_from_txt_file(rand_graph, input_file_name, append_with_reverse_edges);
+            GraphGenerationAPI::init_from_txt_file(rand_graph, input_file_name, direction_type);
         }
         else
         {
@@ -114,12 +100,12 @@ int main(int argc, char ** argv)
             if(graph_type == "RMAT" || graph_type == "rmat")
             {
                 cout << "Generating RMAT with: " << vertices_count << " vertices and " << edges_count << " edges" << endl;
-                GraphGenerationAPI::R_MAT(rand_graph, vertices_count, edges_count, 57, 19, 19, 5, DIRECTED_GRAPH);
+                GraphGenerationAPI::R_MAT(rand_graph, vertices_count, edges_count, 57, 19, 19, 5, direction_type);
             }
             else if(graph_type == "random_uniform" || graph_type == "ru" || graph_type == "random-uniform")
             {
                 cout << "Generating random_uniform with: " << vertices_count << " vertices and " << edges_count << " edges" << endl;
-                GraphGenerationAPI::random_uniform(rand_graph, vertices_count, edges_count, DIRECTED_GRAPH);
+                GraphGenerationAPI::random_uniform(rand_graph, vertices_count, edges_count, direction_type);
             }
             else
             {
@@ -131,6 +117,8 @@ int main(int argc, char ** argv)
 
         if((output_format.find("vect_csr") != string::npos) || (output_format.find("vect_CSR") != string::npos))
         {
+            rand_graph.remove_loops_and_multiple_arcs();
+
             VectCSRGraph vect_csr_graph;
             Timer tm;
             tm.start();
@@ -138,12 +126,16 @@ int main(int argc, char ** argv)
             tm.end();
             tm.print_time_stats("Import");
 
+            vect_csr_graph.print_stats();
+
             tm.start();
             add_extension(file_name, ".vgraph");
             vect_csr_graph.save_to_binary_file(file_name);
             cout << "VectCSR graph is generated and saved to file " << file_name << endl;
             tm.end();
             tm.print_time_stats("Save");
+
+            //vect_csr_graph.print();
         }
         cout << " ----------------------------------------------------------------------------------------- " << endl << endl;
     }

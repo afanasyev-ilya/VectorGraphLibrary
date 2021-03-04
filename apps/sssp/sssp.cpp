@@ -1,12 +1,19 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #define __USE_NEC_SX_AURORA__
+/*#ifdef __GNUC__
+#define __USE_MULTICORE__
+#endif
+
+#ifndef __GNUC__
+#define __USE_NEC_SX_AURORA__
+#endif*/
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #define INT_ELEMENTS_PER_EDGE 5.0
 #define VECTOR_ENGINE_THRESHOLD_VALUE VECTOR_LENGTH*MAX_SX_AURORA_THREADS*128
-#define VECTOR_CORE_THRESHOLD_VALUE 5*VECTOR_LENGTH
+#define VECTOR_CORE_THRESHOLD_VALUE 16*VECTOR_LENGTH
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -19,6 +26,7 @@ int main(int argc, const char * argv[])
     try
     {
         cout << "SSSP (Single Source Shortest Paths) test..." << endl;
+        cout << "max threads: " << omp_get_max_threads() << endl;
 
         // parse args
         Parser parser;
@@ -47,7 +55,9 @@ int main(int argc, const char * argv[])
 
         // print graphs stats
         graph.print_size();
+        #ifndef __USE_NEC_SX_AURORA__
         graph.print_stats();
+        #endif
 
         // do calculations
         cout << "Computations started..." << endl;
@@ -73,7 +83,7 @@ int main(int argc, const char * argv[])
                 verify_results(distances, check_distances);
             }
         }
-        performance_stats.print_perf(graph.get_edges_count(), parser.get_number_of_rounds());
+        performance_stats.print_perf(graph.get_edges_count());
     }
     catch (string error)
     {
