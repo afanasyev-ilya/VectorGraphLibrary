@@ -17,7 +17,7 @@
 #define COLLECTIVE_FRONTIER_TYPE_CHANGE_THRESHOLD 1.0*/
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//#define __PRINT_API_PERFORMANCE_STATS__
+#define __PRINT_API_PERFORMANCE_STATS__
 
 #include "graph_library.h"
 
@@ -73,10 +73,16 @@ int main(int argc, const char * argv[])
         // do runs
         double avg_time = 0;
         VerticesArray<int> levels(graph, SCATTER, USE_CACHED_MODE);
+
+        int test_vals[2];
+        test_vals[0] = 9553016;
+        test_vals[1] = 9262609;
+
         for(int i = 0; i < parser.get_number_of_rounds(); i++)
         {
-            int source_vertex = graph.select_random_vertex(ORIGINAL);
+            int source_vertex = test_vals[i];//graph.select_random_vertex(ORIGINAL);
             cout << "selected source vertex " << source_vertex << endl;
+            cout << "this vertex is " << graph.reorder(source_vertex, ORIGINAL, SCATTER) << ", " << 100.0*graph.reorder(source_vertex, ORIGINAL, SCATTER)/graph.get_vertices_count() << " % pos" << endl;
 
             Timer tm;
             tm.start();
@@ -85,7 +91,7 @@ int main(int argc, const char * argv[])
             //performance_stats.print_timers_stats();
             tm.end();
             avg_time += tm.get_time()/(parser.get_number_of_rounds());
-            cout << "cur perf: " << graph.get_edges_count()/(tm.get_time() * 1e6) << " MTEPS" << endl;
+            cout << "cur perf: " << graph.get_edges_count()/(tm.get_time() * 1e6) << " MTEPS" << endl << endl;
 
             // check if required
             if(parser.get_check_flag())

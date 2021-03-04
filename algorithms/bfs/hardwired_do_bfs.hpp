@@ -302,6 +302,9 @@ void hardwired_nec_top_down_step(long long *_outgoing_ptrs,
                 }
             }
 
+            double tt1, tt2;
+            #pragma omp barrier
+            tt1 = omp_get_wtime();
             #pragma omp barrier
 
             // process group of "large" vertices
@@ -348,6 +351,18 @@ void hardwired_nec_top_down_step(long long *_outgoing_ptrs,
                 }
             }
 
+            #pragma omp barrier
+            tt2 = omp_get_wtime();
+            #pragma omp single
+            {
+                cout << "large " << (tt2 - tt1) * 1000.0 << " ms" << endl;
+            };
+            #pragma omp barrier
+
+#pragma omp barrier
+            tt1 = omp_get_wtime();
+#pragma omp barrier
+
             // traverse group of "medium" vertices
             #pragma _NEC novector
             #pragma omp for schedule(static)
@@ -385,6 +400,18 @@ void hardwired_nec_top_down_step(long long *_outgoing_ptrs,
                 }
             }
 
+#pragma omp barrier
+            tt2 = omp_get_wtime();
+#pragma omp single
+            {
+                cout << "med " << (tt2 - tt1) * 1000.0 << " ms" << endl;
+            };
+#pragma omp barrier
+
+#pragma omp barrier
+            tt1 = omp_get_wtime();
+#pragma omp barrier
+
             #pragma omp for schedule(static)
             for(int vec_start = border_medium; vec_start < _active_count; vec_start += VECTOR_LENGTH)
             {
@@ -411,6 +438,12 @@ void hardwired_nec_top_down_step(long long *_outgoing_ptrs,
                     if(max_connections < connections_reg[i])
                         max_connections = connections_reg[i];
                 }
+
+
+                    if (vec_start == border_medium) {
+                        cout << border_large << " " << border_medium << " " <<  _active_count << endl;
+                        cout << "max_connections " << max_connections << endl;
+                    }
 
                 for(int edge_pos = 0; edge_pos < max_connections; edge_pos++)
                 {
@@ -441,6 +474,14 @@ void hardwired_nec_top_down_step(long long *_outgoing_ptrs,
                     }
                 }
             }
+
+#pragma omp barrier
+            tt2 = omp_get_wtime();
+#pragma omp single
+            {
+                cout << "small " << (tt2 - tt1) * 1000.0 << " ms" << endl;
+            };
+#pragma omp barrier
 
             #pragma _NEC vector
             for(int i = 0; i < VECTOR_LENGTH; i++)
