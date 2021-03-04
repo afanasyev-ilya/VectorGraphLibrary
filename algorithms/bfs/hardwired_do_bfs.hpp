@@ -164,6 +164,39 @@ inline int fast_sparse_copy_if(const int *_in_data,
     return elements_count;
 }
 
+
+inline int new_sorted_copy_if(VectCSRGraph &_graph,
+                              const int *_in_data,
+                              int *_out_data,
+                              int *_tmp_buffer,
+                              const int _buffer_size,
+                              const int _start,
+                              const int _end,
+                              const int _desired_value,
+                              int &_large_border,
+                              int &_medium_border)
+{
+    // get borders
+    const int ve_threshold = _graph.get_outgoing_graph_ptr()->get_vector_engine_threshold_vertex();
+    int vc_threshold = _graph.get_outgoing_graph_ptr()->get_vector_core_threshold_vertex();
+
+    int first = fast_sparse_copy_if(_in_data, _out_data, _tmp_buffer, _buffer_size,
+                                    _start, ve_threshold, _desired_value);
+
+    _large_border = first;
+
+    int second = fast_sparse_copy_if(_in_data, &_out_data[first], _tmp_buffer, _buffer_size,
+                                     ve_threshold, vc_threshold, _desired_value);
+
+    _medium_border = first + second;
+
+    int third = fast_sparse_copy_if(_in_data, &_out_data[first + second], _tmp_buffer, _buffer_size,
+                                    vc_threshold, _end, _desired_value);
+
+    return first + second + third;
+}
+
+
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template <typename _T>
@@ -175,7 +208,9 @@ void hardwired_nec_top_down_step(long long *_outgoing_ptrs,
                            int _cur_level,
                            int &_vis,
                            int &_in_lvl,
-                           int *active_ids)
+                           int *active_ids,
+                           int _large_border,
+                           int _medium_border)
 {
     int vis = 0, in_lvl = 0;
     if(_cur_level == 1) // process first level vertex
@@ -283,29 +318,8 @@ void hardwired_nec_top_down_step(long long *_outgoing_ptrs,
                 vis_reg[i] = 0;
             }
 
-            // estimate borders
-            #pragma omp for schedule(static)
-            for(int i = 0; i < (_active_count - 1); i++)
-            {
-                int id1 = active_ids[i];
-                int id2 = active_ids[i + 1];
-                int connections1 = _outgoing_ptrs[id1 + 1] - _outgoing_ptrs[id1];
-                int connections2 = _outgoing_ptrs[id2 + 1] - _outgoing_ptrs[id2];
-                if((connections1 > 32*VECTOR_LENGTH) && (connections2 <= 32*VECTOR_LENGTH))
-                {
-                    border_large = i;
-                }
-
-                if((connections1 > VECTOR_LENGTH) && (connections2 <= VECTOR_LENGTH))
-                {
-                    border_medium = i;
-                }
-            }
-
-            double tt1, tt2;
-            #pragma omp barrier
-            tt1 = omp_get_wtime();
-            #pragma omp barrier
+            border_large = _large_border;
+            border_medium = _medium_border;
 
             // process group of "large" vertices
             #pragma _NEC novector
@@ -351,18 +365,6 @@ void hardwired_nec_top_down_step(long long *_outgoing_ptrs,
                 }
             }
 
-            #pragma omp barrier
-            tt2 = omp_get_wtime();
-            #pragma omp single
-            {
-                cout << "large " << (tt2 - tt1) * 1000.0 << " ms" << endl;
-            };
-            #pragma omp barrier
-
-#pragma omp barrier
-            tt1 = omp_get_wtime();
-#pragma omp barrier
-
             // traverse group of "medium" vertices
             #pragma _NEC novector
             #pragma omp for schedule(static)
@@ -400,18 +402,6 @@ void hardwired_nec_top_down_step(long long *_outgoing_ptrs,
                 }
             }
 
-#pragma omp barrier
-            tt2 = omp_get_wtime();
-#pragma omp single
-            {
-                cout << "med " << (tt2 - tt1) * 1000.0 << " ms" << endl;
-            };
-#pragma omp barrier
-
-#pragma omp barrier
-            tt1 = omp_get_wtime();
-#pragma omp barrier
-
             #pragma omp for schedule(static)
             for(int vec_start = border_medium; vec_start < _active_count; vec_start += VECTOR_LENGTH)
             {
@@ -438,12 +428,6 @@ void hardwired_nec_top_down_step(long long *_outgoing_ptrs,
                     if(max_connections < connections_reg[i])
                         max_connections = connections_reg[i];
                 }
-
-
-                    if (vec_start == border_medium) {
-                        cout << border_large << " " << border_medium << " " <<  _active_count << endl;
-                        cout << "max_connections " << max_connections << endl;
-                    }
 
                 for(int edge_pos = 0; edge_pos < max_connections; edge_pos++)
                 {
@@ -474,14 +458,6 @@ void hardwired_nec_top_down_step(long long *_outgoing_ptrs,
                     }
                 }
             }
-
-#pragma omp barrier
-            tt2 = omp_get_wtime();
-#pragma omp single
-            {
-                cout << "small " << (tt2 - tt1) * 1000.0 << " ms" << endl;
-            };
-#pragma omp barrier
 
             #pragma _NEC vector
             for(int i = 0; i < VECTOR_LENGTH; i++)
@@ -844,6 +820,7 @@ void BFS::hardwired_do_bfs(VectCSRGraph &_graph,
     #endif
 
     double total_kernel_time = 0, total_reminder_time = 0;
+    int large_border = 0, medium_border = 0;
 
     int number_of_bu_steps = 0;
     bool use_vect_CSR_extension = false;
@@ -860,7 +837,7 @@ void BFS::hardwired_do_bfs(VectCSRGraph &_graph,
         if(current_state == TOP_DOWN)
         {
             hardwired_nec_top_down_step(outgoing_ptrs, outgoing_ids, vertices_count, active_count, _levels,
-                                  cur_level, vis, in_lvl, active_ids);
+                                  cur_level, vis, in_lvl, active_ids, large_border, medium_border);
         }
         else if(current_state == BOTTOM_UP)
         {
@@ -889,9 +866,8 @@ void BFS::hardwired_do_bfs(VectCSRGraph &_graph,
 
         if(next_state == TOP_DOWN)
         {
-            active_count = fast_sparse_copy_if(_levels.get_ptr(), active_ids, active_vertices_buffer,
-                                non_zero_vertices_count, 0, non_zero_vertices_count,
-                                cur_level + 1);
+            active_count = new_sorted_copy_if(_graph, _levels.get_ptr(), active_ids, active_vertices_buffer,
+                                              non_zero_vertices_count, 0, non_zero_vertices_count, cur_level + 1, large_border, medium_border);
         }
         else if(next_state == BOTTOM_UP)
         {
