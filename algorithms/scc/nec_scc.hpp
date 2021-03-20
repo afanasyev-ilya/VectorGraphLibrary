@@ -330,7 +330,7 @@ void SCC::nec_forward_backward(VectCSRGraph &_graph, VerticesArray<_T> &_compone
     cout << "last tree: " << last_tree << endl;
     cout << "trim time: " << trim_tm.get_time_in_ms() << " ms" << endl;
     cout << "bfs time:" << bfs_tm.get_time_in_ms() << " ms" << endl;
-    PerformanceStats::print_algorithm_performance_stats("SCC (Forward-Backward)", trim_tm.get_time() + bfs_tm.get_time(),
+    performance_stats.print_algorithm_performance_stats("SCC (Forward-Backward)", trim_tm.get_time() + bfs_tm.get_time(),
                                                         _graph.get_edges_count());
     print_component_sizes(_components);
     #endif

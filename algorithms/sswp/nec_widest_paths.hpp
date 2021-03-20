@@ -69,7 +69,7 @@ void SSWP::vgl_dijkstra(VectCSRGraph &_graph,
     tm.end();
 
     #ifdef __PRINT_SAMPLES_PERFORMANCE_STATS__
-    PerformanceStats::print_algorithm_performance_stats("SSSP (Dijkstra, all-active, push)", tm.get_time(),
+    performance_stats.print_algorithm_performance_stats("SSSP (Dijkstra, all-active, push)", tm.get_time(),
                                                         _graph.get_edges_count(), iterations_count);
     #endif
 }
@@ -157,7 +157,7 @@ void SSWP::nec_dijkstra(UndirectedCSRGraph &_graph,
 
     #ifdef __PRINT_SAMPLES_PERFORMANCE_STATS__
     double t2 = omp_get_wtime();
-    PerformanceStats::print_algorithm_performance_stats("all active sswp (dijkstra)", t2 - t1, edges_count, iterations_count);
+    performance_stats.print_algorithm_performance_stats("all active sswp (dijkstra)", t2 - t1, edges_count, iterations_count);
     #endif
 }
 #endif*/

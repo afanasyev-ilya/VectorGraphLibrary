@@ -30,6 +30,8 @@ UndirectedCSRGraph *VectCSRGraph::get_direction_graph_ptr(TraversalDirection _di
         return this->get_outgoing_graph_ptr();
     else if(_direction == GATHER)
         return this->get_incoming_graph_ptr();
+    throw "Error in VectCSRGraph::get_direction_graph_ptr : incorrect _direction value";
+    return NULL;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

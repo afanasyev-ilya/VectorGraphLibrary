@@ -63,7 +63,7 @@ public:
     __host__ __device__ inline _T& operator[] (int _idx) const { return vertices_data[_idx]; };
     #else
     inline _T get(int _idx) const {return this->vertices_data[_idx];};
-    inline _T set(int _idx, _T _val) const {this->vertices_data[_idx] = _val;};
+    inline void set(int _idx, _T _val) {this->vertices_data[_idx] = _val;};
     inline _T& operator[](int _idx) { return vertices_data[_idx]; }
     inline _T& operator[] (int _idx) const { return vertices_data[_idx]; };
 

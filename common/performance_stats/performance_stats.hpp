@@ -192,25 +192,28 @@ string get_separators_bottom_string()
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void PerformanceStats::print_algorithm_performance_stats(string _name, double _time, long long _edges_count, int _iterations_count)
+void PerformanceStats::save_algorithm_performance_stats(double _time, long long _edges_count, int _iterations_count)
 {
-    cout << get_separators_upper_string(_name) << endl;
-    cout << "wall time: " << _time*1000.0 << " ms" << endl;
-    cout << "wall perf: " << _edges_count / (_time * 1e6) << " MTEPS" << endl;
-    cout << "iterations count: " << _iterations_count << endl;
-    cout << "perf per iteration: " << _iterations_count * (_edges_count / (_time * 1e6)) << " MTEPS" << endl;
-    cout << "band per iteration: " << INT_ELEMENTS_PER_EDGE * sizeof(int) * _iterations_count * (_edges_count / (_time * 1e9)) << " GB/s" << endl;
-    cout << get_separators_bottom_string() << endl << endl;
+    latest_algorithm_stats.wall_time = _time;
+    latest_algorithm_stats.wall_perf = _edges_count / (_time * 1e6);
+    latest_algorithm_stats.iterations_count = _iterations_count;
+    latest_algorithm_stats.perf_per_iteration = _iterations_count * (_edges_count / (_time * 1e6));
+    latest_algorithm_stats.band_per_iteration = INT_ELEMENTS_PER_EDGE * sizeof(int) * _iterations_count * (_edges_count / (_time * 1e9));
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-
-void PerformanceStats::print_algorithm_performance_stats(string _name, double _time, long long _edges_count)
+void PerformanceStats::print_algorithm_performance_stats(string _name)
 {
     cout << get_separators_upper_string(_name) << endl;
-    cout << "wall time: " << _time*1000.0 << " ms" << endl;
-    cout << "wall perf: " << _edges_count / (_time * 1e6) << " MTEPS" << endl;
+    cout << "wall time: " << latest_algorithm_stats.wall_time*1000.0 << " ms" << endl;
+    cout << "wall perf: " << latest_algorithm_stats.wall_perf << " MTEPS" << endl;
+    if(latest_algorithm_stats.iterations_count > 1)
+    {
+        cout << "iterations count: " << latest_algorithm_stats.iterations_count << endl;
+        cout << "perf per iteration: " << latest_algorithm_stats.perf_per_iteration << " MTEPS" << endl;
+        cout << "band per iteration: " << latest_algorithm_stats.band_per_iteration << " GB/s" << endl;
+    }
     cout << get_separators_bottom_string() << endl << endl;
 }
 

@@ -56,7 +56,7 @@ void SSSP::gpu_dijkstra_all_active_push(VectCSRGraph &_graph,
 
     tm.end();
     #ifdef __PRINT_SAMPLES_PERFORMANCE_STATS__
-    PerformanceStats::print_algorithm_performance_stats("SSSP (Dijkstra, all-active, push, GPU)", tm.get_time(), _graph.get_edges_count(), iterations_count);
+    performance_stats.print_algorithm_performance_stats("SSSP (Dijkstra, all-active, push, GPU)", tm.get_time(), _graph.get_edges_count(), iterations_count);
     #endif
 }
 #endif
@@ -117,7 +117,7 @@ void SSSP::gpu_dijkstra_all_active_pull(VectCSRGraph &_graph,
 
     tm.end();
     #ifdef __PRINT_SAMPLES_PERFORMANCE_STATS__
-    PerformanceStats::print_algorithm_performance_stats("SSSP (Dijkstra, all-active, pull, GPU)", tm.get_time(), _graph.get_edges_count(), iterations_count);
+    performance_stats.print_algorithm_performance_stats("SSSP (Dijkstra, all-active, pull, GPU)", tm.get_time(), _graph.get_edges_count(), iterations_count);
     #endif
 }
 #endif
@@ -184,7 +184,7 @@ void SSSP::gpu_dijkstra_partial_active(VectCSRGraph &_graph,
 
     tm.end();
     #ifdef __PRINT_SAMPLES_PERFORMANCE_STATS__
-    PerformanceStats::print_algorithm_performance_stats("SSSP (Dijkstra, partial-active, GPU)", tm.get_time(), _graph.get_edges_count(), iterations_count);
+    performance_stats.print_algorithm_performance_stats("SSSP (Dijkstra, partial-active, GPU)", tm.get_time(), _graph.get_edges_count(), iterations_count);
     #endif
 }
 #endif

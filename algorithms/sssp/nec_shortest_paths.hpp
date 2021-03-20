@@ -84,9 +84,9 @@ void SSSP::nec_dijkstra_partial_active(VectCSRGraph &_graph,
 
     tm.end();
 
+    performance_stats.save_algorithm_performance_stats(tm.get_time(), _graph.get_edges_count(), iterations_count);
     #ifdef __PRINT_SAMPLES_PERFORMANCE_STATS__
-    PerformanceStats::print_algorithm_performance_stats("SSSP (Dijkstra, partial active, NEC)", tm.get_time(),
-                                              _graph.get_edges_count(), iterations_count);
+    performance_stats.print_algorithm_performance_stats("SSSP (Dijkstra, partial active)");
     #endif
 }
 #endif
@@ -160,12 +160,11 @@ void SSSP::nec_dijkstra_all_active_push(VectCSRGraph &_graph,
         }
     }
     while(changes);
-
     tm.end();
 
+    performance_stats.save_algorithm_performance_stats(tm.get_time(), _graph.get_edges_count(), iterations_count);
     #ifdef __PRINT_SAMPLES_PERFORMANCE_STATS__
-    PerformanceStats::print_algorithm_performance_stats("SSSP (Dijkstra, all-active, push, NEC)", tm.get_time(),
-                                                        _graph.get_edges_count(), iterations_count);
+    performance_stats.print_algorithm_performance_stats("SSSP (Dijkstra, all-active, push)");
     #endif
 }
 #endif
@@ -294,11 +293,11 @@ void SSSP::nec_dijkstra_all_active_pull(VectCSRGraph &_graph,
         changes = graph_API.reduce<int>(_graph, frontier, reduce_changes, REDUCE_SUM);
     }
     while(changes);
-
     tm.end();
+
+    performance_stats.save_algorithm_performance_stats(tm.get_time(), _graph.get_edges_count(), iterations_count);
     #ifdef __PRINT_SAMPLES_PERFORMANCE_STATS__
-    PerformanceStats::print_algorithm_performance_stats("SSSP (Dijkstra, all-active, pull, NEC)", tm.get_time(),
-                                              _graph.get_edges_count(), iterations_count);
+    performance_stats.print_algorithm_performance_stats("SSSP (Dijkstra, all-active, pull)");
     #endif
 }
 #endif
@@ -380,11 +379,11 @@ void SSSP::nec_dijkstra(EdgesListGraph &_graph, EdgesArray_EL<_T> &_weights, Ver
         changes += register_sum_reduce(reg_was_changes);
     }
     while(changes);
-
     tm.end();
+
+    performance_stats.save_algorithm_performance_stats(tm.get_time(), _graph.get_edges_count(), iterations_count);
     #ifdef __PRINT_SAMPLES_PERFORMANCE_STATS__
-    PerformanceStats::print_algorithm_performance_stats("SSSP (Dijkstra, Edges List)", tm.get_time(),
-                                                        _graph.get_edges_count(), iterations_count);
+    performance_stats.print_algorithm_performance_stats("SSSP (Dijkstra, Edges List)");
     #endif
 }
 #endif
@@ -452,12 +451,11 @@ void SSSP::nec_dijkstra(ShardedCSRGraph &_graph,
         changes += register_sum_reduce(reg_was_changes);
     }
     while(changes);
-
     tm.end();
 
+    performance_stats.save_algorithm_performance_stats(tm.get_time(), _graph.get_edges_count(), iterations_count);
     #ifdef __PRINT_SAMPLES_PERFORMANCE_STATS__
-    PerformanceStats::print_algorithm_performance_stats("SSSP (Dijkstra, sharded graph)", tm.get_time(),
-                                                        _graph.get_edges_count(), iterations_count);
+    performance_stats.print_algorithm_performance_stats("SSSP (Dijkstra, sharded graph)");
     #endif
 }
 #endif

@@ -1,23 +1,24 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+#ifdef __GNUC__
+#define __USE_MULTICORE__
+#endif
+
+#ifndef __GNUC__
 #define __USE_NEC_SX_AURORA__
+#endif
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #define INT_ELEMENTS_PER_EDGE 4.0
 #define NEC_VECTOR_ENGINE_THRESHOLD_VALUE  VECTOR_LENGTH * MAX_SX_AURORA_THREADS * 128
-//#define VECTOR_CORE_THRESHOLD_VALUE VECTOR_LENGTH
 #define VECTOR_CORE_THRESHOLD_VALUE 2*VECTOR_LENGTH
 
 #define COLLECTIVE_FRONTIER_TYPE_CHANGE_THRESHOLD 0.35
 
-/*#define FRONTIER_TYPE_CHANGE_THRESHOLD 1.0
-#define VE_FRONTIER_TYPE_CHANGE_THRESHOLD 1.0
-#define VC_FRONTIER_TYPE_CHANGE_THRESHOLD 1.0
-#define COLLECTIVE_FRONTIER_TYPE_CHANGE_THRESHOLD 1.0*/
-
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //#define __PRINT_API_PERFORMANCE_STATS__
+#define __PRINT_SAMPLES_PERFORMANCE_STATS__
 
 #include "graph_library.h"
 

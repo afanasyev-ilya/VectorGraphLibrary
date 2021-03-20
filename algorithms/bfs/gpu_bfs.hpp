@@ -62,7 +62,7 @@ void BFS::gpu_top_down(VectCSRGraph &_graph,
     tm.end();
 
     #ifdef __PRINT_SAMPLES_PERFORMANCE_STATS__
-    PerformanceStats::print_algorithm_performance_stats("BFS (Top-down, GPU)", tm.get_time(), _graph.get_edges_count(), current_level);
+    performance_stats.print_algorithm_performance_stats("BFS (Top-down, GPU)", tm.get_time(), _graph.get_edges_count(), current_level);
     #endif
 }
 #endif

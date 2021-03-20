@@ -93,7 +93,7 @@ int main(int argc, const char * argv[])
     tm.end();
 
     // print performance stats
-    PerformanceStats::print_algorithm_performance_stats("BFS (Top-down, NEC)", tm.get_time(), graph.get_edges_count(), current_level);
+    performance_stats.print_algorithm_performance_stats("BFS (Top-down, NEC)", tm.get_time(), graph.get_edges_count(), current_level);
 
     // reorder levels, since the graph has been preprocessed during import
     levels.reorder(ORIGINAL);

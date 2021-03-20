@@ -73,7 +73,7 @@ void CC::gpu_shiloach_vishkin(VectCSRGraph &_graph, VerticesArray<_T> &_componen
     tm.end();
 
     #ifdef __PRINT_SAMPLES_PERFORMANCE_STATS__
-    PerformanceStats::print_algorithm_performance_stats("CC (Shiloach-Vishkin, GPU)", tm.get_time(),
+    performance_stats.print_algorithm_performance_stats("CC (Shiloach-Vishkin, GPU)", tm.get_time(),
                                                         _graph.get_edges_count(), iterations_count);
     print_component_sizes(_components);
     #endif

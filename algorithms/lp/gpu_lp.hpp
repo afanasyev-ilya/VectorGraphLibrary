@@ -23,7 +23,7 @@ void LP::gpu_lp(UndirectedCSRGraph &_graph,
     MemoryAPI::free_array(device_labels);
 
     #ifdef __PRINT_SAMPLES_PERFORMANCE_STATS__
-    PerformanceStats::print_algorithm_performance_stats("gpu label propagation", t2 - t1, edges_count, iterations_count);
+    performance_stats.print_algorithm_performance_stats("gpu label propagation", t2 - t1, edges_count, iterations_count);
     #endif
 
     PerformanceStats::component_stats(_labels, vertices_count);

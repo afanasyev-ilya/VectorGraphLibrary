@@ -164,7 +164,7 @@ double BFS::nec_direction_optimizing(VectCSRGraph &_graph,
         compute_time += step_times[i];
     }
     cout << "time diff: " << compute_time << " vs " << t2 - t1 << endl;
-    PerformanceStats::print_algorithm_performance_stats("BFS (direction-optimizing)", compute_time, edges_count, current_level);
+    performance_stats.print_algorithm_performance_stats("BFS (direction-optimizing)", compute_time, edges_count, current_level);
     #endif
 
     MemoryAPI::free_array(connections_array);
@@ -594,7 +594,7 @@ void BFS::nec_direction_optimizing(VectCSRGraph &_graph,
     cout << "BU time: " << bu_time << " ms" << endl;
     cout << "TD time: " << td_time << " ms" << endl;
     cout << "GNF time: " << gnf_time << " ms" << endl;
-    PerformanceStats::print_algorithm_performance_stats("BFS (Direction-optimizing, NEC)", tm.get_time(), _graph.get_edges_count(), current_level);
+    performance_stats.print_algorithm_performance_stats("BFS (Direction-optimizing, NEC)", tm.get_time(), _graph.get_edges_count(), current_level);
     #endif
     cout << _graph.get_edges_count() / (1e6*tm.get_time()) << " MTEPS" << endl;
 }
@@ -602,14 +602,21 @@ void BFS::nec_direction_optimizing(VectCSRGraph &_graph,
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#ifdef __USE_NEC_SX_AURORA__
+#if defined(__USE_NEC_SX_AURORA__) || defined(__USE_MULTICORE__)
 template <typename _T>
 void BFS::nec_top_down(VectCSRGraph &_graph,
                        VerticesArray<_T> &_levels,
                        int _source_vertex)
 {
+    #if defined(__USE_NEC_SX_AURORA__)
     GraphAbstractionsNEC graph_API(_graph);
     FrontierNEC frontier(_graph);
+    #endif
+
+    #if defined(__USE_MULTICORE__)
+    GraphAbstractionsMulticore graph_API(_graph);
+    FrontierMulticore frontier(_graph);
+    #endif
 
     graph_API.change_traversal_direction(SCATTER, _levels, frontier);
 
@@ -663,11 +670,11 @@ void BFS::nec_top_down(VectCSRGraph &_graph,
 
         current_level++;
     }
-
     tm.end();
 
+    performance_stats.save_algorithm_performance_stats(tm.get_time(), _graph.get_edges_count());
     #ifdef __PRINT_SAMPLES_PERFORMANCE_STATS__
-    PerformanceStats::print_algorithm_performance_stats("BFS (Top-down, NEC)", tm.get_time(), _graph.get_edges_count(), current_level);
+    performance_stats.print_algorithm_performance_stats("BFS (Top-down, NEC/multicore)");
     #endif
 }
 #endif

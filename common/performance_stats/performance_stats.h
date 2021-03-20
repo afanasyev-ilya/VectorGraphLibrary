@@ -7,9 +7,22 @@
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+struct AlgorithmStats
+{
+    double wall_time;
+    double wall_perf;
+    int iterations_count;
+    double perf_per_iteration;
+    double band_per_iteration;
+};
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 class PerformanceStats
 {
 private:
+    AlgorithmStats latest_algorithm_stats;
+
     int number_of_runs;
     double avg_time;
     double best_time;
@@ -67,9 +80,9 @@ public:
     void print_max_perf(long long _edges_count, int _k = 1);
     void print_avg_perf(long long _edges_count, int _k = 1);
 
-    static void print_algorithm_performance_stats(string _name, double _time, long long _edges_count, int _iterations_count);
-
-    static void print_algorithm_performance_stats(string _name, double _time, long long _edges_count);
+    void save_algorithm_performance_stats(double _time, long long _edges_count, int _iterations_count = 1);
+    void print_algorithm_performance_stats(string _name);
+    AlgorithmStats get_algorithm_performance_stats() { return latest_algorithm_stats; };
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

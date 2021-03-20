@@ -144,6 +144,8 @@ TraversalDirection Parser::convert_traversal_type(AlgorithmTraversalType _algo_t
         return SCATTER;
     if(_algo_type == PULL_TRAVERSAL)
         return GATHER;
+
+    throw "Error in Parser::convert_traversal_type : incorrect _algo_type value";
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -154,6 +156,8 @@ AlgorithmTraversalType Parser::convert_traversal_type(TraversalDirection _direct
         return PUSH_TRAVERSAL;
     if(_direction_type == GATHER)
         return PULL_TRAVERSAL;
+
+    throw "Error in Parser::convert_traversal_type : incorrect _direction_type value";
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
