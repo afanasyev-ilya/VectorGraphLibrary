@@ -2,11 +2,11 @@
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#ifdef __USE_NEC_SX_AURORA__
+#if defined(__USE_NEC_SX_AURORA__) || defined(__USE_MULTICORE__)
 template <typename _T>
 int CC::select_pivot(VectCSRGraph &_graph,
-                     GraphAbstractionsNEC &_graph_API,
-                     FrontierNEC &_frontier,
+                     VGL_GRAPH_ABSTRACTIONS &_graph_API,
+                     VGL_FRONTIER &_frontier,
                      VerticesArray<_T> &_components)
 {
     NEC_REGISTER_INT(pivots, _graph.get_vertices_count() + 1);
@@ -36,12 +36,13 @@ int CC::select_pivot(VectCSRGraph &_graph,
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#ifdef __USE_NEC_SX_AURORA__
+#if defined(__USE_NEC_SX_AURORA__) || defined(__USE_MULTICORE__)
 template <typename _T>
 void CC::nec_bfs_based(VectCSRGraph &_graph, VerticesArray<_T> &_components)
 {
-    GraphAbstractionsNEC graph_API(_graph, SCATTER);
-    FrontierNEC frontier(_graph, SCATTER);
+    VGL_GRAPH_ABSTRACTIONS graph_API(_graph, SCATTER);
+    VGL_FRONTIER frontier(_graph, SCATTER);
+
     VerticesArray<_T> bfs_levels(_graph, SCATTER);
 
     #pragma omp parallel
@@ -120,9 +121,9 @@ void CC::nec_bfs_based(VectCSRGraph &_graph, VerticesArray<_T> &_components)
     } while (true);
     tm.end();
 
+    performance_stats.save_algorithm_performance_stats(tm.get_time(), _graph.get_edges_count());
     #ifdef __PRINT_SAMPLES_PERFORMANCE_STATS__
-    performance_stats.print_algorithm_performance_stats("CC (BFS-based, NEC)", tm.get_time(), _graph.get_edges_count());
-    print_component_sizes(_components);
+    performance_stats.print_algorithm_performance_stats("CC (BFS-based, NEC)");
     #endif
 }
 #endif

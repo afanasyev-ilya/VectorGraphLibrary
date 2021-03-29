@@ -17,18 +17,18 @@
 class ConnectedComponents
 {
 private:
-    #ifdef __USE_NEC_SX_AURORA__
+    #if defined(__USE_NEC_SX_AURORA__) || defined(__USE_MULTICORE__)
     template <typename _T>
-    static int select_pivot(VectCSRGraph &_graph, GraphAbstractionsNEC &_graph_API, FrontierNEC &_frontier,
+    static int select_pivot(VectCSRGraph &_graph, VGL_GRAPH_ABSTRACTIONS &_graph_API, VGL_FRONTIER &_frontier,
                             VerticesArray<_T> &_components);
     #endif
 public:
-    #ifdef __USE_NEC_SX_AURORA__
+    #if defined(__USE_NEC_SX_AURORA__) || defined(__USE_MULTICORE__)
     template <typename _T>
     static void nec_shiloach_vishkin(VectCSRGraph &_graph, VerticesArray<_T> &_components);
     #endif
 
-    #ifdef __USE_NEC_SX_AURORA__
+    #if defined(__USE_NEC_SX_AURORA__) || defined(__USE_MULTICORE__)
     template <typename _T>
     static void nec_bfs_based(VectCSRGraph &_graph, VerticesArray<_T> &_components);
     #endif

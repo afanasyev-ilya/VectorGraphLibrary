@@ -16,34 +16,28 @@ Libraries = -fopenmp
 # binaries
 ##########
 
-all: sssp sharded_sssp bfs scc gather pr cc print_graph_info create_vgl_graphs
+all: sssp bfs pr create_vgl_graphs
 
 sssp: create_folders sssp.o
-	$(CXX) object_files/sssp.o $(Library_Path) $(Libraries) -o ./bin/sssp_sx
+	$(CXX) object_files/sssp.o $(Library_Path) $(Libraries) -o ./bin/sssp_mc
 
 sharded_sssp: create_folders sharded_sssp.o
-	$(CXX) object_files/sharded_sssp.o $(Library_Path) $(Libraries) -o ./bin/sharded_sssp_sx
+	$(CXX) object_files/sharded_sssp.o $(Library_Path) $(Libraries) -o ./bin/sharded_sssp_mc
 
 bfs: create_folders bfs.o
-	$(CXX) object_files/bfs.o $(Library_Path) $(Libraries) -o ./bin/bfs_sx
+	$(CXX) object_files/bfs.o $(Library_Path) $(Libraries) -o ./bin/bfs_mc
 
 scc: create_folders scc.o
-	$(CXX) object_files/scc.o $(Library_Path) $(Libraries) -o ./bin/scc_sx
+	$(CXX) object_files/scc.o $(Library_Path) $(Libraries) -o ./bin/scc_mc
 
 cc: create_folders cc.o
-	$(CXX) object_files/cc.o $(Library_Path) $(Libraries) -o ./bin/cc_sx
+	$(CXX) object_files/cc.o $(Library_Path) $(Libraries) -o ./bin/cc_mc
 
 pr: create_folders pr.o
-	$(CXX) object_files/pr.o $(Library_Path) $(Libraries) -o ./bin/pr_sx
-
-gather: create_folders gather.o
-	$(CXX) object_files/gather.o $(Library_Path) $(Libraries) -o ./bin/gather_sx
-
-print_graph_info: create_folders print_graph_info.o
-	$(CXX) object_files/print_graph_info.o $(Library_Path) $(Libraries) -o ./bin/print_graph_info_sx
+	$(CXX) object_files/pr.o $(Library_Path) $(Libraries) -o ./bin/pr_mc
 
 create_vgl_graphs: create_folders create_vgl_graphs.o
-	$(CXX) -fopenmp object_files/create_vgl_graphs.o -o ./bin/create_vgl_graphs_sx
+	$(CXX) -fopenmp object_files/create_vgl_graphs.o -o ./bin/create_vgl_graphs_mc
 
 ##########
 # CPPs

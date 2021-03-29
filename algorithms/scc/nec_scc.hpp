@@ -2,7 +2,7 @@
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#ifdef __USE_NEC_SX_AURORA__
+#if defined(__USE_NEC_SX_AURORA__) || defined(__USE_MULTICORE__)
 template <typename _T>
 void SCC::trim_step(VectCSRGraph &_graph,
                     GraphAbstractionsNEC &_graph_API,
@@ -123,7 +123,7 @@ void SCC::trim_step(VectCSRGraph &_graph,
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#ifdef __USE_NEC_SX_AURORA__
+#if defined(__USE_NEC_SX_AURORA__) || defined(__USE_MULTICORE__)
 template <typename _T>
 void SCC::bfs_reach(VectCSRGraph &_graph,
                     GraphAbstractionsNEC &_graph_API,
@@ -185,7 +185,7 @@ void SCC::bfs_reach(VectCSRGraph &_graph,
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#ifdef __USE_NEC_SX_AURORA__
+#if defined(__USE_NEC_SX_AURORA__) || defined(__USE_MULTICORE__)
 template <typename _T>
 int SCC::select_pivot(VectCSRGraph &_graph,
                       GraphAbstractionsNEC &_graph_API,
@@ -222,7 +222,7 @@ int SCC::select_pivot(VectCSRGraph &_graph,
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#ifdef __USE_NEC_SX_AURORA__
+#if defined(__USE_NEC_SX_AURORA__) || defined(__USE_MULTICORE__)
 template <typename _T>
 void SCC::process_result(VectCSRGraph &_graph,
                          GraphAbstractionsNEC &_graph_API,
@@ -267,7 +267,7 @@ void SCC::process_result(VectCSRGraph &_graph,
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#ifdef __USE_NEC_SX_AURORA__
+#if defined(__USE_NEC_SX_AURORA__) || defined(__USE_MULTICORE__)
 template <typename _T>
 void SCC::FB_step(VectCSRGraph &_graph,
                   GraphAbstractionsNEC &_graph_API,
@@ -304,7 +304,7 @@ void SCC::FB_step(VectCSRGraph &_graph,
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#ifdef __USE_NEC_SX_AURORA__
+#if defined(__USE_NEC_SX_AURORA__) || defined(__USE_MULTICORE__)
 template <typename _T>
 void SCC::nec_forward_backward(VectCSRGraph &_graph, VerticesArray<_T> &_components)
 {
@@ -326,12 +326,12 @@ void SCC::nec_forward_backward(VectCSRGraph &_graph, VerticesArray<_T> &_compone
     FB_step(_graph, graph_API, frontier, _components, forward_result, backward_result, active, INIT_TREE, last_tree);
     bfs_tm.end();
 
+    performance_stats.save_algorithm_performance_stats(trim_tm.get_time() + bfs_tm.get_time(), _graph.get_edges_count());
     #ifdef __PRINT_SAMPLES_PERFORMANCE_STATS__
     cout << "last tree: " << last_tree << endl;
     cout << "trim time: " << trim_tm.get_time_in_ms() << " ms" << endl;
     cout << "bfs time:" << bfs_tm.get_time_in_ms() << " ms" << endl;
-    performance_stats.print_algorithm_performance_stats("SCC (Forward-Backward)", trim_tm.get_time() + bfs_tm.get_time(),
-                                                        _graph.get_edges_count());
+    performance_stats.print_algorithm_performance_stats("SCC (Forward-Backward)");
     print_component_sizes(_components);
     #endif
 }

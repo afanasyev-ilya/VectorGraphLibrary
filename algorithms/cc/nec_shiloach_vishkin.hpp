@@ -2,12 +2,12 @@
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#ifdef __USE_NEC_SX_AURORA__
+#if defined(__USE_NEC_SX_AURORA__) || defined(__USE_MULTICORE__)
 template <typename _T>
 void CC::nec_shiloach_vishkin(VectCSRGraph &_graph, VerticesArray<_T> &_components)
 {
-    GraphAbstractionsNEC graph_API(_graph);
-    FrontierNEC frontier(_graph);
+    VGL_GRAPH_ABSTRACTIONS graph_API(_graph);
+    VGL_FRONTIER frontier(_graph);
     graph_API.change_traversal_direction(SCATTER, _components, frontier);
 
     #pragma omp parallel
@@ -80,9 +80,9 @@ void CC::nec_shiloach_vishkin(VectCSRGraph &_graph, VerticesArray<_T> &_componen
     }
     tm.end();
 
+    performance_stats.save_algorithm_performance_stats(tm.get_time(), _graph.get_edges_count(), iterations_count);
     #ifdef __PRINT_SAMPLES_PERFORMANCE_STATS__
-    performance_stats.print_algorithm_performance_stats("CC (Shiloach-Vishkin, NEC)", tm.get_time(),
-                                                        _graph.get_edges_count(), iterations_count);
+    performance_stats.print_algorithm_performance_stats("CC (Shiloach-Vishkin, NEC)");
     print_component_sizes(_components);
     #endif
 }

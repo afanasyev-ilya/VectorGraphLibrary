@@ -608,15 +608,8 @@ void BFS::nec_top_down(VectCSRGraph &_graph,
                        VerticesArray<_T> &_levels,
                        int _source_vertex)
 {
-    #if defined(__USE_NEC_SX_AURORA__)
-    GraphAbstractionsNEC graph_API(_graph);
-    FrontierNEC frontier(_graph);
-    #endif
-
-    #if defined(__USE_MULTICORE__)
-    GraphAbstractionsMulticore graph_API(_graph);
-    FrontierMulticore frontier(_graph);
-    #endif
+    VGL_GRAPH_ABSTRACTIONS graph_API(_graph);
+    VGL_FRONTIER frontier(_graph);
 
     graph_API.change_traversal_direction(SCATTER, _levels, frontier);
 

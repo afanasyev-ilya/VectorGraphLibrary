@@ -334,13 +334,7 @@ template <typename _T>
 void SSSP::nec_dijkstra(EdgesListGraph &_graph, EdgesArray_EL<_T> &_weights, VerticesArray<_T> &_distances,
                         int _source_vertex)
 {
-    #if defined(__USE_NEC_SX_AURORA__)
-    GraphAbstractionsNEC graph_API(_graph);
-    #endif
-
-    #if defined(__USE_MULTICORE__)
-    GraphAbstractionsMulticore graph_API(_graph);
-    #endif
+    VGL_GRAPH_ABSTRACTIONS graph_API(_graph);
 
     Timer tm;
     tm.start();
@@ -397,15 +391,8 @@ void SSSP::nec_dijkstra(ShardedCSRGraph &_graph,
                         VerticesArray<_T> &_distances,
                         int _source_vertex)
 {
-    #if defined(__USE_NEC_SX_AURORA__)
-    GraphAbstractionsNEC graph_API(_graph);
-    FrontierNEC frontier(_graph);
-    #endif
-
-    #if defined(__USE_MULTICORE__)
-    GraphAbstractionsMulticore graph_API(_graph);
-    FrontierMulticore frontier(_graph);
-    #endif
+    VGL_GRAPH_ABSTRACTIONS graph_API(_graph, SCATTER);
+    VGL_FRONTIER frontier(_graph, SCATTER);
 
     graph_API.attach_data(_distances);
     graph_API.change_traversal_direction(SCATTER); // TODO -- is it needed?

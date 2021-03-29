@@ -12,15 +12,8 @@ void PR::nec_page_rank(VectCSRGraph &_graph,
     int vertices_count = _graph.get_vertices_count();
     long long edges_count = _graph.get_edges_count();
 
-    #if defined(__USE_NEC_SX_AURORA__)
-    GraphAbstractionsNEC graph_API(_graph);
-    FrontierNEC frontier(_graph);
-    #endif
-
-    #if defined(__USE_MULTICORE__)
-    GraphAbstractionsMulticore graph_API(_graph);
-    FrontierMulticore frontier(_graph);
-    #endif
+    VGL_GRAPH_ABSTRACTIONS graph_API(_graph);
+    VGL_FRONTIER frontier(_graph);
 
     VerticesArray<int> number_of_loops(_graph, GATHER);
     VerticesArray<int> incoming_degrees(_graph, GATHER);
