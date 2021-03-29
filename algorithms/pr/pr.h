@@ -9,7 +9,7 @@
 class PageRank
 {
 public:
-    #ifdef __USE_NEC_SX_AURORA__
+    #if defined(__USE_NEC_SX_AURORA__) || defined(__USE_MULTICORE__)
     template <typename _T>
     static void nec_page_rank(VectCSRGraph &_graph,
                               VerticesArray<_T> &_page_ranks,

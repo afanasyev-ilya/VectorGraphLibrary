@@ -82,7 +82,7 @@ public:
 
     void save_algorithm_performance_stats(double _time, long long _edges_count, int _iterations_count = 1);
     void print_algorithm_performance_stats(string _name);
-    AlgorithmStats get_algorithm_performance_stats() { return latest_algorithm_stats; };
+    AlgorithmStats get_latest_algorithm_performance_stats() { return latest_algorithm_stats; };
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

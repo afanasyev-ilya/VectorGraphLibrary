@@ -2,7 +2,7 @@
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#ifdef __USE_NEC_SX_AURORA__
+#if defined(__USE_NEC_SX_AURORA__) || defined(__USE_MULTICORE__)
 template <typename _T>
 void PR::nec_page_rank(VectCSRGraph &_graph,
                        VerticesArray<_T> &_page_ranks,
@@ -11,8 +11,16 @@ void PR::nec_page_rank(VectCSRGraph &_graph,
 {
     int vertices_count = _graph.get_vertices_count();
     long long edges_count = _graph.get_edges_count();
-    GraphAbstractionsNEC graph_API(_graph, GATHER);
-    FrontierNEC frontier(_graph, SCATTER);
+
+    #if defined(__USE_NEC_SX_AURORA__)
+    GraphAbstractionsNEC graph_API(_graph);
+    FrontierNEC frontier(_graph);
+    #endif
+
+    #if defined(__USE_MULTICORE__)
+    GraphAbstractionsMulticore graph_API(_graph);
+    FrontierMulticore frontier(_graph);
+    #endif
 
     VerticesArray<int> number_of_loops(_graph, GATHER);
     VerticesArray<int> incoming_degrees(_graph, GATHER);
@@ -176,8 +184,9 @@ void PR::nec_page_rank(VectCSRGraph &_graph,
     }
     tm.end();
 
+    performance_stats.save_algorithm_performance_stats(tm.get_time(), _graph.get_edges_count(), iterations_count);
     #ifdef __PRINT_SAMPLES_PERFORMANCE_STATS__
-    performance_stats.print_algorithm_performance_stats("PR (Page Rank, NEC)", tm.get_time(), edges_count, iterations_count);
+    performance_stats.print_algorithm_performance_stats("PR (Page Rank, NEC/multicore)");
     #endif
 }
 #endif
