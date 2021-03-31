@@ -25,43 +25,43 @@ void parse_cmd_params(int _argc, char **_argv, int &_scale, int &_avg_degree, st
     {
         string option(_argv[i]);
         
-        if (option.compare("--s") == 0)
+        if (option.compare("-s") == 0)
         {
             _scale = atoi(_argv[++i]);
         }
         
-        if (option.compare("--e") == 0)
+        if (option.compare("-e") == 0)
         {
             _avg_degree = atoi(_argv[++i]);
         }
         
-        if (option.compare("--type") == 0)
+        if (option.compare("-type") == 0)
         {
             _graph_type = _argv[++i];
         }
         
-        if (option.compare("--format") == 0)
+        if (option.compare("-format") == 0)
         {
             _output_format = _argv[++i];
         }
         
-        if (option.compare("--file") == 0)
+        if (option.compare("-file") == 0)
         {
             _file_name = _argv[++i];
         }
         
-        if (option.compare("--convert") == 0)
+        if (option.compare("-convert") == 0)
         {
             _convert = true;
             _input_file_name = _argv[++i];
         }
         
-        if(option.compare("--directed") == 0)
+        if(option.compare("-directed") == 0)
         {
             _direction_type = DIRECTED_GRAPH;
         }
 
-        if(option.compare("--undirected") == 0)
+        if(option.compare("-undirected") == 0)
         {
             cout << "undirected is selected!" << endl;
             _direction_type = UNDIRECTED_GRAPH;

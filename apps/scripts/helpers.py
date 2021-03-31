@@ -43,7 +43,7 @@ def file_exists(path):
 def binary_exists(app_name, arch):
     if file_exists(get_binary_path(app_name, arch)):
         return True
-    print("Warning: path " + get_binary_path(app_name, arch) + " does not exist")
+    print("Warning! path " + get_binary_path(app_name, arch) + " does not exist")
     return False
 
 
@@ -53,8 +53,8 @@ def make_binary(app_name, arch):
     subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT).wait()
 
 
-def is_valid(app_name, arch):
-    if not binary_exists(app_name, arch):
+def is_valid(app_name, arch, options):
+    if (not binary_exists(app_name, arch)) or options.recompile:
         make_binary(app_name, arch)
         if not binary_exists(app_name, arch):
             return False

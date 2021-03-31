@@ -1,14 +1,12 @@
 from .helpers import *
-
-GRAPHS_DIR = "./bin/input_graphs/"
-SOURCE_GRAPH_DIR = "./bin/source_graphs/"
-MODE = "short"
+from .common import *
 
 
 def get_list_of_soc_graphs():
-    if MODE == "short":
+    graphs = []
+    if mode == BenchmarkMode.short:
         graphs = ["soc_pokec"]
-    elif MODE == "full":
+    elif mode == BenchmarkMode.long:
         graphs = ["soc_stackoverflow",
                   "soc_orkut",
                   "soc_lj",
@@ -17,24 +15,25 @@ def get_list_of_soc_graphs():
 
 
 def get_list_of_misc_graphs():
-    if MODE == "short":
-        graphs = ["roads_ca"]
-    elif MODE == "full":
-        graphs = ["roads_ca",
-                  "soc_stackoverflow",
-                  "soc_orkut",
-                  "soc_lj",
-                  "soc_pokec"]
+    graphs = []
+    if mode == BenchmarkMode.short:
+        graphs = ["wiki_topcats"]
+    elif mode == BenchmarkMode.long:
+        graphs = ["wiki_talk",
+                  "wiki_topcats",
+                  "web_berk_stan",
+                  "cit_patents",
+                  "skitter",
+                  "roads_ca"]
     return graphs
 
 
 def get_list_of_rmat_graphs():
     graphs = []
     edge_factor = 32
-    min_scale = 20
-    if MODE == "short":
-        max_scale = 21
-    elif MODE == "full":
+    if mode == BenchmarkMode.short:
+        max_scale = 20
+    elif mode == BenchmarkMode.long:
         max_scale = 25
     for scale in range(min_scale, max_scale + 1):
         new_graph = "rmat_" + str(scale) + "_" + str(edge_factor)
@@ -45,10 +44,18 @@ def get_list_of_rmat_graphs():
 def get_list_of_ru_graphs():
     graphs = []
     edge_factor = 32
-    for scale in range(20, 21):
+    if mode == BenchmarkMode.short:
+        max_scale = 20
+    elif mode == BenchmarkMode.long:
+        max_scale = 25
+    for scale in range(min_scale, max_scale + 1):
         new_graph = "ru_" + str(scale) + "_" + str(edge_factor)
         graphs += [new_graph]
     return graphs
+
+
+def get_list_of_verification_graphs():
+    return ["rmat_20_16", "ru_20_16", "soc_pokec", "wiki_talk"]
 
 
 def get_graph_path(graph_name):
@@ -83,7 +90,7 @@ def create_real_world_graph(graph_name, arch):
     subprocess.call(cmd, shell=False, stdout=subprocess.PIPE)
 
     source_name = os.path.splitext(tar_name)[0]
-    cmd = [get_binary_path("create_vgl_graphs", arch), "--convert", source_name, "--directed", "--file", GRAPHS_DIR + graph_name]
+    cmd = [get_binary_path("create_vgl_graphs", arch), "-convert", source_name, "-directed", "-file", GRAPHS_DIR + graph_name]
     print(cmd)
     subprocess.Popen(cmd, shell=False, stdout=subprocess.PIPE).wait()
 
@@ -94,7 +101,7 @@ def create_synthetic_graph(graph_name, arch):
     scale = dat[1]
     edge_factor = dat[2]
 
-    cmd = [get_binary_path("create_vgl_graphs", arch), "--s", scale, "--e", edge_factor, "--type", type, "--directed", "--file", GRAPHS_DIR + graph_name]
+    cmd = [get_binary_path("create_vgl_graphs", arch), "-s", scale, "-e", edge_factor, "-type", type, "-directed", "-file", GRAPHS_DIR + graph_name]
     print(cmd)
     subprocess.Popen(cmd, shell=False, stdout=subprocess.PIPE).wait()
 
@@ -115,7 +122,7 @@ def create_graphs_if_required(list_of_graphs, arch):
 
     for current_graph in list_of_graphs:
         if not file_exists(get_graph_path(current_graph)):
-            print("Warning: need to create graph " + get_graph_path(current_graph))
+            print("Warning! need to create graph " + get_graph_path(current_graph))
             create_graph(current_graph, arch)
 
 

@@ -28,33 +28,33 @@ void Parser::parse_args(int _argc, const char * _argv[])
     {
         string option(_argv[i]);
 
-        if ((option.compare("--load") == 0) || (option.compare("--file") == 0) || (option.compare("--f") == 0))
+        if ((option.compare("-load") == 0) || (option.compare("-file") == 0) || (option.compare("-f") == 0))
         {
             graph_file_name = _argv[++i];
             compute_mode = LOAD_GRAPH_FROM_FILE;
         }
         
-        if ((option.compare("--gen") == 0) || (option.compare("--generate") == 0))
+        if ((option.compare("-gen") == 0) || (option.compare("-generate") == 0))
         {
             compute_mode = GENERATE_NEW_GRAPH;
         }
         
-        if ((option.compare("--scale") == 0) || (option.compare("--s") == 0))
+        if ((option.compare("-scale") == 0) || (option.compare("-s") == 0))
         {
             scale = atoi(_argv[++i]);
         }
 
-        if ((option.compare("--random_uniform") == 0) || (option.compare("--ru") == 0))
+        if ((option.compare("-random_uniform") == 0) || (option.compare("-ru") == 0))
         {
             graph_type = RANDOM_UNIFORM;
         }
 
-        if ((option.compare("--rmat") == 0) || (option.compare("--RMAT") == 0))
+        if ((option.compare("-rmat") == 0) || (option.compare("-RMAT") == 0))
         {
             graph_type = RMAT;
         }
 
-        if ((option.compare("--type") == 0))
+        if ((option.compare("-type") == 0))
         {
             string tmp_type = _argv[++i];
             if((tmp_type == "rmat") || (tmp_type == "RMAT"))
@@ -63,17 +63,17 @@ void Parser::parse_args(int _argc, const char * _argv[])
                 graph_type = RANDOM_UNIFORM;
         }
 
-        if ((option.compare("--edges") == 0) || (option.compare("--e") == 0))
+        if ((option.compare("-edges") == 0) || (option.compare("-e") == 0))
         {
             avg_degree = atoi(_argv[++i]);
         }
         
-        if ((option.compare("--check") == 0))
+        if ((option.compare("-check") == 0))
         {
             check_flag = true;
         }
         
-        if ((option.compare("--nocheck") == 0))
+        if ((option.compare("-nocheck") == 0))
         {
             check_flag = false;
         }

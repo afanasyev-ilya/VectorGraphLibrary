@@ -1,16 +1,24 @@
 import os
 import optparse
 from scripts.helpers import *
-from scripts.benchmark_app import *
+from scripts.benchmarking_api import *
+from scripts.verification_api import *
 
 
 def run_tests(options):
     create_dir("./bin/")
     list_of_apps = options.apps.split(",")
     arch = options.arch
+
+    workbook = xlsxwriter.Workbook('benchmarking_results.xlsx')
+
     for app_name in list_of_apps:
-        if is_valid(app_name, arch):
-            benchmark_app(app_name, arch, options)
+        if is_valid(app_name, arch, options):
+            benchmark_app(app_name, arch, options, workbook)
+            if options.verify:
+                verify_app(app_name, arch, options, workbook)
+
+    workbook.close()
 
 
 if __name__ == "__main__":
@@ -28,13 +36,18 @@ if __name__ == "__main__":
     parser.add_option('-s', '--sockets',
                       action="store", dest="sockets",
                       help="set number of sockets used", default=1)
-    parser.add_option('-c', '--csv',
+    parser.add_option('--csv',
                       action="store_true", dest="csv_results",
                       help="output performance results to CSV file", default=False)
     parser.add_option('-o', '--stdout',
                       action="store_true", dest="stdout_results",
                       help="use stdout to output performance results", default=False)
+    parser.add_option('-c', '--compile',
+                      action="store_true", dest="recompile",
+                      help="recompile all binaries used in testing", default=False)
+    parser.add_option('-v', '--verify',
+                      action="store_true", dest="verify",
+                      help="run additional verification tests after benchmarking process", default=False)
 
     options, args = parser.parse_args()
-
     run_tests(options)

@@ -9,17 +9,9 @@ void SSSP::nec_dijkstra_partial_active(VectCSRGraph &_graph,
                                        VerticesArray<_T> &_distances,
                                        int _source_vertex)
 {
-    #if defined(__USE_NEC_SX_AURORA__)
-    GraphAbstractionsNEC graph_API(_graph);
-    FrontierNEC work_frontier(_graph);
-    FrontierNEC all_active_frontier(_graph);
-    #endif
-
-    #if defined(__USE_MULTICORE__)
-    GraphAbstractionsMulticore graph_API(_graph);
-    FrontierMulticore work_frontier(_graph);
-    FrontierMulticore all_active_frontier(_graph);
-    #endif
+    VGL_GRAPH_ABSTRACTIONS graph_API(_graph);
+    VGL_FRONTIER work_frontier(_graph);
+    VGL_FRONTIER all_active_frontier(_graph);
 
     VerticesArray<_T> prev_distances(_graph);
 
@@ -100,15 +92,8 @@ void SSSP::nec_dijkstra_all_active_push(VectCSRGraph &_graph,
                                         VerticesArray<_T> &_distances,
                                         int _source_vertex)
 {
-    #if defined(__USE_NEC_SX_AURORA__)
-    GraphAbstractionsNEC graph_API(_graph);
-    FrontierNEC frontier(_graph);
-    #endif
-
-    #if defined(__USE_MULTICORE__)
-    GraphAbstractionsMulticore graph_API(_graph);
-    FrontierMulticore frontier(_graph);
-    #endif
+    VGL_GRAPH_ABSTRACTIONS graph_API(_graph);
+    VGL_FRONTIER frontier(_graph);
 
     graph_API.change_traversal_direction(SCATTER, _distances, frontier);
 
@@ -178,15 +163,8 @@ void SSSP::nec_dijkstra_all_active_pull(VectCSRGraph &_graph,
                                         VerticesArray<_T> &_distances,
                                         int _source_vertex)
 {
-    #if defined(__USE_NEC_SX_AURORA__)
-    GraphAbstractionsNEC graph_API(_graph);
-    FrontierNEC frontier(_graph);
-    #endif
-
-    #if defined(__USE_MULTICORE__)
-    GraphAbstractionsMulticore graph_API(_graph);
-    FrontierMulticore frontier(_graph);
-    #endif
+    VGL_GRAPH_ABSTRACTIONS graph_API(_graph);
+    VGL_FRONTIER frontier(_graph);
 
     VerticesArray<_T> prev_distances(_graph, GATHER);
 
