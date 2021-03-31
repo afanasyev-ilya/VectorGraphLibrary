@@ -30,11 +30,12 @@ def get_list_of_misc_graphs():
 
 def get_list_of_rmat_graphs():
     graphs = []
-    edge_factor = 32
+    edge_factor = synthetic_edge_factor
+    min_scale = synthetic_min_scale
     if mode == BenchmarkMode.short:
-        max_scale = 20
+        max_scale = min_scale + 2
     elif mode == BenchmarkMode.long:
-        max_scale = 25
+        max_scale = synthetic_max_scale
     for scale in range(min_scale, max_scale + 1):
         new_graph = "rmat_" + str(scale) + "_" + str(edge_factor)
         graphs += [new_graph]
@@ -43,11 +44,12 @@ def get_list_of_rmat_graphs():
 
 def get_list_of_ru_graphs():
     graphs = []
-    edge_factor = 32
+    edge_factor = synthetic_edge_factor
+    min_scale = synthetic_min_scale
     if mode == BenchmarkMode.short:
-        max_scale = 20
+        max_scale = min_scale + 2
     elif mode == BenchmarkMode.long:
-        max_scale = 25
+        max_scale = synthetic_max_scale
     for scale in range(min_scale, max_scale + 1):
         new_graph = "ru_" + str(scale) + "_" + str(edge_factor)
         graphs += [new_graph]

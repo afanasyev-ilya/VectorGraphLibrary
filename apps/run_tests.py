@@ -12,6 +12,8 @@ def run_tests(options):
 
     workbook = xlsxwriter.Workbook('benchmarking_results.xlsx')
 
+    set_omp_environments(options)
+
     for app_name in list_of_apps:
         if is_valid(app_name, arch, options):
             benchmark_app(app_name, arch, options, workbook)
@@ -36,12 +38,6 @@ if __name__ == "__main__":
     parser.add_option('-s', '--sockets',
                       action="store", dest="sockets",
                       help="set number of sockets used", default=1)
-    parser.add_option('--csv',
-                      action="store_true", dest="csv_results",
-                      help="output performance results to CSV file", default=False)
-    parser.add_option('-o', '--stdout',
-                      action="store_true", dest="stdout_results",
-                      help="use stdout to output performance results", default=False)
     parser.add_option('-c', '--compile',
                       action="store_true", dest="recompile",
                       help="recompile all binaries used in testing", default=False)

@@ -10,7 +10,9 @@ correctness_pattern = "error count:"
 
 GRAPHS_DIR = "./bin/input_graphs/"
 SOURCE_GRAPH_DIR = "./bin/source_graphs/"
-min_scale = 18
+synthetic_min_scale = 18
+synthetic_max_scale = 24
+synthetic_edge_factor = 32
 
 
 class BenchmarkMode(Enum):

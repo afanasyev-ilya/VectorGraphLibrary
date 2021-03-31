@@ -81,19 +81,12 @@ int main(int argc, const char * argv[])
             cout << "selected source vertex " << source_vertex << " on run № " << i << endl;
             cout << "this vertex is " << graph.reorder(source_vertex, ORIGINAL, SCATTER) << ", " << 100.0*graph.reorder(source_vertex, ORIGINAL, SCATTER)/graph.get_vertices_count() << " % pos" << endl;
 
-            Timer tm;
-            tm.start();
             performance_stats.reset_timers();
             if(parser.get_algorithm_bfs() == DIRECTION_OPTIMIZING_BFS_ALGORITHM)
                 BFS::hardwired_do_bfs(graph, levels, source_vertex, vector_extension_for_bfs, buffer1, buffer2);
             else if(parser.get_algorithm_bfs() == TOP_DOWN_BFS_ALGORITHM)
                 BFS::nec_top_down(graph, levels, source_vertex);
-            performance_stats.print_timers_stats();
-            tm.end();
-            avg_time += tm.get_time()/(parser.get_number_of_rounds());
-            cout << "Performance of run: " << graph.get_edges_count()/(tm.get_time() * 1e6) << " MTEPS" << endl << endl;
 
-            // check if required
             if(parser.get_check_flag())
             {
                 VerticesArray<int> check_levels(graph, SCATTER);
@@ -102,7 +95,6 @@ int main(int argc, const char * argv[])
                 verify_results(levels, check_levels, 0);
             }
         }
-        cout << "Average performance: " << graph.get_edges_count()/(avg_time * 1e6) << " MTEPS" << endl;
         performance_stats.print_perf(graph.get_edges_count());
 
         MemoryAPI::free_array(buffer1);

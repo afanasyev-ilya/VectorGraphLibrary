@@ -892,10 +892,12 @@ void BFS::hardwired_do_bfs(VectCSRGraph &_graph,
 
     double total_time = 0;
 
-    t1 = omp_get_wtime();
+    Timer tm;
+    tm.start();
     int non_zero_vertices_count = nec_remove_zero_nodes(outgoing_ptrs, vertices_count, _levels.get_ptr());
-    t2 = omp_get_wtime();
-    total_time += t2 - t1;
+    tm.end();
+    total_time += tm.get_time();
+    performance_stats.update_non_api_time(tm);
 
     #ifdef __PRINT_API_PERFORMANCE_STATS__
     vector<double> each_kernel_time;
@@ -912,8 +914,7 @@ void BFS::hardwired_do_bfs(VectCSRGraph &_graph,
     while(active_count > 0)
     {
         double t_first, t_second, t_third;
-        t3 = omp_get_wtime();
-
+        tm.start();
         _levels.prefetch_data_into_cache();
 
         int vis = 0, in_lvl = 0;
@@ -932,14 +933,12 @@ void BFS::hardwired_do_bfs(VectCSRGraph &_graph,
                                non_zero_vertices_count, t_first, t_second, t_third);
             number_of_bu_steps++;
         }
+        tm.end();
+        total_time += tm.get_time();
+        double kernel_time = tm.get_time();
+        performance_stats.update_non_api_time(tm);
 
-        t4 = omp_get_wtime();
-        total_time += t4 - t3;
-        double kernel_time = t4 - t3;
-
-        total_kernel_time += kernel_time;
-
-        t3 = omp_get_wtime();
+        tm.start();
         int next_active_count = get_elements_count(_levels.get_ptr(), non_zero_vertices_count, cur_level + 1);
         int frontier_size = next_active_count;
 
@@ -958,9 +957,10 @@ void BFS::hardwired_do_bfs(VectCSRGraph &_graph,
         {
             active_count = get_elements_count(_levels.get_ptr(), non_zero_vertices_count, UNVISITED_VERTEX);
         }
-        t4 = omp_get_wtime();
-        double reminder_time = t4 - t3;
-        total_time += reminder_time;
+        tm.end();
+        double reminder_time = tm.get_time();
+        total_time += tm.get_time();
+        performance_stats.update_non_api_time(tm);
 
         #ifdef __PRINT_API_PERFORMANCE_STATS__
         total_reminder_time += reminder_time;
@@ -976,10 +976,11 @@ void BFS::hardwired_do_bfs(VectCSRGraph &_graph,
         cur_level++;
     }
 
-    t1 = omp_get_wtime();
+    tm.start();
     nec_mark_zero_nodes(vertices_count, _levels.get_ptr());
-    t2 = omp_get_wtime();
-    total_time += t2 - t1;
+    tm.end();
+    total_time += tm.get_time();
+    performance_stats.update_non_api_time(tm);
 
     #ifdef __PRINT_API_PERFORMANCE_STATS__
     for(int i = 0; i < each_kernel_time.size(); i++)
@@ -1000,7 +1001,6 @@ void BFS::hardwired_do_bfs(VectCSRGraph &_graph,
     cout << "kernel input: " << 100.0*total_kernel_time/total_time << " %" << endl;
     cout << "reminder input: " << 100.0*total_reminder_time/total_time << " %" << endl << endl;
     cout << total_kernel_time << " vs " << total_reminder_time << endl;
-    cout << "TOTAL BFS Perf: " << ((double)edges_count)/(total_time*1e6) << " MTEPS" << endl << endl << endl;
     #endif
 
     performance_stats.save_algorithm_performance_stats(total_time, _graph.get_edges_count(), cur_level);

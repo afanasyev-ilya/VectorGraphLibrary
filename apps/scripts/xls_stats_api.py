@@ -32,7 +32,7 @@ def get_column_pos(graph_name):
 
 def get_row_pos(graph_name):
     if "rmat" in graph_name or "ru" in graph_name:
-        return int(graph_name.split('_')[1]) - min_scale
+        return int(graph_name.split('_')[1]) - synthetic_min_scale
     elif graph_name in get_list_of_soc_graphs():
         return get_list_of_soc_graphs().index(graph_name)
     elif graph_name in get_list_of_misc_graphs():
