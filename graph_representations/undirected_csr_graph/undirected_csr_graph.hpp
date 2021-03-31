@@ -153,7 +153,7 @@ void UndirectedCSRGraph::load_main_content_to_binary_file(FILE *_graph_file)
     fread(reinterpret_cast<char*>(backward_conversion), sizeof(int), vertices_count, _graph_file);
     fread(reinterpret_cast<char*>(edges_reorder_indexes), sizeof(vgl_sort_indexes), edges_count, _graph_file);
 
-    #ifdef __USE_NEC_SX_AURORA__
+    #if defined(__USE_NEC_SX_AURORA__) || defined(__USE_MULTICORE__)
     estimate_nec_thresholds();
     last_vertices_ve.init_from_graph(this->vertex_pointers, this->adjacent_ids,
                                      vector_core_threshold_vertex, this->vertices_count);

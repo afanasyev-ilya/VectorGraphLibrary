@@ -32,6 +32,9 @@ cc: create_folders cc.o
 pr: create_folders pr.o
 	$(CUDA_COMPILER) object_files/pr.o $(Library_Path) $(Libraries) -o ./bin/pr_cu
 
+create_vgl_graphs: create_folders create_vgl_graphs.o
+	$(CUDA_COMPILER) object_files/create_vgl_graphs.o $(Library_Path) $(Libraries) -o ./bin/create_vgl_graphs_mc
+
 ##########
 # CPPs
 ##########
@@ -58,6 +61,9 @@ cc.o: cc/cc.cu
 
 pr.o: pr/pr.cu
 	$(CUDA_COMPILER) $(Flags) $(Include_Path) -c pr/pr.cu -o object_files/pr.o
+
+create_vgl_graphs.o: utilites/create_vgl_graphs.cpp
+	$(CUDA_COMPILER) $(Flags) $(Include_Path) -c utilites/create_vgl_graphs.cpp -o object_files/create_vgl_graphs.o
 
 create_folders:
 	-mkdir -p ./bin
