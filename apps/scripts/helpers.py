@@ -2,6 +2,7 @@ from pathlib import Path
 import subprocess
 import os
 import shutil
+from .common import *
 
 
 def create_dir(dir_path):
@@ -62,28 +63,36 @@ def is_valid(app_name, arch, options):
 
 
 def get_cores_count():  # returns number of sockets of target architecture
-    output = subprocess.check_output(["lscpu"])
-    cores = -1
-    for item in output.decode().split("\n"):
-        if "Core(s) per socket:" in item:
-            cores_line = item.strip()
-            cores = int(cores_line.split(":")[1])
-    if cores == -1:
-        raise NameError('Can not detect number of cores of target architecture')
-    return cores
+    try:
+        output = subprocess.check_output(["lscpu"])
+        cores = -1
+        for item in output.decode().split("\n"):
+            if "Core(s) per socket:" in item:
+                cores_line = item.strip()
+                cores = int(cores_line.split(":")[1])
+        if cores == -1:
+            raise NameError('Can not detect number of cores of target architecture')
+        return cores
+    except:
+        cores = 8 # SX-Aurora
+        return cores
 
 
 def get_sockets_count():  # returns number of sockets of target architecture
-    output = subprocess.check_output(["lscpu"])
-    cores = -1
-    sockets = -1
-    for item in output.decode().split("\n"):
-        if "Socket(s)" in item:
-            sockets_line = item.strip()
-            sockets = int(sockets_line.split(":")[1])
-    if sockets == -1:
-        raise NameError('Can not detect number of cores of target architecture')
-    return sockets
+    try:
+        output = subprocess.check_output(["lscpu"])
+        cores = -1
+        sockets = -1
+        for item in output.decode().split("\n"):
+            if "Socket(s)" in item:
+                sockets_line = item.strip()
+                sockets = int(sockets_line.split(":")[1])
+        if sockets == -1:
+            raise NameError('Can not detect number of cores of target architecture')
+        return sockets
+    except:
+        sockets = 1 # SX-Aurora
+        return sockets
 
 
 def get_threads_count():
@@ -97,3 +106,13 @@ def set_omp_environments(options):
     os.environ['OMP_NUM_THREADS'] = str(threads)
     os.environ['OMP_PROC_BIND'] = 'true'
     os.environ['OMP_PROC_BIND'] = 'close'
+
+
+def prepare_list_of_apps(options):
+    if options.apps == "all":
+        list = []
+        for app in benchmark_args:
+            list += [app]
+        return list
+    else:
+        return options.apps.split(",")

@@ -163,8 +163,8 @@ void SSSP::nec_dijkstra_all_active_pull(VectCSRGraph &_graph,
                                         VerticesArray<_T> &_distances,
                                         int _source_vertex)
 {
-    VGL_GRAPH_ABSTRACTIONS graph_API(_graph);
-    VGL_FRONTIER frontier(_graph);
+    VGL_GRAPH_ABSTRACTIONS graph_API(_graph, GATHER);
+    VGL_FRONTIER frontier(_graph, GATHER);
 
     VerticesArray<_T> prev_distances(_graph, GATHER);
 

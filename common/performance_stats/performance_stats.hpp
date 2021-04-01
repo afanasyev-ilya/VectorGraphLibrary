@@ -238,8 +238,6 @@ void PerformanceStats::print_timers_stats()
     print_abstraction_stats("Pack          ", pack_time);
     print_abstraction_stats("Non-API       ", non_api_time);
     cout << endl;
-
-    update_timer_stats();
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

@@ -7,18 +7,22 @@ from scripts.verification_api import *
 
 def run_tests(options):
     create_dir("./bin/")
-    list_of_apps = options.apps.split(",")
+    list_of_apps = prepare_list_of_apps(options)
     arch = options.arch
 
     workbook = xlsxwriter.Workbook('benchmarking_results.xlsx')
 
     set_omp_environments(options)
+    perf_stats = PerformanceStats(workbook)
+    verification_stats = VerificationStats(workbook)
 
     for app_name in list_of_apps:
         if is_valid(app_name, arch, options):
-            benchmark_app(app_name, arch, options, workbook)
+            benchmark_app(app_name, arch, options, workbook, perf_stats)
             if options.verify:
-                verify_app(app_name, arch, options, workbook)
+                verify_app(app_name, arch, options, workbook, verification_stats)
+        else:
+            print("Error! Can not compile " + app_name + ", several errors occurred.")
 
     workbook.close()
 

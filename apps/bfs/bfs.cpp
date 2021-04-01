@@ -1,15 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#ifdef __GNUC__
-#define __USE_MULTICORE__
-#endif
-
-#ifndef __GNUC__
-#define __USE_NEC_SX_AURORA__
-#endif
-
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
 #define INT_ELEMENTS_PER_EDGE 4.0
 #define NEC_VECTOR_ENGINE_THRESHOLD_VALUE  VECTOR_LENGTH * MAX_SX_AURORA_THREADS * 128
 #define VECTOR_CORE_THRESHOLD_VALUE 2*VECTOR_LENGTH
@@ -86,6 +76,8 @@ int main(int argc, const char * argv[])
                 BFS::hardwired_do_bfs(graph, levels, source_vertex, vector_extension_for_bfs, buffer1, buffer2);
             else if(parser.get_algorithm_bfs() == TOP_DOWN_BFS_ALGORITHM)
                 BFS::nec_top_down(graph, levels, source_vertex);
+            performance_stats.update_timer_stats();
+            //performance_stats.print_timers_stats();
 
             if(parser.get_check_flag())
             {

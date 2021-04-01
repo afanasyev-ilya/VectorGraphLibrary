@@ -57,7 +57,10 @@ def get_list_of_ru_graphs():
 
 
 def get_list_of_verification_graphs():
-    return ["rmat_20_16", "ru_20_16", "soc_pokec", "wiki_talk"]
+    return ["rmat_20_"+str(synthetic_edge_factor),
+            "ru_20_"+str(synthetic_edge_factor),
+            "soc_pokec",
+            "wiki_talk"]
 
 
 def get_graph_path(graph_name):

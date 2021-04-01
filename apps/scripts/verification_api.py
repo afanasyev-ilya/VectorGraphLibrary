@@ -14,13 +14,11 @@ def check_app_correctness(output):
     return matched_lines
 
 
-def verify_app(app_name, arch, options, workbook):
+def verify_app(app_name, arch, options, workbook, table_stats):
     list_of_graphs = get_list_of_verification_graphs()
 
     create_graphs_if_required(list_of_graphs, arch)
     common_args = ["-check", "-it", "1"]
-
-    table_stats = VerificationStats(workbook)
 
     for current_args in benchmark_args[app_name]:
         table_stats.init_test_data(app_name, current_args)

@@ -64,7 +64,8 @@ int main(int argc, const char * argv[])
 
             performance_stats.reset_timers();
             BFS::gpu_top_down(graph, levels, source_vertex);
-            performance_stats.print_timers_stats();
+            performance_stats.update_timer_stats();
+            //performance_stats.print_timers_stats();
 
             // check if required
             if(parser.get_check_flag())

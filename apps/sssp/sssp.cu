@@ -66,8 +66,8 @@ int main(int argc, const char * argv[])
             ShortestPaths::gpu_dijkstra(graph, weights, distances, source_vertex,
                                         parser.get_algorithm_frontier_type(),
                                         parser.get_traversal_direction());
-
-            performance_stats.print_timers_stats();
+            performance_stats.update_timer_stats();
+            //performance_stats.print_timers_stats();
 
             // check if required
             if(parser.get_check_flag())

@@ -8,7 +8,7 @@ Flags = -O3 -fopenmp
 
 # Library paths...
 Library_Path =
-Libraries = -fopenmp
+Libraries = -fopenmp -D __USE_MULTICORE__
 
 .DEFAULT_GOAL := all
 

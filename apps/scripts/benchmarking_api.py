@@ -28,14 +28,12 @@ def extract_perf_val(perf_lines):
     return 0.0
 
 
-def benchmark_app(app_name, arch, options, workbook):
+def benchmark_app(app_name, arch, options, workbook, table_stats):
     list_of_graphs = get_list_of_rmat_graphs() + get_list_of_ru_graphs() + get_list_of_soc_graphs() + \
                      get_list_of_misc_graphs()
 
     create_graphs_if_required(list_of_graphs, arch)
     common_args = ["-it", str(common_iterations)]
-
-    table_stats = PerformanceStats(workbook)
 
     for current_args in benchmark_args[app_name]:
         table_stats.init_test_data(app_name, current_args + common_args)
