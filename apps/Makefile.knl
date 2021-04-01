@@ -4,7 +4,7 @@ CXX = icpc
 
 # Include paths...
 Include_Path = -I ../
-Flags = -O3 -fpermissive -w -m64 -std=c++11 -qopenmp -qopt-report-phase=vec -qopt-streaming-stores always
+Flags = -D __USE_MULTICORE__ -O3 -fpermissive -w -m64 -std=c++11 -qopenmp -qopt-report-phase=vec -qopt-streaming-stores always
 
 # Library paths...
 Library_Path =
@@ -46,6 +46,7 @@ create_folders:
 
 clean:
 	-rm -f object_files/*.o
+	-rm -f bin/*_mc
 
 #################
 # CUDA operations

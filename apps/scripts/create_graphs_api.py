@@ -63,6 +63,12 @@ def get_list_of_verification_graphs():
             "wiki_talk"]
 
 
+def get_list_of_all_graphs():
+    list_of_graphs = get_list_of_rmat_graphs() + get_list_of_ru_graphs() + get_list_of_soc_graphs() + \
+                     get_list_of_misc_graphs() + get_list_of_verification_graphs()
+    return list_of_graphs
+
+
 def get_graph_path(graph_name):
     prefix = GRAPHS_DIR
     suffix =".vgraph"

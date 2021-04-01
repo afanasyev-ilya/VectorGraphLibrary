@@ -8,7 +8,7 @@ Flags = -O3 -fopenmp
 
 # Library paths...
 Library_Path =
-Libraries = -fopenmp -D __USE_MULTICORE__
+Libraries = -D __USE_MULTICORE__ -fopenmp
 
 .DEFAULT_GOAL := all
 
@@ -77,6 +77,7 @@ create_folders:
 
 clean:
 	-rm -f object_files/*.o
+	-rm -f bin/*_mc
 
 #################
 # CUDA operations

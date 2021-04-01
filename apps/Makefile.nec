@@ -83,7 +83,7 @@ print_graph_info.o: utilites/print_graph_info.cpp
 	$(VE_CXX) $(Flags) $(Include_Path)  -c utilites/print_graph_info.cpp -o object_files/print_graph_info.o
 
 create_vgl_graphs.o: utilites/create_vgl_graphs.cpp
-	$(VH_CXX) $(Include_Path) -fopenmp -c utilites/create_vgl_graphs.cpp -o object_files/create_vgl_graphs.o
+	$(VH_CXX) $(Include_Path) -D __USE_MULTICORE__ -fopenmp -c utilites/create_vgl_graphs.cpp -o object_files/create_vgl_graphs.o
 
 create_folders:
 	-mkdir -p ./bin
@@ -92,6 +92,7 @@ create_folders:
 
 clean:
 	-rm -f object_files/*.o
+	-rm -f bin/*_sx
 
 #################
 # CUDA operations

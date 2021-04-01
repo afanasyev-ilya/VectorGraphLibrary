@@ -72,3 +72,4 @@ create_folders:
 
 clean:
 	-rm -f object_files/*.o
+	-rm -f bin/*_cu

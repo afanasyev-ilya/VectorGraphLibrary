@@ -51,11 +51,11 @@ def binary_exists(app_name, arch):
 def make_binary(app_name, arch):
     cmd = "make -f Makefile." + get_makefile_suffix(arch) + " " + app_name
     print(cmd)
-    subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT).wait()
+    subprocess.call(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
 
 
 def is_valid(app_name, arch, options):
-    if (not binary_exists(app_name, arch)) or options.recompile:
+    if not binary_exists(app_name, arch):
         make_binary(app_name, arch)
         if not binary_exists(app_name, arch):
             return False
@@ -108,11 +108,11 @@ def set_omp_environments(options):
     os.environ['OMP_PROC_BIND'] = 'close'
 
 
-def prepare_list_of_apps(options):
-    if options.apps == "all":
-        list = []
+def prepare_list_of_apps(apps_string):
+    if apps_string == "all":
+        apps_list = []
         for app in benchmark_args:
-            list += [app]
-        return list
+            apps_list += [app]
+        return apps_list
     else:
-        return options.apps.split(",")
+        return apps_string.split(",")

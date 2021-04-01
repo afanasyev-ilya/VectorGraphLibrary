@@ -98,8 +98,8 @@ class PerformanceStats:
         row = int(get_row_pos(graph_name))
         col = int(get_column_pos(graph_name))
         print(perf_value)
-        print(int(row))
-        print(int(col))
+        #print(int(row))
+        #print(int(col))
         self.worksheet.write(self.line_pos + row, col, perf_value, self.current_format)
 
     def end_test_data(self):

@@ -5,10 +5,21 @@ from scripts.benchmarking_api import *
 from scripts.verification_api import *
 
 
-def run_tests(options):
-    create_dir("./bin/")
-    list_of_apps = prepare_list_of_apps(options)
-    arch = options.arch
+def run_compile(options, arch):
+    make_binary("clean", arch)
+    list_of_apps = prepare_list_of_apps(options.apps)
+    for app_name in list_of_apps:
+        make_binary(app_name, arch)
+        if not binary_exists(app_name, arch):
+            print("Error! Can not compile " + app_name + ", several errors occurred.")
+
+
+def run_prepare(options, arch):
+    create_graphs_if_required(get_list_of_all_graphs(), arch)
+
+
+def run_tests(options, arch):
+    list_of_apps = prepare_list_of_apps(options.apps)
 
     workbook = xlsxwriter.Workbook('benchmarking_results.xlsx')
 
@@ -18,7 +29,8 @@ def run_tests(options):
 
     for app_name in list_of_apps:
         if is_valid(app_name, arch, options):
-            benchmark_app(app_name, arch, options, workbook, perf_stats)
+            if not options.no_run:
+                benchmark_app(app_name, arch, options, workbook, perf_stats)
             if options.verify:
                 verify_app(app_name, arch, options, workbook, verification_stats)
         else:
@@ -42,12 +54,28 @@ if __name__ == "__main__":
     parser.add_option('-s', '--sockets',
                       action="store", dest="sockets",
                       help="set number of sockets used", default=1)
-    parser.add_option('-c', '--compile',
-                      action="store_true", dest="recompile",
-                      help="recompile all binaries used in testing", default=False)
     parser.add_option('-v', '--verify',
                       action="store_true", dest="verify",
                       help="run additional verification tests after benchmarking process", default=False)
+    parser.add_option('-c', '--compile',
+                      action="store_true", dest="compile",
+                      help="compile all binaries", default=False)
+    parser.add_option('-p', '--prepare',
+                      action="store_true", dest="prepare",
+                      help="compile all binaries, download graphs and convert them into VGL format", default=False)
+    parser.add_option('-n', '--no-run',
+                      action="store_true", dest="no_run",
+                      help="do not run any tests", default=False)
 
     options, args = parser.parse_args()
-    run_tests(options)
+
+    create_dir("./bin/")
+    arch = options.arch
+
+    if options.compile:
+        run_compile(options, arch)
+
+    if options.prepare:
+        run_prepare(options, arch)
+
+    run_tests(options, arch)
