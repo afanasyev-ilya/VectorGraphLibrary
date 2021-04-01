@@ -4,11 +4,11 @@ CXX = g++
 
 # Include paths...
 Include_Path = -I ../
-Flags = -O3 -fopenmp
+Flags = -D __USE_MULTICORE__ -O3 -fopenmp
 
 # Library paths...
 Library_Path =
-Libraries = -D __USE_MULTICORE__ -fopenmp
+Libraries = -O3 -fopenmp
 
 .DEFAULT_GOAL := all
 
