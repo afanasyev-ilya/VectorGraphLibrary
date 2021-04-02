@@ -53,6 +53,11 @@ def make_binary(app_name, arch):
     print(cmd)
     subprocess.call(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
 
+    if binary_exists(app_name, arch):
+        print("Success! " + app_name + " has been compiled")
+    else:
+        print("Error! " + app_name + " can not be compiled")
+
 
 def is_valid(app_name, arch, options):
     if not binary_exists(app_name, arch):

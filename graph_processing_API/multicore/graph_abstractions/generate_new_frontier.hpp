@@ -65,57 +65,29 @@ void GraphAbstractionsMulticore::generate_new_frontier(VectCSRGraph &_graph,
     Timer tm_copy_if;
     tm_copy_if.start();
 
+    bool copy_if_work = false;
+
     // set type of the whole frontier
     if(_frontier.current_size == _frontier.max_size)
     {
         _frontier.type = ALL_ACTIVE_FRONTIER;
     }
-    else if(double(_frontier.current_size)/_frontier.max_size > FRONTIER_TYPE_CHANGE_THRESHOLD) // flags array
+    else if(double(_frontier.current_size)/_frontier.max_size > 0.7) // flags array
     {
         _frontier.type = DENSE_FRONTIER;
-    }
-    else
-    {
-        _frontier.type = SPARSE_FRONTIER;
-    }
-
-    bool copy_if_work = true;
-    _frontier.vector_engine_part_type = SPARSE_FRONTIER;
-    _frontier.vector_core_part_type = SPARSE_FRONTIER;
-    _frontier.collective_part_type = SPARSE_FRONTIER;
-
-    prefix_sum_copy_if(_frontier.flags,  _frontier.ids, _frontier.work_buffer, _frontier.max_size);
-
-/*
-    // estimate first (VE) part sparsity
-    if(double(_frontier.vector_engine_part_size)/(ve_threshold - 0) < VE_FRONTIER_TYPE_CHANGE_THRESHOLD)
-    {
-        _frontier.vector_engine_part_type = SPARSE_FRONTIER;
-    }
-    else
-    {
         _frontier.vector_engine_part_type = DENSE_FRONTIER;
-    }
-
-    // estimate second (VC) part sparsity
-    if(double(_frontier.vector_core_part_size)/(vc_threshold - ve_threshold) < VC_FRONTIER_TYPE_CHANGE_THRESHOLD)
-    {
-        _frontier.vector_core_part_type = SPARSE_FRONTIER;
-    }
-    else
-    {
         _frontier.vector_core_part_type = DENSE_FRONTIER;
-    }
-
-    // estimate third (collective) part sparsity
-    if(double(_frontier.collective_part_size)/(vertices_count - vc_threshold) < COLLECTIVE_FRONTIER_TYPE_CHANGE_THRESHOLD)
-    {
-        _frontier.collective_part_type = SPARSE_FRONTIER;
+        _frontier.collective_part_type = DENSE_FRONTIER;
     }
     else
     {
-        _frontier.collective_part_type = DENSE_FRONTIER;
-    }*/
+        copy_if_work = true;
+        _frontier.type = SPARSE_FRONTIER;
+        _frontier.vector_engine_part_type = SPARSE_FRONTIER;
+        _frontier.vector_core_part_type = SPARSE_FRONTIER;
+        _frontier.collective_part_type = SPARSE_FRONTIER;
+        prefix_sum_copy_if(_frontier.flags,  _frontier.ids, _frontier.work_buffer, _frontier.max_size);
+    }
 
     tm_copy_if.end();
     tm_wall.end();

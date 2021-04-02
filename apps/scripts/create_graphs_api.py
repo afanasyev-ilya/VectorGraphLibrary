@@ -135,5 +135,8 @@ def create_graphs_if_required(list_of_graphs, arch):
         if not file_exists(get_graph_path(current_graph)):
             print("Warning! need to create graph " + get_graph_path(current_graph))
             create_graph(current_graph, arch)
-
+            if file_exists(get_graph_path(current_graph)):
+                print("Success! graph " + get_graph_path(current_graph) + " has been created.")
+            else:
+                print("Error! graph " + get_graph_path(current_graph) + " can not be created.")
 
