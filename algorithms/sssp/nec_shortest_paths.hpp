@@ -109,6 +109,13 @@ void SSSP::nec_dijkstra_all_active_push(VectCSRGraph &_graph,
             _distances[src_id] = inf_val;
     };
     frontier.set_all_active();
+
+    graph_API.compute(_graph, frontier, init_distances);
+
+    // TODO rem
+    graph_API.compute(_graph, frontier, init_distances);
+
+    // TODO rem
     graph_API.compute(_graph, frontier, init_distances);
 
     int changes = 0, iterations_count = 0;

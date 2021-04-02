@@ -4,7 +4,8 @@
 
 void UndirectedCSRGraph::extract_connection_count(EdgesListGraph &_el_graph,
                                                   int *_work_buffer,
-                                                  int *_connections_array)
+                                                  int *_connections_array,
+                                                  int _threads_num)
 {
     Timer tm;
     tm.start();
@@ -13,15 +14,13 @@ void UndirectedCSRGraph::extract_connection_count(EdgesListGraph &_el_graph,
     long long el_edges_count = _el_graph.get_edges_count();
     int *el_src_ids = _el_graph.get_src_ids();
 
-    int threads_num = omp_get_max_threads();
-
     memset(_connections_array, 0, el_vertices_count*sizeof(int));
-    memset(_work_buffer, 0, el_vertices_count*threads_num*sizeof(int));
+    memset(_work_buffer, 0, el_vertices_count*_threads_num*sizeof(int));
 
     #pragma omp parallel
     {};
 
-    #pragma omp parallel num_threads(threads_num)
+    #pragma omp parallel num_threads(_threads_num)
     {
         int tid = omp_get_thread_num();
 
@@ -40,7 +39,7 @@ void UndirectedCSRGraph::extract_connection_count(EdgesListGraph &_el_graph,
         }
 
         #pragma _NEC novector
-        for(int core = 0; core < threads_num; core++)
+        for(int core = 0; core < _threads_num; core++)
         {
             #pragma _NEC ivdep
             #pragma omp for
@@ -266,7 +265,17 @@ void UndirectedCSRGraph::import(EdgesListGraph &_el_graph)
     MemoryAPI::allocate_array(&loc_forward_conversion, el_vertices_count);
     MemoryAPI::allocate_array(&loc_backward_conversion, el_vertices_count);
 
-    int threads_num = omp_get_max_threads();
+    int max_threads_in_extract = 1;
+    #ifdef __USE_MULTICORE__
+    // if arch have many cores, we don't use many threads in order to prevent huge memory consumption.
+    // instead, we use edge factor threads
+    int edge_factor = el_edges_count/el_vertices_count;
+    max_threads_in_extract = edge_factor;
+    #endif
+
+    #ifdef __USE_NEC_SX_AURORA__
+    max_threads_in_extract = omp_get_max_threads();
+    #endif
 
     // allocate buffers
     int *connections_array;
@@ -274,10 +283,11 @@ void UndirectedCSRGraph::import(EdgesListGraph &_el_graph)
     vgl_sort_indexes *sort_indexes;
     MemoryAPI::allocate_array(&connections_array, el_vertices_count);
     MemoryAPI::allocate_array(&sort_indexes, el_edges_count);
-    MemoryAPI::allocate_array(&work_buffer, max(el_edges_count, (long long)el_vertices_count*threads_num));
+    // this buffer should have enough elements for extracted connections and edges list items sort
+    MemoryAPI::allocate_array(&work_buffer, max(el_edges_count, (long long)el_vertices_count*max_threads_in_extract));
 
     // obtain connections array from edges list graph
-    extract_connection_count(_el_graph, work_buffer, connections_array);
+    extract_connection_count(_el_graph, work_buffer, connections_array, max_threads_in_extract);
 
     // get reorder data (sort by vertex degree)
     sort_vertices_by_degree(connections_array, sort_indexes, el_vertices_count, loc_forward_conversion,

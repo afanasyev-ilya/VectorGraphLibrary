@@ -34,9 +34,9 @@ private:
 
     // compute inner implementation
     template <typename ComputeOperation>
-    void compute_worker(UndirectedCSRGraph &_graph,
-                        FrontierMulticore &_frontier,
-                        ComputeOperation &&compute_op);
+    inline void compute_worker(UndirectedCSRGraph &_graph,
+                               FrontierMulticore &_frontier,
+                               ComputeOperation &&compute_op);
 
     // reduce inner implementation
     template <typename _T, typename ReduceOperation>

@@ -61,7 +61,9 @@ private:
 
     // import functions
     void extract_connection_count(EdgesListGraph &_el_graph,
-                                  int *_work_buffer, int *_connections_count);
+                                  int *_work_buffer,
+                                  int *_connections_count,
+                                  int _threads_num);
 
     void sort_vertices_by_degree(int *_connections_array, vgl_sort_indexes *_sort_indexes,
                                  int _el_vertices_count, int *_forward_conversion,
