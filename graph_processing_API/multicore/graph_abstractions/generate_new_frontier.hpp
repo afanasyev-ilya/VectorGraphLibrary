@@ -79,16 +79,18 @@ void GraphAbstractionsMulticore::generate_new_frontier(VectCSRGraph &_graph,
         _frontier.type = SPARSE_FRONTIER;
     }
 
-    bool copy_if_work = false;
+    bool copy_if_work = true;
+    _frontier.vector_engine_part_type = SPARSE_FRONTIER;
+    _frontier.vector_core_part_type = SPARSE_FRONTIER;
+    _frontier.collective_part_type = SPARSE_FRONTIER;
+
+    prefix_sum_copy_if(_frontier.flags,  _frontier.ids, _frontier.work_buffer, _frontier.max_size);
+
+/*
     // estimate first (VE) part sparsity
     if(double(_frontier.vector_engine_part_size)/(ve_threshold - 0) < VE_FRONTIER_TYPE_CHANGE_THRESHOLD)
     {
         _frontier.vector_engine_part_type = SPARSE_FRONTIER;
-        if(_frontier.vector_engine_part_size > 0)
-        {
-            copy_if_work = true;
-            sparse_copy_if(_frontier.flags, _frontier.ids, _frontier.work_buffer, _frontier.max_size, 0, ve_threshold);
-        }
     }
     else
     {
@@ -99,12 +101,6 @@ void GraphAbstractionsMulticore::generate_new_frontier(VectCSRGraph &_graph,
     if(double(_frontier.vector_core_part_size)/(vc_threshold - ve_threshold) < VC_FRONTIER_TYPE_CHANGE_THRESHOLD)
     {
         _frontier.vector_core_part_type = SPARSE_FRONTIER;
-        if(_frontier.vector_core_part_size > 0)
-        {
-            copy_if_work = true;
-            sparse_copy_if(_frontier.flags, &_frontier.ids[_frontier.vector_engine_part_size], _frontier.work_buffer,
-                           _frontier.max_size, ve_threshold, vc_threshold);
-        }
     }
     else
     {
@@ -115,18 +111,11 @@ void GraphAbstractionsMulticore::generate_new_frontier(VectCSRGraph &_graph,
     if(double(_frontier.collective_part_size)/(vertices_count - vc_threshold) < COLLECTIVE_FRONTIER_TYPE_CHANGE_THRESHOLD)
     {
         _frontier.collective_part_type = SPARSE_FRONTIER;
-        if(_frontier.collective_part_size > 0)
-        {
-            copy_if_work = true;
-            int segment_shift = vc_threshold;
-            int segment_size = vertices_count - vc_threshold;
-            int copied_elements = dense_copy_if(&_frontier.flags[segment_shift], &_frontier.ids[_frontier.vector_core_part_size + _frontier.vector_engine_part_size], _frontier.work_buffer, segment_size, segment_shift, SAVE_ORDER);
-        }
     }
     else
     {
         _frontier.collective_part_type = DENSE_FRONTIER;
-    }
+    }*/
 
     tm_copy_if.end();
     tm_wall.end();

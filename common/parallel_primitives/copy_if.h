@@ -1,13 +1,4 @@
-//
-//  copy_if.h
-//  ParallelGraphLibrary
-//
-//  Created by Elijah Afanasiev on 05/11/2019.
-//  Copyright © 2019 MSU. All rights reserved.
-//
-
-#ifndef copy_if_h
-#define copy_if_h
+#pragma once
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -127,6 +118,8 @@ enum COPY_IF_TYPE
     SAVE_ORDER = 0,
     DONT_SAVE_ORDER = 1
 };
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 inline int dense_copy_if(const int * __restrict__ _in_data,
                          int *_out_data,
@@ -304,110 +297,76 @@ inline int dense_copy_if(const int * __restrict__ _in_data,
     return output_size;
 }
 
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-inline int dense_copy_if2(const int * __restrict__ _in_data,
-                         int *_out_data,
-                         int *_tmp_buffer,
-                         const int _size)
+inline int prefix_sum_copy_if(const int * __restrict__ _in_data,
+                              int *_out_data,
+                              int *_tmp_buffer,
+                              const int _size)
 {
-    int max_buffer_size = _size / (VECTOR_LENGTH * MAX_SX_AURORA_THREADS) + 1;
+    int *suma;
 
-    int output_size = 0;
-    int shifts_array[MAX_SX_AURORA_THREADS];
-
-    #pragma omp parallel num_threads(MAX_SX_AURORA_THREADS) shared(output_size)
+    #pragma omp parallel
     {
-        int tid = omp_get_thread_num();
-        int *private_buffer = &_tmp_buffer[VECTOR_LENGTH * max_buffer_size * tid];
-
-        int reg_ptrs[VECTOR_LENGTH];
-
-        #pragma _NEC vreg(reg_ptrs)
-
-        #pragma _NEC vector
-        for (int i = 0; i < VECTOR_LENGTH; i++)
+        const int ithread = omp_get_thread_num();
+        const int nthreads = omp_get_num_threads();
+        #pragma omp single
         {
-            reg_ptrs[i] = 0;
+            suma = new int[nthreads+1];
+            suma[0] = 0;
         }
 
-        // copy data to buffers
-        #pragma omp for schedule(static, 8)
-        for (int vec_start = 0; vec_start < _size; vec_start += VECTOR_LENGTH)
+        #pragma omp for schedule(static)
+        for (int i = 0; i < _size; i++)
         {
-            #pragma _NEC ivdep
-            #pragma _NEC vovertake
-            #pragma _NEC novob
-            #pragma _NEC vector
-            for (int i = 0; i < VECTOR_LENGTH; i++)
-            {
-                int val = -1;
-
-                if((vec_start + i) < _size)
-                    val = _in_data[vec_start + i];
-
-                if(val > -1)
-                {
-                    int dst_buffer_idx = reg_ptrs[i] + i * max_buffer_size;
-                    private_buffer[dst_buffer_idx] = val;
-                    reg_ptrs[i]++;
-                }
-            }
+            if(_in_data[i] > 0)
+                _tmp_buffer[i] = 1;
+            else
+                _tmp_buffer[i] = 0;
         }
 
-        // calculate sizes
-        int dump_sizes[VECTOR_LENGTH];
-        #pragma _NEC vector
-        for (int i = 0; i < VECTOR_LENGTH; i++)
+        int sum = 0;
+        #pragma omp for schedule(static)
+        for (int i = 0; i < _size; i++)
         {
-            dump_sizes[i] = reg_ptrs[i];
+            sum += _tmp_buffer[i];
+            _tmp_buffer[i] = sum;
         }
-        int private_size = 0;
-        #pragma _NEC vector
-        for (int reg_pos = 0; reg_pos < VECTOR_LENGTH; reg_pos++)
-        {
-            private_size += dump_sizes[reg_pos];
-        }
+        suma[ithread+1] = sum;
 
-        // calculate output offsets
-        shifts_array[tid] = private_size;
         #pragma omp barrier
-        #pragma omp master
+        int offset = 0;
+        for(int i=0; i<(ithread+1); i++)
         {
-            int cur_shift = 0;
-            for(int i = 1; i < MAX_SX_AURORA_THREADS; i++)
-            {
-                shifts_array[i] += shifts_array[i - 1];
-            }
-            output_size = shifts_array[MAX_SX_AURORA_THREADS - 1];
-            for(int i = (MAX_SX_AURORA_THREADS - 1); i >= 1; i--)
-            {
-                shifts_array[i] = shifts_array[i - 1];
-            }
-            shifts_array[0] = 0;
+            offset += suma[i];
         }
-        #pragma omp barrier
-        int output_offset = shifts_array[tid];
 
-        // save data to output array
-        int current_pos = 0;
-        for(int reg_pos = 0; reg_pos < VECTOR_LENGTH; reg_pos++)
+        #pragma omp for schedule(static)
+        for (int i = 0; i < _size; i++)
         {
-            #pragma _NEC ivdep
-            #pragma _NEC vovertake
-            #pragma _NEC novob
-            #pragma _NEC vector
-            for (int i = 0; i < dump_sizes[reg_pos]; i++)
+            _tmp_buffer[i] += offset;
+        }
+
+        #pragma omp for schedule(static)
+        for (int i = 0; i < _size; i++)
+        {
+            if(_in_data[i] > 0)
             {
-                int src_buffer_idx = i + reg_pos * max_buffer_size;
-                _out_data[output_offset + current_pos + i] = private_buffer[src_buffer_idx];
+                _out_data[_tmp_buffer[i] - 1] = i;
             }
-            current_pos += dump_sizes[reg_pos];
         }
     }
+
+    int output_size = 0;
+    for(int i = 0; i < omp_get_max_threads(); i++)
+    {
+        output_size += suma[i];
+    }
+
+    delete[] suma;
 
     return output_size;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#endif /* copy_if_h */
