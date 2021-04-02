@@ -13,13 +13,15 @@ correctness_pattern = "error count:"
 GRAPHS_DIR = "./bin/input_graphs/"
 SOURCE_GRAPH_DIR = "./bin/source_graphs/"
 synthetic_min_scale = 18
-synthetic_max_scale = 25
+synthetic_medium_scale = 24
+synthetic_large_scale = 26
 synthetic_edge_factor = 32
 
 
 class BenchmarkMode(Enum):
     long = 1,
-    short = 2
+    medium = 2
+    short = 3
 
 
-mode = BenchmarkMode.long
+mode = BenchmarkMode.medium

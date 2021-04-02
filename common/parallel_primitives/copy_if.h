@@ -2,13 +2,13 @@
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-inline int sparse_copy_if(const int *_in_data,
-                          int *_out_data,
-                          int *_tmp_buffer,
-                          const int _buffer_size,
-                          const int _start,
-                          const int _end,
-                          const int _threads_count = MAX_SX_AURORA_THREADS)
+inline int vector_sparse_copy_if(const int *_in_data,
+                                 int *_out_data,
+                                 int *_tmp_buffer,
+                                 const int _buffer_size,
+                                 const int _start,
+                                 const int _end,
+                                 const int _threads_count = MAX_SX_AURORA_THREADS)
 {
     int size = _end - _start;
     int elements_per_thread = (_buffer_size - 1)/_threads_count + 1;
@@ -121,13 +121,13 @@ enum COPY_IF_TYPE
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-inline int dense_copy_if(const int * __restrict__ _in_data,
-                         int *_out_data,
-                         int *_tmp_buffer,
-                         const int _size,
-                         const int _shift,
-                         const COPY_IF_TYPE _output_order = SAVE_ORDER,
-                         const int _threads_count = MAX_SX_AURORA_THREADS)
+inline int vector_dense_copy_if(const int * __restrict__ _in_data,
+                                int *_out_data,
+                                int *_tmp_buffer,
+                                const int _size,
+                                const int _shift,
+                                const COPY_IF_TYPE _output_order = SAVE_ORDER,
+                                const int _threads_count = MAX_SX_AURORA_THREADS)
 {
     int max_buffer_size = _size / (VECTOR_LENGTH * MAX_SX_AURORA_THREADS) + 1;
 
@@ -354,6 +354,68 @@ inline int prefix_sum_copy_if(const int * __restrict__ _in_data,
             {
                 _out_data[_tmp_buffer[i] - 1] = i;
             }
+        }
+    }
+
+    int output_size = 0;
+    for(int i = 0; i < omp_get_max_threads(); i++)
+    {
+        output_size += suma[i];
+    }
+
+    delete[] suma;
+
+    return output_size;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+inline int parallel_buffers_copy_if(const int * __restrict__ _in_data,
+                                    int *_out_data,
+                                    int *_tmp_buffer,
+                                    const int _size)
+{
+    int *suma;
+
+    #pragma omp parallel
+    {
+        const int ithread = omp_get_thread_num();
+        const int nthreads = omp_get_num_threads();
+
+        int local_pos = 0;
+        int buffer_max_size = _size/nthreads;
+        int *local_buffer = &_tmp_buffer[ithread*buffer_max_size];
+
+        #pragma omp single
+        {
+            suma = new int[nthreads+1];
+            suma[0] = 0;
+        }
+
+        #pragma omp for schedule(static)
+        for (int i = 0; i < _size; i++)
+        {
+            if(_in_data[i] > 0)
+            {
+                local_buffer[local_pos] = i;
+                local_pos++;
+            }
+        }
+
+        int local_size = local_pos;
+        suma[ithread+1] = local_pos;
+
+        #pragma omp barrier
+        int offset = 0;
+        for(int i=0; i<(ithread+1); i++)
+        {
+            offset += suma[i];
+        }
+
+        int *dst_ptr = &_out_data[offset];
+        for (int i = 0; i < local_size; i++)
+        {
+            dst_ptr[i] = local_buffer[i];
         }
     }
 

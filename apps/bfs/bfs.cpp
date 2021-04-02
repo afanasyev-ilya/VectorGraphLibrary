@@ -77,7 +77,7 @@ int main(int argc, const char * argv[])
             else if(parser.get_algorithm_bfs() == TOP_DOWN_BFS_ALGORITHM)
                 BFS::nec_top_down(graph, levels, source_vertex);
             performance_stats.update_timer_stats();
-            //performance_stats.print_timers_stats();
+            performance_stats.print_timers_stats();
 
             if(parser.get_check_flag())
             {

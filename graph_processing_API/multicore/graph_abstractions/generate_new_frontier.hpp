@@ -2,12 +2,12 @@
 
 template <typename FilterCondition>
 void GraphAbstractionsMulticore::estimate_sorted_frontier_part_size(FrontierMulticore &_frontier,
-                                                              long long *_vertex_pointers,
-                                                              int _first_vertex,
-                                                              int _last_vertex,
-                                                              FilterCondition &&filter_cond,
-                                                              int &_elements_count,
-                                                              long long &_neighbours_count)
+                                                                    long long *_vertex_pointers,
+                                                                    int _first_vertex,
+                                                                    int _last_vertex,
+                                                                    FilterCondition &&filter_cond,
+                                                                    int &_elements_count,
+                                                                    long long &_neighbours_count)
 {
     int flags_sum = 0;
     long long connections_sum = 0;
@@ -34,8 +34,8 @@ void GraphAbstractionsMulticore::estimate_sorted_frontier_part_size(FrontierMult
 
 template <typename FilterCondition>
 void GraphAbstractionsMulticore::generate_new_frontier(VectCSRGraph &_graph,
-                                                 FrontierMulticore &_frontier,
-                                                 FilterCondition &&filter_cond)
+                                                       FrontierMulticore &_frontier,
+                                                       FilterCondition &&filter_cond)
 {
     Timer tm_flags, tm_wall;
     tm_flags.start();
@@ -86,7 +86,7 @@ void GraphAbstractionsMulticore::generate_new_frontier(VectCSRGraph &_graph,
         _frontier.vector_engine_part_type = SPARSE_FRONTIER;
         _frontier.vector_core_part_type = SPARSE_FRONTIER;
         _frontier.collective_part_type = SPARSE_FRONTIER;
-        prefix_sum_copy_if(_frontier.flags,  _frontier.ids, _frontier.work_buffer, _frontier.max_size);
+        parallel_buffers_copy_if(_frontier.flags,  _frontier.ids, _frontier.work_buffer, _frontier.max_size);
     }
 
     tm_copy_if.end();

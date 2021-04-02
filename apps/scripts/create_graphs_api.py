@@ -6,7 +6,7 @@ def get_list_of_soc_graphs():
     graphs = []
     if mode == BenchmarkMode.short:
         graphs = ["soc_pokec"]
-    elif mode == BenchmarkMode.long:
+    elif (mode == BenchmarkMode.long) or (mode == BenchmarkMode.medium):
         graphs = ["soc_stackoverflow",
                   "soc_orkut",
                   "soc_lj",
@@ -18,7 +18,7 @@ def get_list_of_misc_graphs():
     graphs = []
     if mode == BenchmarkMode.short:
         graphs = ["wiki_topcats"]
-    elif mode == BenchmarkMode.long:
+    elif (mode == BenchmarkMode.long) or (mode == BenchmarkMode.medium):
         graphs = ["wiki_talk",
                   "wiki_topcats",
                   "web_berk_stan",
@@ -34,8 +34,10 @@ def get_list_of_rmat_graphs():
     min_scale = synthetic_min_scale
     if mode == BenchmarkMode.short:
         max_scale = min_scale + 2
+    elif mode == BenchmarkMode.medium:
+        max_scale = synthetic_medium_scale
     elif mode == BenchmarkMode.long:
-        max_scale = synthetic_max_scale
+        max_scale = synthetic_medium_scale
     for scale in range(min_scale, max_scale + 1):
         new_graph = "rmat_" + str(scale) + "_" + str(edge_factor)
         graphs += [new_graph]
@@ -48,8 +50,10 @@ def get_list_of_ru_graphs():
     min_scale = synthetic_min_scale
     if mode == BenchmarkMode.short:
         max_scale = min_scale + 2
+    elif mode == BenchmarkMode.medium:
+        max_scale = synthetic_medium_scale
     elif mode == BenchmarkMode.long:
-        max_scale = synthetic_max_scale
+        max_scale = synthetic_medium_scale
     for scale in range(min_scale, max_scale + 1):
         new_graph = "ru_" + str(scale) + "_" + str(edge_factor)
         graphs += [new_graph]
