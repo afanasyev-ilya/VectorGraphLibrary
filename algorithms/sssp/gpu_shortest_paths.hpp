@@ -167,10 +167,11 @@ void SSSP::gpu_dijkstra_partial_active(VectCSRGraph &_graph,
         }
     };
 
-    auto frontier_condition = [was_updated] __device__(int src_id, int connections_count)->int{
-            if(was_updated[src_id] > 0)
+    auto frontier_condition = [was_updated] __device__ __VGL_GNF_ARGS__
+    {
+        if(was_updated[src_id] > 0)
             return IN_FRONTIER_FLAG;
-            else
+        else
             return NOT_IN_FRONTIER_FLAG;
     };
 

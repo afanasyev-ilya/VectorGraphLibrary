@@ -85,8 +85,7 @@ void CC::nec_bfs_based(VectCSRGraph &_graph, VerticesArray<_T> &_components)
         int current_level = COMPONENT_FIRST_BFS_LEVEL;
         while(frontier.size() > 0)
         {
-            auto edge_op = [&_components, current_level](int src_id, int dst_id, int local_edge_pos,
-                    long long int global_edge_pos, int vector_index, DelayedWriteNEC &delayed_write)
+            auto edge_op = [&_components, current_level] __VGL_SCATTER_ARGS__
             {
                 int dst_comp = _components[dst_id];
                 if(dst_comp == COMPONENT_UNSET)
@@ -97,7 +96,7 @@ void CC::nec_bfs_based(VectCSRGraph &_graph, VerticesArray<_T> &_components)
 
             graph_API.scatter(_graph, frontier, edge_op);
 
-            auto on_next_level = [&_components, current_level] (int src_id, int connections_count)->int
+            auto on_next_level = [&_components, current_level] __VGL_GNF_ARGS__
             {
                 int result = NOT_IN_FRONTIER_FLAG;
                 if(_components[src_id] == (current_level - 1))

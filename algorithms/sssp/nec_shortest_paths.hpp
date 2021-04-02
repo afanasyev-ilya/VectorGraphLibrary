@@ -45,8 +45,7 @@ void SSSP::nec_dijkstra_partial_active(VectCSRGraph &_graph,
 
         #pragma omp parallel
         {
-            auto edge_op_push = [&_distances, &_weights](int src_id, int dst_id, int local_edge_pos,
-                            long long int global_edge_pos, int vector_index, DelayedWriteNEC &delayed_write)
+            auto edge_op_push = [&_distances, &_weights] __VGL_SCATTER_ARGS__
             {
                 _T weight = _weights[global_edge_pos];
                 _T src_weight = _distances[src_id];
@@ -61,7 +60,7 @@ void SSSP::nec_dijkstra_partial_active(VectCSRGraph &_graph,
                               edge_op_push, EMPTY_VERTEX_OP, EMPTY_VERTEX_OP);
         }
 
-        auto changes_occurred = [&_distances, &prev_distances] (int src_id, int connections_count)->int
+        auto changes_occurred = [&_distances, &prev_distances] __VGL_GNF_ARGS__
         {
             int result = NOT_IN_FRONTIER_FLAG;
             if(_distances[src_id] != prev_distances[src_id])
@@ -112,12 +111,6 @@ void SSSP::nec_dijkstra_all_active_push(VectCSRGraph &_graph,
 
     graph_API.compute(_graph, frontier, init_distances);
 
-    // TODO rem
-    graph_API.compute(_graph, frontier, init_distances);
-
-    // TODO rem
-    graph_API.compute(_graph, frontier, init_distances);
-
     int changes = 0, iterations_count = 0;
     do
     {
@@ -129,8 +122,7 @@ void SSSP::nec_dijkstra_all_active_push(VectCSRGraph &_graph,
             NEC_REGISTER_INT(was_changes, 0);
 
             _T *distances_ptr = _distances.get_ptr();
-            auto edge_op_push = [&_distances, &_weights, &reg_was_changes, distances_ptr](int src_id, int dst_id, int local_edge_pos,
-                            long long int global_edge_pos, int vector_index, DelayedWriteNEC &delayed_write)
+            auto edge_op_push = [&_distances, &_weights, &reg_was_changes, distances_ptr] __VGL_SCATTER_ARGS__
             {
                 _T weight = _weights[global_edge_pos];
                 _T src_weight = distances_ptr[src_id];
@@ -340,8 +332,7 @@ void SSSP::nec_dijkstra(EdgesListGraph &_graph, EdgesArray_EL<_T> &_weights, Ver
 
         NEC_REGISTER_INT(was_changes, 0);
 
-        auto edge_op = [&_distances, &_weights, &reg_was_changes](int src_id, int dst_id, int local_edge_pos,
-                long long int global_edge_pos, int vector_index, DelayedWriteNEC &delayed_write)
+        auto edge_op = [&_distances, &_weights, &reg_was_changes] __VGL_SCATTER_ARGS__
         {
             _T weight = _weights[global_edge_pos];
             _T src_weight = _distances[src_id];
@@ -404,8 +395,7 @@ void SSSP::nec_dijkstra(ShardedCSRGraph &_graph,
 
         NEC_REGISTER_INT(was_changes, 0);
 
-        auto edge_op_push = [&_distances, &_weights, &reg_was_changes, &changes](int src_id, int dst_id, int local_edge_pos,
-                long long int global_edge_pos, int vector_index, DelayedWriteNEC &delayed_write)
+        auto edge_op_push = [&_distances, &_weights, &reg_was_changes, &changes] __VGL_SCATTER_ARGS__
         {
             _T weight = _weights[global_edge_pos];
             _T src_weight = _distances[src_id];

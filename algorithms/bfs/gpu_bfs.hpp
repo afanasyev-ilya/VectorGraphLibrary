@@ -46,7 +46,7 @@ void BFS::gpu_top_down(VectCSRGraph &_graph,
 
         graph_API.scatter(_graph, frontier, edge_op);
 
-        auto on_next_level = [_levels, current_level] __device__ (int src_id, int connections_count)->int
+        auto on_next_level = [_levels, current_level] __device__ __VGL_GNF_ARGS__
         {
             int result = NOT_IN_FRONTIER_FLAG;
             if(_levels[src_id] == (current_level + 1))

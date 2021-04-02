@@ -36,7 +36,7 @@ void SCC::trim_step(VectCSRGraph &_graph,
         _graph_API.change_traversal_direction(SCATTER, _frontier, out_frontier, _out_degrees, _active);
 
         // work only with low-degree vertices
-        auto out_connections = [] (int src_id, int connections_count)->int
+        auto out_connections = [] __VGL_GNF_ARGS__
         {
             int result = NOT_IN_FRONTIER_FLAG;
             if(connections_count < VECTOR_LENGTH)
@@ -54,8 +54,7 @@ void SCC::trim_step(VectCSRGraph &_graph,
         _graph_API.compute(_graph, _frontier, init_out_degrees);
 
         // if adjacnet is not active, decrese the degree
-        auto update_out = [&_active, &_out_degrees](int src_id, int dst_id, int local_edge_pos,
-                long long int global_edge_pos, int vector_index, DelayedWriteNEC &delayed_write)
+        auto update_out = [&_active, &_out_degrees] __VGL_SCATTER_ARGS__
         {
             if(_active[dst_id] == IS_NOT_ACTIVE)
                 _out_degrees[src_id]--;
@@ -69,7 +68,7 @@ void SCC::trim_step(VectCSRGraph &_graph,
         // work only with low-degree vertices
         _graph_API.change_traversal_direction(GATHER, _frontier, in_frontier, _in_degrees, _active);
 
-        auto in_connections = [] (int src_id, int connections_count)->int
+        auto in_connections = [] __VGL_GNF_ARGS__
         {
             int result = NOT_IN_FRONTIER_FLAG;
             if(connections_count < VECTOR_LENGTH)
@@ -87,8 +86,7 @@ void SCC::trim_step(VectCSRGraph &_graph,
         _graph_API.compute(_graph, _frontier, init_in_degrees);
 
         // if adjacnet is not active, decrese the degree
-        auto update_in = [&_active, &_in_degrees](int src_id, int dst_id, int local_edge_pos,
-                long long int global_edge_pos, int vector_index, DelayedWriteNEC &delayed_write)
+        auto update_in = [&_active, &_in_degrees] __VGL_GATHER_ARGS__
         {
             if(_active[dst_id] == IS_NOT_ACTIVE)
                 _in_degrees[src_id] = _in_degrees[src_id] - 1;
@@ -150,8 +148,7 @@ void SCC::bfs_reach(VectCSRGraph &_graph,
     int current_level = FIRST_LEVEL_VERTEX;
     while(_frontier.size() > 0)
     {
-        auto edge_op = [&_bfs_result, current_level](int src_id, int dst_id, int local_edge_pos,
-                long long int global_edge_pos, int vector_index, DelayedWriteNEC &delayed_write)
+        auto edge_op = [&_bfs_result, current_level] __VGL_ADVANCE_ARGS__
         {
             int dst_level = _bfs_result[dst_id];
             if(dst_level == UNVISITED_VERTEX)
@@ -165,7 +162,7 @@ void SCC::bfs_reach(VectCSRGraph &_graph,
         else if(_traversal_direction == GATHER)
             _graph_API.gather(_graph, _frontier, edge_op);
 
-        auto on_next_level = [&_bfs_result, current_level] (int src_id, int connections_count)->int
+        auto on_next_level = [&_bfs_result, current_level] __VGL_GNF_ARGS__
         {
             int result = NOT_IN_FRONTIER_FLAG;
             if(_bfs_result[src_id] == (current_level + 1))

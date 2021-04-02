@@ -1,9 +1,11 @@
 from enum import Enum
 
 
-benchmark_args = {"bfs": [["-top-down"], ["-do"]],
-                  "sssp": [["-push, -all-active"], ["-pull", "-all-active"], ["-push", "-partial-active"]],
-                  "pr": [["-push"], ["-pull"]]}
+benchmark_args = {"bfs": [ ["-top-down"], ["-do"] ],
+                  "sssp": [ ["-push, -all-active"], ["-pull", "-all-active"], ["-push", "-partial-active"] ],
+                  "pr": [ ["-push"], ["-pull"] ],
+                  "cc": [ ["-bfs-based"], ["-cv"] ],
+                  "sswp": [ ["-push"] ]}
 common_iterations = 10
 perf_pattern = "MAX_PERF"
 correctness_pattern = "error count:"

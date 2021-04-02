@@ -34,8 +34,7 @@ void CC::nec_shiloach_vishkin(VectCSRGraph &_graph, VerticesArray<_T> &_componen
 
             int *components_ptr = _components.get_ptr();
 
-            auto edge_op = [&components_ptr, &reg_hook_changes](int src_id, int dst_id, int local_edge_pos,
-                long long int global_edge_pos, int vector_index, DelayedWriteNEC &delayed_write)
+            auto edge_op = [&components_ptr, &reg_hook_changes] __VGL_SCATTER_ARGS__
             {
                 int src_val = components_ptr[src_id];
                 int dst_val = components_ptr[dst_id];

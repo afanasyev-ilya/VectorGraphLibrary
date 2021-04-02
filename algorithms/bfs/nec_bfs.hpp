@@ -37,8 +37,7 @@ void BFS::nec_top_down(VectCSRGraph &_graph,
     int current_level = FIRST_LEVEL_VERTEX;
     while(frontier.size() > 0)
     {
-        auto edge_op = [&_levels, &current_level](int src_id, int dst_id, int local_edge_pos,
-                long long int global_edge_pos, int vector_index, DelayedWriteNEC &delayed_write)
+        auto edge_op = [&_levels, &current_level] __VGL_SCATTER_ARGS__
         {
             int src_level = _levels[src_id];
             int dst_level = _levels[dst_id];
@@ -51,7 +50,7 @@ void BFS::nec_top_down(VectCSRGraph &_graph,
         graph_API.scatter(_graph, frontier, edge_op, EMPTY_VERTEX_OP, EMPTY_VERTEX_OP,
                           edge_op, EMPTY_VERTEX_OP, EMPTY_VERTEX_OP);
 
-        auto on_next_level = [&_levels, current_level] (int src_id, int connections_count)->int
+        auto on_next_level = [&_levels, current_level] __VGL_GNF_ARGS__
         {
             int result = NOT_IN_FRONTIER_FLAG;
             if(_levels[src_id] == (current_level + 1))
