@@ -11,14 +11,15 @@ _T GraphAbstractionsMulticore::reduce_sum(UndirectedCSRGraph &_graph,
 
     _T reduce_result = 0.0;
 
-    int max_frontier_size = _frontier.max_size;
     if(_frontier.type == ALL_ACTIVE_FRONTIER)
     {
+        int frontier_size = _frontier.max_size;
+
         #pragma simd
         #pragma vector
         #pragma ivdep
-        #pragma omp parallel for schedule(static) reduction(+: reduce_result)
-        for(int src_id = 0; src_id < max_frontier_size; src_id++)
+        #pragma omp parallel for schedule(static) reduction(+: reduce_result) // TODO different type
+        for(int src_id = 0; src_id < frontier_size; src_id++)
         {
             int connections_count = vertex_pointers[src_id + 1] - vertex_pointers[src_id];
             int vector_index = get_vector_index(src_id);
@@ -26,14 +27,16 @@ _T GraphAbstractionsMulticore::reduce_sum(UndirectedCSRGraph &_graph,
             reduce_result += val;
         }
     }
-    else if((_frontier.type == DENSE_FRONTIER) || (_frontier.type == SPARSE_FRONTIER)) // TODO FIX SPARSE
+    else if(_frontier.type == DENSE_FRONTIER)
     {
+        int frontier_size = _frontier.max_size;
         int *frontier_flags = _frontier.flags;
+
         #pragma simd
         #pragma vector
         #pragma ivdep
         #pragma omp parallel for schedule(static) reduction(+: reduce_result)
-        for (int src_id = 0; src_id < max_frontier_size; src_id++)
+        for (int src_id = 0; src_id < frontier_size; src_id++)
         {
             if(frontier_flags[src_id] == IN_FRONTIER_FLAG)
             {
@@ -44,6 +47,25 @@ _T GraphAbstractionsMulticore::reduce_sum(UndirectedCSRGraph &_graph,
             }
         }
     }
+    else if(_frontier.type == SPARSE_FRONTIER)
+    {
+        int frontier_size = _frontier.current_size;
+        int *frontier_ids = _frontier.ids;
+
+        #pragma simd
+        #pragma vector
+        #pragma ivdep
+        #pragma omp parallel for schedule(static) reduction(+: reduce_result)
+        for (int frontier_pos = 0; frontier_pos < frontier_size; frontier_pos++)
+        {
+            int src_id = frontier_ids[frontier_pos];
+            int connections_count = vertex_pointers[src_id + 1] - vertex_pointers[src_id];
+            int vector_index = get_vector_index(src_id);
+            _T val = reduce_op(src_id, connections_count, vector_index);
+            reduce_result += val;
+        }
+    }
+
 
     return reduce_result;
 }

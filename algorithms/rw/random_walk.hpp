@@ -13,6 +13,7 @@ void RW::vgl_random_walk(VectCSRGraph &_graph,
     int store_walk_paths = false;
     if(_walk_paths != NULL)
         store_walk_paths = true;
+    cout << "store_walk_paths: " << store_walk_paths << endl;
 
     VGL_GRAPH_ABSTRACTIONS graph_API(_graph);
     VGL_FRONTIER frontier(_graph);
@@ -49,6 +50,9 @@ void RW::vgl_random_walk(VectCSRGraph &_graph,
 
     for(int iteration = 0; iteration < _walk_lengths; iteration++)
     {
+        //rng_generator.reserve();
+        //rng_generator.gen_new_portion();
+
         auto visit_next = [iteration, store_walk_paths, _walk_lengths, &_walk_results, &_graph, &walk_positions, &_walk_paths] __VGL_COMPUTE_ARGS__
         {
             int walk_id = src_id;
@@ -56,8 +60,12 @@ void RW::vgl_random_walk(VectCSRGraph &_graph,
 
             if((connections_count > 0) && (current_id != DEAD_END))
             {
-                int next_vertex_pos = rand() % connections_count;
+                //int new_rand = rng_generator(vector_index);
+
+                unsigned int myseed = omp_get_thread_num();
+                int next_vertex_pos = rand_r(&myseed) % connections_count;
                 int next_vertex = _graph.get_edge_dst(current_id, next_vertex_pos, SCATTER);
+                //int next_vertex_pos = get_rand(vector_index);
 
                 if(store_walk_paths)
                 {
