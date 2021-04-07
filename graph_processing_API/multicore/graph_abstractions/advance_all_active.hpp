@@ -37,55 +37,24 @@ void GraphAbstractionsMulticore::vector_engine_per_vertex_kernel_all_active(Undi
 
         vertex_preprocess_op(src_id, connections_count, 0, delayed_write);
 
-        if(use_safe_stores) // all vector stores are safe in this branch (vob)
+        #pragma omp for schedule(static, 1)
+        for(int vec_start = 0; vec_start < connections_count; vec_start += VECTOR_LENGTH)
         {
-            #pragma _NEC novector
-            #pragma omp for schedule(static, 8)
-            for(int vec_start = 0; vec_start < connections_count; vec_start += VECTOR_LENGTH)
+            #pragma simd
+            #pragma vector
+            #pragma ivdep
+            #pragma unroll(VECTOR_LENGTH)
+            for (int i = 0; i < VECTOR_LENGTH; i++)
             {
-                #pragma _NEC cncall
-                #pragma _NEC ivdep
-                #pragma _NEC vector
-                #pragma _NEC gather_reorder
-                for (int i = 0; i < VECTOR_LENGTH; i++)
-                {
-                    int local_edge_pos = vec_start + i;
-                    const long long internal_edge_pos = start + local_edge_pos;
-                    const int vector_index = i;
-                    const long long external_edge_pos = process_shift + internal_edge_pos;
+                int local_edge_pos = vec_start + i;
+                const long long internal_edge_pos = start + local_edge_pos;
+                const int vector_index = i;
+                const long long external_edge_pos = process_shift + internal_edge_pos;
 
-                    if (local_edge_pos < connections_count)
-                    {
-                        const int dst_id = adjacent_ids[internal_edge_pos];
-                        edge_op(src_id, dst_id, local_edge_pos, external_edge_pos, vector_index, delayed_write);
-                    }
-                }
-            }
-        }
-        else
-        {
-            #pragma _NEC novector
-            #pragma omp for schedule(static, 8)
-            for(int vec_start = 0; vec_start < connections_count; vec_start += VECTOR_LENGTH)
-            {
-                #pragma _NEC cncall
-                #pragma _NEC ivdep
-                #pragma _NEC vovertake
-                #pragma _NEC novob
-                #pragma _NEC vector
-                #pragma _NEC gather_reorder
-                for (int i = 0; i < VECTOR_LENGTH; i++)
+                if (local_edge_pos < connections_count)
                 {
-                    int local_edge_pos = vec_start + i;
-                    const long long internal_edge_pos = start + local_edge_pos;
-                    const int vector_index = i;
-                    const long long external_edge_pos = process_shift + internal_edge_pos;
-
-                    if (local_edge_pos < connections_count)
-                    {
-                        const int dst_id = adjacent_ids[internal_edge_pos];
-                        edge_op(src_id, dst_id, local_edge_pos, external_edge_pos, vector_index, delayed_write);
-                    }
+                    const int dst_id = adjacent_ids[internal_edge_pos];
+                    edge_op(src_id, dst_id, local_edge_pos, external_edge_pos, vector_index, delayed_write);
                 }
             }
         }
@@ -137,12 +106,12 @@ void GraphAbstractionsMulticore::vector_core_per_vertex_kernel_all_active(Undire
 
         vertex_preprocess_op(src_id, connections_count, 0, delayed_write);
 
-        #pragma _NEC novector
         for (int vec_start = 0; vec_start < connections_count; vec_start += VECTOR_LENGTH)
         {
-            #pragma ivdep
-            #pragma vector
             #pragma simd
+            #pragma vector
+            #pragma ivdep
+            #pragma unroll(VECTOR_LENGTH)
             for (int i = 0; i < VECTOR_LENGTH; i++)
             {
                 int local_edge_pos = vec_start + i;
@@ -209,7 +178,7 @@ void GraphAbstractionsMulticore::ve_collective_vertex_processing_kernel_all_acti
         reg_real_start[i] = 0;
     }
 
-    #pragma omp for schedule(static, 8)
+    #pragma omp for schedule(static, 1)
     for(int cur_vector_segment = 0; cur_vector_segment < ve_vector_segments_count; cur_vector_segment++)
     {
         int segment_first_vertex = cur_vector_segment * VECTOR_LENGTH + ve_starting_vertex;
@@ -217,7 +186,10 @@ void GraphAbstractionsMulticore::ve_collective_vertex_processing_kernel_all_acti
         long long segment_edges_start = ve_vector_group_ptrs[cur_vector_segment];
         int segment_connections_count = ve_vector_group_sizes[cur_vector_segment];
 
-        #pragma _NEC vector
+        #pragma simd
+        #pragma vector
+        #pragma ivdep
+        #pragma unroll(VECTOR_LENGTH)
         for(int i = 0; i < VECTOR_LENGTH; i++)
         {
             int src_id = segment_first_vertex + i;
@@ -232,56 +204,31 @@ void GraphAbstractionsMulticore::ve_collective_vertex_processing_kernel_all_acti
                 vertex_preprocess_op(src_id, reg_real_connections_count[i], i, delayed_write);
         }
 
-        if(use_safe_stores) // all vector stores are safe in this branch (vob)
+        for(int edge_pos = _first_edge; edge_pos < segment_connections_count; edge_pos++)
         {
-            for(int edge_pos = _first_edge; edge_pos < segment_connections_count; edge_pos++)
+            #pragma simd
+            #pragma vector
+            #pragma ivdep
+            #pragma unroll(VECTOR_LENGTH)
+            for (int i = 0; i < VECTOR_LENGTH; i++)
             {
-                #pragma _NEC cncall
-                #pragma _NEC ivdep
-                #pragma _NEC vector
-                #pragma _NEC gather_reorder
-                for (int i = 0; i < VECTOR_LENGTH; i++)
-                {
-                    const int src_id = segment_first_vertex + i;
+                const int src_id = segment_first_vertex + i;
 
-                    const int vector_index = i;
-                    const long long internal_edge_pos = segment_edges_start + edge_pos * VECTOR_LENGTH + i;
-                    const int local_edge_pos = edge_pos;
-                    const int dst_id = ve_adjacent_ids[internal_edge_pos];
-                    const long long external_edge_pos = process_shift + internal_edge_pos;
+                const int vector_index = i;
+                const long long internal_edge_pos = segment_edges_start + edge_pos * VECTOR_LENGTH + i;
+                const int local_edge_pos = edge_pos;
+                const int dst_id = ve_adjacent_ids[internal_edge_pos];
+                const long long external_edge_pos = process_shift + internal_edge_pos;
 
-                    if((src_id < vertices_count) && (edge_pos < reg_real_connections_count[i]))
-                        edge_op(src_id, dst_id, local_edge_pos, external_edge_pos, vector_index, delayed_write);
-                }
-            }
-        }
-        else // all vector stores are NOT safe in this branch
-        {
-            for(int edge_pos = _first_edge; edge_pos < segment_connections_count; edge_pos++)
-            {
-                #pragma _NEC cncall
-                #pragma _NEC ivdep
-                #pragma _NEC vovertake
-                #pragma _NEC novob
-                #pragma _NEC vector
-                #pragma _NEC gather_reorder
-                for (int i = 0; i < VECTOR_LENGTH; i++)
-                {
-                    const int src_id = segment_first_vertex + i;
-
-                    const int vector_index = i;
-                    const long long internal_edge_pos = segment_edges_start + edge_pos * VECTOR_LENGTH + i;
-                    const int local_edge_pos = edge_pos;
-                    const int dst_id = ve_adjacent_ids[internal_edge_pos];
-                    const long long external_edge_pos = process_shift + internal_edge_pos;
-
-                    if((src_id < vertices_count) && (edge_pos < reg_real_connections_count[i]))
-                        edge_op(src_id, dst_id, local_edge_pos, external_edge_pos, vector_index, delayed_write);
-                }
+                if((src_id < vertices_count) && (edge_pos < reg_real_connections_count[i]))
+                    edge_op(src_id, dst_id, local_edge_pos, external_edge_pos, vector_index, delayed_write);
             }
         }
 
-        #pragma _NEC vector
+        #pragma simd
+        #pragma vector
+        #pragma ivdep
+        #pragma unroll(VECTOR_LENGTH)
         for(int i = 0; i < VECTOR_LENGTH; i++)
         {
             int src_id = segment_first_vertex + i;

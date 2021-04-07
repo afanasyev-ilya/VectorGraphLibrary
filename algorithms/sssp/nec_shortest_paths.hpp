@@ -126,7 +126,6 @@ void SSSP::nec_dijkstra_all_active_push(VectCSRGraph &_graph,
             {
                 _T weight = _weights[global_edge_pos];
                 _T src_weight = distances_ptr[src_id];
-
                 if(distances_ptr[dst_id] > src_weight + weight)
                 {
                     distances_ptr[dst_id] = src_weight + weight;

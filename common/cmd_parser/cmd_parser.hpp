@@ -17,6 +17,10 @@ Parser::Parser()
     algorithm_cc = SHILOACH_VISHKIN_ALGORITHM;
 
     device_num = 0;
+
+    store_walk_paths = false;
+    walk_vertices_num = 100;
+    walk_lengths = 10;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -120,13 +124,31 @@ void Parser::parse_args(int _argc, const char * _argv[])
             algorithm_bfs = DIRECTION_OPTIMIZING_BFS_ALGORITHM;
         }
 
-        if ((option.compare("-shiloach_vishkin") == 0) || (option.compare("-sv") == 0))
+        if ((option.compare("-shiloach-vishkin") == 0) || (option.compare("-sv") == 0))
         {
             algorithm_cc = SHILOACH_VISHKIN_ALGORITHM;
         }
         else if ((option.compare("-bfs-based") == 0) || (option.compare("-bfs_based") == 0))
         {
             algorithm_cc = BFS_BASED_ALGORITHM;
+        }
+
+        if ((option.compare("-store-walk-paths") == 0))
+        {
+            store_walk_paths = true;
+            cout << "store_walk_paths set to TRUE" << endl;
+        }
+
+        if ((option.compare("-walk-vertices-num") == 0))
+        {
+            walk_vertices_num = atoi(_argv[++i]);
+            cout << "walk_vertices_num set to " << walk_vertices_num << endl;
+        }
+
+        if ((option.compare("-walk-lengths") == 0))
+        {
+            walk_lengths = atoi(_argv[++i]);
+            cout << "walk_lengths set to " << walk_lengths << endl;
         }
 
         if ((option.compare("-dev") == 0) || (option.compare("-device") == 0))

@@ -1,10 +1,10 @@
-CXX = g++
+CXX = g++ #clang++
 
 # Include paths...
 
 # Include paths...
 Include_Path = -I ../
-Flags = -D __USE_MULTICORE__ -O3 -fopenmp
+Flags = -D __USE_MULTICORE__ -O3 -fopenmp -ftree-vectorize
 
 # Library paths...
 Library_Path =
@@ -16,7 +16,7 @@ Libraries = -O3 -fopenmp
 # binaries
 ##########
 
-all: sssp sswp sharded_sssp bfs scc pr cc print_graph_info create_vgl_graphs
+all: sssp sswp sharded_sssp bfs scc pr cc rw print_graph_info create_vgl_graphs
 
 sssp: create_folders sssp.o
 	$(CXX) object_files/sssp.o $(Library_Path) $(Libraries) -o ./bin/sssp_mc
@@ -38,6 +38,9 @@ cc: create_folders cc.o
 
 pr: create_folders pr.o
 	$(CXX) object_files/pr.o $(Library_Path) $(Libraries) -o ./bin/pr_mc
+
+rw: create_folders rw.o
+	$(CXX) object_files/rw.o $(Library_Path) $(Libraries) -o ./bin/rw_mc
 
 create_vgl_graphs: create_folders create_vgl_graphs.o
 	$(CXX) object_files/create_vgl_graphs.o $(Library_Path) $(Libraries) -o ./bin/create_vgl_graphs_mc
@@ -66,6 +69,9 @@ cc.o: cc/cc.cpp
 
 pr.o: pr/pr.cpp
 	$(CXX) $(Flags) $(Include_Path)  -c pr/pr.cpp -o object_files/pr.o
+
+rw.o: rw/rw.cpp
+	$(CXX) $(Flags) $(Include_Path)  -c rw/rw.cpp -o object_files/rw.o
 
 gather.o: misc/gather.cpp
 	$(CXX) $(Flags) $(Include_Path)  -c misc/gather.cpp -o object_files/gather.o

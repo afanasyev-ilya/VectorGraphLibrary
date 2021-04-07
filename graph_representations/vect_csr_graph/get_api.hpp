@@ -75,3 +75,14 @@ inline long long VectCSRGraph::get_edges_count_in_incoming_csr()
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+inline int VectCSRGraph::get_edge_dst(int _src_id, int _local_edge_pos, TraversalDirection _direction)
+{
+    if(_direction == SCATTER)
+        return this->outgoing_graph->get_edge_dst(_src_id, _local_edge_pos);
+    else if(_direction == GATHER)
+        return this->incoming_graph->get_edge_dst(_src_id, _local_edge_pos);
+    return -1;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

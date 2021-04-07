@@ -11,8 +11,9 @@ void GraphAbstractionsMulticore::compute_worker(UndirectedCSRGraph &_graph,
     int max_frontier_size = _frontier.max_size;
     if(_frontier.type == ALL_ACTIVE_FRONTIER)
     {
-        #pragma ivdep
+        #pragma simd
         #pragma vector
+        #pragma ivdep
         #pragma omp for schedule(static)
         for(int src_id = 0; src_id < max_frontier_size; src_id++)
         {
@@ -25,8 +26,9 @@ void GraphAbstractionsMulticore::compute_worker(UndirectedCSRGraph &_graph,
     {
         int *frontier_flags = _frontier.flags;
 
-        #pragma ivdep
+        #pragma simd
         #pragma vector
+        #pragma ivdep
         #pragma omp for schedule(static)
         for(int src_id = 0; src_id < max_frontier_size; src_id++)
         {

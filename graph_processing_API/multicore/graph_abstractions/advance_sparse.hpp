@@ -36,54 +36,24 @@ void GraphAbstractionsMulticore::vector_engine_per_vertex_kernel_sparse(Undirect
 
         vertex_preprocess_op(src_id, connections_count, 0, delayed_write);
 
-        if(use_safe_stores) // all vector stores are safe in this branch (vob)
+        #pragma omp for schedule(static, 8)
+        for (int vec_start = 0; vec_start < connections_count; vec_start += VECTOR_LENGTH)
         {
-            #pragma _NEC novector
-            #pragma omp for schedule(static, 8)
-            for (int vec_start = 0; vec_start < connections_count; vec_start += VECTOR_LENGTH)
+            #pragma simd
+            #pragma vector
+            #pragma ivdep
+            #pragma unroll(VECTOR_LENGTH)
+            for (int i = 0; i < VECTOR_LENGTH; i++)
             {
-                #pragma _NEC cncall
-                #pragma _NEC ivdep
-                #pragma _NEC vector
-                #pragma _NEC gather_reorder
-                for (int i = 0; i < VECTOR_LENGTH; i++)
-                {
-                    int local_edge_pos = vec_start + i;
+                int local_edge_pos = vec_start + i;
 
-                    const long long internal_edge_pos = start + local_edge_pos;
-                    const int vector_index = i;
-                    const int dst_id = adjacent_ids[internal_edge_pos];
-                    const long long external_edge_pos = process_shift + internal_edge_pos;
+                const long long internal_edge_pos = start + local_edge_pos;
+                const int vector_index = i;
+                const int dst_id = adjacent_ids[internal_edge_pos];
+                const long long external_edge_pos = process_shift + internal_edge_pos;
 
-                    if (local_edge_pos < connections_count)
-                        edge_op(src_id, dst_id, local_edge_pos, external_edge_pos, vector_index, delayed_write);
-                }
-            }
-        }
-        else
-        {
-            #pragma _NEC novector
-            #pragma omp for schedule(static, 8)
-            for (int vec_start = 0; vec_start < connections_count; vec_start += VECTOR_LENGTH)
-            {
-                #pragma _NEC cncall
-                #pragma _NEC ivdep
-                #pragma _NEC vovertake
-                #pragma _NEC novob
-                #pragma _NEC vector
-                #pragma _NEC gather_reorder
-                for (int i = 0; i < VECTOR_LENGTH; i++)
-                {
-                    int local_edge_pos = vec_start + i;
-
-                    const long long internal_edge_pos = start + local_edge_pos;
-                    const int vector_index = i;
-                    const int dst_id = adjacent_ids[internal_edge_pos];
-                    const long long external_edge_pos = process_shift + internal_edge_pos;
-
-                    if (local_edge_pos < connections_count)
-                        edge_op(src_id, dst_id, local_edge_pos, external_edge_pos, vector_index, delayed_write);
-                }
+                if (local_edge_pos < connections_count)
+                    edge_op(src_id, dst_id, local_edge_pos, external_edge_pos, vector_index, delayed_write);
             }
         }
 
@@ -136,41 +106,18 @@ void GraphAbstractionsMulticore::vector_core_per_vertex_kernel_sparse(Undirected
 
         vertex_preprocess_op(src_id, connections_count, 0, delayed_write);
 
-        if(use_safe_stores) // all vector stores are safe in this branch (vob)
+        #pragma simd
+        #pragma vector
+        #pragma ivdep
+        #pragma unroll(VECTOR_LENGTH)
+        for (int local_edge_pos = 0; local_edge_pos < connections_count; local_edge_pos++)
         {
-            #pragma _NEC cncall
-            #pragma _NEC ivdep
-            #pragma _NEC vob
-            #pragma _NEC vector
-            #pragma _NEC gather_reorder
-            for (int local_edge_pos = 0; local_edge_pos < connections_count; local_edge_pos++)
-            {
-                const long long internal_edge_pos = start + local_edge_pos;
-                const int vector_index = get_vector_index(local_edge_pos);
-                const int dst_id = adjacent_ids[internal_edge_pos];
-                const long long external_edge_pos = process_shift + internal_edge_pos;
+            const long long internal_edge_pos = start + local_edge_pos;
+            const int vector_index = get_vector_index(local_edge_pos);
+            const int dst_id = adjacent_ids[internal_edge_pos];
+            const long long external_edge_pos = process_shift + internal_edge_pos;
 
-                edge_op(src_id, dst_id, local_edge_pos, external_edge_pos, vector_index, delayed_write);
-            }
-        }
-        else
-        {
-            #pragma _NEC cncall
-            #pragma _NEC ivdep
-            #pragma _NEC vovertake
-            #pragma _NEC novob
-            #pragma _NEC vob
-            #pragma _NEC vector
-            #pragma _NEC gather_reorder
-            for (int local_edge_pos = 0; local_edge_pos < connections_count; local_edge_pos++)
-            {
-                const long long internal_edge_pos = start + local_edge_pos;
-                const int vector_index = get_vector_index(local_edge_pos);
-                const int dst_id = adjacent_ids[internal_edge_pos];
-                const long long external_edge_pos = process_shift + internal_edge_pos;
-
-                edge_op(src_id, dst_id, local_edge_pos, external_edge_pos, vector_index, delayed_write);
-            }
+            edge_op(src_id, dst_id, local_edge_pos, external_edge_pos, vector_index, delayed_write);
         }
 
         vertex_postprocess_op(src_id, connections_count, 0, delayed_write);
@@ -219,7 +166,10 @@ void GraphAbstractionsMulticore::collective_vertex_processing_kernel_sparse(Undi
     #pragma _NEC vreg(reg_end)
     #pragma _NEC vreg(reg_connections)
 
-    #pragma _NEC vector
+    #pragma simd
+    #pragma vector
+    #pragma ivdep
+    #pragma unroll(VECTOR_LENGTH)
     for(int i = 0; i < VECTOR_LENGTH; i++)
     {
         reg_start[i] = 0;
@@ -233,7 +183,10 @@ void GraphAbstractionsMulticore::collective_vertex_processing_kernel_sparse(Undi
     #pragma omp for schedule(static, 4)
     for(int front_pos = 0; front_pos < frontier_segment_size; front_pos += VECTOR_LENGTH)
     {
-        #pragma _NEC vector
+        #pragma simd
+        #pragma vector
+        #pragma ivdep
+        #pragma unroll(VECTOR_LENGTH)
         for(int i = 0; i < VECTOR_LENGTH; i++)
         {
             if((front_pos + i) < frontier_segment_size)
@@ -253,7 +206,10 @@ void GraphAbstractionsMulticore::collective_vertex_processing_kernel_sparse(Undi
         }
 
         int max_connections = 0;
-        #pragma _NEC vector
+        #pragma simd
+        #pragma vector
+        #pragma ivdep
+        #pragma unroll(VECTOR_LENGTH)
         for(int i = 0; i < VECTOR_LENGTH; i++)
         {
             if(max_connections < reg_connections[i])
@@ -264,60 +220,32 @@ void GraphAbstractionsMulticore::collective_vertex_processing_kernel_sparse(Undi
 
         if(max_connections > 0)
         {
-            if(use_safe_stores) // all vector stores are safe in this branch (vob)
+            for (int edge_pos = _first_edge; edge_pos < max_connections; edge_pos++)
             {
-                for (int edge_pos = _first_edge; edge_pos < max_connections; edge_pos++)
+                #pragma simd
+                #pragma vector
+                #pragma ivdep
+                #pragma unroll(VECTOR_LENGTH)
+                for (int i = 0; i < VECTOR_LENGTH; i++)
                 {
-                    #pragma _NEC cncall
-                    #pragma _NEC ivdep
-                    #pragma _NEC vector
-                    #pragma _NEC sparse
-                    #pragma _NEC gather_reorder
-                    for (int i = 0; i < VECTOR_LENGTH; i++)
+                    if (((front_pos + i) < frontier_segment_size) && (edge_pos < reg_connections[i]))
                     {
-                        if (((front_pos + i) < frontier_segment_size) && (edge_pos < reg_connections[i]))
-                        {
-                            const int src_id = frontier_ids[front_pos + i];
-                            const int vector_index = i;
-                            const long long int internal_edge_pos = reg_start[i] + edge_pos;
-                            const int local_edge_pos = edge_pos;
-                            const int dst_id = adjacent_ids[internal_edge_pos];
-                            const long long external_edge_pos = process_shift + internal_edge_pos;
+                        const int src_id = frontier_ids[front_pos + i];
+                        const int vector_index = i;
+                        const long long int internal_edge_pos = reg_start[i] + edge_pos;
+                        const int local_edge_pos = edge_pos;
+                        const int dst_id = adjacent_ids[internal_edge_pos];
+                        const long long external_edge_pos = process_shift + internal_edge_pos;
 
-                            edge_op(src_id, dst_id, local_edge_pos, external_edge_pos, vector_index, delayed_write);
-                        }
-                    }
-                }
-            }
-            else // all vector stores are NOT safe in this branch (novob)
-            {
-                for (int edge_pos = _first_edge; edge_pos < max_connections; edge_pos++)
-                {
-                    #pragma _NEC cncall
-                    #pragma _NEC ivdep
-                    #pragma _NEC vovertake
-                    #pragma _NEC novob
-                    #pragma _NEC vector
-                    #pragma _NEC sparse
-                    #pragma _NEC gather_reorder
-                    for (int i = 0; i < VECTOR_LENGTH; i++)
-                    {
-                        if (((front_pos + i) < frontier_segment_size) && (edge_pos < reg_connections[i]))
-                        {
-                            const int src_id = frontier_ids[front_pos + i];
-                            const int vector_index = i;
-                            const long long int internal_edge_pos = reg_start[i] + edge_pos;
-                            const int local_edge_pos = edge_pos;
-                            const int dst_id = adjacent_ids[internal_edge_pos];
-                            const long long external_edge_pos = process_shift + internal_edge_pos;
-
-                            edge_op(src_id, dst_id, local_edge_pos, external_edge_pos, vector_index, delayed_write);
-                        }
+                        edge_op(src_id, dst_id, local_edge_pos, external_edge_pos, vector_index, delayed_write);
                     }
                 }
             }
 
-            #pragma _NEC vector
+            #pragma simd
+            #pragma vector
+            #pragma ivdep
+            #pragma unroll(VECTOR_LENGTH)
             for (int i = 0; i < VECTOR_LENGTH; i++)
             {
                 if ((front_pos + i) < frontier_segment_size)

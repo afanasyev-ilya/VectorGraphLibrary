@@ -52,7 +52,7 @@
 
 #ifdef __USE_MULTICORE__
 #define _GLIBCXX_PARALLEL
-#define VECTOR_LENGTH 16
+#define VECTOR_LENGTH 32
 #define VECTOR_LENGTH_POW 5
 #define MAX_SX_AURORA_THREADS 256
 #define LLC_CACHE_SIZE 512*1024*1024
@@ -108,7 +108,7 @@
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#define __PRINT_API_PERFORMANCE_STATS__ // prints inner api detailed performance stats, causes significant delays when active
+//#define __PRINT_API_PERFORMANCE_STATS__ // prints inner api detailed performance stats, causes significant delays when active
 #define __PRINT_SAMPLES_PERFORMANCE_STATS__ // prints samples stats (iterations, bandwidths, components stats)
 //#define __SAVE_PERFORMANCE_STATS_TO_FILE__ // saves performance stats to files (useful for multiple batch launches)
 

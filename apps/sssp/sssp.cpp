@@ -2,7 +2,14 @@
 
 #define INT_ELEMENTS_PER_EDGE 5.0
 #define VECTOR_ENGINE_THRESHOLD_VALUE VECTOR_LENGTH*MAX_SX_AURORA_THREADS*128
+
+#ifdef __USE_NEC_SX_AURORA__
 #define VECTOR_CORE_THRESHOLD_VALUE 16*VECTOR_LENGTH
+#endif
+
+#ifdef __USE_MULTICORE__
+#define VECTOR_CORE_THRESHOLD_VALUE 16*VECTOR_LENGTH
+#endif
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -52,7 +59,7 @@ int main(int argc, const char * argv[])
         cout << "Computations started..." << endl;
         cout << "Doing " << parser.get_number_of_rounds() << " SSSP iterations..." << endl;
         EdgesArray_Vect<float> weights(graph);
-        weights.set_all_random(1.0);
+        weights.set_all_random(MAX_WEIGHT);
         for(int i = 0; i < parser.get_number_of_rounds(); i++)
         {
             int source_vertex = graph.select_random_vertex(ORIGINAL);

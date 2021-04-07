@@ -26,6 +26,10 @@ private:
     AlgorithmBFS algorithm_bfs;
     AlgorithmCC algorithm_cc;
 
+    int store_walk_paths;
+    int walk_vertices_num;
+    int walk_lengths;
+
     int device_num;
 public:
     Parser();
@@ -37,6 +41,10 @@ public:
     bool get_check_flag() { return check_flag; };
     int get_number_of_rounds() { return number_of_rounds; };
     int get_device_num() { return device_num; };
+
+    int get_store_walk_paths() {return store_walk_paths;};
+    int get_walk_vertices_num() {return walk_vertices_num;};
+    int get_walk_lengths() {return walk_lengths;};
 
     SyntheticGraphType get_graph_type() {return graph_type;};
 

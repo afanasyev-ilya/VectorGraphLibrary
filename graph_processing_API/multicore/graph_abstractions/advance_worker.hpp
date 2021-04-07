@@ -18,11 +18,10 @@ void GraphAbstractionsMulticore::advance_worker(EdgesListGraph &_graph,
     #pragma omp for schedule(static)
     for(long long vec_start = 0; vec_start < edges_count; vec_start += VECTOR_LENGTH)
     {
-        #pragma _NEC ivdep
-        #pragma _NEC vovertake
-        #pragma _NEC novob
-        #pragma _NEC vector
-        #pragma _NEC gather_reorder
+        #pragma simd
+        #pragma vector
+        #pragma ivdep
+        #pragma unroll(VECTOR_LENGTH)
         for(int i = 0; i < VECTOR_LENGTH; i++)
         {
             long long edge_pos = vec_start + i;

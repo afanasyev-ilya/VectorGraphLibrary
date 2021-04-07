@@ -47,8 +47,7 @@ void BFS::nec_top_down(VectCSRGraph &_graph,
             }
         };
 
-        graph_API.scatter(_graph, frontier, edge_op, EMPTY_VERTEX_OP, EMPTY_VERTEX_OP,
-                          edge_op, EMPTY_VERTEX_OP, EMPTY_VERTEX_OP);
+        graph_API.scatter(_graph, frontier, edge_op);
 
         auto on_next_level = [&_levels, current_level] __VGL_GNF_ARGS__
         {

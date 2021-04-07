@@ -58,6 +58,8 @@ public:
     bool outgoing_is_stored() { return can_use_scatter(); };
     bool incoming_is_stored() { return can_use_gather(); };
 
+    inline int get_edge_dst(int _src_id, int _local_edge_pos, TraversalDirection _direction);
+
     /* print API */
     void print();
     void print_size();
