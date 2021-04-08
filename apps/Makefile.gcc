@@ -16,7 +16,7 @@ Libraries = -O3 -fopenmp
 # binaries
 ##########
 
-all: sssp sswp sharded_sssp bfs scc pr cc rw print_graph_info create_vgl_graphs
+all: sssp sswp sharded_sssp bfs scc pr cc rw hits print_graph_info create_vgl_graphs
 
 sssp: create_folders sssp.o
 	$(CXX) object_files/sssp.o $(Library_Path) $(Libraries) -o ./bin/sssp_mc
@@ -41,6 +41,9 @@ pr: create_folders pr.o
 
 rw: create_folders rw.o
 	$(CXX) object_files/rw.o $(Library_Path) $(Libraries) -o ./bin/rw_mc
+
+hits: create_folders hits.o
+	$(CXX) object_files/hits.o $(Library_Path) $(Libraries) -o ./bin/hits_mc
 
 create_vgl_graphs: create_folders create_vgl_graphs.o
 	$(CXX) object_files/create_vgl_graphs.o $(Library_Path) $(Libraries) -o ./bin/create_vgl_graphs_mc
@@ -72,6 +75,9 @@ pr.o: pr/pr.cpp
 
 rw.o: rw/rw.cpp
 	$(CXX) $(Flags) $(Include_Path)  -c rw/rw.cpp -o object_files/rw.o
+
+hits.o: hits/hits.cpp
+	$(CXX) $(Flags) $(Include_Path)  -c hits/hits.cpp -o object_files/hits.o
 
 gather.o: misc/gather.cpp
 	$(CXX) $(Flags) $(Include_Path)  -c misc/gather.cpp -o object_files/gather.o

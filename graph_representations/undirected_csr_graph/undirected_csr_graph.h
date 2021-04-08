@@ -113,7 +113,8 @@ public:
     inline int             *get_adjacent_ids()         {return adjacent_ids;};
     inline long long        get_edges_count_in_ve() {return last_vertices_ve.get_edges_count_in_ve();}
     inline VectorExtension* get_ve_ptr() {return &last_vertices_ve;};
-    inline int get_connections_count(int _vertex_id) {return (vertex_pointers[_vertex_id+1] - vertex_pointers[_vertex_id]);};
+
+    inline int get_connections_count(int _vertex_id);
     inline int get_edge_dst(int _src_id, int _edge_pos);
 
     /* print API */
@@ -197,6 +198,7 @@ int *ve_adjacent_ids = (input_graph.get_ve_ptr())->get_adjacent_ids();\
 #include "nec_api.hpp"
 #include "reorder.hpp"
 #include "print.hpp"
+#include "get_api.hpp"
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 

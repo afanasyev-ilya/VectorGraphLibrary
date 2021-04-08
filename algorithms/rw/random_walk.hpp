@@ -15,6 +15,9 @@ void RW::vgl_random_walk(VectCSRGraph &_graph,
         store_walk_paths = true;
     cout << "store_walk_paths: " << store_walk_paths << endl;
 
+    int *rand_array;
+    MemoryAPI::allocate_array(&rand_array, _walk_vertices_num);
+
     VGL_GRAPH_ABSTRACTIONS graph_API(_graph);
     VGL_FRONTIER frontier(_graph);
 
@@ -50,10 +53,14 @@ void RW::vgl_random_walk(VectCSRGraph &_graph,
 
     for(int iteration = 0; iteration < _walk_lengths; iteration++)
     {
-        //rng_generator.reserve();
-        //rng_generator.gen_new_portion();
+        #pragma omp parallel for
+        for(int i = 0; i < _walk_vertices_num; i++)
+        {
+            unsigned int myseed = omp_get_thread_num();
+            rand_array[i] = rand_r(&myseed);
+        }
 
-        auto visit_next = [iteration, store_walk_paths, _walk_lengths, &_walk_results, &_graph, &walk_positions, &_walk_paths] __VGL_COMPUTE_ARGS__
+        auto visit_next = [iteration, store_walk_paths, _walk_lengths, rand_array, &_walk_results, &_graph, &walk_positions, &_walk_paths] __VGL_COMPUTE_ARGS__
         {
             int walk_id = src_id;
             int current_id = _walk_results[walk_id];
@@ -62,14 +69,12 @@ void RW::vgl_random_walk(VectCSRGraph &_graph,
             {
                 //int new_rand = rng_generator(vector_index);
 
-                unsigned int myseed = omp_get_thread_num();
-                int next_vertex_pos = rand_r(&myseed) % connections_count;
-                int next_vertex = _graph.get_edge_dst(current_id, next_vertex_pos, SCATTER);
-                //int next_vertex_pos = get_rand(vector_index);
+                int walk_pos = walk_positions[walk_id];
+                int rand_pos = rand_array[walk_pos] % connections_count;
+                int next_vertex = _graph.get_edge_dst(current_id, rand_pos, SCATTER);
 
                 if(store_walk_paths)
                 {
-                    int walk_pos = walk_positions[walk_id];
                     long long dst_index = walk_pos * _walk_lengths + iteration;
                     _walk_paths[dst_index] = next_vertex;
                 }
@@ -86,6 +91,8 @@ void RW::vgl_random_walk(VectCSRGraph &_graph,
     }
     tm.end();
     tm.print_time_stats("RW algorithm");
+
+    MemoryAPI::free_array(rand_array);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
