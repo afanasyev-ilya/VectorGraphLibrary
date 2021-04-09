@@ -16,8 +16,14 @@ public:
                                 std::set<int> &_walk_vertices,
                                 int _walk_vertices_num,
                                 int _walk_lengths,
-                                VerticesArray<_T> &_walk_results,
-                                int *_walk_paths = NULL);
+                                VerticesArray<_T> &_walk_results);
+
+    template <typename _T>
+    static void seq_random_walk(VectCSRGraph &_graph,
+                                std::set<int> &_walk_vertices,
+                                int _walk_vertices_num,
+                                int _walk_lengths,
+                                VerticesArray<_T> &_walk_results);
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

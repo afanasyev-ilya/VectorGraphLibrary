@@ -7,14 +7,8 @@ void RW::vgl_random_walk(VectCSRGraph &_graph,
                          std::set<int> &_walk_vertices,
                          int _walk_vertices_num,
                          int _walk_lengths,
-                         VerticesArray<_T> &_walk_results,
-                         int *_walk_paths)
+                         VerticesArray<_T> &_walk_results)
 {
-    int store_walk_paths = false;
-    if(_walk_paths != NULL)
-        store_walk_paths = true;
-    cout << "store_walk_paths: " << store_walk_paths << endl;
-
     int *rand_array;
     MemoryAPI::allocate_array(&rand_array, _walk_vertices_num);
 
@@ -35,8 +29,7 @@ void RW::vgl_random_walk(VectCSRGraph &_graph,
     tm.print_time_stats("prepare walk positions");
 
     tm.start();
-    auto is_walk_vertex = [&_walk_results, &_walk_vertices] __VGL_GNF_ARGS__
-    {
+    auto is_walk_vertex = [&_walk_results, &_walk_vertices] __VGL_GNF_ARGS__ {
         int result = NOT_IN_FRONTIER_FLAG;
         if(_walk_vertices.count(src_id) > 0)
             result = IN_FRONTIER_FLAG;
@@ -44,11 +37,10 @@ void RW::vgl_random_walk(VectCSRGraph &_graph,
     };
     graph_API.generate_new_frontier(_graph, frontier, is_walk_vertex);
 
-    auto init_walks = [&_walk_results] __VGL_COMPUTE_ARGS__
-    {
+    _walk_results.set_all_constant(DEAD_END);
+    auto init_walks = [&_walk_results] __VGL_COMPUTE_ARGS__ {
         _walk_results[src_id] = src_id;
     };
-    _walk_results.set_all_constant(DEAD_END);
     graph_API.compute(_graph, frontier, init_walks);
 
     for(int iteration = 0; iteration < _walk_lengths; iteration++)
@@ -60,25 +52,15 @@ void RW::vgl_random_walk(VectCSRGraph &_graph,
             rand_array[i] = rand_r(&myseed);
         }
 
-        auto visit_next = [iteration, store_walk_paths, _walk_lengths, rand_array, &_walk_results, &_graph, &walk_positions, &_walk_paths] __VGL_COMPUTE_ARGS__
-        {
+        auto visit_next = [iteration, _walk_lengths, rand_array, &_walk_results, &_graph, &walk_positions] __VGL_COMPUTE_ARGS__ {
             int walk_id = src_id;
             int current_id = _walk_results[walk_id];
 
             if((connections_count > 0) && (current_id != DEAD_END))
             {
-                //int new_rand = rng_generator(vector_index);
-
                 int walk_pos = walk_positions[walk_id];
                 int rand_pos = rand_array[walk_pos] % connections_count;
                 int next_vertex = _graph.get_edge_dst(current_id, rand_pos, SCATTER);
-
-                if(store_walk_paths)
-                {
-                    long long dst_index = walk_pos * _walk_lengths + iteration;
-                    _walk_paths[dst_index] = next_vertex;
-                }
-
                 _walk_results[walk_id] = next_vertex;
             }
             else
@@ -93,6 +75,50 @@ void RW::vgl_random_walk(VectCSRGraph &_graph,
     tm.print_time_stats("RW algorithm");
 
     MemoryAPI::free_array(rand_array);
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+template <typename _T>
+void RW::seq_random_walk(VectCSRGraph &_graph,
+                         std::set<int> &_walk_vertices,
+                         int _walk_vertices_num,
+                         int _walk_lengths,
+                         VerticesArray<_T> &_walk_results)
+{
+    // prepare walk positions
+    Timer tm;
+    tm.start();
+    _walk_results.set_all_constant(DEAD_END);
+    for(auto src_id: _walk_vertices)
+    {
+        _walk_results[src_id] = src_id;
+    }
+
+    for(int iteration = 0; iteration < _walk_lengths; iteration++)
+    {
+        int walk_pos = 0;
+        for(auto src_id: _walk_vertices)
+        {
+            int walk_id = src_id;
+            int current_id = _walk_results[walk_id];
+            int connections_count = _graph.get_outgoing_connections_count(src_id);
+
+            if((connections_count > 0) && (current_id != DEAD_END))
+            {
+                int rand_pos = rand() % connections_count;
+                int next_vertex = _graph.get_edge_dst(current_id, rand_pos, SCATTER);
+                _walk_results[walk_id] = next_vertex;
+            }
+            else
+            {
+                _walk_results[walk_id] = DEAD_END;
+            }
+            walk_pos++;
+        }
+    }
+    tm.end();
+    tm.print_time_stats("SEQ random walk");
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

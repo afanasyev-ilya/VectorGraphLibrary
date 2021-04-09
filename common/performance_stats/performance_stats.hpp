@@ -208,7 +208,7 @@ void PerformanceStats::print_algorithm_performance_stats(string _name)
     cout << get_separators_upper_string(_name) << endl;
     cout << "wall time: " << latest_algorithm_stats.wall_time*1000.0 << " ms" << endl;
     cout << "wall perf: " << latest_algorithm_stats.wall_perf << " MTEPS" << endl;
-    if(latest_algorithm_stats.iterations_count > 1)
+    if(latest_algorithm_stats.iterations_count > 0)
     {
         cout << "iterations count: " << latest_algorithm_stats.iterations_count << endl;
         cout << "perf per iteration: " << latest_algorithm_stats.perf_per_iteration << " MTEPS" << endl;

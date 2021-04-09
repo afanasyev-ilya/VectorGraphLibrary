@@ -2,7 +2,7 @@
 
 #define INT_ELEMENTS_PER_EDGE 1.0
 
-#define __PRINT_API_PERFORMANCE_STATS__
+//#define __PRINT_API_PERFORMANCE_STATS__
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -65,17 +65,17 @@ int main(int argc, const char * argv[])
         tm.end();
         tm.print_time_stats("generate list of walk vertices");
 
-        // store walk paths if required
-        int *walk_paths = NULL;
-        if(parser.get_store_walk_paths())
-            MemoryAPI::allocate_array(&walk_paths, walk_vertices_num * walk_length);
-
         // do random walks
         VerticesArray<int> walk_results(graph);
-        RW::vgl_random_walk(graph, walk_vertices, walk_vertices_num, walk_length, walk_results, walk_paths);
+        RW::vgl_random_walk(graph, walk_vertices, walk_vertices_num, walk_length, walk_results);
 
-        if(parser.get_store_walk_paths())
-            MemoryAPI::free_array(walk_paths);
+        if(parser.get_check_flag())
+        {
+            VerticesArray<int> check_walk_results(graph);
+            RW::seq_random_walk(graph, walk_vertices, walk_vertices_num, walk_length, check_walk_results);
+
+            verify_results(walk_results, check_walk_results, 0);
+        }
 
         performance_stats.print_perf(graph.get_edges_count());
     }

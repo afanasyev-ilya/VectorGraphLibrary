@@ -92,6 +92,51 @@ bool verify_results(VerticesArray<_T> &_first,
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template <typename _T>
+bool verify_results(_T *_first,
+                    _T *_second,
+                    long long int _size,
+                    int _first_printed_results = 0,
+                    int _error_count_print = 30)
+{
+    // calculate error count
+    int error_count = 0;
+    for(int i = 0; i < _size; i++)
+    {
+        if(!are_same(_first[i], _second[i]))
+        {
+            error_count++;
+            if(error_count < _error_count_print)
+            {
+                cout << i << ": " << _first[i] << " " << _second[i] << endl;
+            }
+        }
+    }
+    cout << "error count: " << error_count << endl;
+
+    // print first results
+    if(_first_printed_results > 0)
+    {
+        cout << "first " << _first_printed_results << " results: " << endl;
+        for(int i = 0; i < _first_printed_results; i++)
+            cout << _first[i] << " & " << _second[i] << endl;
+        cout << endl << endl;
+    }
+
+    if(error_count == 0)
+        cout << "Results are equal" << endl;
+    else
+        cout << "Results are NOT equal, error_count = " << error_count << endl;
+    cout << endl;
+
+    if(error_count == 0)
+        return true;
+    else
+        return false;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+template <typename _T>
 bool equal_components(VerticesArray<_T> &_first,
                       VerticesArray<_T> &_second)
 {
