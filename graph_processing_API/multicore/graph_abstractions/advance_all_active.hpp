@@ -40,9 +40,9 @@ void GraphAbstractionsMulticore::vector_engine_per_vertex_kernel_all_active(Undi
         #pragma omp for schedule(static, 1)
         for(int vec_start = 0; vec_start < connections_count; vec_start += VECTOR_LENGTH)
         {
-            #pragma simd
-            #pragma vector
-            #pragma ivdep
+            //#pragma simd
+            //#pragma vector
+            //#pragma ivdep
             #pragma unroll(VECTOR_LENGTH)
             for (int i = 0; i < VECTOR_LENGTH; i++)
             {
@@ -108,9 +108,9 @@ void GraphAbstractionsMulticore::vector_core_per_vertex_kernel_all_active(Undire
 
         for (int vec_start = 0; vec_start < connections_count; vec_start += VECTOR_LENGTH)
         {
-            #pragma simd
-            #pragma vector
-            #pragma ivdep
+            //#pragma simd
+            //#pragma vector
+            //#pragma ivdep
             #pragma unroll(VECTOR_LENGTH)
             for (int i = 0; i < VECTOR_LENGTH; i++)
             {
@@ -206,9 +206,9 @@ void GraphAbstractionsMulticore::ve_collective_vertex_processing_kernel_all_acti
 
         for(int edge_pos = _first_edge; edge_pos < segment_connections_count; edge_pos++)
         {
-            #pragma simd
-            #pragma vector
-            #pragma ivdep
+            //#pragma simd
+            //#pragma vector
+            //#pragma ivdep
             #pragma unroll(VECTOR_LENGTH)
             for (int i = 0; i < VECTOR_LENGTH; i++)
             {

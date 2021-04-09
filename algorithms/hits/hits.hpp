@@ -40,6 +40,7 @@ void HITS::vgl_hits(VectCSRGraph &_graph, VerticesArray<_T> &_auth, VerticesArra
             return _auth[src_id] * _auth[src_id];
         };
         norm = sqrt(graph_API.reduce<_T>(_graph, frontier, reduce_auth_op, REDUCE_SUM));
+        cout << norm << endl;
 
         auto normalize_auth_op = [_auth, norm] __VGL_COMPUTE_ARGS__ {
             _auth[src_id] /= norm;
@@ -49,7 +50,7 @@ void HITS::vgl_hits(VectCSRGraph &_graph, VerticesArray<_T> &_auth, VerticesArra
         graph_API.change_traversal_direction(SCATTER, _hub, _auth, frontier);
 
         auto update_hub_op_preprocess = [_hub] __VGL_ADVANCE_PREPROCESS_ARGS__ {
-            _hub[src_id] = 0;
+            _hub[src_id] = 0.0;
         };
 
         auto update_hub_op = [_hub, _auth] __VGL_ADVANCE_ARGS__ {
@@ -60,9 +61,10 @@ void HITS::vgl_hits(VectCSRGraph &_graph, VerticesArray<_T> &_auth, VerticesArra
                           update_hub_op, update_hub_op_preprocess, EMPTY_VERTEX_OP);
 
         auto reduce_hub_op = [_hub] __VGL_REDUCE_DBL_ARGS__ {
-                return _hub[src_id] * _hub[src_id];
+            return _hub[src_id] * _hub[src_id];
         };
         norm = sqrt(graph_API.reduce<_T>(_graph, frontier, reduce_hub_op, REDUCE_SUM));
+        cout << norm << endl;
 
         auto normalize_hub_op = [_hub, norm] __VGL_COMPUTE_ARGS__ {
                 _hub[src_id] /= norm;
@@ -114,6 +116,7 @@ void HITS::seq_hits(VectCSRGraph &_graph, VerticesArray<_T> &_auth, VerticesArra
         }
 
         norm = sqrt(norm);
+        cout << norm << endl;
 
         for(int src_id = 0; src_id < vertices_count; src_id++)
         {
@@ -138,6 +141,7 @@ void HITS::seq_hits(VectCSRGraph &_graph, VerticesArray<_T> &_auth, VerticesArra
         }
 
         norm = sqrt(norm);
+        cout << norm << endl;
 
         for(int src_id = 0; src_id < vertices_count; src_id++)
         {

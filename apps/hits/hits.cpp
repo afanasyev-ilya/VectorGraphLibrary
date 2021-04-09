@@ -5,7 +5,8 @@
 #define VECTOR_CORE_THRESHOLD_VALUE 5*VECTOR_LENGTH
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-#define __PRINT_API_PERFORMANCE_STATS__
+
+//#define __PRINT_API_PERFORMANCE_STATS__
 #define __PRINT_SAMPLES_PERFORMANCE_STATS__
 
 #include "graph_library.h"
@@ -60,7 +61,7 @@ int main(int argc, const char * argv[])
             HITS::seq_hits(graph, check_auth, check_hub, parser.get_number_of_rounds());
 
             verify_results(auth, check_auth, 0);
-            //verify_results(hub, check_hub, 0);
+            verify_results(hub, check_hub, 0);
         }
     }
     catch (string error)
