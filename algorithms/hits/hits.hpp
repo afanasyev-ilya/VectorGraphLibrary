@@ -22,12 +22,10 @@ void HITS::vgl_hits(VectCSRGraph &_graph, VerticesArray<_T> &_auth, VerticesArra
 
     for(int step = 0; step < _num_steps; step++)
     {
-        _T norm = 0;
-
         graph_API.change_traversal_direction(GATHER, _hub, _auth, frontier);
 
         auto update_auth_op_preprocess = [_auth] __VGL_ADVANCE_PREPROCESS_ARGS__ {
-            _auth[src_id] = 0;
+            _auth[src_id] = 0.0;
         };
 
         auto update_auth_op = [_auth, _hub, vertices_count] __VGL_ADVANCE_ARGS__ {
@@ -39,8 +37,7 @@ void HITS::vgl_hits(VectCSRGraph &_graph, VerticesArray<_T> &_auth, VerticesArra
         auto reduce_auth_op = [_auth] __VGL_REDUCE_DBL_ARGS__ {
             return _auth[src_id] * _auth[src_id];
         };
-        norm = sqrt(graph_API.reduce<_T>(_graph, frontier, reduce_auth_op, REDUCE_SUM));
-        cout << norm << endl;
+        _T norm = sqrt(graph_API.reduce<_T>(_graph, frontier, reduce_auth_op, REDUCE_SUM));
 
         auto normalize_auth_op = [_auth, norm] __VGL_COMPUTE_ARGS__ {
             _auth[src_id] /= norm;
@@ -54,7 +51,6 @@ void HITS::vgl_hits(VectCSRGraph &_graph, VerticesArray<_T> &_auth, VerticesArra
         };
 
         auto update_hub_op = [_hub, _auth] __VGL_ADVANCE_ARGS__ {
-            //#pragma omp atomic
             _hub[src_id] += _auth[dst_id];
         };
         graph_API.scatter(_graph, frontier, update_hub_op, update_hub_op_preprocess, EMPTY_VERTEX_OP,
@@ -64,7 +60,6 @@ void HITS::vgl_hits(VectCSRGraph &_graph, VerticesArray<_T> &_auth, VerticesArra
             return _hub[src_id] * _hub[src_id];
         };
         norm = sqrt(graph_API.reduce<_T>(_graph, frontier, reduce_hub_op, REDUCE_SUM));
-        cout << norm << endl;
 
         auto normalize_hub_op = [_hub, norm] __VGL_COMPUTE_ARGS__ {
                 _hub[src_id] /= norm;
@@ -99,11 +94,10 @@ void HITS::seq_hits(VectCSRGraph &_graph, VerticesArray<_T> &_auth, VerticesArra
         _auth.reorder(GATHER);
         _hub.reorder(GATHER);
 
-        _T norm = 0;
-
+        _T norm = 0.0;
         for(int src_id = 0; src_id < vertices_count; src_id++)
         {
-            _T p_auth = 0;
+            _T p_auth = 0.0;
 
             for(int i = 0; i < _graph.get_incoming_connections_count(src_id); i++)
             {
@@ -116,7 +110,6 @@ void HITS::seq_hits(VectCSRGraph &_graph, VerticesArray<_T> &_auth, VerticesArra
         }
 
         norm = sqrt(norm);
-        cout << norm << endl;
 
         for(int src_id = 0; src_id < vertices_count; src_id++)
         {
@@ -126,22 +119,20 @@ void HITS::seq_hits(VectCSRGraph &_graph, VerticesArray<_T> &_auth, VerticesArra
         _auth.reorder(SCATTER);
         _hub.reorder(SCATTER);
 
-        norm = 0;
+        norm = 0.0;
         for(int src_id = 0; src_id < vertices_count; src_id++)
         {
-            _T p_hub = 0;
+            _T p_hub = 0.0;
             for(int i = 0; i < _graph.get_outgoing_connections_count(src_id); i++)
             {
                 int dst_id = _graph.get_outgoing_edge_dst(src_id, i);
                 p_hub += _auth[dst_id];
             }
-
             _hub[src_id] = p_hub;
             norm += p_hub * p_hub;
         }
 
         norm = sqrt(norm);
-        cout << norm << endl;
 
         for(int src_id = 0; src_id < vertices_count; src_id++)
         {

@@ -87,12 +87,12 @@ int VectCSRGraph::get_edge_dst(int _src_id, int _local_edge_pos, TraversalDirect
 
 int VectCSRGraph::get_incoming_edge_dst(int _src_id, int _local_edge_pos)
 {
-    return this->outgoing_graph->get_edge_dst(_src_id, _local_edge_pos);
+    return this->incoming_graph->get_edge_dst(_src_id, _local_edge_pos);
 }
 
 int VectCSRGraph::get_outgoing_edge_dst(int _src_id, int _local_edge_pos)
 {
-    return this->incoming_graph->get_edge_dst(_src_id, _local_edge_pos);
+    return this->outgoing_graph->get_edge_dst(_src_id, _local_edge_pos);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
