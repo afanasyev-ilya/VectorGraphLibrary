@@ -8,14 +8,14 @@
 
 inline bool are_same(float a, float b)
 {
-    return fabs(a - b) < 100.0*std::numeric_limits<float>::epsilon();
+    return fabs(a - b) <= ( (fabs(a) < fabs(b) ? fabs(b) : fabs(a)) * std::numeric_limits<float>::epsilon());
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 inline bool are_same(double a, double b)
 {
-    return fabs(a - b) < 100.0*std::numeric_limits<double>::epsilon();
+    return fabs(a - b) <= ( (fabs(a) < fabs(b) ? fabs(b) : fabs(a)) * std::numeric_limits<float>::epsilon());
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

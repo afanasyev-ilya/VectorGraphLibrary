@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#define INT_ELEMENTS_PER_EDGE 5.0
+#define INT_ELEMENTS_PER_EDGE (1.0 + 2.0 + 2.0)
 #define VECTOR_ENGINE_THRESHOLD_VALUE 2147483646
 #define VECTOR_CORE_THRESHOLD_VALUE 5*VECTOR_LENGTH
 
@@ -12,12 +12,14 @@
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+#define base_type double
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 int main(int argc, const char * argv[])
 {
     try
     {
-        DirectionType direction = UNDIRECTED_GRAPH;
-
         // parse args
         Parser parser;
         parser.parse_args(argc, argv);
@@ -44,12 +46,22 @@ int main(int argc, const char * argv[])
             tm.print_time_stats("Graph load");
         }
 
-        VerticesArray<float> auth(graph);
-        VerticesArray<float> hub(graph);
+        VerticesArray<base_type> auth(graph);
+        VerticesArray<base_type> hub(graph);
 
-        HITS::vgl_hits(graph, auth, hub, 10);
+        HITS::vgl_hits(graph, auth, hub, parser.get_number_of_rounds());
+        performance_stats.update_timer_stats();
+        performance_stats.print_timers_stats();
 
-        HITS::seq_hits(graph, auth, hub, 10);
+        if(parser.get_check_flag())
+        {
+            VerticesArray<base_type> check_auth(graph);
+            VerticesArray<base_type> check_hub(graph);
+            HITS::seq_hits(graph, check_auth, check_hub, parser.get_number_of_rounds());
+
+            verify_results(auth, check_auth, 0);
+            //verify_results(hub, check_hub, 0);
+        }
     }
     catch (string error)
     {

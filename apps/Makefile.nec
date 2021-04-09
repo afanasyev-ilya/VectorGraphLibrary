@@ -19,7 +19,7 @@ Libraries = -fopenmp -ftrace -lasl_openmp_i64 # -report-all -ftrace
 # binaries
 ##########
 
-all: sssp sswp sharded_sssp bfs scc pr cc print_graph_info create_vgl_graphs
+all: sssp sswp sharded_sssp bfs scc pr cc rw hits print_graph_info create_vgl_graphs
 
 sssp: create_folders sssp.o
 	$(VE_CXX) object_files/sssp.o $(Library_Path) $(Libraries) -o ./bin/sssp_sx
@@ -42,8 +42,11 @@ cc: create_folders cc.o
 pr: create_folders pr.o
 	$(VE_CXX) object_files/pr.o $(Library_Path) $(Libraries) -o ./bin/pr_sx
 
-gather: create_folders gather.o
-	$(VE_CXX) object_files/gather.o $(Library_Path) $(Libraries) -o ./bin/gather_sx
+rw: create_folders rw.o
+	$(VE_CXX) object_files/rw.o $(Library_Path) $(Libraries) -o ./bin/rw_sx
+
+hits: create_folders hits.o
+	$(VE_CXX) object_files/hits.o $(Library_Path) $(Libraries) -o ./bin/hits_sx
 
 print_graph_info: create_folders print_graph_info.o
 	$(VE_CXX) object_files/print_graph_info.o $(Library_Path) $(Libraries) -o ./bin/print_graph_info_sx
@@ -76,8 +79,11 @@ cc.o: cc/cc.cpp
 pr.o: pr/pr.cpp
 	$(VE_CXX) $(Flags) $(Include_Path)  -c pr/pr.cpp -o object_files/pr.o
 
-gather.o: misc/gather.cpp
-	$(VE_CXX) $(Flags) $(Include_Path)  -c misc/gather.cpp -o object_files/gather.o
+rw.o: rw/rw.cpp
+	$(VE_CXX) $(Flags) $(Include_Path)  -c rw/rw.cpp -o object_files/rw.o
+
+hits.o: hits/hits.cpp
+	$(VE_CXX) $(Flags) $(Include_Path)  -c hits/hits.cpp -o object_files/hits.o
 
 print_graph_info.o: utilites/print_graph_info.cpp
 	$(VE_CXX) $(Flags) $(Include_Path)  -c utilites/print_graph_info.cpp -o object_files/print_graph_info.o

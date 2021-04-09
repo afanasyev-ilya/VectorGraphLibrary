@@ -278,11 +278,13 @@ void GraphAbstractionsNEC::ve_collective_vertex_processing_kernel_all_active(Und
                     const int vector_index = i;
                     const long long internal_edge_pos = segment_edges_start + edge_pos * VECTOR_LENGTH + i;
                     const int local_edge_pos = edge_pos;
-                    const int dst_id = ve_adjacent_ids[internal_edge_pos];
                     const long long external_edge_pos = process_shift + internal_edge_pos;
 
                     if((src_id < vertices_count) && (edge_pos < reg_real_connections_count[i]))
+                    {
+                        const int dst_id = ve_adjacent_ids[internal_edge_pos];
                         edge_op(src_id, dst_id, local_edge_pos, external_edge_pos, vector_index, delayed_write);
+                    }
                 }
             }
         }
@@ -303,11 +305,13 @@ void GraphAbstractionsNEC::ve_collective_vertex_processing_kernel_all_active(Und
                     const int vector_index = i;
                     const long long internal_edge_pos = segment_edges_start + edge_pos * VECTOR_LENGTH + i;
                     const int local_edge_pos = edge_pos;
-                    const int dst_id = ve_adjacent_ids[internal_edge_pos];
                     const long long external_edge_pos = process_shift + internal_edge_pos;
 
                     if((src_id < vertices_count) && (edge_pos < reg_real_connections_count[i]))
+                    {
+                        const int dst_id = ve_adjacent_ids[internal_edge_pos];
                         edge_op(src_id, dst_id, local_edge_pos, external_edge_pos, vector_index, delayed_write);
+                    }
                 }
             }
         }

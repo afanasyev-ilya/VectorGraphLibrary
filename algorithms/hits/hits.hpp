@@ -7,6 +7,7 @@ void HITS::vgl_hits(VectCSRGraph &_graph, VerticesArray<_T> &_auth, VerticesArra
 {
     VGL_GRAPH_ABSTRACTIONS graph_API(_graph);
     VGL_FRONTIER frontier(_graph);
+    int vertices_count = _graph.get_vertices_count();
 
     frontier.set_all_active();
 
@@ -19,7 +20,7 @@ void HITS::vgl_hits(VectCSRGraph &_graph, VerticesArray<_T> &_auth, VerticesArra
     };
     graph_API.compute(_graph, frontier, init_op);
 
-    for(int step = 0; step < 2; step++)
+    for(int step = 0; step < _num_steps; step++)
     {
         _T norm = 0;
 
@@ -29,13 +30,13 @@ void HITS::vgl_hits(VectCSRGraph &_graph, VerticesArray<_T> &_auth, VerticesArra
             _auth[src_id] = 0;
         };
 
-        auto update_auth_op = [_auth, _hub] __VGL_ADVANCE_ARGS__ {
+        auto update_auth_op = [_auth, _hub, vertices_count] __VGL_ADVANCE_ARGS__ {
             _auth[src_id] += _hub[dst_id];
         };
         graph_API.gather(_graph, frontier, update_auth_op, update_auth_op_preprocess, EMPTY_VERTEX_OP,
                          update_auth_op, update_auth_op_preprocess, EMPTY_VERTEX_OP);
 
-        auto reduce_auth_op = [_auth] __VGL_REDUCE_FLT_ARGS__ {
+        auto reduce_auth_op = [_auth] __VGL_REDUCE_DBL_ARGS__ {
             return _auth[src_id] * _auth[src_id];
         };
         norm = sqrt(graph_API.reduce<_T>(_graph, frontier, reduce_auth_op, REDUCE_SUM));
@@ -44,7 +45,6 @@ void HITS::vgl_hits(VectCSRGraph &_graph, VerticesArray<_T> &_auth, VerticesArra
             _auth[src_id] /= norm;
         };
         graph_API.compute(_graph, frontier, normalize_auth_op);
-        cout << "norm: " << norm << endl;
 
         graph_API.change_traversal_direction(SCATTER, _hub, _auth, frontier);
 
@@ -53,12 +53,13 @@ void HITS::vgl_hits(VectCSRGraph &_graph, VerticesArray<_T> &_auth, VerticesArra
         };
 
         auto update_hub_op = [_hub, _auth] __VGL_ADVANCE_ARGS__ {
+            //#pragma omp atomic
             _hub[src_id] += _auth[dst_id];
         };
         graph_API.scatter(_graph, frontier, update_hub_op, update_hub_op_preprocess, EMPTY_VERTEX_OP,
                           update_hub_op, update_hub_op_preprocess, EMPTY_VERTEX_OP);
 
-        auto reduce_hub_op = [_hub] __VGL_REDUCE_FLT_ARGS__ {
+        auto reduce_hub_op = [_hub] __VGL_REDUCE_DBL_ARGS__ {
                 return _hub[src_id] * _hub[src_id];
         };
         norm = sqrt(graph_API.reduce<_T>(_graph, frontier, reduce_hub_op, REDUCE_SUM));
@@ -67,14 +68,13 @@ void HITS::vgl_hits(VectCSRGraph &_graph, VerticesArray<_T> &_auth, VerticesArra
                 _hub[src_id] /= norm;
         };
         graph_API.compute(_graph, frontier, normalize_hub_op);
-        cout << "norm: " << norm << endl;
     }
-
     tm.end();
-    tm.print_time_stats("SEQ HITS");
 
-    for(int i = 0; i < 20; i++)
-        cout << _hub[i] << " " << _auth[i] << endl;
+    performance_stats.save_algorithm_performance_stats(tm.get_time(), _graph.get_edges_count(), _num_steps);
+    #ifdef __PRINT_SAMPLES_PERFORMANCE_STATS__
+    performance_stats.print_algorithm_performance_stats("VGL HITS");
+    #endif
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -114,7 +114,6 @@ void HITS::seq_hits(VectCSRGraph &_graph, VerticesArray<_T> &_auth, VerticesArra
         }
 
         norm = sqrt(norm);
-        cout << "norm: " << norm << endl;
 
         for(int src_id = 0; src_id < vertices_count; src_id++)
         {
@@ -126,7 +125,7 @@ void HITS::seq_hits(VectCSRGraph &_graph, VerticesArray<_T> &_auth, VerticesArra
 
         for(int src_id = 0; src_id < vertices_count; src_id++)
         {
-            float p_hub = 0;
+            _T p_hub = 0;
             for(int i = 0; i < _graph.get_outgoing_connections_count(src_id); i++)
             {
                 int dst_id = _graph.get_outgoing_edge_dst(src_id, i);
@@ -138,7 +137,6 @@ void HITS::seq_hits(VectCSRGraph &_graph, VerticesArray<_T> &_auth, VerticesArra
         }
 
         norm = sqrt(norm);
-        cout << "norm: " << norm << endl;
 
         for(int src_id = 0; src_id < vertices_count; src_id++)
         {
@@ -146,10 +144,11 @@ void HITS::seq_hits(VectCSRGraph &_graph, VerticesArray<_T> &_auth, VerticesArra
         }
     }
     tm.end();
-    tm.print_time_stats("SEQ HITS");
 
-    for(int i = 0; i < 20; i++)
-        cout << _hub[i] << " " << _auth[i] << endl;
+    performance_stats.save_algorithm_performance_stats(tm.get_time(), _graph.get_edges_count(), _num_steps);
+    #ifdef __PRINT_SAMPLES_PERFORMANCE_STATS__
+    performance_stats.print_algorithm_performance_stats("SEQ HITS");
+    #endif
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

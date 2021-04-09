@@ -38,49 +38,25 @@ void GraphAbstractionsMulticore::vector_engine_per_vertex_kernel_dense(Undirecte
 
             vertex_preprocess_op(src_id, connections_count, 0, delayed_write);
 
-            if(use_safe_stores) // all vector stores are safe in this branch (vob)
+            #pragma omp for schedule(static, 8)
+            for(int vec_start = 0; vec_start < connections_count; vec_start += VECTOR_LENGTH)
             {
-                #pragma omp for schedule(static, 8)
-                for(int vec_start = 0; vec_start < connections_count; vec_start += VECTOR_LENGTH)
+                #pragma simd
+                #pragma vector
+                #pragma ivdep
+                #pragma unroll(VECTOR_LENGTH)
+                for (int i = 0; i < VECTOR_LENGTH; i++)
                 {
-                    #pragma simd
-                    #pragma vector
-                    #pragma ivdep
-                    #pragma unroll(VECTOR_LENGTH)
-                    for (int i = 0; i < VECTOR_LENGTH; i++)
+                    int local_edge_pos = vec_start + i;
+
+                    const long long internal_edge_pos = start + local_edge_pos;
+                    const int vector_index = i;
+                    const long long external_edge_pos = process_shift + internal_edge_pos;
+
+                    if (local_edge_pos < connections_count)
                     {
-                        int local_edge_pos = vec_start + i;
-
-                        const long long internal_edge_pos = start + local_edge_pos;
-                        const int vector_index = i;
                         const int dst_id = adjacent_ids[internal_edge_pos];
-                        const long long external_edge_pos = process_shift + internal_edge_pos;
-
-                        if (local_edge_pos < connections_count)
-                            edge_op(src_id, dst_id, local_edge_pos, external_edge_pos, vector_index, delayed_write);
-                    }
-                }
-            }
-            else
-            {
-                #pragma omp for schedule(static, 8)
-                for(int vec_start = 0; vec_start < connections_count; vec_start += VECTOR_LENGTH)
-                {
-                    #pragma simd
-                    #pragma vector
-                    #pragma ivdep
-                    #pragma unroll(VECTOR_LENGTH)
-                    for (int i = 0; i < VECTOR_LENGTH; i++)
-                    {
-                        int local_edge_pos = vec_start + i;
-
-                        const long long internal_edge_pos = start + local_edge_pos;
-                        const int vector_index = i;
-                        const int dst_id = adjacent_ids[internal_edge_pos];
-                        const long long external_edge_pos = process_shift + internal_edge_pos;
-
-                        if (local_edge_pos < connections_count)
-                            edge_op(src_id, dst_id, local_edge_pos, external_edge_pos, vector_index, delayed_write);
+                        edge_op(src_id, dst_id, local_edge_pos, external_edge_pos, vector_index, delayed_write);
                     }
                 }
             }
@@ -247,12 +223,14 @@ void GraphAbstractionsMulticore::ve_collective_vertex_processing_kernel_dense(Un
                     const int vector_index = i;
                     long long int internal_edge_pos = segment_edges_start + edge_pos * VECTOR_LENGTH + i;
                     const int local_edge_pos = edge_pos;
-                    const int dst_id = ve_adjacent_ids[internal_edge_pos];
 
                     const long long external_edge_pos = process_shift + internal_edge_pos;
 
                     if((src_id < vertices_count) && (edge_pos < reg_real_connections_count[i]))
+                    {
+                        const int dst_id = ve_adjacent_ids[internal_edge_pos];
                         edge_op(src_id, dst_id, local_edge_pos, external_edge_pos, vector_index, delayed_write);
+                    }
                 }
             }
         }

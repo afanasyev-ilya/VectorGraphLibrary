@@ -15,6 +15,7 @@
 
 #include <math.h>
 #include <algorithm>
+#include <functional>
 
 enum SortOrder {
     SORT_ASCENDING = 0,

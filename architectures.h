@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #ifdef __USE_NEC_SX_AURORA__
-#define __USE_ASL__
+//#define __USE_ASL__
 #define VECTOR_LENGTH 256
 #define VECTOR_LENGTH_POW 8
 #define MAX_SX_AURORA_THREADS 8

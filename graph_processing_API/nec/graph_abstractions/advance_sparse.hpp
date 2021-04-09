@@ -52,11 +52,13 @@ void GraphAbstractionsNEC::vector_engine_per_vertex_kernel_sparse(UndirectedCSRG
 
                     const long long internal_edge_pos = start + local_edge_pos;
                     const int vector_index = i;
-                    const int dst_id = adjacent_ids[internal_edge_pos];
                     const long long external_edge_pos = process_shift + internal_edge_pos;
 
                     if (local_edge_pos < connections_count)
+                    {
+                        const int dst_id = adjacent_ids[internal_edge_pos];
                         edge_op(src_id, dst_id, local_edge_pos, external_edge_pos, vector_index, delayed_write);
+                    }
                 }
             }
         }
@@ -78,11 +80,13 @@ void GraphAbstractionsNEC::vector_engine_per_vertex_kernel_sparse(UndirectedCSRG
 
                     const long long internal_edge_pos = start + local_edge_pos;
                     const int vector_index = i;
-                    const int dst_id = adjacent_ids[internal_edge_pos];
                     const long long external_edge_pos = process_shift + internal_edge_pos;
 
                     if (local_edge_pos < connections_count)
+                    {
+                        const int dst_id = adjacent_ids[internal_edge_pos];
                         edge_op(src_id, dst_id, local_edge_pos, external_edge_pos, vector_index, delayed_write);
+                    }
                 }
             }
         }
