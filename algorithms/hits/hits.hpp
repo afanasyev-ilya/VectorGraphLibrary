@@ -123,6 +123,7 @@ void HITS::seq_hits(VectCSRGraph &_graph, VerticesArray<_T> &_auth, VerticesArra
         _auth.reorder(SCATTER);
         _hub.reorder(SCATTER);
 
+        norm = 0;
         for(int src_id = 0; src_id < vertices_count; src_id++)
         {
             _T p_hub = 0;
