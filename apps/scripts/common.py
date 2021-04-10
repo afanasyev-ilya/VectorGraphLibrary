@@ -28,3 +28,16 @@ class BenchmarkMode(Enum):
 
 
 mode = BenchmarkMode.medium
+
+
+snap_links = {"web_berk_stan": "web-BerkStan.txt.gz",
+              "soc_lj":  "soc-LiveJournal1.txt.gz",
+              "soc_pokec": "soc-pokec-relationships.txt.gz",
+              "wiki_talk": "wiki-topcats.txt.gz",
+              "soc_orkut": "com-orkut.ungraph.txt.gz",
+              "wiki_topcats": "wiki-topcats.txt.gz",
+              "roads_ca": "roadNet-CA.txt.gz",
+              "cit_patents": "cit-Patents.txt.gz",
+              "soc_stackoverflow": "sx-stackoverflow.txt.gz",
+              "skitter": "as-skitter.txt.gz"}
+

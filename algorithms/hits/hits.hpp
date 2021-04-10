@@ -67,6 +67,7 @@ void HITS::vgl_hits(VectCSRGraph &_graph, VerticesArray<_T> &_auth, VerticesArra
         graph_API.compute(_graph, frontier, normalize_hub_op);
     }
     tm.end();
+    cout << _num_steps*2.0 *(sizeof(double)*2.0 + sizeof(int))*(_graph.get_edges_count()/1e9)/(2.0*tm.get_time()/3.0) << " GB/s" << endl;
 
     performance_stats.save_algorithm_performance_stats(tm.get_time(), _graph.get_edges_count(), _num_steps);
     #ifdef __PRINT_SAMPLES_PERFORMANCE_STATS__

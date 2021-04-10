@@ -3,6 +3,7 @@ import subprocess
 import os
 import shutil
 from .common import *
+import urllib.request
 
 
 def create_dir(dir_path):
@@ -121,3 +122,12 @@ def prepare_list_of_apps(apps_string):
         return apps_list
     else:
         return apps_string.split(",")
+
+
+def internet_on():
+    try:
+        urllib.request.urlopen('http://216.58.192.142', timeout=1)
+        return True
+    except Exception as e:
+        print(e)
+        return False

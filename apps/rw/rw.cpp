@@ -67,14 +67,17 @@ int main(int argc, const char * argv[])
 
         // do random walks
         VerticesArray<int> walk_results(graph);
+        performance_stats.reset_timers();
         RW::vgl_random_walk(graph, walk_vertices, walk_vertices_num, walk_length, walk_results);
+        performance_stats.update_timer_stats();
+        performance_stats.print_timers_stats();
 
+        // run sequential algorithm for timing comparison
         if(parser.get_check_flag())
         {
             VerticesArray<int> check_walk_results(graph);
             RW::seq_random_walk(graph, walk_vertices, walk_vertices_num, walk_length, check_walk_results);
-
-            verify_results(walk_results, check_walk_results, 0);
+            cout << "since walks are random it is not possible to check" << endl;
         }
 
         performance_stats.print_perf(graph.get_edges_count());

@@ -67,11 +67,18 @@ if __name__ == "__main__":
     parser.add_option('-n', '--no-run',
                       action="store_true", dest="no_run",
                       help="do not run any tests", default=False)
+    parser.add_option('-d', '--download-only',
+                      action="store_true", dest="download_only",
+                      help="download SNAP graphs and quit", default=False)
 
     options, args = parser.parse_args()
 
     create_dir("./bin/")
     arch = options.arch
+
+    if options.download_only:
+        download_snap_graphs()
+        exit(0)
 
     if options.compile:
         run_compile(options, arch)

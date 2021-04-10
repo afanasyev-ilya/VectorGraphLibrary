@@ -329,7 +329,7 @@ void GraphAbstractionsNEC::ve_collective_vertex_processing_kernel_all_active(Und
     tm.end();
     performance_stats.update_advance_collective_part_time(tm);
     #ifdef __PRINT_API_PERFORMANCE_STATS__
-    long long work = _graph.get_edges_count();
+    long long work = _graph.get_edges_count_in_ve();
     tm.print_time_and_bandwidth_stats("Advance (all, collective)", work, INT_ELEMENTS_PER_EDGE*sizeof(int));
     #endif
 }

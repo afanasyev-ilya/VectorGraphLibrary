@@ -51,15 +51,15 @@ int main(int argc, const char * argv[])
 
         // print graphs stats
         graph.print_size();
-        #ifndef __USE_NEC_SX_AURORA__
-        graph.print_stats();
-        #endif
 
         // do calculations
         cout << "Computations started..." << endl;
         cout << "Doing " << parser.get_number_of_rounds() << " SSSP iterations..." << endl;
         EdgesArray_Vect<float> weights(graph);
         weights.set_all_random(MAX_WEIGHT);
+
+        //graph.print();
+        //weights.print();
         for(int i = 0; i < parser.get_number_of_rounds(); i++)
         {
             int source_vertex = graph.select_random_vertex(ORIGINAL);

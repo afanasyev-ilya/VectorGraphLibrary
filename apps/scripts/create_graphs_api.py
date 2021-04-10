@@ -1,5 +1,7 @@
 from .helpers import *
 from .common import *
+import os.path
+from os import path
 
 
 def get_list_of_soc_graphs():
@@ -79,26 +81,38 @@ def get_graph_path(graph_name):
     return prefix + graph_name + suffix
 
 
-def create_real_world_graph(graph_name, arch):
-    snap_links = {"web_berk_stan": "web-BerkStan.txt.gz",
-                  "soc_lj":  "soc-LiveJournal1.txt.gz",
-                  "soc_pokec": "soc-pokec-relationships.txt.gz",
-                  "wiki_talk": "wiki-topcats.txt.gz",
-                  "soc_orkut": "com-orkut.ungraph.txt.gz",
-                  "wiki_topcats": "wiki-topcats.txt.gz",
-                  "roads_ca": "roadNet-CA.txt.gz",
-                  "cit_patents": "cit-Patents.txt.gz",
-                  "soc_stackoverflow": "sx-stackoverflow.txt.gz",
-                  "skitter": "as-skitter.txt.gz"}
-    link = "https://snap.stanford.edu/data/" + snap_links[graph_name]
-    cmd = ["wget", link, "--no-check-certificate", "--directory", SOURCE_GRAPH_DIR]
-    print(cmd)
-    subprocess.call(cmd, shell=False, stdout=subprocess.PIPE)
+def download_snap_graphs():
+    snap_graphs = get_list_of_soc_graphs() + get_list_of_misc_graphs()
+    for graph_name in snap_graphs:
+        download_graph(graph_name)
 
-    link = "https://snap.stanford.edu/data/bigdata/communities/" + snap_links[graph_name]
-    cmd = ["wget", link, "--no-check-certificate", "--directory", SOURCE_GRAPH_DIR]
-    print(cmd)
-    subprocess.call(cmd, shell=False, stdout=subprocess.PIPE)
+
+def download_graph(graph_name):
+    if not path.exists(SOURCE_GRAPH_DIR + "/" + snap_links[graph_name]):
+        print("Trying to download " + SOURCE_GRAPH_DIR + snap_links[graph_name])
+
+        if not internet_on():
+            print("Error! no internet connection available.")
+            return
+
+        link = "https://snap.stanford.edu/data/" + snap_links[graph_name]
+        cmd = ["wget", link, "-q", "--no-check-certificate", "--directory", SOURCE_GRAPH_DIR]
+        print(cmd)
+        subprocess.call(cmd, shell=False, stdout=subprocess.PIPE)
+
+        link = "https://snap.stanford.edu/data/bigdata/communities/" + snap_links[graph_name]
+        cmd = ["wget", link, "-q", "--no-check-certificate", "--directory", SOURCE_GRAPH_DIR]
+        print(cmd)
+        subprocess.call(cmd, shell=False, stdout=subprocess.PIPE)
+
+    if path.exists(SOURCE_GRAPH_DIR + snap_links[graph_name]):
+        print("File " + SOURCE_GRAPH_DIR + snap_links[graph_name] + " downloaded!")
+    else:
+        print("Error! Can not download file " + SOURCE_GRAPH_DIR + snap_links[graph_name])
+
+
+def create_real_world_graph(graph_name, arch):
+    download_graph(graph_name)
 
     tar_name = SOURCE_GRAPH_DIR + snap_links[graph_name]
     cmd = ["gunzip", "-f", tar_name]

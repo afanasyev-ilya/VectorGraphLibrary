@@ -2,11 +2,11 @@
 
 #define INT_ELEMENTS_PER_EDGE (1.0 + 2.0 + 2.0)
 #define VECTOR_ENGINE_THRESHOLD_VALUE 2147483646
-#define VECTOR_CORE_THRESHOLD_VALUE 5*VECTOR_LENGTH
+#define VECTOR_CORE_THRESHOLD_VALUE 3*VECTOR_LENGTH
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-//#define __PRINT_API_PERFORMANCE_STATS__
+#define __PRINT_API_PERFORMANCE_STATS__
 #define __PRINT_SAMPLES_PERFORMANCE_STATS__
 
 #include "graph_library.h"
@@ -50,6 +50,7 @@ int main(int argc, const char * argv[])
         VerticesArray<base_type> auth(graph);
         VerticesArray<base_type> hub(graph);
 
+        performance_stats.reset_timers();
         HITS::vgl_hits(graph, auth, hub, parser.get_number_of_rounds());
         performance_stats.update_timer_stats();
         performance_stats.print_timers_stats();
