@@ -107,9 +107,11 @@ _T GraphAbstractionsMulticore::reduce(VectCSRGraph &_graph,
     }
 
     tm.end();
+    long long work = _frontier.size();
     performance_stats.update_reduce_time(tm);
+    performance_stats.update_bytes_requested(REDUCE_INT_ELEMENTS*sizeof(int)*work);
     #ifdef __PRINT_API_PERFORMANCE_STATS__
-    tm.print_bandwidth_stats("Reduce", _frontier.size(), REDUCE_INT_ELEMENTS*sizeof(int));
+    tm.print_bandwidth_stats("Reduce", work, REDUCE_INT_ELEMENTS*sizeof(int));
     #endif
 }
 

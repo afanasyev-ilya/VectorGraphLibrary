@@ -63,9 +63,10 @@ void GraphAbstractionsMulticore::vector_engine_per_vertex_kernel_all_active(Undi
     }
 
     tm.end();
-    performance_stats.update_advance_ve_part_time(tm);
-    #ifdef __PRINT_API_PERFORMANCE_STATS__
     long long work = vertex_pointers[_last_vertex] - vertex_pointers[_first_vertex];
+    performance_stats.update_advance_ve_part_time(tm);
+    performance_stats.update_graph_processing_stats(work*INT_ELEMENTS_PER_EDGE*sizeof(int), work);
+    #ifdef __PRINT_API_PERFORMANCE_STATS__
     tm.print_time_and_bandwidth_stats("Advance (all, ve)", work, INT_ELEMENTS_PER_EDGE*sizeof(int));
     #endif
 }
@@ -132,9 +133,10 @@ void GraphAbstractionsMulticore::vector_core_per_vertex_kernel_all_active(Undire
     }
 
     tm.end();
-    performance_stats.update_advance_vc_part_time(tm);
-    #ifdef __PRINT_API_PERFORMANCE_STATS__
     long long work = vertex_pointers[_last_vertex] - vertex_pointers[_first_vertex];
+    performance_stats.update_advance_vc_part_time(tm);
+    performance_stats.update_graph_processing_stats(work*INT_ELEMENTS_PER_EDGE*sizeof(int), work);
+    #ifdef __PRINT_API_PERFORMANCE_STATS__
     tm.print_time_and_bandwidth_stats("Advance (all, vc)", work, INT_ELEMENTS_PER_EDGE*sizeof(int));
     #endif
 }
@@ -241,9 +243,10 @@ void GraphAbstractionsMulticore::ve_collective_vertex_processing_kernel_all_acti
     }
 
     tm.end();
-    performance_stats.update_advance_collective_part_time(tm);
-    #ifdef __PRINT_API_PERFORMANCE_STATS__
     long long work = _graph.get_edges_count_in_ve();
+    performance_stats.update_advance_collective_part_time(tm);
+    performance_stats.update_graph_processing_stats(work*INT_ELEMENTS_PER_EDGE*sizeof(int), work);
+    #ifdef __PRINT_API_PERFORMANCE_STATS__
     tm.print_time_and_bandwidth_stats("Advance (all, collective)", work, INT_ELEMENTS_PER_EDGE*sizeof(int));
     #endif
 }

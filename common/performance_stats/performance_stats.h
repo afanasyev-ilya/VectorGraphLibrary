@@ -7,22 +7,9 @@
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-struct AlgorithmStats
-{
-    double wall_time;
-    double wall_perf;
-    int iterations_count;
-    double perf_per_iteration;
-    double band_per_iteration;
-};
-
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
 class PerformanceStats
 {
 private:
-    AlgorithmStats latest_algorithm_stats;
-
     int number_of_runs;
     double avg_time;
     double best_time;
@@ -41,6 +28,10 @@ private:
     double pack_time;
     double non_api_time;
 
+    size_t bytes_requested;
+    size_t edges_visited;
+    size_t vertices_visited;
+
     void print_abstraction_stats(string _name, double _time);
     void print_detailed_advance_stats(string _name, double _time);
 
@@ -51,19 +42,23 @@ public:
 
     void reset_timers();
 
-    void update_advance_time(Timer &_timer);
-    void update_scatter_time(Timer &_timer);
-    void update_gather_time(Timer &_timer);
-    void update_compute_time(Timer &_timer);
-    void update_reduce_time(Timer &_timer);
-    void update_gnf_time(Timer &_timer);
-    void update_pack_time(Timer &_timer);
-    void update_reorder_time(Timer &_timer);
-    void update_non_api_time(Timer &_timer);
+    inline void update_bytes_requested(size_t bytes);
+    inline void update_edges_visited(size_t edges);
+    inline void update_graph_processing_stats(size_t _bytes, size_t _edges);
 
-    void update_advance_ve_part_time(Timer &_timer);
-    void update_advance_vc_part_time(Timer &_timer);
-    void update_advance_collective_part_time(Timer &_timer);
+    inline void update_advance_time(Timer &_timer);
+    inline void update_scatter_time(Timer &_timer);
+    inline void update_gather_time(Timer &_timer);
+    inline void update_compute_time(Timer &_timer);
+    inline void update_reduce_time(Timer &_timer);
+    inline void update_gnf_time(Timer &_timer);
+    inline void update_pack_time(Timer &_timer);
+    inline void update_reorder_time(Timer &_timer);
+    inline void update_non_api_time(Timer &_timer);
+
+    inline void update_advance_ve_part_time(Timer &_timer);
+    inline void update_advance_vc_part_time(Timer &_timer);
+    inline void update_advance_collective_part_time(Timer &_timer);
 
     void print_timers_stats();
     void update_timer_stats();
@@ -80,9 +75,7 @@ public:
     void print_max_perf(long long _edges_count, int _k = 1);
     void print_avg_perf(long long _edges_count, int _k = 1);
 
-    void save_algorithm_performance_stats(double _time, long long _edges_count, int _iterations_count = 0); // TODO
-    void print_algorithm_performance_stats(string _name);
-    AlgorithmStats get_latest_algorithm_performance_stats() { return latest_algorithm_stats; };
+    void print_algorithm_performance_stats(string _name, double _time, long long _edges_count);
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

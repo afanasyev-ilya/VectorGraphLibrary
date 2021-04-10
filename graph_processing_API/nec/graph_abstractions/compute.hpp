@@ -86,9 +86,12 @@ void GraphAbstractionsNEC::compute(VectCSRGraph &_graph,
     }
 
     tm.end();
+    long long work = _frontier.size();
     performance_stats.update_compute_time(tm);
+    performance_stats.update_bytes_requested(COMPUTE_INT_ELEMENTS*sizeof(int)*work);
+
     #ifdef __PRINT_API_PERFORMANCE_STATS__
-    tm.print_bandwidth_stats("Compute", _frontier.size(), COMPUTE_INT_ELEMENTS*sizeof(int));
+    tm.print_bandwidth_stats("Compute", work, COMPUTE_INT_ELEMENTS*sizeof(int));
     #endif
 }
 
@@ -132,9 +135,11 @@ void GraphAbstractionsNEC::compute(ShardedCSRGraph &_graph,
     }
 
     tm.end();
+    long long work = _frontier.size();
     performance_stats.update_compute_time(tm);
+    performance_stats.update_bytes_requested(COMPUTE_INT_ELEMENTS*sizeof(int)*work);
     #ifdef __PRINT_API_PERFORMANCE_STATS__
-    tm.print_bandwidth_stats("Compute", _frontier.size(), COMPUTE_INT_ELEMENTS*sizeof(int));
+    tm.print_bandwidth_stats("Compute", work, COMPUTE_INT_ELEMENTS*sizeof(int));
     #endif
 }
 

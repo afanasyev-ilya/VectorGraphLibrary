@@ -12,7 +12,7 @@ PerformanceStats::PerformanceStats()
 
 void PerformanceStats::update_advance_time(Timer &_timer)
 {
-    #pragma omp master
+    #pragma omp single
     {
         advance_time += _timer.get_time();
     }
@@ -22,7 +22,7 @@ void PerformanceStats::update_advance_time(Timer &_timer)
 
 void PerformanceStats::update_advance_ve_part_time(Timer &_timer)
 {
-    #pragma omp master
+    #pragma omp single
     {
         advance_ve_part_time += _timer.get_time();
     }
@@ -32,7 +32,7 @@ void PerformanceStats::update_advance_ve_part_time(Timer &_timer)
 
 void PerformanceStats::update_advance_vc_part_time(Timer &_timer)
 {
-    #pragma omp master
+    #pragma omp single
     {
         advance_vc_part_time += _timer.get_time();
     }
@@ -42,7 +42,7 @@ void PerformanceStats::update_advance_vc_part_time(Timer &_timer)
 
 void PerformanceStats::update_advance_collective_part_time(Timer &_timer)
 {
-    #pragma omp master
+    #pragma omp single
     {
         advance_collective_part_time += _timer.get_time();
     }
@@ -52,7 +52,7 @@ void PerformanceStats::update_advance_collective_part_time(Timer &_timer)
 
 void PerformanceStats::update_scatter_time(Timer &_timer)
 {
-    #pragma omp master
+    #pragma omp single
     {
         inner_wall_time += _timer.get_time();
         scatter_time += _timer.get_time();
@@ -63,7 +63,7 @@ void PerformanceStats::update_scatter_time(Timer &_timer)
 
 void PerformanceStats::update_gather_time(Timer &_timer)
 {
-    #pragma omp master
+    #pragma omp single
     {
         inner_wall_time += _timer.get_time();
         gather_time += _timer.get_time();
@@ -74,7 +74,7 @@ void PerformanceStats::update_gather_time(Timer &_timer)
 
 void PerformanceStats::update_compute_time(Timer &_timer)
 {
-    #pragma omp master
+    #pragma omp single
     {
         inner_wall_time += _timer.get_time();
         compute_time += _timer.get_time();
@@ -85,7 +85,7 @@ void PerformanceStats::update_compute_time(Timer &_timer)
 
 void PerformanceStats::update_reduce_time(Timer &_timer)
 {
-    #pragma omp master
+    #pragma omp single
     {
         inner_wall_time += _timer.get_time();
         reduce_time += _timer.get_time();
@@ -96,7 +96,7 @@ void PerformanceStats::update_reduce_time(Timer &_timer)
 
 void PerformanceStats::update_gnf_time(Timer &_timer)
 {
-    #pragma omp master
+    #pragma omp single
     {
         inner_wall_time += _timer.get_time();
         gnf_time += _timer.get_time();
@@ -107,7 +107,7 @@ void PerformanceStats::update_gnf_time(Timer &_timer)
 
 void PerformanceStats::update_pack_time(Timer &_timer)
 {
-    #pragma omp master
+    #pragma omp single
     {
         inner_wall_time += _timer.get_time();
         pack_time += _timer.get_time();
@@ -118,7 +118,7 @@ void PerformanceStats::update_pack_time(Timer &_timer)
 
 void PerformanceStats::update_reorder_time(Timer &_timer)
 {
-    #pragma omp master
+    #pragma omp single
     {
         inner_wall_time += _timer.get_time();
         reorder_time += _timer.get_time();
@@ -129,10 +129,41 @@ void PerformanceStats::update_reorder_time(Timer &_timer)
 
 void PerformanceStats::update_non_api_time(Timer &_timer)
 {
-    #pragma omp master
+    #pragma omp single
     {
         inner_wall_time += _timer.get_time();
         non_api_time += _timer.get_time();
+    }
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+void PerformanceStats::update_bytes_requested(size_t _bytes)
+{
+    #pragma omp single
+    {
+        bytes_requested += _bytes;
+    }
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+void PerformanceStats::update_edges_visited(size_t _edges)
+{
+    #pragma omp single
+    {
+        edges_visited += _edges;
+    }
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+void PerformanceStats::update_graph_processing_stats(size_t _bytes, size_t _edges)
+{
+    #pragma omp single
+    {
+        bytes_requested += _bytes;
+        edges_visited += _edges;
     }
 }
 
@@ -156,6 +187,10 @@ void PerformanceStats::reset_timers()
     pack_time = 0;
 
     non_api_time = 0;
+
+    bytes_requested = 0;
+    edges_visited = 0;
+    vertices_visited = 0;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -192,28 +227,11 @@ string get_separators_bottom_string()
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void PerformanceStats::save_algorithm_performance_stats(double _time, long long _edges_count, int _iterations_count)
-{
-    latest_algorithm_stats.wall_time = _time;
-    latest_algorithm_stats.wall_perf = _edges_count / (_time * 1e6);
-    latest_algorithm_stats.iterations_count = _iterations_count;
-    latest_algorithm_stats.perf_per_iteration = _iterations_count * (_edges_count / (_time * 1e6));
-    latest_algorithm_stats.band_per_iteration = INT_ELEMENTS_PER_EDGE * sizeof(int) * _iterations_count * (_edges_count / (_time * 1e9));
-}
-
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-void PerformanceStats::print_algorithm_performance_stats(string _name)
+void PerformanceStats::print_algorithm_performance_stats(string _name, double _time, long long _edges_count)
 {
     cout << get_separators_upper_string(_name) << endl;
-    cout << "wall time: " << latest_algorithm_stats.wall_time*1000.0 << " ms" << endl;
-    cout << "wall perf: " << latest_algorithm_stats.wall_perf << " MTEPS" << endl;
-    if(latest_algorithm_stats.iterations_count > 0)
-    {
-        cout << "iterations count: " << latest_algorithm_stats.iterations_count << endl;
-        cout << "perf per iteration: " << latest_algorithm_stats.perf_per_iteration << " MTEPS" << endl;
-        cout << "band per iteration: " << latest_algorithm_stats.band_per_iteration << " GB/s" << endl;
-    }
+    cout << "Wall time: " << _time*1000.0 << " ms" << endl;
+    cout << "Wall (graph500) perf: " << _edges_count / (_time * 1e6); << " MTEPS" << endl;
     cout << get_separators_bottom_string() << endl << endl;
 }
 
@@ -237,6 +255,11 @@ void PerformanceStats::print_timers_stats()
     print_abstraction_stats("Reorder       ", reorder_time);
     print_abstraction_stats("Pack          ", pack_time);
     print_abstraction_stats("Non-API       ", non_api_time);
+    cout << endl;
+
+    cout << "total bandwidth: " << bytes_requested / (inner_wall_time * 1e9) << " GB/s" << endl;
+    cout << "edges rate: " << edges_visited / (inner_wall_time * 1e6) << " MTEPS" << endl;
+    cout << "edges visited: " << edges_visited << endl;
     cout << endl;
 }
 
@@ -333,5 +356,6 @@ void PerformanceStats::print_detailed_advance_stats(string _name, double _time)
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 
 

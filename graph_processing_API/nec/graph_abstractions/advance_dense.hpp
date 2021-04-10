@@ -98,10 +98,10 @@ void GraphAbstractionsNEC::vector_engine_per_vertex_kernel_dense(UndirectedCSRGr
     }
 
     tm.end();
-    performance_stats.update_advance_ve_part_time(tm);
-    #ifdef __PRINT_API_PERFORMANCE_STATS__
-    //long long work = vertex_pointers[_last_vertex] - vertex_pointers[_first_vertex];
     long long work = _frontier.get_vector_engine_part_neighbours_count();
+    performance_stats.update_advance_ve_part_time(tm);
+    performance_stats.update_graph_processing_stats(work*INT_ELEMENTS_PER_EDGE*sizeof(int), work);
+    #ifdef __PRINT_API_PERFORMANCE_STATS__
     tm.print_time_and_bandwidth_stats("Advance(dense, ve)", work, INT_ELEMENTS_PER_EDGE*sizeof(int));
     #endif
 }
@@ -185,10 +185,10 @@ void GraphAbstractionsNEC::vector_core_per_vertex_kernel_dense(UndirectedCSRGrap
     }
 
     tm.end();
-    performance_stats.update_advance_vc_part_time(tm);
-    #ifdef __PRINT_API_PERFORMANCE_STATS__
-    //long long work = vertex_pointers[_last_vertex] - vertex_pointers[_first_vertex];
     long long work = _frontier.get_vector_core_part_neighbours_count();
+    performance_stats.update_advance_vc_part_time(tm);
+    performance_stats.update_graph_processing_stats(work*INT_ELEMENTS_PER_EDGE*sizeof(int), work);
+    #ifdef __PRINT_API_PERFORMANCE_STATS__
     tm.print_time_and_bandwidth_stats("Advance (dense, vc)", work, INT_ELEMENTS_PER_EDGE*sizeof(int));
     #endif
 }
@@ -329,10 +329,10 @@ void GraphAbstractionsNEC::ve_collective_vertex_processing_kernel_dense(Undirect
     }
 
     tm.end();
-    performance_stats.update_advance_collective_part_time(tm);
-    #ifdef __PRINT_API_PERFORMANCE_STATS__
-    //long long work = vertex_pointers[_last_vertex] - vertex_pointers[_first_vertex];
     long long work = _frontier.get_collective_part_neighbours_count();
+    performance_stats.update_advance_collective_part_time(tm);
+    performance_stats.update_graph_processing_stats(work*INT_ELEMENTS_PER_EDGE*sizeof(int), work);
+    #ifdef __PRINT_API_PERFORMANCE_STATS__
     tm.print_time_and_bandwidth_stats("Advance (dense, collective)", work, INT_ELEMENTS_PER_EDGE*sizeof(int));
     #endif
 }

@@ -130,11 +130,16 @@ void GraphAbstractionsNEC::generate_new_frontier(VectCSRGraph &_graph,
 
     tm_copy_if.end();
     tm_wall.end();
+    long long work = _frontier.max_size;
     performance_stats.update_gnf_time(tm_wall);
-    #ifdef __PRINT_API_PERFORMANCE_STATS__
-    tm_flags.print_bandwidth_stats("GNF flags", _frontier.max_size, 2.0*sizeof(int));
+    performance_stats.update_bytes_requested(work*2.0*sizeof(int));
     if(copy_if_work)
-        tm_copy_if.print_bandwidth_stats("GNF copy if", _frontier.max_size, 2.0*sizeof(int));
+        performance_stats.update_bytes_requested(work*2.0*sizeof(int));
+
+    #ifdef __PRINT_API_PERFORMANCE_STATS__
+    tm_flags.print_bandwidth_stats("GNF flags", work, 2.0*sizeof(int));
+    if(copy_if_work)
+        tm_copy_if.print_bandwidth_stats("GNF copy if", work, 2.0*sizeof(int));
     #endif
 }
 
