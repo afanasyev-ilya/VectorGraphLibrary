@@ -1,8 +1,9 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #define INT_ELEMENTS_PER_EDGE 1.0
+#define FRONTIER_TYPE_CHANGE_THRESHOLD 1.0
 
-//#define __PRINT_API_PERFORMANCE_STATS__
+#define __PRINT_API_PERFORMANCE_STATS__
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -71,6 +72,7 @@ int main(int argc, const char * argv[])
         RW::vgl_random_walk(graph, walk_vertices, walk_vertices_num, walk_length, walk_results);
         performance_stats.update_timer_stats();
         performance_stats.print_timers_stats();
+        performance_stats.print_perf(graph.get_edges_count());
 
         // run sequential algorithm for timing comparison
         if(parser.get_check_flag())
@@ -79,8 +81,6 @@ int main(int argc, const char * argv[])
             RW::seq_random_walk(graph, walk_vertices, walk_vertices_num, walk_length, check_walk_results);
             cout << "since walks are random it is not possible to check" << endl;
         }
-
-        performance_stats.print_perf(graph.get_edges_count());
     }
     catch (string error)
     {

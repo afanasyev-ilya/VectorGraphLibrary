@@ -63,9 +63,9 @@ void BFS::nec_top_down(VectCSRGraph &_graph,
     }
     tm.end();
 
-    performance_stats.save_algorithm_performance_stats(tm.get_time(), _graph.get_edges_count());
+
     #ifdef __PRINT_SAMPLES_PERFORMANCE_STATS__
-    performance_stats.print_algorithm_performance_stats("BFS (Top-down, NEC/multicore)");
+    performance_stats.print_algorithm_performance_stats("BFS (Top-down, NEC/multicore)", tm.get_time(), _graph.get_edges_count());
     #endif
 }
 #endif

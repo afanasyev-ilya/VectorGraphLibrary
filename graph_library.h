@@ -75,7 +75,7 @@ using namespace std;
 #include "algorithms/sswp/widest_paths.h"
 #include "algorithms/rw/random_walk.h"
 #include "algorithms/hits/hits.h"
-//#include "algorithms/scc/scc.h"
+#include "algorithms/scc/scc.h"
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 

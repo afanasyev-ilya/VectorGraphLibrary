@@ -121,10 +121,8 @@ void PR::seq_page_rank(VectCSRGraph &_graph,
     }
 
     tm.end();
-
-    performance_stats.save_algorithm_performance_stats(tm.get_time(), _graph.get_edges_count(), iterations_count);
     #ifdef __PRINT_SAMPLES_PERFORMANCE_STATS__
-    performance_stats.print_algorithm_performance_stats("PR (Page Rank, SEQ)");
+    performance_stats.print_algorithm_performance_stats("PR (Page Rank, SEQ)", tm.get_time(), _graph.get_edges_count());
     #endif
 }
 

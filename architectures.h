@@ -8,17 +8,17 @@
 //#define __USE_MULTICORE__
 
 #ifdef __USE_NEC_SX_AURORA__
-#warning "NEC SX-Aurora TSUBASA API is used!"
+//#warning "NEC SX-Aurora TSUBASA API is used!"
 #pragma message("NEC SX-Aurora TSUBASA API is used!")
 #endif
 
 #ifdef __USE_MULTICORE__
-#warning "Multicore API is used!"
+//#warning "Multicore API is used!"
 #pragma message("Multicore API is used!")
 #endif
 
 #ifdef __USE_GPU__
-#warning "GPU API is used!"
+//#warning "GPU API is used!"
 #pragma message("GPU API is used!")
 #endif
 

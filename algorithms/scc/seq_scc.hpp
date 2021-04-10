@@ -143,9 +143,9 @@ void SCC::seq_tarjan(VectCSRGraph &_graph, VerticesArray<int> &_components)
     }
     tm.end();
 
-    performance_stats.save_algorithm_performance_stats(tm.get_time(), _graph.get_edges_count());
+
     #ifdef __PRINT_SAMPLES_PERFORMANCE_STATS__
-    performance_stats.print_algorithm_performance_stats("SCC (Sequential Tarjan)");
+    performance_stats.print_algorithm_performance_stats("SCC (Sequential Tarjan)", tm.get_time(), _graph.get_edges_count());
     #endif
 
     //_components.print();

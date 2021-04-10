@@ -54,6 +54,7 @@ int main(int argc, const char * argv[])
         HITS::vgl_hits(graph, auth, hub, parser.get_number_of_rounds());
         performance_stats.update_timer_stats();
         performance_stats.print_timers_stats();
+        performance_stats.print_perf(graph.get_edges_count());
 
         if(parser.get_check_flag())
         {

@@ -45,6 +45,9 @@ rw: create_folders rw.o
 hits: create_folders hits.o
 	$(CXX) object_files/hits.o $(Library_Path) $(Libraries) -o ./bin/hits_mc
 
+print_graph_info: create_folders print_graph_info.o
+	$(CXX) object_files/print_graph_info.o $(Library_Path) $(Libraries) -o ./bin/print_graph_info_mc
+
 create_vgl_graphs: create_folders create_vgl_graphs.o
 	$(CXX) object_files/create_vgl_graphs.o $(Library_Path) $(Libraries) -o ./bin/create_vgl_graphs_mc
 

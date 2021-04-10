@@ -23,8 +23,8 @@ private:
     #if defined(__USE_NEC_SX_AURORA__) || defined(__USE_MULTICORE__)
     template <typename _T>
     static void trim_step(VectCSRGraph &_graph,
-                          GraphAbstractionsNEC &_graph_API,
-                          FrontierNEC &_frontier,
+                          VGL_GRAPH_ABSTRACTIONS &_graph_API,
+                          VGL_FRONTIER &_frontier,
                           VerticesArray<_T> &_forward_result,
                           VerticesArray<_T> &_backward_result,
                           VerticesArray<_T> &_trees,
@@ -34,8 +34,8 @@ private:
     #if defined(__USE_NEC_SX_AURORA__) || defined(__USE_MULTICORE__)
     template <typename _T>
     static void process_result(VectCSRGraph &_graph,
-                               GraphAbstractionsNEC &_graph_API,
-                               FrontierNEC &_frontier,
+                               VGL_GRAPH_ABSTRACTIONS &_graph_API,
+                               VGL_FRONTIER &_frontier,
                                VerticesArray<_T> &_forward_result,
                                VerticesArray<_T> &_backward_result,
                                VerticesArray<_T> &_trees,
@@ -46,8 +46,8 @@ private:
     #if defined(__USE_NEC_SX_AURORA__) || defined(__USE_MULTICORE__)
     template <typename _T>
     static void bfs_reach(VectCSRGraph &_graph,
-                          GraphAbstractionsNEC &_graph_API,
-                          FrontierNEC &_frontier,
+                          VGL_GRAPH_ABSTRACTIONS &_graph_API,
+                          VGL_FRONTIER &_frontier,
                           VerticesArray<_T> &_bfs_result,
                           int _source_vertex,
                           TraversalDirection _traversal_direction);
@@ -56,8 +56,8 @@ private:
     #if defined(__USE_NEC_SX_AURORA__) || defined(__USE_MULTICORE__)
     template <typename _T>
     static void FB_step(VectCSRGraph &_graph,
-                        GraphAbstractionsNEC &_graph_API,
-                        FrontierNEC &_frontier,
+                        VGL_GRAPH_ABSTRACTIONS &_graph_API,
+                        VGL_FRONTIER &_frontier,
                         VerticesArray<_T> &_trees,
                         VerticesArray<_T> &_forward_result,
                         VerticesArray<_T> &_backward_result,
@@ -69,8 +69,8 @@ private:
     #if defined(__USE_NEC_SX_AURORA__) || defined(__USE_MULTICORE__)
     template <typename _T>
     static int select_pivot(VectCSRGraph &_graph,
-                     GraphAbstractionsNEC &_graph_API,
-                     FrontierNEC &_frontier,
+                     VGL_GRAPH_ABSTRACTIONS &_graph_API,
+                     VGL_FRONTIER &_frontier,
                      VerticesArray<_T> &_trees,
                      int _tree_num);
     #endif
@@ -99,7 +99,7 @@ public:
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #include "seq_scc.hpp"
-#include "nec_scc.hpp"
+#include "scc.hpp"
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 

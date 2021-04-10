@@ -51,9 +51,9 @@ void CC::seq_bfs_based(VectCSRGraph &_graph, VerticesArray<_T> &_components)
     }
     tm.end();
 
-    performance_stats.save_algorithm_performance_stats(tm.get_time(), _graph.get_edges_count());
+
     #ifdef __PRINT_SAMPLES_PERFORMANCE_STATS__
-    performance_stats.print_algorithm_performance_stats("CC (BFS-based, Sequential)");
+    performance_stats.print_algorithm_performance_stats("CC (BFS-based, Sequential)", tm.get_time(), _graph.get_edges_count());
     print_component_sizes(_components);
     #endif
 }
