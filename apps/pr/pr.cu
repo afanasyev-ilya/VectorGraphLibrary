@@ -53,8 +53,8 @@ int main(int argc, const char * argv[])
         performance_stats.reset_timers();
         float convergence_factor = 1.0e-4;
         PageRank::gpu_page_rank(graph, page_ranks, convergence_factor, parser.get_number_of_rounds(), parser.get_traversal_direction());
+        performance_stats.update_timer_stats();
         performance_stats.print_timers_stats();
-        performance_stats.print_perf(graph.get_edges_count(), parser.get_number_of_rounds());
 
         graph.move_to_host();
 
@@ -64,6 +64,8 @@ int main(int argc, const char * argv[])
             PageRank::seq_page_rank(graph, seq_page_ranks);
             verify_results(page_ranks, seq_page_ranks);
         }
+
+        performance_stats.print_perf(graph.get_edges_count(), parser.get_number_of_rounds());
     }
     catch (string error)
     {

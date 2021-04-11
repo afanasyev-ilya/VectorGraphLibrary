@@ -55,6 +55,7 @@ int main(int argc, const char * argv[])
                 ConnectedComponents::nec_shiloach_vishkin(graph, components);
             else if(parser.get_algorithm_cc() == BFS_BASED_ALGORITHM)
                 ConnectedComponents::nec_bfs_based(graph, components);
+            performance_stats.update_timer_stats();
             performance_stats.print_timers_stats();
 
             // check correctness

@@ -56,10 +56,9 @@ int main(int argc, const char * argv[])
         {
             performance_stats.reset_timers();
             SCC::nec_forward_backward(graph, components);
+            performance_stats.update_timer_stats();
             performance_stats.print_timers_stats();
         }
-
-        performance_stats.print_perf(graph.get_edges_count());
 
         // check if required
         if(parser.get_check_flag())
@@ -68,6 +67,8 @@ int main(int argc, const char * argv[])
             SCC::seq_tarjan(graph, check_components);
             equal_components(components, check_components);
         }
+
+        performance_stats.print_perf(graph.get_edges_count());
     }
     catch (string error)
     {

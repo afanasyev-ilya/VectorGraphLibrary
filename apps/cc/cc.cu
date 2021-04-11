@@ -59,6 +59,7 @@ int main(int argc, const char * argv[])
             VerticesArray<int> components(graph, SCATTER);
             performance_stats.reset_timers();
             ConnectedComponents::gpu_shiloach_vishkin(graph, components);
+            performance_stats.update_timer_stats();
             performance_stats.print_timers_stats();
 
             // check correctness

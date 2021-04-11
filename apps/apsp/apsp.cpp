@@ -1,15 +1,19 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #define INT_ELEMENTS_PER_EDGE 5.0
+#define VECTOR_ENGINE_THRESHOLD_VALUE VECTOR_LENGTH*MAX_SX_AURORA_THREADS*128
+
+#ifdef __USE_NEC_SX_AURORA__
+#define VECTOR_CORE_THRESHOLD_VALUE 3*VECTOR_LENGTH
+#endif
+
+#ifdef __USE_MULTICORE__
+#define VECTOR_CORE_THRESHOLD_VALUE 5*VECTOR_LENGTH
+#endif
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #include "graph_library.h"
-#include <iostream>
-
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-using namespace std;
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -17,69 +21,61 @@ int main(int argc, const char * argv[])
 {
     try
     {
-        cout << "APSP (All-pair Shortest Paths) test..." << endl;
+        cout << "SSSP (Single Source Shortest Paths) test..." << endl;
+        cout << "max threads: " << omp_get_max_threads() << endl;
 
         // parse args
         Parser parser;
         parser.parse_args(argc, argv);
 
-        //VectorisedCSRGraph<int, float> graph;
-        UndirectedCSRGraph<int, float> graph;
-        EdgesListGraph<int, float> rand_graph;
+        VectCSRGraph graph;
         if(parser.get_compute_mode() == GENERATE_NEW_GRAPH)
         {
-            int vertices_count = pow(2.0, parser.get_scale());
-            long long edges_count = vertices_count * parser.get_avg_degree();
-            //GraphGenerationAPI<int, float>::random_uniform(rand_graph, vertices_count, edges_count, UNDIRECTED_GRAPH);
-            GraphGenerationAPI<int, float>::R_MAT(rand_graph, vertices_count, edges_count, 57, 19, 19, 5, UNDIRECTED_GRAPH);
-            graph.import(rand_graph, VERTICES_SORTED, EDGES_SORTED, VECTOR_LENGTH, PULL_TRAVERSAL);
+            EdgesListGraph el_graph;
+            int v = pow(2.0, parser.get_scale());
+            if(parser.get_graph_type() == RMAT)
+                GraphGenerationAPI::R_MAT(el_graph, v, v * parser.get_avg_degree(), 57, 19, 19, 5, DIRECTED_GRAPH);
+            else if(parser.get_graph_type() == RANDOM_UNIFORM)
+                GraphGenerationAPI::random_uniform(el_graph, v, v * parser.get_avg_degree(), DIRECTED_GRAPH);
+            graph.import(el_graph);
         }
         else if(parser.get_compute_mode() == LOAD_GRAPH_FROM_FILE)
         {
-            double t1 = omp_get_wtime();
+            Timer tm;
+            tm.start();
             if(!graph.load_from_binary_file(parser.get_graph_file_name()))
                 throw "Error: graph file not found";
-            double t2 = omp_get_wtime();
-            cout << "file " << parser.get_graph_file_name() << " loaded in " << t2 - t1 << " sec" << endl;
+            tm.end();
+            tm.print_time_stats("Graph load");
         }
 
-        GraphAnalytics graph_analytics;
-        graph_analytics.analyse_graph_stats(graph, parser.get_graph_file_name());
+        // print graphs stats
+        graph.print_size();
+
+        // do calculations
+        cout << "Computations started..." << endl;
+        cout << "Doing " << parser.get_number_of_rounds() << " SSSP iterations..." << endl;
+        EdgesArray_Vect<float> weights(graph);
+        weights.set_all_random(MAX_WEIGHT);
 
         // compute APSP
         cout << "Computations started..." << endl;
-        ShortestPaths<int, float> sssp_operation(graph);
-        float *distances;
-        sssp_operation.allocate_result_memory(graph.get_vertices_count(), &distances);
+        VerticesArray<float> distances(graph);
 
         int vertices_count = graph.get_vertices_count();
         int vertices_per_percent = vertices_count / 100;
-        double t1 = omp_get_wtime();
+        performance_stats.reset_timers();
         for(int current_vertex = 0; current_vertex < vertices_count; current_vertex++)
         {
-            #ifdef __PRINT_API_PERFORMANCE_STATS__
-            PerformanceStats::reset_API_performance_timers();
-            #endif
-
-            #ifdef __USE_NEC_SX_AURORA__
-            sssp_operation.nec_dijkstra(graph, distances, current_vertex, ALL_ACTIVE, PUSH_TRAVERSAL);
-            #endif
-
-            #ifdef __PRINT_API_PERFORMANCE_STATS__
-            PerformanceStats::print_API_performance_timers(graph.get_edges_count());
-            #endif
-
+            ShortestPaths::nec_dijkstra(graph, weights, distances, current_vertex, ALL_ACTIVE, PUSH_TRAVERSAL);
             if(current_vertex % vertices_per_percent == 0)
             {
                 cout << ((100.0 * current_vertex) / vertices_count) << "% done!" << endl;
             }
         }
-        double t2 = omp_get_wtime();
-
-        cout << "APSP wall time: " << t2 - t1 << " sec" << endl;
-        cout << "APSP average performance: " << 10.0 * (((double)graph.get_edges_count()) / ((t2 - t1) * 1e6)) << " MFLOPS" << endl << endl;
-
-        sssp_operation.free_result_memory(distances);
+        performance_stats.update_timer_stats();
+        performance_stats.print_timers_stats();
+        performance_stats.print_perf(graph.get_edges_count());
     }
     catch (string error)
     {

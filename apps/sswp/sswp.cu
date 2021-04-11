@@ -66,6 +66,7 @@ int main(int argc, const char * argv[])
 
             performance_stats.reset_timers();
             SSWP::vgl_dijkstra(graph, capacities, widths, source_vertex);
+            performance_stats.update_timer_stats();
             performance_stats.print_timers_stats();
 
             // check if required

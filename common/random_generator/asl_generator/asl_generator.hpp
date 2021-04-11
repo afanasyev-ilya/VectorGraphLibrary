@@ -32,6 +32,8 @@ ASLRandomGenerator::ASLRandomGenerator()
 {
     ASL_CALL(asl_library_initialize());
     ASL_CALL(asl_random_create(&hnd, ASL_RANDOMMETHOD_AUTO));
+    //asl_uint32_t seed = 100;
+    //ASL_CALL(asl_random_initialize(hnd, 100000, &seed));
     ASL_CALL(asl_random_distribute_uniform(hnd));
 }
 

@@ -21,7 +21,9 @@ echo common launch of application ${program_name}
 
 #free -m
 
-source /opt/nec/ve/nlc/2.1.0/bin/nlcvars.sh
+#source /opt/nec/ve/nlc/2.1.0/bin/nlcvars.sh
+#source /opt/nec/ve/nlc/2.2.0/bin/nlcvars.csh
+source ./test.csh
 
 ${program_name} ${program_args[@]}
 

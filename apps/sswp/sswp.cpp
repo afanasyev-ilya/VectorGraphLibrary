@@ -2,7 +2,7 @@
 
 #define INT_ELEMENTS_PER_EDGE 5.0
 #define VECTOR_ENGINE_THRESHOLD_VALUE VECTOR_LENGTH*MAX_SX_AURORA_THREADS*128
-#define VECTOR_CORE_THRESHOLD_VALUE 16*VECTOR_LENGTH
+#define VECTOR_CORE_THRESHOLD_VALUE 3*VECTOR_LENGTH
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -52,7 +52,8 @@ int main(int argc, const char * argv[])
         cout << "Computations started..." << endl;
         cout << "Doing " << parser.get_number_of_rounds() << " SSSP iterations..." << endl;
         EdgesArray_Vect<float> capacities(graph);
-        capacities.set_all_random(MAX_WEIGHT);
+        //capacities.set_all_random(MAX_WEIGHT);
+        capacities.set_all_constant(1.0);
         for(int i = 0; i < parser.get_number_of_rounds(); i++)
         {
             int source_vertex = graph.select_random_vertex(ORIGINAL);
@@ -60,6 +61,7 @@ int main(int argc, const char * argv[])
 
             performance_stats.reset_timers();
             SSWP::vgl_dijkstra(graph, capacities, widths, source_vertex);
+            performance_stats.update_timer_stats();
             performance_stats.print_timers_stats();
 
             // check if required

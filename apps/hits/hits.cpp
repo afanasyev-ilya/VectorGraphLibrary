@@ -6,9 +6,6 @@
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-//#define __PRINT_API_PERFORMANCE_STATS__
-#define __PRINT_SAMPLES_PERFORMANCE_STATS__
-
 #include "graph_library.h"
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -54,7 +51,6 @@ int main(int argc, const char * argv[])
         HITS::vgl_hits(graph, auth, hub, parser.get_number_of_rounds());
         performance_stats.update_timer_stats();
         performance_stats.print_timers_stats();
-        performance_stats.print_perf(graph.get_edges_count());
 
         if(parser.get_check_flag())
         {
@@ -65,6 +61,8 @@ int main(int argc, const char * argv[])
             verify_results(auth, check_auth, 0);
             verify_results(hub, check_hub, 0);
         }
+
+        performance_stats.print_perf(graph.get_edges_count());
     }
     catch (string error)
     {
