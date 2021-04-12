@@ -58,7 +58,9 @@ int main(int argc, const char * argv[])
         cout << "Computations started..." << endl;
         cout << "Doing " << parser.get_number_of_rounds() << " SSSP iterations..." << endl;
         EdgesArray_Vect<float> capacities(graph);
-        capacities.set_all_random(MAX_WEIGHT);
+        //capacities.set_all_random(MAX_WEIGHT);
+        capacities.set_all_constant(1.0);
+
         for(int i = 0; i < parser.get_number_of_rounds(); i++)
         {
             int source_vertex = graph.select_random_vertex(ORIGINAL);

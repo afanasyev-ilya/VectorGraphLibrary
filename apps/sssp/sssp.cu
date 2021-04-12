@@ -55,7 +55,9 @@ int main(int argc, const char * argv[])
         cout << "Doing " << parser.get_number_of_rounds() << " SSSP iterations..." << endl;
 
         EdgesArray_Vect<int> weights(graph);
-        weights.set_all_random(MAX_WEIGHT);
+        capacities.set_all_constant(1.0);
+        //weights.set_all_random(MAX_WEIGHT);
+
         for(int i = 0; i < parser.get_number_of_rounds(); i++)
         {
             int source_vertex = graph.select_random_vertex(ORIGINAL);
@@ -67,7 +69,7 @@ int main(int argc, const char * argv[])
                                         parser.get_algorithm_frontier_type(),
                                         parser.get_traversal_direction());
             performance_stats.update_timer_stats();
-            //performance_stats.print_timers_stats();
+            performance_stats.print_timers_stats();
 
             // check if required
             if(parser.get_check_flag())

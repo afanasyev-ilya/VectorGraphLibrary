@@ -3,11 +3,12 @@ from enum import Enum
 
 benchmark_args = {"bfs": [ ["-top-down"], ["-do"] ],
                   "sssp": [ ["-push, -all-active"], ["-pull", "-all-active"], ["-push", "-partial-active"] ],
-                  "pr": [ ["-push"], ["-pull"] ],
+                  "pr": [ ["-pull"] ],
                   "cc": [ ["-bfs-based"], ["-cv"] ],
                   "sswp": [ ["-push"] ],
                   "rw": [ ["-it", "100", "-wv", "20"] ],
-                  "hits": []}
+                  "hits": [ [] ],
+                  "scc": [ [] ]}
 common_iterations = 10
 perf_pattern = "MAX_PERF"
 correctness_pattern = "error count:"

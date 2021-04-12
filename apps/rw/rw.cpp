@@ -77,6 +77,8 @@ int main(int argc, const char * argv[])
             RW::seq_random_walk(graph, walk_vertices, walk_vertices_num, walk_length, check_walk_results);
             cout << "since walks are random it is not possible to check" << endl;
         }
+
+
     }
     catch (string error)
     {

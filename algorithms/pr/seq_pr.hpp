@@ -19,7 +19,7 @@ void PR::seq_page_rank(VectCSRGraph &_graph,
 
     // set PR parameters
     _T d = 0.85;
-    _T k = (1.0 - d) / ((float)vertices_count);
+    _T k = (1.0 - d) / ((_T)vertices_count);
 
     VerticesArray<int> number_of_loops(_graph, GATHER);
     VerticesArray<int> incoming_degrees(_graph, GATHER);
@@ -36,15 +36,11 @@ void PR::seq_page_rank(VectCSRGraph &_graph,
     // calculate number of loops
     for(int src_id = 0; src_id < vertices_count; src_id++)
     {
-        const long long first_edge = incoming_graph_ptr->get_vertex_pointers()[src_id];
-        const long long last_edge = incoming_graph_ptr->get_vertex_pointers()[src_id + 1];
-        const int connections_count = last_edge - first_edge;
+        const int connections_count = _graph.get_incoming_connections_count(src_id);
 
         for (int edge_pos = 0; edge_pos < connections_count; edge_pos++)
         {
-            long long int global_edge_pos = first_edge + edge_pos;
-            int dst_id = incoming_graph_ptr->get_adjacent_ids()[global_edge_pos];
-
+            int dst_id = _graph.get_incoming_edge_dst(src_id, edge_pos);
             if(src_id == dst_id)
                 number_of_loops[src_id]++;
         }
@@ -53,9 +49,7 @@ void PR::seq_page_rank(VectCSRGraph &_graph,
     // calculate incoming degrees without loops
     for(int i = 0; i < vertices_count; i++)
     {
-        const long long first_edge = incoming_graph_ptr->get_vertex_pointers()[i];
-        const long long last_edge = incoming_graph_ptr->get_vertex_pointers()[i + 1];
-        incoming_degrees[i] = last_edge - first_edge;
+        incoming_degrees[i] = _graph.get_incoming_connections_count(i);
     }
 
     // calculate incoming degrees without loops
@@ -77,7 +71,7 @@ void PR::seq_page_rank(VectCSRGraph &_graph,
         }
 
         // calculate dangling input
-        float dangling_input = 0;
+        _T dangling_input = 0;
         for(int i = 0; i < vertices_count; i++)
         {
             if(incoming_degrees_without_loops[i] <= 0)
@@ -89,18 +83,13 @@ void PR::seq_page_rank(VectCSRGraph &_graph,
         // traverse graph and calculate page ranks
         for(int src_id = 0; src_id < vertices_count; src_id++)
         {
-            const long long first_edge = outgoing_graph_ptr->get_vertex_pointers()[src_id];
-            const long long last_edge = outgoing_graph_ptr->get_vertex_pointers()[src_id + 1];
-            const int connections_count = last_edge - first_edge;
-
-            for (int edge_pos = 0; edge_pos < connections_count; edge_pos++)
+            int connections_count = _graph.get_outgoing_connections_count(src_id);
+            for(int edge_pos = 0; edge_pos < connections_count; edge_pos++)
             {
-                long long int global_edge_pos = first_edge + edge_pos;
-                int dst_id = outgoing_graph_ptr->get_adjacent_ids()[global_edge_pos];
+                int dst_id = _graph.get_outgoing_edge_dst(src_id, edge_pos);
+                _T dst_rank = old_page_ranks[dst_id];
 
-                float dst_rank = old_page_ranks[dst_id];
-
-                float dst_links_num = 1.0 / incoming_degrees_without_loops[dst_id];
+                _T dst_links_num = 1.0 / incoming_degrees_without_loops[dst_id];
                 if(incoming_degrees_without_loops[dst_id] == 0)
                     dst_links_num = 0;
 

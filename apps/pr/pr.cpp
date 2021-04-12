@@ -41,13 +41,6 @@ int main(int argc, const char * argv[])
             tm.print_time_stats("Graph load");
         }
 
-        // print graphs stats
-        // print graphs stats
-        graph.print_stats();
-        #ifndef __USE_NEC_SX_AURORA__
-        graph.print_stats();
-        #endif
-
         VerticesArray<float> page_ranks(graph);
         performance_stats.reset_timers();
         float convergence_factor = 1.0e-4;
@@ -58,7 +51,7 @@ int main(int argc, const char * argv[])
         if(parser.get_check_flag())
         {
             VerticesArray<float> seq_page_ranks(graph);
-            PageRank::seq_page_rank(graph, seq_page_ranks);
+            PageRank::seq_page_rank(graph, seq_page_ranks, convergence_factor, parser.get_number_of_rounds());
             verify_results(page_ranks, seq_page_ranks);
         }
 

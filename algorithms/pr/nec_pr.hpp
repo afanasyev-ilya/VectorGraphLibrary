@@ -34,8 +34,8 @@ void PR::nec_page_rank(VectCSRGraph &_graph,
     };
     graph_API.compute(_graph, frontier, get_incoming_degrees);
 
-    float d = 0.85;
-    float k = (1.0 - d) / ((float)vertices_count);
+    _T d = 0.85;
+    _T k = (1.0 - d) / ((_T)vertices_count);
 
     auto init_data = [&_page_ranks, &number_of_loops, vertices_count] __VGL_COMPUTE_ARGS__
     {
@@ -98,54 +98,25 @@ void PR::nec_page_rank(VectCSRGraph &_graph,
 
         //graph_API.pack_vertices_arrays(packed_data, old_page_ranks, reversed_degrees);
 
-        auto reduce_dangling_input = [incoming_degrees_without_loops, old_page_ranks, vertices_count]__VGL_COMPUTE_ARGS__->float
+        auto reduce_dangling_input = [incoming_degrees_without_loops, old_page_ranks, vertices_count]__VGL_REDUCE_ANY_ARGS__->_T
         {
-            float result = 0.0;
+            _T result = 0.0;
             if(incoming_degrees_without_loops[src_id] == 0)
             {
                 result = old_page_ranks[src_id] / vertices_count;
             }
             return result;
         };
-        double dangling_input = graph_API.reduce<double>(_graph, frontier, reduce_dangling_input, REDUCE_SUM);
+        _T dangling_input = graph_API.reduce<_T>(_graph, frontier, reduce_dangling_input, REDUCE_SUM);
 
         #pragma omp parallel
         {
-            NEC_REGISTER_FLT(ranks, 0);
-
-            auto first_vertex_preprocess_op = [_page_ranks, k, d, dangling_input, &reg_ranks] __VGL_ADVANCE_PREPROCESS_ARGS__
-            {
-                #pragma _NEC vector
-                for(int i = 0; i < VECTOR_LENGTH; i++)
-                {
-                    reg_ranks[i] = 0;
-                }
-            };
-
-            auto first_edge_op = [_page_ranks, old_page_ranks, reversed_degrees, &reg_ranks] __VGL_ADVANCE_ARGS__
-            {
-                float dst_rank = old_page_ranks[dst_id];
-                float reversed_dst_links_num = reversed_degrees[dst_id];
-
-                if(src_id != dst_id)
-                    reg_ranks[vector_index] += dst_rank * reversed_dst_links_num;
-            };
-
-            auto first_vertex_postprocess_op = [_page_ranks, k, d, dangling_input, reg_ranks] __VGL_ADVANCE_POSTPROCESS_ARGS__
-            {
-                float sum = 0;
-                #pragma _NEC vector
-                for(int i = 0; i < VECTOR_LENGTH; i++)
-                {
-                    sum += reg_ranks[i];
-                }
-                _page_ranks[src_id] = k + d * (sum + dangling_input);
-            };
+            // todo cached loads
 
             auto edge_op = [_page_ranks, old_page_ranks, reversed_degrees, packed_data] __VGL_ADVANCE_ARGS__
             {
-                float dst_rank = old_page_ranks[dst_id];
-                float reversed_dst_links_num = reversed_degrees[dst_id];
+                _T dst_rank = old_page_ranks[dst_id];
+                _T reversed_dst_links_num = reversed_degrees[dst_id];
 
                 if(src_id != dst_id)
                     _page_ranks[src_id] += dst_rank * reversed_dst_links_num;
@@ -156,18 +127,14 @@ void PR::nec_page_rank(VectCSRGraph &_graph,
                 _page_ranks[src_id] = k + d * (_page_ranks[src_id] + dangling_input);
             };
 
-            //graph_API.enable_safe_stores();
-            //graph_API.scatter(_graph, frontier, first_edge_op, first_vertex_preprocess_op, first_vertex_postprocess_op, edge_op, EMPTY_VERTEX_OP, vertex_postprocess_op);
             graph_API.scatter(_graph, frontier, edge_op, EMPTY_VERTEX_OP, vertex_postprocess_op, edge_op, EMPTY_VERTEX_OP, vertex_postprocess_op);
-            //graph_API.disable_safe_stores();
         };
 
-
-        auto reduce_ranks_sum = [_page_ranks]__VGL_COMPUTE_ARGS__->float
+        auto reduce_ranks_sum = [_page_ranks]__VGL_REDUCE_ANY_ARGS__->_T
         {
             return _page_ranks[src_id];
         };
-        double ranks_sum = graph_API.reduce<double>(_graph, frontier, reduce_ranks_sum, REDUCE_SUM);
+        _T ranks_sum = graph_API.reduce<_T>(_graph, frontier, reduce_ranks_sum, REDUCE_SUM);
         cout << "ranks sum: " << ranks_sum << endl;
     }
     tm.end();
