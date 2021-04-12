@@ -39,13 +39,10 @@ void BFS::seq_top_down(VectCSRGraph &_graph,
         int s = queue.front();
         queue.pop_front();
 
-        const long long edge_start = vertex_pointers[s];
-        const int connections_count = vertex_pointers[s + 1] - vertex_pointers[s];
-
+        int connections_count = _graph.get_outgoing_connections_count(s);
         for(int edge_pos = 0; edge_pos < connections_count; edge_pos++)
         {
-            long long int global_edge_pos = edge_start + edge_pos;
-            int v = adjacent_ids[global_edge_pos];
+            int v = _graph.get_outgoing_edge_dst(s, edge_pos);
             if (_levels[v] == UNVISITED_VERTEX)
             {
                 _levels[v] = _levels[s] + 1;

@@ -16,7 +16,7 @@ Libraries = -O3 -fopenmp
 # binaries
 ##########
 
-all: sssp sswp sharded_sssp bfs scc pr cc rw hits apsp print_graph_info create_vgl_graphs
+all: sssp sswp sharded_sssp bfs scc pr cc rw hits apsp coloring print_graph_info create_vgl_graphs
 
 sssp: create_folders sssp.o
 	$(CXX) object_files/sssp.o $(Library_Path) $(Libraries) -o ./bin/sssp_mc
@@ -47,6 +47,9 @@ hits: create_folders hits.o
 
 apsp: create_folders apsp.o
 	$(CXX) object_files/apsp.o $(Library_Path) $(Libraries) -o ./bin/apsp_mc
+
+coloring: create_folders coloring.o
+	$(CXX) object_files/coloring.o $(Library_Path) $(Libraries) -o ./bin/coloring_mc
 
 print_graph_info: create_folders print_graph_info.o
 	$(CXX) object_files/print_graph_info.o $(Library_Path) $(Libraries) -o ./bin/print_graph_info_mc
@@ -87,6 +90,9 @@ hits.o: hits/hits.cpp
 
 apsp.o: apsp/apsp.cpp
 	$(CXX) $(Flags) $(Include_Path)  -c apsp/apsp.cpp -o object_files/apsp.o
+
+coloring.o: coloring/coloring.cpp
+	$(CXX) $(Flags) $(Include_Path)  -c coloring/coloring.cpp -o object_files/coloring.o
 
 print_graph_info.o: utilites/print_graph_info.cpp
 	$(CXX) $(Flags) $(Include_Path)  -c utilites/print_graph_info.cpp -o object_files/print_graph_info.o
