@@ -6,8 +6,7 @@ benchmark_args = {"bfs": [ ["-top-down"], ["-do"] ],
                   "pr": [ ["-push"], ["-pull"] ],
                   "cc": [ ["-bfs-based"], ["-cv"] ],
                   "sswp": [ ["-push"] ],
-                  "rw": [ ["-store_walk_paths", "-walk-lengths", "32", "-walk-vertices_num", "100"],
-                          ["-walk-lengths", "32", "-walk-vertices_num", "100"] ],
+                  "rw": [ ["-it", "100", "-wv", "20"] ],
                   "hits": []}
 common_iterations = 10
 perf_pattern = "MAX_PERF"

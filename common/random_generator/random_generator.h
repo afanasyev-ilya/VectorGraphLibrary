@@ -16,7 +16,7 @@ private:
     CommonRandomGenerator common_rng;
 public:
     template <typename _T>
-    void generate_array_of_random_values(_T *_array, long long _size, _T _max_val);
+    void generate_array_of_random_values(_T *_array, long long _size, _T _max_val = RAND_MAX);
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

@@ -27,8 +27,7 @@ private:
     AlgorithmCC algorithm_cc;
 
     int store_walk_paths;
-    int walk_vertices_num;
-    int walk_lengths;
+    int walk_vertices_percent;
 
     int device_num;
 public:
@@ -43,8 +42,7 @@ public:
     int get_device_num() { return device_num; };
 
     int get_store_walk_paths() {return store_walk_paths;};
-    int get_walk_vertices_num() {return walk_vertices_num;};
-    int get_walk_lengths() {return walk_lengths;};
+    int get_walk_vertices_percent() {return walk_vertices_percent;};
 
     SyntheticGraphType get_graph_type() {return graph_type;};
 

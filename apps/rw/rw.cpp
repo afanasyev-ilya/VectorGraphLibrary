@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#define INT_ELEMENTS_PER_EDGE 1.0
+#define COMPUTE_INT_ELEMENTS 10.0 // or 8?
 #define FRONTIER_TYPE_CHANGE_THRESHOLD 1.0
 
 #define __PRINT_API_PERFORMANCE_STATS__
@@ -45,23 +45,19 @@ int main(int argc, const char * argv[])
         // do calculations
         cout << "Computations started..." << endl;
         cout << "Running RW algorithm " << endl;
-        int walk_vertices_num = parser.get_walk_vertices_num();
-        int walk_length = parser.get_walk_lengths();
+        int walk_vertices_num = parser.get_walk_vertices_percent() * (graph.get_vertices_count()/100.0);
+        int walk_length = parser.get_number_of_rounds();
+        cout << "walk vertices num: " << walk_vertices_num << endl;
+        cout << "walk length: " << walk_length << endl;
 
         // generate list of walk vertices
         Timer tm;
-        std::set<int> walk_vertices;
-        for(int i = 0; i < walk_vertices_num; i++)
+        vector<int> walk_vertices;
+        for(int i = 0; i < graph.get_vertices_count(); i++)
         {
-            while(true)
-            {
-                int vertex_id = rand()% (graph.get_vertices_count());
-                if (!walk_vertices.count(vertex_id))
-                {
-                    walk_vertices.insert(vertex_id);
-                    break;
-                }
-            }
+           int prob = rand() % 100;
+           if(prob < parser.get_walk_vertices_percent())
+               walk_vertices.push_back(i);
         }
         tm.end();
         tm.print_time_stats("generate list of walk vertices");

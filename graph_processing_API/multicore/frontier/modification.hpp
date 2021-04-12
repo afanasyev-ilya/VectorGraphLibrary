@@ -82,17 +82,13 @@ void FrontierMulticore::add_vertex(int src_id)
 
 void FrontierMulticore::add_group_of_vertices(int *_vertex_ids, int _number_of_vertices)
 {
-    /*UndirectedCSRGraph *current_direction_graph = graph_ptr->get_direction_graph_ptr(direction);
-    LOAD_UNDIRECTED_CSR_GRAPH_DATA((*current_direction_graph));
-
     if(current_size > 0)
     {
         throw "VGL ERROR: can not add vertices to non-empty frontier";
     }
 
-    // sort input array
-    std::sort(&_vertex_ids[0], &_vertex_ids[_number_of_vertices]);
-    //memset(flags, 0, sizeof(int)*max_size);
+    Sorter::sort(_vertex_ids, NULL, _number_of_vertices, SORT_ASCENDING);
+    memset(flags, 0, sizeof(int)*max_size);
 
     // copy ids to frontier inner datastrcuture
     #pragma _NEC vector
@@ -104,6 +100,16 @@ void FrontierMulticore::add_group_of_vertices(int *_vertex_ids, int _number_of_v
     }
     current_size = _number_of_vertices;
 
+    VectCSRGraph *vect_csr_ptr = NULL;
+    if(graph_ptr->get_type() == VECT_CSR_GRAPH)
+    {
+        vect_csr_ptr = (VectCSRGraph*)graph_ptr;
+    }
+    else
+    {
+        throw "Error in FrontierNEC::add_vertex : unsupported graph type";
+    }
+
     #pragma _NEC vector
     #pragma omp parallel for
     for(int idx = 0; idx < current_size; idx++)
@@ -111,11 +117,11 @@ void FrontierMulticore::add_group_of_vertices(int *_vertex_ids, int _number_of_v
         const int current_id = ids[idx];
         const int next_id = ids[idx+1];
 
-        int current_size = vertex_pointers[current_id + 1] - vertex_pointers[current_id];;
+        int current_size = vect_csr_ptr->get_connections_count(current_id, this->direction);
         int next_size = 0;
         if(idx < (current_size - 1))
         {
-            next_size = vertex_pointers[next_id + 1] - vertex_pointers[next_id];
+            next_size = vect_csr_ptr->get_connections_count(next_id, this->direction);
         }
 
         if((current_size > VECTOR_ENGINE_THRESHOLD_VALUE) && (next_size <= VECTOR_ENGINE_THRESHOLD_VALUE))
@@ -130,9 +136,10 @@ void FrontierMulticore::add_group_of_vertices(int *_vertex_ids, int _number_of_v
     }
     collective_part_size = current_size - vector_engine_part_size - vector_core_part_size;
 
+    type = SPARSE_FRONTIER;
     vector_engine_part_type = SPARSE_FRONTIER;
     vector_core_part_type = SPARSE_FRONTIER;
-    collective_part_type = SPARSE_FRONTIER;*/
+    collective_part_type = SPARSE_FRONTIER;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

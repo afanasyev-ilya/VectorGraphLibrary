@@ -19,8 +19,7 @@ Parser::Parser()
     device_num = 0;
 
     store_walk_paths = false;
-    walk_vertices_num = 100;
-    walk_lengths = 10;
+    walk_vertices_percent = 1;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -139,16 +138,9 @@ void Parser::parse_args(int _argc, const char * _argv[])
             cout << "store_walk_paths set to TRUE" << endl;
         }
 
-        if ((option.compare("-walk-vertices-num") == 0))
+        if ((option.compare("-walk-vertices") == 0) || (option.compare("-wv") == 0))
         {
-            walk_vertices_num = atoi(_argv[++i]);
-            cout << "walk_vertices_num set to " << walk_vertices_num << endl;
-        }
-
-        if ((option.compare("-walk-lengths") == 0))
-        {
-            walk_lengths = atoi(_argv[++i]);
-            cout << "walk_lengths set to " << walk_lengths << endl;
+            walk_vertices_percent = atoi(_argv[++i]);
         }
 
         if ((option.compare("-dev") == 0) || (option.compare("-device") == 0))

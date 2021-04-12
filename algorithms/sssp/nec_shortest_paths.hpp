@@ -196,7 +196,6 @@ void SSSP::nec_dijkstra_all_active_pull(VectCSRGraph &_graph,
 
         #pragma omp parallel shared(changes)
         {
-            NEC_REGISTER_INT(was_changes, 0);
             NEC_REGISTER_FLT(distances, 0);
 
             auto edge_op_pull = [&_distances, &_weights, &reg_distances](int src_id, int dst_id, int local_edge_pos,

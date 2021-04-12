@@ -65,20 +65,6 @@ void GraphAbstractionsNEC::generate_new_frontier(VectCSRGraph &_graph,
     Timer tm_copy_if;
     tm_copy_if.start();
 
-    // set type of the whole frontier
-    if(_frontier.current_size == _frontier.max_size)
-    {
-        _frontier.type = ALL_ACTIVE_FRONTIER;
-    }
-    else if(double(_frontier.current_size)/_frontier.max_size > FRONTIER_TYPE_CHANGE_THRESHOLD) // flags array
-    {
-        _frontier.type = DENSE_FRONTIER;
-    }
-    else
-    {
-        _frontier.type = SPARSE_FRONTIER;
-    }
-
     bool copy_if_work = false;
     // estimate first (VE) part sparsity
     if(double(_frontier.vector_engine_part_size)/(ve_threshold - 0) < VE_FRONTIER_TYPE_CHANGE_THRESHOLD)
@@ -126,6 +112,20 @@ void GraphAbstractionsNEC::generate_new_frontier(VectCSRGraph &_graph,
     else
     {
         _frontier.collective_part_type = DENSE_FRONTIER;
+    }
+
+    // set type of the whole frontier
+    if(_frontier.current_size == _frontier.max_size)
+    {
+        _frontier.type = ALL_ACTIVE_FRONTIER;
+    }
+    else if(!copy_if_work) // flags array
+    {
+        _frontier.type = DENSE_FRONTIER;
+    }
+    else
+    {
+        _frontier.type = SPARSE_FRONTIER;
     }
 
     tm_copy_if.end();

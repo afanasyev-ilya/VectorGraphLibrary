@@ -4,11 +4,12 @@
 
 template <typename _T>
 void RW::vgl_random_walk(VectCSRGraph &_graph,
-                         std::set<int> &_walk_vertices,
+                         vector<int> &_walk_vertices,
                          int _walk_vertices_num,
                          int _walk_lengths,
                          VerticesArray<_T> &_walk_results)
 {
+    RandomGenerator rng;
     int *rand_array;
     MemoryAPI::allocate_array(&rand_array, _walk_vertices_num);
 
@@ -29,13 +30,8 @@ void RW::vgl_random_walk(VectCSRGraph &_graph,
     tm.print_time_stats("prepare walk positions");
 
     tm.start();
-    auto is_walk_vertex = [&_walk_results, &_walk_vertices] __VGL_GNF_ARGS__ {
-        int result = NOT_IN_FRONTIER_FLAG;
-        if(_walk_vertices.count(src_id) > 0)
-            result = IN_FRONTIER_FLAG;
-        return result;
-    };
-    graph_API.generate_new_frontier(_graph, frontier, is_walk_vertex);
+    frontier.clear();
+    frontier.add_group_of_vertices(&_walk_vertices[0], _walk_vertices.size());
 
     _walk_results.set_all_constant(DEAD_END);
     auto init_walks = [&_walk_results] __VGL_COMPUTE_ARGS__ {
@@ -45,22 +41,18 @@ void RW::vgl_random_walk(VectCSRGraph &_graph,
 
     for(int iteration = 0; iteration < _walk_lengths; iteration++)
     {
-        #pragma omp parallel for
-        for(int i = 0; i < _walk_vertices_num; i++)
-        {
-            unsigned int myseed = omp_get_thread_num();
-            rand_array[i] = rand_r(&myseed);
-        }
+        rng.generate_array_of_random_values(rand_array, _walk_vertices_num);
 
         auto visit_next = [iteration, _walk_lengths, rand_array, &_walk_results, &_graph, &walk_positions] __VGL_COMPUTE_ARGS__ {
             int walk_id = src_id;
             int current_id = _walk_results[walk_id];
+            int current_connections_count = _graph.get_outgoing_connections_count(current_id);
 
-            if((connections_count > 0) && (current_id != DEAD_END))
+            if((current_connections_count > 0) && (current_id != DEAD_END))
             {
                 int walk_pos = walk_positions[walk_id];
-                int rand_pos = rand_array[walk_pos] % connections_count;
-                int next_vertex = _graph.get_edge_dst(current_id, rand_pos, SCATTER);
+                int rand_pos = rand_array[walk_pos] % current_connections_count;
+                int next_vertex = _graph.get_outgoing_edge_dst(current_id, rand_pos);
                 _walk_results[walk_id] = next_vertex;
             }
             else
@@ -81,7 +73,7 @@ void RW::vgl_random_walk(VectCSRGraph &_graph,
 
 template <typename _T>
 void RW::seq_random_walk(VectCSRGraph &_graph,
-                         std::set<int> &_walk_vertices,
+                         vector<int> &_walk_vertices,
                          int _walk_vertices_num,
                          int _walk_lengths,
                          VerticesArray<_T> &_walk_results)
