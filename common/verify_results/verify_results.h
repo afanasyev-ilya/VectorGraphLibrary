@@ -232,3 +232,34 @@ void print_component_sizes(VerticesArray<_T> &_components)
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+template <typename _T>
+void verify_colors(VectCSRGraph &_graph, VerticesArray<_T> &_colors, int _error_count_print = 30)
+{
+    size_t error_count = 0;
+    for(int src_id = 0; src_id < _graph.get_vertices_count(); src_id++)
+    {
+        int connections_count = _graph.get_outgoing_connections_count(src_id);
+
+        int src_color = _colors[src_id];
+        for(int edge_pos = 0; edge_pos < connections_count; edge_pos++)
+        {
+            int dst_id = _graph.get_outgoing_edge_dst(src_id, edge_pos);
+            int dst_color = _colors[dst_id];
+            if(src_color == dst_color)
+            {
+                if(error_count < 30)
+                    cout << "(" << src_id << ": " << src_color << ", " << dst_id << ": " << dst_color << ")" << endl;
+                error_count++;
+            }
+        }
+    }
+
+    cout << "error count: " << error_count << endl;
+
+    if(error_count == 0)
+        cout << "Results are equal" << endl;
+    else
+        cout << "Results are NOT equal, error_count = " << error_count << endl;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

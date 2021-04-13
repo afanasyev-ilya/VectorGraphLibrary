@@ -6,7 +6,7 @@
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#define __PRINT_API_PERFORMANCE_STATS__
+//#define __PRINT_API_PERFORMANCE_STATS__
 
 #include "graph_library.h"
 
@@ -49,7 +49,15 @@ int main(int argc, const char * argv[])
         // do calculations
         cout << "Computations started..." << endl;
         VerticesArray<int> colors(graph);
+        performance_stats.reset_timers();
         Coloring::vgl_coloring(graph, colors);
+        performance_stats.update_timer_stats();
+        performance_stats.print_timers_stats();
+
+        if(parser.get_check_flag())
+            verify_colors(graph, colors);
+
+        performance_stats.print_perf(graph.get_edges_count(), parser.get_number_of_rounds());
     }
     catch (string error)
     {

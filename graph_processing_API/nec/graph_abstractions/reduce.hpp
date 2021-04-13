@@ -11,16 +11,16 @@ _T GraphAbstractionsNEC::reduce_sum(UndirectedCSRGraph &_graph,
 
     _T reduce_result = 0.0;
 
-    int max_frontier_size = _frontier.max_size;
     if(_frontier.type == ALL_ACTIVE_FRONTIER)
     {
+        int frontier_size = _frontier.max_size;
         #pragma _NEC cncall
         #pragma _NEC vovertake
         #pragma _NEC novob
         #pragma _NEC vector
         #pragma _NEC ivdep
         #pragma omp parallel for schedule(static) reduction(+: reduce_result)
-        for(int src_id = 0; src_id < max_frontier_size; src_id++)
+        for(int src_id = 0; src_id < frontier_size; src_id++)
         {
             int connections_count = vertex_pointers[src_id + 1] - vertex_pointers[src_id];
             int vector_index = get_vector_index(src_id);
@@ -30,21 +30,46 @@ _T GraphAbstractionsNEC::reduce_sum(UndirectedCSRGraph &_graph,
     }
     else if((_frontier.type == DENSE_FRONTIER) || (_frontier.type == SPARSE_FRONTIER)) // TODO FIX SPARSE
     {
-        int *frontier_flags = _frontier.flags;
-        #pragma _NEC cncall
-        #pragma _NEC vovertake
-        #pragma _NEC novob
-        #pragma _NEC vector
-        #pragma _NEC ivdep
-        #pragma omp parallel for schedule(static) reduction(+: reduce_result)
-        for (int src_id = 0; src_id < max_frontier_size; src_id++)
+        if((_frontier.vector_engine_part_type == SPARSE_FRONTIER) &&
+           (_frontier.vector_core_part_type == SPARSE_FRONTIER) &&
+           (_frontier.collective_part_type == SPARSE_FRONTIER))
         {
-            if(frontier_flags[src_id] == IN_FRONTIER_FLAG)
+            int *frontier_ids = _frontier.ids;
+            int frontier_size = _frontier.current_size;
+            #pragma _NEC cncall
+            #pragma _NEC ivdep
+            #pragma _NEC vovertake
+            #pragma _NEC novob
+            #pragma _NEC vector
+            #pragma omp parallel for schedule(static) reduction(+: reduce_result)
+            for(int front_pos = 0; front_pos < frontier_size; front_pos++)
             {
+                int src_id = frontier_ids[front_pos];
                 int connections_count = vertex_pointers[src_id + 1] - vertex_pointers[src_id];
                 int vector_index = get_vector_index(src_id);
                 _T val = reduce_op(src_id, connections_count, vector_index);
                 reduce_result += val;
+            }
+        }
+        else
+        {
+            int *frontier_flags = _frontier.flags;
+            int frontier_size = _frontier.max_size;
+            #pragma _NEC cncall
+            #pragma _NEC ivdep
+            #pragma _NEC vovertake
+            #pragma _NEC novob
+            #pragma _NEC vector
+            #pragma omp parallel for schedule(static) reduction(+: reduce_result)
+            for (int src_id = 0; src_id < frontier_size; src_id++)
+            {
+                if(frontier_flags[src_id] == IN_FRONTIER_FLAG)
+                {
+                    int connections_count = vertex_pointers[src_id + 1] - vertex_pointers[src_id];
+                    int vector_index = get_vector_index(src_id);
+                    _T val = reduce_op(src_id, connections_count, vector_index);
+                    reduce_result += val;
+                }
             }
         }
     }
