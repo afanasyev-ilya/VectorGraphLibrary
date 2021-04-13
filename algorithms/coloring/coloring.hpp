@@ -33,12 +33,10 @@ void print(size_t _val)
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void Coloring::vgl_coloring(VectCSRGraph &_graph)
+template <typename _T>
+void Coloring::vgl_coloring(VectCSRGraph &_graph, VerticesArray<_T> _colors)
 {
-    cout << "here" << endl;
-
     VerticesArray<size_t> available_colors(_graph);
-    VerticesArray<int> colors(_graph);
     VerticesArray<int> need_recolor(_graph);
 
     VGL_GRAPH_ABSTRACTIONS graph_API(_graph);
@@ -46,8 +44,8 @@ void Coloring::vgl_coloring(VectCSRGraph &_graph)
 
     frontier.set_all_active();
 
-    auto init_op = [colors, available_colors] __VGL_COMPUTE_ARGS__{
-        colors[src_id] = 0;
+    auto init_op = [_colors, available_colors] __VGL_COMPUTE_ARGS__{
+        _colors[src_id] = 0;
         available_colors[src_id] = -1;
     };
     graph_API.compute(_graph, frontier, init_op);
@@ -55,8 +53,10 @@ void Coloring::vgl_coloring(VectCSRGraph &_graph)
     int it = 0;
     while(frontier.size() > 0)
     {
-        auto mark_forbidden_op = [colors, available_colors] __VGL_SCATTER_ARGS__ {
-            int dst_color = colors[dst_id];
+        available_colors.set_all_constant(-1);
+
+        auto mark_forbidden_op = [_colors, available_colors] __VGL_SCATTER_ARGS__ {
+            int dst_color = _colors[dst_id];
             size_t cur_data = available_colors[src_id];
             available_colors[src_id] = clear_bit(cur_data, dst_color);
         };
@@ -65,9 +65,9 @@ void Coloring::vgl_coloring(VectCSRGraph &_graph)
 
         print(available_colors[0]);
         //print(available_colors[1]);
-        cout << "prev: " << colors[0] << endl;
+        cout << "prev: " << _colors[0] << endl;
 
-        auto recolor_op = [colors, available_colors] __VGL_COMPUTE_ARGS__{
+        auto recolor_op = [_colors, available_colors] __VGL_COMPUTE_ARGS__{
             size_t cur_data = available_colors[src_id];
             #pragma _NEC unroll(64)
             for(int i = 0; i < 64; i++)
@@ -75,18 +75,18 @@ void Coloring::vgl_coloring(VectCSRGraph &_graph)
                 int bit = get_bit(cur_data, i);
                 if(bit == 1)
                 {
-                    colors[src_id] = i;
+                    _colors[src_id] = i;
                     break;
                 }
             }
         };
         graph_API.compute(_graph, frontier, recolor_op);
 
-        cout << "new: " << colors[0] << endl;
+        cout << "new: " << _colors[0] << endl;
 
         need_recolor.set_all_constant(0);
-        auto create_reordering_op = [colors, need_recolor] __VGL_SCATTER_ARGS__ {
-            if(colors[dst_id] == colors[src_id])
+        auto create_reordering_op = [_colors, need_recolor] __VGL_SCATTER_ARGS__ {
+            if(_colors[dst_id] == _colors[src_id])
             {
                 int min_id = vect_min(src_id, dst_id);
                 need_recolor[min_id] = 1;
@@ -107,7 +107,7 @@ void Coloring::vgl_coloring(VectCSRGraph &_graph)
 
         cout << frontier.size() << " / " << _graph.get_vertices_count() << endl;
         it++;
-        if(it > 50)
+        if(it > 8)
             break;
     }
 
@@ -115,7 +115,7 @@ void Coloring::vgl_coloring(VectCSRGraph &_graph)
     for(int edge_pos = 0; edge_pos < connections_count; edge_pos++)
     {
         int v = _graph.get_outgoing_edge_dst(0, edge_pos);
-        cout << colors[v] << " ";
+        cout << _colors[v] << " ";
     }
     cout << endl;
 }

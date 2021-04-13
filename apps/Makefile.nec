@@ -19,7 +19,7 @@ Libraries = -fopenmp -ftrace -lasl_openmp_i64 # -report-all -ftrace
 # binaries
 ##########
 
-all: sssp sswp sharded_sssp bfs scc pr cc rw hits apsp print_graph_info create_vgl_graphs
+all: sssp sswp sharded_sssp bfs scc pr cc rw hits apsp coloring print_graph_info create_vgl_graphs
 
 sssp: create_folders sssp.o
 	$(VE_CXX) object_files/sssp.o $(Library_Path) $(Libraries) -o ./bin/sssp_sx
@@ -50,6 +50,9 @@ hits: create_folders hits.o
 
 apsp: create_folders apsp.o
 	$(VE_CXX) object_files/apsp.o $(Library_Path) $(Libraries) -o ./bin/apsp_sx
+
+coloring: create_folders coloring.o
+	$(VE_CXX) object_files/coloring.o $(Library_Path) $(Libraries) -o ./bin/coloring_sx
 
 print_graph_info: create_folders print_graph_info.o
 	$(VE_CXX) object_files/print_graph_info.o $(Library_Path) $(Libraries) -o ./bin/print_graph_info_sx
@@ -91,6 +94,8 @@ hits.o: hits/hits.cpp
 apsp.o: apsp/apsp.cpp
 	$(VE_CXX) $(Flags) $(Include_Path)  -c apsp/apsp.cpp -o object_files/apsp.o
 
+coloring.o: coloring/coloring.cpp
+	$(VE_CXX) $(Flags) $(Include_Path)  -c coloring/coloring.cpp -o object_files/coloring.o
 
 print_graph_info.o: utilites/print_graph_info.cpp
 	$(VE_CXX) $(Flags) $(Include_Path)  -c utilites/print_graph_info.cpp -o object_files/print_graph_info.o

@@ -6,7 +6,7 @@
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-//#define __PRINT_API_PERFORMANCE_STATS__
+#define __PRINT_API_PERFORMANCE_STATS__
 
 #include "graph_library.h"
 
@@ -48,7 +48,8 @@ int main(int argc, const char * argv[])
 
         // do calculations
         cout << "Computations started..." << endl;
-        Coloring::vgl_coloring(graph);
+        VerticesArray<int> colors(graph);
+        Coloring::vgl_coloring(graph, colors);
     }
     catch (string error)
     {
