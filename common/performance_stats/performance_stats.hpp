@@ -257,8 +257,8 @@ void PerformanceStats::print_timers_stats()
     print_abstraction_stats("Non-API       ", non_api_time);
     cout << endl;
 
-    cout << "total bandwidth: " << bytes_requested / (inner_wall_time * 1e9) << " GB/s" << endl;
-    cout << "edges rate: " << edges_visited / (inner_wall_time * 1e6) << " MTEPS" << endl;
+    cout << "total bandwidth: " << get_sustained_bandwidth() << " GB/s" << endl;
+    cout << "edges rate: " << get_edges_rate() << " MTEPS" << endl;
     cout << "edges visited: " << edges_visited << endl;
     cout << endl;
 }

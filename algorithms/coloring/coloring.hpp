@@ -114,14 +114,9 @@ void Coloring::vgl_coloring(VectCSRGraph &_graph, VerticesArray<_T> &_colors)
                 _colors[src_id] = bit_pos + start_range;
         };
 
+        graph_API.enable_safe_stores();
         graph_API.scatter(_graph, frontier, mark_forbidden_op, EMPTY_VERTEX_OP, vertex_postprocess_op, mark_forbidden_op, EMPTY_VERTEX_OP, vertex_postprocess_op);
-        /*graph_API.scatter(_graph, frontier, mark_forbidden_op);
-
-        auto new_op = [_colors, available_colors, start_range] __VGL_COMPUTE_ARGS__ {
-            int new_color = smallest_bit_pos(available_colors[src_id]);
-            _colors[src_id] = new_color + start_range;
-        };
-        graph_API.compute(_graph, frontier, new_op);*/
+        graph_API.disable_safe_stores();
 
         need_recolor.set_all_constant(0);
         auto create_reordering_op = [_colors, need_recolor] __VGL_SCATTER_ARGS__ {
@@ -156,12 +151,6 @@ void Coloring::vgl_coloring(VectCSRGraph &_graph, VerticesArray<_T> &_colors)
         };
 
         graph_API.generate_new_frontier(_graph, frontier, need_recolor_op);
-
-        cout << frontier.size() << " / " << _graph.get_vertices_count() << endl;
-        iterations++;
-
-        if(iterations > 20)
-            break;
     }
     tm.end();
 

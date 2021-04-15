@@ -70,6 +70,9 @@ public:
     double get_max_perf(long long _edges_count, int _k = 1);
     double get_min_perf(long long _edges_count, int _k = 1);
     double get_avg_perf(long long _edges_count, int _k = 1);
+    double get_sustained_bandwidth() {return bytes_requested / (inner_wall_time * 1e9);};
+    double get_edges_rate() {return edges_visited / (inner_wall_time * 1e6); }
+    double get_inner_time() { return inner_wall_time; };
 
     void print_min_perf(long long _edges_count, int _k = 1);
     void print_max_perf(long long _edges_count, int _k = 1);

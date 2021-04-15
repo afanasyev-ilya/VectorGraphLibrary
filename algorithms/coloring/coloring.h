@@ -8,8 +8,6 @@
 
 class Coloring
 {
-private:
-
 public:
     template <typename _T>
     static void vgl_coloring(VectCSRGraph &_graph, VerticesArray<_T> &_colors);
