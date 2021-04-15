@@ -4,7 +4,7 @@ CXX = g++ #clang++
 
 # Include paths...
 Include_Path = -I ../
-Flags = -D __USE_MULTICORE__ -O3 -fopenmp -ftree-vectorize
+Flags = -D __USE_MULTICORE__ -O3 -fopenmp -ftree-vectorize -std=c++17
 
 # Library paths...
 Library_Path =

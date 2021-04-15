@@ -10,6 +10,7 @@ benchmark_args = {"bfs": [ ["-top-down"], ["-do"] ],
                   "hits": [ [] ],
                   "scc": [ [] ],
                   "coloring": [ [] ]}
+
 common_iterations = 10
 perf_pattern = "MAX_PERF"
 correctness_pattern = "error count:"
