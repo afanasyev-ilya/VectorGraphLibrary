@@ -2,6 +2,14 @@
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+void print(size_t _val)
+{
+    std::bitset<64> x(_val);
+    std::cout << x << endl;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 inline size_t set_bit(size_t _val, int _pos)
 {
     _val |= 1ULL << _pos;
@@ -25,10 +33,32 @@ inline int get_bit(size_t _val, int _pos)
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void print(size_t _val)
+inline int smallest_bit_pos(size_t _input)
 {
-    std::bitset<64> x(_val);
-    std::cout << x << '\n';
+    if(_input == 0)
+        return -1;
+
+    size_t x = _input & ~(_input-1);
+    int ret=0, cmp = (x>(1LL<<31))<<5; //32 if true else 0
+    ret += cmp;
+    x  >>= cmp;
+    cmp = (x>(1<<15))<<4; //16 if true else 0
+    ret += cmp;
+    x  >>= cmp;
+    cmp = (x>(1<<7))<<3; //8
+    ret += cmp;
+    x  >>= cmp;
+    cmp = (x>(1<<3))<<2; //4
+    ret += cmp;
+    x  >>= cmp;
+    cmp = (x>(1<<1))<<1; //2
+    ret += cmp;
+    x  >>= cmp;
+    cmp = (x>1);
+    ret += cmp;
+    x  >>= cmp;
+    ret += x;
+    return ret-1;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -36,6 +66,17 @@ void print(size_t _val)
 template <typename _T>
 void Coloring::vgl_coloring(VectCSRGraph &_graph, VerticesArray<_T> &_colors)
 {
+    /*size_t val = 0;
+    for(int i = 0; i < 64; i++)
+    {
+        val = 0;
+        val = set_bit(val, i);
+        print(val);
+        int pos = smallest_bit_pos(val);
+        cout << i << " ) " << pos << endl;
+    }
+    return;*/
+
     VerticesArray<size_t> available_colors(_graph);
     VerticesArray<int> need_recolor(_graph);
 
@@ -57,7 +98,6 @@ void Coloring::vgl_coloring(VectCSRGraph &_graph, VerticesArray<_T> &_colors)
     int iterations = 0;
     while(frontier.size() > 0)
     {
-        int prev_size = frontier.size();
         available_colors.set_all_constant(-1);
         auto mark_forbidden_op = [_colors, available_colors, start_range, end_range] __VGL_SCATTER_ARGS__ {
             int dst_color = _colors[dst_id];
@@ -69,27 +109,24 @@ void Coloring::vgl_coloring(VectCSRGraph &_graph, VerticesArray<_T> &_colors)
         };
 
         auto vertex_postprocess_op = [_colors, available_colors, start_range] __VGL_ADVANCE_POSTPROCESS_ARGS__ {
-            size_t cur_data = available_colors[src_id];
-            #pragma _NEC unroll(64)
-            for(int i = 0; i < 64; i++)
-            {
-                int bit = get_bit(cur_data, i);
-                if(bit == 1)
-                {
-                    _colors[src_id] = i + start_range;
-                    break;
-                }
-            }
+            int bit_pos = smallest_bit_pos(available_colors[src_id]);
+            if(bit_pos >= 0)
+                _colors[src_id] = bit_pos + start_range;
         };
 
         graph_API.scatter(_graph, frontier, mark_forbidden_op, EMPTY_VERTEX_OP, vertex_postprocess_op, mark_forbidden_op, EMPTY_VERTEX_OP, vertex_postprocess_op);
+        /*graph_API.scatter(_graph, frontier, mark_forbidden_op);
+
+        auto new_op = [_colors, available_colors, start_range] __VGL_COMPUTE_ARGS__ {
+            int new_color = smallest_bit_pos(available_colors[src_id]);
+            _colors[src_id] = new_color + start_range;
+        };
+        graph_API.compute(_graph, frontier, new_op);*/
 
         need_recolor.set_all_constant(0);
         auto create_reordering_op = [_colors, need_recolor] __VGL_SCATTER_ARGS__ {
             if((_colors[dst_id] == _colors[src_id]) && (src_id != dst_id))
             {
-                //int min_id = vect_min(src_id, dst_id);
-                //need_recolor[min_id] = 1;
                 int max_id = vect_max(src_id, dst_id);
                 need_recolor[max_id] = 1;
             }

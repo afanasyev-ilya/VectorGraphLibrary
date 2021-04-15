@@ -245,7 +245,7 @@ void verify_colors(VectCSRGraph &_graph, VerticesArray<_T> &_colors, int _error_
         {
             int dst_id = _graph.get_outgoing_edge_dst(src_id, edge_pos);
             int dst_color = _colors[dst_id];
-            if(src_color == dst_color)
+            if((src_color == dst_color) && (src_id != dst_id))
             {
                 if(error_count < 30)
                     cout << "(" << src_id << ": " << src_color << ", " << dst_id << ": " << dst_color << ")" << endl;

@@ -2,11 +2,11 @@
 
 #define INT_ELEMENTS_PER_EDGE 5.0
 #define VECTOR_ENGINE_THRESHOLD_VALUE VECTOR_LENGTH*MAX_SX_AURORA_THREADS*128
-#define VECTOR_CORE_THRESHOLD_VALUE 50*VECTOR_LENGTH // TODO
+#define VECTOR_CORE_THRESHOLD_VALUE 5*VECTOR_LENGTH
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-//#define __PRINT_API_PERFORMANCE_STATS__
+#define __PRINT_API_PERFORMANCE_STATS__
 
 #include "graph_library.h"
 

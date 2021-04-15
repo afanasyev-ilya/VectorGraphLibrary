@@ -4,9 +4,27 @@
 
 void FrontierNEC::print()
 {
-    #pragma omp master
+    cout << "Frontier: ";
+    if(this->type == ALL_ACTIVE_FRONTIER)
     {
-        throw "Error in FrontierNEC::print : not implemented yet";
+        int frontier_size = this->max_size;
+        for(int src_id = 0; src_id < frontier_size; src_id++)
+        {
+            cout << src_id << " ";
+        }
+        cout << endl;
+    }
+    else
+    {
+        int frontier_size = this->max_size;
+        for(int src_id = 0; src_id < frontier_size; src_id++)
+        {
+            if(this->flags[src_id] > 0)
+            {
+                cout << src_id << " ";
+            }
+        }
+        cout << endl;
     }
 }
 
