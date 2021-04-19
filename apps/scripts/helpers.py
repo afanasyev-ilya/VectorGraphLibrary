@@ -51,7 +51,7 @@ def binary_exists(app_name, arch):
 
 def make_binary(app_name, arch):
     cmd = "make -f Makefile." + get_makefile_suffix(arch) + " " + app_name
-    print(cmd)
+   print(' '.join(cmd))
     subprocess.call(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
 
     if binary_exists(app_name, arch):

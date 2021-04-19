@@ -1,6 +1,10 @@
 from enum import Enum
 
 
+GENERATE_UNDIRECTED_GRAPHS = True
+UNDIRECTED_PREFIX = "undir_"
+
+
 benchmark_args = {"bfs": [ ["-top-down"], ["-do"] ],
                   "sssp": [ ["-push, -all-active"], ["-pull", "-all-active"], ["-push", "-partial-active"] ],
                   "pr": [ ["-pull"] ],
@@ -10,6 +14,13 @@ benchmark_args = {"bfs": [ ["-top-down"], ["-do"] ],
                   "hits": [ [] ],
                   "scc": [ [] ],
                   "coloring": [ [] ]}
+
+
+def requires_undir_graphs(app_name):
+    if app_name in ["cc", "coloring"]:
+        return True
+    return False
+
 
 common_iterations = 10
 perf_pattern = "MAX_PERF"

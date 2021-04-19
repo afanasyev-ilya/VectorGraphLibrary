@@ -75,12 +75,6 @@ def get_list_of_all_graphs():
     return list_of_graphs
 
 
-def get_graph_path(graph_name):
-    prefix = GRAPHS_DIR
-    suffix =".vgraph"
-    return prefix + graph_name + suffix
-
-
 def download_snap_graphs():
     snap_graphs = get_list_of_soc_graphs() + get_list_of_misc_graphs()
     for graph_name in snap_graphs:
@@ -97,18 +91,34 @@ def download_graph(graph_name):
 
         link = "https://snap.stanford.edu/data/" + snap_links[graph_name]
         cmd = ["wget", link, "-q", "--no-check-certificate", "--directory", SOURCE_GRAPH_DIR]
-        print(cmd)
+       print(' '.join(cmd))
         subprocess.call(cmd, shell=False, stdout=subprocess.PIPE)
 
         link = "https://snap.stanford.edu/data/bigdata/communities/" + snap_links[graph_name]
         cmd = ["wget", link, "-q", "--no-check-certificate", "--directory", SOURCE_GRAPH_DIR]
-        print(cmd)
+       print(' '.join(cmd))
         subprocess.call(cmd, shell=False, stdout=subprocess.PIPE)
 
     if path.exists(SOURCE_GRAPH_DIR + snap_links[graph_name]):
         print("File " + SOURCE_GRAPH_DIR + snap_links[graph_name] + " downloaded!")
     else:
         print("Error! Can not download file " + SOURCE_GRAPH_DIR + snap_links[graph_name])
+
+
+def get_path_to_graph(short_name, undir = False):
+    if undir:
+        return GRAPHS_DIR + UNDIRECTED_PREFIX + short_name + ".vgraph"
+    else:
+        return GRAPHS_DIR + short_name + ".vgraph"
+
+
+def verify_graph_existence(graph_file_name):
+    if file_exists(graph_file_name):
+        print("Success! graph " + graph_file_name + " has been created.")
+        return True
+    else:
+        print("Error! graph " + graph_file_name + " can not be created.")
+        return False
 
 
 def create_real_world_graph(graph_name, arch):
@@ -119,9 +129,26 @@ def create_real_world_graph(graph_name, arch):
     subprocess.call(cmd, shell=False, stdout=subprocess.PIPE)
 
     source_name = os.path.splitext(tar_name)[0]
-    cmd = [get_binary_path("create_vgl_graphs", arch), "-convert", source_name, "-directed", "-file", GRAPHS_DIR + graph_name]
-    print(cmd)
-    subprocess.Popen(cmd, shell=False, stdout=subprocess.PIPE).wait()
+    output_graph_file_name = get_path_to_graph(graph_name)
+    if not file_exists(output_graph_file_name):
+        cmd = [get_binary_path("create_vgl_graphs", arch), "-convert", source_name, "-directed",
+               "-file", output_graph_file_name]
+        print(' '.join(cmd))
+        subprocess.Popen(cmd, shell=False, stdout=subprocess.PIPE).wait()
+        verify_graph_existence(output_graph_file_name)
+    else:
+        print("Graph " + output_graph_file_name + " already exists")
+
+    if GENERATE_UNDIRECTED_GRAPHS:
+        output_graph_file_name = get_path_to_graph(graph_name, True)
+        if not file_exists(output_graph_file_name):
+            cmd = [get_binary_path("create_vgl_graphs", arch), "-convert", source_name, "-undirected",
+                   "-file", output_graph_file_name]
+            print(' '.join(cmd))
+            subprocess.Popen(cmd, shell=False, stdout=subprocess.PIPE).wait()
+            verify_graph_existence(output_graph_file_name)
+        else:
+            print("Graph " + output_graph_file_name + " already exists")
 
 
 def create_synthetic_graph(graph_name, arch):
@@ -130,9 +157,26 @@ def create_synthetic_graph(graph_name, arch):
     scale = dat[1]
     edge_factor = dat[2]
 
-    cmd = [get_binary_path("create_vgl_graphs", arch), "-s", scale, "-e", edge_factor, "-type", type, "-directed", "-file", GRAPHS_DIR + graph_name]
-    print(cmd)
-    subprocess.Popen(cmd, shell=False, stdout=subprocess.PIPE).wait()
+    output_graph_file_name = get_path_to_graph(graph_name)
+    if not file_exists(output_graph_file_name):
+        cmd = [get_binary_path("create_vgl_graphs", arch), "-s", scale, "-e", edge_factor, "-type", type, "-directed",
+               "-file", output_graph_file_name]
+        print(' '.join(cmd))
+        subprocess.Popen(cmd, shell=False, stdout=subprocess.PIPE).wait()
+        verify_graph_existence(output_graph_file_name)
+    else:
+        print("Graph " + output_graph_file_name + " already exists")
+
+    if GENERATE_UNDIRECTED_GRAPHS:
+        output_graph_file_name = get_path_to_graph(graph_name, True)
+        if not file_exists(output_graph_file_name):
+            cmd = [get_binary_path("create_vgl_graphs", arch), "-s", scale, "-e", edge_factor,
+                   "-type", type, "-undirected", "-file", output_graph_file_name]
+            print(' '.join(cmd))
+            subprocess.Popen(cmd, shell=False, stdout=subprocess.PIPE).wait()
+            verify_graph_existence(output_graph_file_name)
+        else:
+            print("Graph " + output_graph_file_name + " already exists")
 
 
 def create_graph(graph_name, arch):
@@ -150,11 +194,5 @@ def create_graphs_if_required(list_of_graphs, arch):
         make_binary("create_vgl_graphs", arch)
 
     for current_graph in list_of_graphs:
-        if not file_exists(get_graph_path(current_graph)):
-            print("Warning! need to create graph " + get_graph_path(current_graph))
-            create_graph(current_graph, arch)
-            if file_exists(get_graph_path(current_graph)):
-                print("Success! graph " + get_graph_path(current_graph) + " has been created.")
-            else:
-                print("Error! graph " + get_graph_path(current_graph) + " can not be created.")
+        create_graph(current_graph, arch)
 
