@@ -10,6 +10,24 @@ PerformanceStats::PerformanceStats()
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+void PerformanceStats::fast_update_advance_stats(double _wall_time,
+                                                 double _ve_part_time,
+                                                 double _vc_part_time,
+                                                 double _collective_part_time,
+                                                 size_t _bytes,
+                                                 size_t _edges)
+{
+    advance_time += _wall_time;
+    advance_ve_part_time += _ve_part_time;
+    advance_vc_part_time += _vc_part_time;
+    advance_collective_part_time += _collective_part_time;
+
+    bytes_requested += _bytes;
+    edges_visited += _edges;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 void PerformanceStats::update_advance_time(Timer &_timer)
 {
     #pragma omp single
@@ -190,7 +208,6 @@ void PerformanceStats::reset_timers()
 
     bytes_requested = 0;
     edges_visited = 0;
-    vertices_visited = 0;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

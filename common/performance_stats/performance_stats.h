@@ -30,7 +30,6 @@ private:
 
     size_t bytes_requested;
     size_t edges_visited;
-    size_t vertices_visited;
 
     void print_abstraction_stats(string _name, double _time);
     void print_detailed_advance_stats(string _name, double _time);
@@ -59,6 +58,13 @@ public:
     inline void update_advance_ve_part_time(Timer &_timer);
     inline void update_advance_vc_part_time(Timer &_timer);
     inline void update_advance_collective_part_time(Timer &_timer);
+
+    inline void fast_update_advance_stats(double _wall_time,
+                                          double _ve_part_time,
+                                          double _vc_part_time,
+                                          double _collective_part_time,
+                                          size_t _bytes,
+                                          size_t _edges);
 
     void print_timers_stats();
     void update_timer_stats();

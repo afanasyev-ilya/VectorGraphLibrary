@@ -15,15 +15,15 @@ public:
     Timer();
 
     /* Timing API */
-    void start();
-    void end();
+    inline void start();
+    inline void end();
 
     /* Get API */
     // returns time of specified interval in seconds
-    double get_time();
+    inline double get_time();
 
     // returns time of specified interval in milliseconds
-    double get_time_in_ms();
+    inline double get_time_in_ms();
 
     /* Print API */
     // prints effective bandwidth of specified interval

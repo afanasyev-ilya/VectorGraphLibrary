@@ -12,18 +12,20 @@ void GraphAbstractionsNEC::vector_engine_per_vertex_kernel_sparse(UndirectedCSRG
                                                                   const int _first_edge,
                                                                   bool _outgoing_graph_is_stored)
 {
+    #ifdef __PRINT_API_PERFORMANCE_STATS__
     Timer tm;
     tm.start();
+    #endif
 
-    LOAD_UNDIRECTED_CSR_GRAPH_DATA(_graph);
-    int *frontier_ids = &(_frontier.get_ids()[0]);
-    int frontier_segment_size = _frontier.get_vector_engine_part_size();
+    long long *vertex_pointers = _graph.get_vertex_pointers ();
+    int *adjacent_ids          = _graph.get_adjacent_ids    ();
+    long long int edges_count  = _graph.get_edges_count     ();
+    int *frontier_ids          = &(_frontier.get_ids()[0]);
+    int frontier_segment_size  = _frontier.get_vector_engine_part_size();
 
     TraversalDirection traversal = current_traversal_direction;
     int storage = CSR_STORAGE;
     long long process_shift = compute_process_shift(0/*shard shift*/, traversal, storage, edges_count, _outgoing_graph_is_stored);
-
-
 
     for (int front_pos = 0; front_pos < frontier_segment_size; front_pos++)
     {
@@ -93,11 +95,9 @@ void GraphAbstractionsNEC::vector_engine_per_vertex_kernel_sparse(UndirectedCSRG
         vertex_postprocess_op(src_id, connections_count, 0);
     }
 
+    #ifdef __PRINT_API_PERFORMANCE_STATS__
     tm.end();
     long long work = _frontier.get_vector_engine_part_neighbours_count();
-    performance_stats.update_advance_ve_part_time(tm);
-    performance_stats.update_graph_processing_stats(work*INT_ELEMENTS_PER_EDGE*sizeof(int), work);
-    #ifdef __PRINT_API_PERFORMANCE_STATS__
     tm.print_time_and_bandwidth_stats("Advance (sparse, ve)", work, INT_ELEMENTS_PER_EDGE*sizeof(int));
     #endif
 }
@@ -114,12 +114,16 @@ void GraphAbstractionsNEC::vector_core_per_vertex_kernel_sparse(UndirectedCSRGra
                                                                 const int _first_edge,
                                                                 bool _outgoing_graph_is_stored)
 {
+    #ifdef __PRINT_API_PERFORMANCE_STATS__
     Timer tm;
     tm.start();
+    #endif
 
-    LOAD_UNDIRECTED_CSR_GRAPH_DATA(_graph);
-    int *frontier_ids = &(_frontier.get_ids()[_frontier.get_vector_engine_part_size()]);
-    int frontier_segment_size = _frontier.get_vector_core_part_size();
+    long long *vertex_pointers = _graph.get_vertex_pointers ();
+    int *adjacent_ids          = _graph.get_adjacent_ids    ();
+    long long int edges_count  = _graph.get_edges_count     ();
+    int *frontier_ids          = &(_frontier.get_ids()[_frontier.get_vector_engine_part_size()]);
+    int frontier_segment_size  = _frontier.get_vector_core_part_size();
 
     TraversalDirection traversal = current_traversal_direction;
     int storage = CSR_STORAGE;
@@ -176,11 +180,9 @@ void GraphAbstractionsNEC::vector_core_per_vertex_kernel_sparse(UndirectedCSRGra
         vertex_postprocess_op(src_id, connections_count, 0);
     }
 
+    #ifdef __PRINT_API_PERFORMANCE_STATS__
     tm.end();
     long long work = _frontier.get_vector_core_part_neighbours_count();
-    performance_stats.update_advance_vc_part_time(tm);
-    performance_stats.update_graph_processing_stats(work*INT_ELEMENTS_PER_EDGE*sizeof(int), work);
-    #ifdef __PRINT_API_PERFORMANCE_STATS__
     tm.print_time_and_bandwidth_stats("Advance (sparse, vc)", work, INT_ELEMENTS_PER_EDGE*sizeof(int));
     #endif
 }
@@ -199,12 +201,18 @@ void GraphAbstractionsNEC::collective_vertex_processing_kernel_sparse(Undirected
                                                                       const int _first_edge,
                                                                       bool _outgoing_graph_is_stored)
 {
+    #ifdef __PRINT_API_PERFORMANCE_STATS__
     Timer tm;
     tm.start();
+    #endif
 
-    LOAD_UNDIRECTED_CSR_GRAPH_DATA(_graph);
-    int *frontier_ids = &(_frontier.get_ids()[_frontier.get_vector_core_part_size() + _frontier.get_vector_engine_part_size()]);
-    int frontier_segment_size = _frontier.get_collective_part_size();
+    long long *vertex_pointers = _graph.get_vertex_pointers ();
+    int *adjacent_ids          = _graph.get_adjacent_ids    ();
+    long long int edges_count  = _graph.get_edges_count     ();
+    int vertices_count         = _graph.get_vertices_count  ();
+    int *frontier_ids          = &(_frontier.get_ids()[_frontier.get_vector_core_part_size()
+                                                       + _frontier.get_vector_engine_part_size()]);
+    int frontier_segment_size  = _frontier.get_collective_part_size();
 
     TraversalDirection traversal = current_traversal_direction;
     int storage = CSR_STORAGE;
@@ -225,8 +233,6 @@ void GraphAbstractionsNEC::collective_vertex_processing_kernel_sparse(Undirected
         reg_end[i] = 0;
         reg_connections[i] = 0;
     }
-
-
 
     #pragma omp for schedule(static, 4)
     for(int front_pos = 0; front_pos < frontier_segment_size; front_pos += VECTOR_LENGTH)
@@ -327,11 +333,9 @@ void GraphAbstractionsNEC::collective_vertex_processing_kernel_sparse(Undirected
         }
     }
 
+    #ifdef __PRINT_API_PERFORMANCE_STATS__
     tm.end();
     long long work = _frontier.get_collective_part_neighbours_count();
-    performance_stats.update_advance_collective_part_time(tm);
-    performance_stats.update_graph_processing_stats(work*INT_ELEMENTS_PER_EDGE*sizeof(int), work);
-    #ifdef __PRINT_API_PERFORMANCE_STATS__
     tm.print_time_and_bandwidth_stats("Advance (sparse, collective)", work, INT_ELEMENTS_PER_EDGE*sizeof(int));
     #endif
 }
