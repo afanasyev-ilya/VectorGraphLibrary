@@ -24,8 +24,7 @@ void GraphAbstractionsMulticore::vector_engine_per_vertex_kernel_dense(Undirecte
     int storage = CSR_STORAGE;
     long long process_shift = compute_process_shift(0/*shard shift*/, traversal, storage, edges_count, _outgoing_graph_is_stored);
 
-    DelayedWriteNEC delayed_write;
-    delayed_write.init();
+
 
     for(int front_pos = _first_vertex; front_pos < _last_vertex; front_pos++)
     {
@@ -36,7 +35,7 @@ void GraphAbstractionsMulticore::vector_engine_per_vertex_kernel_dense(Undirecte
             const long long int end = vertex_pointers[src_id + 1];
             const int connections_count = end - start;
 
-            vertex_preprocess_op(src_id, connections_count, 0, delayed_write);
+            vertex_preprocess_op(src_id, connections_count, 0);
 
             #pragma omp for schedule(static, 8)
             for(int vec_start = 0; vec_start < connections_count; vec_start += VECTOR_LENGTH)
@@ -56,12 +55,12 @@ void GraphAbstractionsMulticore::vector_engine_per_vertex_kernel_dense(Undirecte
                     if (local_edge_pos < connections_count)
                     {
                         const int dst_id = adjacent_ids[internal_edge_pos];
-                        edge_op(src_id, dst_id, local_edge_pos, external_edge_pos, vector_index, delayed_write);
+                        edge_op(src_id, dst_id, local_edge_pos, external_edge_pos, vector_index);
                     }
                 }
             }
 
-            vertex_postprocess_op(src_id, connections_count, 0, delayed_write);
+            vertex_postprocess_op(src_id, connections_count, 0);
         }
     }
 
@@ -98,8 +97,7 @@ void GraphAbstractionsMulticore::vector_core_per_vertex_kernel_dense(UndirectedC
     int storage = CSR_STORAGE;
     long long process_shift = compute_process_shift(0/*shard shift*/, traversal, storage, edges_count, _outgoing_graph_is_stored);
 
-    DelayedWriteNEC delayed_write;
-    delayed_write.init();
+
 
     #pragma omp for schedule(static, 8)
     for (int front_pos = _first_vertex; front_pos < _last_vertex; front_pos++)
@@ -111,7 +109,7 @@ void GraphAbstractionsMulticore::vector_core_per_vertex_kernel_dense(UndirectedC
             const long long int end = vertex_pointers[src_id + 1];
             const int connections_count = end - start;
 
-            vertex_preprocess_op(src_id, connections_count, 0, delayed_write);
+            vertex_preprocess_op(src_id, connections_count, 0);
 
             #pragma simd
             #pragma vector
@@ -124,10 +122,10 @@ void GraphAbstractionsMulticore::vector_core_per_vertex_kernel_dense(UndirectedC
                 const int dst_id = adjacent_ids[internal_edge_pos];
                 const long long external_edge_pos = process_shift + internal_edge_pos;
 
-                edge_op(src_id, dst_id, local_edge_pos, external_edge_pos, vector_index, delayed_write);
+                edge_op(src_id, dst_id, local_edge_pos, external_edge_pos, vector_index);
             }
 
-            vertex_postprocess_op(src_id, connections_count, 0, delayed_write);
+            vertex_postprocess_op(src_id, connections_count, 0);
         }
     }
 
@@ -160,8 +158,7 @@ void GraphAbstractionsMulticore::ve_collective_vertex_processing_kernel_dense(Un
     LOAD_UNDIRECTED_CSR_GRAPH_DATA(_graph);
     int *frontier_flags = _frontier.get_flags();
 
-    DelayedWriteNEC delayed_write;
-    delayed_write.init();
+
 
     TraversalDirection traversal = current_traversal_direction;
     int storage = VE_STORAGE;
@@ -205,7 +202,7 @@ void GraphAbstractionsMulticore::ve_collective_vertex_processing_kernel_dense(Un
                 reg_real_connections_count[i] = 0;
 
             if(src_id < vertices_count)
-                vertex_preprocess_op(src_id, reg_real_connections_count[i], i, delayed_write);
+                vertex_preprocess_op(src_id, reg_real_connections_count[i], i);
         }
 
         for(int edge_pos = _first_edge; edge_pos < segment_connections_count; edge_pos++)
@@ -229,7 +226,7 @@ void GraphAbstractionsMulticore::ve_collective_vertex_processing_kernel_dense(Un
                     if((src_id < vertices_count) && (edge_pos < reg_real_connections_count[i]))
                     {
                         const int dst_id = ve_adjacent_ids[internal_edge_pos];
-                        edge_op(src_id, dst_id, local_edge_pos, external_edge_pos, vector_index, delayed_write);
+                        edge_op(src_id, dst_id, local_edge_pos, external_edge_pos, vector_index);
                     }
                 }
             }
@@ -241,7 +238,7 @@ void GraphAbstractionsMulticore::ve_collective_vertex_processing_kernel_dense(Un
             int src_id = segment_first_vertex + i;
 
             if(src_id < vertices_count)
-                vertex_postprocess_op(src_id, reg_real_connections_count[i], i, delayed_write);
+                vertex_postprocess_op(src_id, reg_real_connections_count[i], i);
         }
     }
 

@@ -23,8 +23,7 @@ void GraphAbstractionsMulticore::vector_engine_per_vertex_kernel_sparse(Undirect
     int storage = CSR_STORAGE;
     long long process_shift = compute_process_shift(0/*shard shift*/, traversal, storage, edges_count, _outgoing_graph_is_stored);
 
-    DelayedWriteNEC delayed_write;
-    delayed_write.init();
+
 
     for (int front_pos = 0; front_pos < frontier_segment_size; front_pos++)
     {
@@ -34,7 +33,7 @@ void GraphAbstractionsMulticore::vector_engine_per_vertex_kernel_sparse(Undirect
         const long long int end = vertex_pointers[src_id + 1];
         const int connections_count = end - start;
 
-        vertex_preprocess_op(src_id, connections_count, 0, delayed_write);
+        vertex_preprocess_op(src_id, connections_count, 0);
 
         #pragma omp for schedule(static, 8)
         for (int vec_start = 0; vec_start < connections_count; vec_start += VECTOR_LENGTH)
@@ -54,12 +53,12 @@ void GraphAbstractionsMulticore::vector_engine_per_vertex_kernel_sparse(Undirect
                 if (local_edge_pos < connections_count)
                 {
                     const int dst_id = adjacent_ids[internal_edge_pos];
-                    edge_op(src_id, dst_id, local_edge_pos, external_edge_pos, vector_index, delayed_write);
+                    edge_op(src_id, dst_id, local_edge_pos, external_edge_pos, vector_index);
                 }
             }
         }
 
-        vertex_postprocess_op(src_id, connections_count, 0, delayed_write);
+        vertex_postprocess_op(src_id, connections_count, 0);
     }
 
     tm.end();
@@ -94,8 +93,7 @@ void GraphAbstractionsMulticore::vector_core_per_vertex_kernel_sparse(Undirected
     int storage = CSR_STORAGE;
     long long process_shift = compute_process_shift(0/*shard shift*/, traversal, storage, edges_count, _outgoing_graph_is_stored);
 
-    DelayedWriteNEC delayed_write;
-    delayed_write.init();
+
 
     #pragma omp for schedule(static, 2)
     for (int front_pos = 0; front_pos < frontier_segment_size; front_pos++)
@@ -106,7 +104,7 @@ void GraphAbstractionsMulticore::vector_core_per_vertex_kernel_sparse(Undirected
         const long long int end = vertex_pointers[src_id + 1];
         const int connections_count = end - start;
 
-        vertex_preprocess_op(src_id, connections_count, 0, delayed_write);
+        vertex_preprocess_op(src_id, connections_count, 0);
 
         #pragma simd
         #pragma vector
@@ -119,10 +117,10 @@ void GraphAbstractionsMulticore::vector_core_per_vertex_kernel_sparse(Undirected
             const int dst_id = adjacent_ids[internal_edge_pos];
             const long long external_edge_pos = process_shift + internal_edge_pos;
 
-            edge_op(src_id, dst_id, local_edge_pos, external_edge_pos, vector_index, delayed_write);
+            edge_op(src_id, dst_id, local_edge_pos, external_edge_pos, vector_index);
         }
 
-        vertex_postprocess_op(src_id, connections_count, 0, delayed_write);
+        vertex_postprocess_op(src_id, connections_count, 0);
     }
 
     tm.end();
@@ -178,8 +176,7 @@ void GraphAbstractionsMulticore::collective_vertex_processing_kernel_sparse(Undi
         reg_connections[i] = 0;
     }
 
-    DelayedWriteNEC delayed_write;
-    delayed_write.init();
+
 
     #pragma omp for schedule(static, 4)
     for(int front_pos = 0; front_pos < frontier_segment_size; front_pos += VECTOR_LENGTH)
@@ -196,7 +193,7 @@ void GraphAbstractionsMulticore::collective_vertex_processing_kernel_sparse(Undi
                 reg_start[i] = vertex_pointers[src_id];
                 reg_end[i] = vertex_pointers[src_id + 1];
                 reg_connections[i] = reg_end[i] - reg_start[i];
-                vertex_preprocess_op(src_id, reg_connections[i], i, delayed_write);
+                vertex_preprocess_op(src_id, reg_connections[i], i);
             }
             else
             {
@@ -238,7 +235,7 @@ void GraphAbstractionsMulticore::collective_vertex_processing_kernel_sparse(Undi
                         const int dst_id = adjacent_ids[internal_edge_pos];
                         const long long external_edge_pos = process_shift + internal_edge_pos;
 
-                        edge_op(src_id, dst_id, local_edge_pos, external_edge_pos, vector_index, delayed_write);
+                        edge_op(src_id, dst_id, local_edge_pos, external_edge_pos, vector_index);
                     }
                 }
             }
@@ -252,7 +249,7 @@ void GraphAbstractionsMulticore::collective_vertex_processing_kernel_sparse(Undi
                 if ((front_pos + i) < frontier_segment_size)
                 {
                     int src_id = frontier_ids[front_pos + i];
-                    vertex_postprocess_op(src_id, reg_connections[i], i, delayed_write);
+                    vertex_postprocess_op(src_id, reg_connections[i], i);
                 }
             }
         }

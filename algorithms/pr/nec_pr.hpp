@@ -48,25 +48,11 @@ void PR::nec_page_rank(VectCSRGraph &_graph,
     {
         if(src_id == dst_id)
         {
-            delayed_write.int_vec_reg[vector_index] += 1;
-        }
-    };
-
-    auto calculate_number_of_loops_collective = [&number_of_loops] __VGL_ADVANCE_ARGS__
-    {
-        if(src_id == dst_id)
-        {
             number_of_loops[src_id] += 1;
         }
     };
 
-    auto vertex_postprocess_calculate_number_of_loops = [&number_of_loops] __VGL_ADVANCE_POSTPROCESS_ARGS__
-    {
-        delayed_write.finish_write_sum(number_of_loops.get_ptr(), src_id);
-    };
-
-    graph_API.gather(_graph, frontier, calculate_number_of_loops, EMPTY_VERTEX_OP, vertex_postprocess_calculate_number_of_loops,
-                     calculate_number_of_loops_collective, EMPTY_VERTEX_OP, EMPTY_VERTEX_OP);
+    graph_API.gather(_graph, frontier, calculate_number_of_loops);
 
     auto calculate_degrees_without_loops = [incoming_degrees_without_loops, incoming_degrees, number_of_loops] __VGL_COMPUTE_ARGS__
     {

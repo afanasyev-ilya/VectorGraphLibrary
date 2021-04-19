@@ -1,7 +1,7 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #define INT_ELEMENTS_PER_EDGE 5.0
-#define VECTOR_ENGINE_THRESHOLD_VALUE VECTOR_LENGTH*MAX_SX_AURORA_THREADS*128
+#define VECTOR_ENGINE_THRESHOLD_VALUE VECTOR_LENGTH*MAX_SX_AURORA_THREADS*32
 #define VECTOR_CORE_THRESHOLD_VALUE 5*VECTOR_LENGTH
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -43,14 +43,12 @@ int main(int argc, const char * argv[])
             tm.print_time_stats("Graph load");
         }
 
-        // print graphs stats
-        graph.print_stats();
-
         // do calculations
         cout << "Computations started..." << endl;
         VerticesArray<int> colors(graph);
         performance_stats.reset_timers();
-        Coloring::vgl_coloring(graph, colors);
+        for(int it = 0; it < parser.get_number_of_rounds(); it++)
+            Coloring::vgl_coloring(graph, colors);
         performance_stats.update_timer_stats();
         performance_stats.print_timers_stats();
 

@@ -24,7 +24,7 @@ void Timer::start()
     #else
     #pragma omp barrier
     t_start = omp_get_wtime();
-    #pragma omp barrier
+    //#pragma omp barrier
     #endif
 }
 
@@ -37,7 +37,7 @@ void Timer::end()
     #else
     #pragma omp barrier
     t_end = omp_get_wtime();
-    #pragma omp barrier
+    //#pragma omp barrier
     #endif
 }
 

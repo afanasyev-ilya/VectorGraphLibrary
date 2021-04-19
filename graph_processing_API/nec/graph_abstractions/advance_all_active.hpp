@@ -19,9 +19,6 @@ void GraphAbstractionsNEC::vector_engine_per_vertex_kernel_all_active(Undirected
 
     LOAD_UNDIRECTED_CSR_GRAPH_DATA(_graph);
 
-    DelayedWriteNEC delayed_write;
-    delayed_write.init();
-
     TraversalDirection traversal = current_traversal_direction;
     int storage = CSR_STORAGE;
     long long process_shift = compute_process_shift(_shard_shift, traversal, storage, edges_count,
@@ -35,7 +32,7 @@ void GraphAbstractionsNEC::vector_engine_per_vertex_kernel_all_active(Undirected
         const long long int end = vertex_pointers[src_id + 1];
         const int connections_count = end - start;
 
-        vertex_preprocess_op(src_id, connections_count, 0, delayed_write);
+        vertex_preprocess_op(src_id, connections_count, 0);
 
         if(use_safe_stores) // all vector stores are safe in this branch (vob)
         {
@@ -57,7 +54,7 @@ void GraphAbstractionsNEC::vector_engine_per_vertex_kernel_all_active(Undirected
                     if (local_edge_pos < connections_count)
                     {
                         const int dst_id = adjacent_ids[internal_edge_pos];
-                        edge_op(src_id, dst_id, local_edge_pos, external_edge_pos, vector_index, delayed_write);
+                        edge_op(src_id, dst_id, local_edge_pos, external_edge_pos, vector_index);
                     }
                 }
             }
@@ -84,13 +81,13 @@ void GraphAbstractionsNEC::vector_engine_per_vertex_kernel_all_active(Undirected
                     if (local_edge_pos < connections_count)
                     {
                         const int dst_id = adjacent_ids[internal_edge_pos];
-                        edge_op(src_id, dst_id, local_edge_pos, external_edge_pos, vector_index, delayed_write);
+                        edge_op(src_id, dst_id, local_edge_pos, external_edge_pos, vector_index);
                     }
                 }
             }
         }
 
-        vertex_postprocess_op(src_id, connections_count, 0, delayed_write);
+        vertex_postprocess_op(src_id, connections_count, 0);
     }
 
     tm.end();
@@ -119,9 +116,6 @@ void GraphAbstractionsNEC::vector_core_per_vertex_kernel_all_active(UndirectedCS
     Timer tm;
     tm.start();
 
-    DelayedWriteNEC delayed_write;
-    delayed_write.init();
-
     LOAD_UNDIRECTED_CSR_GRAPH_DATA(_graph);
 
     TraversalDirection traversal = current_traversal_direction;
@@ -136,7 +130,7 @@ void GraphAbstractionsNEC::vector_core_per_vertex_kernel_all_active(UndirectedCS
         const long long int end = vertex_pointers[src_id + 1];
         const int connections_count = end - start;
 
-        vertex_preprocess_op(src_id, connections_count, 0, delayed_write);
+        vertex_preprocess_op(src_id, connections_count, 0);
 
         if(use_safe_stores) // all vector stores are safe in this branch (vob)
         {
@@ -158,7 +152,7 @@ void GraphAbstractionsNEC::vector_core_per_vertex_kernel_all_active(UndirectedCS
                     if (local_edge_pos < connections_count)
                     {
                         const int dst_id = adjacent_ids[internal_edge_pos];
-                        edge_op(src_id, dst_id, local_edge_pos, external_edge_pos, vector_index, delayed_write);
+                        edge_op(src_id, dst_id, local_edge_pos, external_edge_pos, vector_index);
                     }
                 }
             }
@@ -185,13 +179,13 @@ void GraphAbstractionsNEC::vector_core_per_vertex_kernel_all_active(UndirectedCS
                     if (local_edge_pos < connections_count)
                     {
                         const int dst_id = adjacent_ids[internal_edge_pos];
-                        edge_op(src_id, dst_id, local_edge_pos, external_edge_pos, vector_index, delayed_write);
+                        edge_op(src_id, dst_id, local_edge_pos, external_edge_pos, vector_index);
                     }
                 }
             }
         }
 
-        vertex_postprocess_op(src_id, connections_count, 0, delayed_write);
+        vertex_postprocess_op(src_id, connections_count, 0);
     }
 
     tm.end();
@@ -219,9 +213,6 @@ void GraphAbstractionsNEC::ve_collective_vertex_processing_kernel_all_active(Und
 {
     Timer tm;
     tm.start();
-
-    DelayedWriteNEC delayed_write;
-    delayed_write.init();
 
     LOAD_UNDIRECTED_CSR_GRAPH_DATA(_graph);
 
@@ -262,7 +253,7 @@ void GraphAbstractionsNEC::ve_collective_vertex_processing_kernel_all_active(Und
                 reg_real_connections_count[i] = 0;
 
             if(src_id < vertices_count)
-                vertex_preprocess_op(src_id, reg_real_connections_count[i], i, delayed_write);
+                vertex_preprocess_op(src_id, reg_real_connections_count[i], i);
         }
 
         if(use_safe_stores) // all vector stores are safe in this branch (vob)
@@ -285,7 +276,7 @@ void GraphAbstractionsNEC::ve_collective_vertex_processing_kernel_all_active(Und
                     if((src_id < vertices_count) && (edge_pos < reg_real_connections_count[i]))
                     {
                         const int dst_id = ve_adjacent_ids[internal_edge_pos];
-                        edge_op(src_id, dst_id, local_edge_pos, external_edge_pos, vector_index, delayed_write);
+                        edge_op(src_id, dst_id, local_edge_pos, external_edge_pos, vector_index);
                     }
                 }
             }
@@ -312,7 +303,7 @@ void GraphAbstractionsNEC::ve_collective_vertex_processing_kernel_all_active(Und
                     if((src_id < vertices_count) && (edge_pos < reg_real_connections_count[i]))
                     {
                         const int dst_id = ve_adjacent_ids[internal_edge_pos];
-                        edge_op(src_id, dst_id, local_edge_pos, external_edge_pos, vector_index, delayed_write);
+                        edge_op(src_id, dst_id, local_edge_pos, external_edge_pos, vector_index);
                     }
                 }
             }
@@ -324,7 +315,7 @@ void GraphAbstractionsNEC::ve_collective_vertex_processing_kernel_all_active(Und
             int src_id = segment_first_vertex + i;
 
             if(src_id < vertices_count)
-                vertex_postprocess_op(src_id, reg_real_connections_count[i], i, delayed_write);
+                vertex_postprocess_op(src_id, reg_real_connections_count[i], i);
         }
     }
 

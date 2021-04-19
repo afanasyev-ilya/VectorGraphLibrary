@@ -12,9 +12,6 @@ void GraphAbstractionsMulticore::advance_worker(EdgesListGraph &_graph,
     tm.start();
     LOAD_EDGES_LIST_GRAPH_DATA(_graph);
 
-    DelayedWriteNEC delayed_write;
-    delayed_write.init();
-
     #pragma omp for schedule(static)
     for(long long vec_start = 0; vec_start < edges_count; vec_start += VECTOR_LENGTH)
     {
@@ -30,7 +27,7 @@ void GraphAbstractionsMulticore::advance_worker(EdgesListGraph &_graph,
                 int src_id = src_ids[edge_pos];
                 int dst_id = dst_ids[edge_pos];
                 int vector_index = i;
-                edge_op(src_id, dst_id, edge_pos, edge_pos, vector_index, delayed_write);
+                edge_op(src_id, dst_id, edge_pos, edge_pos, vector_index);
             }
         }
     }

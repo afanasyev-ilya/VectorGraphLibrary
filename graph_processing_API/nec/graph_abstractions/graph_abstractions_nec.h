@@ -8,9 +8,8 @@
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-auto EMPTY_EDGE_OP = [] (int src_id, int dst_id, int local_edge_pos, long long int global_edge_pos, int vector_index,
-                         DelayedWriteNEC &delayed_write) {};
-auto EMPTY_VERTEX_OP = [] (int src_id, int connections_count, int vector_index, DelayedWriteNEC &delayed_write){};
+auto EMPTY_EDGE_OP = [] (int src_id, int dst_id, int local_edge_pos, long long int global_edge_pos, int vector_index) {};
+auto EMPTY_VERTEX_OP = [] (int src_id, int connections_count, int vector_index){};
 
 auto ALL_ACTIVE_FRONTIER_CONDITION = [] (int src_id)->int
 {

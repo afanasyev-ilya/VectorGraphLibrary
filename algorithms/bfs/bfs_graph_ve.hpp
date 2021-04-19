@@ -44,7 +44,7 @@ BFS_GraphVE::BFS_GraphVE(VectCSRGraph &_graph)
     int l_ve_edges_per_vertex = ve_edges_per_vertex;
     int *l_ve_dst_ids = ve_dst_ids;
     auto copy_edge_to_ve = [l_ve_vertices_count,l_ve_edges_per_vertex,l_ve_dst_ids](int src_id, int dst_id, int local_edge_pos,
-                              long long int global_edge_pos, int vector_index, DelayedWriteNEC &delayed_write)
+                              long long int global_edge_pos, int vector_index)
     {
         int prev_segments = (src_id - (src_id % VECTOR_LENGTH))/VECTOR_LENGTH;
         long long ve_pos = VECTOR_LENGTH * BFS_VE_SIZE * prev_segments + local_edge_pos * VECTOR_LENGTH + vector_index;
@@ -60,7 +60,7 @@ BFS_GraphVE::BFS_GraphVE(VectCSRGraph &_graph)
     int l_ve_edges_per_vertex = ve_edges_per_vertex;
     int *l_ve_dst_ids = ve_dst_ids;
     auto copy_edge_to_ve = [l_ve_vertices_count,l_ve_edges_per_vertex,l_ve_dst_ids](int src_id, int dst_id, int local_edge_pos,
-                              long long int global_edge_pos, int vector_index, DelayedWriteNEC &delayed_write)
+                              long long int global_edge_pos, int vector_index)
     {
         if(local_edge_pos < l_ve_edges_per_vertex)
             l_ve_dst_ids[src_id + l_ve_vertices_count*local_edge_pos] = dst_id;

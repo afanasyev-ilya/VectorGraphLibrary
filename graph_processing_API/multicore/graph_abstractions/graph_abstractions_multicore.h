@@ -8,9 +8,8 @@
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-auto EMPTY_EDGE_OP = [] (int src_id, int dst_id, int local_edge_pos, long long int global_edge_pos, int vector_index,
-                         DelayedWriteNEC &delayed_write) {};
-auto EMPTY_VERTEX_OP = [] (int src_id, int connections_count, int vector_index, DelayedWriteNEC &delayed_write){};
+auto EMPTY_EDGE_OP = [] (int src_id, int dst_id, int local_edge_pos, long long int global_edge_pos, int vector_index) {};
+auto EMPTY_VERTEX_OP = [] (int src_id, int connections_count, int vector_index){};
 
 auto ALL_ACTIVE_FRONTIER_CONDITION = [] (int src_id)->int
 {
@@ -29,8 +28,8 @@ private:
 
     bool use_safe_stores;
 
-    long long compute_process_shift(long long _shard_shift, TraversalDirection _traversal, int _storage,
-                                    long long _edges_count, bool _outgoing_graph_is_stored);
+    inline long long compute_process_shift(long long _shard_shift, TraversalDirection _traversal, int _storage,
+                                           long long _edges_count, bool _outgoing_graph_is_stored);
 
     // compute inner implementation
     template <typename ComputeOperation>

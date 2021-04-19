@@ -39,7 +39,7 @@ int main(int argc, const char * argv[])
             NEC_REGISTER_INT(work_size, 0);
 
             auto edge_op= [&reg_work_size](int src_id, int dst_id, int local_edge_pos,
-                                           long long int global_edge_pos, int vector_index, DelayedWriteNEC &delayed_write)
+                                           long long int global_edge_pos, int vector_index)
             {
                 #pragma omp atomic
                 reg_work_size[vector_index]++;

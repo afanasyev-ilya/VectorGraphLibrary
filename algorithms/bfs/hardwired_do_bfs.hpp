@@ -488,7 +488,7 @@ void hardwired_nec_top_down_step(long long *_outgoing_ptrs,
         int *private_levels = _levels.get_private_data_pointer();
 
         auto edge_op = [&_levels, _cur_level, private_levels](int src_id, int dst_id, int local_edge_pos,
-                                             long long int global_edge_pos, int vector_index, DelayedWriteNEC &delayed_write)
+                                             long long int global_edge_pos, int vector_index)
         {
             int dst_level = _levels.cached_load(dst_id, private_levels);
             if(dst_level == UNVISITED_VERTEX)

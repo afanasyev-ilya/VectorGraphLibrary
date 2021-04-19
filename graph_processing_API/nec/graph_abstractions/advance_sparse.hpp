@@ -23,8 +23,7 @@ void GraphAbstractionsNEC::vector_engine_per_vertex_kernel_sparse(UndirectedCSRG
     int storage = CSR_STORAGE;
     long long process_shift = compute_process_shift(0/*shard shift*/, traversal, storage, edges_count, _outgoing_graph_is_stored);
 
-    DelayedWriteNEC delayed_write;
-    delayed_write.init();
+
 
     for (int front_pos = 0; front_pos < frontier_segment_size; front_pos++)
     {
@@ -34,7 +33,7 @@ void GraphAbstractionsNEC::vector_engine_per_vertex_kernel_sparse(UndirectedCSRG
         const long long int end = vertex_pointers[src_id + 1];
         const int connections_count = end - start;
 
-        vertex_preprocess_op(src_id, connections_count, 0, delayed_write);
+        vertex_preprocess_op(src_id, connections_count, 0);
 
         if(use_safe_stores) // all vector stores are safe in this branch (vob)
         {
@@ -57,7 +56,7 @@ void GraphAbstractionsNEC::vector_engine_per_vertex_kernel_sparse(UndirectedCSRG
                     if (local_edge_pos < connections_count)
                     {
                         const int dst_id = adjacent_ids[internal_edge_pos];
-                        edge_op(src_id, dst_id, local_edge_pos, external_edge_pos, vector_index, delayed_write);
+                        edge_op(src_id, dst_id, local_edge_pos, external_edge_pos, vector_index);
                     }
                 }
             }
@@ -85,13 +84,13 @@ void GraphAbstractionsNEC::vector_engine_per_vertex_kernel_sparse(UndirectedCSRG
                     if (local_edge_pos < connections_count)
                     {
                         const int dst_id = adjacent_ids[internal_edge_pos];
-                        edge_op(src_id, dst_id, local_edge_pos, external_edge_pos, vector_index, delayed_write);
+                        edge_op(src_id, dst_id, local_edge_pos, external_edge_pos, vector_index);
                     }
                 }
             }
         }
 
-        vertex_postprocess_op(src_id, connections_count, 0, delayed_write);
+        vertex_postprocess_op(src_id, connections_count, 0);
     }
 
     tm.end();
@@ -126,10 +125,7 @@ void GraphAbstractionsNEC::vector_core_per_vertex_kernel_sparse(UndirectedCSRGra
     int storage = CSR_STORAGE;
     long long process_shift = compute_process_shift(0/*shard shift*/, traversal, storage, edges_count, _outgoing_graph_is_stored);
 
-    DelayedWriteNEC delayed_write;
-    delayed_write.init();
-
-    #pragma omp for schedule(static, 2)
+    #pragma omp for schedule(static)
     for (int front_pos = 0; front_pos < frontier_segment_size; front_pos++)
     {
         const int src_id = frontier_ids[front_pos];
@@ -138,7 +134,7 @@ void GraphAbstractionsNEC::vector_core_per_vertex_kernel_sparse(UndirectedCSRGra
         const long long int end = vertex_pointers[src_id + 1];
         const int connections_count = end - start;
 
-        vertex_preprocess_op(src_id, connections_count, 0, delayed_write);
+        vertex_preprocess_op(src_id, connections_count, 0);
 
         if(use_safe_stores) // all vector stores are safe in this branch (vob)
         {
@@ -154,7 +150,7 @@ void GraphAbstractionsNEC::vector_core_per_vertex_kernel_sparse(UndirectedCSRGra
                 const int dst_id = adjacent_ids[internal_edge_pos];
                 const long long external_edge_pos = process_shift + internal_edge_pos;
 
-                edge_op(src_id, dst_id, local_edge_pos, external_edge_pos, vector_index, delayed_write);
+                edge_op(src_id, dst_id, local_edge_pos, external_edge_pos, vector_index);
             }
         }
         else
@@ -173,11 +169,11 @@ void GraphAbstractionsNEC::vector_core_per_vertex_kernel_sparse(UndirectedCSRGra
                 const int dst_id = adjacent_ids[internal_edge_pos];
                 const long long external_edge_pos = process_shift + internal_edge_pos;
 
-                edge_op(src_id, dst_id, local_edge_pos, external_edge_pos, vector_index, delayed_write);
+                edge_op(src_id, dst_id, local_edge_pos, external_edge_pos, vector_index);
             }
         }
 
-        vertex_postprocess_op(src_id, connections_count, 0, delayed_write);
+        vertex_postprocess_op(src_id, connections_count, 0);
     }
 
     tm.end();
@@ -230,8 +226,7 @@ void GraphAbstractionsNEC::collective_vertex_processing_kernel_sparse(Undirected
         reg_connections[i] = 0;
     }
 
-    DelayedWriteNEC delayed_write;
-    delayed_write.init();
+
 
     #pragma omp for schedule(static, 4)
     for(int front_pos = 0; front_pos < frontier_segment_size; front_pos += VECTOR_LENGTH)
@@ -245,7 +240,7 @@ void GraphAbstractionsNEC::collective_vertex_processing_kernel_sparse(Undirected
                 reg_start[i] = vertex_pointers[src_id];
                 reg_end[i] = vertex_pointers[src_id + 1];
                 reg_connections[i] = reg_end[i] - reg_start[i];
-                vertex_preprocess_op(src_id, reg_connections[i], i, delayed_write);
+                vertex_preprocess_op(src_id, reg_connections[i], i);
             }
             else
             {
@@ -287,7 +282,7 @@ void GraphAbstractionsNEC::collective_vertex_processing_kernel_sparse(Undirected
                             const int dst_id = adjacent_ids[internal_edge_pos];
                             const long long external_edge_pos = process_shift + internal_edge_pos;
 
-                            edge_op(src_id, dst_id, local_edge_pos, external_edge_pos, vector_index, delayed_write);
+                            edge_op(src_id, dst_id, local_edge_pos, external_edge_pos, vector_index);
                         }
                     }
                 }
@@ -314,7 +309,7 @@ void GraphAbstractionsNEC::collective_vertex_processing_kernel_sparse(Undirected
                             const int dst_id = adjacent_ids[internal_edge_pos];
                             const long long external_edge_pos = process_shift + internal_edge_pos;
 
-                            edge_op(src_id, dst_id, local_edge_pos, external_edge_pos, vector_index, delayed_write);
+                            edge_op(src_id, dst_id, local_edge_pos, external_edge_pos, vector_index);
                         }
                     }
                 }
@@ -326,7 +321,7 @@ void GraphAbstractionsNEC::collective_vertex_processing_kernel_sparse(Undirected
                 if ((front_pos + i) < frontier_segment_size)
                 {
                     int src_id = frontier_ids[front_pos + i];
-                    vertex_postprocess_op(src_id, reg_connections[i], i, delayed_write);
+                    vertex_postprocess_op(src_id, reg_connections[i], i);
                 }
             }
         }

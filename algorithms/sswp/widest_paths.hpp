@@ -114,7 +114,7 @@ void SSWP::nec_dijkstra(UndirectedCSRGraph &_graph,
         if(_traversal_direction == PUSH_TRAVERSAL) // PUSH PART
         {
             auto edge_op_push = [adjacent_widths, _widths](int src_id, int dst_id, int local_edge_pos,
-                        long long int global_edge_pos, int vector_index, DelayedWriteNEC &delayed_write)
+                        long long int global_edge_pos, int vector_index)
             {
                 float weight = adjacent_widths[global_edge_pos];
                 float new_width = vect_min(_widths[src_id], weight);
@@ -124,7 +124,7 @@ void SSWP::nec_dijkstra(UndirectedCSRGraph &_graph,
             };
 
             auto edge_op_collective_push = [collective_adjacent_widths, _widths]
-                    (int src_id, int dst_id, int local_edge_pos, long long int global_edge_pos, int vector_index, DelayedWriteNEC &delayed_write)
+                    (int src_id, int dst_id, int local_edge_pos, long long int global_edge_pos, int vector_index)
             {
                 float weight = collective_adjacent_widths[global_edge_pos];
                 float new_width = vect_min(_widths[src_id], weight);

@@ -199,7 +199,7 @@ void SSSP::nec_dijkstra_all_active_pull(VectCSRGraph &_graph,
             NEC_REGISTER_FLT(distances, 0);
 
             auto edge_op_pull = [&_distances, &_weights, &reg_distances](int src_id, int dst_id, int local_edge_pos,
-                    long long int global_edge_pos, int vector_index, DelayedWriteNEC &delayed_write)
+                    long long int global_edge_pos, int vector_index)
             {
                 _T weight = _weights[global_edge_pos];
                 _T dst_weight = _distances[dst_id];
@@ -209,14 +209,14 @@ void SSSP::nec_dijkstra_all_active_pull(VectCSRGraph &_graph,
                 }
             };
 
-            auto preprocess = [&reg_distances, inf_val] (int src_id, int connections_count, int vector_index, DelayedWriteNEC &delayed_write)
+            auto preprocess = [&reg_distances, inf_val] (int src_id, int connections_count, int vector_index)
             {
                 #pragma _NEC ivdep
                 for(int i = 0; i < VECTOR_LENGTH; i++)
                     reg_distances[i] = inf_val;
             };
 
-            auto postprocess = [&_distances, &reg_distances, inf_val] (int src_id, int connections_count, int vector_index, DelayedWriteNEC &delayed_write)
+            auto postprocess = [&_distances, &reg_distances, inf_val] (int src_id, int connections_count, int vector_index)
             {
                 _T min = inf_val;
                 #pragma _NEC ivdep
@@ -229,7 +229,7 @@ void SSSP::nec_dijkstra_all_active_pull(VectCSRGraph &_graph,
 
             auto edge_op_collective_pull = [&_distances, &_weights, &reg_distances]
                    (int src_id, int dst_id, int local_edge_pos, long long int global_edge_pos,
-                    int vector_index, DelayedWriteNEC &delayed_write)
+                    int vector_index)
             {
                 _T weight = _weights[global_edge_pos];
                 _T dst_weight = _distances[dst_id];
@@ -239,12 +239,12 @@ void SSSP::nec_dijkstra_all_active_pull(VectCSRGraph &_graph,
                 }
             };
 
-            auto preprocess_collective = [&reg_distances, inf_val] (int src_id, int connections_count, int vector_index, DelayedWriteNEC &delayed_write)
+            auto preprocess_collective = [&reg_distances, inf_val] (int src_id, int connections_count, int vector_index)
             {
                 reg_distances[vector_index] = inf_val;
             };
 
-            auto postprocess_collective = [&_distances, &reg_distances, inf_val] (int src_id, int connections_count, int vector_index, DelayedWriteNEC &delayed_write)
+            auto postprocess_collective = [&_distances, &reg_distances, inf_val] (int src_id, int connections_count, int vector_index)
             {
                 if(_distances[src_id] > reg_distances[vector_index])
                     _distances[src_id] = reg_distances[vector_index];

@@ -63,6 +63,8 @@ inline int smallest_bit_pos(size_t _input)
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+#include <ftrace.h>
+
 template <typename _T>
 void Coloring::vgl_coloring(VectCSRGraph &_graph, VerticesArray<_T> &_colors)
 {
@@ -103,8 +105,8 @@ void Coloring::vgl_coloring(VectCSRGraph &_graph, VerticesArray<_T> &_colors)
             int dst_color = _colors[dst_id];
             if((dst_color >= start_range) && (dst_color < end_range) && (src_id != dst_id))
             {
-                size_t cur_data = available_colors[src_id];
-                available_colors[src_id] = clear_bit(cur_data, dst_color - start_range);
+                size_t old_data = available_colors[src_id];
+                available_colors[src_id] = clear_bit(old_data, dst_color - start_range);
             }
         };
 
@@ -136,7 +138,7 @@ void Coloring::vgl_coloring(VectCSRGraph &_graph, VerticesArray<_T> &_colors)
             return result;
         };
         int full_vertices = graph_API.reduce<int>(_graph, frontier, offset_change_required_op, REDUCE_SUM);
-        cout << "FULL VERTICES: " << full_vertices << endl;
+        //cout << "FULL VERTICES: " << full_vertices << endl;
         if(full_vertices > 0)
         {
             start_range += 64;
@@ -151,6 +153,7 @@ void Coloring::vgl_coloring(VectCSRGraph &_graph, VerticesArray<_T> &_colors)
         };
 
         graph_API.generate_new_frontier(_graph, frontier, need_recolor_op);
+        iterations++;
     }
     tm.end();
 
