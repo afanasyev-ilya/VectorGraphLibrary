@@ -34,6 +34,7 @@ def get_list_of_rmat_graphs():
     graphs = []
     edge_factor = synthetic_edge_factor
     min_scale = synthetic_min_scale
+    max_scale = min_scale + 1
     if mode == BenchmarkMode.short:
         max_scale = min_scale + 2
     elif mode == BenchmarkMode.medium:
@@ -50,6 +51,7 @@ def get_list_of_ru_graphs():
     graphs = []
     edge_factor = synthetic_edge_factor
     min_scale = synthetic_min_scale
+    max_scale = min_scale + 1
     if mode == BenchmarkMode.short:
         max_scale = min_scale + 2
     elif mode == BenchmarkMode.medium:
@@ -91,12 +93,12 @@ def download_graph(graph_name):
 
         link = "https://snap.stanford.edu/data/" + snap_links[graph_name]
         cmd = ["wget", link, "-q", "--no-check-certificate", "--directory", SOURCE_GRAPH_DIR]
-       print(' '.join(cmd))
+        print(' '.join(cmd))
         subprocess.call(cmd, shell=False, stdout=subprocess.PIPE)
 
         link = "https://snap.stanford.edu/data/bigdata/communities/" + snap_links[graph_name]
         cmd = ["wget", link, "-q", "--no-check-certificate", "--directory", SOURCE_GRAPH_DIR]
-       print(' '.join(cmd))
+        print(' '.join(cmd))
         subprocess.call(cmd, shell=False, stdout=subprocess.PIPE)
 
     if path.exists(SOURCE_GRAPH_DIR + snap_links[graph_name]):
@@ -122,15 +124,16 @@ def verify_graph_existence(graph_file_name):
 
 
 def create_real_world_graph(graph_name, arch):
-    download_graph(graph_name)
-
-    tar_name = SOURCE_GRAPH_DIR + snap_links[graph_name]
-    cmd = ["gunzip", "-f", tar_name]
-    subprocess.call(cmd, shell=False, stdout=subprocess.PIPE)
-
-    source_name = os.path.splitext(tar_name)[0]
     output_graph_file_name = get_path_to_graph(graph_name)
     if not file_exists(output_graph_file_name):
+        download_graph(graph_name)
+
+        tar_name = SOURCE_GRAPH_DIR + snap_links[graph_name]
+        cmd = ["gunzip", "-f", tar_name]
+        subprocess.call(cmd, shell=False, stdout=subprocess.PIPE)
+
+        source_name = os.path.splitext(tar_name)[0]
+
         cmd = [get_binary_path("create_vgl_graphs", arch), "-convert", source_name, "-directed",
                "-file", output_graph_file_name]
         print(' '.join(cmd))

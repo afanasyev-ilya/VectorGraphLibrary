@@ -1,7 +1,7 @@
 from enum import Enum
 
 
-GENERATE_UNDIRECTED_GRAPHS = True
+GENERATE_UNDIRECTED_GRAPHS = False
 UNDIRECTED_PREFIX = "undir_"
 
 
@@ -17,6 +17,8 @@ benchmark_args = {"bfs": [ ["-top-down"], ["-do"] ],
 
 
 def requires_undir_graphs(app_name):
+    if not GENERATE_UNDIRECTED_GRAPHS:
+        return False
     if app_name in ["cc", "coloring"]:
         return True
     return False

@@ -18,7 +18,7 @@ def run_prepare(options, arch):
     create_graphs_if_required(get_list_of_all_graphs(), arch)
 
 
-def run_tests(options, arch):
+def run_benchmarks(options, arch):
     list_of_apps = prepare_list_of_apps(options.apps)
 
     stats_file_name = "benchmarking_results_" + arch + ".xlsx"
@@ -26,14 +26,28 @@ def run_tests(options, arch):
 
     set_omp_environments(options)
     perf_stats = PerformanceStats(workbook)
+
+    for app_name in list_of_apps:
+        if is_valid(app_name, arch, options):
+            benchmark_app(app_name, arch, options, workbook, perf_stats)
+        else:
+            print("Error! Can not benchmark " + app_name + ", several errors occurred.")
+
+    workbook.close()
+
+
+def run_verify(options, arch):
+    list_of_apps = prepare_list_of_apps(options.apps)
+
+    stats_file_name = "benchmarking_results_" + arch + ".xlsx"
+    workbook = xlsxwriter.Workbook(stats_file_name)
+
+    set_omp_environments(options)
     verification_stats = VerificationStats(workbook)
 
     for app_name in list_of_apps:
         if is_valid(app_name, arch, options):
-            if not options.no_run:
-                benchmark_app(app_name, arch, options, workbook, perf_stats)
-            if options.verify:
-                verify_app(app_name, arch, options, workbook, verification_stats)
+            verify_app(app_name, arch, options, workbook, verification_stats)
         else:
             print("Error! Can not compile " + app_name + ", several errors occurred.")
 
@@ -64,9 +78,9 @@ if __name__ == "__main__":
     parser.add_option('-p', '--prepare',
                       action="store_true", dest="prepare",
                       help="compile all binaries, download graphs and convert them into VGL format", default=False)
-    parser.add_option('-n', '--no-run',
-                      action="store_true", dest="no_run",
-                      help="do not run any tests", default=False)
+    parser.add_option('-b', '--benchmark',
+                      action="store_true", dest="benchmark",
+                      help="run all benchmarking tests", default=False)
     parser.add_option('-d', '--download-only',
                       action="store_true", dest="download_only",
                       help="download SNAP graphs and quit", default=False)
@@ -86,4 +100,8 @@ if __name__ == "__main__":
     if options.prepare:
         run_prepare(options, arch)
 
-    run_tests(options, arch)
+    if options.benchmark:
+        run_benchmarks(options, arch)
+
+    if options.verify:
+        run_verify(options, arch)

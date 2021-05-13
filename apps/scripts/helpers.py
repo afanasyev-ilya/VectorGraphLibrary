@@ -43,6 +43,8 @@ def file_exists(path):
 
 
 def binary_exists(app_name, arch):
+    if app_name == "clean":
+        return True
     if file_exists(get_binary_path(app_name, arch)):
         return True
     print("Warning! path " + get_binary_path(app_name, arch) + " does not exist")
@@ -51,7 +53,7 @@ def binary_exists(app_name, arch):
 
 def make_binary(app_name, arch):
     cmd = "make -f Makefile." + get_makefile_suffix(arch) + " " + app_name
-   print(' '.join(cmd))
+    print(cmd)
     subprocess.call(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
 
     if binary_exists(app_name, arch):

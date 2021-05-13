@@ -2,7 +2,14 @@
 
 #define INT_ELEMENTS_PER_EDGE 5.0
 #define VECTOR_ENGINE_THRESHOLD_VALUE VECTOR_LENGTH*MAX_SX_AURORA_THREADS*128
+
+#ifdef __USE_NEC_SX_AURORA__
 #define VECTOR_CORE_THRESHOLD_VALUE 3*VECTOR_LENGTH
+#endif
+
+#ifdef __USE_MULTICORE__
+#define VECTOR_CORE_THRESHOLD_VALUE 5*VECTOR_LENGTH
+#endif
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -14,6 +21,8 @@ int main(int argc, char **argv)
 {
     try
     {
+        VGL_init(argc, argv);
+
         cout << "SSSP (Single Source Shortest Paths) test..." << endl;
         cout << "max threads: " << omp_get_max_threads() << endl;
 
@@ -21,6 +30,7 @@ int main(int argc, char **argv)
         Parser parser;
         parser.parse_args(argc, argv);
 
+        MPI_Barrier(MPI_COMM_WORLD);
         VectCSRGraph graph;
         if(parser.get_compute_mode() == GENERATE_NEW_GRAPH)
         {
@@ -36,43 +46,25 @@ int main(int argc, char **argv)
         {
             Timer tm;
             tm.start();
+            MPI_Barrier(MPI_COMM_WORLD);
             if(!graph.load_from_binary_file(parser.get_graph_file_name()))
                 throw "Error: graph file not found";
+            MPI_Barrier(MPI_COMM_WORLD);
             tm.end();
             tm.print_time_stats("Graph load");
         }
 
         // print graphs stats
         graph.print_size();
-        #ifndef __USE_NEC_SX_AURORA__
-        graph.print_stats();
-        #endif
 
         // do calculations
         cout << "Computations started..." << endl;
         cout << "Doing " << parser.get_number_of_rounds() << " SSSP iterations..." << endl;
-        EdgesArray_Vect<float> capacities(graph);
-        //capacities.set_all_random(MAX_WEIGHT);
-        capacities.set_all_constant(1.0);
-        for(int i = 0; i < parser.get_number_of_rounds(); i++)
-        {
-            int source_vertex = graph.select_random_vertex(ORIGINAL);
-            VerticesArray<float> widths(graph, SCATTER);
+        EdgesArray_Vect<float> weights(graph);
+        weights.set_all_constant(1.0);
 
-            performance_stats.reset_timers();
-            SSWP::vgl_dijkstra(graph, capacities, widths, source_vertex);
-            performance_stats.update_timer_stats();
-            performance_stats.print_timers_stats();
 
-            // check if required
-            if(parser.get_check_flag())
-            {
-                VerticesArray<float> check_widths(graph, SCATTER);
-                SSWP::seq_dijkstra(graph, capacities, check_widths, source_vertex);
-                verify_results(widths, check_widths, 20);
-            }
-        }
-        performance_stats.print_perf(graph.get_edges_count());
+        VGL_finalize();
     }
     catch (string error)
     {

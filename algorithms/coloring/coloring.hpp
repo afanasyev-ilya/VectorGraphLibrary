@@ -63,22 +63,9 @@ inline int smallest_bit_pos(size_t _input)
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#include <ftrace.h>
-
 template <typename _T>
 void Coloring::vgl_coloring(VectCSRGraph &_graph, VerticesArray<_T> &_colors)
 {
-    /*size_t val = 0;
-    for(int i = 0; i < 64; i++)
-    {
-        val = 0;
-        val = set_bit(val, i);
-        print(val);
-        int pos = smallest_bit_pos(val);
-        cout << i << " ) " << pos << endl;
-    }
-    return;*/
-
     VerticesArray<size_t> available_colors(_graph);
     VerticesArray<int> need_recolor(_graph);
 

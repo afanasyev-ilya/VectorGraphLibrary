@@ -24,7 +24,7 @@ Parser::Parser()
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void Parser::parse_args(int _argc, const char * _argv[])
+void Parser::parse_args(int _argc, char **_argv)
 {
     // get params from cmd line
     for (int i = 1; i < _argc; i++)

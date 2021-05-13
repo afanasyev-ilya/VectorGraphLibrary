@@ -1,0 +1,19 @@
+#pragma once
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+void VGL_init(int argc, char **argv)
+{
+    #ifdef __USE_MPI__
+    int mpi_proc_num = 0;
+    int mpi_rank = 0;
+
+    MPI_Init(&argc, &argv);
+    MPI_Comm_size (MPI_COMM_WORLD, &mpi_proc_num);
+    MPI_Comm_rank (MPI_COMM_WORLD, &mpi_rank);
+
+    cout << "Hi from rank : " << mpi_rank << "/" << mpi_proc_num << endl;
+    #endif
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

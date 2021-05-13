@@ -26,7 +26,7 @@ def verify_app(app_name, arch, options, workbook, table_stats):
         for current_graph in list_of_graphs:
             cmd = [get_binary_path(app_name, arch), "-load",
                    get_path_to_graph(current_graph, requires_undir_graphs(app_name))] + current_args + common_args
-           print(' '.join(cmd))
+            print(' '.join(cmd))
             proc = subprocess.Popen(cmd, shell=False, stdout=subprocess.PIPE)
             output = proc.stdout.read().decode("utf-8")
 

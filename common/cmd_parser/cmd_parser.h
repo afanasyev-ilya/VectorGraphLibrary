@@ -52,7 +52,7 @@ public:
     AlgorithmBFS get_algorithm_bfs() {return algorithm_bfs;};
     AlgorithmCC get_algorithm_cc() {return algorithm_cc;};
     
-    void parse_args(int _argc, const char * _argv[]);
+    void parse_args(int _argc, char **_argv);
 
     static TraversalDirection convert_traversal_type(AlgorithmTraversalType _algo_type);
     static AlgorithmTraversalType convert_traversal_type(TraversalDirection _direction_type);
