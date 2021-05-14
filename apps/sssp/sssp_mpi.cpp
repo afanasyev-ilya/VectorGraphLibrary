@@ -65,11 +65,13 @@ void mpi_sssp(VectCSRGraph &_graph, EdgesArray_Vect<_T> &_weights,
             }
         };
 
+        MPI_Barrier(MPI_COMM_WORLD);
         double start = MPI_Wtime();
         MPI_Barrier(MPI_COMM_WORLD);
         graph_API.scatter(_graph, frontier, edge_op_push);
         MPI_Barrier(MPI_COMM_WORLD);
         double end = MPI_Wtime();
+        MPI_Barrier(MPI_COMM_WORLD);
         cout << " TEST time: " << (end - start)*1000 << " ms " << endl;
 
         auto reduce_changes = [&_distances, &prev_distances]__VGL_REDUCE_INT_ARGS__
@@ -97,7 +99,7 @@ int main(int argc, char **argv)
 {
     try
     {
-        VGL_init(argc, argv);
+        vgl_library_data.init(argc, argv);
 
         // parse args
         Parser parser;
@@ -129,14 +131,13 @@ int main(int argc, char **argv)
 
         VerticesArray<float> distances(graph);
 
-        int mpi_rank = 0;
-        MPI_Comm_rank(MPI_COMM_WORLD, &mpi_rank);
+        int mpi_rank = vgl_library_data.get_mpi_rank();
         res = graph.get_mpi_thresholds(mpi_rank, SCATTER);
 
         performance_stats.reset_timers();
         mpi_sssp(graph, weights, distances, 5000);
 
-        VGL_finalize();
+        vgl_library_data.finalize();
     }
     catch (string error)
     {
