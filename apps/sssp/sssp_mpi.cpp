@@ -41,6 +41,14 @@ void mpi_sssp(VectCSRGraph &_graph, EdgesArray_Vect<_T> &_weights,
     };
     frontier.set_all_active();
 
+    //
+    int mpi_rank = vgl_library_data.get_mpi_rank();
+    res = _graph.get_mpi_thresholds(mpi_rank, SCATTER);
+    ve_mpi_borders = frontier.get_vector_engine_mpi_thresholds();
+    vc_mpi_borders = frontier.get_vector_core_mpi_thresholds();
+    coll_mpi_borders = frontier.get_collective_mpi_thresholds();
+    //
+
     graph_API.compute(_graph, frontier, init_distances);
 
     int changes = 0, iterations_count = 0;
@@ -130,9 +138,6 @@ int main(int argc, char **argv)
         weights.set_all_constant(1.0);
 
         VerticesArray<float> distances(graph);
-
-        int mpi_rank = vgl_library_data.get_mpi_rank();
-        res = graph.get_mpi_thresholds(mpi_rank, SCATTER);
 
         performance_stats.reset_timers();
         mpi_sssp(graph, weights, distances, 5000);

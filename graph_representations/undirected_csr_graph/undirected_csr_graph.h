@@ -118,7 +118,7 @@ public:
     inline int get_edge_dst(int _src_id, int _edge_pos);
 
     #ifdef __USE_MPI__
-    std::pair<int, int> get_mpi_thresholds(int _mpi_rank, TraversalDirection _direction);
+    std::pair<int, int> get_mpi_thresholds(int _mpi_rank, int _v1, int _v2);
     #endif
 
     /* print API */

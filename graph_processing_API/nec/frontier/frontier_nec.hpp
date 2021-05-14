@@ -47,3 +47,44 @@ FrontierNEC::~FrontierNEC()
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+#ifdef __USE_MPI__
+pair<int,int> FrontierNEC::get_vector_engine_mpi_thresholds()
+{
+    UndirectedCSRGraph *current_direction_graph;
+    VectCSRGraph *vect_csr_ptr = (VectCSRGraph*)graph_ptr;
+    current_direction_graph = vect_csr_ptr->get_direction_graph_ptr(direction);
+
+    return current_direction_graph->get_mpi_thresholds(vgl_library_data.get_mpi_rank(), 0, vector_engine_part_size);
+}
+#endif
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+#ifdef __USE_MPI__
+pair<int,int> FrontierNEC::get_vector_core_mpi_thresholds()
+{
+    UndirectedCSRGraph *current_direction_graph;
+    VectCSRGraph *vect_csr_ptr = (VectCSRGraph*)graph_ptr;
+    current_direction_graph = vect_csr_ptr->get_direction_graph_ptr(direction);
+
+    return current_direction_graph->get_mpi_thresholds(vgl_library_data.get_mpi_rank(), vector_engine_part_size,
+                                                       vector_engine_part_size + vector_core_part_size);
+}
+#endif
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+#ifdef __USE_MPI__
+pair<int,int> FrontierNEC::get_collective_mpi_thresholds()
+{
+    UndirectedCSRGraph *current_direction_graph;
+    VectCSRGraph *vect_csr_ptr = (VectCSRGraph*)graph_ptr;
+    current_direction_graph = vect_csr_ptr->get_direction_graph_ptr(direction);
+
+    return current_direction_graph->get_mpi_thresholds(vgl_library_data.get_mpi_rank(),
+                                                       vector_engine_part_size + vector_core_part_size,
+                                                       vector_engine_part_size + vector_core_part_size + collective_part_size);
+}
+#endif
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

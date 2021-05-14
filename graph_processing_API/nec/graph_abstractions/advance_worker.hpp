@@ -56,53 +56,36 @@ void GraphAbstractionsNEC::advance_worker(UndirectedCSRGraph &_graph,
 {
     double wall_time, ve_time, vc_time, collective_time, t1, t2;
 
+    #ifdef __USE_MPI__
+    const int vector_engine_threshold_start = max(0, res.first);
+    const int vector_engine_threshold_end = min(_graph.get_vector_engine_threshold_vertex(), res.second);
+
+    const int vector_core_threshold_start = max(_graph.get_vector_engine_threshold_vertex(), res.first);
+    const int vector_core_threshold_end = min(_graph.get_vector_core_threshold_vertex(), res.second);
+
+    const int collective_threshold_start = max(_graph.get_vector_core_threshold_vertex(), res.first);
+    const int collective_threshold_end = min(_graph.get_vertices_count(), res.second);
+    //
+    /*const int vector_engine_threshold_start = ve_mpi_borders.first;
+    const int vector_engine_threshold_end = ve_mpi_borders.second;
+
+    const int vector_core_threshold_start = vc_mpi_borders.first;
+    const int vector_core_threshold_end = vc_mpi_borders.second;
+
+    const int collective_threshold_start = coll_mpi_borders.first;
+    const int collective_threshold_end = coll_mpi_borders.second;*/
+    #else
     const int vector_engine_threshold_start = 0;
     const int vector_engine_threshold_end = _graph.get_vector_engine_threshold_vertex();
     const int vector_core_threshold_start = _graph.get_vector_engine_threshold_vertex();
     const int vector_core_threshold_end = _graph.get_vector_core_threshold_vertex();
     const int collective_threshold_start = _graph.get_vector_core_threshold_vertex();
     const int collective_threshold_end = _graph.get_vertices_count();
+    #endif
 
     if(_frontier.type == ALL_ACTIVE_FRONTIER)
     {
-        #ifdef __USE_MPI__
-        int mpi_rank = 0;
-        MPI_Comm_rank(MPI_COMM_WORLD, &mpi_rank);
-        #pragma omp master
-        {
-            //cout << mpi_rank << " " << max(vector_engine_threshold_start, res.first) << " " << min(vector_engine_threshold_end, res.second) << " ve" << endl;
-            cout << mpi_rank << " " << max(vector_core_threshold_start, res.first) << " " << min(vector_core_threshold_end, res.second) << " vc" << endl;
-            cout << mpi_rank << " " << max(collective_threshold_start, res.first) << " " << min(collective_threshold_end, res.second) << " coll" << endl;
-        };
-
-        if((min(vector_engine_threshold_end, res.second) - max(vector_engine_threshold_start, res.first)) > 0)
-            vector_engine_per_vertex_kernel_all_active(_graph, max(vector_engine_threshold_start, res.first),
-                                                       min(vector_engine_threshold_end, res.second), edge_op, vertex_preprocess_op,
-                                                       vertex_postprocess_op, _first_edge, _shard_shift,
-                                                       _outgoing_graph_is_stored);
-        t2 = omp_get_wtime();
-        ve_time += t2 - t1;
-
         t1 = omp_get_wtime();
-        if((min(vector_core_threshold_end, res.second) - max(vector_core_threshold_start, res.first)) > 0)
-            vector_core_per_vertex_kernel_all_active(_graph, max(vector_core_threshold_start, res.first),
-                                                     min(vector_core_threshold_end, res.second), edge_op, vertex_preprocess_op,
-                                                     vertex_postprocess_op, _first_edge, _shard_shift,
-                                                     _outgoing_graph_is_stored);
-        t2 = omp_get_wtime();
-        vc_time += t2 - t1;
-
-        t1 = omp_get_wtime();
-        if((min(collective_threshold_end, res.second) - max(collective_threshold_start, res.first)) > 0)
-            ve_collective_vertex_processing_kernel_all_active(_graph, max(collective_threshold_start, res.first), min(collective_threshold_end, res.second),
-                                                               collective_edge_op, collective_vertex_preprocess_op,
-                                                               collective_vertex_postprocess_op, _first_edge, _shard_shift,
-                                                               _outgoing_graph_is_stored);
-        t2 = omp_get_wtime();
-        collective_time += t2 - t1;
-        #endif
-
-        /*t1 = omp_get_wtime();
         if((vector_engine_threshold_end - vector_engine_threshold_start) > 0)
             vector_engine_per_vertex_kernel_all_active(_graph, vector_engine_threshold_start,
                                                        vector_engine_threshold_end, edge_op, vertex_preprocess_op,
@@ -122,12 +105,12 @@ void GraphAbstractionsNEC::advance_worker(UndirectedCSRGraph &_graph,
 
         t1 = omp_get_wtime();
         if((collective_threshold_end - collective_threshold_start) > 0)
-            ve_collective`_vertex_processing_kernel_all_active(_graph, collective_threshold_start, collective_threshold_end,
+            ve_collective_vertex_processing_kernel_all_active(_graph, collective_threshold_start, collective_threshold_end,
                                                               collective_edge_op, collective_vertex_preprocess_op,
                                                               collective_vertex_postprocess_op, _first_edge, _shard_shift,
                                                               _outgoing_graph_is_stored);
         t2 = omp_get_wtime();
-        collective_time += t2 - t1;*/
+        collective_time += t2 - t1;
     }
     else
     {

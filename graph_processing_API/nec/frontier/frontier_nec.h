@@ -40,6 +40,12 @@ public:
     inline long long get_vector_core_part_neighbours_count(){return vector_core_part_neighbours_count;};
     inline long long get_collective_part_neighbours_count(){return collective_part_neighbours_count;};
 
+    #ifdef __USE_MPI__
+    pair<int,int> get_vector_engine_mpi_thresholds();
+    pair<int,int> get_vector_core_mpi_thresholds();
+    pair<int,int> get_collective_mpi_thresholds();
+    #endif
+
     /* Print API */
     void print_stats();
     void print();

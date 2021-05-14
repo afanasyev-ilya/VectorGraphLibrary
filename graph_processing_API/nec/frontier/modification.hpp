@@ -8,9 +8,16 @@ void FrontierNEC::set_all_active()
     current_size = max_size;
     neighbours_count = graph_ptr->get_edges_count();
 
-    vector_engine_part_neighbours_count = 0;
-    vector_core_part_neighbours_count = 0;
+    vector_engine_part_neighbours_count = 0; // TODO
+    vector_core_part_neighbours_count = 0; // TODO
     collective_part_neighbours_count = graph_ptr->get_edges_count(); // TODO
+
+    if(graph_ptr->get_type() == VECT_CSR_GRAPH)
+    {
+        vector_engine_part_size = ((VectCSRGraph*)graph_ptr)->get_direction_graph_ptr(direction)->get_vector_engine_threshold_vertex();
+        vector_core_part_size = ((VectCSRGraph*)graph_ptr)->get_direction_graph_ptr(direction)->get_vector_core_threshold_vertex() - vector_engine_part_size;
+        collective_part_size = ((VectCSRGraph*)graph_ptr)->get_direction_graph_ptr(direction)->get_vertices_count() - vector_engine_part_size - vector_core_part_size;
+    }
 
     #pragma omp parallel // dummy for performance evaluation
     {};

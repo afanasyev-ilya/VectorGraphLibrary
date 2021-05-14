@@ -47,23 +47,23 @@ inline bool in_between(size_t _val, size_t _first, size_t _second)
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #ifdef __USE_MPI__
-std::pair<int, int> UndirectedCSRGraph::get_mpi_thresholds(int _mpi_rank, TraversalDirection _direction)
+std::pair<int, int> UndirectedCSRGraph::get_mpi_thresholds(int _mpi_rank, int _v1, int _v2)
 {
     size_t edges_counter = 0;
-    int mpi_proc_num = 1;
-    MPI_Comm_size (MPI_COMM_WORLD, &mpi_proc_num); // TODO get from API
+    int mpi_proc_num = vgl_library_data.get_mpi_proc_num();
 
-    size_t edges_per_mpi_proc = edges_count / mpi_proc_num;
+    size_t group_edges_count = vertex_pointers[_v2] - vertex_pointers[_v1];
+    size_t edges_per_mpi_proc = group_edges_count / mpi_proc_num;
 
-    int first_vertex = 0;
-    int last_vertex = this->vertices_count;
+    int first_vertex = _v1;
+    int last_vertex = _v2;
 
-    size_t first_edge_border = _mpi_rank * edges_per_mpi_proc;
-    size_t last_edge_border = (_mpi_rank + 1) * edges_per_mpi_proc;
+    size_t first_edge_border = _mpi_rank * edges_per_mpi_proc + vertex_pointers[_v1];
+    size_t last_edge_border = (_mpi_rank + 1) * edges_per_mpi_proc + vertex_pointers[_v1];
 
     #pragma _NEC ivdep
     #pragma omp parallel for
-    for(int _vertex_id = 0; _vertex_id < this->vertices_count - 1; _vertex_id++)
+    for(int _vertex_id = _v1; _vertex_id < _v2 - 1; _vertex_id++)
     {
         size_t current = vertex_pointers[_vertex_id];
         size_t next = vertex_pointers[_vertex_id + 1];
@@ -72,6 +72,8 @@ std::pair<int, int> UndirectedCSRGraph::get_mpi_thresholds(int _mpi_rank, Traver
         if(in_between(last_edge_border, current, next))
             last_vertex = _vertex_id;
     }
+
+    cout << vgl_library_data.get_mpi_rank() << " _ (" << _v1 << " " << _v2 << ") " << first_vertex << " " << last_vertex << endl;
     return make_pair(first_vertex, last_vertex);
 }
 #endif
