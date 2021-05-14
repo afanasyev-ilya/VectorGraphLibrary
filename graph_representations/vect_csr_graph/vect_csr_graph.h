@@ -66,6 +66,10 @@ public:
     inline int get_incoming_connections_count(int _src_id);
     inline int get_outgoing_connections_count(int _src_id);
 
+    #ifdef __USE_MPI__
+    std::pair<int, int> get_mpi_thresholds(int _mpi_rank, TraversalDirection _direction);
+    #endif
+
     /* print API */
     void print();
     void print_size();

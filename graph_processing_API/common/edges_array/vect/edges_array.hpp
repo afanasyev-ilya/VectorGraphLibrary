@@ -13,10 +13,10 @@ EdgesArray_Vect<_T>::EdgesArray_Vect(VectCSRGraph &_graph)
     this->total_array_size = edges_count_in_outgoing_csr + edges_count_in_incoming_csr +
                       edges_count_in_outgoing_ve + edges_count_in_incoming_ve;
 
-    cout << "edges_count_in_outgoing_csr: " << edges_count_in_outgoing_csr << endl;
-    cout << "edges_count_in_incoming_csr: " << edges_count_in_incoming_csr << endl;
-    cout << "edges_count_in_outgoing_ve: " << edges_count_in_outgoing_ve << endl;
-    cout << "edges_count_in_incoming_ve: " << edges_count_in_incoming_ve << endl;
+    //cout << "edges_count_in_outgoing_csr: " << edges_count_in_outgoing_csr << endl;
+    //cout << "edges_count_in_incoming_csr: " << edges_count_in_incoming_csr << endl;
+    //cout << "edges_count_in_outgoing_ve: " << edges_count_in_outgoing_ve << endl;
+    //cout << "edges_count_in_incoming_ve: " << edges_count_in_incoming_ve << endl;
 
     MemoryAPI::allocate_array(&this->edges_data, this->total_array_size);
     outgoing_csr_ptr = &this->edges_data[0];

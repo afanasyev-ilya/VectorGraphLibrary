@@ -71,7 +71,7 @@ Installation
        > python3 ./run_tests.py --arch=sx --verify
      - performance evaluation:
        > python3 ./run_tests.py --arch=sx  --benchmark
-       > file benchmarking_results_sx.xlsx is created with performance results for all algorithms
+       > file tests_results_sx.xlsx is created with performance and verification results for all algorithms
 
  6. Using VGL on Lomonosov-2 supercomputer:
      - Lomonosov-2 supercomputer is now equipped with NEC SX-Aurora TSUBASA vector engines.

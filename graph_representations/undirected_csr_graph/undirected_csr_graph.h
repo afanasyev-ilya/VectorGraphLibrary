@@ -117,6 +117,10 @@ public:
     inline int get_connections_count(int _vertex_id);
     inline int get_edge_dst(int _src_id, int _edge_pos);
 
+    #ifdef __USE_MPI__
+    std::pair<int, int> get_mpi_thresholds(int _mpi_rank, TraversalDirection _direction);
+    #endif
+
     /* print API */
     void print();
     void print_size();

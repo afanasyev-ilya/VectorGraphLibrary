@@ -17,20 +17,92 @@
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+template <typename _T>
+void mpi_sssp(VectCSRGraph &_graph, EdgesArray_Vect<_T> &_weights,
+              VerticesArray<_T> &_distances, int _source_vertex)
+{
+    VGL_GRAPH_ABSTRACTIONS graph_API(_graph);
+    VGL_FRONTIER frontier(_graph);
+
+    VerticesArray<_T> prev_distances(_graph);
+
+    graph_API.change_traversal_direction(SCATTER, _distances, frontier);
+
+    Timer tm;
+    tm.start();
+
+    _T inf_val = std::numeric_limits<_T>::max() - MAX_WEIGHT;
+    auto init_distances = [&_distances, _source_vertex, inf_val] __VGL_COMPUTE_ARGS__
+    {
+        if(src_id == _source_vertex)
+            _distances[src_id] = 0;
+        else
+            _distances[src_id] = inf_val;
+    };
+    frontier.set_all_active();
+
+    graph_API.compute(_graph, frontier, init_distances);
+
+    int changes = 0, iterations_count = 0;
+    do
+    {
+        changes = 0;
+        iterations_count++;
+
+        auto save_old_distances = [&_distances, &prev_distances] __VGL_COMPUTE_ARGS__
+        {
+            prev_distances[src_id] = _distances[src_id];
+        };
+        graph_API.compute(_graph, frontier, save_old_distances);
+
+        auto edge_op_push = [&_distances, &_weights] __VGL_SCATTER_ARGS__
+        {
+            _T weight = _weights[global_edge_pos];
+            _T src_weight = _distances[src_id];
+            if(_distances[dst_id] > src_weight + weight)
+            {
+                _distances[dst_id] = src_weight + weight;
+            }
+        };
+
+        double start = MPI_Wtime();
+        MPI_Barrier(MPI_COMM_WORLD);
+        graph_API.scatter(_graph, frontier, edge_op_push);
+        MPI_Barrier(MPI_COMM_WORLD);
+        double end = MPI_Wtime();
+        cout << " TEST time: " << (end - start)*1000 << " ms " << endl;
+
+        auto reduce_changes = [&_distances, &prev_distances]__VGL_REDUCE_INT_ARGS__
+        {
+            int result = 0.0;
+            if(prev_distances[src_id] != _distances[src_id])
+            {
+                result = 1;
+            }
+            return result;
+        };
+        changes = graph_API.reduce<int>(_graph, frontier, reduce_changes, REDUCE_SUM);
+
+        performance_stats.update_timer_stats();
+        performance_stats.print_timers_stats();
+        break;
+    }
+    while(changes);
+    tm.end();
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 int main(int argc, char **argv)
 {
     try
     {
         VGL_init(argc, argv);
 
-        cout << "SSSP (Single Source Shortest Paths) test..." << endl;
-        cout << "max threads: " << omp_get_max_threads() << endl;
-
         // parse args
         Parser parser;
         parser.parse_args(argc, argv);
 
-        MPI_Barrier(MPI_COMM_WORLD);
         VectCSRGraph graph;
         if(parser.get_compute_mode() == GENERATE_NEW_GRAPH)
         {
@@ -46,23 +118,23 @@ int main(int argc, char **argv)
         {
             Timer tm;
             tm.start();
-            MPI_Barrier(MPI_COMM_WORLD);
             if(!graph.load_from_binary_file(parser.get_graph_file_name()))
                 throw "Error: graph file not found";
-            MPI_Barrier(MPI_COMM_WORLD);
             tm.end();
             tm.print_time_stats("Graph load");
         }
 
-        // print graphs stats
-        graph.print_size();
-
-        // do calculations
-        cout << "Computations started..." << endl;
-        cout << "Doing " << parser.get_number_of_rounds() << " SSSP iterations..." << endl;
         EdgesArray_Vect<float> weights(graph);
         weights.set_all_constant(1.0);
 
+        VerticesArray<float> distances(graph);
+
+        int mpi_rank = 0;
+        MPI_Comm_rank(MPI_COMM_WORLD, &mpi_rank);
+        res = graph.get_mpi_thresholds(mpi_rank, SCATTER);
+
+        performance_stats.reset_timers();
+        mpi_sssp(graph, weights, distances, 5000);
 
         VGL_finalize();
     }

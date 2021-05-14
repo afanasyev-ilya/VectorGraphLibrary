@@ -239,8 +239,16 @@ void GraphAbstractionsNEC::ve_collective_vertex_processing_kernel_all_active(Und
         reg_real_start[i] = 0;
     }
 
+    #ifdef __USE_MPI__
+    int first_segment = (_first_vertex - ve_starting_vertex)/VECTOR_LENGTH;
+    int last_segment = (_last_vertex - ve_starting_vertex)/VECTOR_LENGTH + 1;
+    #else
+    int first_segment = 0;
+    int last_segment = ve_vector_segments_count;
+    #endif
+
     #pragma omp for schedule(static, 8)
-    for(int cur_vector_segment = 0; cur_vector_segment < ve_vector_segments_count; cur_vector_segment++)
+    for(int cur_vector_segment = first_segment; cur_vector_segment < last_segment; cur_vector_segment++)
     {
         int segment_first_vertex = cur_vector_segment * VECTOR_LENGTH + ve_starting_vertex;
 

@@ -21,7 +21,7 @@ def run_prepare(options, arch):
 def run_benchmarks(options, arch):
     list_of_apps = prepare_list_of_apps(options.apps)
 
-    stats_file_name = "benchmarking_results_" + arch + ".xlsx"
+    stats_file_name = "tests_results_" + arch + ".xlsx"
     workbook = xlsxwriter.Workbook(stats_file_name)
 
     set_omp_environments(options)

@@ -139,8 +139,7 @@ def create_real_world_graph(graph_name, arch):
         print(' '.join(cmd))
         subprocess.Popen(cmd, shell=False, stdout=subprocess.PIPE).wait()
         verify_graph_existence(output_graph_file_name)
-    else:
-        print("Graph " + output_graph_file_name + " already exists")
+        print("Graph " + output_graph_file_name + " has been created")
 
     if GENERATE_UNDIRECTED_GRAPHS:
         output_graph_file_name = get_path_to_graph(graph_name, True)
@@ -150,8 +149,7 @@ def create_real_world_graph(graph_name, arch):
             print(' '.join(cmd))
             subprocess.Popen(cmd, shell=False, stdout=subprocess.PIPE).wait()
             verify_graph_existence(output_graph_file_name)
-        else:
-            print("Graph " + output_graph_file_name + " already exists")
+            print("Graph " + output_graph_file_name + " has been created")
 
 
 def create_synthetic_graph(graph_name, arch):
@@ -167,8 +165,7 @@ def create_synthetic_graph(graph_name, arch):
         print(' '.join(cmd))
         subprocess.Popen(cmd, shell=False, stdout=subprocess.PIPE).wait()
         verify_graph_existence(output_graph_file_name)
-    else:
-        print("Graph " + output_graph_file_name + " already exists")
+        print("Graph " + output_graph_file_name + " has been created")
 
     if GENERATE_UNDIRECTED_GRAPHS:
         output_graph_file_name = get_path_to_graph(graph_name, True)
@@ -178,8 +175,7 @@ def create_synthetic_graph(graph_name, arch):
             print(' '.join(cmd))
             subprocess.Popen(cmd, shell=False, stdout=subprocess.PIPE).wait()
             verify_graph_existence(output_graph_file_name)
-        else:
-            print("Graph " + output_graph_file_name + " already exists")
+            print("Graph " + output_graph_file_name + " has been created")
 
 
 def create_graph(graph_name, arch):
