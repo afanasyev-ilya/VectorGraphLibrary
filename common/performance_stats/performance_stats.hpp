@@ -360,16 +360,29 @@ void PerformanceStats::print_avg_perf(long long _edges_count, int _k)
 
 void PerformanceStats::print_abstraction_stats(string _name, double _time)
 {
+    #ifdef __USE_MPI__
+    if(_time > 0)
+        cout << _name << " : " << to_ms(_time) << " (ms), " << to_percent(_time) << "% (proc №" <<
+        vgl_library_data.get_mpi_rank() << ")" << endl;
+    #else
     if(_time > 0)
         cout << _name << " : " << to_ms(_time) << " (ms), " << to_percent(_time) << "%" << endl;
+    #endif
+
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 void PerformanceStats::print_detailed_advance_stats(string _name, double _time)
 {
+    #ifdef __USE_MPI__
+    if(_time > 0)
+        cout << "    "  << _name << " : " << to_ms(_time) << " (ms), " << to_percent(_time) << "% (proc №" <<
+        vgl_library_data.get_mpi_rank() << ")" << endl;
+    #else
     if(_time > 0)
         cout << "    "  << _name << " : " << to_ms(_time) << " (ms), " << to_percent(_time) << "%" << endl;
+    #endif
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
