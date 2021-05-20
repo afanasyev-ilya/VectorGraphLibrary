@@ -41,6 +41,163 @@ int get_recv_size(int _send_size, int _source, int _dest)
     return recv_size;
 }
 
+/*inline int copy_if_changed(const int *_in_data,
+                           int *_out_data,
+                           int *_tmp_buffer,
+                           const int _buffer_size,
+                           const int _start,
+                           const int _end,
+                           const int _desired_value,
+                           const int _threads_count = MAX_SX_AURORA_THREADS)
+{
+    int size = _end - _start;
+    int elements_per_thread = (_buffer_size - 1)/_threads_count + 1;
+    int elements_per_vector = (elements_per_thread - 1)/VECTOR_LENGTH + 1;
+    int shifts_array[MAX_SX_AURORA_THREADS];
+
+    int elements_count = 0;
+    #pragma omp parallel num_threads(_threads_count) shared(elements_count)
+    {
+        int tid = omp_get_thread_num();
+        int start_pointers_reg[VECTOR_LENGTH];
+        int current_pointers_reg[VECTOR_LENGTH];
+        int last_pointers_reg[VECTOR_LENGTH];
+
+        #pragma _NEC vreg(start_pointers_reg)
+        #pragma _NEC vreg(current_pointers_reg)
+        #pragma _NEC vreg(last_pointers_reg)
+
+        #pragma _NEC vector
+        for(int i = 0; i < VECTOR_LENGTH; i++)
+        {
+            start_pointers_reg[i] = tid * elements_per_thread + i * elements_per_vector;
+            current_pointers_reg[i] = tid * elements_per_thread + i * elements_per_vector;
+            last_pointers_reg[i] = tid * elements_per_thread + i * elements_per_vector;
+        }
+
+        #pragma omp for schedule(static)
+        for(int vec_start = _start; vec_start < _end; vec_start += VECTOR_LENGTH)
+        {
+            #pragma _NEC vovertake
+            #pragma _NEC novob
+            #pragma _NEC vector
+            for(int i = 0; i < VECTOR_LENGTH; i++)
+            {
+                int src_id = vec_start + i;
+                if((src_id < _end) && (_in_data[src_id] == _desired_value))
+                {
+                    _tmp_buffer[current_pointers_reg[i]] = src_id;
+                    current_pointers_reg[i]++;
+                }
+            }
+        }
+
+        int max_difference = 0;
+        int save_values_per_thread = 0;
+        for(int i = 0; i < VECTOR_LENGTH; i++)
+        {
+            int difference = current_pointers_reg[i] - start_pointers_reg[i];
+            save_values_per_thread += difference;
+            if(difference > max_difference)
+                max_difference = difference;
+        }
+
+        shifts_array[tid] = save_values_per_thread;
+        #pragma omp barrier
+
+        #pragma omp master
+        {
+            int cur_shift = 0;
+            for(int i = 1; i < _threads_count; i++)
+            {
+                shifts_array[i] += shifts_array[i - 1];
+            }
+
+            elements_count = shifts_array[_threads_count - 1];
+
+            for(int i = (_threads_count - 1); i >= 1; i--)
+            {
+                shifts_array[i] = shifts_array[i - 1];
+            }
+            shifts_array[0] = 0;
+        }
+
+        #pragma omp barrier
+
+        int tid_shift = shifts_array[tid];
+        int *private_ptr = &(_out_data[tid_shift]);
+
+        int local_pos = 0;
+        #pragma _NEC novector
+        for(int pos = 0; pos < max_difference; pos++)
+        {
+        #pragma _NEC vovertake
+        #pragma _NEC novob
+        #pragma _NEC vector
+            for(int i = 0; i < VECTOR_LENGTH; i++)
+            {
+                int loc_size = current_pointers_reg[i] - start_pointers_reg[i];
+
+                if(pos < loc_size)
+                {
+                    private_ptr[local_pos] = _tmp_buffer[last_pointers_reg[i]];
+                    last_pointers_reg[i]++;
+                    local_pos++;
+                }
+            }
+        }
+    }
+
+    return elements_count;
+}*/
+
+template <typename _T>
+int prepare_exchange_data(_T *_new, _T *_old, char *_buffer, int _size)
+{
+    int changes_count = 0;
+    #pragma omp parallel for reduction(+: changes_count)
+    for(int i = 0; i < _size; i++)
+    {
+        if(_new[i] != _old[i])
+        {
+            changes_count++;
+        }
+    }
+
+    _T *data_buffer = (_T*) _buffer;
+    int *index_buffer = (int*)(&_buffer[changes_count*sizeof(_T)]);
+    int write_ptr = 0;
+    for(int i = 0; i < _size; i++)
+    {
+        if(_new[i] != _old[i])
+        {
+            data_buffer[write_ptr] = _new[i];
+            index_buffer[write_ptr] = i;
+            write_ptr++;
+        }
+    }
+
+    return changes_count;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+template <typename _T>
+void parse_received_data(_T *_data, char *_buffer, int _recv_size)
+{
+    _T *data_buffer = (_T*) _buffer;
+    int *index_buffer = (int*)(&_buffer[_recv_size*sizeof(_T)]);
+
+    #pragma _NEC ivdep
+    #pragma _NEC vovertake
+    #pragma _NEC novob
+    #pragma omp parallel for
+    for(int i = 0; i < _recv_size; i++)
+    {
+        _data[index_buffer[i]] = data_buffer[i];
+    }
+}
+
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 double t_small = 0;
@@ -56,26 +213,57 @@ void exchange_data(_T *_data, _T *_old, _T *_buffer, int _size, UpdateOp &&_upda
     if(dest < 0)
         dest = vgl_library_data.get_mpi_proc_num() - 1;
 
-    int send_size = estimate_changes_count(_data, _old, _size);
-    int recv_size = get_recv_size(send_size, source, dest);
-    //cout << "send_size: " << ((double)send_size) / _size << endl;
-    //cout << "recv_size: " << ((double)recv_size) / _size << endl;
-    //cout << "Size: " << _size << endl;
+    char *send_buffer = new char[_size*sizeof(_T) + _size*sizeof(int)];
+    char *recv_buffer = new char[_size*sizeof(_T) + _size*sizeof(int)];
+
+    int send_elements = prepare_exchange_data(_data, _old, send_buffer, _size);
+    int recv_elements = get_recv_size(send_elements, source, dest);
+    size_t send_size = (sizeof(_T) + sizeof(int))*send_elements;
+    size_t recv_size = (sizeof(_T) + sizeof(int))*recv_elements;
+
 
     double t1 = omp_get_wtime();
-    MPI_Sendrecv(_data, send_size, MPI_FLOAT,
-                 dest, 0, _buffer, recv_size, MPI_FLOAT,
+    MPI_Sendrecv(send_buffer, send_size, MPI_CHAR,
+                 dest, 0, recv_buffer, recv_size, MPI_CHAR,
                  source, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
     double t2 = omp_get_wtime();
     cout << "SMALL send time: " << (t2 - t1)*1000 << " ms" << endl;
-    cout << sizeof(float)*(recv_size + send_size)/((t2 - t1)*1e9) << " GB/s" << endl;
+    cout << (recv_size + send_size)/((t2 - t1)*1e9) << " GB/s" << endl;
     t_small += t2 - t1;
 
-    t1 = omp_get_wtime();
+    parse_received_data(_data, recv_buffer, recv_elements);
+
+    delete []send_buffer;
+    delete []recv_buffer;
+r
+    #pragma _NEC cncall
+    #pragma _NEC ivdep
+    #pragma _NEC vovertake
+    #pragma _NEC novob
+    #pragma _NEC vector
+    #pragma _NEC gather_reorder
+    #pragma omp parallel for
+    for(int i = 0; i < _size; i++)
+    {
+        _data[i] = _update_op(_buffer[i], _data[i]);
+    }
+}
+
+template <typename _T, typename UpdateOp>
+void full_exchange_data(_T *_data, _T *_old, _T *_buffer, int _size, UpdateOp &&_update_op)
+{
+    int source = (vgl_library_data.get_mpi_rank() + 1);
+    int dest = (vgl_library_data.get_mpi_rank() - 1);
+    if(source >= vgl_library_data.get_mpi_proc_num())
+        source = 0;
+    if(dest < 0)
+        dest = vgl_library_data.get_mpi_proc_num() - 1;
+
+    double t1 = omp_get_wtime();
     MPI_Sendrecv(_data, _size, MPI_FLOAT,
                  dest, 0, _buffer, _size, MPI_FLOAT,
                  source, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-    t2 = omp_get_wtime();
+    double t2 = omp_get_wtime();
     cout << "LARGE send time: " << (t2 - t1)*1000 << " ms" << endl;
     cout << sizeof(float)*(_size + _size)/((t2 - t1)*1e9) << " GB/s" << endl;
     t_large += t2 - t1;
