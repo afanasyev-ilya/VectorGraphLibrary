@@ -8,21 +8,6 @@ double non_opt_time = 0;
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-template <typename _T>
-inline int estimate_changes_count(_T *_new, _T *_old, int _size)
-{
-    int changes_count = 0;
-    #pragma omp parallel for reduction(+: changes_count)
-    for(int i = 0; i < _size; i++)
-    {
-        if(_new[i] != _old[i])
-            changes_count++;
-    }
-    return changes_count;
-}
-
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
 inline int get_recv_size(int _send_size, int _source, int _dest)
 {
     int recv_size = 0;
@@ -37,26 +22,11 @@ inline int get_recv_size(int _send_size, int _source, int _dest)
 template <typename _T>
 inline int prepare_exchange_data(_T *_new, _T *_old, int _size)
 {
-    double t1 = omp_get_wtime();
-    int changes_count = 0;
-    #pragma omp parallel for reduction(+: changes_count)
-    for(int i = 0; i < _size; i++)
-    {
-        if(_new[i] != _old[i])
-        {
-            changes_count++;
-        }
-    }
-    double t2 = omp_get_wtime();
-    non_opt_time += (t2 - t1);
-
     char *send_buffer = vgl_library_data.get_send_buffer();
-    _T *output_data = (_T*) send_buffer;
-    int *output_indexes = (int*)(&send_buffer[changes_count*sizeof(_T)]);
+    int *output_indexes = (int*)send_buffer;
 
     char *recv_buffer = vgl_library_data.get_recv_buffer();
-    _T *tmp_data_buffer = (_T*) recv_buffer;
-    int *tmp_indexes_buffer = (int*)(&recv_buffer[changes_count*sizeof(_T)]);
+    int *tmp_indexes_buffer = (int*)recv_buffer;
 
     auto copy_cond = [&_new, &_old](int i)->float
     {
@@ -65,7 +35,10 @@ inline int prepare_exchange_data(_T *_new, _T *_old, int _size)
             result = 1;
         return result;
     };
-    int count = generic_dense_copy_if(copy_cond, output_indexes, tmp_indexes_buffer, _size, 0, DONT_SAVE_ORDER);
+    int changes_count = generic_dense_copy_if(copy_cond, output_indexes, tmp_indexes_buffer, _size, 0, DONT_SAVE_ORDER);
+
+    _T *output_data = (_T*) (&send_buffer[changes_count*sizeof(int)]);
+    _T *tmp_data_buffer = (_T*) (&recv_buffer[changes_count*sizeof(int)]);
 
     #pragma _NEC cncall
     #pragma _NEC ivdep
@@ -75,7 +48,7 @@ inline int prepare_exchange_data(_T *_new, _T *_old, int _size)
     #pragma _NEC sparse
     #pragma _NEC gather_reorder
     #pragma omp parallel for
-    for(int i = 0; i < count; i++)
+    for(int i = 0; i < changes_count; i++)
     {
         output_data[i] = _new[output_indexes[i]];
     }
@@ -88,8 +61,8 @@ inline int prepare_exchange_data(_T *_new, _T *_old, int _size)
 template <typename _T>
 inline void parse_received_data(_T *_data, char *_buffer, int _recv_size)
 {
-    _T *data_buffer = (_T*) _buffer;
-    int *index_buffer = (int*)(&_buffer[_recv_size*sizeof(_T)]);
+    int *index_buffer = (int*) _buffer;
+    _T *data_buffer = (_T*) (&_buffer[_recv_size*sizeof(int)]);
 
     #pragma _NEC cncall
     #pragma _NEC ivdep
@@ -109,11 +82,13 @@ inline void parse_received_data(_T *_data, char *_buffer, int _recv_size)
 template <typename _T, typename MergeOp>
 void LibraryData::exchange_data(_T *_new_data, int _size, MergeOp &&_merge_op, _T *_old_data)
 {
+    Timer tm;
+    tm.start();
+
     DataExchangePolicy cur_data_exchange_policy = data_exchange_policy;
     if(_old_data == NULL) // use SEND_ALL for simple exchanges (like for algorithm convergence)
         cur_data_exchange_policy = SEND_ALL;
 
-    double t1, t2;
     _T *received_data;
 
     size_t send_size = 0;
@@ -123,7 +98,6 @@ void LibraryData::exchange_data(_T *_new_data, int _size, MergeOp &&_merge_op, _
     char *send_ptr = NULL;
     char *recv_ptr = NULL;
 
-    t1 = omp_get_wtime();
     if(cur_data_exchange_policy == SEND_ALL)
     {
         send_elements = _size;
@@ -150,10 +124,7 @@ void LibraryData::exchange_data(_T *_new_data, int _size, MergeOp &&_merge_op, _
         send_ptr = send_buffer;
         recv_ptr = recv_buffer;
     }
-    t2 = omp_get_wtime();
-    t_preprocess += t2 - t1;
 
-    t1 = omp_get_wtime();
     if(communication_policy == CYCLE_COMMUNICATION)
     {
         int source = (get_mpi_rank() + 1);
@@ -173,12 +144,7 @@ void LibraryData::exchange_data(_T *_new_data, int _size, MergeOp &&_merge_op, _
     {
         throw "Error: unsupported communication policy";
     }
-    t2 = omp_get_wtime();
-    cout << "MPI end time: " << (t2 - t1)*1000 << " ms" << endl;
-    cout << (recv_size + send_size)/((t2 - t1)*1e9) << " GB/s" << endl;
-    t_mpi_send += t2 - t1;
 
-    t1 = omp_get_wtime();
     if(cur_data_exchange_policy == RECENTLY_CHANGED)
     {
         received_data = (_T *) send_buffer; // this is ok, we don't want to delete data either in old or recv_buffer
@@ -189,10 +155,6 @@ void LibraryData::exchange_data(_T *_new_data, int _size, MergeOp &&_merge_op, _
         }
         parse_received_data(received_data, recv_buffer, recv_elements);
     }
-    t2 = omp_get_wtime();
-    t_postprocess += t2 - t1;
-
-    t1 = omp_get_wtime();
     #ifdef __USE_NEC_SX_AURORA__
     #pragma _NEC cncall
     #pragma _NEC ivdep
@@ -206,8 +168,9 @@ void LibraryData::exchange_data(_T *_new_data, int _size, MergeOp &&_merge_op, _
     {
         _new_data[i] = _merge_op(received_data[i], _new_data[i]);
     }
-    t2 = omp_get_wtime();
-    t_merge += t2 - t1;
+
+    tm.end();
+    performance_stats.update_MPI_time(tm);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

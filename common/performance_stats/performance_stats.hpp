@@ -156,6 +156,17 @@ void PerformanceStats::update_non_api_time(Timer &_timer)
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+void PerformanceStats::update_MPI_time(Timer &_timer)
+{
+    #pragma omp single
+    {
+        inner_wall_time += _timer.get_time();
+        MPI_time += _timer.get_time();
+    }
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 void PerformanceStats::update_bytes_requested(size_t _bytes)
 {
     #pragma omp single
@@ -205,6 +216,8 @@ void PerformanceStats::reset_timers()
     pack_time = 0;
 
     non_api_time = 0;
+
+    MPI_time = 0;
 
     bytes_requested = 0;
     edges_visited = 0;
@@ -272,6 +285,9 @@ void PerformanceStats::print_timers_stats()
     print_abstraction_stats("Reorder       ", reorder_time);
     print_abstraction_stats("Pack          ", pack_time);
     print_abstraction_stats("Non-API       ", non_api_time);
+    #ifdef __USE_MPI__
+    print_abstraction_stats("MPI           ", MPI_time);
+    #endif
     cout << endl;
 
     cout << "total bandwidth: " << get_sustained_bandwidth() << " GB/s" << endl;
@@ -363,7 +379,7 @@ void PerformanceStats::print_abstraction_stats(string _name, double _time)
     #ifdef __USE_MPI__
     if(_time > 0)
         cout << _name << " : " << to_ms(_time) << " (ms), " << to_percent(_time) << "% (proc №" <<
-        vgl_library_data.get_mpi_rank() << ")" << endl;
+        get_mpi_rank() << ")" << endl;
     #else
     if(_time > 0)
         cout << _name << " : " << to_ms(_time) << " (ms), " << to_percent(_time) << "%" << endl;
@@ -378,12 +394,23 @@ void PerformanceStats::print_detailed_advance_stats(string _name, double _time)
     #ifdef __USE_MPI__
     if(_time > 0)
         cout << "    "  << _name << " : " << to_ms(_time) << " (ms), " << to_percent(_time) << "% (proc №" <<
-        vgl_library_data.get_mpi_rank() << ")" << endl;
+        get_mpi_rank() << ")" << endl;
     #else
     if(_time > 0)
         cout << "    "  << _name << " : " << to_ms(_time) << " (ms), " << to_percent(_time) << "%" << endl;
     #endif
 }
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+#ifdef __USE_MPI__
+int PerformanceStats::get_mpi_rank()
+{
+    int mpi_rank = 0;
+    MPI_Comm_rank(MPI_COMM_WORLD, &mpi_rank);
+    return mpi_rank;
+}
+#endif
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 

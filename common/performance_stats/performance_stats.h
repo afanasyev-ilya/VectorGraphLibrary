@@ -28,6 +28,11 @@ private:
     double pack_time;
     double non_api_time;
 
+    #ifdef __USE_MPI__
+    double MPI_time;
+    int get_mpi_rank();
+    #endif
+
     size_t bytes_requested;
     size_t edges_visited;
 
@@ -54,6 +59,7 @@ public:
     inline void update_pack_time(Timer &_timer);
     inline void update_reorder_time(Timer &_timer);
     inline void update_non_api_time(Timer &_timer);
+    inline void update_MPI_time(Timer &_timer);
 
     inline void update_advance_ve_part_time(Timer &_timer);
     inline void update_advance_vc_part_time(Timer &_timer);

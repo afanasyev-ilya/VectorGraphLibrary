@@ -41,12 +41,12 @@ pair<int,int> coll_mpi_borders;
 #include "common/timer/timer.h"
 #include "common/memory_API/memory_API.h"
 #include "common/parallel_primitives/copy_if.h"
+#include "common/performance_stats/performance_stats.h"
 #include "common/library_data/library_data.h"
 #include "common/random_generator/random_generator.h"
 #include "common/sorter/sorter.h"
 #include "common/cmd_parser/cmd_parser.h"
 #include "common/parallel_primitives/get_elements_count.h"
-#include "common/performance_stats/performance_stats.h"
 #include "common/misc/extensions.h"
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

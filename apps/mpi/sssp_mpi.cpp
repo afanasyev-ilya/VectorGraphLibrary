@@ -120,14 +120,7 @@ void mpi_sssp(VectCSRGraph &_graph, EdgesArray_Vect<_T> &_weights,
     double tt2 = omp_get_wtime();
 
     cout << "compute_time: " << compute_time * 1000 << " ms" << endl;
-    cout << "t_mpi_send: " << t_mpi_send * 1000 << " ms" << endl;
-    cout << "t_preprocess: " << t_preprocess * 1000 << " ms" << endl;
-    cout << "t_postprocess: " << t_postprocess * 1000 << " ms" << endl;
-    cout << "t_merge: " << t_merge * 1000 << " ms " << endl;
     cout << "non-opt time: " << non_opt_time * 1000 << " ms" << endl;
-
-    //performance_stats.update_timer_stats();
-    //performance_stats.print_timers_stats();
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -168,11 +161,12 @@ int main(int argc, char **argv)
 
         VerticesArray<float> distances(graph);
 
-        performance_stats.reset_timers();
-
         int source_vertex = graph.select_random_vertex(ORIGINAL);//TODO BCAST
 
+        performance_stats.reset_timers();
         mpi_sssp(graph, weights, distances, source_vertex);
+        performance_stats.update_timer_stats();
+        performance_stats.print_timers_stats();
 
         if(parser.get_check_flag())
         {
