@@ -29,10 +29,6 @@ pair<int,int> coll_mpi_borders;
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#include "common/library_data/library_data.h"
-
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
 #ifdef __USE_GPU__
 #include <cuda_runtime.h>
 #include "common/gpu_API/cuda_error_handling.h"
@@ -44,6 +40,7 @@ pair<int,int> coll_mpi_borders;
 
 #include "common/timer/timer.h"
 #include "common/memory_API/memory_API.h"
+#include "common/library_data/library_data.h"
 #include "common/random_generator/random_generator.h"
 #include "common/sorter/sorter.h"
 #include "common/cmd_parser/cmd_parser.h"

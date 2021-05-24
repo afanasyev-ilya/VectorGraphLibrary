@@ -12,8 +12,12 @@ void LibraryData::init(int argc, char **argv)
     MPI_Comm_size(MPI_COMM_WORLD, &mpi_proc_num);
     MPI_Comm_rank(MPI_COMM_WORLD, &mpi_rank);
 
-    cout << "Hi from rank : " << mpi_rank << "/" << mpi_proc_num << endl;
+    communication_policy = CYCLE_COMMUNICATION;
+    data_exchange_policy = EXCHANGE_ALL;
     #endif
+
+    send_buffer = NULL;
+    recv_buffer = NULL;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

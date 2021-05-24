@@ -6,6 +6,7 @@ void LibraryData::finalize()
 {
     #ifdef __USE_MPI__
     MPI_Finalize();
+    free_exchange_buffers();
     #endif
 }
 

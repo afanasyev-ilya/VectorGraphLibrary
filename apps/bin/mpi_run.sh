@@ -5,4 +5,4 @@
 
 #mpirun -np 1 -ve 0 ./sssp_mpi_sx -load ./input_graphs/rmat_23_32.vgraph -push -all-active -check
 #printf "\n\n\n"
-mpirun -np 2 -ve 0-1 ./sssp_mpi_sx -load ./input_graphs/rmat_20_32.vgraph -push -all-active -check
+mpirun -np 2 -ve 0-1 ./sssp_mpi_sx -load ./input_graphs/rmat_22_32.vgraph -push -all-active -check

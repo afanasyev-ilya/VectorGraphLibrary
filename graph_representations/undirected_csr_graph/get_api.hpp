@@ -67,13 +67,13 @@ std::pair<int, int> UndirectedCSRGraph::get_mpi_thresholds(int _mpi_rank, int _v
     {
         size_t current = vertex_pointers[_vertex_id];
         size_t next = vertex_pointers[_vertex_id + 1];
-        if(in_between(first_edge_border, current, next)) // TODO check problem with border
+        if(in_between(first_edge_border, current, next))
             first_vertex = _vertex_id;
         if(in_between(last_edge_border, current, next))
             last_vertex = _vertex_id;
     }
 
-    cout << vgl_library_data.get_mpi_rank() << " _ (" << _v1 << " " << _v2 << ") " << first_vertex << " " << last_vertex << endl;
+    //cout << vgl_library_data.get_mpi_rank() << " _ (" << _v1 << " " << _v2 << ") " << first_vertex << " " << last_vertex << endl;
     return make_pair(first_vertex, last_vertex);
 }
 #endif
