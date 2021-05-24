@@ -113,7 +113,7 @@ void mpi_sssp(VectCSRGraph &_graph, EdgesArray_Vect<_T> &_weights,
             return vect_max(_a, _b);
         };
 
-        vgl_library_data.exchange_data(_distances.get_ptr(), _graph.get_vertices_count(), min_op, prev_distances.get_ptr());
+        vgl_library_data.exchange_data(_distances.get_ptr(), _graph.get_vertices_count(), min_op,  prev_distances.get_ptr());
         vgl_library_data.exchange_data(&changes, 1, max_op);
     }
     while(changes);
