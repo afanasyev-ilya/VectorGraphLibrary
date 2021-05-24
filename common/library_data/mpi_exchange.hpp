@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-double t_small = 0;
+double t_mpi_send = 0;
 double t_preprocess = 0;
 double t_postprocess = 0;
 double t_merge = 0;
@@ -235,19 +235,19 @@ void LibraryData::exchange_data(_T *_new_data, _T *_old_data, int _size, MergeOp
                  dest, 0, get_recv_buffer(), recv_size, MPI_CHAR,
                  source, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
     t2 = omp_get_wtime();
-    cout << "SMALL send time: " << (t2 - t1)*1000 << " ms" << endl;
+    cout << "MPI send time: " << (t2 - t1)*1000 << " ms" << endl;
     cout << (recv_size + send_size)/((t2 - t1)*1e9) << " GB/s" << endl;
-    t_small += t2 - t1;
+    t_mpi_send += t2 - t1;
 
     t1 = omp_get_wtime();
-    _T *buffer_for_received_data = (_T*) _send_buffer; // this is ok, we don't want to delete data either in old or recv_buffer
+    _T *received_data = (_T*) send_buffer; // this is ok, we don't want to delete data either in old or recv_buffer
     #pragma _NEC ivdep
     #pragma omp parallel for
     for(int i = 0; i < _size; i++)
     {
-        _buffer_for_received_data[i] = _new_data[i];
+        received_data[i] = _new_data[i];
     }
-    parse_received_data(_buffer_for_received_data, get_recv_buffer(), recv_elements);
+    parse_received_data(received_data get_recv_buffer(), recv_elements);
     t2 = omp_get_wtime();
     t_postprocess += t2 - t1;
 
@@ -263,7 +263,7 @@ void LibraryData::exchange_data(_T *_new_data, _T *_old_data, int _size, MergeOp
     #pragma omp parallel for
     for(int i = 0; i < _size; i++)
     {
-        _new_data[i] = _merge_op(_buffer_for_received_data[i], _new_data[i]);
+        _new_data[i] = _merge_op(received_data[i], _new_data[i]);
     }
     t2 = omp_get_wtime();
     t_merge += t2 - t1;
@@ -272,10 +272,49 @@ void LibraryData::exchange_data(_T *_new_data, _T *_old_data, int _size, MergeOp
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template <typename _T, typename MergeOp>
-void LibraryData::exchange_data(_T *_data, int _size, MergeOp &&_merge_op)
+void LibraryData::exchange_data(_T *_new_data, int _size, MergeOp &&_merge_op, _T *_old_data)
 {
-    _T *received_data = (_T*) recv_buffer;
+    double t1, t2;
+    _T *received_data;
 
+    size_t send_size = 0;
+    size_t recv_size = 0;
+    int send_elements = 0;
+    int recv_elements = 0;
+    char *send_ptr = NULL;
+    char *recv_ptr = NULL;
+
+    t1 = omp_get_wtime();
+    if(data_exchange_policy == SEND_ALL)
+    {
+        send_elements = _size;
+        recv_elements = _size;
+        received_data = (_T*) recv_buffer;
+        send_size = _size * sizeof(_T);
+        recv_size = _size * sizeof(_T);
+        send_ptr = (char *)_new_data;
+        recv_ptr = (char *) received_data;
+    }
+    else if(data_exchange_policy == RECENTLY_CHANGED)
+    {
+        int source = (get_mpi_rank() + 1);
+        int dest = (get_mpi_rank() - 1);
+        if(source >= get_mpi_proc_num())
+            source = 0;
+        if(dest < 0)
+            dest = get_mpi_proc_num() - 1;
+
+        send_elements = prepare_exchange_data(_new_data, _old_data, _size);
+        recv_elements = get_recv_size(send_elements, source, dest);
+        send_size = (sizeof(_T) + sizeof(int))*send_elements;
+        recv_size = (sizeof(_T) + sizeof(int))*recv_elements;
+        send_ptr = send_buffer;
+        recv_ptr = recv_buffer;
+    }
+    t2 = omp_get_wtime();
+    t_preprocess += t2 - t1;
+
+    t1 = omp_get_wtime();
     if(communication_policy == CYCLE_COMMUNICATION)
     {
         int source = (get_mpi_rank() + 1);
@@ -286,15 +325,35 @@ void LibraryData::exchange_data(_T *_data, int _size, MergeOp &&_merge_op)
             dest = get_mpi_proc_num() - 1;
 
         // TODO type
-        MPI_Sendrecv(_data, _size, MPI_FLOAT,
-                     dest, 0, received_data, _size, MPI_FLOAT,
+        MPI_Sendrecv(send_ptr, send_size, MPI_CHAR,
+                     dest, 0, recv_ptr, recv_size, MPI_CHAR,
                      source, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+        // TODO multiple sends if proc number is > 2
     }
     else
     {
         throw "Error: unsupported communication policy";
     }
+    t2 = omp_get_wtime();
+    cout << "MPI end time: " << (t2 - t1)*1000 << " ms" << endl;
+    cout << (recv_size + send_size)/((t2 - t1)*1e9) << " GB/s" << endl;
+    t_mpi_send += t2 - t1;
 
+    t1 = omp_get_wtime();
+    if(data_exchange_policy == RECENTLY_CHANGED)
+    {
+        received_data = (_T *) send_buffer; // this is ok, we don't want to delete data either in old or recv_buffer
+        #pragma _NEC ivdep
+        #pragma omp parallel for
+        for (int i = 0; i < _size; i++) {
+            received_data[i] = _new_data[i];
+        }
+        parse_received_data(received_data, recv_buffer, recv_elements);
+    }
+    t2 = omp_get_wtime();
+    t_postprocess += t2 - t1;
+
+    t1 = omp_get_wtime();
     #ifdef __USE_NEC_SX_AURORA__
     #pragma _NEC cncall
     #pragma _NEC ivdep
@@ -306,8 +365,10 @@ void LibraryData::exchange_data(_T *_data, int _size, MergeOp &&_merge_op)
     #pragma omp parallel for
     for(int i = 0; i < _size; i++)
     {
-        _data[i] = _merge_op(received_data[i], _data[i]);
+        _new_data[i] = _merge_op(received_data[i], _new_data[i]);
     }
+    t2 = omp_get_wtime();
+    t_merge += t2 - t1;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

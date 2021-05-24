@@ -12,8 +12,8 @@ enum CommunicationPolicy
 
 enum DataExchangePolicy
 {
-    EXCHANGE_ALL,
-    RECENT_CHANGES,
+    SEND_ALL,
+    RECENTLY_CHANGED,
     PRIVATE_DATA
 };
 
@@ -50,7 +50,7 @@ public:
     inline void set_data_exchange_policy(DataExchangePolicy _data_exchange_policy);
 
     template <typename _T, typename MergeOp>
-    void exchange_data(_T *_data, int _size, MergeOp &&_merge_op);
+    void exchange_data(_T *_data, int _size, MergeOp &&_merge_op, _T *_old_data = NULL);
 
     template <typename _T, typename MergeOp>
     void exchange_data(_T *_new_data, _T *_old_data, int _size, MergeOp &&_merge_op);

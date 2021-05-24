@@ -23,6 +23,8 @@ void mpi_sssp(VectCSRGraph &_graph, EdgesArray_Vect<_T> &_weights,
 {
     #ifdef __USE_MPI__
     vgl_library_data.allocate_exchange_buffers(_distances.size(), sizeof(_T));
+    //vgl_library_data.set_data_exchange_policy(SEND_ALL);
+    vgl_library_data.set_data_exchange_policy(RECENTLY_CHANGED);
     #endif
 
     VGL_GRAPH_ABSTRACTIONS graph_API(_graph);
@@ -111,15 +113,14 @@ void mpi_sssp(VectCSRGraph &_graph, EdgesArray_Vect<_T> &_weights,
             return vect_max(_a, _b);
         };
 
-        //vgl_library_data.exchange_data(_distances.get_ptr(), prev_distances.get_ptr(), _graph.get_vertices_count(), min_op);
-        vgl_library_data.exchange_data(_distances.get_ptr(), _graph.get_vertices_count(), min_op);
+        vgl_library_data.exchange_data(_distances.get_ptr(), _graph.get_vertices_count(), min_op, prev_distances.get_ptr());
         vgl_library_data.exchange_data(&changes, 1, max_op);
     }
     while(changes);
     double tt2 = omp_get_wtime();
 
     cout << "compute_time: " << compute_time * 1000 << " ms" << endl;
-    cout << "t_small: " << t_small * 1000 << " ms" << endl;
+    cout << "t_mpi_send: " << t_mpi_send * 1000 << " ms" << endl;
     cout << "t_preprocess: " << t_preprocess * 1000 << " ms" << endl;
     cout << "t_postprocess: " << t_postprocess * 1000 << " ms" << endl;
     cout << "t_merge: " << t_merge * 1000 << " ms " << endl;
