@@ -19,6 +19,12 @@ void FrontierNEC::set_all_active()
         collective_part_size = ((VectCSRGraph*)graph_ptr)->get_direction_graph_ptr(direction)->get_vertices_count() - vector_engine_part_size - vector_core_part_size;
     }
 
+    #ifdef __USE_MPI__
+    calculate_collective_mpi_thresholds();
+    calculate_vector_core_mpi_thresholds();
+    calculate_collective_mpi_thresholds();
+    #endif
+
     #pragma omp parallel // dummy for performance evaluation
     {};
 }

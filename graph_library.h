@@ -22,11 +22,6 @@
 
 using namespace std;
 
-pair<int,int> res;
-pair<int,int> ve_mpi_borders;
-pair<int,int> vc_mpi_borders;
-pair<int,int> coll_mpi_borders;
-
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #ifdef __USE_GPU__

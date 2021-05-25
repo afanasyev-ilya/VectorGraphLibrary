@@ -23,6 +23,17 @@ private:
     FrontierType collective_part_type;
 
     void init();
+
+    #ifdef __USE_MPI__
+    pair<int, int> vector_engine_mpi_thresholds;
+    pair<int, int> vector_core_mpi_thresholds;
+    pair<int, int> collective_mpi_thresholds;
+
+    void calculate_vector_engine_mpi_thresholds();
+    void calculate_vector_core_mpi_thresholds();
+    void calculate_collective_mpi_thresholds();
+
+#endif
 public:
     /* constructors and destructors */
     FrontierNEC(VectCSRGraph &_graph, TraversalDirection _direction = SCATTER);
@@ -41,9 +52,9 @@ public:
     inline long long get_collective_part_neighbours_count(){return collective_part_neighbours_count;};
 
     #ifdef __USE_MPI__
-    pair<int,int> get_vector_engine_mpi_thresholds();
-    pair<int,int> get_vector_core_mpi_thresholds();
-    pair<int,int> get_collective_mpi_thresholds();
+    pair<int,int> get_vector_engine_mpi_thresholds() {return vector_engine_mpi_thresholds; };
+    pair<int,int> get_vector_core_mpi_thresholds() {return vector_core_mpi_thresholds; };
+    pair<int,int> get_collective_mpi_thresholds() {return collective_mpi_thresholds; };
     #endif
 
     /* Print API */

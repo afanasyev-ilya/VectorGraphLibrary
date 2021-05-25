@@ -57,14 +57,9 @@ void GraphAbstractionsNEC::advance_worker(UndirectedCSRGraph &_graph,
     double wall_time, ve_time, vc_time, collective_time, t1, t2;
 
     #ifdef __USE_MPI__
-    //const int vector_engine_threshold_start = max(0, res.first);
-    //const int vector_engine_threshold_end = min(_graph.get_vector_engine_threshold_vertex(), res.second);
-
-    //const int vector_core_threshold_start = max(_graph.get_vector_engine_threshold_vertex(), res.first);
-    //const int vector_core_threshold_end = min(_graph.get_vector_core_threshold_vertex(), res.second);
-
-    //const int collective_threshold_start = max(_graph.get_vector_core_threshold_vertex(), res.first);
-    //const int collective_threshold_end = min(_graph.get_vertices_count(), res.second);
+    pair<int,int> ve_mpi_borders = _frontier.get_vector_engine_mpi_thresholds();
+    pair<int,int> vc_mpi_borders = _frontier.get_vector_core_mpi_thresholds();
+    pair<int,int> coll_mpi_borders = _frontier.get_collective_mpi_thresholds();
 
     const int vector_engine_threshold_start = ve_mpi_borders.first;
     const int vector_engine_threshold_end = ve_mpi_borders.second;
