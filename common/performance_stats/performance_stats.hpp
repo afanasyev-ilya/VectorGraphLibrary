@@ -156,6 +156,7 @@ void PerformanceStats::update_non_api_time(Timer &_timer)
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+#ifdef __USE_MPI__
 void PerformanceStats::update_MPI_time(Timer &_timer)
 {
     #pragma omp single
@@ -164,6 +165,7 @@ void PerformanceStats::update_MPI_time(Timer &_timer)
         MPI_time += _timer.get_time();
     }
 }
+#endif
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -217,7 +219,9 @@ void PerformanceStats::reset_timers()
 
     non_api_time = 0;
 
+    #ifdef __USE_MPI__
     MPI_time = 0;
+    #endif
 
     bytes_requested = 0;
     edges_visited = 0;

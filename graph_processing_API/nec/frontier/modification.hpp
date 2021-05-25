@@ -89,6 +89,10 @@ void FrontierNEC::add_vertex(int src_id)
 
     type = SPARSE_FRONTIER;
     current_size = 1;
+
+    #ifdef __USE_MPI__
+    throw "Error: MPI thresholds calculation is not implemented in FrontierNEC::add_vertex";
+    #endif
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -153,6 +157,10 @@ void FrontierNEC::add_group_of_vertices(int *_vertex_ids, int _number_of_vertice
     vector_engine_part_type = SPARSE_FRONTIER;
     vector_core_part_type = SPARSE_FRONTIER;
     collective_part_type = SPARSE_FRONTIER;
+
+    #ifdef __USE_MPI__
+    throw "Error: MPI thresholds calculation is not implemented in FrontierNEC::add_group_of_vertices";
+    #endif
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

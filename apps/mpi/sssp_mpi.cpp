@@ -23,7 +23,6 @@ void mpi_sssp(VectCSRGraph &_graph, EdgesArray_Vect<_T> &_weights,
 {
     #ifdef __USE_MPI__
     vgl_library_data.allocate_exchange_buffers(_distances.size(), sizeof(_T));
-    //vgl_library_data.set_data_exchange_policy(SEND_ALL);
     vgl_library_data.set_data_exchange_policy(RECENTLY_CHANGED);
     #endif
 
@@ -48,13 +47,9 @@ void mpi_sssp(VectCSRGraph &_graph, EdgesArray_Vect<_T> &_weights,
     };
     frontier.set_all_active();
 
-    MPI_Barrier(MPI_COMM_WORLD);
-
     graph_API.compute(_graph, frontier, init_distances);
 
-    double compute_time = 0;
     int changes = 0, iterations_count = 0;
-    double tt1 = omp_get_wtime();
     do
     {
         changes = 0;
@@ -76,7 +71,6 @@ void mpi_sssp(VectCSRGraph &_graph, EdgesArray_Vect<_T> &_weights,
             }
         };
 
-        double t1_loc = omp_get_wtime();
         graph_API.scatter(_graph, frontier, edge_op_push);
 
         auto reduce_changes = [&_distances, &prev_distances]__VGL_REDUCE_INT_ARGS__
@@ -89,10 +83,7 @@ void mpi_sssp(VectCSRGraph &_graph, EdgesArray_Vect<_T> &_weights,
             return result;
         };
         changes = graph_API.reduce<int>(_graph, frontier, reduce_changes, REDUCE_SUM);
-        double t2_loc = omp_get_wtime();
-        compute_time += t2_loc - t1_loc;
 
-        int changes_buffer = 0;
         auto min_op = [](float _a, float _b)->float
         {
             return vect_min(_a, _b);
@@ -106,10 +97,7 @@ void mpi_sssp(VectCSRGraph &_graph, EdgesArray_Vect<_T> &_weights,
         vgl_library_data.exchange_data(&changes, 1, max_op);
     }
     while(changes);
-    double tt2 = omp_get_wtime();
-
-    cout << "iterations count: " <<  iterations_count << endl;
-    cout << "compute_time: " << compute_time * 1000 << " ms" << endl;
+    MPI_Barrier(MPI_COMM_WORLD);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -154,6 +142,11 @@ int main(int argc, char **argv)
 
         performance_stats.reset_timers();
         mpi_sssp(graph, weights, distances, source_vertex);
+        performance_stats.update_timer_stats();
+        performance_stats.print_timers_stats();
+
+        performance_stats.reset_timers();
+        SSSP::nec_dijkstra_all_active_pull(graph, weights, distances, source_vertex);
         performance_stats.update_timer_stats();
         performance_stats.print_timers_stats();
 

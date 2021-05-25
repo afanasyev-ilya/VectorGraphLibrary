@@ -72,11 +72,11 @@ using namespace std;
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // algorithm implementations
+#include "algorithms/sswp/widest_paths.h" // since vect max
 #include "algorithms/bfs/bfs.h"
 #include "algorithms/sssp/shortest_paths.h"
 #include "algorithms/pr/pr.h"
 #include "algorithms/cc/cc.h"
-#include "algorithms/sswp/widest_paths.h"
 #include "algorithms/rw/random_walk.h"
 #include "algorithms/hits/hits.h"
 #include "algorithms/scc/scc.h"

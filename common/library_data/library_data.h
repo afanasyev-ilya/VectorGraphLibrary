@@ -66,7 +66,9 @@ LibraryData vgl_library_data;
 
 #include "init.hpp"
 #include "finalize.hpp"
+#ifdef __USE_MPI__
 #include "mpi_api.hpp"
 #include "mpi_exchange.hpp"
+#endif
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

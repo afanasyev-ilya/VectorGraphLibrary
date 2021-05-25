@@ -136,6 +136,10 @@ void GraphAbstractionsNEC::generate_new_frontier(VectCSRGraph &_graph,
     if(copy_if_work)
         performance_stats.update_bytes_requested(work*2.0*sizeof(int));
 
+    #ifdef __USE_MPI__
+    throw "Error: MPI thresholds calculation is not implemented in GraphAbstractionsNEC::generate_new_frontier";
+    #endif
+
     #ifdef __PRINT_API_PERFORMANCE_STATS__
     tm_flags.print_bandwidth_stats("GNF flags", work, 2.0*sizeof(int));
     if(copy_if_work)

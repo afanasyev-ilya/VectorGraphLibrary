@@ -161,6 +161,11 @@ void SSSP::nec_dijkstra_all_active_pull(VectCSRGraph &_graph,
                                         VerticesArray<_T> &_distances,
                                         int _source_vertex)
 {
+    #ifdef __USE_MPI__
+    vgl_library_data.allocate_exchange_buffers(_distances.size(), sizeof(_T));
+    vgl_library_data.set_data_exchange_policy(RECENTLY_CHANGED);
+    #endif
+
     VGL_GRAPH_ABSTRACTIONS graph_API(_graph, GATHER);
     VGL_FRONTIER frontier(_graph, GATHER);
 
@@ -266,10 +271,23 @@ void SSSP::nec_dijkstra_all_active_pull(VectCSRGraph &_graph,
             return result;
         };
         changes = graph_API.reduce<int>(_graph, frontier, reduce_changes, REDUCE_SUM);
+
+        auto min_op = [](float _a, float _b)->float
+        {
+            return vect_min(_a, _b);
+        };
+        auto max_op = [](int _a, int _b)->int
+        {
+            return vect_max(_a, _b);
+        };
+
+        #ifdef __USE_MPI__
+        vgl_library_data.exchange_data(_distances.get_ptr(), _graph.get_vertices_count(), min_op, prev_distances.get_ptr());
+        vgl_library_data.exchange_data(&changes, 1, max_op);
+        #endif
     }
     while(changes);
     tm.end();
-
 
     #ifdef __PRINT_SAMPLES_PERFORMANCE_STATS__
     performance_stats.print_algorithm_performance_stats("SSSP (Dijkstra, all-active, pull)", tm.get_time(), _graph.get_edges_count());
