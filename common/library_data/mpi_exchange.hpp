@@ -27,11 +27,11 @@ inline int prepare_exchange_data(_T *_new, _T *_old, int _size)
             result = 1;
         return result;
     };
-    double t1 = omp_get_wtime();
+    //double t1 = omp_get_wtime();
     int changes_count = generic_dense_copy_if(copy_cond, output_indexes, tmp_indexes_buffer, _size, 0, DONT_SAVE_ORDER);
-    double t2 = omp_get_wtime();
-    cout << "copy if time: " << (t2 - t1) *1000.0 << " ms " << vgl_library_data.get_mpi_rank() << endl;
-    cout << "copy if BW: " << _size * 2.0 * sizeof(int) / ((t2 - t1)*1e9) << " GB/s " << vgl_library_data.get_mpi_rank() << endl;
+    //double t2 = omp_get_wtime();
+    //cout << "copy if time: " << (t2 - t1) *1000.0 << " ms " << vgl_library_data.get_mpi_rank() << endl;
+    //cout << "copy if BW: " << _size * 2.0 * sizeof(int) / ((t2 - t1)*1e9) << " GB/s " << vgl_library_data.get_mpi_rank() << endl;
 
     _T *output_data = (_T*) (&send_buffer[changes_count*sizeof(int)]);
     _T *tmp_data_buffer = (_T*) (&recv_buffer[changes_count*sizeof(int)]);
@@ -157,6 +157,9 @@ void LibraryData::exchange_data_cycle_mode(_T *_new_data, int _size, MergeOp &&_
 template <typename _T, typename MergeOp>
 void LibraryData::exchange_data(_T *_new_data, int _size, MergeOp &&_merge_op, _T *_old_data)
 {
+    if(mpi_proc_num == 1)
+        return;
+
     MPI_Barrier(MPI_COMM_WORLD);
     Timer tm;
     tm.start();

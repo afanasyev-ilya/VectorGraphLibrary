@@ -79,7 +79,7 @@ void mpi_sssp(VectCSRGraph &_graph, EdgesArray_Vect<_T> &_weights,
         };
         changes = graph_API.reduce<int>(_graph, frontier, reduce_changes, REDUCE_SUM);
 
-        auto min_op = [](float _a, float _b)->float
+        auto min_op = [](_T _a, _T _b)->_T
         {
             return vect_min(_a, _b);
         };
@@ -146,15 +146,20 @@ int main(int argc, char **argv)
         vgl_library_data.exchange_data(&source_vertex, 1, min_id);
         cout << "source vertex: " << source_vertex << endl;
 
-        performance_stats.reset_timers();
-        mpi_sssp(graph, weights, distances, source_vertex);
-        performance_stats.update_timer_stats();
-        performance_stats.print_timers_stats();
-
-        /*performance_stats.reset_timers();
-        SSSP::nec_dijkstra_all_active_pull(graph, weights, distances, source_vertex);
-        performance_stats.update_timer_stats();
-        performance_stats.print_timers_stats();*/
+        if(parser.get_traversal_direction() == PUSH_TRAVERSAL)
+        {
+            performance_stats.reset_timers();
+            mpi_sssp(graph, weights, distances, source_vertex);
+            performance_stats.update_timer_stats();
+            performance_stats.print_timers_stats();
+        }
+        else if(parser.get_traversal_direction() == PULL_TRAVERSAL)
+        {
+            performance_stats.reset_timers();
+            SSSP::nec_dijkstra(graph, weights, distances, source_vertex, ALL_ACTIVE, parser.get_traversal_direction());
+            performance_stats.update_timer_stats();
+            performance_stats.print_timers_stats();
+        }
 
         if(parser.get_check_flag())
         {
