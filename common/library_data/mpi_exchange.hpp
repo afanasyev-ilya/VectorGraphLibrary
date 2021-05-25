@@ -80,11 +80,9 @@ inline void parse_received_data(_T *_data, char *_buffer, int _recv_size)
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template <typename _T, typename MergeOp>
-void LibraryData::exchange_data(_T *_new_data, int _size, MergeOp &&_merge_op, _T *_old_data)
+void LibraryData::exchange_data_cycle_mode(_T *_new_data, int _size, MergeOp &&_merge_op, _T *_old_data,
+                                           int _proc_shift)
 {
-    Timer tm;
-    tm.start();
-
     DataExchangePolicy cur_data_exchange_policy = data_exchange_policy;
     if(_old_data == NULL) // use SEND_ALL for simple exchanges (like for algorithm convergence)
         cur_data_exchange_policy = SEND_ALL;
@@ -98,6 +96,13 @@ void LibraryData::exchange_data(_T *_new_data, int _size, MergeOp &&_merge_op, _
     char *send_ptr = NULL;
     char *recv_ptr = NULL;
 
+    int source = (get_mpi_rank() + _proc_shift);
+    int dest = (get_mpi_rank() - _proc_shift);
+    if(source >= get_mpi_proc_num())
+        source = 0;
+    if(dest < 0)
+        dest = get_mpi_proc_num() - _proc_shift;
+
     if(cur_data_exchange_policy == SEND_ALL)
     {
         send_elements = _size;
@@ -110,13 +115,6 @@ void LibraryData::exchange_data(_T *_new_data, int _size, MergeOp &&_merge_op, _
     }
     else if(cur_data_exchange_policy == RECENTLY_CHANGED)
     {
-        int source = (get_mpi_rank() + 1);
-        int dest = (get_mpi_rank() - 1);
-        if(source >= get_mpi_proc_num())
-            source = 0;
-        if(dest < 0)
-            dest = get_mpi_proc_num() - 1;
-
         send_elements = prepare_exchange_data(_new_data, _old_data, _size);
         recv_elements = get_recv_size(send_elements, source, dest);
         send_size = (sizeof(_T) + sizeof(int))*send_elements;
@@ -125,25 +123,9 @@ void LibraryData::exchange_data(_T *_new_data, int _size, MergeOp &&_merge_op, _
         recv_ptr = recv_buffer;
     }
 
-    if(communication_policy == CYCLE_COMMUNICATION)
-    {
-        int source = (get_mpi_rank() + 1);
-        int dest = (get_mpi_rank() - 1);
-        if(source >= get_mpi_proc_num())
-            source = 0;
-        if(dest < 0)
-            dest = get_mpi_proc_num() - 1;
-
-        // TODO type
-        MPI_Sendrecv(send_ptr, send_size, MPI_CHAR,
-                     dest, 0, recv_ptr, recv_size, MPI_CHAR,
-                     source, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-        // TODO multiple sends if proc number is > 2
-    }
-    else
-    {
-        throw "Error: unsupported communication policy";
-    }
+    MPI_Sendrecv(send_ptr, send_size, MPI_CHAR,
+                 dest, 0, recv_ptr, recv_size, MPI_CHAR,
+                 source, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
 
     if(cur_data_exchange_policy == RECENTLY_CHANGED)
     {
@@ -167,6 +149,29 @@ void LibraryData::exchange_data(_T *_new_data, int _size, MergeOp &&_merge_op, _
     for(int i = 0; i < _size; i++)
     {
         _new_data[i] = _merge_op(received_data[i], _new_data[i]);
+    }
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+template <typename _T, typename MergeOp>
+void LibraryData::exchange_data(_T *_new_data, int _size, MergeOp &&_merge_op, _T *_old_data)
+{
+    Timer tm;
+    tm.start();
+
+    if(communication_policy == CYCLE_COMMUNICATION)
+    {
+        for(int cur_shift = 1; cur_shift <= get_mpi_proc_num()/2; cur_shift *= 2)
+        {
+            MPI_Barrier(MPI_COMM_WORLD);
+            exchange_data_cycle_mode(_new_data, _size, _merge_op, _old_data, cur_shift);
+            MPI_Barrier(MPI_COMM_WORLD);
+        }
+    }
+    else
+    {
+        throw "Error: unsupported communication policy";
     }
 
     tm.end();

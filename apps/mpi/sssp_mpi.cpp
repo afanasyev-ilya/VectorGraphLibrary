@@ -98,10 +98,7 @@ void mpi_sssp(VectCSRGraph &_graph, EdgesArray_Vect<_T> &_weights,
         };
         changes = graph_API.reduce<int>(_graph, frontier, reduce_changes, REDUCE_SUM);
         double t2_loc = omp_get_wtime();
-        cout << "compute time: " << (t2_loc - t1_loc)*1000 << " ms" << endl;
         compute_time += t2_loc - t1_loc;
-
-        cout << 100.0 * (double)changes / _graph.get_vertices_count() << " % SAVING" << endl;
 
         int changes_buffer = 0;
         auto min_op = [](float _a, float _b)->float
@@ -119,8 +116,8 @@ void mpi_sssp(VectCSRGraph &_graph, EdgesArray_Vect<_T> &_weights,
     while(changes);
     double tt2 = omp_get_wtime();
 
+    cout << "iterations count: " <<  iterations_count << endl;
     cout << "compute_time: " << compute_time * 1000 << " ms" << endl;
-    cout << "non-opt time: " << non_opt_time * 1000 << " ms" << endl;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

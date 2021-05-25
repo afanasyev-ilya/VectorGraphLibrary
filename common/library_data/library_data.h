@@ -32,14 +32,17 @@ private:
     #ifdef __USE_MPI__
     CommunicationPolicy communication_policy;
     DataExchangePolicy data_exchange_policy;
+
+    template <typename _T, typename MergeOp>
+    void exchange_data_cycle_mode(_T *_new_data, int _size, MergeOp &&_merge_op, _T *_old_data, int _proc_shift);
     #endif
 public:
     LibraryData(){};
 
+    #ifdef __USE_MPI__
     inline int get_mpi_rank() { return mpi_rank; };
     inline int get_mpi_proc_num() { return mpi_proc_num; };
 
-    #ifdef __USE_MPI__
     void allocate_exchange_buffers(size_t max_size, size_t elem_size);
     void free_exchange_buffers();
 
