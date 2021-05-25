@@ -91,10 +91,15 @@ void SSSP::nec_dijkstra_all_active_push(VectCSRGraph &_graph,
                                         VerticesArray<_T> &_distances,
                                         int _source_vertex)
 {
+    #ifdef __USE_MPI__
+    vgl_library_data.set_data_exchange_policy(RECENTLY_CHANGED);
+    #endif
+
     VGL_GRAPH_ABSTRACTIONS graph_API(_graph);
     VGL_FRONTIER frontier(_graph);
+    VerticesArray<_T> prev_distances(_graph);
 
-    graph_API.change_traversal_direction(SCATTER, _distances, frontier);
+    graph_API.change_traversal_direction(SCATTER, _distances, prev_distances, frontier);
 
     Timer tm;
     tm.start();
@@ -117,34 +122,51 @@ void SSSP::nec_dijkstra_all_active_push(VectCSRGraph &_graph,
         changes = 0;
         iterations_count++;
 
-        #pragma omp parallel shared(changes)
+        auto save_old_distances = [&_distances, &prev_distances] __VGL_COMPUTE_ARGS__
         {
-            NEC_REGISTER_INT(was_changes, 0);
+            prev_distances[src_id] = _distances[src_id];
+        };
+        graph_API.compute(_graph, frontier, save_old_distances);
 
-            _T *distances_ptr = _distances.get_ptr();
-            auto edge_op_push = [&_distances, &_weights, &reg_was_changes, distances_ptr] __VGL_SCATTER_ARGS__
+        auto edge_op_push = [&_distances, &_weights] __VGL_SCATTER_ARGS__
+        {
+            _T weight = _weights[global_edge_pos];
+            _T src_weight = _distances[src_id];
+            if(_distances[dst_id] > src_weight + weight)
             {
-                _T weight = _weights[global_edge_pos];
-                _T src_weight = distances_ptr[src_id];
-                if(distances_ptr[dst_id] > src_weight + weight)
-                {
-                    distances_ptr[dst_id] = src_weight + weight;
-                    reg_was_changes[vector_index] = 1;
-                }
-            };
-
-            graph_API.scatter(_graph, frontier, edge_op_push, EMPTY_VERTEX_OP, EMPTY_VERTEX_OP,
-                              edge_op_push, EMPTY_VERTEX_OP, EMPTY_VERTEX_OP);
-
-            #pragma omp critical
-            {
-                changes += register_sum_reduce(reg_was_changes);
+                _distances[dst_id] = src_weight + weight;
             }
-        }
+        };
+
+        graph_API.scatter(_graph, frontier, edge_op_push);
+
+        auto reduce_changes = [&_distances, &prev_distances]__VGL_REDUCE_INT_ARGS__
+        {
+            int result = 0.0;
+            if(prev_distances[src_id] != _distances[src_id])
+            {
+                result = 1;
+            }
+            return result;
+        };
+        changes = graph_API.reduce<int>(_graph, frontier, reduce_changes, REDUCE_SUM);
+
+        auto min_op = [](_T _a, _T _b)->_T
+        {
+            return vect_min(_a, _b);
+        };
+        auto max_op = [](int _a, int _b)->int
+        {
+            return vect_max(_a, _b);
+        };
+
+        #ifdef __USE_MPI__
+        vgl_library_data.exchange_data(_distances.get_ptr(), _graph.get_vertices_count(), min_op,  prev_distances.get_ptr());
+        vgl_library_data.exchange_data(&changes, 1, max_op);
+        #endif
     }
     while(changes);
     tm.end();
-
 
     #ifdef __PRINT_SAMPLES_PERFORMANCE_STATS__
     performance_stats.print_algorithm_performance_stats("SSSP (Dijkstra, all-active, push)", tm.get_time(), _graph.get_edges_count());
@@ -162,7 +184,6 @@ void SSSP::nec_dijkstra_all_active_pull(VectCSRGraph &_graph,
                                         int _source_vertex)
 {
     #ifdef __USE_MPI__
-    vgl_library_data.allocate_exchange_buffers(_distances.size(), sizeof(_T));
     vgl_library_data.set_data_exchange_policy(RECENTLY_CHANGED);
     #endif
 

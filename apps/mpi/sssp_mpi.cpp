@@ -4,7 +4,7 @@
 #define VECTOR_ENGINE_THRESHOLD_VALUE VECTOR_LENGTH*MAX_SX_AURORA_THREADS*128
 
 #ifdef __USE_NEC_SX_AURORA__
-#define VECTOR_CORE_THRESHOLD_VALUE 3*VECTOR_LENGTH
+#define VECTOR_CORE_THRESHOLD_VALUE 5*VECTOR_LENGTH
 #endif
 
 #ifdef __USE_MULTICORE__
@@ -14,86 +14,6 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #include "graph_library.h"
-
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-template <typename _T>
-void mpi_sssp(VectCSRGraph &_graph, EdgesArray_Vect<_T> &_weights,
-              VerticesArray<_T> &_distances, int _source_vertex)
-{
-    VGL_GRAPH_ABSTRACTIONS graph_API(_graph);
-    VGL_FRONTIER frontier(_graph);
-
-    VerticesArray<_T> prev_distances(_graph);
-
-    _source_vertex = _graph.reorder(_source_vertex, ORIGINAL, SCATTER);
-    graph_API.change_traversal_direction(SCATTER, _distances, frontier);
-
-    Timer tm;
-    tm.start();
-
-    _T inf_val = std::numeric_limits<_T>::max() - MAX_WEIGHT;
-    auto init_distances = [&_distances, _source_vertex, inf_val] __VGL_COMPUTE_ARGS__
-    {
-        if(src_id == _source_vertex)
-            _distances[src_id] = 0;
-        else
-            _distances[src_id] = inf_val;
-    };
-    frontier.set_all_active();
-
-    graph_API.compute(_graph, frontier, init_distances);
-
-    int changes = 0, iterations_count = 0;
-    do
-    {
-        changes = 0;
-        iterations_count++;
-
-        auto save_old_distances = [&_distances, &prev_distances] __VGL_COMPUTE_ARGS__
-        {
-            prev_distances[src_id] = _distances[src_id];
-        };
-        graph_API.compute(_graph, frontier, save_old_distances);
-
-        auto edge_op_push = [&_distances, &_weights] __VGL_SCATTER_ARGS__
-        {
-            _T weight = _weights[global_edge_pos];
-            _T src_weight = _distances[src_id];
-            if(_distances[dst_id] > src_weight + weight)
-            {
-                _distances[dst_id] = src_weight + weight;
-            }
-        };
-
-        graph_API.scatter(_graph, frontier, edge_op_push);
-
-        auto reduce_changes = [&_distances, &prev_distances]__VGL_REDUCE_INT_ARGS__
-        {
-            int result = 0.0;
-            if(prev_distances[src_id] != _distances[src_id])
-            {
-                result = 1;
-            }
-            return result;
-        };
-        changes = graph_API.reduce<int>(_graph, frontier, reduce_changes, REDUCE_SUM);
-
-        auto min_op = [](_T _a, _T _b)->_T
-        {
-            return vect_min(_a, _b);
-        };
-        auto max_op = [](int _a, int _b)->int
-        {
-            return vect_max(_a, _b);
-        };
-
-        vgl_library_data.exchange_data(_distances.get_ptr(), _graph.get_vertices_count(), min_op,  prev_distances.get_ptr());
-        vgl_library_data.exchange_data(&changes, 1, max_op);
-    }
-    while(changes);
-    MPI_Barrier(MPI_COMM_WORLD);
-}
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -146,20 +66,10 @@ int main(int argc, char **argv)
         vgl_library_data.exchange_data(&source_vertex, 1, min_id);
         cout << "source vertex: " << source_vertex << endl;
 
-        if(parser.get_traversal_direction() == PUSH_TRAVERSAL)
-        {
-            performance_stats.reset_timers();
-            mpi_sssp(graph, weights, distances, source_vertex);
-            performance_stats.update_timer_stats();
-            performance_stats.print_timers_stats();
-        }
-        else if(parser.get_traversal_direction() == PULL_TRAVERSAL)
-        {
-            performance_stats.reset_timers();
-            SSSP::nec_dijkstra(graph, weights, distances, source_vertex, ALL_ACTIVE, parser.get_traversal_direction());
-            performance_stats.update_timer_stats();
-            performance_stats.print_timers_stats();
-        }
+        performance_stats.reset_timers();
+        SSSP::nec_dijkstra(graph, weights, distances, source_vertex, ALL_ACTIVE, parser.get_traversal_direction());
+        performance_stats.update_timer_stats();
+        performance_stats.print_timers_stats();
 
         if(parser.get_check_flag())
         {

@@ -20,7 +20,7 @@ void FrontierNEC::set_all_active()
     }
 
     #ifdef __USE_MPI__
-    calculate_collective_mpi_thresholds();
+    calculate_vector_engine_mpi_thresholds();
     calculate_vector_core_mpi_thresholds();
     calculate_collective_mpi_thresholds();
     #endif
