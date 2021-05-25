@@ -30,6 +30,7 @@ private:
 
     #ifdef __USE_MPI__
     double MPI_time;
+    double MPI_functions_time;
     int get_mpi_rank();
     #endif
 
@@ -59,7 +60,11 @@ public:
     inline void update_pack_time(Timer &_timer);
     inline void update_reorder_time(Timer &_timer);
     inline void update_non_api_time(Timer &_timer);
+
+    #ifdef __USE_MPI__
     inline void update_MPI_time(Timer &_timer);
+    inline void update_MPI_functions_time(Timer &_timer);
+    #endif
 
     inline void update_advance_ve_part_time(Timer &_timer);
     inline void update_advance_vc_part_time(Timer &_timer);

@@ -169,6 +169,18 @@ void PerformanceStats::update_MPI_time(Timer &_timer)
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+#ifdef __USE_MPI__
+void PerformanceStats::update_MPI_functions_time(Timer &_timer)
+{
+    #pragma omp single
+    {
+        MPI_functions_time += _timer.get_time();
+    }
+}
+#endif
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 void PerformanceStats::update_bytes_requested(size_t _bytes)
 {
     #pragma omp single
@@ -221,6 +233,7 @@ void PerformanceStats::reset_timers()
 
     #ifdef __USE_MPI__
     MPI_time = 0;
+    MPI_functions_time = 0;
     #endif
 
     bytes_requested = 0;
@@ -291,6 +304,7 @@ void PerformanceStats::print_timers_stats()
     print_abstraction_stats("Non-API       ", non_api_time);
     #ifdef __USE_MPI__
     print_abstraction_stats("MPI           ", MPI_time);
+    print_abstraction_stats("MPI functions ", MPI_functions_time);
     #endif
     cout << endl;
 

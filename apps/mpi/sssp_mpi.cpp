@@ -21,11 +21,6 @@ template <typename _T>
 void mpi_sssp(VectCSRGraph &_graph, EdgesArray_Vect<_T> &_weights,
               VerticesArray<_T> &_distances, int _source_vertex)
 {
-    #ifdef __USE_MPI__
-    vgl_library_data.allocate_exchange_buffers(_distances.size(), sizeof(_T));
-    vgl_library_data.set_data_exchange_policy(RECENTLY_CHANGED);
-    #endif
-
     VGL_GRAPH_ABSTRACTIONS graph_API(_graph);
     VGL_FRONTIER frontier(_graph);
 
@@ -133,22 +128,33 @@ int main(int argc, char **argv)
             tm.print_time_stats("Graph load");
         }
 
+        #ifdef __USE_MPI__
+        vgl_library_data.allocate_exchange_buffers(graph.get_vertices_count(), sizeof(float));
+        vgl_library_data.set_data_exchange_policy(RECENTLY_CHANGED);
+        #endif
+
         EdgesArray_Vect<float> weights(graph);
         weights.set_all_constant(1.0);
 
         VerticesArray<float> distances(graph);
 
-        int source_vertex = graph.select_random_vertex(ORIGINAL);//TODO BCAST
+        int source_vertex = graph.select_random_vertex(ORIGINAL);
+        auto min_id = [](int _a, int _b)->int
+        {
+            return vect_min(_a, _b);
+        };
+        vgl_library_data.exchange_data(&source_vertex, 1, min_id);
+        cout << "source vertex: " << source_vertex << endl;
 
         performance_stats.reset_timers();
         mpi_sssp(graph, weights, distances, source_vertex);
         performance_stats.update_timer_stats();
         performance_stats.print_timers_stats();
 
-        performance_stats.reset_timers();
+        /*performance_stats.reset_timers();
         SSSP::nec_dijkstra_all_active_pull(graph, weights, distances, source_vertex);
         performance_stats.update_timer_stats();
-        performance_stats.print_timers_stats();
+        performance_stats.print_timers_stats();*/
 
         if(parser.get_check_flag())
         {

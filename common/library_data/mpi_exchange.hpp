@@ -27,7 +27,11 @@ inline int prepare_exchange_data(_T *_new, _T *_old, int _size)
             result = 1;
         return result;
     };
+    double t1 = omp_get_wtime();
     int changes_count = generic_dense_copy_if(copy_cond, output_indexes, tmp_indexes_buffer, _size, 0, DONT_SAVE_ORDER);
+    double t2 = omp_get_wtime();
+    cout << "copy if time: " << (t2 - t1) *1000.0 << " ms " << vgl_library_data.get_mpi_rank() << endl;
+    cout << "copy if BW: " << _size * 2.0 * sizeof(int) / ((t2 - t1)*1e9) << " GB/s " << vgl_library_data.get_mpi_rank() << endl;
 
     _T *output_data = (_T*) (&send_buffer[changes_count*sizeof(int)]);
     _T *tmp_data_buffer = (_T*) (&recv_buffer[changes_count*sizeof(int)]);
@@ -115,9 +119,13 @@ void LibraryData::exchange_data_cycle_mode(_T *_new_data, int _size, MergeOp &&_
         recv_ptr = recv_buffer;
     }
 
+    Timer send_recv_tm;
+    send_recv_tm.start();
     MPI_Sendrecv(send_ptr, send_size, MPI_CHAR,
                  dest, 0, recv_ptr, recv_size, MPI_CHAR,
                  source, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+    send_recv_tm.end();
+    performance_stats.update_MPI_functions_time(send_recv_tm);
 
     if(cur_data_exchange_policy == RECENTLY_CHANGED)
     {
@@ -149,23 +157,26 @@ void LibraryData::exchange_data_cycle_mode(_T *_new_data, int _size, MergeOp &&_
 template <typename _T, typename MergeOp>
 void LibraryData::exchange_data(_T *_new_data, int _size, MergeOp &&_merge_op, _T *_old_data)
 {
+    MPI_Barrier(MPI_COMM_WORLD);
     Timer tm;
     tm.start();
 
     if(communication_policy == CYCLE_COMMUNICATION)
     {
-        for(int cur_shift = 1; cur_shift <= get_mpi_proc_num()/2; cur_shift *= 2)
-        {
-            MPI_Barrier(MPI_COMM_WORLD);
+        int cur_shift = 1;
+        //for(int cur_shift = 1; cur_shift <= get_mpi_proc_num()/2; cur_shift *= 2)
+        //{
+            //MPI_Barrier(MPI_COMM_WORLD);
             exchange_data_cycle_mode(_new_data, _size, _merge_op, _old_data, cur_shift);
-            MPI_Barrier(MPI_COMM_WORLD);
-        }
+            //MPI_Barrier(MPI_COMM_WORLD);
+        //}
     }
     else
     {
         throw "Error: unsupported communication policy";
     }
 
+    MPI_Barrier(MPI_COMM_WORLD);
     tm.end();
     performance_stats.update_MPI_time(tm);
 }
