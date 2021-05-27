@@ -34,7 +34,8 @@ int main(int argc, char **argv)
                 GraphGenerationAPI::random_uniform(el_graph, v, v * parser.get_avg_degree(), DIRECTED_GRAPH);
 
             EdgesListGraph copy_graph = el_graph;
-            graph.import(copy_graph);
+            graph.import(copy_graph, 4);
+            //graph.import(copy_graph);
         }
         else if(parser.get_compute_mode() == LOAD_GRAPH_FROM_FILE)
         {
@@ -51,7 +52,8 @@ int main(int argc, char **argv)
         tm.start();
         // generate weights
         EdgesArray_EL<int> el_weights(el_graph);
-        el_weights.set_all_random(MAX_WEIGHT);
+        //el_weights.set_all_random(MAX_WEIGHT);
+        el_weights.set_all_constant(1.0);
 
         EdgesArray_Sharded<int> weights(graph);
         weights = el_weights;

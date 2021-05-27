@@ -2,7 +2,7 @@
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void ShardedCSRGraph::import_direction(EdgesListGraph &_el_graph, TraversalDirection _import_direction)
+void ShardedCSRGraph::import_direction_2D_segmented(EdgesListGraph &_el_graph, TraversalDirection _import_direction)
 {
     int *work_buffer;
     vgl_sort_indexes *edges_reorder_indexes;
@@ -102,27 +102,96 @@ void ShardedCSRGraph::import_direction(EdgesListGraph &_el_graph, TraversalDirec
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void ShardedCSRGraph::import(EdgesListGraph &_el_graph)
+void ShardedCSRGraph::import_direction_random_segmenting(EdgesListGraph &_el_graph, TraversalDirection _import_direction)
+{
+    UndirectedCSRGraph whole_graph;
+    whole_graph.import(_el_graph);
+
+    int *shards_for_vertex;
+    MemoryAPI::allocate_array(&shards_for_vertex, _el_graph.get_vertices_count());
+
+    for(int i = 0; i < whole_graph.get_vertices_count(); i++)
+    {
+        shards_for_vertex[i] = rand() % shards_number;
+    }
+
+    // fill edges list - can be done in parallel
+
+    /*for(int i = 0; i < whole_graph.get_vertices_count(); i++)
+    {
+        int current_shard = rand() % shards_number;
+        graph[current_shard].add_vertex(int id, vector<int> adjacent_ids);
+    }*/
+
+    for(int shard_id = 0; shard_id < shards_number; shard_id++)
+    {
+        vector<int> src_ids_vec;
+        vector<int> dst_ids_vec;
+
+        size_t edges_in_shard = 0;
+
+        for(int src_id = 0; src_id < whole_graph.get_vertices_count(); src_id++)
+        {
+            if(shards_for_vertex[src_id] == shard_id)
+            {
+                int connections = whole_graph.get_connections_count(src_id);
+                for(int i = 0; i < connections; i++)
+                {
+                    int dst_id = whole_graph.get_edge_dst(src_id, i);
+                    src_ids_vec.push_back(src_id);
+                    dst_ids_vec.push_back(dst_id);
+                }
+                edges_in_shard += connections;
+            }
+        }
+
+        EdgesListGraph edges_list_shard;
+        edges_list_shard.import(&src_ids_vec[0], &dst_ids_vec[0], _el_graph.get_vertices_count(), edges_in_shard);
+        outgoing_shards[shard_id].import(edges_list_shard);
+
+        cout << "shard: " << shard_id << " v=" << outgoing_shards[shard_id].get_vertices_count() << " e="
+        << outgoing_shards[shard_id].get_edges_count() << endl;
+    }
+    cout << "whole old: " << " v=" << _el_graph.get_vertices_count() << " e=" << _el_graph.get_edges_count() << endl;
+
+    MemoryAPI::free_array(shards_for_vertex);
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+void ShardedCSRGraph::import(EdgesListGraph &_el_graph, int _force_shards_number)
 {
     this->vertices_count = _el_graph.get_vertices_count();
     this->edges_count = _el_graph.get_edges_count();
 
-    max_cached_vertices = 8*1024*1024/(sizeof(int));
-    shards_number = (this->vertices_count - 1)/max_cached_vertices + 1;
-    cout << "Shards number: " << shards_number << endl;
-
-    resize(shards_number, this->vertices_count);
-
-    if(can_use_scatter())
+    if(_force_shards_number == 0)
     {
-        import_direction(_el_graph, SCATTER);
+        max_cached_vertices = 8*1024*1024/(sizeof(int));
+        shards_number = (this->vertices_count - 1)/max_cached_vertices + 1;
+        cout << "Shards number: " << shards_number << endl;
+
+        resize(shards_number, this->vertices_count);
+
+        if(can_use_scatter())
+        {
+            import_direction_2D_segmented(_el_graph, SCATTER);
+        }
+
+        if(can_use_gather())
+        {
+            _el_graph.transpose();
+            import_direction_2D_segmented(_el_graph, GATHER);
+            _el_graph.transpose();
+        }
     }
-
-    if(can_use_gather())
+    else
     {
-        _el_graph.transpose();
-        import_direction(_el_graph, GATHER);
-        _el_graph.transpose();
+        shards_number = _force_shards_number;
+        cout << "Shards number: " << shards_number << endl;
+
+        resize(shards_number, this->vertices_count);
+
+        import_direction_random_segmenting(_el_graph, SCATTER);
     }
 }
 

@@ -24,7 +24,8 @@ private:
 
     long long *vertices_reorder_buffer;
 
-    void import_direction(EdgesListGraph &_el_graph, TraversalDirection _import_direction);
+    void import_direction_2D_segmented(EdgesListGraph &_el_graph, TraversalDirection _import_direction);
+    void import_direction_random_segmenting(EdgesListGraph &_el_graph, TraversalDirection _import_direction);
 
     int get_shard_id(int _dst_id) { return _dst_id / max_cached_vertices; };
 
@@ -75,7 +76,7 @@ public:
     /* Further - ShardedCSRGraph specific API : reorder, working with double-directions, etc.*/
 
     // creates ShardedCSRGraph format from EdgesListGraph
-    void import(EdgesListGraph &_el_graph);
+    void import(EdgesListGraph &_el_graph, int _force_shards = 0);
 
     // selects random vertex with non-zero outgoing and incoming degree
     int select_random_vertex(TraversalDirection _direction = ORIGINAL);
