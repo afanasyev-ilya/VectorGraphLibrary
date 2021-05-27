@@ -115,15 +115,34 @@ void ShardedCSRGraph::import_direction_random_segmenting(EdgesListGraph &_el_gra
         shards_for_vertex[i] = rand() % shards_number;
     }
 
-    // fill edges list - can be done in parallel
-
-    /*for(int i = 0; i < whole_graph.get_vertices_count(); i++)
-    {
-        int current_shard = rand() % shards_number;
-        graph[current_shard].add_vertex(int id, vector<int> adjacent_ids);
-    }*/
-
     for(int shard_id = 0; shard_id < shards_number; shard_id++)
+    {
+        vector<int> src_ids_vec;
+        vector<int> dst_ids_vec;
+
+        size_t edges_in_shard = 0;
+
+        for(size_t i = 0; i < _el_graph.get_edges_count(); i++)
+        {
+            int src_id = _el_graph.get_src_ids()[i];
+            int dst_id = _el_graph.get_dst_ids()[i];
+            if(shards_for_vertex[src_id] == shard_id)
+            {
+                src_ids_vec.push_back(src_id);
+                dst_ids_vec.push_back(dst_id);
+                edges_in_shard++;
+            }
+        }
+
+        EdgesListGraph edges_list_shard;
+        edges_list_shard.import(&src_ids_vec[0], &dst_ids_vec[0], _el_graph.get_vertices_count(), edges_in_shard);
+        outgoing_shards[shard_id].import(edges_list_shard);
+
+        cout << "shard: " << shard_id << " v=" << outgoing_shards[shard_id].get_vertices_count() << " e="
+             << outgoing_shards[shard_id].get_edges_count() << endl;
+    }
+
+    /*for(int shard_id = 0; shard_id < shards_number; shard_id++)
     {
         vector<int> src_ids_vec;
         vector<int> dst_ids_vec;
@@ -151,7 +170,7 @@ void ShardedCSRGraph::import_direction_random_segmenting(EdgesListGraph &_el_gra
 
         cout << "shard: " << shard_id << " v=" << outgoing_shards[shard_id].get_vertices_count() << " e="
         << outgoing_shards[shard_id].get_edges_count() << endl;
-    }
+    }*/
     cout << "whole old: " << " v=" << _el_graph.get_vertices_count() << " e=" << _el_graph.get_edges_count() << endl;
 
     MemoryAPI::free_array(shards_for_vertex);
