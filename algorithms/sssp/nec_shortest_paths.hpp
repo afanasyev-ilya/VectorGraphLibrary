@@ -402,13 +402,21 @@ template <typename _T>
 void SSSP::nec_dijkstra(ShardedCSRGraph &_graph,
                         EdgesArray_Sharded<_T> &_weights,
                         VerticesArray<_T> &_distances,
-                        int _source_vertex)
+                        int _source_vertex,
+                        AlgorithmTraversalType _traversal_direction)
 {
-    VGL_GRAPH_ABSTRACTIONS graph_API(_graph, SCATTER);
-    VGL_FRONTIER frontier(_graph, SCATTER);
+    TraversalDirection direction = SCATTER;
+
+    if(_traversal_direction == PUSH_TRAVERSAL)
+        direction = SCATTER;
+    else if(_traversal_direction == PULL_TRAVERSAL)
+        direction = GATHER;
+
+    VGL_GRAPH_ABSTRACTIONS graph_API(_graph, direction);
+    VGL_FRONTIER frontier(_graph, direction);
 
     graph_API.attach_data(_distances);
-    graph_API.change_traversal_direction(SCATTER); // TODO -- is it needed?
+    graph_API.change_traversal_direction(direction); // TODO -- is it needed?
 
     Timer tm;
     tm.start();
@@ -444,14 +452,27 @@ void SSSP::nec_dijkstra(ShardedCSRGraph &_graph,
             }
         };
 
-        graph_API.scatter(_graph, frontier, edge_op_push, EMPTY_VERTEX_OP, EMPTY_VERTEX_OP,
-                         edge_op_push, EMPTY_VERTEX_OP, EMPTY_VERTEX_OP);
+        auto edge_op_pull = [&_distances, &_weights, &reg_was_changes, &changes] __VGL_SCATTER_ARGS__
+        {
+            _T weight = _weights[global_edge_pos];
+            _T dst_weight = _distances[dst_id];
+
+            if(_distances[src_id] > dst_weight + weight)
+            {
+                _distances[src_id] = dst_weight + weight;
+                reg_was_changes[vector_index] = 1;
+            }
+        };
+
+        if(direction == SCATTER)
+            graph_API.scatter(_graph, frontier, edge_op_push);
+        else
+            graph_API.gather(_graph, frontier, edge_op_pull);
 
         changes += register_sum_reduce(reg_was_changes);
     }
     while(changes);
     tm.end();
-
 
     #ifdef __PRINT_SAMPLES_PERFORMANCE_STATS__
     performance_stats.print_algorithm_performance_stats("SSSP (Dijkstra, sharded graph)", tm.get_time(), _graph.get_edges_count());

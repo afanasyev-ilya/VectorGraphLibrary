@@ -90,7 +90,8 @@ public:
     static void nec_dijkstra(ShardedCSRGraph &_graph,
                              EdgesArray_Sharded<_T> &_weights, // TODO
                              VerticesArray<_T> &_distances,
-                             int _source_vertex);
+                             int _source_vertex,
+                             AlgorithmTraversalType _traversal_direction);
     #endif
 
     #ifdef __USE_GPU__

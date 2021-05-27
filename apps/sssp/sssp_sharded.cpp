@@ -23,7 +23,8 @@ int main(int argc, char **argv)
 
         Timer tm;
         tm.start();
-        ShardedCSRGraph graph(USE_SCATTER_ONLY);
+        //ShardedCSRGraph graph(USE_SCATTER_ONLY);
+        ShardedCSRGraph graph(USE_BOTH);
         EdgesListGraph el_graph;
         if(parser.get_compute_mode() == GENERATE_NEW_GRAPH)
         {
@@ -69,7 +70,7 @@ int main(int argc, char **argv)
             VerticesArray<int> distances(graph, ORIGINAL);
 
             performance_stats.reset_timers();
-            ShortestPaths::nec_dijkstra(graph, weights, distances, source_vertex);
+            ShortestPaths::nec_dijkstra(graph, weights, distances, source_vertex, parser.get_traversal_direction());
             performance_stats.update_timer_stats();
             //performance_stats.print_timers_stats();
 
