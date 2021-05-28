@@ -123,7 +123,7 @@ void UndirectedCSRGraph::save_main_content_to_binary_file(FILE *_graph_file)
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void UndirectedCSRGraph::load_main_content_to_binary_file(FILE *_graph_file)
+void UndirectedCSRGraph::load_main_content_from_binary_file(FILE *_graph_file)
 {
     fread(reinterpret_cast<char*>(vertex_pointers), sizeof(long long), vertices_count + 1, _graph_file);
     fread(reinterpret_cast<char*>(adjacent_ids), sizeof(int), edges_count, _graph_file);
@@ -179,7 +179,7 @@ bool UndirectedCSRGraph::load_from_binary_file(string _file_name)
 
     resize(this->vertices_count, this->edges_count);
 
-    load_main_content_to_binary_file(graph_file);
+    load_main_content_from_binary_file(graph_file);
 
     fclose(graph_file);
     return true;

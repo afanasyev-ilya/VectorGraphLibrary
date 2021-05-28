@@ -30,8 +30,8 @@ public:
     virtual size_t get_size() = 0;
 
     /* file load/store API */
-    virtual bool save_to_binary_file(string file_name) = 0;
-    virtual bool load_from_binary_file(string file_name) = 0;
+    virtual bool save_to_binary_file(string _file_name) = 0;
+    virtual bool load_from_binary_file(string _file_name) = 0;
 
     /* GPU specific (copy) API */
     #ifdef __USE_GPU__

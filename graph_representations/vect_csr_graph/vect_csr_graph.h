@@ -80,8 +80,8 @@ public:
     void print_vertex_information(TraversalDirection _direction, int _src_id, int _num_edges);
 
     /* file load/store API */
-    bool save_to_binary_file(string file_name);
-    bool load_from_binary_file(string file_name);
+    bool save_to_binary_file(string _file_name);
+    bool load_from_binary_file(string _file_name);
 
     /* GPU specific (copy) API */
     #ifdef __USE_GPU__

@@ -133,12 +133,12 @@ bool VectCSRGraph::load_from_binary_file(string _file_name)
     this->resize(this->vertices_count, this->edges_count);
 
     if(outgoing_is_stored())
-        outgoing_graph->load_main_content_to_binary_file(graph_file);
+        outgoing_graph->load_main_content_from_binary_file(graph_file);
     else
-        incoming_graph->load_main_content_to_binary_file(graph_file); // TODO this should be equal to skip
+        incoming_graph->load_main_content_from_binary_file(graph_file); // TODO this should be equal to skip
 
     if(incoming_is_stored())
-        incoming_graph->load_main_content_to_binary_file(graph_file);
+        incoming_graph->load_main_content_from_binary_file(graph_file);
 
     fclose(graph_file);
     return true;

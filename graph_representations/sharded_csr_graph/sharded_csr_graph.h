@@ -55,6 +55,9 @@ public:
     inline long long get_direction_shift();
     inline long long get_shard_shift(int _shard_id, TraversalDirection _direction);
 
+    bool outgoing_is_stored() { return can_use_scatter(); };
+    bool incoming_is_stored() { return can_use_gather(); };
+
     /* print API */
     void print();
     void print_size();
@@ -63,9 +66,9 @@ public:
     size_t get_size();
 
     /* file load/store API */
-    void save_to_graphviz_file(string file_name, VisualisationMode _visualisation_mode = VISUALISE_AS_DIRECTED) {};
-    bool save_to_binary_file(string file_name) {return false;};
-    bool load_from_binary_file(string file_name) {return false;};
+    void save_to_graphviz_file(string _file_name, VisualisationMode _visualisation_mode = VISUALISE_AS_DIRECTED) {};
+    bool save_to_binary_file(string _file_name);
+    bool load_from_binary_file(string _file_name);
 
     /* GPU specific (copy) API */
     #ifdef __USE_GPU__

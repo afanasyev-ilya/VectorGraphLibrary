@@ -24,7 +24,7 @@ int main(int argc, char **argv)
         Timer tm;
         tm.start();
         //ShardedCSRGraph graph(USE_SCATTER_ONLY);
-        ShardedCSRGraph graph(USE_BOTH);
+        ShardedCSRGraph graph;
         EdgesListGraph el_graph;
         if(parser.get_compute_mode() == GENERATE_NEW_GRAPH)
         {
@@ -35,8 +35,10 @@ int main(int argc, char **argv)
                 GraphGenerationAPI::random_uniform(el_graph, v, v * parser.get_avg_degree(), DIRECTED_GRAPH);
 
             EdgesListGraph copy_graph = el_graph;
+
             graph.import(copy_graph, 4);
             //graph.import(copy_graph);
+            graph.save_to_binary_file("test.sharded_graph");
         }
         else if(parser.get_compute_mode() == LOAD_GRAPH_FROM_FILE)
         {
