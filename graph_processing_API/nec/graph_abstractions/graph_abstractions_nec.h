@@ -289,6 +289,13 @@ public:
               ReduceOperation &&reduce_op,
               REDUCE_TYPE _reduce_type);
 
+    // performs reduction using user-defined "reduce_op" operation for each element in the given frontier
+    template <typename _T, typename ReduceOperation>
+    _T reduce(ShardedCSRGraph &_graph,
+              FrontierNEC &_frontier,
+              ReduceOperation &&reduce_op,
+              REDUCE_TYPE _reduce_type);
+
     // creates new frontier, which satisfy user-defined "cond" condition
     template <typename FilterCondition>
     void generate_new_frontier(VectCSRGraph &_graph,

@@ -281,7 +281,7 @@ void SSSP::nec_dijkstra_all_active_pull(VectCSRGraph &_graph,
             graph_API.disable_safe_stores();
         }
 
-        auto reduce_changes = [&_distances, &prev_distances]__VGL_COMPUTE_ARGS__->int
+        auto reduce_changes = [&_distances, &prev_distances] __VGL_REDUCE_INT_ARGS__
         {
             int result = 0.0;
             if(prev_distances[src_id] != _distances[src_id])
@@ -445,15 +445,13 @@ void SSSP::nec_dijkstra(ShardedCSRGraph &_graph,
         changes = 0;
         iterations_count++;
 
-        NEC_REGISTER_INT(was_changes, 0);
-
         auto save_old_distances = [&_distances, &prev_distances] __VGL_COMPUTE_ARGS__
         {
             prev_distances[src_id] = _distances[src_id];
         };
         graph_API.compute(_graph, frontier, save_old_distances);
 
-        auto edge_op_push = [&_distances, &_weights, &reg_was_changes, &changes] __VGL_SCATTER_ARGS__
+        auto edge_op_push = [&_distances, &_weights] __VGL_SCATTER_ARGS__
         {
             _T weight = _weights[global_edge_pos];
             _T src_weight = _distances[src_id];
@@ -461,11 +459,10 @@ void SSSP::nec_dijkstra(ShardedCSRGraph &_graph,
             if(_distances[dst_id] > src_weight + weight)
             {
                 _distances[dst_id] = src_weight + weight;
-                reg_was_changes[vector_index] = 1;
             }
         };
 
-        auto edge_op_pull = [&_distances, &_weights, &reg_was_changes, &changes] __VGL_SCATTER_ARGS__
+        auto edge_op_pull = [&_distances, &_weights] __VGL_SCATTER_ARGS__
         {
             _T weight = 1.0;//_weights[global_edge_pos];
             _T dst_weight = _distances[dst_id];
@@ -473,7 +470,6 @@ void SSSP::nec_dijkstra(ShardedCSRGraph &_graph,
             if(_distances[src_id] > dst_weight + weight)
             {
                 _distances[src_id] = dst_weight + weight;
-                reg_was_changes[vector_index] = 1;
             }
         };
 
@@ -482,7 +478,16 @@ void SSSP::nec_dijkstra(ShardedCSRGraph &_graph,
         else
             graph_API.gather(_graph, frontier, edge_op_pull);
 
-        changes += register_sum_reduce(reg_was_changes);
+        auto reduce_changes = [&_distances, &prev_distances] __VGL_REDUCE_INT_ARGS__
+        {
+            int result = 0.0;
+            if(prev_distances[src_id] != _distances[src_id])
+            {
+                result = 1;
+            }
+            return result;
+        };
+        changes = graph_API.reduce<int>(_graph, frontier, reduce_changes, REDUCE_SUM);
 
         #ifdef __USE_MPI__
         auto min_op = [](_T _a, _T _b)->_T

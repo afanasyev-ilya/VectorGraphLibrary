@@ -136,11 +136,11 @@ void GraphAbstractionsNEC::compute(ShardedCSRGraph &_graph,
     UndirectedCSRGraph *current_direction_graph;
     if(current_traversal_direction == SCATTER)
     {
-        current_direction_graph = _graph.get_outgoing_shard_ptr(0); // TODO
+        current_direction_graph = _graph.get_outgoing_shard_ptr(0); // TODO need rework for all shards (connections count problem)
     }
     else if(current_traversal_direction == GATHER)
     {
-        current_direction_graph = _graph.get_incoming_shard_ptr(0);  // TODO
+        current_direction_graph = _graph.get_incoming_shard_ptr(0);  // TODO need rework for all shards (connections count problem)
     }
 
     if(omp_in_parallel())

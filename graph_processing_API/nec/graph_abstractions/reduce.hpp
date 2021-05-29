@@ -124,3 +124,48 @@ _T GraphAbstractionsNEC::reduce(VectCSRGraph &_graph,
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+template <typename _T, typename ReduceOperation>
+_T GraphAbstractionsNEC::reduce(ShardedCSRGraph &_graph,
+                                FrontierNEC &_frontier,
+                                ReduceOperation &&reduce_op,
+                                REDUCE_TYPE _reduce_type)
+{
+    Timer tm;
+    tm.start();
+
+    if(_frontier.get_direction() != current_traversal_direction)
+    {
+        throw "Error in GraphAbstractionsNEC::reduce : wrong frontier direction";
+    }
+
+    UndirectedCSRGraph *current_direction_graph;
+    if(current_traversal_direction == SCATTER)
+    {
+        current_direction_graph = _graph.get_outgoing_shard_ptr(0); // TODO need rework for all shards (connections count problem)
+    }
+    else if(current_traversal_direction == GATHER)
+    {
+        current_direction_graph = _graph.get_incoming_shard_ptr(0);  // TODO need rework for all shards (connections count problem)
+    }
+
+    if(_reduce_type == REDUCE_SUM)
+    {
+        return reduce_sum<_T>(*current_direction_graph, _frontier, reduce_op);
+    }
+    else
+    {
+        throw "Error in GraphPrimitivesNEC::reduce: non-sum reduce are currently unsupported";
+        return 0;
+    }
+
+    tm.end();
+    long long work = _frontier.size();
+    performance_stats.update_reduce_time(tm);
+    performance_stats.update_bytes_requested(REDUCE_INT_ELEMENTS*sizeof(int)*work);
+    #ifdef __PRINT_API_PERFORMANCE_STATS__
+    tm.print_bandwidth_stats("Reduce", work, REDUCE_INT_ELEMENTS*sizeof(int));
+    #endif
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
