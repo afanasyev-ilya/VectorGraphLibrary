@@ -7,8 +7,9 @@ args=("$@")
 number_of_arguments=$#
 
 program_name=${args[0]}
+mpi_proc_num=${args[1]}
 
-for (( c=1; c<=${number_of_arguments}; c++ ))
+for (( c=2; c<=${number_of_arguments}; c++ ))
 do
    program_args+=(${args[c]})
 done
@@ -17,6 +18,6 @@ echo test : ${program_name}
 echo args : ${program_args[@]}
 
 
-mpirun -np 1 -ve 0 ${program_name} ${program_args[@]}
-printf "\n\n\n"
-mpirun -np 2 -ve 0-1 ${program_name} ${program_args[@]}
+mpirun -np $mpi_proc_num -ve 0-$mpi_proc_num ${program_name} ${program_args[@]}
+#printf "\n\n\n"
+#mpirun -np 2 -ve 0-1 ${program_name} ${program_args[@]}

@@ -1,6 +1,5 @@
 VE_CXX = nc++
 VH_CXX = g++
-MPI_VE_CXX = mpinc++
 #VE_CXX = nc++-2.5.1
 
 # Include paths...
@@ -24,9 +23,6 @@ all: sssp sssp_sharded sswp bfs scc pr cc rw hits apsp coloring print_graph_info
 
 sssp: create_folders sssp.o
 	$(VE_CXX) object_files/sssp.o $(Library_Path) $(Libraries) -o ./bin/sssp_sx
-
-sssp_mpi: create_folders sssp_mpi.o
-	$(MPI_VE_CXX) object_files/sssp_mpi.o $(Library_Path) $(Libraries) -o ./bin/sssp_mpi_sx
 
 sswp: create_folders sswp.o
 	$(VE_CXX) object_files/sswp.o $(Library_Path) $(Libraries) -o ./bin/sswp_sx
@@ -76,9 +72,6 @@ sswp.o: sswp/sswp.cpp
 
 sssp_sharded.o: sssp/sssp_sharded.cpp
 	$(VE_CXX) $(Flags) $(Include_Path)  -c sssp/sssp_sharded.cpp -o object_files/sssp_sharded.o
-
-sssp_mpi.o: mpi/sssp_mpi.cpp
-	$(MPI_VE_CXX) $(Flags) -D __USE_MPI__ $(Include_Path)  -c mpi/sssp_mpi.cpp -o object_files/sssp_mpi.o
 
 bfs.o: bfs/bfs.cpp
 	$(VE_CXX) $(Flags) $(Include_Path)  -c bfs/bfs.cpp -o object_files/bfs.o

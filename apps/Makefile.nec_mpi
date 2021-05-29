@@ -1,0 +1,58 @@
+VE_CXX = nc++
+VH_CXX = g++
+MPI_VE_CXX = mpinc++
+
+# Include paths...
+
+# Include paths...
+Include_Path = -I /opt/nec/ve/nlc/2.0.0/include/ -I ../
+Flags = -D __USE_NEC_SX_AURORA__ -O3 -fopenmp -proginf -mparallel -mretain-list-vector -DASL_LIB_INT64 #-report-all #-mno-vector #-ftrace
+
+# Library paths...
+Library_Path =
+Libraries = -fopenmp -ftrace -lasl_openmp_i64 # -report-all -ftrace
+#  -floop-normalize -floop-interchange -floop-collapse -mretain-list-vector
+
+.DEFAULT_GOAL := all
+
+##########
+# binaries
+##########
+
+all: sssp_sharded_mpi sssp_mpi create_vgl_graphs
+
+sssp_mpi: create_folders sssp_mpi.o
+	$(MPI_VE_CXX) object_files/sssp_mpi.o $(Library_Path) $(Libraries) -o ./bin/sssp_mpi_sx
+
+sssp_sharded_mpi: create_folders sssp_sharded.o
+	$(MPI_VE_CXX) object_files/sssp_sharded.o $(Library_Path) $(Libraries) -o ./bin/sssp_sharded_mpi_sx
+
+create_vgl_graphs: create_folders create_vgl_graphs.o
+	$(VH_CXX) -fopenmp object_files/create_vgl_graphs.o -o ./bin/create_vgl_graphs_sx
+
+##########
+# CPPs
+##########
+
+sssp_sharded.o: sssp/sssp_sharded.cpp
+	$(MPI_VE_CXX) $(Flags) -D __USE_MPI__ $(Include_Path)  -c sssp/sssp_sharded.cpp -o object_files/sssp_sharded.o
+
+sssp_mpi.o: mpi/sssp_mpi.cpp
+	$(MPI_VE_CXX) $(Flags) -D __USE_MPI__ $(Include_Path)  -c mpi/sssp_mpi.cpp -o object_files/sssp_mpi.o
+
+create_vgl_graphs.o: utilites/create_vgl_graphs.cpp
+	$(VH_CXX) $(Include_Path) -D __USE_MULTICORE__ -fopenmp -c utilites/create_vgl_graphs.cpp -o object_files/create_vgl_graphs.o
+
+create_folders:
+	-mkdir -p ./bin
+	-cp graph_library.sh ./bin
+	-mkdir -p ./object_files
+
+clean:
+	-rm -f object_files/*.o
+	-rm -f bin/*_sx
+
+#################
+# CUDA operations
+#################
+

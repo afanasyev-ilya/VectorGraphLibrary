@@ -18,6 +18,26 @@ void LibraryData::init(int argc, char **argv)
 
     send_buffer = NULL;
     recv_buffer = NULL;
+
+    bool needs_header_print = true;
+
+    #ifdef __USE_MPI__
+    if(mpi_rank != 0)
+        needs_header_print = false;
+    #endif
+
+    if(needs_header_print)
+    {
+        cout << endl;
+        cout << "/ ********************* VGL Library info ********************* /" << endl;
+        #ifdef __USE_MPI__
+        cout << "Using " << mpi_proc_num << " MPI processes" << endl;
+        cout << "Using " << omp_get_max_threads() << " openMP threads per MPI process" << endl;
+        #else
+        cout << "Using " << omp_get_max_threads() << " openMP threads" << endl;
+        #endif
+        cout << "/ ************************************************************ /" << endl << endl;
+    }
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

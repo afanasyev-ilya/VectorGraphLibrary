@@ -6,7 +6,7 @@
 
 void parse_cmd_params(int _argc, char **_argv, int &_scale, int &_avg_degree, string &_graph_type,
                       string &_output_format, string &_file_name, bool &_convert, string &_input_file_name,
-                      DirectionType &_direction_type)
+                      DirectionType &_direction_type, int &_shards)
 {
     // set deafualt params
     _scale = 10;
@@ -17,6 +17,7 @@ void parse_cmd_params(int _argc, char **_argv, int &_scale, int &_avg_degree, st
     _convert = false;
     _input_file_name = "wiki.txt";
     _direction_type = DIRECTED_GRAPH;
+    _shards = 1;
     
     // get params from cmd line
     for (int i = 1; i < _argc; i++)
@@ -64,6 +65,11 @@ void parse_cmd_params(int _argc, char **_argv, int &_scale, int &_avg_degree, st
             cout << "undirected is selected!" << endl;
             _direction_type = UNDIRECTED_GRAPH;
         }
+
+        if(option.compare("-shards") == 0)
+        {
+            _shards = atoi(_argv[++i]);
+        }
     }
 }
 
@@ -78,9 +84,10 @@ int main(int argc, char ** argv)
         bool convert;
         string input_file_name;
         DirectionType direction_type;
+        int shards;
         
         parse_cmd_params(argc, argv, scale, avg_degree, graph_type, output_format, file_name, convert, input_file_name,
-                         direction_type);
+                         direction_type, shards);
 
         EdgesListGraph rand_graph;
         if(convert)
@@ -132,8 +139,26 @@ int main(int argc, char ** argv)
             cout << "VectCSR graph is generated and saved to file " << file_name << endl;
             tm.end();
             tm.print_time_stats("Save");
+        }
 
-            //vect_csr_graph.print();
+        if((output_format.find("sharded_csr") != string::npos) || (output_format.find("sharded_csr") != string::npos))
+        {
+            rand_graph.remove_loops_and_multiple_arcs();
+
+            ShardedCSRGraph sharded_csr_graph;
+            Timer tm;
+            tm.start();
+            cout << "using " << shards << " shards" << endl;
+            sharded_csr_graph.import(rand_graph, shards);
+            tm.end();
+            tm.print_time_stats("Import");
+
+            tm.start();
+            add_extension(file_name, ".sharded_graph");
+            sharded_csr_graph.save_to_binary_file(file_name);
+            cout << "ShardedCSR graph is generated and saved to file " << file_name << endl;
+            tm.end();
+            tm.print_time_stats("Save");
         }
         cout << " ----------------------------------------------------------------------------------------- " << endl << endl;
     }

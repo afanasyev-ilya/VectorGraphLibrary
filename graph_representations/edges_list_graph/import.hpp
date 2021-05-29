@@ -32,7 +32,8 @@ void EdgesListGraph::remove_loops_and_multiple_arcs()
         }
     }
 
-    cout << "NEW SIZE: " << new_edges_count << " / " << this->edges_count << endl;
+    cout << "remove loops and MA in edges list stats: " << new_edges_count << " / " << this->edges_count <<
+        "(" << 100.0 *  new_edges_count / this->edges_count <<  ")" << endl;
 
     int *new_src_ids, *new_dst_ids;
     MemoryAPI::allocate_array(&new_src_ids, new_edges_count);

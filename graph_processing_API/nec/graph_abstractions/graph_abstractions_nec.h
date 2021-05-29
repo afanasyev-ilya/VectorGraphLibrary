@@ -57,7 +57,7 @@ private:
                         int _first_edge,
                         const long long _shard_shift,
                         bool _outgoing_graph_is_stored,
-                        bool _sharded_processing);
+                        bool _inner_mpi_processing);
 
     template <typename EdgeOperation>
     void advance_worker(EdgesListGraph &_graph, EdgeOperation &&edge_op);

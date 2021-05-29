@@ -405,6 +405,10 @@ void SSSP::nec_dijkstra(ShardedCSRGraph &_graph,
                         int _source_vertex,
                         AlgorithmTraversalType _traversal_direction)
 {
+    #ifdef __USE_MPI__
+    vgl_library_data.set_data_exchange_policy(RECENTLY_CHANGED);
+    #endif
+
     TraversalDirection direction = SCATTER;
 
     if(_traversal_direction == PUSH_TRAVERSAL)
@@ -414,6 +418,7 @@ void SSSP::nec_dijkstra(ShardedCSRGraph &_graph,
 
     VGL_GRAPH_ABSTRACTIONS graph_API(_graph, direction);
     VGL_FRONTIER frontier(_graph, direction);
+    VerticesArray<_T> prev_distances(_graph, ORIGINAL);
 
     graph_API.attach_data(_distances);
     graph_API.change_traversal_direction(direction); // TODO -- is it needed?
@@ -431,6 +436,10 @@ void SSSP::nec_dijkstra(ShardedCSRGraph &_graph,
     };
     frontier.set_all_active();
     graph_API.compute(_graph, frontier, init_distances);
+
+    #ifdef __USE_MPI__
+    MPI_Barrier(MPI_COMM_WORLD);
+    #endif
 
     int changes = 0, iterations_count = 0;
     do
@@ -470,9 +479,18 @@ void SSSP::nec_dijkstra(ShardedCSRGraph &_graph,
             graph_API.gather(_graph, frontier, edge_op_pull);
 
         changes += register_sum_reduce(reg_was_changes);
+
+        /*#ifdef __USE_MPI__
+        vgl_library_data.exchange_data(_distances.get_ptr(), _graph.get_vertices_count(), min_op, prev_distances.get_ptr());
+        vgl_library_data.exchange_data(&changes, 1, max_op);
+        #endif*/
     }
     while(changes);
     tm.end();
+
+    #ifdef __USE_MPI__
+    MPI_Barrier(MPI_COMM_WORLD);
+    #endif
 
     #ifdef __PRINT_SAMPLES_PERFORMANCE_STATS__
     performance_stats.print_algorithm_performance_stats("SSSP (Dijkstra, sharded graph)", tm.get_time(), _graph.get_edges_count());

@@ -29,13 +29,16 @@ void GraphAbstractionsNEC::scatter(VectCSRGraph &_graph,
     current_direction_graph = _graph.get_outgoing_graph_ptr();
 
     bool outgoing_graph_is_stored = _graph.outgoing_is_stored();
-
+    bool inner_mpi_processing = false;
+    #ifdef __USE_MPI__
+    inner_mpi_processing = true;
+    #endif
     if(omp_in_parallel())
     {
         #pragma omp barrier
         advance_worker(*current_direction_graph, _frontier, edge_op, vertex_preprocess_op, vertex_postprocess_op,
                        collective_edge_op, collective_vertex_preprocess_op, collective_vertex_postprocess_op, 0, 0,
-                       outgoing_graph_is_stored, false);
+                       outgoing_graph_is_stored, inner_mpi_processing);
         #pragma omp barrier
     }
     else
@@ -44,7 +47,7 @@ void GraphAbstractionsNEC::scatter(VectCSRGraph &_graph,
         {
             advance_worker(*current_direction_graph, _frontier, edge_op, vertex_preprocess_op, vertex_postprocess_op,
                            collective_edge_op, collective_vertex_preprocess_op, collective_vertex_postprocess_op, 0, 0,
-                           outgoing_graph_is_stored, false);
+                           outgoing_graph_is_stored, inner_mpi_processing);
         }
     }
     tm.end();
@@ -94,7 +97,14 @@ void GraphAbstractionsNEC::scatter(ShardedCSRGraph &_graph,
 
     bool outgoing_graph_is_stored = true;
 
-    for(int shard_id = 0; shard_id < _graph.get_shards_number(); shard_id++)
+    int first_shard = 0;
+    int shards_step = 1;
+    #ifdef __USE_MPI__
+    first_shard = vgl_library_data.get_mpi_rank();
+    shards_step = vgl_library_data.get_mpi_proc_num();
+    #endif
+
+    for(int shard_id =  first_shard; shard_id < _graph.get_shards_number(); shard_id += shards_step)
     {
         if(_frontier.get_type() != ALL_ACTIVE_FRONTIER)
         {
@@ -110,11 +120,12 @@ void GraphAbstractionsNEC::scatter(ShardedCSRGraph &_graph,
         }
 
         long long shard_shift = _graph.get_shard_shift(shard_id, current_traversal_direction);
+        bool inner_mpi_processing = false;
         #pragma omp parallel
         {
             advance_worker(*current_shard, _frontier, edge_op, vertex_preprocess_op, vertex_postprocess_op,
                            collective_edge_op, collective_vertex_preprocess_op, collective_vertex_postprocess_op, 0, shard_shift,
-                           outgoing_graph_is_stored, true);
+                           outgoing_graph_is_stored, inner_mpi_processing);
         }
 
         // reorder user data back

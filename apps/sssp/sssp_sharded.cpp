@@ -15,7 +15,9 @@ int main(int argc, char **argv)
 {
     try
     {
+        vgl_library_data.init(argc, argv);
         cout << "SSSP (Single Source Shortest Paths) test..." << endl;
+
 
         // parse args
         Parser parser;
@@ -52,6 +54,11 @@ int main(int argc, char **argv)
         tm.print_time_stats("Generate and import");
         graph.print_size();
 
+        #ifdef __USE_MPI__
+        vgl_library_data.allocate_exchange_buffers(graph.get_vertices_count(), sizeof(float));
+        vgl_library_data.set_data_exchange_policy(RECENTLY_CHANGED);
+        #endif
+
         tm.start();
         // generate weights
         EdgesArray_EL<int> el_weights(el_graph);
@@ -74,7 +81,7 @@ int main(int argc, char **argv)
             performance_stats.reset_timers();
             ShortestPaths::nec_dijkstra(graph, weights, distances, source_vertex, parser.get_traversal_direction());
             performance_stats.update_timer_stats();
-            //performance_stats.print_timers_stats();
+            performance_stats.print_timers_stats();
 
             // check if required
             if(parser.get_check_flag())
@@ -84,6 +91,8 @@ int main(int argc, char **argv)
                 verify_results(distances, el_distances);
             }
         }
+
+        vgl_library_data.finalize();
     }
     catch (string error)
     {

@@ -17,13 +17,25 @@ void FrontierNEC::set_all_active()
         vector_engine_part_size = ((VectCSRGraph*)graph_ptr)->get_direction_graph_ptr(direction)->get_vector_engine_threshold_vertex();
         vector_core_part_size = ((VectCSRGraph*)graph_ptr)->get_direction_graph_ptr(direction)->get_vector_core_threshold_vertex() - vector_engine_part_size;
         collective_part_size = ((VectCSRGraph*)graph_ptr)->get_direction_graph_ptr(direction)->get_vertices_count() - vector_engine_part_size - vector_core_part_size;
-    }
 
-    #ifdef __USE_MPI__
-    calculate_vector_engine_mpi_thresholds();
-    calculate_vector_core_mpi_thresholds();
-    calculate_collective_mpi_thresholds();
-    #endif
+        #ifdef __USE_MPI__
+        calculate_vector_engine_mpi_thresholds();
+        calculate_vector_core_mpi_thresholds();
+        calculate_collective_mpi_thresholds();
+        #endif
+    }
+    else if(graph_ptr->get_type() == SHARDED_CSR_GRAPH)
+    {
+
+    }
+    else if(graph_ptr->get_type() == EDGES_LIST_GRAPH)
+    {
+
+    }
+    else
+    {
+        throw "Error: incorrect graph type in FrontierNEC::set_all_active";
+    }
 
     #pragma omp parallel // dummy for performance evaluation
     {};
