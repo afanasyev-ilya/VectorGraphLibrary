@@ -56,7 +56,8 @@ private:
                         CollectiveVertexPostprocessOperation &&collective_vertex_postprocess_op,
                         int _first_edge,
                         const long long _shard_shift,
-                        bool _outgoing_graph_is_stored);
+                        bool _outgoing_graph_is_stored,
+                        bool _sharded_processing);
 
     template <typename EdgeOperation>
     void advance_worker(EdgesListGraph &_graph, EdgeOperation &&edge_op);

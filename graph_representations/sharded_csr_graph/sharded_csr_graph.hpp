@@ -142,11 +142,19 @@ bool ShardedCSRGraph::save_to_binary_file(string _file_name)
 
     for(int shard_id = 0; shard_id < shards_number; shard_id++)
     {
+        int shard_vertices_count = outgoing_shards[shard_id].get_vertices_count();
+        long long shard_edges_count = outgoing_shards[shard_id].get_edges_count();
+        fwrite(reinterpret_cast<const char*>(&shard_vertices_count), sizeof(int), 1, graph_file);
+        fwrite(reinterpret_cast<const char*>(&shard_edges_count), sizeof(long long), 1, graph_file);
         outgoing_shards[shard_id].save_main_content_to_binary_file(graph_file);
     }
 
     for(int shard_id = 0; shard_id < shards_number; shard_id++)
     {
+        int shard_vertices_count = incoming_shards[shard_id].get_vertices_count();
+        long long shard_edges_count = incoming_shards[shard_id].get_edges_count();
+        fwrite(reinterpret_cast<const char*>(&shard_vertices_count), sizeof(int), 1, graph_file);
+        fwrite(reinterpret_cast<const char*>(&shard_edges_count), sizeof(long long), 1, graph_file);
         incoming_shards[shard_id].save_main_content_to_binary_file(graph_file);
     }
 
@@ -171,23 +179,32 @@ bool ShardedCSRGraph::load_from_binary_file(string _file_name)
     fread(reinterpret_cast<char*>(&this->vertices_count), sizeof(int), 1, graph_file);
     fread(reinterpret_cast<char*>(&this->edges_count), sizeof(long long), 1, graph_file);
     fread(reinterpret_cast<char*>(&this->shards_number), sizeof(int), 1, graph_file);
+    cout << this->vertices_count << " " << this->edges_count << " " << this->shards_number << endl;
 
     resize(shards_number, this->vertices_count);
 
     for(int shard_id = 0; shard_id < shards_number; shard_id++)
     {
-        if(outgoing_is_stored())
-            outgoing_shards[shard_id].load_main_content_from_binary_file(graph_file);
-        else  // TODO this should be equal to skip
-            incoming_shards[shard_id].load_main_content_from_binary_file(graph_file);
+        int shard_vertices_count = 0;
+        long long shard_edges_count = 0;
+        fread(reinterpret_cast<char*>(&shard_vertices_count), sizeof(int), 1, graph_file);
+        fread(reinterpret_cast<char*>(&shard_edges_count), sizeof(long long), 1, graph_file);
+        outgoing_shards[shard_id].resize(shard_vertices_count, shard_edges_count);
+        outgoing_shards[shard_id].load_main_content_from_binary_file(graph_file);
+        cout << "outgoing shard: " << shard_id << " v=" << outgoing_shards[shard_id].get_vertices_count() << " e="
+             << outgoing_shards[shard_id].get_edges_count() << endl;
     }
 
     for(int shard_id = 0; shard_id < shards_number; shard_id++)
     {
-        if(incoming_is_stored())
-            incoming_shards[shard_id].load_main_content_from_binary_file(graph_file);
-        else  // TODO this should be equal to skip
-            outgoing_shards[shard_id].load_main_content_from_binary_file(graph_file);
+        int shard_vertices_count = 0;
+        long long shard_edges_count = 0;
+        fread(reinterpret_cast<char*>(&shard_vertices_count), sizeof(int), 1, graph_file);
+        fread(reinterpret_cast<char*>(&shard_edges_count), sizeof(long long), 1, graph_file);
+        incoming_shards[shard_id].resize(shard_vertices_count, shard_edges_count);
+        incoming_shards[shard_id].load_main_content_from_binary_file(graph_file);
+        cout << "incoming shard: " << shard_id << " v=" << incoming_shards[shard_id].get_vertices_count() << " e="
+             << incoming_shards[shard_id].get_edges_count() << endl;
     }
 
     fclose(graph_file);

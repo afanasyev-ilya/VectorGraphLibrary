@@ -52,23 +52,36 @@ void GraphAbstractionsNEC::advance_worker(UndirectedCSRGraph &_graph,
                                           CollectiveVertexPostprocessOperation &&collective_vertex_postprocess_op,
                                           int _first_edge,
                                           const long long _shard_shift,
-                                          bool _outgoing_graph_is_stored)
+                                          bool _outgoing_graph_is_stored,
+                                          bool _sharded_processing)
 {
     double wall_time, ve_time, vc_time, collective_time, t1, t2;
 
     #ifdef __USE_MPI__
-    pair<int,int> ve_mpi_borders = _frontier.get_vector_engine_mpi_thresholds();
-    pair<int,int> vc_mpi_borders = _frontier.get_vector_core_mpi_thresholds();
-    pair<int,int> coll_mpi_borders = _frontier.get_collective_mpi_thresholds();
+    if(!_sharded_processing)
+    {
+        pair<int,int> ve_mpi_borders = _frontier.get_vector_engine_mpi_thresholds();
+        pair<int,int> vc_mpi_borders = _frontier.get_vector_core_mpi_thresholds();
+        pair<int,int> coll_mpi_borders = _frontier.get_collective_mpi_thresholds();
 
-    const int vector_engine_threshold_start = ve_mpi_borders.first;
-    const int vector_engine_threshold_end = ve_mpi_borders.second;
+        const int vector_engine_threshold_start = ve_mpi_borders.first;
+        const int vector_engine_threshold_end = ve_mpi_borders.second;
 
-    const int vector_core_threshold_start = vc_mpi_borders.first;
-    const int vector_core_threshold_end = vc_mpi_borders.second;
+        const int vector_core_threshold_start = vc_mpi_borders.first;
+        const int vector_core_threshold_end = vc_mpi_borders.second;
 
-    const int collective_threshold_start = coll_mpi_borders.first;
-    const int collective_threshold_end = coll_mpi_borders.second;
+        const int collective_threshold_start = coll_mpi_borders.first;
+        const int collective_threshold_end = coll_mpi_borders.second;
+    }
+    else
+    {
+        const int vector_engine_threshold_start = 0;
+        const int vector_engine_threshold_end = _graph.get_vector_engine_threshold_vertex();
+        const int vector_core_threshold_start = _graph.get_vector_engine_threshold_vertex();
+        const int vector_core_threshold_end = _graph.get_vector_core_threshold_vertex();
+        const int collective_threshold_start = _graph.get_vector_core_threshold_vertex();
+        const int collective_threshold_end = _graph.get_vertices_count();
+    }
     #else
     const int vector_engine_threshold_start = 0;
     const int vector_engine_threshold_end = _graph.get_vector_engine_threshold_vertex();

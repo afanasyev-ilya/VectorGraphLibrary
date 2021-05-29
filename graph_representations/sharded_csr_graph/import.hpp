@@ -104,15 +104,43 @@ void ShardedCSRGraph::import_direction_2D_segmented(EdgesListGraph &_el_graph, T
 
 void ShardedCSRGraph::import_direction_random_segmenting(EdgesListGraph &_el_graph, TraversalDirection _import_direction)
 {
-    UndirectedCSRGraph whole_graph;
-    whole_graph.import(_el_graph);
-
     int *shards_for_vertex;
     MemoryAPI::allocate_array(&shards_for_vertex, _el_graph.get_vertices_count());
+    MemoryAPI::set(shards_for_vertex, -1, _el_graph.get_vertices_count());
 
-    for(int i = 0; i < whole_graph.get_vertices_count(); i++)
+    vector<int> shard_guaranteed_vertex(shards_number);
+
+    int shard_set_counter = 0;
+    for(int i = 0; i < _el_graph.get_edges_count(); i++)
+    {
+        int src_id = _el_graph.get_src_ids()[i];
+        int dst_id = _el_graph.get_dst_ids()[i];
+
+        if(std::find(shard_guaranteed_vertex.begin(), shard_guaranteed_vertex.end(), src_id) != shard_guaranteed_vertex.end())
+        {
+            shard_guaranteed_vertex[shard_set_counter] = src_id;
+            shard_set_counter++;
+        }
+
+        if(shard_set_counter >= shards_number)
+        {
+            break;
+        }
+
+        if(i == (_el_graph.get_edges_count() - 1))
+        {
+            throw "Error: not enough graph vertices for specified shard count in ShardedCSRGraph::import_direction_random_segmenting";
+        }
+    }
+
+    for(int i = 0; i < _el_graph.get_vertices_count(); i++)
     {
         shards_for_vertex[i] = rand() % shards_number;
+    }
+
+    for(int i = 0; i < shard_guaranteed_vertex.size(); i++)
+    {
+        shards_for_vertex[shard_guaranteed_vertex[i]] = i;
     }
 
     for(int shard_id = 0; shard_id < shards_number; shard_id++)
@@ -140,6 +168,7 @@ void ShardedCSRGraph::import_direction_random_segmenting(EdgesListGraph &_el_gra
         if(_import_direction == SCATTER)
         {
             outgoing_shards[shard_id].import(edges_list_shard);
+            //outgoing_shards[shard_id].update_edge_reorder_indexes_using_superposition(&edges_reorder_indexes[first_shard_edge_val]);
             cout << "outgoing shard: " << shard_id << " v=" << outgoing_shards[shard_id].get_vertices_count() << " e="
                  << outgoing_shards[shard_id].get_edges_count() << endl;
         }

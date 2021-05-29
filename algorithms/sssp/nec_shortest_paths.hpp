@@ -454,7 +454,7 @@ void SSSP::nec_dijkstra(ShardedCSRGraph &_graph,
 
         auto edge_op_pull = [&_distances, &_weights, &reg_was_changes, &changes] __VGL_SCATTER_ARGS__
         {
-            _T weight = _weights[global_edge_pos];
+            _T weight = 1.0;//_weights[global_edge_pos];
             _T dst_weight = _distances[dst_id];
 
             if(_distances[src_id] > dst_weight + weight)
