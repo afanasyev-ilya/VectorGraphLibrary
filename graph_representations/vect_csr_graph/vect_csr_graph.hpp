@@ -75,11 +75,11 @@ int VectCSRGraph::select_random_vertex(TraversalDirection _direction)
 {
     if(outgoing_is_stored())
     {
-        return reorder(outgoing_graph->select_random_vertex(), SCATTER, ORIGINAL);
+        return reorder(outgoing_graph->select_random_vertex(), SCATTER, _direction);
     }
     else if(incoming_is_stored())
     {
-        return reorder(incoming_graph->select_random_vertex(), GATHER, ORIGINAL);
+        return reorder(incoming_graph->select_random_vertex(), GATHER, _direction);
     }
 
     throw "Error in VectCSRGraph::select_random_vertex: can not select non-zero degree vertex in ATTEMPTS_THRESHOLD attempts";

@@ -49,4 +49,47 @@ void ShardedCSRGraph::reorder_from_shard_to_original(VerticesArray<_T> _data, Tr
     tm.print_bandwidth_stats("vertices reorder", this->vertices_count, sizeof(_T)*2 + sizeof(int));
     #endif
 }
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+int ShardedCSRGraph::reorder(int _vertex_id, TraversalDirection _input_dir, TraversalDirection _output_dir)
+{
+    if((_vertex_id < 0) || (_vertex_id >= this->vertices_count))
+        throw "Error in ShardedCSRGraph::reorder : _vertex_id is out of range";
+    if(_input_dir == ORIGINAL)
+    {
+        if(_output_dir == GATHER)
+        {
+            return incoming_shards[0].reorder_to_sorted(_vertex_id);
+        }
+        if(_output_dir == SCATTER)
+        {
+            return outgoing_shards[0].reorder_to_sorted(_vertex_id);
+        }
+    }
+    if(_input_dir == SCATTER)
+    {
+        if(_output_dir == ORIGINAL)
+        {
+            return outgoing_shards[0].reorder_to_original(_vertex_id);
+        }
+        if(_output_dir == GATHER)
+        {
+            return incoming_shards[0].reorder_to_sorted(outgoing_shards[0].reorder_to_original(_vertex_id));
+        }
+    }
+    if(_input_dir == GATHER)
+    {
+        if(_output_dir == ORIGINAL)
+        {
+            return incoming_shards[0].reorder_to_original(_vertex_id);
+        }
+        if(_output_dir == SCATTER)
+        {
+            return outgoing_shards[0].reorder_to_sorted(incoming_shards[0].reorder_to_original(_vertex_id));
+        }
+    }
+    return -1;
+}
+
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

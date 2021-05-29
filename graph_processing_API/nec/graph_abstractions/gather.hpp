@@ -81,8 +81,7 @@ void GraphAbstractionsNEC::gather(ShardedCSRGraph &_graph,
                                   CollectiveVertexPreprocessOperation &&collective_vertex_preprocess_op,
                                   CollectiveVertexPostprocessOperation &&collective_vertex_postprocess_op)
 {
-    Timer tm;
-    tm.start();
+    double gather_time = 0;
 
     if(current_traversal_direction != GATHER)
     {
@@ -121,6 +120,7 @@ void GraphAbstractionsNEC::gather(ShardedCSRGraph &_graph,
             current_container->reorder_from_original_to_shard(current_traversal_direction, shard_id);
         }
 
+        double t1 = omp_get_wtime();
         long long shard_shift = _graph.get_shard_shift(shard_id, current_traversal_direction);
         bool inner_mpi_processing = false;
         #pragma omp parallel
@@ -129,6 +129,8 @@ void GraphAbstractionsNEC::gather(ShardedCSRGraph &_graph,
                            collective_edge_op, collective_vertex_preprocess_op, collective_vertex_postprocess_op, 0, shard_shift,
                            outgoing_graph_is_stored, inner_mpi_processing);
         }
+        double t2 = omp_get_wtime();
+        gather_time += t2 - t1;
 
         // reorder user data back
         for(auto& current_container : user_data_containers)
@@ -137,8 +139,7 @@ void GraphAbstractionsNEC::gather(ShardedCSRGraph &_graph,
         }
     }
 
-    tm.end();
-    performance_stats.update_scatter_time(tm);
+    performance_stats.update_scatter_time(gather_time);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

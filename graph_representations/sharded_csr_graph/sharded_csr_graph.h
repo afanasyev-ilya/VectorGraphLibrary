@@ -58,6 +58,10 @@ public:
     bool outgoing_is_stored() { return can_use_scatter(); };
     bool incoming_is_stored() { return can_use_gather(); };
 
+    /* reorder API */
+    // allows to reorder a single vertex ID in arbitrary direction
+    int reorder(int _vertex_id, TraversalDirection _input_dir, TraversalDirection _output_dir);
+
     /* print API */
     void print();
     void print_size();

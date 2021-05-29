@@ -76,7 +76,7 @@ int main(int argc, char **argv)
         cout << "Doing " << parser.get_number_of_rounds() << " SSSP iterations..." << endl;
         for(int i = 0; i < parser.get_number_of_rounds(); i++)
         {
-            int source_vertex = graph.select_random_vertex();
+            int source_vertex = graph.select_random_vertex(ORIGINAL);
             VerticesArray<int> distances(graph, ORIGINAL);
 
             performance_stats.reset_timers();

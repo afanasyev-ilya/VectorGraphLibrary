@@ -414,12 +414,15 @@ void SSSP::nec_dijkstra(ShardedCSRGraph &_graph,
     else if(_traversal_direction == PULL_TRAVERSAL)
         direction = GATHER;
 
+    //_source_vertex = _graph.reorder(_source_vertex, ORIGINAL, direction);
+
     VGL_GRAPH_ABSTRACTIONS graph_API(_graph, direction);
     VGL_FRONTIER frontier(_graph, direction);
     VerticesArray<_T> prev_distances(_graph, ORIGINAL);
 
     graph_API.attach_data(_distances);
-    graph_API.change_traversal_direction(direction); // TODO -- is it needed?
+    graph_API.attach_data(prev_distances);
+    graph_API.change_traversal_direction(direction);
 
     Timer tm;
     tm.start();
@@ -453,7 +456,7 @@ void SSSP::nec_dijkstra(ShardedCSRGraph &_graph,
 
         auto edge_op_push = [&_distances, &_weights] __VGL_SCATTER_ARGS__
         {
-            _T weight = _weights[global_edge_pos];
+            _T weight = 1.0;//_weights[global_edge_pos];
             _T src_weight = _distances[src_id];
 
             if(_distances[dst_id] > src_weight + weight)

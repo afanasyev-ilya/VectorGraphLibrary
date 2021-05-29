@@ -62,6 +62,9 @@ public:
     inline void update_reorder_time(Timer &_timer);
     inline void update_non_api_time(Timer &_timer);
 
+    inline void update_scatter_time(double _time);
+    inline void update_gather_time(double _time);
+
     #ifdef __USE_MPI__
     inline void update_MPI_time(Timer &_timer);
     inline void update_MPI_functions_time(Timer &_timer);

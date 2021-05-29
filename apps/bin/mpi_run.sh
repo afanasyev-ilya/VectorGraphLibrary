@@ -6,8 +6,8 @@
 args=("$@")
 number_of_arguments=$#
 
-program_name=${args[0]}
-mpi_proc_num=${args[1]}
+mpi_proc_num=${args[0]}
+program_name=${args[1]}
 
 for (( c=2; c<=${number_of_arguments}; c++ ))
 do
