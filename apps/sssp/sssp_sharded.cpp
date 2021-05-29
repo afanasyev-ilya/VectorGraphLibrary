@@ -40,7 +40,6 @@ int main(int argc, char **argv)
 
             graph.import(copy_graph, 4);
             //graph.import(copy_graph);
-            graph.save_to_binary_file("test.sharded_graph");
         }
         else if(parser.get_compute_mode() == LOAD_GRAPH_FROM_FILE)
         {

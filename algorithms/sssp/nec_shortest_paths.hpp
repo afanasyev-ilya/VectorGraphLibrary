@@ -151,6 +151,7 @@ void SSSP::nec_dijkstra_all_active_push(VectCSRGraph &_graph,
         };
         changes = graph_API.reduce<int>(_graph, frontier, reduce_changes, REDUCE_SUM);
 
+        #ifdef __USE_MPI__
         auto min_op = [](_T _a, _T _b)->_T
         {
             return vect_min(_a, _b);
@@ -159,8 +160,6 @@ void SSSP::nec_dijkstra_all_active_push(VectCSRGraph &_graph,
         {
             return vect_max(_a, _b);
         };
-
-        #ifdef __USE_MPI__
         vgl_library_data.exchange_data(_distances.get_ptr(), _graph.get_vertices_count(), min_op,  prev_distances.get_ptr());
         vgl_library_data.exchange_data(&changes, 1, max_op);
         #endif
@@ -293,6 +292,7 @@ void SSSP::nec_dijkstra_all_active_pull(VectCSRGraph &_graph,
         };
         changes = graph_API.reduce<int>(_graph, frontier, reduce_changes, REDUCE_SUM);
 
+        #ifdef __USE_MPI__
         auto min_op = [](float _a, float _b)->float
         {
             return vect_min(_a, _b);
@@ -301,8 +301,6 @@ void SSSP::nec_dijkstra_all_active_pull(VectCSRGraph &_graph,
         {
             return vect_max(_a, _b);
         };
-
-        #ifdef __USE_MPI__
         vgl_library_data.exchange_data(_distances.get_ptr(), _graph.get_vertices_count(), min_op, prev_distances.get_ptr());
         vgl_library_data.exchange_data(&changes, 1, max_op);
         #endif
@@ -449,6 +447,12 @@ void SSSP::nec_dijkstra(ShardedCSRGraph &_graph,
 
         NEC_REGISTER_INT(was_changes, 0);
 
+        auto save_old_distances = [&_distances, &prev_distances] __VGL_COMPUTE_ARGS__
+        {
+            prev_distances[src_id] = _distances[src_id];
+        };
+        graph_API.compute(_graph, frontier, save_old_distances);
+
         auto edge_op_push = [&_distances, &_weights, &reg_was_changes, &changes] __VGL_SCATTER_ARGS__
         {
             _T weight = _weights[global_edge_pos];
@@ -480,13 +484,23 @@ void SSSP::nec_dijkstra(ShardedCSRGraph &_graph,
 
         changes += register_sum_reduce(reg_was_changes);
 
-        /*#ifdef __USE_MPI__
+        #ifdef __USE_MPI__
+        auto min_op = [](_T _a, _T _b)->_T
+        {
+            return vect_min(_a, _b);
+        };
+        auto max_op = [](int _a, int _b)->int
+        {
+            return vect_max(_a, _b);
+        };
         vgl_library_data.exchange_data(_distances.get_ptr(), _graph.get_vertices_count(), min_op, prev_distances.get_ptr());
         vgl_library_data.exchange_data(&changes, 1, max_op);
-        #endif*/
+        #endif
     }
     while(changes);
     tm.end();
+
+    cout << "iterations_count: " << iterations_count << endl;
 
     #ifdef __USE_MPI__
     MPI_Barrier(MPI_COMM_WORLD);
