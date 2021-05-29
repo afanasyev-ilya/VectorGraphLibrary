@@ -138,6 +138,10 @@ void ShardedCSRGraph::import_direction_random_segmenting(EdgesListGraph &_el_gra
         shards_for_vertex[i] = rand() % shards_number;
     }
 
+    #ifdef __USE_MPI__
+    vgl_library_data.bcast(shards_for_vertex, _el_graph.get_vertices_count(), 0);
+    #endif
+
     for(int i = 0; i < shard_guaranteed_vertex.size(); i++)
     {
         shards_for_vertex[shard_guaranteed_vertex[i]] = i;

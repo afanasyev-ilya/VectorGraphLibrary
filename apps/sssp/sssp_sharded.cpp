@@ -18,7 +18,6 @@ int main(int argc, char **argv)
         vgl_library_data.init(argc, argv);
         cout << "SSSP (Single Source Shortest Paths) test..." << endl;
 
-
         // parse args
         Parser parser;
         parser.parse_args(argc, argv);
@@ -36,10 +35,13 @@ int main(int argc, char **argv)
             else if(parser.get_graph_type() == RANDOM_UNIFORM)
                 GraphGenerationAPI::random_uniform(el_graph, v, v * parser.get_avg_degree(), DIRECTED_GRAPH);
 
-            EdgesListGraph copy_graph = el_graph;
+            EdgesListGraph copy_graph = el_graph; // copy graph for correct verification later on
 
-            graph.import(copy_graph, 4);
-            //graph.import(copy_graph);
+            #ifdef __USE_MPI__ // TODO MPI sharding param
+            graph.import(copy_graph, vgl_library_data.get_mpi_proc_num());
+            #else
+            graph.import(copy_graph);
+            #endif
         }
         else if(parser.get_compute_mode() == LOAD_GRAPH_FROM_FILE)
         {
