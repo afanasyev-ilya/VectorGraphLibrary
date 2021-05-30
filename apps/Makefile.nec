@@ -1,12 +1,17 @@
 VE_CXX = nc++
 VH_CXX = g++
-#VE_CXX = nc++-2.5.1
+
+MPI_FLAGS =
+ifeq ($(MPI), true)
+VE_CXX = mpinc++
+MPI_FLAGS += -D __USE_MPI__
+endif
 
 # Include paths...
 
 # Include paths...
 Include_Path = -I /opt/nec/ve/nlc/2.0.0/include/ -I ../
-Flags = -D __USE_NEC_SX_AURORA__ -O3 -fopenmp -proginf -mparallel -mretain-list-vector -DASL_LIB_INT64 #-report-all #-mno-vector #-ftrace
+Flags = -D __USE_NEC_SX_AURORA__ $(MPI_FLAGS) -O3 -fopenmp -proginf -mparallel -mretain-list-vector -DASL_LIB_INT64 #-report-all #-mno-vector #-ftrace
 
 # Library paths...
 Library_Path =
