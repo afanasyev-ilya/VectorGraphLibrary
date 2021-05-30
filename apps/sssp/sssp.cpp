@@ -21,6 +21,8 @@ int main(int argc, char **argv)
 {
     try
     {
+        vgl_library_data.init(argc, argv);
+
         cout << "SSSP (Single Source Shortest Paths) test..." << endl;
         cout << "max threads: " << omp_get_max_threads() << endl;
 
@@ -49,8 +51,10 @@ int main(int argc, char **argv)
             tm.print_time_stats("Graph load");
         }
 
-        // print graphs stats
-        graph.print_size();
+        #ifdef __USE_MPI__
+        vgl_library_data.allocate_exchange_buffers(graph.get_vertices_count(), sizeof(float));
+        vgl_library_data.set_data_exchange_policy(RECENTLY_CHANGED);
+        #endif
 
         // do calculations
         cout << "Computations started..." << endl;
@@ -65,6 +69,14 @@ int main(int argc, char **argv)
         {
             int source_vertex = graph.select_random_vertex(ORIGINAL);
             cout << "selected source vertex " << source_vertex << endl;
+            #ifdef __USE_MPI__
+            auto min_id = [](int _a, int _b)->int
+            {
+                return vect_min(_a, _b);
+            };
+            vgl_library_data.exchange_data(&source_vertex, 1, min_id);
+            #endif
+
             VerticesArray<float> distances(graph, Parser::convert_traversal_type(parser.get_traversal_direction()));
 
             performance_stats.reset_timers();
@@ -83,6 +95,8 @@ int main(int argc, char **argv)
             }
         }
         performance_stats.print_perf(graph.get_edges_count());
+
+        vgl_library_data.finalize();
     }
     catch (string error)
     {
