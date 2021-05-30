@@ -14,10 +14,4 @@ do
    program_args+=(${args[c]})
 done
 
-echo test : ${program_name}
-echo args : ${program_args[@]}
-
-
 mpirun -np $mpi_proc_num -ve 0-$mpi_proc_num ${program_name} ${program_args[@]}
-#printf "\n\n\n"
-#mpirun -np 2 -ve 0-1 ${program_name} ${program_args[@]}

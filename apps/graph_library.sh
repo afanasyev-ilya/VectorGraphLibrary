@@ -10,9 +10,6 @@ do
    program_args+=(${args[c]})
 done
 
-echo test : ${program_name}
-echo args : ${program_args[@]}
-
 #export OMP_NUM_THREADS=64
 #export CILK_NWORKERS=28
 #export KMP_AFFINITY=scatter

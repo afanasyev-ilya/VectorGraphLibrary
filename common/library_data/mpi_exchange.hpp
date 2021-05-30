@@ -186,6 +186,14 @@ void LibraryData::exchange_data(_T *_new_data, int _size, MergeOp &&_merge_op, _
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+template <typename _T, typename MergeOp>
+void exchange_data(VerticesArray<_T> &_data, MergeOp &&_merge_op)
+{
+    exchange_data(_data.get_ptr(), _data.get_size(), _merge_op);
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 /*
 template <typename _T, typename MergeOp>
 void LibraryData::exchange_data(ShardedCSRgraph &_graph, _T *_new_data, int _size, MergeOp &&_merge_op, _T *_old_data)

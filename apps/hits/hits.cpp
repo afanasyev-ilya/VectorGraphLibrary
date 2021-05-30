@@ -18,6 +18,9 @@ int main(int argc, char **argv)
 {
     try
     {
+        vgl_library_data.init(argc, argv);
+        cout << "HITS test..." << endl;
+
         // parse args
         Parser parser;
         parser.parse_args(argc, argv);
@@ -44,6 +47,11 @@ int main(int argc, char **argv)
             tm.print_time_stats("Graph load");
         }
 
+        #ifdef __USE_MPI__
+        vgl_library_data.allocate_exchange_buffers(graph.get_vertices_count(), sizeof(double));
+        vgl_library_data.set_data_exchange_policy(RECENTLY_CHANGED);
+        #endif
+
         VerticesArray<base_type> auth(graph);
         VerticesArray<base_type> hub(graph);
 
@@ -63,6 +71,8 @@ int main(int argc, char **argv)
         }
 
         performance_stats.print_perf(graph.get_edges_count());
+
+        vgl_library_data.finalize();
     }
     catch (string error)
     {

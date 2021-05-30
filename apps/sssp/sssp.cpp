@@ -22,9 +22,7 @@ int main(int argc, char **argv)
     try
     {
         vgl_library_data.init(argc, argv);
-
         cout << "SSSP (Single Source Shortest Paths) test..." << endl;
-        cout << "max threads: " << omp_get_max_threads() << endl;
 
         // parse args
         Parser parser;
@@ -63,8 +61,7 @@ int main(int argc, char **argv)
         //weights.set_all_random(MAX_WEIGHT);
         weights.set_all_constant(1.0);
 
-        //graph.print();
-        //weights.print();
+        performance_stats.reset_timers();
         for(int i = 0; i < parser.get_number_of_rounds(); i++)
         {
             int source_vertex = graph.select_random_vertex(ORIGINAL);
@@ -79,12 +76,9 @@ int main(int argc, char **argv)
 
             VerticesArray<float> distances(graph, Parser::convert_traversal_type(parser.get_traversal_direction()));
 
-            performance_stats.reset_timers();
             ShortestPaths::nec_dijkstra(graph, weights, distances, source_vertex,
                                         parser.get_algorithm_frontier_type(),
                                         parser.get_traversal_direction());
-            performance_stats.update_timer_stats();
-            performance_stats.print_timers_stats();
 
             // check if required
             if(parser.get_check_flag())
@@ -94,6 +88,8 @@ int main(int argc, char **argv)
                 verify_results(distances, check_distances);
             }
         }
+        performance_stats.update_timer_stats();
+        performance_stats.print_timers_stats();
         performance_stats.print_perf(graph.get_edges_count());
 
         vgl_library_data.finalize();
