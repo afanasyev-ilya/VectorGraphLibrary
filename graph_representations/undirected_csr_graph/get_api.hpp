@@ -46,6 +46,22 @@ inline bool in_between(size_t _val, size_t _first, size_t _second)
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+int UndirectedCSRGraph::get_non_zero_degree_vertices_count()
+{
+    int result = this->vertices_count;
+    #pragma omp parallel for
+    for(int src_id = 0; src_id < this->vertices_count - 1; src_id++)
+    {
+        int current_connections = vertex_pointers[src_id + 1] - vertex_pointers[src_id];
+        int next_connections = vertex_pointers[src_id + 2] - vertex_pointers[src_id + 1];
+        if(current_connections > 0 && next_connections == 0)
+            result = src_id + 1;
+    }
+    return result;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 #ifdef __USE_MPI__
 std::pair<int, int> UndirectedCSRGraph::get_mpi_thresholds(int _mpi_rank, int _v1, int _v2)
 {

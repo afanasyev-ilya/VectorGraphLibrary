@@ -113,6 +113,7 @@ public:
     inline int             *get_adjacent_ids()         {return adjacent_ids;};
     inline long long        get_edges_count_in_ve() {return last_vertices_ve.get_edges_count_in_ve();}
     inline VectorExtension* get_ve_ptr() {return &last_vertices_ve;};
+    int get_non_zero_degree_vertices_count();
 
     inline int get_connections_count(int _vertex_id);
     inline int get_edge_dst(int _src_id, int _edge_pos);
@@ -128,6 +129,7 @@ public:
     size_t get_size();
     size_t get_csr_size();
     size_t get_ve_size();
+
     template <typename _T>
     void print_with_weights(EdgesArray<_T> &_weights, TraversalDirection _direction);
     void print_vertex_information(int _src_id, int _num_edges);

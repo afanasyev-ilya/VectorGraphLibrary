@@ -78,6 +78,22 @@ size_t ShardedCSRGraph::get_size()
 void ShardedCSRGraph::print_size()
 {
     cout << "Wall size (ShardedCSRGraph): " << get_size()/1e9 << " GB" << endl;
+
+    if(outgoing_is_stored())
+    {
+        for(int shard_id = 0; shard_id < shards_number; shard_id++)
+        {
+            cout << shard_id << ": " << 1.0*outgoing_shards[shard_id].get_non_zero_degree_vertices_count() / this->vertices_count << " (outgoing)" << endl;
+        }
+    }
+
+    if(incoming_is_stored())
+    {
+        for(int shard_id = 0; shard_id < shards_number; shard_id++)
+        {
+            cout << shard_id << ": " << 1.0*incoming_shards[shard_id].get_non_zero_degree_vertices_count() / this->vertices_count  << " (incoming)" << endl;
+        }
+    }
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

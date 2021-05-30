@@ -2,7 +2,7 @@
 
 #define INT_ELEMENTS_PER_EDGE 5.0
 #define VECTOR_ENGINE_THRESHOLD_VALUE VECTOR_LENGTH * MAX_SX_AURORA_THREADS * 4096
-#define VECTOR_CORE_THRESHOLD_VALUE 5*VECTOR_LENGTH
+#define VECTOR_CORE_THRESHOLD_VALUE 7*VECTOR_LENGTH
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -71,14 +71,17 @@ int main(int argc, char **argv)
         tm.end();
         tm.print_time_stats("Generate weights");
 
+        VerticesArray<int> distances(graph, ORIGINAL);
+        // heat run
+        // TODO why first compute -> advance is slow
+        ShortestPaths::nec_dijkstra(graph, weights, distances, 0, parser.get_traversal_direction());
+
         // compute SSSP
         cout << "Computations started..." << endl;
         cout << "Doing " << parser.get_number_of_rounds() << " SSSP iterations..." << endl;
         for(int i = 0; i < parser.get_number_of_rounds(); i++)
         {
             int source_vertex = graph.select_random_vertex(ORIGINAL);
-            VerticesArray<int> distances(graph, ORIGINAL);
-
             performance_stats.reset_timers();
             ShortestPaths::nec_dijkstra(graph, weights, distances, source_vertex, parser.get_traversal_direction());
             performance_stats.update_timer_stats();

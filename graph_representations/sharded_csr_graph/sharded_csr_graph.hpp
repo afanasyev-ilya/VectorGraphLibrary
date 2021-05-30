@@ -120,17 +120,6 @@ int ShardedCSRGraph::select_random_vertex(TraversalDirection _direction)
     throw "Error in ShardedCSRGraph::select_random_vertex: can not select non-zero degree vertex in ATTEMPTS_THRESHOLD attempts";
 
     return -1;
-
-    /*int vertex_id = 0;
-    if(_direction == SCATTER || _direction == ORIGINAL)
-    {
-        vertex_id = outgoing_shards[0].select_random_vertex();
-    }
-    else if(_direction == GATHER)
-    {
-        vertex_id = incoming_shards[0].select_random_vertex();
-    }
-    return vertex_id;*/
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

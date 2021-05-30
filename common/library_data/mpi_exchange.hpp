@@ -167,12 +167,12 @@ void LibraryData::exchange_data(_T *_new_data, int _size, MergeOp &&_merge_op, _
     if(communication_policy == CYCLE_COMMUNICATION)
     {
         int cur_shift = 1;
-        //for(int cur_shift = 1; cur_shift <= get_mpi_proc_num()/2; cur_shift *= 2)
-        //{
-            //MPI_Barrier(MPI_COMM_WORLD);
+        for(int cur_shift = 1; cur_shift <= get_mpi_proc_num()/2; cur_shift *= 2)
+        {
+            MPI_Barrier(MPI_COMM_WORLD);
             exchange_data_cycle_mode(_new_data, _size, _merge_op, _old_data, cur_shift);
-            //MPI_Barrier(MPI_COMM_WORLD);
-        //}
+            MPI_Barrier(MPI_COMM_WORLD);
+        }
     }
     else
     {
@@ -183,6 +183,39 @@ void LibraryData::exchange_data(_T *_new_data, int _size, MergeOp &&_merge_op, _
     tm.end();
     performance_stats.update_MPI_time(tm);
 }
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+/*
+template <typename _T, typename MergeOp>
+void LibraryData::exchange_data(ShardedCSRgraph &_graph, _T *_new_data, int _size, MergeOp &&_merge_op, _T *_old_data)
+{
+    if(mpi_proc_num == 1)
+        return;
+
+    MPI_Barrier(MPI_COMM_WORLD);
+    Timer tm;
+    tm.start();
+
+    if(communication_policy == CYCLE_COMMUNICATION)
+    {
+        int cur_shift = 1;
+        for(int cur_shift = 1; cur_shift <= get_mpi_proc_num()/2; cur_shift *= 2)
+        {
+            MPI_Barrier(MPI_COMM_WORLD);
+            exchange_data_cycle_mode(_new_data, _size, _merge_op, _old_data, cur_shift);
+            MPI_Barrier(MPI_COMM_WORLD);
+        }
+    }
+    else
+    {
+        throw "Error: unsupported communication policy";
+    }
+
+    MPI_Barrier(MPI_COMM_WORLD);
+    tm.end();
+    performance_stats.update_MPI_time(tm);
+}*/
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 

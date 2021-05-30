@@ -43,22 +43,17 @@ void SSSP::nec_dijkstra_partial_active(VectCSRGraph &_graph,
         };
         graph_API.compute(_graph, all_active_frontier, copy_distances);
 
-        #pragma omp parallel
+        auto edge_op_push = [&_distances, &_weights] __VGL_SCATTER_ARGS__
         {
-            auto edge_op_push = [&_distances, &_weights] __VGL_SCATTER_ARGS__
+            _T weight = _weights[global_edge_pos];
+            _T src_weight = _distances[src_id];
+            if(_distances[dst_id] > src_weight + weight)
             {
-                _T weight = _weights[global_edge_pos];
-                _T src_weight = _distances[src_id];
+                _distances[dst_id] = src_weight + weight;
+            }
+        };
 
-                if(_distances[dst_id] > src_weight + weight)
-                {
-                    _distances[dst_id] = src_weight + weight;
-                }
-            };
-
-            graph_API.scatter(_graph, work_frontier, edge_op_push, EMPTY_VERTEX_OP, EMPTY_VERTEX_OP,
-                              edge_op_push, EMPTY_VERTEX_OP, EMPTY_VERTEX_OP);
-        }
+        graph_API.scatter(_graph, work_frontier, edge_op_push);
 
         auto changes_occurred = [&_distances, &prev_distances] __VGL_GNF_ARGS__
         {
@@ -438,10 +433,6 @@ void SSSP::nec_dijkstra(ShardedCSRGraph &_graph,
     frontier.set_all_active();
     graph_API.compute(_graph, frontier, init_distances);
 
-    #ifdef __USE_MPI__
-    MPI_Barrier(MPI_COMM_WORLD);
-    #endif
-
     int changes = 0, iterations_count = 0;
     do
     {
@@ -454,18 +445,7 @@ void SSSP::nec_dijkstra(ShardedCSRGraph &_graph,
         };
         graph_API.compute(_graph, frontier, save_old_distances);
 
-        auto edge_op_push = [&_distances, &_weights] __VGL_SCATTER_ARGS__
-        {
-            _T weight = 1.0;//_weights[global_edge_pos];
-            _T src_weight = _distances[src_id];
-
-            if(_distances[dst_id] > src_weight + weight)
-            {
-                _distances[dst_id] = src_weight + weight;
-            }
-        };
-
-        auto edge_op_pull = [&_distances, &_weights] __VGL_SCATTER_ARGS__
+        /*auto edge_op_pull = [&_distances, &_weights] __VGL_SCATTER_ARGS__
         {
             _T weight = 1.0;//_weights[global_edge_pos];
             _T dst_weight = _distances[dst_id];
@@ -474,12 +454,88 @@ void SSSP::nec_dijkstra(ShardedCSRGraph &_graph,
             {
                 _distances[src_id] = dst_weight + weight;
             }
-        };
+        };*/
 
-        if(direction == SCATTER)
-            graph_API.scatter(_graph, frontier, edge_op_push);
-        else
-            graph_API.gather(_graph, frontier, edge_op_pull);
+        #pragma omp parallel
+        {
+            auto edge_op_push = [&_distances, &_weights] __VGL_SCATTER_ARGS__
+            {
+                _T weight = 1.0;//_weights[global_edge_pos];
+                _T src_weight = _distances[src_id];
+
+                if(_distances[dst_id] > src_weight + weight)
+                {
+                    _distances[dst_id] = src_weight + weight;
+                }
+            };
+
+            NEC_REGISTER_INT(distances, 0);
+
+            auto edge_op_pull = [&_distances, &_weights, &reg_distances](int src_id, int dst_id, int local_edge_pos,
+                    long long int global_edge_pos, int vector_index)
+            {
+                _T weight = 1.0;
+                _T dst_weight = _distances[dst_id];
+                if(_distances[src_id] > dst_weight + weight)
+                {
+                    reg_distances[vector_index] = dst_weight + weight;
+                }
+            };
+
+            auto preprocess = [&reg_distances, inf_val] (int src_id, int connections_count, int vector_index)
+            {
+                #pragma _NEC ivdep
+                for(int i = 0; i < VECTOR_LENGTH; i++)
+                    reg_distances[i] = inf_val;
+            };
+
+            auto postprocess = [&_distances, &reg_distances, inf_val] (int src_id, int connections_count, int vector_index)
+            {
+                _T min = inf_val;
+                #pragma _NEC ivdep
+                for(int i = 0; i < VECTOR_LENGTH; i++)
+                    if(min > reg_distances[i])
+                        min = reg_distances[i];
+                if(_distances[src_id] > min)
+                    _distances[src_id] = min;
+            };
+
+            auto edge_op_collective_pull = [&_distances, &_weights, &reg_distances]
+                   (int src_id, int dst_id, int local_edge_pos, long long int global_edge_pos,
+                    int vector_index)
+            {
+                _T weight = 1.0;
+                _T dst_weight = _distances[dst_id];
+                if(reg_distances[vector_index] > dst_weight + weight)
+                {
+                    reg_distances[vector_index] = dst_weight + weight;
+                }
+            };
+
+            auto preprocess_collective = [&reg_distances, inf_val] (int src_id, int connections_count, int vector_index)
+            {
+                reg_distances[vector_index] = inf_val;
+            };
+
+            auto postprocess_collective = [&_distances, &reg_distances, inf_val] (int src_id, int connections_count, int vector_index)
+            {
+                if(_distances[src_id] > reg_distances[vector_index])
+                    _distances[src_id] = reg_distances[vector_index];
+            };
+
+            if(direction == SCATTER)
+            {
+                graph_API.scatter(_graph, frontier, edge_op_push);
+            }
+            else
+            {
+                graph_API.enable_safe_stores();
+               //graph_API.gather(_graph, frontier, edge_op_pull);
+                graph_API.gather(_graph, frontier, edge_op_pull, preprocess, postprocess,
+                                 edge_op_collective_pull, preprocess_collective, postprocess_collective);
+                graph_API.disable_safe_stores();
+            }
+        }
 
         auto reduce_changes = [&_distances, &prev_distances] __VGL_REDUCE_INT_ARGS__
         {
@@ -509,10 +565,6 @@ void SSSP::nec_dijkstra(ShardedCSRGraph &_graph,
     tm.end();
 
     cout << "iterations_count: " << iterations_count << endl;
-
-    #ifdef __USE_MPI__
-    MPI_Barrier(MPI_COMM_WORLD);
-    #endif
 
     #ifdef __PRINT_SAMPLES_PERFORMANCE_STATS__
     performance_stats.print_algorithm_performance_stats("SSSP (Dijkstra, sharded graph)", tm.get_time(), _graph.get_edges_count());

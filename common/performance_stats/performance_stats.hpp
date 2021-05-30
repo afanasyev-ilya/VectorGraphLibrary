@@ -21,6 +21,7 @@ void PerformanceStats::fast_update_advance_stats(double _wall_time,
     advance_ve_part_time += _ve_part_time;
     advance_vc_part_time += _vc_part_time;
     advance_collective_part_time += _collective_part_time;
+    inner_wall_time += _wall_time;
 
     bytes_requested += _bytes;
     edges_visited += _edges;
@@ -42,6 +43,7 @@ void PerformanceStats::update_advance_ve_part_time(Timer &_timer)
 {
     #pragma omp single
     {
+        inner_wall_time += _timer.get_time();
         advance_ve_part_time += _timer.get_time();
     }
 }
@@ -72,7 +74,6 @@ void PerformanceStats::update_scatter_time(Timer &_timer)
 {
     #pragma omp single
     {
-        inner_wall_time += _timer.get_time();
         scatter_time += _timer.get_time();
     }
 }
@@ -83,30 +84,7 @@ void PerformanceStats::update_gather_time(Timer &_timer)
 {
     #pragma omp single
     {
-        inner_wall_time += _timer.get_time();
         gather_time += _timer.get_time();
-    }
-}
-
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-void PerformanceStats::update_scatter_time(double _time)
-{
-    #pragma omp single
-    {
-        inner_wall_time += _time;
-        scatter_time += _time;
-    }
-}
-
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-void PerformanceStats::update_gather_time(double _time)
-{
-    #pragma omp single
-    {
-        inner_wall_time += _time;
-        gather_time += _time;
     }
 }
 
