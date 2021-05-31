@@ -68,9 +68,9 @@ void GraphAbstractionsNEC::advance_worker(UndirectedCSRGraph &_graph,
     if(_inner_mpi_processing)
     {
         #ifdef __USE_MPI__
-        pair<int,int> ve_mpi_borders = _frontier.get_vector_engine_mpi_thresholds();
-        pair<int,int> vc_mpi_borders = _frontier.get_vector_core_mpi_thresholds();
-        pair<int,int> coll_mpi_borders = _frontier.get_collective_mpi_thresholds();
+        pair<int,int> ve_mpi_borders = _graph.get_vector_engine_mpi_thresholds();
+        pair<int,int> vc_mpi_borders = _graph.get_vector_core_mpi_thresholds();
+        pair<int,int> coll_mpi_borders = _graph.get_collective_mpi_thresholds();
 
         vector_engine_threshold_start = ve_mpi_borders.first;
         vector_engine_threshold_end = ve_mpi_borders.second;
@@ -191,6 +191,8 @@ void GraphAbstractionsNEC::advance_worker(UndirectedCSRGraph &_graph,
             work = _frontier.get_vector_engine_part_neighbours_count() +
                    _frontier.get_vector_core_part_neighbours_count() +
                    _frontier.get_collective_part_neighbours_count();
+
+        cout << vc_time * 1000 << " + " << collective_time*1000 << " = " << wall_time*1000 << endl;
 
         performance_stats.fast_update_advance_stats(wall_time, ve_time, vc_time, collective_time,
                                                     work*INT_ELEMENTS_PER_EDGE*sizeof(int), work);

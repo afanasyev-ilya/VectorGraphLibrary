@@ -1,17 +1,17 @@
 VE_CXX = nc++
 VH_CXX = g++
 
-MPI_FLAGS =
 ifeq ($(MPI), true)
 VE_CXX = mpinc++
-MPI_FLAGS += -D __USE_MPI__
+MPI_Flags= -D __USE_MPI__
+BinSuffix=_mpi
 endif
 
 # Include paths...
 
 # Include paths...
 Include_Path = -I /opt/nec/ve/nlc/2.0.0/include/ -I ../
-Flags = -D __USE_NEC_SX_AURORA__ $(MPI_FLAGS) -O3 -fopenmp -proginf -mparallel -mretain-list-vector -DASL_LIB_INT64 #-report-all #-mno-vector #-ftrace
+Flags = -D __USE_NEC_SX_AURORA__ $(MPI_Flags) -O3 -fopenmp -proginf -mparallel -mretain-list-vector -DASL_LIB_INT64 #-report-all #-mno-vector #-ftrace
 
 # Library paths...
 Library_Path =
@@ -27,43 +27,43 @@ Libraries = -fopenmp -ftrace -lasl_openmp_i64 # -report-all -ftrace
 all: sssp sssp_sharded sswp bfs scc pr cc rw hits apsp coloring print_graph_info create_vgl_graphs
 
 sssp: create_folders sssp.o
-	$(VE_CXX) object_files/sssp.o $(Library_Path) $(Libraries) -o ./bin/sssp_sx
+	$(VE_CXX) object_files/sssp.o $(Library_Path) $(Libraries) -o ./bin/sssp_sx$(BinSuffix)
 
 sswp: create_folders sswp.o
-	$(VE_CXX) object_files/sswp.o $(Library_Path) $(Libraries) -o ./bin/sswp_sx
+	$(VE_CXX) object_files/sswp.o $(Library_Path) $(Libraries) -o ./bin/sswp_sx$(BinSuffix)
 
 sssp_sharded: create_folders sssp_sharded.o
-	$(VE_CXX) object_files/sssp_sharded.o $(Library_Path) $(Libraries) -o ./bin/sssp_sharded_sx
+	$(VE_CXX) object_files/sssp_sharded.o $(Library_Path) $(Libraries) -o ./bin/sssp_sharded_sx$(BinSuffix)
 
 bfs: create_folders bfs.o
-	$(VE_CXX) object_files/bfs.o $(Library_Path) $(Libraries) -o ./bin/bfs_sx
+	$(VE_CXX) object_files/bfs.o $(Library_Path) $(Libraries) -o ./bin/bfs_sx$(BinSuffix)
 
 scc: create_folders scc.o
-	$(VE_CXX) object_files/scc.o $(Library_Path) $(Libraries) -o ./bin/scc_sx
+	$(VE_CXX) object_files/scc.o $(Library_Path) $(Libraries) -o ./bin/scc_sx$(BinSuffix)
 
 cc: create_folders cc.o
-	$(VE_CXX) object_files/cc.o $(Library_Path) $(Libraries) -o ./bin/cc_sx
+	$(VE_CXX) object_files/cc.o $(Library_Path) $(Libraries) -o ./bin/cc_sx$(BinSuffix)
 
 pr: create_folders pr.o
-	$(VE_CXX) object_files/pr.o $(Library_Path) $(Libraries) -o ./bin/pr_sx
+	$(VE_CXX) object_files/pr.o $(Library_Path) $(Libraries) -o ./bin/pr_sx$(BinSuffix)
 
 rw: create_folders rw.o
-	$(VE_CXX) object_files/rw.o $(Library_Path) $(Libraries) -o ./bin/rw_sx
+	$(VE_CXX) object_files/rw.o $(Library_Path) $(Libraries) -o ./bin/rw_sx$(BinSuffix)
 
 hits: create_folders hits.o
-	$(VE_CXX) object_files/hits.o $(Library_Path) $(Libraries) -o ./bin/hits_sx
+	$(VE_CXX) object_files/hits.o $(Library_Path) $(Libraries) -o ./bin/hits_sx$(BinSuffix)
 
 apsp: create_folders apsp.o
-	$(VE_CXX) object_files/apsp.o $(Library_Path) $(Libraries) -o ./bin/apsp_sx
+	$(VE_CXX) object_files/apsp.o $(Library_Path) $(Libraries) -o ./bin/apsp_sx$(BinSuffix)
 
 coloring: create_folders coloring.o
-	$(VE_CXX) object_files/coloring.o $(Library_Path) $(Libraries) -o ./bin/coloring_sx
+	$(VE_CXX) object_files/coloring.o $(Library_Path) $(Libraries) -o ./bin/coloring_sx$(BinSuffix)
 
 print_graph_info: create_folders print_graph_info.o
-	$(VE_CXX) object_files/print_graph_info.o $(Library_Path) $(Libraries) -o ./bin/print_graph_info_sx
+	$(VE_CXX) object_files/print_graph_info.o $(Library_Path) $(Libraries) -o ./bin/print_graph_info_sx$(BinSuffix)
 
 create_vgl_graphs: create_folders create_vgl_graphs.o
-	$(VH_CXX) -fopenmp object_files/create_vgl_graphs.o -o ./bin/create_vgl_graphs_sx
+	$(VH_CXX) -fopenmp object_files/create_vgl_graphs.o -o ./bin/create_vgl_graphs_sx$(BinSuffix)
 
 ##########
 # CPPs

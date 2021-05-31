@@ -52,11 +52,21 @@ private:
     int vector_core_threshold_vertex;
     #endif
 
+    #ifdef __USE_MPI__
+    pair<int, int> vector_engine_mpi_thresholds;
+    pair<int, int> vector_core_mpi_thresholds;
+    pair<int, int> collective_mpi_thresholds;
+    #endif
+
     void alloc(int _vertices_count, long long _edges_count);
     void free();
 
     #if defined(__USE_NEC_SX_AURORA__) || defined(__USE_MULTICORE__)
     void estimate_nec_thresholds();
+    #endif
+
+    #ifdef __USE_MPI__
+    void estimate_mpi_thresholds();
     #endif
 
     // import functions
@@ -148,10 +158,16 @@ public:
     // resize graph
     void resize(int _vertices_count, long long _edges_count);
 
-    // API to calculate NEC and multicore thresholds
+    // API to calculate NEC and multicore thresholds (including MPI)
     #if defined(__USE_NEC_SX_AURORA__) || defined(__USE_MULTICORE__)
     inline int get_vector_engine_threshold_vertex(){return vector_engine_threshold_vertex;};
     inline int get_vector_core_threshold_vertex(){return vector_core_threshold_vertex;};
+    #endif
+
+    #ifdef __USE_MPI__
+    pair<int,int> get_vector_engine_mpi_thresholds() {return vector_engine_mpi_thresholds; };
+    pair<int,int> get_vector_core_mpi_thresholds() {return vector_core_mpi_thresholds; };
+    pair<int,int> get_collective_mpi_thresholds() {return collective_mpi_thresholds; };
     #endif
 
     // selects random vertex with non-zero degree
@@ -201,10 +217,11 @@ int *ve_adjacent_ids = (input_graph.get_ve_ptr())->get_adjacent_ids();\
 #include "undirected_csr_graph.hpp"
 #include "import.hpp"
 #include "gpu_api.hpp"
-#include "nec_api.hpp"
 #include "reorder.hpp"
 #include "print.hpp"
 #include "get_api.hpp"
+#include "nec_api.hpp"
+#include "mpi_api.hpp"
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 

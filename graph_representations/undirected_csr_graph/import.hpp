@@ -332,6 +332,9 @@ void UndirectedCSRGraph::import(EdgesListGraph &_el_graph)
     estimate_nec_thresholds();
     last_vertices_ve.init_from_graph(this->vertex_pointers, this->adjacent_ids,
                                      vector_core_threshold_vertex, this->vertices_count);
+    #ifdef __USE_MPI__
+    estimate_mpi_thresholds();
+    #endif
     #endif
 }
 

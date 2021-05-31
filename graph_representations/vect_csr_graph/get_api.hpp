@@ -117,15 +117,3 @@ int VectCSRGraph::get_outgoing_connections_count(int _src_id)
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-#ifdef __USE_MPI__
-std::pair<int, int> VectCSRGraph::get_mpi_thresholds(int _mpi_rank, TraversalDirection _direction)
-{
-    if(_direction == SCATTER)
-        return this->outgoing_graph->get_mpi_thresholds(_mpi_rank, 0, this->vertices_count);
-    else //if(_direction == GATHER)
-        return this->incoming_graph->get_mpi_thresholds(_mpi_rank, 0, this->vertices_count);
-}
-#endif
-
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

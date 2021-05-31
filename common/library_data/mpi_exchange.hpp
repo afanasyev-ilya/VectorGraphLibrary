@@ -187,6 +187,38 @@ void LibraryData::exchange_data(_T *_new_data, int _size, MergeOp &&_merge_op, _
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template <typename _T, typename MergeOp>
+void LibraryData::exchange_data(VectCSRGraph &_graph, _T *_new_data, int _size, MergeOp &&_merge_op)
+{
+    if(get_mpi_proc_num() == 1)
+        return;
+
+    pair<int,int> vc_part = _graph.get_outgoing_graph_ptr()->get_vector_core_mpi_thresholds();
+    cout << "mpi rank: " << get_mpi_rank() << " vc : " << vc_part.first << " - " << vc_part.second << endl;
+
+    int begin = vc_part.first;
+    int end = vc_part.second;
+
+    int send_size = end - begin;
+    int send_shift = begin;
+    _T *send_ptr = &_new_data[send_shift];
+
+    const int mpi_processes = get_mpi_proc_num();
+    int recv_sizes[mpi_processes];
+    int recv_shifts[mpi_processes];
+
+    recv_sizes[get_mpi_rank()] = send_size*sizeof(_T);
+    recv_shifts[get_mpi_rank()] = send_shift*sizeof(_T);
+
+    MPI_Allgather(&send_size, 1, MPI_INT, recv_sizes, 1, MPI_INT, MPI_COMM_WORLD);
+    MPI_Allgather(&send_shift, 1, MPI_INT, recv_shifts, 1, MPI_INT, MPI_COMM_WORLD);
+
+    MPI_Allgatherv((char*)send_ptr, send_size*sizeof(_T), MPI_CHAR,
+                   recv_buffer, recv_sizes, recv_shifts, MPI_CHAR, MPI_COMM_WORLD);
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+template <typename _T, typename MergeOp>
 void exchange_data(VerticesArray<_T> &_data, MergeOp &&_merge_op)
 {
     exchange_data(_data.get_ptr(), _data.get_size(), _merge_op);

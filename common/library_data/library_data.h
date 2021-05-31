@@ -19,6 +19,10 @@ enum DataExchangePolicy
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+class VectCSRGraph;
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 class LibraryData
 {
 private:
@@ -57,6 +61,9 @@ public:
 
     template <typename _T, typename MergeOp>
     void exchange_data(VerticesArray<_T> &_data, int _size, MergeOp &&_merge_op);
+
+    template <typename _T, typename MergeOp>
+    void exchange_data(VectCSRGraph &_graph, _T *_new_data, int _size, MergeOp &&_merge_op);
 
     template <typename _T>
     void bcast(_T *_data, int _size, int _root);

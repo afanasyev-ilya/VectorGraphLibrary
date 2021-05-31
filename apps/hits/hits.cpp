@@ -55,6 +55,10 @@ int main(int argc, char **argv)
         VerticesArray<base_type> auth(graph);
         VerticesArray<base_type> hub(graph);
 
+        #ifdef __USE_MPI__
+        HITS::vgl_hits(graph, auth, hub, parser.get_number_of_rounds());
+        #endif
+
         performance_stats.reset_timers();
         HITS::vgl_hits(graph, auth, hub, parser.get_number_of_rounds());
         performance_stats.update_timer_stats();
