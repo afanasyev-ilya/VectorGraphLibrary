@@ -26,11 +26,11 @@ void FrontierNEC::set_all_active()
     }
     else if(graph_ptr->get_type() == SHARDED_CSR_GRAPH)
     {
-
+        // TODO
     }
     else if(graph_ptr->get_type() == EDGES_LIST_GRAPH)
     {
-
+        // TODO
     }
     else
     {

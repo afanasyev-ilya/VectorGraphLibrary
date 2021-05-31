@@ -55,7 +55,7 @@ void GraphAbstractionsNEC::advance_worker(UndirectedCSRGraph &_graph,
                                           bool _outgoing_graph_is_stored,
                                           bool _inner_mpi_processing)
 {
-    double wall_time, ve_time, vc_time, collective_time, t1, t2;
+    double wall_time = 0, ve_time = 0, vc_time = 0, collective_time = 0, t1 = 0, t2 = 0;
 
     int vector_engine_threshold_start = 0;
     int vector_engine_threshold_end = 0;

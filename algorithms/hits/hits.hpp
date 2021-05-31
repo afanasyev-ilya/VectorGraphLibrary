@@ -34,6 +34,7 @@ void HITS::vgl_hits(VectCSRGraph &_graph, VerticesArray<_T> &_auth, VerticesArra
         #endif
 
         graph_API.change_traversal_direction(GATHER, _hub, _auth, frontier);
+        frontier.set_all_active();// TODO
 
         auto update_auth_op_preprocess = [_auth] __VGL_ADVANCE_PREPROCESS_ARGS__ {
             _auth[src_id] = 0.0;
@@ -60,6 +61,7 @@ void HITS::vgl_hits(VectCSRGraph &_graph, VerticesArray<_T> &_auth, VerticesArra
         graph_API.compute(_graph, frontier, normalize_auth_op);
 
         graph_API.change_traversal_direction(SCATTER, _hub, _auth, frontier);
+        frontier.set_all_active();// TODO
 
         auto update_hub_op_preprocess = [_hub] __VGL_ADVANCE_PREPROCESS_ARGS__ {
             _hub[src_id] = 0.0;
