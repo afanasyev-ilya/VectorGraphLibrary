@@ -186,34 +186,94 @@ void LibraryData::exchange_data(_T *_new_data, int _size, MergeOp &&_merge_op, _
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-template <typename _T, typename MergeOp>
-void LibraryData::exchange_data(VectCSRGraph &_graph, _T *_new_data, int _size, MergeOp &&_merge_op)
+template<typename _T>
+void templated_allgatherv(_T *_data, int *_recv_shifts, int *_recv_sizes)
 {
-    if(get_mpi_proc_num() == 1)
+    throw "Error: unsupported datatype in templated MPI_Allgatherv";
+}
+
+template<> void templated_allgatherv<double>(double *_data, int *_recv_shifts, int *_recv_sizes)
+{
+    MPI_Allgatherv((&_data[_recv_shifts[vgl_library_data.get_mpi_rank()]]),
+                   _recv_sizes[vgl_library_data.get_mpi_rank()], MPI_DOUBLE,
+                   _data, _recv_sizes, _recv_shifts, MPI_DOUBLE, MPI_COMM_WORLD);
+}
+
+template<> void templated_allgatherv<float>(float *_data, int *_recv_shifts, int *_recv_sizes)
+{
+    MPI_Allgatherv((&_data[_recv_shifts[vgl_library_data.get_mpi_rank()]]),
+                   _recv_sizes[vgl_library_data.get_mpi_rank()], MPI_FLOAT,
+                   _data, _recv_sizes, _recv_shifts, MPI_FLOAT, MPI_COMM_WORLD);
+}
+
+template<> void templated_allgatherv<int>(int *_data, int *_recv_shifts, int *_recv_sizes)
+{
+    MPI_Allgatherv((&_data[_recv_shifts[vgl_library_data.get_mpi_rank()]]),
+                   _recv_sizes[vgl_library_data.get_mpi_rank()], MPI_INT,
+                   _data, _recv_sizes, _recv_shifts, MPI_INT, MPI_COMM_WORLD);
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+template <typename _T>
+void LibraryData::in_group_exchange(_T *_data, int _begin, int _end)
+{
+    int begin = _begin;
+    int end = _end;
+
+    if(begin == end)
         return;
-
-    pair<int,int> vc_part = _graph.get_outgoing_graph_ptr()->get_vector_core_mpi_thresholds();
-    cout << "mpi rank: " << get_mpi_rank() << " vc : " << vc_part.first << " - " << vc_part.second << endl;
-
-    int begin = vc_part.first;
-    int end = vc_part.second;
 
     int send_size = end - begin;
     int send_shift = begin;
-    _T *send_ptr = &_new_data[send_shift];
 
     const int mpi_processes = get_mpi_proc_num();
     int recv_sizes[mpi_processes];
     int recv_shifts[mpi_processes];
 
-    recv_sizes[get_mpi_rank()] = send_size*sizeof(_T);
-    recv_shifts[get_mpi_rank()] = send_shift*sizeof(_T);
+    recv_sizes[get_mpi_rank()] = send_size;
+    recv_shifts[get_mpi_rank()] = send_shift;
 
+    Timer comm_tm;
+    comm_tm.start();
     MPI_Allgather(&send_size, 1, MPI_INT, recv_sizes, 1, MPI_INT, MPI_COMM_WORLD);
     MPI_Allgather(&send_shift, 1, MPI_INT, recv_shifts, 1, MPI_INT, MPI_COMM_WORLD);
 
-    MPI_Allgatherv((char*)send_ptr, send_size*sizeof(_T), MPI_CHAR,
-                   recv_buffer, recv_sizes, recv_shifts, MPI_CHAR, MPI_COMM_WORLD);
+    templated_allgatherv(_data, recv_shifts, recv_sizes);
+    //MPI_Allgatherv((&_data[recv_shifts[get_mpi_rank()]]), recv_sizes[get_mpi_rank()], MPI_DOUBLE,
+    //               _data, recv_sizes, recv_shifts, MPI_DOUBLE, MPI_COMM_WORLD);
+    comm_tm.end();
+    performance_stats.update_MPI_functions_time(comm_tm);
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+template <typename _T>
+void LibraryData::exchange_data(VectCSRGraph &_graph, _T *_data, int _size, TraversalDirection _direction)
+{
+    MPI_Barrier(MPI_COMM_WORLD);
+    Timer tm;
+    tm.start();
+
+    if(get_mpi_proc_num() == 1)
+        return;
+
+    pair<int,int> ve_part = _graph.get_direction_graph_ptr(_direction)->get_vector_engine_mpi_thresholds();
+    pair<int,int> vc_part = _graph.get_direction_graph_ptr(_direction)->get_vector_core_mpi_thresholds();
+    pair<int,int> coll_part = _graph.get_direction_graph_ptr(_direction)->get_collective_mpi_thresholds();
+
+    //cout << get_mpi_rank() << " | " << ve_part.first << " - " << ve_part.second << ", " << vc_part.first << " - " << vc_part.second << ", " << coll_part.first << " - " << coll_part.second << endl;
+
+    _T *received_data = (_T*) recv_buffer;
+    MemoryAPI::set(received_data, (_T)0, _size);
+
+    in_group_exchange(_data,  ve_part.first,  ve_part.second);
+    in_group_exchange(_data,  vc_part.first,  vc_part.second);
+    in_group_exchange(_data,  coll_part.first,  coll_part.second);
+
+    MPI_Barrier(MPI_COMM_WORLD);
+    tm.end();
+    performance_stats.update_MPI_time(tm);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

@@ -192,7 +192,7 @@ void GraphAbstractionsNEC::advance_worker(UndirectedCSRGraph &_graph,
                    _frontier.get_vector_core_part_neighbours_count() +
                    _frontier.get_collective_part_neighbours_count();
 
-        cout << vc_time * 1000 << " + " << collective_time*1000 << " = " << wall_time*1000 << endl;
+        //cout << vc_time * 1000 << " + " << collective_time*1000 << " = " << wall_time*1000 << endl; TODO why
 
         performance_stats.fast_update_advance_stats(wall_time, ve_time, vc_time, collective_time,
                                                     work*INT_ELEMENTS_PER_EDGE*sizeof(int), work);

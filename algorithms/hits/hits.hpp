@@ -26,13 +26,6 @@ void HITS::vgl_hits(VectCSRGraph &_graph, VerticesArray<_T> &_auth, VerticesArra
 
     for(int step = 0; step < _num_steps; step++)
     {
-        #ifdef __USE_MPI__
-        auto sum_op = [](_T _a, _T _b)->_T
-        {
-            return _a + _b;
-        };
-        #endif
-
         graph_API.change_traversal_direction(GATHER, _hub, _auth, frontier);
 
         auto update_auth_op_preprocess = [_auth] __VGL_ADVANCE_PREPROCESS_ARGS__ {
@@ -46,8 +39,7 @@ void HITS::vgl_hits(VectCSRGraph &_graph, VerticesArray<_T> &_auth, VerticesArra
                          update_auth_op, update_auth_op_preprocess, EMPTY_VERTEX_OP);
 
         #ifdef __USE_MPI__
-        //vgl_library_data.exchange_data(_auth.get_ptr(), _graph.get_vertices_count(), sum_op);
-        vgl_library_data.exchange_data(_graph, _auth.get_ptr(), _graph.get_vertices_count(), sum_op);
+        vgl_library_data.exchange_data(_graph, _auth.get_ptr(), _graph.get_vertices_count(), GATHER);
         #endif
 
         auto reduce_auth_op = [_auth] __VGL_REDUCE_DBL_ARGS__ {
@@ -73,7 +65,7 @@ void HITS::vgl_hits(VectCSRGraph &_graph, VerticesArray<_T> &_auth, VerticesArra
                           update_hub_op, update_hub_op_preprocess, EMPTY_VERTEX_OP);
 
         #ifdef __USE_MPI__
-        //vgl_library_data.exchange_data(_hub.get_ptr(), _graph.get_vertices_count(), sum_op);
+        vgl_library_data.exchange_data(_graph, _hub.get_ptr(), _graph.get_vertices_count(), SCATTER);
         #endif
 
         auto reduce_hub_op = [_hub] __VGL_REDUCE_DBL_ARGS__ {

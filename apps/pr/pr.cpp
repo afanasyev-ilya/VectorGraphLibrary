@@ -14,6 +14,7 @@ int main(int argc, char **argv)
 {
     try
     {
+        vgl_library_data.init(argc, argv);
         cout << "PR (Page Rank) test..." << endl;
 
         // parse args
@@ -41,9 +42,20 @@ int main(int argc, char **argv)
             tm.print_time_stats("Graph load");
         }
 
+        #ifdef __USE_MPI__
+        vgl_library_data.allocate_exchange_buffers(graph.get_vertices_count(), sizeof(double));
+        vgl_library_data.set_data_exchange_policy(RECENTLY_CHANGED);
+        #endif
+
         VerticesArray<float> page_ranks(graph);
-        performance_stats.reset_timers();
         float convergence_factor = 1.0e-4;
+
+        // heat run
+        #ifdef __USE_MPI__
+        PageRank::nec_page_rank(graph, page_ranks, convergence_factor, parser.get_number_of_rounds());
+        #endif
+
+        performance_stats.reset_timers();
         PageRank::nec_page_rank(graph, page_ranks, convergence_factor, parser.get_number_of_rounds());
         performance_stats.update_timer_stats();
         performance_stats.print_timers_stats();
@@ -56,6 +68,8 @@ int main(int argc, char **argv)
         }
 
         performance_stats.print_perf(graph.get_edges_count(), parser.get_number_of_rounds());
+
+        vgl_library_data.finalize();
     }
     catch (string error)
     {
