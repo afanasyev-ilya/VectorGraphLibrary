@@ -262,8 +262,6 @@ void LibraryData::exchange_data(VectCSRGraph &_graph, _T *_data, int _size, Trav
     pair<int,int> vc_part = _graph.get_direction_graph_ptr(_direction)->get_vector_core_mpi_thresholds();
     pair<int,int> coll_part = _graph.get_direction_graph_ptr(_direction)->get_collective_mpi_thresholds();
 
-    //cout << get_mpi_rank() << " | " << ve_part.first << " - " << ve_part.second << ", " << vc_part.first << " - " << vc_part.second << ", " << coll_part.first << " - " << coll_part.second << endl;
-
     _T *received_data = (_T*) recv_buffer;
     MemoryAPI::set(received_data, (_T)0, _size);
 
@@ -283,39 +281,6 @@ void exchange_data(VerticesArray<_T> &_data, MergeOp &&_merge_op)
 {
     exchange_data(_data.get_ptr(), _data.get_size(), _merge_op);
 }
-
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-/*
-template <typename _T, typename MergeOp>
-void LibraryData::exchange_data(ShardedCSRgraph &_graph, _T *_new_data, int _size, MergeOp &&_merge_op, _T *_old_data)
-{
-    if(mpi_proc_num == 1)
-        return;
-
-    MPI_Barrier(MPI_COMM_WORLD);
-    Timer tm;
-    tm.start();
-
-    if(communication_policy == CYCLE_COMMUNICATION)
-    {
-        int cur_shift = 1;
-        for(int cur_shift = 1; cur_shift <= get_mpi_proc_num()/2; cur_shift *= 2)
-        {
-            MPI_Barrier(MPI_COMM_WORLD);
-            exchange_data_cycle_mode(_new_data, _size, _merge_op, _old_data, cur_shift);
-            MPI_Barrier(MPI_COMM_WORLD);
-        }
-    }
-    else
-    {
-        throw "Error: unsupported communication policy";
-    }
-
-    MPI_Barrier(MPI_COMM_WORLD);
-    tm.end();
-    performance_stats.update_MPI_time(tm);
-}*/
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 

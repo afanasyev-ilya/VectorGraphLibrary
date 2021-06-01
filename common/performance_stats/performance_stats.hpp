@@ -276,42 +276,67 @@ string get_separators_bottom_string()
 
 void PerformanceStats::print_algorithm_performance_stats(string _name, double _time, long long _edges_count)
 {
+    bool print_condition = true;
+    #ifdef __USE_MPI__
+    MPI_Barrier(MPI_COMM_WORLD);
+    if(get_mpi_rank() != 0)
+        print_condition = false;
+    #endif
+
     cout << get_separators_upper_string(_name) << endl;
     cout << "Wall time: " << _time*1000.0 << " ms" << endl;
     cout << "Wall (graph500) perf: " << _edges_count / (_time * 1e6) << " MTEPS" << endl;
     cout << get_separators_bottom_string() << endl << endl;
+
+    #ifdef __USE_MPI__
+    MPI_Barrier(MPI_COMM_WORLD);
+    #endif
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 void PerformanceStats::print_timers_stats()
 {
-    cout << endl;
-    print_abstraction_stats("Inner wall    ", inner_wall_time);
-    print_abstraction_stats("Advance       ", advance_time);
-    #if defined(__USE_NEC_SX_AURORA__) || defined(__USE_MULTICORE__)
-    print_detailed_advance_stats("Advance (ve) time        ", advance_ve_part_time);
+    bool print_condition = true;
+    #ifdef __USE_MPI__
+    MPI_Barrier(MPI_COMM_WORLD);
+    if(get_mpi_rank() != 0)
+        print_condition = false;
+    #endif
+
+    if(print_condition)
+    {
+        cout << endl;
+        print_abstraction_stats("Inner wall    ", inner_wall_time);
+        print_abstraction_stats("Advance       ", advance_time);
+        #if defined(__USE_NEC_SX_AURORA__) || defined(__USE_MULTICORE__)
+        print_detailed_advance_stats("Advance (ve) time        ", advance_ve_part_time);
     print_detailed_advance_stats("Advance (vc) time        ", advance_vc_part_time);
     print_detailed_advance_stats("Advance (collective) time", advance_collective_part_time);
-    #endif
-    print_abstraction_stats("Gather        ", gather_time);
-    print_abstraction_stats("Scatter       ", scatter_time);
-    print_abstraction_stats("Compute       ", compute_time);
-    print_abstraction_stats("Reduce        ", reduce_time);
-    print_abstraction_stats("GNF           ", gnf_time);
-    print_abstraction_stats("Reorder       ", reorder_time);
-    print_abstraction_stats("Pack          ", pack_time);
-    print_abstraction_stats("Non-API       ", non_api_time);
-    #ifdef __USE_MPI__
-    print_abstraction_stats("MPI           ", MPI_time);
+        #endif
+        print_abstraction_stats("Gather        ", gather_time);
+        print_abstraction_stats("Scatter       ", scatter_time);
+        print_abstraction_stats("Compute       ", compute_time);
+        print_abstraction_stats("Reduce        ", reduce_time);
+        print_abstraction_stats("GNF           ", gnf_time);
+        print_abstraction_stats("Reorder       ", reorder_time);
+        print_abstraction_stats("Pack          ", pack_time);
+        print_abstraction_stats("Non-API       ", non_api_time);
+        #ifdef __USE_MPI__
+        print_abstraction_stats("MPI           ", MPI_time);
     print_abstraction_stats("MPI functions ", MPI_functions_time);
-    #endif
-    cout << endl;
+        #endif
+        cout << endl;
 
-    cout << "total bandwidth: " << get_sustained_bandwidth() << " GB/s" << endl;
-    cout << "edges rate: " << get_edges_rate() << " MTEPS" << endl;
-    cout << "edges visited: " << edges_visited << endl;
-    cout << endl;
+        cout << "total bandwidth: " << get_sustained_bandwidth() << " GB/s" << endl;
+        cout << "edges rate: " << get_edges_rate() << " MTEPS" << endl;
+        cout << "edges visited: " << edges_visited << endl;
+        cout << endl;
+    }
+
+    #ifdef __USE_MPI__
+    MPI_Barrier(MPI_COMM_WORLD);
+    #endif
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -358,7 +383,22 @@ double PerformanceStats::get_max_perf(long long _edges_count, int _k)
 
 void PerformanceStats::print_max_perf(long long _edges_count, int _k)
 {
-    cout << "MAX_PERF: " << get_max_perf(_edges_count, _k) << " MTEPS (among " << number_of_runs << " runs)" << endl;
+    bool print_condition = true;
+    #ifdef __USE_MPI__
+    MPI_Barrier(MPI_COMM_WORLD);
+    if(get_mpi_rank() != 0)
+        print_condition = false;
+    #endif
+
+    if(print_condition)
+    {
+        cout << "MAX_PERF: " << get_max_perf(_edges_count, _k) << " MTEPS (among " << number_of_runs << " runs)"
+             << endl;
+    }
+
+    #ifdef __USE_MPI__
+    MPI_Barrier(MPI_COMM_WORLD);
+    #endif
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -372,7 +412,21 @@ double PerformanceStats::get_min_perf(long long _edges_count, int _k)
 
 void PerformanceStats::print_min_perf(long long _edges_count, int _k)
 {
-    cout << "MIN_PERF: " << get_min_perf(_edges_count, _k) << " MTEPS (among " << number_of_runs << " runs)" << endl;
+    bool print_condition = true;
+    #ifdef __USE_MPI__
+    MPI_Barrier(MPI_COMM_WORLD);
+    if(get_mpi_rank() != 0)
+        print_condition = false;
+    #endif
+
+    if(print_condition)
+    {
+        cout << "MIN_PERF: " << get_min_perf(_edges_count, _k) << " MTEPS (among " << number_of_runs << " runs)" << endl;
+    }
+
+    #ifdef __USE_MPI__
+    MPI_Barrier(MPI_COMM_WORLD);
+    #endif
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -387,7 +441,21 @@ double PerformanceStats::get_avg_perf(long long _edges_count, int _k)
 
 void PerformanceStats::print_avg_perf(long long _edges_count, int _k)
 {
-    cout << "AVG_PERF: " << get_avg_perf(_edges_count, _k) << " MTEPS (among " << number_of_runs << " runs)" << endl;
+    bool print_condition = true;
+    #ifdef __USE_MPI__
+    MPI_Barrier(MPI_COMM_WORLD);
+    if(get_mpi_rank() != 0)
+        print_condition = false;
+    #endif
+
+    if(print_condition)
+    {
+        cout << "AVG_PERF: " << get_avg_perf(_edges_count, _k) << " MTEPS (among " << number_of_runs << " runs)" << endl;
+    }
+
+    #ifdef __USE_MPI__
+    MPI_Barrier(MPI_COMM_WORLD);
+    #endif
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
