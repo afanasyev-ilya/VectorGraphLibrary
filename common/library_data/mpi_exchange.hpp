@@ -164,12 +164,24 @@ void LibraryData::exchange_data(_T *_new_data, int _size, MergeOp &&_merge_op, _
 
     if(communication_policy == CYCLE_COMMUNICATION)
     {
-        int cur_shift = 1;
-        for(int cur_shift = 1; cur_shift <= get_mpi_proc_num()/2; cur_shift *= 2)
+        if((mpi_proc_num & (mpi_proc_num - 1)) == 0) // is power of 2
         {
-            MPI_Barrier(MPI_COMM_WORLD);
-            exchange_data_cycle_mode(_new_data, _size, _merge_op, _old_data, cur_shift);
-            MPI_Barrier(MPI_COMM_WORLD);
+            int cur_shift = 1;
+            for(int cur_shift = 1; cur_shift <= get_mpi_proc_num()/2; cur_shift *= 2)
+            {
+                MPI_Barrier(MPI_COMM_WORLD);
+                exchange_data_cycle_mode(_new_data, _size, _merge_op, _old_data, cur_shift);
+                MPI_Barrier(MPI_COMM_WORLD);
+            }
+        }
+        else
+        {
+            for(int i = 0; i < mpi_proc_num; i++)
+            {
+                MPI_Barrier(MPI_COMM_WORLD);
+                exchange_data_cycle_mode(_new_data, _size, _merge_op, _old_data, 1);
+                MPI_Barrier(MPI_COMM_WORLD);
+            }
         }
     }
     else

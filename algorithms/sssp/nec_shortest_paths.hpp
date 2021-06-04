@@ -155,7 +155,7 @@ void SSSP::nec_dijkstra_all_active_push(VectCSRGraph &_graph,
         {
             return vect_max(_a, _b);
         };
-        vgl_library_data.exchange_data(_distances.get_ptr(), _graph.get_vertices_count(), min_op,  prev_distances.get_ptr());
+        vgl_library_data.exchange_data(_distances.get_ptr(), _graph.get_vertices_count(), min_op, prev_distances.get_ptr());
         vgl_library_data.exchange_data(&changes, 1, max_op);
         #endif
     }
@@ -202,6 +202,7 @@ void SSSP::nec_dijkstra_all_active_pull(VectCSRGraph &_graph,
     frontier.set_all_active();
     graph_API.compute(_graph, frontier, init_distances);
 
+    double tt = 0;
     int changes = 0, iterations_count = 0;
     do
     {
@@ -288,21 +289,21 @@ void SSSP::nec_dijkstra_all_active_pull(VectCSRGraph &_graph,
         changes = graph_API.reduce<int>(_graph, frontier, reduce_changes, REDUCE_SUM);
 
         #ifdef __USE_MPI__
-        auto min_op = [](float _a, float _b)->float
-        {
-            return vect_min(_a, _b);
-        };
         auto max_op = [](int _a, int _b)->int
         {
             return vect_max(_a, _b);
         };
-        vgl_library_data.exchange_data(_distances.get_ptr(), _graph.get_vertices_count(), min_op, prev_distances.get_ptr());
+        double t1 = omp_get_wtime();
+        vgl_library_data.exchange_data(_graph, _distances.get_ptr(), _graph.get_vertices_count(), GATHER);
+        double t2 = omp_get_wtime();
+        tt += t2 - t1;
         vgl_library_data.exchange_data(&changes, 1, max_op);
         #endif
     }
     while(changes);
     tm.end();
 
+    cout << "TT: " << tt * 1000 << endl;
     #ifdef __PRINT_SAMPLES_PERFORMANCE_STATS__
     performance_stats.print_algorithm_performance_stats("SSSP (Dijkstra, all-active, pull)", tm.get_time(), _graph.get_edges_count());
     #endif
@@ -549,15 +550,15 @@ void SSSP::nec_dijkstra(ShardedCSRGraph &_graph,
         changes = graph_API.reduce<int>(_graph, frontier, reduce_changes, REDUCE_SUM);
 
         #ifdef __USE_MPI__
+        auto max_op = [](int _a, int _b)->int
+        {
+            return vect_max(_a, _b);
+        };
         if(direction == SCATTER)
         {
             auto min_op = [](_T _a, _T _b)->_T
             {
                 return vect_min(_a, _b);
-            };
-            auto max_op = [](int _a, int _b)->int
-            {
-                return vect_max(_a, _b);
             };
             vgl_library_data.exchange_data(_distances.get_ptr(), _graph.get_vertices_count(), min_op, prev_distances.get_ptr());
             vgl_library_data.exchange_data(&changes, 1, max_op);
