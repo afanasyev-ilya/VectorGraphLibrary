@@ -92,12 +92,10 @@ void LibraryData::exchange_data_cycle_mode(_T *_new_data, int _size, MergeOp &&_
     char *send_ptr = NULL;
     char *recv_ptr = NULL;
 
-    int source = (get_mpi_rank() + _proc_shift);
+    int source = (get_mpi_rank() + _proc_shift) % get_mpi_proc_num();
     int dest = (get_mpi_rank() - _proc_shift);
-    if(source >= get_mpi_proc_num())
-        source = 0;
     if(dest < 0)
-        dest = get_mpi_proc_num() - _proc_shift;
+        dest = get_mpi_proc_num() + dest;
 
     if(cur_data_exchange_policy == SEND_ALL)
     {
@@ -240,8 +238,6 @@ void LibraryData::in_group_exchange(_T *_data, int _begin, int _end)
     MPI_Allgather(&send_shift, 1, MPI_INT, recv_shifts, 1, MPI_INT, MPI_COMM_WORLD);
 
     templated_allgatherv(_data, recv_shifts, recv_sizes);
-    //MPI_Allgatherv((&_data[recv_shifts[get_mpi_rank()]]), recv_sizes[get_mpi_rank()], MPI_DOUBLE,
-    //               _data, recv_sizes, recv_shifts, MPI_DOUBLE, MPI_COMM_WORLD);
     comm_tm.end();
     performance_stats.update_MPI_functions_time(comm_tm);
 }

@@ -283,10 +283,13 @@ void PerformanceStats::print_algorithm_performance_stats(string _name, double _t
         print_condition = false;
     #endif
 
-    cout << get_separators_upper_string(_name) << endl;
-    cout << "Wall time: " << _time*1000.0 << " ms" << endl;
-    cout << "Wall (graph500) perf: " << _edges_count / (_time * 1e6) << " MTEPS" << endl;
-    cout << get_separators_bottom_string() << endl << endl;
+    if(print_condition)
+    {
+        cout << get_separators_upper_string(_name) << endl;
+        cout << "Wall time: " << _time*1000.0 << " ms" << endl;
+        cout << "Wall (graph500) perf: " << _edges_count / (_time * 1e6) << " MTEPS" << endl;
+        cout << get_separators_bottom_string() << endl << endl;
+    }
 
     #ifdef __USE_MPI__
     MPI_Barrier(MPI_COMM_WORLD);

@@ -79,6 +79,9 @@ void PR::nec_page_rank(VectCSRGraph &_graph,
     graph_API.change_traversal_direction(SCATTER, frontier, old_page_ranks, reversed_degrees, _page_ranks, incoming_degrees_without_loops);
 
     Timer tm;
+    #ifdef __USE_MPI__
+    MPI_Barrier(MPI_COMM_WORLD);
+    #endif
     tm.start();
     int iterations_count = 0;
     for(iterations_count = 0; iterations_count < _max_iterations; iterations_count++)
@@ -137,6 +140,9 @@ void PR::nec_page_rank(VectCSRGraph &_graph,
     }
     tm.end();
 
+    #ifdef __USE_MPI__
+    MPI_Barrier(MPI_COMM_WORLD);
+    #endif
 
     #ifdef __PRINT_SAMPLES_PERFORMANCE_STATS__
     performance_stats.print_algorithm_performance_stats("PR (Page Rank, NEC/multicore)", tm.get_time(), _graph.get_edges_count());
