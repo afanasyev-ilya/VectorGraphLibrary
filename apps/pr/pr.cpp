@@ -44,7 +44,6 @@ int main(int argc, char **argv)
 
         #ifdef __USE_MPI__
         vgl_library_data.allocate_exchange_buffers(graph.get_vertices_count(), sizeof(double));
-        vgl_library_data.set_data_exchange_policy(RECENTLY_CHANGED);
         #endif
 
         VerticesArray<float> page_ranks(graph);

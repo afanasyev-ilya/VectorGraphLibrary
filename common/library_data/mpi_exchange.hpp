@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
+/*
 inline int get_recv_size(int _send_size, int _source, int _dest)
 {
     int recv_size = 0;
@@ -80,8 +80,8 @@ void LibraryData::exchange_data_cycle_mode(_T *_new_data, int _size, MergeOp &&_
                                            int _proc_shift)
 {
     DataExchangePolicy cur_data_exchange_policy = data_exchange_policy;
-    if(_old_data == NULL) // use SEND_ALL for simple exchanges (like for algorithm convergence)
-        cur_data_exchange_policy = SEND_ALL;
+    if(_old_data == NULL) // use EXCHANGE_ALL for simple exchanges (like for algorithm convergence)
+        cur_data_exchange_policy = EXCHANGE_ALL;
 
     _T *received_data;
 
@@ -97,7 +97,7 @@ void LibraryData::exchange_data_cycle_mode(_T *_new_data, int _size, MergeOp &&_
     if(dest < 0)
         dest = get_mpi_proc_num() + dest;
 
-    if(cur_data_exchange_policy == SEND_ALL)
+    if(cur_data_exchange_policy == EXCHANGE_ALL)
     {
         send_elements = _size;
         recv_elements = _size;
@@ -107,7 +107,7 @@ void LibraryData::exchange_data_cycle_mode(_T *_new_data, int _size, MergeOp &&_
         send_ptr = (char *)_new_data;
         recv_ptr = (char *) received_data;
     }
-    else if(cur_data_exchange_policy == RECENTLY_CHANGED)
+    else if(cur_data_exchange_policy == EXCHANGE_RECENTLY_CHANGED)
     {
         send_elements = prepare_exchange_data(_new_data, _old_data, _size);
         recv_elements = get_recv_size(send_elements, source, dest);
@@ -125,7 +125,7 @@ void LibraryData::exchange_data_cycle_mode(_T *_new_data, int _size, MergeOp &&_
     send_recv_tm.end();
     performance_stats.update_MPI_functions_time(send_recv_tm);
 
-    if(cur_data_exchange_policy == RECENTLY_CHANGED)
+    if(cur_data_exchange_policy == EXCHANGE_RECENTLY_CHANGED)
     {
         received_data = (_T *) send_buffer; // this is ok, we don't want to delete data either in old or recv_buffer
         #pragma _NEC ivdep
@@ -196,94 +196,6 @@ void LibraryData::exchange_data(_T *_new_data, int _size, MergeOp &&_merge_op, _
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-template<typename _T>
-void templated_allgatherv(_T *_data, int *_recv_shifts, int *_recv_sizes)
-{
-    throw "Error: unsupported datatype in templated MPI_Allgatherv";
-}
-
-template<> void templated_allgatherv<double>(double *_data, int *_recv_shifts, int *_recv_sizes)
-{
-    MPI_Allgatherv((&_data[_recv_shifts[vgl_library_data.get_mpi_rank()]]),
-                   _recv_sizes[vgl_library_data.get_mpi_rank()], MPI_DOUBLE,
-                   _data, _recv_sizes, _recv_shifts, MPI_DOUBLE, MPI_COMM_WORLD);
-}
-
-template<> void templated_allgatherv<float>(float *_data, int *_recv_shifts, int *_recv_sizes)
-{
-    MPI_Allgatherv((&_data[_recv_shifts[vgl_library_data.get_mpi_rank()]]),
-                   _recv_sizes[vgl_library_data.get_mpi_rank()], MPI_FLOAT,
-                   _data, _recv_sizes, _recv_shifts, MPI_FLOAT, MPI_COMM_WORLD);
-}
-
-template<> void templated_allgatherv<int>(int *_data, int *_recv_shifts, int *_recv_sizes)
-{
-    MPI_Allgatherv((&_data[_recv_shifts[vgl_library_data.get_mpi_rank()]]),
-                   _recv_sizes[vgl_library_data.get_mpi_rank()], MPI_INT,
-                   _data, _recv_sizes, _recv_shifts, MPI_INT, MPI_COMM_WORLD);
-}
-
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-template <typename _T>
-void LibraryData::in_group_exchange(_T *_data, int _begin, int _end)
-{
-    int begin = _begin;
-    int end = _end;
-
-    if(begin == end)
-        return;
-
-    int send_size = end - begin;
-    int send_shift = begin;
-
-    const int mpi_processes = get_mpi_proc_num();
-    int recv_sizes[mpi_processes];
-    int recv_shifts[mpi_processes];
-
-    recv_sizes[get_mpi_rank()] = send_size;
-    recv_shifts[get_mpi_rank()] = send_shift;
-
-    Timer comm_tm;
-    comm_tm.start();
-    MPI_Allgather(&send_size, 1, MPI_INT, recv_sizes, 1, MPI_INT, MPI_COMM_WORLD);
-    MPI_Allgather(&send_shift, 1, MPI_INT, recv_shifts, 1, MPI_INT, MPI_COMM_WORLD);
-
-    templated_allgatherv(_data, recv_shifts, recv_sizes);
-    comm_tm.end();
-    performance_stats.update_MPI_functions_time(comm_tm);
-}
-
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-template <typename _T>
-void LibraryData::exchange_data(VectCSRGraph &_graph, _T *_data, int _size, TraversalDirection _direction)
-{
-    MPI_Barrier(MPI_COMM_WORLD);
-    Timer tm;
-    tm.start();
-
-    if(get_mpi_proc_num() == 1)
-        return;
-
-    pair<int,int> ve_part = _graph.get_direction_graph_ptr(_direction)->get_vector_engine_mpi_thresholds();
-    pair<int,int> vc_part = _graph.get_direction_graph_ptr(_direction)->get_vector_core_mpi_thresholds();
-    pair<int,int> coll_part = _graph.get_direction_graph_ptr(_direction)->get_collective_mpi_thresholds();
-
-    _T *received_data = (_T*) recv_buffer;
-    MemoryAPI::set(received_data, (_T)0, _size);
-
-    in_group_exchange(_data,  ve_part.first,  ve_part.second);
-    in_group_exchange(_data,  vc_part.first,  vc_part.second);
-    in_group_exchange(_data,  coll_part.first,  coll_part.second);
-
-    MPI_Barrier(MPI_COMM_WORLD);
-    tm.end();
-    performance_stats.update_MPI_time(tm);
-}
-
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
 template <typename _T, typename MergeOp>
 void exchange_data(VerticesArray<_T> &_data, MergeOp &&_merge_op)
 {
@@ -291,6 +203,7 @@ void exchange_data(VerticesArray<_T> &_data, MergeOp &&_merge_op)
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+*/
 
 template <typename _T>
 void LibraryData::bcast(_T *_data, int _size, int _root)

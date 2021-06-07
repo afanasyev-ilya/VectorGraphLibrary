@@ -51,7 +51,6 @@ int main(int argc, char **argv)
 
         #ifdef __USE_MPI__
         vgl_library_data.allocate_exchange_buffers(graph.get_vertices_count(), sizeof(float));
-        vgl_library_data.set_data_exchange_policy(RECENTLY_CHANGED);
         #endif
 
         // do calculations
@@ -67,11 +66,7 @@ int main(int argc, char **argv)
             int source_vertex = graph.select_random_vertex(ORIGINAL);
             cout << "selected source vertex " << source_vertex << endl;
             #ifdef __USE_MPI__
-            auto min_id = [](int _a, int _b)->int
-            {
-                return vect_min(_a, _b);
-            };
-            vgl_library_data.exchange_data(&source_vertex, 1, min_id);
+            vgl_library_data.bcast(&source_vertex, 1, 0);
             #endif
 
             VerticesArray<float> distances(graph, Parser::convert_traversal_type(parser.get_traversal_direction()));

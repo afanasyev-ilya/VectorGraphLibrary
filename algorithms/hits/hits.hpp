@@ -5,10 +5,6 @@
 template <typename _T>
 void HITS::vgl_hits(VectCSRGraph &_graph, VerticesArray<_T> &_auth, VerticesArray<_T> &_hub, int _num_steps)
 {
-    #ifdef __USE_MPI__
-    vgl_library_data.set_data_exchange_policy(RECENTLY_CHANGED);
-    #endif
-
     VGL_GRAPH_ABSTRACTIONS graph_API(_graph);
     VGL_FRONTIER frontier(_graph);
     int vertices_count = _graph.get_vertices_count();

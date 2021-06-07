@@ -314,6 +314,11 @@ public:
 
     void enable_safe_stores() {use_safe_stores = true;};
     void disable_safe_stores() {use_safe_stores = false;};
+
+    #ifdef __USE_MPI__
+    template <typename _TGraph, typename _T>
+    void exchange_vertices_array(DataExchangePolicy _policy, _TGraph &_graph, VerticesArray<_T> &_data);
+    #endif
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -330,5 +335,8 @@ public:
 #include "advance_sparse.hpp"
 #include "generate_new_frontier.hpp"
 #include "reduce.hpp"
+#ifdef __USE_MPI__
+#include "mpi_exchange.hpp"
+#endif
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

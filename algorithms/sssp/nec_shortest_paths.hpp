@@ -86,10 +86,6 @@ void SSSP::nec_dijkstra_all_active_push(VectCSRGraph &_graph,
                                         VerticesArray<_T> &_distances,
                                         int _source_vertex)
 {
-    #ifdef __USE_MPI__
-    vgl_library_data.set_data_exchange_policy(RECENTLY_CHANGED);
-    #endif
-
     VGL_GRAPH_ABSTRACTIONS graph_API(_graph);
     VGL_FRONTIER frontier(_graph);
     VerticesArray<_T> prev_distances(_graph);
@@ -147,7 +143,7 @@ void SSSP::nec_dijkstra_all_active_push(VectCSRGraph &_graph,
         changes = graph_API.reduce<int>(_graph, frontier, reduce_changes, REDUCE_SUM);
 
         #ifdef __USE_MPI__
-        auto min_op = [](_T _a, _T _b)->_T
+        /*auto min_op = [](_T _a, _T _b)->_T
         {
             return vect_min(_a, _b);
         };
@@ -156,7 +152,7 @@ void SSSP::nec_dijkstra_all_active_push(VectCSRGraph &_graph,
             return vect_max(_a, _b);
         };
         vgl_library_data.exchange_data(_distances.get_ptr(), _graph.get_vertices_count(), min_op, prev_distances.get_ptr());
-        vgl_library_data.exchange_data(&changes, 1, max_op);
+        vgl_library_data.exchange_data(&changes, 1, max_op);*/
         #endif
     }
     while(changes);
@@ -177,10 +173,6 @@ void SSSP::nec_dijkstra_all_active_pull(VectCSRGraph &_graph,
                                         VerticesArray<_T> &_distances,
                                         int _source_vertex)
 {
-    #ifdef __USE_MPI__
-    vgl_library_data.set_data_exchange_policy(RECENTLY_CHANGED);
-    #endif
-
     VGL_GRAPH_ABSTRACTIONS graph_API(_graph, GATHER);
     VGL_FRONTIER frontier(_graph, GATHER);
 
@@ -275,7 +267,13 @@ void SSSP::nec_dijkstra_all_active_pull(VectCSRGraph &_graph,
             graph_API.gather(_graph, frontier, edge_op_pull, preprocess, postprocess,
                              edge_op_collective_pull, preprocess_collective, postprocess_collective);
             graph_API.disable_safe_stores();
+
+
         }
+
+        #ifdef __USE_MPI__
+        graph_API.exchange_vertices_array(EXCHANGE_PRIVATE_DATA, _graph, _distances);
+        #endif
 
         auto reduce_changes = [&_distances, &prev_distances] __VGL_REDUCE_INT_ARGS__
         {
@@ -287,18 +285,6 @@ void SSSP::nec_dijkstra_all_active_pull(VectCSRGraph &_graph,
             return result;
         };
         changes = graph_API.reduce<int>(_graph, frontier, reduce_changes, REDUCE_SUM);
-
-        #ifdef __USE_MPI__
-        auto max_op = [](int _a, int _b)->int
-        {
-            return vect_max(_a, _b);
-        };
-        double t1 = omp_get_wtime();
-        vgl_library_data.exchange_data(_graph, _distances.get_ptr(), _graph.get_vertices_count(), GATHER);
-        double t2 = omp_get_wtime();
-        tt += t2 - t1;
-        vgl_library_data.exchange_data(&changes, 1, max_op);
-        #endif
     }
     while(changes);
     tm.end();
@@ -399,10 +385,6 @@ void SSSP::nec_dijkstra(ShardedCSRGraph &_graph,
                         int _source_vertex,
                         AlgorithmTraversalType _traversal_direction)
 {
-    #ifdef __USE_MPI__
-    vgl_library_data.set_data_exchange_policy(RECENTLY_CHANGED);
-    #endif
-
     TraversalDirection direction = SCATTER;
 
     if(_traversal_direction == PUSH_TRAVERSAL)
@@ -550,7 +532,7 @@ void SSSP::nec_dijkstra(ShardedCSRGraph &_graph,
         changes = graph_API.reduce<int>(_graph, frontier, reduce_changes, REDUCE_SUM);
 
         #ifdef __USE_MPI__
-        auto max_op = [](int _a, int _b)->int
+        /*auto max_op = [](int _a, int _b)->int
         {
             return vect_max(_a, _b);
         };
@@ -567,7 +549,7 @@ void SSSP::nec_dijkstra(ShardedCSRGraph &_graph,
         {
             vgl_library_data.exchange_data(_graph, _distances.get_ptr(), _graph.get_vertices_count(), GATHER);
             vgl_library_data.exchange_data(&changes, 1, max_op);
-        }
+        }*/
         #endif
     }
     while(changes);

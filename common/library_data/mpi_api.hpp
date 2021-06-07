@@ -1,24 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #ifdef __USE_MPI__
-void LibraryData::set_communication_policy(CommunicationPolicy _communication_policy)
-{
-    communication_policy = _communication_policy;
-}
-#endif
-
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-#ifdef __USE_MPI__
-void LibraryData::set_data_exchange_policy(DataExchangePolicy _data_exchange_policy)
-{
-    data_exchange_policy = _data_exchange_policy;
-}
-#endif
-
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-#ifdef __USE_MPI__
 void LibraryData::allocate_exchange_buffers(size_t _max_size, size_t _elem_size)
 {
     MemoryAPI::allocate_array(&send_buffer, _max_size*_elem_size + _max_size*sizeof(int));

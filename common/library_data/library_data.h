@@ -12,9 +12,9 @@ enum CommunicationPolicy
 
 enum DataExchangePolicy
 {
-    SEND_ALL,
-    RECENTLY_CHANGED,
-    PRIVATE_DATA
+    EXCHANGE_ALL,
+    EXCHANGE_RECENTLY_CHANGED,
+    EXCHANGE_PRIVATE_DATA
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -34,9 +34,6 @@ private:
     size_t max_buffer_size;
 
     #ifdef __USE_MPI__
-    CommunicationPolicy communication_policy;
-    DataExchangePolicy data_exchange_policy;
-
     template <typename _T, typename MergeOp>
     void exchange_data_cycle_mode(_T *_new_data, int _size, MergeOp &&_merge_op, _T *_old_data, int _proc_shift);
 
@@ -55,18 +52,6 @@ public:
 
     inline char *get_send_buffer() {return send_buffer;};
     inline char *get_recv_buffer() {return recv_buffer;};
-
-    inline void set_communication_policy(CommunicationPolicy _communication_policy);
-    inline void set_data_exchange_policy(DataExchangePolicy _data_exchange_policy);
-
-    template <typename _T, typename MergeOp>
-    void exchange_data(_T *_data, int _size, MergeOp &&_merge_op, _T *_old_data = NULL);
-
-    template <typename _T, typename MergeOp>
-    void exchange_data(VerticesArray<_T> &_data, int _size, MergeOp &&_merge_op);
-
-    template <typename _T>
-    void exchange_data(VectCSRGraph &_graph, _T *_data, int _size, TraversalDirection _direction);
 
     template <typename _T>
     void bcast(_T *_data, int _size, int _root);

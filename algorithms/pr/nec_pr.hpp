@@ -9,10 +9,6 @@ void PR::nec_page_rank(VectCSRGraph &_graph,
                        _T _convergence_factor,
                        int _max_iterations)
 {
-    #ifdef __USE_MPI__
-    vgl_library_data.set_data_exchange_policy(RECENTLY_CHANGED);
-    #endif
-
     int vertices_count = _graph.get_vertices_count();
     long long edges_count = _graph.get_edges_count();
 
@@ -59,7 +55,7 @@ void PR::nec_page_rank(VectCSRGraph &_graph,
     graph_API.gather(_graph, frontier, calculate_number_of_loops);
 
     #ifdef __USE_MPI__
-    vgl_library_data.exchange_data(_graph, number_of_loops.get_ptr(), _graph.get_vertices_count(), GATHER);
+    graph_API.exchange_vertices_array(EXCHANGE_PRIVATE_DATA, _graph, number_of_loops);
     #endif
 
     auto calculate_degrees_without_loops = [incoming_degrees_without_loops, incoming_degrees, number_of_loops] __VGL_COMPUTE_ARGS__
@@ -128,7 +124,7 @@ void PR::nec_page_rank(VectCSRGraph &_graph,
         };
 
         #ifdef __USE_MPI__
-        vgl_library_data.exchange_data(_graph, _page_ranks.get_ptr(), _graph.get_vertices_count(), SCATTER);
+        graph_API.exchange_vertices_array(EXCHANGE_PRIVATE_DATA, _graph, _page_ranks);
         #endif
 
         auto reduce_ranks_sum = [_page_ranks]__VGL_REDUCE_ANY_ARGS__->_T
