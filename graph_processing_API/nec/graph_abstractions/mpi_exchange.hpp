@@ -225,9 +225,6 @@ void in_group_exchange(_T *_data, int _begin, int _end)
     int begin = _begin;
     int end = _end;
 
-    if(begin == end)
-        return;
-
     int send_size = end - begin;
     int send_shift = begin;
 

@@ -54,10 +54,14 @@ int main(int argc, char **argv)
         PageRank::nec_page_rank(graph, page_ranks, convergence_factor, parser.get_number_of_rounds());
         #endif
 
+        //ftrace_region_begin("pr_mpi");
+
         performance_stats.reset_timers();
         PageRank::nec_page_rank(graph, page_ranks, convergence_factor, parser.get_number_of_rounds());
         performance_stats.update_timer_stats();
         performance_stats.print_timers_stats();
+
+        //ftrace_region_end("pr_mpi");
 
         if(parser.get_check_flag())
         {

@@ -87,7 +87,7 @@ int main(int argc, char **argv)
                 weights.move_to_device();
             }
         }
-        performance_stats.print_perf(graph.get_edges_count());
+        performance_stats.print_perf(graph.get_edges_count(), parser.get_number_of_rounds());
     }
     catch (string error)
     {

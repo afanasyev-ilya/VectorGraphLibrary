@@ -54,12 +54,18 @@ int main(int argc, char **argv)
         #endif
 
         // do calculations
-        cout << "Computations started..." << endl;
-        cout << "Doing " << parser.get_number_of_rounds() << " SSSP iterations..." << endl;
         EdgesArray_Vect<float> weights(graph);
         //weights.set_all_random(MAX_WEIGHT);
         weights.set_all_constant(1.0);
 
+        // heat run
+        VerticesArray<float> distances(graph, Parser::convert_traversal_type(parser.get_traversal_direction()));
+        ShortestPaths::nec_dijkstra(graph, weights, distances, 0,
+                                    parser.get_algorithm_frontier_type(),
+                                    parser.get_traversal_direction());
+
+        cout << "Computations started..." << endl;
+        cout << "Doing " << parser.get_number_of_rounds() << " SSSP iterations..." << endl;
         performance_stats.reset_timers();
         for(int i = 0; i < parser.get_number_of_rounds(); i++)
         {
@@ -69,11 +75,11 @@ int main(int argc, char **argv)
             vgl_library_data.bcast(&source_vertex, 1, 0);
             #endif
 
-            VerticesArray<float> distances(graph, Parser::convert_traversal_type(parser.get_traversal_direction()));
-
+            //ftrace_region_begin("sssp");
             ShortestPaths::nec_dijkstra(graph, weights, distances, source_vertex,
                                         parser.get_algorithm_frontier_type(),
                                         parser.get_traversal_direction());
+            //ftrace_region_end("sssp");
 
             // check if required
             if(parser.get_check_flag())
@@ -83,9 +89,10 @@ int main(int argc, char **argv)
                 verify_results(distances, check_distances);
             }
         }
+
         performance_stats.update_timer_stats();
         performance_stats.print_timers_stats();
-        performance_stats.print_perf(graph.get_edges_count());
+        performance_stats.print_perf(graph.get_edges_count(), parser.get_number_of_rounds());
 
         vgl_library_data.finalize();
     }

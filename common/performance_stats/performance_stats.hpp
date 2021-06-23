@@ -314,8 +314,8 @@ void PerformanceStats::print_timers_stats()
         print_abstraction_stats("Advance       ", advance_time);
         #if defined(__USE_NEC_SX_AURORA__) || defined(__USE_MULTICORE__)
         print_detailed_advance_stats("Advance (ve) time        ", advance_ve_part_time);
-    print_detailed_advance_stats("Advance (vc) time        ", advance_vc_part_time);
-    print_detailed_advance_stats("Advance (collective) time", advance_collective_part_time);
+        print_detailed_advance_stats("Advance (vc) time        ", advance_vc_part_time);
+        print_detailed_advance_stats("Advance (collective) time", advance_collective_part_time);
         #endif
         print_abstraction_stats("Gather        ", gather_time);
         print_abstraction_stats("Scatter       ", scatter_time);
@@ -327,7 +327,8 @@ void PerformanceStats::print_timers_stats()
         print_abstraction_stats("Non-API       ", non_api_time);
         #ifdef __USE_MPI__
         print_abstraction_stats("MPI           ", MPI_time);
-    print_abstraction_stats("MPI functions ", MPI_functions_time);
+        print_abstraction_stats("MPI functions ", MPI_functions_time);
+        print_abstraction_stats("MPI preprocess time ", MPI_time - MPI_functions_time);
         #endif
         cout << endl;
 
@@ -363,6 +364,15 @@ void PerformanceStats::print_perf(long long _edges_count, int _k)
     print_min_perf(_edges_count, _k);
     print_avg_perf(_edges_count, _k);
     print_max_perf(_edges_count, _k);
+
+    #ifdef __USE_MPI__
+    if(get_mpi_rank() == 0)
+    {
+        ofstream outfile;
+        outfile.open("MPI_scale_perf.txt", std::ios_base::app);
+        outfile << get_max_perf(_edges_count, _k) << endl;
+    }
+    #endif
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

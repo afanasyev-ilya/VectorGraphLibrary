@@ -85,9 +85,9 @@ void SSSP::nec_dijkstra_all_active_push(VectCSRGraph &_graph,
                                         VerticesArray<_T> &_distances,
                                         int _source_vertex)
 {
-    VGL_GRAPH_ABSTRACTIONS graph_API(_graph);
-    VGL_FRONTIER frontier(_graph);
-    VerticesArray<_T> prev_distances(_graph);
+    VGL_GRAPH_ABSTRACTIONS graph_API(_graph, SCATTER);
+    VGL_FRONTIER frontier(_graph, SCATTER);
+    VerticesArray<_T> prev_distances(_graph, SCATTER);
 
     graph_API.change_traversal_direction(SCATTER, _distances, prev_distances, frontier);
 
@@ -188,7 +188,6 @@ void SSSP::nec_dijkstra_all_active_pull(VectCSRGraph &_graph,
     frontier.set_all_active();
     graph_API.compute(_graph, frontier, init_distances);
 
-    double tt = 0;
     int changes = 0, iterations_count = 0;
     do
     {
@@ -261,8 +260,6 @@ void SSSP::nec_dijkstra_all_active_pull(VectCSRGraph &_graph,
             graph_API.gather(_graph, frontier, edge_op_pull, preprocess, postprocess,
                              edge_op_collective_pull, preprocess_collective, postprocess_collective);
             graph_API.disable_safe_stores();
-
-
         }
 
         #ifdef __USE_MPI__
@@ -283,7 +280,6 @@ void SSSP::nec_dijkstra_all_active_pull(VectCSRGraph &_graph,
     while(changes);
     tm.end();
 
-    cout << "TT: " << tt * 1000 << endl;
     #ifdef __PRINT_SAMPLES_PERFORMANCE_STATS__
     performance_stats.print_algorithm_performance_stats("SSSP (Dijkstra, all-active, pull)", tm.get_time(), _graph.get_edges_count());
     #endif
