@@ -18,7 +18,7 @@
 #include <mpi.h>
 #endif
 
-#idef __USE_NEC_SX_AURORA__
+#ifdef __USE_NEC_SX_AURORA__
 #include <ftrace.h>
 #endif
 
@@ -58,6 +58,7 @@ using namespace std;
 #include "graph_representations/base_graph.h"
 #include "graph_representations/edges_list_graph/edges_list_graph.h"
 #include "graph_representations/undirected_csr_graph/undirected_csr_graph.h"
+#include "graph_representations/csr_graph/csr_graph.h"
 #include "graph_representations/vect_csr_graph/vect_csr_graph.h"
 #include "graph_representations/sharded_csr_graph/sharded_csr_graph.h"
 

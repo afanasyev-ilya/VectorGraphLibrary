@@ -321,6 +321,10 @@ public:
 
     template <typename _TGraph, typename _T, typename MergeOp>
     void exchange_vertices_array(DataExchangePolicy _policy, _TGraph &_graph, VerticesArray<_T> &_data,
+                                 MergeOp &&_merge_op);
+
+    template <typename _TGraph, typename _T, typename MergeOp>
+    void exchange_vertices_array(DataExchangePolicy _policy, _TGraph &_graph, VerticesArray<_T> &_data,
                                  VerticesArray<_T> &_old_data, MergeOp &&_merge_op);
     #endif
 };

@@ -38,6 +38,9 @@ int main(int argc, char **argv)
             else if(parser.get_graph_type() == RANDOM_UNIFORM)
                 GraphGenerationAPI::random_uniform(el_graph, v, v * parser.get_avg_degree(), DIRECTED_GRAPH);
             graph.import(el_graph);
+
+            CSRGraph test_gr;
+            test_gr.import(el_graph);
         }
         else if(parser.get_compute_mode() == LOAD_GRAPH_FROM_FILE)
         {
@@ -75,11 +78,11 @@ int main(int argc, char **argv)
             vgl_library_data.bcast(&source_vertex, 1, 0);
             #endif
 
-            //ftrace_region_begin("sssp");
+            ftrace_region_begin("sssp");
             ShortestPaths::nec_dijkstra(graph, weights, distances, source_vertex,
                                         parser.get_algorithm_frontier_type(),
                                         parser.get_traversal_direction());
-            //ftrace_region_end("sssp");
+            ftrace_region_end("sssp");
 
             // check if required
             if(parser.get_check_flag())

@@ -13,7 +13,7 @@ source /opt/nec/ve/mpi/2.17.0/bin/necmpivars.sh
 source /opt/nec/ve/nlc/2.3.0/bin/nlcvars.sh
 
 exe=./sssp_sx_mpi
-args=(-load ./input_graphs/rmat_25_32.vgraph -pull -all-active -it 10 -check)
+args=(-load ./input_graphs/rmat_25_32.vgraph -pull -all-active -it 1)
 
 scale_limit=8
 rm -rf MPI_scale_perf.txt

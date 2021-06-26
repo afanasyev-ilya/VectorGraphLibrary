@@ -282,12 +282,35 @@ void GraphAbstractionsNEC::exchange_vertices_array(DataExchangePolicy _policy,
     if(vgl_library_data.get_mpi_proc_num() == 1)
         return;
 
-    if(_policy != EXCHANGE_RECENTLY_CHANGED)
+    if(_policy == EXCHANGE_RECENTLY_CHANGED)
+    {
+        exchange_data_recently_changed_and_all(_data.get_ptr(), _data.size(), _merge_op, _old_data.get_ptr());
+    }
+    else
     {
         throw "Error in GraphAbstractionsNEC::exchange_vertices_array : old data is provided for NON EXCHANGE_RECENTLY_CHANGED";
     }
+}
 
-    exchange_data_recently_changed_and_all(_data.get_ptr(), _data.size(), _merge_op, _old_data.get_ptr());
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+template <typename _TGraph, typename _T, typename MergeOp>
+void GraphAbstractionsNEC::exchange_vertices_array(DataExchangePolicy _policy,
+                                                   _TGraph &_graph,
+                                                   VerticesArray<_T> &_data,
+                                                   MergeOp &&_merge_op)
+{
+    if(vgl_library_data.get_mpi_proc_num() == 1)
+        return;
+
+    if(_policy == EXCHANGE_ALL)
+    {
+        exchange_data_recently_changed_and_all(_data.get_ptr(), _data.size(), _merge_op, (_T*)NULL);
+    }
+    else
+    {
+        throw "Error in GraphAbstractionsNEC::exchange_vertices_array : old data is NOT provided for NON EXCHANGE_RECENTLY_CHANGED";
+    }
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
