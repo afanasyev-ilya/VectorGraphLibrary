@@ -8,8 +8,8 @@ void CC::seq_bfs_based(VectCSRGraph &_graph, VerticesArray<_T> &_components)
     Timer tm;
     tm.start();
 
-    UndirectedCSRGraph *outgoing_graph_ptr = _graph.get_outgoing_graph_ptr();
-    LOAD_UNDIRECTED_CSR_GRAPH_DATA((*outgoing_graph_ptr));
+    UndirectedVectCSRGraph *outgoing_graph_ptr = _graph.get_outgoing_graph_ptr();
+    LOAD_UNDIRECTED_VECT_CSR_GRAPH_DATA((*outgoing_graph_ptr));
 
     for(int v = 0; v < vertices_count; v++)
     {

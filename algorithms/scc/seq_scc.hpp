@@ -19,8 +19,8 @@ void SCC::seq_tarjan_kernel(VectCSRGraph &_graph,
                             VerticesArray<bool> &_stack_member,
                             VerticesArray<int> &_components)
 {
-    UndirectedCSRGraph *outgoing_graph_ptr = _graph.get_outgoing_graph_ptr();
-    LOAD_UNDIRECTED_CSR_GRAPH_DATA((*outgoing_graph_ptr));
+    UndirectedVectCSRGraph *outgoing_graph_ptr = _graph.get_outgoing_graph_ptr();
+    LOAD_UNDIRECTED_VECT_CSR_GRAPH_DATA((*outgoing_graph_ptr));
 
     static int time = 0;
     static int comp = 0;

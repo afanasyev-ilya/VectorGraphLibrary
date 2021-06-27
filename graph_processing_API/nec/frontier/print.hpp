@@ -34,7 +34,7 @@ void FrontierNEC::print_stats()
 {
     #pragma omp master
     {
-        UndirectedCSRGraph *current_direction_graph;
+        UndirectedVectCSRGraph *current_direction_graph;
         if(graph_ptr->get_type() == VECT_CSR_GRAPH)
         {
             VectCSRGraph *vect_csr_ptr = (VectCSRGraph*)graph_ptr;

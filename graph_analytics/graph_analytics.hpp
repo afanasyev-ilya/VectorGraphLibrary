@@ -79,7 +79,7 @@ map<int, int> GraphAnalytics::calculate_degree_distribution(long long *_vertex_p
 
 void GraphAnalytics::print_graph_memory_consumption(VectCSRGraph &_graph)
 {
-    /*LOAD_UNDIRECTED_CSR_GRAPH_DATA(_graph);
+    /*LOAD_UNDIRECTED_VECT_CSR_GRAPH_DATA(_graph);
 
     double no_wights_size_in_bytes = sizeof(_TVertexValue)*vertices_count + sizeof(long long)*(vertices_count + 1) + sizeof(int)*edges_count;
     double weights_size_in_bytes = sizeof(_TEdgeWeight)*edges_count;
@@ -106,7 +106,7 @@ void GraphAnalytics::analyse_graph_thresholds(VectCSRGraph &_graph)
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void GraphAnalytics::analyse_degrees(UndirectedCSRGraph &_graph)
+void GraphAnalytics::analyse_degrees(UndirectedVectCSRGraph &_graph)
 {
     int vertices_count = _graph.get_vertices_count();
     long long edges_count = _graph.get_edges_count();

@@ -65,6 +65,9 @@ print_graph_info: create_folders print_graph_info.o
 create_vgl_graphs: create_folders create_vgl_graphs.o
 	$(VH_CXX) -fopenmp object_files/create_vgl_graphs.o -o ./bin/create_vgl_graphs_sx$(BinSuffix)
 
+csr_test: create_folders csr_test.o
+	$(VE_CXX) object_files/csr_test.o $(Library_Path) $(Libraries) -o ./bin/csr_test_sx$(BinSuffix)
+
 ##########
 # CPPs
 ##########
@@ -107,6 +110,9 @@ print_graph_info.o: utilites/print_graph_info.cpp
 
 create_vgl_graphs.o: utilites/create_vgl_graphs.cpp
 	$(VH_CXX) $(Include_Path) -D __USE_MULTICORE__ -fopenmp -c utilites/create_vgl_graphs.cpp -o object_files/create_vgl_graphs.o
+
+csr_test.o: misc/csr_test.cpp
+	$(VE_CXX) $(Flags) $(Include_Path)  -c misc/csr_test.cpp -o object_files/csr_test.o
 
 create_folders:
 	-mkdir -p ./bin

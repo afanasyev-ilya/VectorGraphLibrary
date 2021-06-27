@@ -28,11 +28,11 @@ void ShardedCSRGraph::init(int _shards_count, int _vertices_count)
 {
     if(can_use_scatter())
     {
-        outgoing_shards = new UndirectedCSRGraph[_shards_count]; // MemoryAPI doesnt work here
+        outgoing_shards = new UndirectedVectCSRGraph[_shards_count]; // MemoryAPI doesnt work here
     }
     if(can_use_gather())
     {
-        incoming_shards = new UndirectedCSRGraph[_shards_count];
+        incoming_shards = new UndirectedVectCSRGraph[_shards_count];
     }
     MemoryAPI::allocate_array(&vertices_reorder_buffer, _vertices_count);
 }

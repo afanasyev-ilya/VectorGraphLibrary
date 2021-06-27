@@ -36,7 +36,7 @@ void FrontierGPU::add_vertex(int src_id)
     flags[src_id] = IN_FRONTIER_FLAG;
     current_size = 1;
 
-    UndirectedCSRGraph *current_direction_graph;
+    UndirectedVectCSRGraph *current_direction_graph;
     if(graph_ptr->get_type() == VECT_CSR_GRAPH)
     {
         VectCSRGraph *vect_csr_ptr = (VectCSRGraph*)graph_ptr;

@@ -123,7 +123,7 @@ __global__ void reduce_kernel_sparse(const int *_frontier_ids,
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template <typename _T, typename ReduceOperation>
-_T GraphAbstractionsGPU::reduce_worker(UndirectedCSRGraph &_graph,
+_T GraphAbstractionsGPU::reduce_worker(UndirectedVectCSRGraph &_graph,
                                        FrontierGPU &_frontier,
                                        ReduceOperation &&reduce_op,
                                        REDUCE_TYPE _reduce_type)
@@ -132,7 +132,7 @@ _T GraphAbstractionsGPU::reduce_worker(UndirectedCSRGraph &_graph,
     MemoryAPI::allocate_array(&managed_reduced_result, 1);
     managed_reduced_result[0] = 0;
     MemoryAPI::move_array_to_device(managed_reduced_result, 1);
-    LOAD_UNDIRECTED_CSR_GRAPH_DATA(_graph);
+    LOAD_UNDIRECTED_VECT_CSR_GRAPH_DATA(_graph);
 
     if(_frontier.type == ALL_ACTIVE_FRONTIER)
     {
@@ -171,7 +171,7 @@ _T GraphAbstractionsGPU::reduce(VectCSRGraph &_graph,
         throw "Error in GraphAbstractionsNEC::reduce : wrong frontier direction";
     }
 
-    UndirectedCSRGraph *current_direction_graph;
+    UndirectedVectCSRGraph *current_direction_graph;
     if(current_traversal_direction == SCATTER)
     {
         current_direction_graph = _graph.get_outgoing_graph_ptr();

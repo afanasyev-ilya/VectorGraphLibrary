@@ -38,9 +38,6 @@ int main(int argc, char **argv)
             else if(parser.get_graph_type() == RANDOM_UNIFORM)
                 GraphGenerationAPI::random_uniform(el_graph, v, v * parser.get_avg_degree(), DIRECTED_GRAPH);
             graph.import(el_graph);
-
-            CSRGraph test_gr;
-            test_gr.import(el_graph);
         }
         else if(parser.get_compute_mode() == LOAD_GRAPH_FROM_FILE)
         {

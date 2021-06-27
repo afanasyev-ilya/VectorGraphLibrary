@@ -4,7 +4,7 @@
 
 template <typename EdgeOperation, typename VertexPreprocessOperation,
         typename VertexPostprocessOperation>
-void GraphAbstractionsNEC::vector_engine_per_vertex_kernel_sparse(UndirectedCSRGraph &_graph,
+void GraphAbstractionsNEC::vector_engine_per_vertex_kernel_sparse(UndirectedVectCSRGraph &_graph,
                                                                   FrontierNEC &_frontier,
                                                                   EdgeOperation edge_op,
                                                                   VertexPreprocessOperation vertex_preprocess_op,
@@ -106,7 +106,7 @@ void GraphAbstractionsNEC::vector_engine_per_vertex_kernel_sparse(UndirectedCSRG
 
 template <typename EdgeOperation, typename VertexPreprocessOperation,
         typename VertexPostprocessOperation>
-void GraphAbstractionsNEC::vector_core_per_vertex_kernel_sparse(UndirectedCSRGraph &_graph,
+void GraphAbstractionsNEC::vector_core_per_vertex_kernel_sparse(UndirectedVectCSRGraph &_graph,
                                                                 FrontierNEC &_frontier,
                                                                 EdgeOperation edge_op,
                                                                 VertexPreprocessOperation vertex_preprocess_op,
@@ -191,7 +191,7 @@ void GraphAbstractionsNEC::vector_core_per_vertex_kernel_sparse(UndirectedCSRGra
 
 template <typename EdgeOperation, typename VertexPreprocessOperation,
         typename VertexPostprocessOperation>
-void GraphAbstractionsNEC::collective_vertex_processing_kernel_sparse(UndirectedCSRGraph &_graph,
+void GraphAbstractionsNEC::collective_vertex_processing_kernel_sparse(UndirectedVectCSRGraph &_graph,
                                                                       FrontierNEC &_frontier,
                                                                       const int _first_vertex,
                                                                       const int _last_vertex,

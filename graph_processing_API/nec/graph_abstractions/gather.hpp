@@ -16,7 +16,7 @@ void GraphAbstractionsNEC::gather(VectCSRGraph &_graph,
 {
     Timer tm;
     tm.start();
-    UndirectedCSRGraph *current_direction_graph;
+    UndirectedVectCSRGraph *current_direction_graph;
 
     if(current_traversal_direction != GATHER)
     {
@@ -110,7 +110,7 @@ void GraphAbstractionsNEC::gather(ShardedCSRGraph &_graph,
 
         for(int shard_id =  first_shard; shard_id < _graph.get_shards_number(); shard_id += shards_step)
         {
-            UndirectedCSRGraph *current_shard = _graph.get_incoming_shard_ptr(shard_id);
+            UndirectedVectCSRGraph *current_shard = _graph.get_incoming_shard_ptr(shard_id);
 
             // prepare user data for current shard
             for(auto& current_container : user_data_containers)

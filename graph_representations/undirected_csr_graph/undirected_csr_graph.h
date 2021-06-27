@@ -28,7 +28,7 @@ class EdgesArray;
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-class UndirectedCSRGraph: public BaseGraph
+class UndirectedVectCSRGraph: public BaseGraph
 {
 private:
     long long     *vertex_pointers;
@@ -37,7 +37,7 @@ private:
     int *forward_conversion; // forward = to sorted, forward(i) = sorted
     int *backward_conversion; // backward = to original, backward(i) = original
 
-    vgl_sort_indexes *edges_reorder_indexes; // allows to convert UndirectedCSRGraph edges (and weights) from sorted to original order
+    vgl_sort_indexes *edges_reorder_indexes; // allows to convert UndirectedVectCSRGraph edges (and weights) from sorted to original order
 
     VectorExtension last_vertices_ve; // store last vertices in the vector extension
     
@@ -115,8 +115,8 @@ private:
     void save_main_content_to_binary_file(FILE *_graph_file);
     void load_main_content_from_binary_file(FILE *_graph_file);
 public:
-    UndirectedCSRGraph(int _vertices_count = 1, long long _edges_count = 1);
-    ~UndirectedCSRGraph();
+    UndirectedVectCSRGraph(int _vertices_count = 1, long long _edges_count = 1);
+    ~UndirectedVectCSRGraph();
 
     /* get API */
     inline long long       *get_vertex_pointers()        {return vertex_pointers;};
@@ -179,7 +179,7 @@ public:
                                VisualisationMode _visualisation_mode = VISUALISE_AS_DIRECTED);
 
     /* import and preprocess API */
-    // creates UndirectedCSRGraph format from EdgesListGraph
+    // creates UndirectedVectCSRGraph format from EdgesListGraph
     void import(EdgesListGraph &_old_graph);
 
     void remove_loops_and_multiple_arcs(); // WARNING! this function is unsafe to call
@@ -197,7 +197,7 @@ public:
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#define LOAD_UNDIRECTED_CSR_GRAPH_DATA(input_graph)                        \
+#define LOAD_UNDIRECTED_VECT_CSR_GRAPH_DATA(input_graph)                        \
 int vertices_count                   = input_graph.get_vertices_count(); \
 long long int edges_count            = input_graph.get_edges_count   (); \
 \

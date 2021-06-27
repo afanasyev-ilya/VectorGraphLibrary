@@ -182,13 +182,13 @@ void print_segmented_array(string _name, DataType *_data, SegmentType *_segments
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template<typename _TVertexValue, typename _TEdgeWeight>
-void gpu_lp_wrapper(UndirectedCSRGraph &_graph,
+void gpu_lp_wrapper(UndirectedVectCSRGraph &_graph,
                     int *_labels,
                     int &_iterations_count,
                     GpuActiveConditionType _gpu_active_condition_type,
                     int _max_iterations)
 {
-    LOAD_UNDIRECTED_CSR_GRAPH_DATA(_graph);
+    LOAD_UNDIRECTED_VECT_CSR_GRAPH_DATA(_graph);
     GraphAbstractionsGPU graph_API;
     FrontierGPU frontier(_graph.get_vertices_count());
 
@@ -429,7 +429,7 @@ void gpu_lp_wrapper(UndirectedCSRGraph &_graph,
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-template void gpu_lp_wrapper<int, float>(UndirectedCSRGraph<int, float> &_graph, int *_labels, int &_iterations_count,
+template void gpu_lp_wrapper<int, float>(UndirectedVectCSRGraph<int, float> &_graph, int *_labels, int &_iterations_count,
                                          GpuActiveConditionType _gpu_active_condition_type, int _max_iterations);
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

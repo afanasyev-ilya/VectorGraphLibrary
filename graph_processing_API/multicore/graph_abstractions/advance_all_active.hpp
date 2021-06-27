@@ -4,7 +4,7 @@
 
 template <typename EdgeOperation, typename VertexPreprocessOperation,
         typename VertexPostprocessOperation>
-void GraphAbstractionsMulticore::vector_engine_per_vertex_kernel_all_active(UndirectedCSRGraph &_graph,
+void GraphAbstractionsMulticore::vector_engine_per_vertex_kernel_all_active(UndirectedVectCSRGraph &_graph,
                                                                       const int _first_vertex,
                                                                       const int _last_vertex,
                                                                       EdgeOperation edge_op,
@@ -17,7 +17,7 @@ void GraphAbstractionsMulticore::vector_engine_per_vertex_kernel_all_active(Undi
     Timer tm;
     tm.start();
 
-    LOAD_UNDIRECTED_CSR_GRAPH_DATA(_graph);
+    LOAD_UNDIRECTED_VECT_CSR_GRAPH_DATA(_graph);
 
     TraversalDirection traversal = current_traversal_direction;
     int storage = CSR_STORAGE;
@@ -72,7 +72,7 @@ void GraphAbstractionsMulticore::vector_engine_per_vertex_kernel_all_active(Undi
 
 template <typename EdgeOperation, typename VertexPreprocessOperation,
         typename VertexPostprocessOperation>
-void GraphAbstractionsMulticore::vector_core_per_vertex_kernel_all_active(UndirectedCSRGraph &_graph,
+void GraphAbstractionsMulticore::vector_core_per_vertex_kernel_all_active(UndirectedVectCSRGraph &_graph,
                                                                     const int _first_vertex,
                                                                     const int _last_vertex,
                                                                     EdgeOperation edge_op,
@@ -87,7 +87,7 @@ void GraphAbstractionsMulticore::vector_core_per_vertex_kernel_all_active(Undire
 
 
 
-    LOAD_UNDIRECTED_CSR_GRAPH_DATA(_graph);
+    LOAD_UNDIRECTED_VECT_CSR_GRAPH_DATA(_graph);
 
     TraversalDirection traversal = current_traversal_direction;
     int storage = CSR_STORAGE;
@@ -141,7 +141,7 @@ void GraphAbstractionsMulticore::vector_core_per_vertex_kernel_all_active(Undire
 
 template <typename EdgeOperation, typename VertexPreprocessOperation,
         typename VertexPostprocessOperation>
-void GraphAbstractionsMulticore::ve_collective_vertex_processing_kernel_all_active(UndirectedCSRGraph &_graph,
+void GraphAbstractionsMulticore::ve_collective_vertex_processing_kernel_all_active(UndirectedVectCSRGraph &_graph,
                                                                              const int _first_vertex,
                                                                              const int _last_vertex,
                                                                              EdgeOperation edge_op,
@@ -156,7 +156,7 @@ void GraphAbstractionsMulticore::ve_collective_vertex_processing_kernel_all_acti
 
 
 
-    LOAD_UNDIRECTED_CSR_GRAPH_DATA(_graph);
+    LOAD_UNDIRECTED_VECT_CSR_GRAPH_DATA(_graph);
 
     TraversalDirection traversal = current_traversal_direction;
     int storage = VE_STORAGE;

@@ -2,11 +2,7 @@
 
 void CSRGraph::import(EdgesListGraph &_el_graph)
 {
-    this->vertices_count = _el_graph.get_vertices_count();
-    this->edges_count = _el_graph.get_edges_count();
-
-    vertex_pointers = new long long[this->vertices_count + 1];
-    adjacent_ids = new int[this->edges_count];
+    resize(_el_graph.get_vertices_count(), _el_graph.get_edges_count());
 
     int *work_buffer;
     vgl_sort_indexes *sort_indexes;
@@ -17,32 +13,19 @@ void CSRGraph::import(EdgesListGraph &_el_graph)
     for(int i = 0; i < this->vertices_count; i++)
         vertex_pointers[i] = -1;
 
-    // tmp
-    int num_of_dst_ids = 0;
-    for(long long cur_edge = 0; cur_edge < this->edges_count; cur_edge++)
-    {
-        int dst_id = _el_graph.get_dst_ids()[cur_edge];
-        if(num_of_dst_ids < dst_id)
-            num_of_dst_ids = dst_id;
-    }
-    cout << "largest num_of_dst_ids " << num_of_dst_ids << endl;
-
     vertex_pointers[0] = 0;
     adjacent_ids[0] = _el_graph.get_dst_ids()[0];
     for(long long cur_edge = 1; cur_edge < this->edges_count; cur_edge++)
     {
         int src_id = _el_graph.get_src_ids()[cur_edge];
         int dst_id = _el_graph.get_dst_ids()[cur_edge];
-        adjacent_ids[cur_edge] = dst_id; //rand() % this->vertices_count;//dst_id;
+        adjacent_ids[cur_edge] = rand() % this->vertices_count;//dst_id;
 
         int prev_id = _el_graph.get_src_ids()[cur_edge - 1];
         if(src_id != prev_id)
             vertex_pointers[src_id] = cur_edge;
     }
     vertex_pointers[this->vertices_count] = this->edges_count;
-
-    for(int i = 0; i < 100; i++)
-        cout << _el_graph.get_src_ids()[i] << " " << _el_graph.get_dst_ids()[i] << endl;
 
     for(long long cur_vertex = this->vertices_count; cur_vertex >= 0; cur_vertex--)
     {
@@ -65,13 +48,13 @@ void CSRGraph::import(EdgesListGraph &_el_graph)
     for(int src_id = 0; src_id < this->vertices_count; src_id++)
     {
         int con_count = vertex_pointers[src_id + 1] - vertex_pointers[src_id];
-        if(con_count >= 256)
+        if((con_count >= 256))
         {
             adj_num += con_count;
             medium_degree_num++;
         }
 
-        if((con_count >= 128) && (con_count < 256))
+        if((con_count >= 32) && (con_count < 256))
         {
             adj_small_128_num += con_count;
             small_128_degree_num++;
@@ -79,7 +62,7 @@ void CSRGraph::import(EdgesListGraph &_el_graph)
     }
 
     cout << "medium_degree_num: " << medium_degree_num << endl;
-    cout << "small_128_degree_num: " << small_128_degree_num << endl;
+    cout << "small_32_degree_num: " << small_128_degree_num << endl;
 
     int *medium_degree_ids = new int[medium_degree_num];
     int *small_128_degree_ids = new int[small_128_degree_num];
@@ -88,19 +71,17 @@ void CSRGraph::import(EdgesListGraph &_el_graph)
     for(int src_id = 0; src_id < this->vertices_count; src_id++)
     {
         int con_count = vertex_pointers[src_id + 1] - vertex_pointers[src_id];
-        if(con_count >= 256)
+        if((con_count >= 256))
         {
             medium_degree_ids[pos] = src_id;
             pos++;
         }
-        if((con_count >= 128) && (con_count < 256))
+        if((con_count >= 32) && (con_count < 256))
         {
             small_128_degree_ids[pos_small_128] = src_id;
             pos_small_128++;
         }
     }
-
-    cout << "before calc" << endl;
 
     int *data = new int[this->vertices_count];
     int *result = new int[this->edges_count];
@@ -154,7 +135,7 @@ void CSRGraph::import(EdgesListGraph &_el_graph)
         }
     }
     t2 = omp_get_wtime();
-    cout << "BW small 128: " << adj_small_128_num * sizeof(int)*3.0 / ((t2 - t1) * 1e9) << " GB/s" << endl;
+    cout << "BW small 32: " << adj_small_128_num * sizeof(int)*3.0 / ((t2 - t1) * 1e9) << " GB/s" << endl;
 
     t1 = omp_get_wtime();
     #pragma omp parallel for
@@ -182,7 +163,34 @@ void CSRGraph::import(EdgesListGraph &_el_graph)
         }
     }
     t2 = omp_get_wtime();
-    cout << "BW small fixed VL 128: " << adj_small_128_num * sizeof(int)*3.0 / ((t2 - t1) * 1e9) << " GB/s" << endl;
+    cout << "BW small fixed VL 32: " << adj_small_128_num * sizeof(int)*3.0 / ((t2 - t1) * 1e9) << " GB/s" << endl;
+
+    t1 = omp_get_wtime();
+    for(int i = 0; i < small_128_degree_num; i++)
+    {
+        int src_id = small_128_degree_ids[i];
+        long long first = vertex_pointers[src_id];
+        long long last = vertex_pointers[src_id + 1];
+
+        #pragma _NEC cncall
+        #pragma _NEC ivdep
+        #pragma _NEC vovertake
+        #pragma _NEC novob
+        #pragma _NEC vob
+        #pragma _NEC vector
+        #pragma _NEC gather_reorder
+        for(int i = 0; i < 256; i++)
+        {
+            long long edge_pos = first + i;
+            if(edge_pos < last)
+            {
+                int dst_id = adjacent_ids[edge_pos];
+                result[edge_pos] = data[dst_id];
+            }
+        }
+    }
+    t2 = omp_get_wtime();
+    cout << "BW small fixed VL 128 single core: " << adj_small_128_num * sizeof(int)*3.0 / ((t2 - t1) * 1e9) << " GB/s" << endl;
 
     t1 = omp_get_wtime();
     #pragma omp parallel for
@@ -205,16 +213,13 @@ void CSRGraph::import(EdgesListGraph &_el_graph)
         }
 
         int max_conn = 0;
-        #pragma _NEC ivdep
         for(int i = 0; i < 256; i++)
         {
             int conn = last_reg[i] - first_reg[i];
-            if(max_conn > conn)
+            if (max_conn < conn)
                 max_conn = conn;
         }
 
-        #pragma _NEC novector
-        #pragma _NEC unroll_completly
         for(int pos = 0; pos < max_conn; pos++)
         {
             #pragma _NEC cncall
@@ -238,9 +243,6 @@ void CSRGraph::import(EdgesListGraph &_el_graph)
     t2 = omp_get_wtime();
     cout << "BW small fixed VL 128: " << adj_small_128_num * sizeof(int)*3.0 / ((t2 - t1) * 1e9) << " GB/s" << endl;
 
-
-    delete []vertex_pointers;
-    delete []adjacent_ids;
     delete []medium_degree_ids;
     delete []data;
     delete []result;

@@ -3,7 +3,7 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #ifdef __USE_MPI__
-void UndirectedCSRGraph::estimate_mpi_thresholds()
+void UndirectedVectCSRGraph::estimate_mpi_thresholds()
 {
     Timer tm;
     tm.start();

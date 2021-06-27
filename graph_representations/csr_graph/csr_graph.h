@@ -24,6 +24,9 @@ class CSRGraph: public BaseGraph
 private:
     long long     *vertex_pointers;
     int           *adjacent_ids;
+
+    void alloc(int _vertices_count, long long _edges_count);
+    void free();
 public:
     CSRGraph(int _vertices_count = 1, long long _edges_count = 1);
     ~CSRGraph();
@@ -43,10 +46,10 @@ public:
     bool load_from_binary_file(string _file_name) {return false;};
 
     // resize graph
-    void resize(int _vertices_count, long long _edges_count) {};
+    void resize(int _vertices_count, long long _edges_count);
 
     /* import and preprocess API */
-    // creates UndirectedCSRGraph format from EdgesListGraph
+    // creates UndirectedVectCSRGraph format from EdgesListGraph
     void import(EdgesListGraph &_old_graph);
 
     friend class GraphAbstractions;

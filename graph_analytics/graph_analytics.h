@@ -12,7 +12,7 @@ private:
 
     static void analyse_graph_thresholds(VectCSRGraph &_graph);
 public:
-    static void analyse_degrees(UndirectedCSRGraph &_graph);
+    static void analyse_degrees(UndirectedVectCSRGraph &_graph);
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

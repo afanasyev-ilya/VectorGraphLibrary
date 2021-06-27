@@ -4,7 +4,7 @@
 
 template <typename EdgeOperation, typename VertexPreprocessOperation,
         typename VertexPostprocessOperation>
-void GraphAbstractionsMulticore::vector_engine_per_vertex_kernel_dense(UndirectedCSRGraph &_graph,
+void GraphAbstractionsMulticore::vector_engine_per_vertex_kernel_dense(UndirectedVectCSRGraph &_graph,
                                                                  FrontierMulticore &_frontier,
                                                                  const int _first_vertex,
                                                                  const int _last_vertex,
@@ -17,7 +17,7 @@ void GraphAbstractionsMulticore::vector_engine_per_vertex_kernel_dense(Undirecte
     Timer tm;
     tm.start();
 
-    LOAD_UNDIRECTED_CSR_GRAPH_DATA(_graph);
+    LOAD_UNDIRECTED_VECT_CSR_GRAPH_DATA(_graph);
     int *frontier_flags = _frontier.get_flags();
 
     TraversalDirection traversal = current_traversal_direction;
@@ -77,7 +77,7 @@ void GraphAbstractionsMulticore::vector_engine_per_vertex_kernel_dense(Undirecte
 
 template <typename EdgeOperation, typename VertexPreprocessOperation,
         typename VertexPostprocessOperation>
-void GraphAbstractionsMulticore::vector_core_per_vertex_kernel_dense(UndirectedCSRGraph &_graph,
+void GraphAbstractionsMulticore::vector_core_per_vertex_kernel_dense(UndirectedVectCSRGraph &_graph,
                                                                FrontierMulticore &_frontier,
                                                                const int _first_vertex,
                                                                const int _last_vertex,
@@ -90,7 +90,7 @@ void GraphAbstractionsMulticore::vector_core_per_vertex_kernel_dense(UndirectedC
     Timer tm;
     tm.start();
 
-    LOAD_UNDIRECTED_CSR_GRAPH_DATA(_graph);
+    LOAD_UNDIRECTED_VECT_CSR_GRAPH_DATA(_graph);
     int *frontier_flags = _frontier.get_flags();
 
     TraversalDirection traversal = current_traversal_direction;
@@ -142,7 +142,7 @@ void GraphAbstractionsMulticore::vector_core_per_vertex_kernel_dense(UndirectedC
 
 template <typename EdgeOperation, typename VertexPreprocessOperation,
         typename VertexPostprocessOperation>
-void GraphAbstractionsMulticore::ve_collective_vertex_processing_kernel_dense(UndirectedCSRGraph &_graph,
+void GraphAbstractionsMulticore::ve_collective_vertex_processing_kernel_dense(UndirectedVectCSRGraph &_graph,
                                                                         FrontierMulticore &_frontier,
                                                                         const int _first_vertex,
                                                                         const int _last_vertex,
@@ -155,7 +155,7 @@ void GraphAbstractionsMulticore::ve_collective_vertex_processing_kernel_dense(Un
     Timer tm;
     tm.start();
 
-    LOAD_UNDIRECTED_CSR_GRAPH_DATA(_graph);
+    LOAD_UNDIRECTED_VECT_CSR_GRAPH_DATA(_graph);
     int *frontier_flags = _frontier.get_flags();
 
 

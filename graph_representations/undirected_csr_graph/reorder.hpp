@@ -2,14 +2,14 @@
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-int UndirectedCSRGraph::reorder_to_original(int _vertex_id)
+int UndirectedVectCSRGraph::reorder_to_original(int _vertex_id)
 {
     return backward_conversion[_vertex_id];
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-int UndirectedCSRGraph::reorder_to_sorted(int _vertex_id)
+int UndirectedVectCSRGraph::reorder_to_sorted(int _vertex_id)
 {
     return forward_conversion[_vertex_id];
 }
@@ -17,7 +17,7 @@ int UndirectedCSRGraph::reorder_to_sorted(int _vertex_id)
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template <typename _T>
-void UndirectedCSRGraph::reorder_to_original(_T *_data, _T *_buffer)
+void UndirectedVectCSRGraph::reorder_to_original(_T *_data, _T *_buffer)
 {
     #if defined(__USE_GPU__)
     cuda_reorder_wrapper_scatter(_data, _buffer, backward_conversion, this->vertices_count);
@@ -59,7 +59,7 @@ void UndirectedCSRGraph::reorder_to_original(_T *_data, _T *_buffer)
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template <typename _T>
-void UndirectedCSRGraph::reorder_to_sorted(_T *_data, _T *_buffer)
+void UndirectedVectCSRGraph::reorder_to_sorted(_T *_data, _T *_buffer)
 {
     #if defined(__USE_GPU__)
     cuda_reorder_wrapper_scatter(_data, _buffer, forward_conversion, this->vertices_count); // TODO which direction is faster?
@@ -100,7 +100,7 @@ void UndirectedCSRGraph::reorder_to_sorted(_T *_data, _T *_buffer)
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void UndirectedCSRGraph::update_edge_reorder_indexes_using_superposition(vgl_sort_indexes *_outer_edges_reorder_indexes)
+void UndirectedVectCSRGraph::update_edge_reorder_indexes_using_superposition(vgl_sort_indexes *_outer_edges_reorder_indexes)
 {
     vgl_sort_indexes *buffer;
     MemoryAPI::allocate_array(&buffer, this->edges_count);
@@ -116,7 +116,7 @@ void UndirectedCSRGraph::update_edge_reorder_indexes_using_superposition(vgl_sor
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template <typename _T>
-void UndirectedCSRGraph::reorder_edges_to_sorted(_T *_data, _T *_buffer)
+void UndirectedVectCSRGraph::reorder_edges_to_sorted(_T *_data, _T *_buffer)
 {
     bool buffer_was_allocated = false;
     if(_buffer == NULL)
@@ -147,7 +147,7 @@ void UndirectedCSRGraph::reorder_edges_to_sorted(_T *_data, _T *_buffer)
     #endif
 
     #if defined(__USE_GPU__)
-    throw "Error UndirectedCSRGraph::reorder_edges_to_sorted : not implemented yet";
+    throw "Error UndirectedVectCSRGraph::reorder_edges_to_sorted : not implemented yet";
     #endif
 
     if(buffer_was_allocated)
@@ -159,7 +159,7 @@ void UndirectedCSRGraph::reorder_edges_to_sorted(_T *_data, _T *_buffer)
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template <typename _T>
-void UndirectedCSRGraph::reorder_edges_to_original(_T *_data, _T *_buffer)
+void UndirectedVectCSRGraph::reorder_edges_to_original(_T *_data, _T *_buffer)
 {
     bool buffer_was_allocated = false;
     if(_buffer == NULL)
@@ -190,7 +190,7 @@ void UndirectedCSRGraph::reorder_edges_to_original(_T *_data, _T *_buffer)
     #endif
 
     #if defined(__USE_GPU__)
-    throw "Error UndirectedCSRGraph::reorder_edges_to_original : not implemented yet";
+    throw "Error UndirectedVectCSRGraph::reorder_edges_to_original : not implemented yet";
     #endif
 
     if(buffer_was_allocated)
@@ -202,7 +202,7 @@ void UndirectedCSRGraph::reorder_edges_to_original(_T *_data, _T *_buffer)
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template <typename _T>
-void UndirectedCSRGraph::reorder_and_copy_edges_from_original_to_sorted(_T *_dst_sorted, _T *_src_original)
+void UndirectedVectCSRGraph::reorder_and_copy_edges_from_original_to_sorted(_T *_dst_sorted, _T *_src_original)
 {
     #if defined(__USE_NEC_SX_AURORA__) || defined(__USE_MULTICORE__)
     #pragma _NEC ivdep
@@ -219,7 +219,7 @@ void UndirectedCSRGraph::reorder_and_copy_edges_from_original_to_sorted(_T *_dst
 
     #if defined(__USE_GPU__)
     cuda_reorder_wrapper_gather_copy(_dst_sorted, _src_original, edges_reorder_indexes, this->edges_count);
-    //throw "Error UndirectedCSRGraph::reorder_and_copy_edges_from_original_to_sorted : not implemented yet";
+    //throw "Error UndirectedVectCSRGraph::reorder_and_copy_edges_from_original_to_sorted : not implemented yet";
     #endif
 }
 

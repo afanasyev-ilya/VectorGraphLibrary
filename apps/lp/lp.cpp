@@ -24,7 +24,7 @@ int main(int argc, char **argv)
         parser.parse_args(argc, argv);
 
         //VectorisedCSRGraph<int, float> graph;
-        UndirectedCSRGraph<int, float> graph;
+        UndirectedVectCSRGraph<int, float> graph;
         EdgesListGraph<int, float> rand_graph;
         if(parser.get_compute_mode() == GENERATE_NEW_GRAPH)
         {

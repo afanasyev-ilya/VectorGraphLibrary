@@ -3,11 +3,11 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template <typename ComputeOperation>
-void GraphAbstractionsMulticore::compute_worker(UndirectedCSRGraph &_graph,
+void GraphAbstractionsMulticore::compute_worker(UndirectedVectCSRGraph &_graph,
                                           FrontierMulticore &_frontier,
                                           ComputeOperation &&compute_op)
 {
-    LOAD_UNDIRECTED_CSR_GRAPH_DATA(_graph);
+    LOAD_UNDIRECTED_VECT_CSR_GRAPH_DATA(_graph);
     if(_frontier.type == ALL_ACTIVE_FRONTIER)
     {
         int frontier_size = _frontier.max_size;
@@ -76,7 +76,7 @@ void GraphAbstractionsMulticore::compute(VectCSRGraph &_graph,
         throw "Error in GraphAbstractionsMulticore::compute : wrong frontier direction";
     }
 
-    UndirectedCSRGraph *current_direction_graph;
+    UndirectedVectCSRGraph *current_direction_graph;
     if(current_traversal_direction == SCATTER)
     {
         current_direction_graph = _graph.get_outgoing_graph_ptr();
@@ -124,7 +124,7 @@ void GraphAbstractionsMulticore::compute(ShardedCSRGraph &_graph,
         throw "Error in GraphAbstractionsMulticore::compute : wrong frontier direction";
     }
 
-    UndirectedCSRGraph *current_direction_graph;
+    UndirectedVectCSRGraph *current_direction_graph;
     if(current_traversal_direction == SCATTER)
     {
         current_direction_graph = _graph.get_outgoing_shard_ptr(0); // TODO

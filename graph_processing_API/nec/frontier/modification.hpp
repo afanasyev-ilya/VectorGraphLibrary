@@ -44,7 +44,7 @@ void FrontierNEC::add_vertex(int src_id)
         throw "Error in FrontierNEC::add_vertex: VGL can not add vertex to non-empty frontier";
     }
 
-    UndirectedCSRGraph *current_direction_graph;
+    UndirectedVectCSRGraph *current_direction_graph;
     if(graph_ptr->get_type() == VECT_CSR_GRAPH)
     {
         VectCSRGraph *vect_csr_ptr = (VectCSRGraph*)graph_ptr;

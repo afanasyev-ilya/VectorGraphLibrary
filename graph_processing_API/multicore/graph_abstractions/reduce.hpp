@@ -3,11 +3,11 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template <typename _T, typename ReduceOperation>
-_T GraphAbstractionsMulticore::reduce_sum(UndirectedCSRGraph &_graph,
+_T GraphAbstractionsMulticore::reduce_sum(UndirectedVectCSRGraph &_graph,
                                     FrontierMulticore &_frontier,
                                     ReduceOperation &&reduce_op)
 {
-    LOAD_UNDIRECTED_CSR_GRAPH_DATA(_graph);
+    LOAD_UNDIRECTED_VECT_CSR_GRAPH_DATA(_graph);
 
     _T reduce_result = 0.0;
 
@@ -86,7 +86,7 @@ _T GraphAbstractionsMulticore::reduce(VectCSRGraph &_graph,
         throw "Error in GraphAbstractionsMulticore::reduce : wrong frontier direction";
     }
 
-    UndirectedCSRGraph *current_direction_graph;
+    UndirectedVectCSRGraph *current_direction_graph;
     if(current_traversal_direction == SCATTER)
     {
         current_direction_graph = _graph.get_outgoing_graph_ptr();

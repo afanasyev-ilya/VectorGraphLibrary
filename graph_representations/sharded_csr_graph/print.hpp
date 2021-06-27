@@ -29,7 +29,7 @@ void ShardedCSRGraph::print_in_csr_format(EdgesArray_Sharded<_T> &_weights)
     {
         for(int sh = 0; sh < shards_number; sh++)
         {
-            UndirectedCSRGraph *shard_graph = &(outgoing_shards[sh]);
+            UndirectedVectCSRGraph *shard_graph = &(outgoing_shards[sh]);
             for(int v = 0; v < shard_graph->get_vertices_count(); v++)
             {
                 int start = shard_graph->get_vertex_pointers()[v];

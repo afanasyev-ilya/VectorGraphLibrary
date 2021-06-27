@@ -25,10 +25,10 @@ __global__ void estimate_advance_work_kernel(const int *_frontier_ids,
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-int GraphAbstractionsGPU::estimate_advance_work(UndirectedCSRGraph &_graph,
+int GraphAbstractionsGPU::estimate_advance_work(UndirectedVectCSRGraph &_graph,
                                               FrontierGPU &_frontier)
 {
-    LOAD_UNDIRECTED_CSR_GRAPH_DATA(_graph);
+    LOAD_UNDIRECTED_VECT_CSR_GRAPH_DATA(_graph);
     long long *vertex_pointers = vertex_pointers;
 
     int *managed_reduced_result;

@@ -3,11 +3,11 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template <typename ComputeOperation>
-void GraphAbstractionsNEC::compute_worker(UndirectedCSRGraph &_graph,
+void GraphAbstractionsNEC::compute_worker(UndirectedVectCSRGraph &_graph,
                                           FrontierNEC &_frontier,
                                           ComputeOperation &&compute_op)
 {
-    LOAD_UNDIRECTED_CSR_GRAPH_DATA(_graph);
+    LOAD_UNDIRECTED_VECT_CSR_GRAPH_DATA(_graph);
     if(_frontier.type == ALL_ACTIVE_FRONTIER)
     {
         int frontier_size = _frontier.max_size;
@@ -84,7 +84,7 @@ void GraphAbstractionsNEC::compute(VectCSRGraph &_graph,
         throw "Error in GraphAbstractionsNEC::compute : wrong frontier direction";
     }
 
-    UndirectedCSRGraph *current_direction_graph;
+    UndirectedVectCSRGraph *current_direction_graph;
     if(current_traversal_direction == SCATTER)
     {
         current_direction_graph = _graph.get_outgoing_graph_ptr();
@@ -133,7 +133,7 @@ void GraphAbstractionsNEC::compute(ShardedCSRGraph &_graph,
         throw "Error in GraphAbstractionsNEC::compute : wrong frontier direction";
     }
 
-    UndirectedCSRGraph *current_direction_graph;
+    UndirectedVectCSRGraph *current_direction_graph;
     if(current_traversal_direction == SCATTER)
     {
         current_direction_graph = _graph.get_outgoing_shard_ptr(0); // TODO need rework for all shards (connections count problem)

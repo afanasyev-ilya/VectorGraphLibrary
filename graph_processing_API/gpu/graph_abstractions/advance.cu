@@ -200,7 +200,7 @@ void __global__ virtual_warp_per_vertex_kernel(const long long *_vertex_pointers
 
 template <typename EdgeOperation, typename VertexPreprocessOperation,
         typename VertexPostprocessOperation>
-void GraphAbstractionsGPU::advance_worker(UndirectedCSRGraph &_graph,
+void GraphAbstractionsGPU::advance_worker(UndirectedVectCSRGraph &_graph,
                                           FrontierGPU &_frontier,
                                           EdgeOperation edge_op,
                                           VertexPreprocessOperation vertex_preprocess_op,
@@ -209,7 +209,7 @@ void GraphAbstractionsGPU::advance_worker(UndirectedCSRGraph &_graph,
 {
     Timer tm;
     tm.start();
-    LOAD_UNDIRECTED_CSR_GRAPH_DATA(_graph);
+    LOAD_UNDIRECTED_VECT_CSR_GRAPH_DATA(_graph);
 
     int block_threshold_start = 0;
     int block_threshold_end = 0;
