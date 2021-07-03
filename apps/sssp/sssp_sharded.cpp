@@ -78,13 +78,11 @@ int main(int argc, char **argv)
         // compute SSSP
         cout << "Computations started..." << endl;
         cout << "Doing " << parser.get_number_of_rounds() << " SSSP iterations..." << endl;
+        performance_stats.reset_timers();
         for(int i = 0; i < parser.get_number_of_rounds(); i++)
         {
             int source_vertex = graph.select_random_vertex(ORIGINAL);
-            performance_stats.reset_timers();
             ShortestPaths::nec_dijkstra(graph, weights, distances, source_vertex, parser.get_traversal_direction());
-            performance_stats.update_timer_stats();
-            performance_stats.print_timers_stats();
 
             // check if required
             if(parser.get_check_flag())
@@ -94,6 +92,10 @@ int main(int argc, char **argv)
                 verify_results(distances, el_distances);
             }
         }
+
+        performance_stats.update_timer_stats();
+        performance_stats.print_timers_stats();
+        performance_stats.print_perf(graph.get_edges_count(), parser.get_number_of_rounds());
 
         vgl_library_data.finalize();
     }

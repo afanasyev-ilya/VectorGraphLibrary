@@ -168,6 +168,7 @@ bool UndirectedVectCSRGraph::save_to_binary_file(string _file_name)
 bool UndirectedVectCSRGraph::load_from_binary_file(string _file_name)
 {
     FILE * graph_file = fopen(_file_name.c_str(), "rb");
+    cout << _file_name.c_str() << endl;
     if(graph_file == NULL)
         return false;
 

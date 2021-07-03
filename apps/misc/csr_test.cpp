@@ -28,13 +28,28 @@ int main(int argc, char **argv)
         Parser parser;
         parser.parse_args(argc, argv);
 
-        EdgesListGraph rand_graph;
-        //GraphGenerationAPI::init_from_txt_file(rand_graph, input_file_name, direction_type);
-        int v = pow(2.0, parser.get_scale());
-        GraphGenerationAPI::R_MAT(rand_graph, v, v * parser.get_avg_degree(), 57, 19, 19, 5, DIRECTED_GRAPH);
+        CSRGraph graph;
+        if(parser.get_compute_mode() == GENERATE_NEW_GRAPH)
+        {
+            EdgesListGraph el_graph;
+            int v = pow(2.0, parser.get_scale());
+            if(parser.get_graph_type() == RMAT)
+                GraphGenerationAPI::R_MAT(el_graph, v, v * parser.get_avg_degree(), 57, 19, 19, 5, DIRECTED_GRAPH);
+            else if(parser.get_graph_type() == RANDOM_UNIFORM)
+                GraphGenerationAPI::random_uniform(el_graph, v, v * parser.get_avg_degree(), DIRECTED_GRAPH);
+            graph.import(el_graph);
+        }
+        else if(parser.get_compute_mode() == LOAD_GRAPH_FROM_FILE)
+        {
+            Timer tm;
+            tm.start();
+            if(!graph.load_from_binary_file(parser.get_graph_file_name()))
+                throw "Error: graph file not found";
+            tm.end();
+            tm.print_time_stats("Graph load");
+        }
 
-        CSRGraph test_gr;
-        test_gr.import(rand_graph);
+        graph.test_advance();
     }
     catch (string error)
     {

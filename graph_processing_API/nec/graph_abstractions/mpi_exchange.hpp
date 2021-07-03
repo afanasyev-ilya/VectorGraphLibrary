@@ -272,6 +272,31 @@ void exchange_data_private(VectCSRGraph &_graph, _T *_data, int _size, Traversal
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+template <typename _T>
+void exchange_data_private(ShardedCSRGraph &_graph, _T *_data, int _size, TraversalDirection _direction)
+{
+    MPI_Barrier(MPI_COMM_WORLD);
+    Timer tm;
+    tm.start();
+
+    pair<int,int> ve_part = _graph.get_shard_ptr(0, _direction)->get_vector_engine_mpi_thresholds();
+    pair<int,int> vc_part = _graph.get_shard_ptr(0, _direction)->get_vector_core_mpi_thresholds();
+    pair<int,int> coll_part = _graph.get_shard_ptr(0, _direction)->get_collective_mpi_thresholds();
+
+    _T *received_data = (_T*) vgl_library_data.get_recv_buffer();
+    MemoryAPI::set(received_data, (_T)0, _size);
+
+    in_group_exchange(_data,  ve_part.first,  ve_part.second);
+    in_group_exchange(_data,  vc_part.first,  vc_part.second);
+    in_group_exchange(_data,  coll_part.first,  coll_part.second);
+
+    MPI_Barrier(MPI_COMM_WORLD);
+    tm.end();
+    performance_stats.update_MPI_time(tm);
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 template <typename _TGraph, typename _T, typename MergeOp>
 void GraphAbstractionsNEC::exchange_vertices_array(DataExchangePolicy _policy,
                                                    _TGraph &_graph,

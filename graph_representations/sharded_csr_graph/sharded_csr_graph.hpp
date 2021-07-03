@@ -214,3 +214,19 @@ bool ShardedCSRGraph::load_from_binary_file(string _file_name)
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+UndirectedVectCSRGraph *ShardedCSRGraph::get_shard_ptr(int _shard_id, TraversalDirection _direction)
+{
+    if(_direction == SCATTER)
+    {
+        return &(outgoing_shards[_shard_id]);
+    }
+    else if(_direction == GATHER)
+    {
+        return &(incoming_shards[_shard_id]);
+    }
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+

@@ -46,6 +46,7 @@ public:
     inline int get_shards_number() {return shards_number;};
     inline UndirectedVectCSRGraph *get_outgoing_shard_ptr(int _shard_id) {return &(outgoing_shards[_shard_id]);};
     inline UndirectedVectCSRGraph *get_incoming_shard_ptr(int _shard_id) {return &(incoming_shards[_shard_id]);};
+    inline UndirectedVectCSRGraph *get_shard_ptr(int _shard_id, TraversalDirection _direction);
 
     inline long long get_edges_count_outgoing_shard(int _shard_id) {return outgoing_shards[_shard_id].get_edges_count();};
     inline long long get_edges_count_incoming_shard(int _shard_id) {return incoming_shards[_shard_id].get_edges_count();};

@@ -85,7 +85,6 @@ bfs.o: bfs/bfs.cpp
 	$(VE_CXX) $(Flags) $(Include_Path)  -c bfs/bfs.cpp -o object_files/bfs.o
 
 scc.o: scc/scc.cpp
-	$(VE_CXX) $(Flags) $(Include_Path)  -c scc/scc.cpp -o object_files/scc.o
 
 cc.o: cc/cc.cpp
 	$(VE_CXX) $(Flags) $(Include_Path)  -c cc/cc.cpp -o object_files/cc.o
