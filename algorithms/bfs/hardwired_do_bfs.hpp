@@ -945,8 +945,20 @@ void BFS::hardwired_do_bfs(VectCSRGraph &_graph,
         if(frontier_size == 0)
             break;
 
-        StateOfBFS next_state = nec_change_state(current_active_count, next_active_count, vertices_count, edges_count, current_state,
-                                             vis, in_lvl, use_vect_CSR_extension, cur_level, graph_structure, _levels.get_ptr(), number_of_bu_steps);
+        //StateOfBFS next_state = nec_change_state(current_active_count, next_active_count, vertices_count, edges_count, current_state,
+        //                                     vis, in_lvl, use_vect_CSR_extension, cur_level, graph_structure, _levels.get_ptr(), number_of_bu_steps);
+
+        StateOfBFS next_state;
+        bool dir= 0;
+        if(current_state == TOP_DOWN)
+            dir = true;
+        else
+            dir = false;
+        parallel_chooseDirection(dir, vertices_count, current_active_count, next_active_count, 12, 24);
+        if(dir == true)
+            next_state = TOP_DOWN;
+        else
+            next_state = BOTTOM_UP;
 
         if(next_state == TOP_DOWN)
         {
