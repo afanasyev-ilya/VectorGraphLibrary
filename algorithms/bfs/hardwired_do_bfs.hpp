@@ -861,7 +861,9 @@ void BFS::hardwired_do_bfs(VectCSRGraph &_graph,
                            int _source_vertex,
                            BFS_GraphVE &_vector_extension,
                            int *_buffer1,
-                           int *_buffer2)
+                           int *_buffer2,
+                           int alpha,
+                           int beta)
 {
     _source_vertex = _graph.reorder(_source_vertex, ORIGINAL, SCATTER);
 
@@ -949,12 +951,12 @@ void BFS::hardwired_do_bfs(VectCSRGraph &_graph,
         //                                     vis, in_lvl, use_vect_CSR_extension, cur_level, graph_structure, _levels.get_ptr(), number_of_bu_steps);
 
         StateOfBFS next_state;
-        bool dir= 0;
+        bool dir;
         if(current_state == TOP_DOWN)
             dir = true;
         else
             dir = false;
-        parallel_chooseDirection(dir, vertices_count, current_active_count, next_active_count, 12, 24);
+        parallel_chooseDirection(dir, vertices_count, current_active_count, next_active_count, alpha, beta, _levels.get_ptr(), cur_level);
         if(dir == true)
             next_state = TOP_DOWN;
         else

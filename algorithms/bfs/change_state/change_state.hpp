@@ -95,25 +95,36 @@ StateOfBFS nec_change_state(int _current_queue_size, int _next_queue_size, int _
     return new_state;
 }
 
-void parallel_chooseDirection(bool &currentDirection, long int sizeGraph, long int sizeFrontier, long int sizeNext, int alpha, int beta)
+void parallel_chooseDirection(bool &currentDirection, long int sizeGraph, long int sizeFrontier, long int sizeNext, int alpha, int beta, int *_levels, int iter)
 {
     int edgesToCheck;
     double branching_factor=(double) (sizeNext-sizeFrontier)/sizeFrontier;
+
+    /*#pragma omp master
+    {
+        cout << "old dir: " << currentDirection << "\n";
+    }*/
 
     //this is the case we the graph is growing
     if(currentDirection && branching_factor>0){
         edgesToCheck = sizeNext * branching_factor;
         currentDirection=(edgesToCheck<(sizeGraph*branching_factor/alpha));
         //Here the graph is shrinking
+        //if(iter <= 2 && ((_levels[0] != UNVISITED_VERTEX)))
+        //    currentDirection = false;
     }else if(!currentDirection && branching_factor<0){
         edgesToCheck=sizeFrontier;
         currentDirection=(sizeFrontier<(sizeGraph/beta));
     }
 
-    /*std::cout << "Size of next frontier \t" << sizeNext << "\n";
-    std::cout << "Branching Factor \t" << branching_factor << "\n";
-    std::cout << "Graph Dimension \t" << sizeGraph << "\n";
-    std::cout << "Number of edges to check \t" <<  edgesToCheck << "\n";*/
+    /*#pragma omp master
+    {
+        cout << "new dir: " << currentDirection << "\n";
+        cout << "Size of next frontier \t" << sizeNext << "\n";
+        cout << "Branching Factor \t" << branching_factor << "\n";
+        cout << "Graph Dimension \t" << sizeGraph << "\n";
+        cout << "Number of edges to check \t" <<  edgesToCheck << "\n";
+    }*/
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

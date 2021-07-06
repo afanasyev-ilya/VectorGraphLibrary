@@ -8,7 +8,7 @@
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //#define __PRINT_API_PERFORMANCE_STATS__
-#define __PRINT_SAMPLES_PERFORMANCE_STATS__
+//#define __PRINT_SAMPLES_PERFORMANCE_STATS__
 
 #include "graph_library.h"
 
@@ -71,13 +71,31 @@ int main(int argc, char **argv)
             cout << "selected source vertex " << source_vertex << " on run № " << i << endl;
             cout << "this vertex is " << graph.reorder(source_vertex, ORIGINAL, SCATTER) << ", " << 100.0*graph.reorder(source_vertex, ORIGINAL, SCATTER)/graph.get_vertices_count() << " % pos" << endl;
 
-            performance_stats.reset_timers();
-            if(parser.get_algorithm_bfs() == DIRECTION_OPTIMIZING_BFS_ALGORITHM)
-                BFS::hardwired_do_bfs(graph, levels, source_vertex, vector_extension_for_bfs, buffer1, buffer2);
-            else if(parser.get_algorithm_bfs() == TOP_DOWN_BFS_ALGORITHM)
-                BFS::nec_top_down(graph, levels, source_vertex);
-            performance_stats.update_timer_stats();
-            performance_stats.print_timers_stats();
+            int best_alpha = -1, best_beta = -1;
+            double best_perf = 0;
+            for(int alpha = 1; alpha < 150; alpha ++)
+            {
+                for(int beta = 1; beta < 150; beta++)
+                {
+                    performance_stats.reset_timers();
+                    if(parser.get_algorithm_bfs() == DIRECTION_OPTIMIZING_BFS_ALGORITHM)
+                        BFS::hardwired_do_bfs(graph, levels, source_vertex, vector_extension_for_bfs, buffer1, buffer2, alpha, beta);
+                    else if(parser.get_algorithm_bfs() == TOP_DOWN_BFS_ALGORITHM)
+                        BFS::nec_top_down(graph, levels, source_vertex);
+                    performance_stats.update_timer_stats();
+                    //performance_stats.print_timers_stats();
+
+                    double perf = performance_stats.get_max_perf(graph.get_edges_count());
+                    if(perf > best_perf)
+                    {
+                        best_perf = perf;
+                        best_alpha = alpha;
+                        best_beta = beta;
+                    }
+                }
+            }
+
+            cout << "best perf " << best_perf << " at " << best_alpha << " " << best_beta << endl;
 
             if(parser.get_check_flag())
             {

@@ -38,7 +38,7 @@ public:
 
     template <typename _T>
     static void hardwired_do_bfs(VectCSRGraph &_graph, VerticesArray<_T> &_levels, int _source_vertex, BFS_GraphVE &_vector_extension,
-                                 int *_buffer1, int *_buffer2);
+                                 int *_buffer1, int *_buffer2, int alpha, int beta);
 
     template <typename _T>
     static void seq_top_down(VectCSRGraph &_graph, VerticesArray<_T> &_levels, int _source_vertex);
