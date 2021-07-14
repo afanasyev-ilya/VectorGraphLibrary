@@ -14,8 +14,10 @@ void GraphAbstractionsMulticore::vector_engine_per_vertex_kernel_dense(Undirecte
                                                                  const int _first_edge,
                                                                  bool _outgoing_graph_is_stored)
 {
+    #ifdef __PRINT_API_PERFORMANCE_STATS__
     Timer tm;
     tm.start();
+    #endif
 
     LOAD_UNDIRECTED_VECT_CSR_GRAPH_DATA(_graph);
     int *frontier_flags = _frontier.get_flags();
@@ -64,11 +66,9 @@ void GraphAbstractionsMulticore::vector_engine_per_vertex_kernel_dense(Undirecte
         }
     }
 
+    #ifdef __PRINT_API_PERFORMANCE_STATS__
     tm.end();
     long long work = _frontier.get_vector_engine_part_neighbours_count();
-    performance_stats.update_advance_ve_part_time(tm);
-    performance_stats.update_graph_processing_stats(work*INT_ELEMENTS_PER_EDGE*sizeof(int), work);
-    #ifdef __PRINT_API_PERFORMANCE_STATS__
     tm.print_time_and_bandwidth_stats("Advance(dense, ve)", work, INT_ELEMENTS_PER_EDGE*sizeof(int));
     #endif
 }
@@ -87,8 +87,10 @@ void GraphAbstractionsMulticore::vector_core_per_vertex_kernel_dense(UndirectedV
                                                                const int _first_edge,
                                                                bool _outgoing_graph_is_stored)
 {
+    #ifdef __PRINT_API_PERFORMANCE_STATS__
     Timer tm;
     tm.start();
+    #endif
 
     LOAD_UNDIRECTED_VECT_CSR_GRAPH_DATA(_graph);
     int *frontier_flags = _frontier.get_flags();
@@ -96,8 +98,6 @@ void GraphAbstractionsMulticore::vector_core_per_vertex_kernel_dense(UndirectedV
     TraversalDirection traversal = current_traversal_direction;
     int storage = CSR_STORAGE;
     long long process_shift = compute_process_shift(0/*shard shift*/, traversal, storage, edges_count, _outgoing_graph_is_stored);
-
-
 
     #pragma omp for schedule(static, 8)
     for (int front_pos = _first_vertex; front_pos < _last_vertex; front_pos++)
@@ -129,11 +129,9 @@ void GraphAbstractionsMulticore::vector_core_per_vertex_kernel_dense(UndirectedV
         }
     }
 
+    #ifdef __PRINT_API_PERFORMANCE_STATS__
     tm.end();
     long long work = _frontier.get_vector_core_part_neighbours_count();
-    performance_stats.update_advance_vc_part_time(tm);
-    performance_stats.update_graph_processing_stats(work*INT_ELEMENTS_PER_EDGE*sizeof(int), work);
-    #ifdef __PRINT_API_PERFORMANCE_STATS__
     tm.print_time_and_bandwidth_stats("Advance (dense, vc)", work, INT_ELEMENTS_PER_EDGE*sizeof(int));
     #endif
 }
@@ -152,13 +150,13 @@ void GraphAbstractionsMulticore::ve_collective_vertex_processing_kernel_dense(Un
                                                                         const int _first_edge,
                                                                         bool _outgoing_graph_is_stored)
 {
+    #ifdef __PRINT_API_PERFORMANCE_STATS__
     Timer tm;
     tm.start();
+    #endif
 
     LOAD_UNDIRECTED_VECT_CSR_GRAPH_DATA(_graph);
     int *frontier_flags = _frontier.get_flags();
-
-
 
     TraversalDirection traversal = current_traversal_direction;
     int storage = VE_STORAGE;
@@ -242,11 +240,9 @@ void GraphAbstractionsMulticore::ve_collective_vertex_processing_kernel_dense(Un
         }
     }
 
+    #ifdef __PRINT_API_PERFORMANCE_STATS__
     tm.end();
     long long work = _frontier.get_collective_part_neighbours_count();
-    performance_stats.update_advance_collective_part_time(tm);
-    performance_stats.update_graph_processing_stats(work*INT_ELEMENTS_PER_EDGE*sizeof(int), work);
-    #ifdef __PRINT_API_PERFORMANCE_STATS__
     tm.print_time_and_bandwidth_stats("Advance (dense, collective)", work, INT_ELEMENTS_PER_EDGE*sizeof(int));
     #endif
 }

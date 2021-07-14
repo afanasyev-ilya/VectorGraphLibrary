@@ -28,7 +28,7 @@ def extract_perf_val(perf_lines):
     return 0.0
 
 
-def benchmark_app(app_name, arch, options, workbook, table_stats):
+def benchmark_app(app_name, arch, table_stats):
     list_of_graphs = get_list_of_rmat_graphs() + get_list_of_ru_graphs() + get_list_of_soc_graphs() + \
                      get_list_of_misc_graphs()
 

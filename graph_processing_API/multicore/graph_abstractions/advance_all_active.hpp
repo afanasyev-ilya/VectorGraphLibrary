@@ -14,8 +14,10 @@ void GraphAbstractionsMulticore::vector_engine_per_vertex_kernel_all_active(Undi
                                                                       const long long _shard_shift,
                                                                       bool _outgoing_graph_is_stored)
 {
+    #ifdef __PRINT_API_PERFORMANCE_STATS__
     Timer tm;
     tm.start();
+    #endif
 
     LOAD_UNDIRECTED_VECT_CSR_GRAPH_DATA(_graph);
 
@@ -59,11 +61,9 @@ void GraphAbstractionsMulticore::vector_engine_per_vertex_kernel_all_active(Undi
         vertex_postprocess_op(src_id, connections_count, 0);
     }
 
+    #ifdef __PRINT_API_PERFORMANCE_STATS__
     tm.end();
     long long work = vertex_pointers[_last_vertex] - vertex_pointers[_first_vertex];
-    performance_stats.update_advance_ve_part_time(tm);
-    performance_stats.update_graph_processing_stats(work*INT_ELEMENTS_PER_EDGE*sizeof(int), work);
-    #ifdef __PRINT_API_PERFORMANCE_STATS__
     tm.print_time_and_bandwidth_stats("Advance (all, ve)", work, INT_ELEMENTS_PER_EDGE*sizeof(int));
     #endif
 }
@@ -82,10 +82,10 @@ void GraphAbstractionsMulticore::vector_core_per_vertex_kernel_all_active(Undire
                                                                     const long long _shard_shift,
                                                                     bool _outgoing_graph_is_stored)
 {
+    #ifdef __PRINT_API_PERFORMANCE_STATS__
     Timer tm;
     tm.start();
-
-
+    #endif
 
     LOAD_UNDIRECTED_VECT_CSR_GRAPH_DATA(_graph);
 
@@ -128,11 +128,9 @@ void GraphAbstractionsMulticore::vector_core_per_vertex_kernel_all_active(Undire
         vertex_postprocess_op(src_id, connections_count, 0);
     }
 
+    #ifdef __PRINT_API_PERFORMANCE_STATS__
     tm.end();
     long long work = vertex_pointers[_last_vertex] - vertex_pointers[_first_vertex];
-    performance_stats.update_advance_vc_part_time(tm);
-    performance_stats.update_graph_processing_stats(work*INT_ELEMENTS_PER_EDGE*sizeof(int), work);
-    #ifdef __PRINT_API_PERFORMANCE_STATS__
     tm.print_time_and_bandwidth_stats("Advance (all, vc)", work, INT_ELEMENTS_PER_EDGE*sizeof(int));
     #endif
 }
@@ -151,10 +149,10 @@ void GraphAbstractionsMulticore::ve_collective_vertex_processing_kernel_all_acti
                                                                              const long long _shard_shift,
                                                                              bool _outgoing_graph_is_stored)
 {
+    #ifdef __PRINT_API_PERFORMANCE_STATS__
     Timer tm;
     tm.start();
-
-
+    #endif
 
     LOAD_UNDIRECTED_VECT_CSR_GRAPH_DATA(_graph);
 
@@ -237,11 +235,9 @@ void GraphAbstractionsMulticore::ve_collective_vertex_processing_kernel_all_acti
         }
     }
 
+    #ifdef __PRINT_API_PERFORMANCE_STATS__
     tm.end();
     long long work = _graph.get_edges_count_in_ve();
-    performance_stats.update_advance_collective_part_time(tm);
-    performance_stats.update_graph_processing_stats(work*INT_ELEMENTS_PER_EDGE*sizeof(int), work);
-    #ifdef __PRINT_API_PERFORMANCE_STATS__
     tm.print_time_and_bandwidth_stats("Advance (all, collective)", work, INT_ELEMENTS_PER_EDGE*sizeof(int));
     #endif
 }

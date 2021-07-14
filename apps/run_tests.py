@@ -18,40 +18,32 @@ def run_prepare(options, arch):
     create_graphs_if_required(get_list_of_all_graphs(), arch)
 
 
-def run_benchmarks(options, arch):
+def run_benchmarks(options, arch, workbook):
     list_of_apps = prepare_list_of_apps(options.apps)
-
-    stats_file_name = "tests_results_" + arch + ".xlsx"
-    workbook = xlsxwriter.Workbook(stats_file_name)
 
     set_omp_environments(options)
     perf_stats = PerformanceStats(workbook)
 
     for app_name in list_of_apps:
         if is_valid(app_name, arch, options):
-            benchmark_app(app_name, arch, options, workbook, perf_stats)
+            benchmark_app(app_name, arch, perf_stats)
         else:
             print("Error! Can not benchmark " + app_name + ", several errors occurred.")
 
-    workbook.close()
+    perf_stats.export_perf_data()
 
 
-def run_verify(options, arch):
+def run_verify(options, arch, workbook):
     list_of_apps = prepare_list_of_apps(options.apps)
-
-    stats_file_name = "benchmarking_results_" + arch + ".xlsx"
-    workbook = xlsxwriter.Workbook(stats_file_name)
 
     set_omp_environments(options)
     verification_stats = VerificationStats(workbook)
 
     for app_name in list_of_apps:
         if is_valid(app_name, arch, options):
-            verify_app(app_name, arch, options, workbook, verification_stats)
+            verify_app(app_name, arch, verification_stats)
         else:
             print("Error! Can not compile " + app_name + ", several errors occurred.")
-
-    workbook.close()
 
 
 if __name__ == "__main__":
@@ -90,6 +82,14 @@ if __name__ == "__main__":
     create_dir("./bin/")
     arch = options.arch
 
+    # create output xls file
+    stats_file_name = "benchmarking_results_" + arch + ".xlsx"
+    workbook = xlsxwriter.Workbook(stats_file_name)
+
+    print("1")
+    submit("intel", ["1", "2"], ["3", "4"])
+    print("2")
+
     if options.download_only:
         download_snap_graphs()
         exit(0)
@@ -101,7 +101,9 @@ if __name__ == "__main__":
         run_prepare(options, arch)
 
     if options.benchmark:
-        run_benchmarks(options, arch)
+        run_benchmarks(options, arch, workbook)
 
     if options.verify:
-        run_verify(options, arch)
+        run_verify(options, arch, workbook)
+
+    workbook.close()

@@ -353,6 +353,8 @@ void PerformanceStats::update_timer_stats()
     if(worst_time < inner_wall_time)
         worst_time = inner_wall_time;
 
+    cout << "time: " << inner_wall_time << endl;
+
     avg_time += inner_wall_time;
     number_of_runs++;
 }

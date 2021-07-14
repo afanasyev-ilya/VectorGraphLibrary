@@ -37,7 +37,8 @@ int main(int argc, char **argv)
                 GraphGenerationAPI::R_MAT(el_graph, v, v * parser.get_avg_degree(), 57, 19, 19, 5, DIRECTED_GRAPH);
             else if(parser.get_graph_type() == RANDOM_UNIFORM)
                 GraphGenerationAPI::random_uniform(el_graph, v, v * parser.get_avg_degree(), DIRECTED_GRAPH);
-            graph.import(el_graph);
+
+            graph.import(el_graph, true);
         }
         else if(parser.get_compute_mode() == LOAD_GRAPH_FROM_FILE)
         {
@@ -49,7 +50,8 @@ int main(int argc, char **argv)
             tm.print_time_stats("Graph load");
         }
 
-        graph.test_advance();
+        //graph.test_advance();
+        graph.test_full_advance();
     }
     catch (string error)
     {

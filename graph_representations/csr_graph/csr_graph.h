@@ -56,7 +56,7 @@ private:
     void alloc(int _vertices_count, long long _edges_count);
     void free();
 
-    void construct_unsorted_csr(EdgesListGraph &_el_graph);
+    void construct_unsorted_csr(EdgesListGraph &_el_graph, bool _random_shuffle_required);
 
     void create_vertices_group_array(CSRVertexGroup &_group_data, int _bottom, int _top);
 
@@ -65,6 +65,8 @@ private:
     void test_advance_changed_vl(CSRVertexGroup &_group_data, string _name);
     void test_advance_fixed_vl(CSRVertexGroup &_group_data, string _name);
     void test_advance_sparse(CSRVertexGroup &_group_data, string _name);
+    void test_advance_virtual_warp(CSRVertexGroup &_group_data, string _name);
+    void test_advance_sparse_packed(CSRVertexGroup &_group_data, string _name);
 public:
     CSRGraph(int _vertices_count = 1, long long _edges_count = 1);
     ~CSRGraph();
@@ -87,10 +89,11 @@ public:
     void resize(int _vertices_count, long long _edges_count);
 
     void test_advance();
+    void test_full_advance();
 
     /* import and preprocess API */
     // creates UndirectedVectCSRGraph format from EdgesListGraph
-    void import(EdgesListGraph &_old_graph);
+    void import(EdgesListGraph &_old_graph, bool _random_shuffle_required = true);
 
     friend class GraphAbstractions;
     friend class VectCSRGraph;

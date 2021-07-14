@@ -127,7 +127,7 @@ void GraphGenerationAPI::R_MAT(EdgesListGraph &_graph,
     {
         seed = /*int(time(NULL)) * */omp_get_thread_num();
         
-        #pragma omp for schedule(static)
+        #pragma omp for schedule(guided, 1024)
         for (long long cur_edge = 0; cur_edge < edges_count; cur_edge += step)
         {
             int x_middle = _vertices_count / 2, y_middle = _vertices_count / 2;

@@ -14,7 +14,7 @@ def check_app_correctness(output):
     return matched_lines
 
 
-def verify_app(app_name, arch, options, workbook, table_stats):
+def verify_app(app_name, arch, table_stats):
     list_of_graphs = get_list_of_verification_graphs()
 
     create_graphs_if_required(list_of_graphs, arch)

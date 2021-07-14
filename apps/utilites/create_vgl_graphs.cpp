@@ -131,8 +131,6 @@ int main(int argc, char ** argv)
             tm.end();
             tm.print_time_stats("Import");
 
-            vect_csr_graph.print_stats();
-
             tm.start();
             add_extension(file_name, ".vgraph");
             vect_csr_graph.save_to_binary_file(file_name);
@@ -140,8 +138,7 @@ int main(int argc, char ** argv)
             tm.end();
             tm.print_time_stats("Save");
         }
-
-        if((output_format.find("sharded_csr") != string::npos) || (output_format.find("sharded_csr") != string::npos))
+        else if((output_format.find("sharded_csr") != string::npos) || (output_format.find("sharded_csr") != string::npos))
         {
             rand_graph.remove_loops_and_multiple_arcs();
 
@@ -157,6 +154,24 @@ int main(int argc, char ** argv)
             add_extension(file_name, ".sharded_graph");
             sharded_csr_graph.save_to_binary_file(file_name);
             cout << "ShardedCSR graph is generated and saved to file " << file_name << endl;
+            tm.end();
+            tm.print_time_stats("Save");
+        }
+        else if((output_format.find("csr") != string::npos) || (output_format.find("CSR") != string::npos))
+        {
+            rand_graph.remove_loops_and_multiple_arcs();
+
+            CSRGraph csr_graph;
+            Timer tm;
+            tm.start();
+            csr_graph.import(rand_graph);
+            tm.end();
+            tm.print_time_stats("Import");
+
+            tm.start();
+            add_extension(file_name, ".csrgraph");
+            csr_graph.save_to_binary_file(file_name);
+            cout << "Traditional CSR graph is generated and saved to file " << file_name << endl;
             tm.end();
             tm.print_time_stats("Save");
         }

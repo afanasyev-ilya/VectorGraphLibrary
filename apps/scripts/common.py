@@ -6,7 +6,7 @@ UNDIRECTED_PREFIX = "undir_"
 
 
 benchmark_args = {"bfs": [ ["-top-down"], ["-do"] ],
-                  "sssp": [ ["-push, -all-active"], ["-pull", "-all-active"], ["-push", "-partial-active"] ],
+                  "sssp": [ ["-push", "-all-active"], ["-pull", "-all-active"], ["-push", "-partial-active"] ],
                   "pr": [ ["-pull"] ],
                   "cc": [ ["-bfs-based"], ["-cv"] ],
                   "sswp": [ ["-push"] ],

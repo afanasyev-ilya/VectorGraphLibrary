@@ -1,6 +1,7 @@
 import xlsxwriter
 from .create_graphs_api import *
 from random import randrange
+from .submit_results import submit
 
 
 app_name_column_size = 30
@@ -45,6 +46,8 @@ class PerformanceStats:
         self.worksheet = self.workbook.add_worksheet("Performance data")
         self.line_pos = 0
         self.current_format = self.workbook.add_format({})
+        self.current_app_name = ""
+        self.perf_data = []
 
         # make columns wider
         self.worksheet.set_column(0, 0, app_name_column_size)
@@ -60,6 +63,7 @@ class PerformanceStats:
     def init_test_data(self, app_name, app_args):
         test_name = ' '.join([app_name] + app_args)
         self.worksheet.write(self.line_pos, 0, test_name)
+        self.current_app_name = app_name
 
         color = colors[randrange(len(colors))]
         self.current_format = self.workbook.add_format({'border': 1,
@@ -97,13 +101,16 @@ class PerformanceStats:
     def add_perf_value(self, perf_value, graph_name):
         row = int(get_row_pos(graph_name))
         col = int(get_column_pos(graph_name))
-        print(perf_value)
-        #print(int(row))
-        #print(int(col))
+        #print(self.current_app_name + ", " + graph_name + ", " + str(perf_value))
+        self.perf_data.append({"app": self.current_app_name, "graph": graph_name, "perf": perf_value})
+        #print(perf_value)
         self.worksheet.write(self.line_pos + row, col, perf_value, self.current_format)
 
     def end_test_data(self):
         self.line_pos += lines_in_test() + 1
+
+    def export_perf_data(self):
+        submit("kunpeng 920 ilya", self.perf_data, ["test"])
 
 
 class VerificationStats:
