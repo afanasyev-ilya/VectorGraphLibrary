@@ -153,7 +153,6 @@ class BenchmarkingResults:
         self.line_pos += 1
 
     def add_correctness_value_to_xls_table(self, value, graph_name):
-        self.worksheet.write(self.line_pos, get_list_of_verification_graphs().index(graph_name), graph_name)
         self.worksheet.write(self.line_pos, get_list_of_verification_graphs().index(graph_name) + 1, value)
         self.correctness_data.append({"graph_name": graph_name, "val": value})
 

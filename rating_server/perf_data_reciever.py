@@ -1,57 +1,31 @@
 import pickle
 import socket
 import struct
-from pymongo import *
+from mongo_api import *
 
 
 def verify_correctness(correctness_data):
-    return True
-
-
-def connect_to_mongo():
-    try:
-        client = MongoClient('mongodb://localhost:27017/')
-        db = client['vgl_rankings_db']
-        perf_data_collection = db['perf_data_collection']
-    except pymongo.errors.ServerSelectionTimeoutError as err:
-        print(err)
-
-
-def check_if_results_for_arch_exist():
-    return True
-
-
-def add_item():
+    number_of_errors = 0
+    for graph_correctness in correctness_data:
+        print(graph_correctness)
+        # TODO
     return True
 
 
 def process_results(benchmarking_data):
     arch_name = benchmarking_data["arch"]
-    perf_data = benchmarking_data["perf_data"]
+    performance_data = benchmarking_data["performance_data"]
     correctness_data = benchmarking_data["correctness_data"]
     print(arch_name)
-    print(perf_data)
+    print(performance_data)
     print(correctness_data)
 
     correctness = verify_correctness(correctness_data)
 
-    connect_to_mongo()
-
-    # if arch exists - add
-    # if arch does not exist - update if better
+    if check_if_results_for_arch_exist(arch_name):
+        add_performance_stats(performance_data, arch_name)
 
     return correctness
-
-
-def recvall(sock):
-    BUFF_SIZE = 4096 # 4 KiB
-    data = b''
-    while True:
-        part = sock.recv(BUFF_SIZE)
-        data += part
-        if len(part) < BUFF_SIZE:
-            break
-    return data
 
 
 def send_msg(sock, msg):
@@ -74,26 +48,29 @@ def listen_to_users(port_name):
     host = ''        # Symbolic name meaning all available interfaces
     port = port_name     # Arbitrary non-privileged port
 
-    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    server_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    server_sock.bind((host, port))
 
-    s.bind((host, port))
-    print(str(host) + str(port))
+    dump_db_data()
+    remove_collection()
 
     while True:
-        s.listen(1)
-        conn, addr = s.accept()
+        server_sock.listen(1)
+        conn, addr = server_sock.accept()
         print('Connected by', addr)
         while True:
 
             try:
-                recv_data = conn.recv(16*1024)
+                recv_data = conn.recv(4024*4)
                 if not recv_data:
                     break
 
                 benchmarking_data = pickle.loads(recv_data)
-                print(benchmarking_data)
+                if process_results(benchmarking_data):
+                    response = "accepted"
+                else:
+                    response = "NOT accepted"
 
-                response = "accepted"
                 conn.sendall(response.encode())
             except socket.error:
                 print("Error Occured.")
