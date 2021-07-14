@@ -1,7 +1,7 @@
 from .helpers import *
 from .create_graphs_api import *
 from .common import *
-from .xls_stats_api import *
+from .export_results import *
 
 
 def check_app_correctness(output):
@@ -14,14 +14,16 @@ def check_app_correctness(output):
     return matched_lines
 
 
-def verify_app(app_name, arch, table_stats):
+def verify_app(app_name, arch, benchmarking_results):
     list_of_graphs = get_list_of_verification_graphs()
 
     create_graphs_if_required(list_of_graphs, arch)
     common_args = ["-check", "-it", "1"]
 
+    benchmarking_results.add_correctness_header_to_xls_table()
+
     for current_args in benchmark_args[app_name]:
-        table_stats.init_test_data(app_name, current_args)
+        benchmarking_results.add_correctness_test_name_to_xls_table(app_name, current_args + common_args)
 
         for current_graph in list_of_graphs:
             cmd = [get_binary_path(app_name, arch), "-load",
@@ -33,6 +35,6 @@ def verify_app(app_name, arch, table_stats):
             correctness_lines = check_app_correctness(output)
             print(correctness_lines)
 
-            table_stats.add_correctness_value(str(correctness_lines), current_graph)
+            benchmarking_results.add_correctness_value_to_xls_table(str(correctness_lines), current_graph)
 
-        table_stats.end_test_data()
+        benchmarking_results.add_performance_separator_to_xls_table()

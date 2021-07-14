@@ -1,8 +1,9 @@
 from .helpers import *
 from .create_graphs_api import *
-from .xls_stats_api import *
+from .export_results import *
 from .common import *
 import re
+from .export_results import *
 
 
 def find_perf_line(output):
@@ -28,15 +29,17 @@ def extract_perf_val(perf_lines):
     return 0.0
 
 
-def benchmark_app(app_name, arch, table_stats):
+def benchmark_app(app_name, arch, benchmarking_results):
     list_of_graphs = get_list_of_rmat_graphs() + get_list_of_ru_graphs() + get_list_of_soc_graphs() + \
                      get_list_of_misc_graphs()
 
     create_graphs_if_required(list_of_graphs, arch)
     common_args = ["-it", str(common_iterations)]
 
+    benchmarking_results.add_performance_header_to_xls_table()
+
     for current_args in benchmark_args[app_name]:
-        table_stats.init_test_data(app_name, current_args + common_args)
+        benchmarking_results.add_performance_test_name_to_xls_table(app_name, current_args + common_args)
 
         for current_graph in list_of_graphs:
             cmd = [get_binary_path(app_name, arch), "-load", get_path_to_graph(current_graph)] + current_args + common_args
@@ -45,6 +48,6 @@ def benchmark_app(app_name, arch, table_stats):
             output = proc.stdout.read().decode("utf-8")
 
             perf_value = extract_perf_val(find_perf_line(output))
-            table_stats.add_perf_value(perf_value, current_graph)
+            benchmarking_results.add_performance_value_to_xls_table(perf_value, current_graph)
 
-        table_stats.end_test_data()
+        benchmarking_results.add_performance_separator_to_xls_table()

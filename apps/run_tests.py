@@ -1,8 +1,8 @@
 import os
 import optparse
-from scripts.helpers import *
 from scripts.benchmarking_api import *
 from scripts.verification_api import *
+from scripts.export_results import BenchmarkingResults
 
 
 def run_compile(options, arch):
@@ -18,30 +18,26 @@ def run_prepare(options, arch):
     create_graphs_if_required(get_list_of_all_graphs(), arch)
 
 
-def run_benchmarks(options, arch, workbook):
+def run_benchmarks(options, arch, benchmarking_results):
     list_of_apps = prepare_list_of_apps(options.apps)
 
     set_omp_environments(options)
-    perf_stats = PerformanceStats(workbook)
 
     for app_name in list_of_apps:
         if is_valid(app_name, arch, options):
-            benchmark_app(app_name, arch, perf_stats)
+            benchmark_app(app_name, arch, benchmarking_results)
         else:
             print("Error! Can not benchmark " + app_name + ", several errors occurred.")
 
-    perf_stats.export_perf_data()
 
-
-def run_verify(options, arch, workbook):
+def run_verify(options, arch, benchmarking_results):
     list_of_apps = prepare_list_of_apps(options.apps)
 
     set_omp_environments(options)
-    verification_stats = VerificationStats(workbook)
 
     for app_name in list_of_apps:
         if is_valid(app_name, arch, options):
-            verify_app(app_name, arch, verification_stats)
+            verify_app(app_name, arch, benchmarking_results)
         else:
             print("Error! Can not compile " + app_name + ", several errors occurred.")
 
@@ -82,13 +78,7 @@ if __name__ == "__main__":
     create_dir("./bin/")
     arch = options.arch
 
-    # create output xls file
-    stats_file_name = "benchmarking_results_" + arch + ".xlsx"
-    workbook = xlsxwriter.Workbook(stats_file_name)
-
-    print("1")
-    submit("intel", ["1", "2"], ["3", "4"])
-    print("2")
+    benchmarking_results = BenchmarkingResults()
 
     if options.download_only:
         download_snap_graphs()
@@ -101,9 +91,11 @@ if __name__ == "__main__":
         run_prepare(options, arch)
 
     if options.benchmark:
-        run_benchmarks(options, arch, workbook)
+        run_benchmarks(options, arch, benchmarking_results)
 
     if options.verify:
-        run_verify(options, arch, workbook)
+        run_verify(options, arch, benchmarking_results)
 
-    workbook.close()
+    benchmarking_results.submit("intel xeon 6140")
+
+    benchmarking_results.finalize()

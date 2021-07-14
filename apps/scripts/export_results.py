@@ -40,14 +40,22 @@ def get_row_pos(graph_name):
         return get_list_of_misc_graphs().index(graph_name)
 
 
-class PerformanceStats:
-    def __init__(self, workbook):
-        self.workbook = workbook
+class BenchmarkingResults:
+    def __init__(self):
+        self.performance_data = []
+        self.correctness_data = []
+
+        self.workbook = xlsxwriter.Workbook("benchmarking_results.xlsx")
+        self.worksheet = None # these can be later used for xls output
+        self.line_pos = None # these can be later used for xls output
+        self.current_format = None # these can be later used for xls output
+        self.current_app_name = None # these can be later used for xls output
+
+    def add_performance_header_to_xls_table(self):
         self.worksheet = self.workbook.add_worksheet("Performance data")
         self.line_pos = 0
         self.current_format = self.workbook.add_format({})
         self.current_app_name = ""
-        self.perf_data = []
 
         # make columns wider
         self.worksheet.set_column(0, 0, app_name_column_size)
@@ -60,7 +68,21 @@ class PerformanceStats:
         self.worksheet.set_column(7, 7, graph_name_column_size)
         self.worksheet.set_column(8, 8, data_column_size)
 
-    def init_test_data(self, app_name, app_args):
+    def add_performance_test_name_to_xls_table(self, app_name, app_args):
+        test_name = ' '.join([app_name] + app_args)
+        self.worksheet.write(self.line_pos, 0, test_name)
+        self.current_app_name = app_name
+
+        color = colors[randrange(len(colors))]
+        self.current_format = self.workbook.add_format({'border': 1,
+                                                        'align': 'center',
+                                                        'valign': 'vcenter',
+                                                        'fg_color': color})
+
+        self.worksheet.merge_range(self.line_pos, 0, self.line_pos + lines_in_test() - 1, 0,
+                                   test_name, self.current_format)
+
+    def tmp(self, app_name, app_args):
         test_name = ' '.join([app_name] + app_args)
         self.worksheet.write(self.line_pos, 0, test_name)
         self.current_app_name = app_name
@@ -98,40 +120,45 @@ class PerformanceStats:
             self.worksheet.write(self.line_pos + i, 7, graph_name, self.current_format)
             i += 1
 
-    def add_perf_value(self, perf_value, graph_name):
+    def add_performance_value_to_xls_table(self, perf_value, graph_name):
         row = int(get_row_pos(graph_name))
         col = int(get_column_pos(graph_name))
-        #print(self.current_app_name + ", " + graph_name + ", " + str(perf_value))
-        self.perf_data.append({"app": self.current_app_name, "graph": graph_name, "perf": perf_value})
-        #print(perf_value)
-        self.worksheet.write(self.line_pos + row, col, perf_value, self.current_format)
 
-    def end_test_data(self):
+        self.worksheet.write(self.line_pos + row, col - 1, graph_name, self.current_format)
+        self.worksheet.write(self.line_pos + row, col, perf_value, self.current_format)
+        self.performance_data.append({"graph_name": graph_name, "val": perf_value})
+
+    def add_performance_separator_to_xls_table(self):
         self.line_pos += lines_in_test() + 1
 
-    def export_perf_data(self):
-        submit("kunpeng 920 ilya", self.perf_data, ["test"])
-
-
-class VerificationStats:
-    def __init__(self, workbook):
-        self.workbook = workbook
-        self.worksheet = self.workbook.add_worksheet("Verification data")
+    def add_correctness_header_to_xls_table(self):
+        self.worksheet = self.workbook.add_worksheet("Correctness data")
+        self.line_pos = 0
+        self.current_format = self.workbook.add_format({})
+        self.current_app_name = ""
 
         # add column names
         for graph_name in get_list_of_verification_graphs():
-            self.worksheet.write(0, get_list_of_verification_graphs().index(graph_name) + 1, graph_name)
+            self.worksheet.write(self.line_pos, get_list_of_verification_graphs().index(graph_name) + 1, graph_name)
 
-        self.worksheet.set_column(0, len(get_list_of_verification_graphs()) + 1, 30)
+        self.worksheet.set_column(self.line_pos, len(get_list_of_verification_graphs()) + 1, 30)
 
-        self.current_pos = 1
+        self.line_pos = 1
 
-    def init_test_data(self, app_name, app_args):
+    def add_correctness_test_name_to_xls_table(self, app_name, app_args):
         test_name = ' '.join([app_name] + app_args)
-        self.worksheet.write(self.current_pos, 0, test_name)
+        self.worksheet.write(self.line_pos, 0, test_name)
 
-    def end_test_data(self):
-        self.current_pos += 1
+    def add_correctness_separator_to_xls_table(self):
+        self.line_pos += 1
 
-    def add_correctness_value(self, data, graph_name):
-        self.worksheet.write(self.current_pos, get_list_of_verification_graphs().index(graph_name) + 1, data)
+    def add_correctness_value_to_xls_table(self, value, graph_name):
+        self.worksheet.write(self.line_pos, get_list_of_verification_graphs().index(graph_name), graph_name)
+        self.worksheet.write(self.line_pos, get_list_of_verification_graphs().index(graph_name) + 1, value)
+        self.correctness_data.append({"graph_name": graph_name, "val": value})
+
+    def submit(self, arch):
+        submit(arch, self.performance_data, self.correctness_data)
+
+    def finalize(self):
+        self.workbook.close()

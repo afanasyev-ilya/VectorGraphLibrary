@@ -1,17 +1,38 @@
-import socket, pickle
+import socket, pickle, struct
 
-HOST = '100.64.127.244'
-PORT = 5789
+HOST = 'vgl-rating.parallel.ru'
+PORT = 1026
 
 
-def submit(arch_name, perf_data, correctness_data):
+def send_msg(sock, msg):
+    # Prefix each message with a 4-byte length (network byte order)
+    msg = struct.pack('>I', len(msg)) + msg
+    sock.sendall(msg)
+
+
+def recv_msg(sock):
+    # Read message length and unpack it into an integer
+    raw_msglen = sock.recv(4)
+    if not raw_msglen:
+        return None
+    msglen = struct.unpack('>I', raw_msglen)[0]
+    # Read the message data
+    return sock.recv(msglen)
+
+
+def submit(arch_name, performance_data, correctness_data):
     client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
-    send_dict = {"arch": arch_name, "perf_data": perf_data, "correctness_data": correctness_data}
+    send_dict = {"arch": arch_name, "performance_data": performance_data, "correctness_data": correctness_data}
 
     client_socket.connect((HOST, PORT))
-    send_string = pickle.dumps(send_dict)
-    client_socket.send(send_string)
+    send_data = pickle.dumps(send_dict)
 
-    response = client_socket.recv(1024)
-    print(response.decode())
+    #send_msg(client_socket, send_string)
+    client_socket.sendall(send_data)
+
+    #response = recv_msg(client_socket)
+    response = client_socket.recv(4096)
+    print("response: " + response.decode())
+
+    client_socket.close()
