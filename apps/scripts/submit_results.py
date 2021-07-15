@@ -20,10 +20,8 @@ def recv_msg(sock):
     return sock.recv(msglen)
 
 
-def submit(arch_name, performance_data, correctness_data):
+def submit(send_dict):
     client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-
-    send_dict = {"arch_name": arch_name, "performance_data": performance_data, "correctness_data": correctness_data}
 
     client_socket.connect((HOST, PORT))
     send_data = pickle.dumps(send_dict)

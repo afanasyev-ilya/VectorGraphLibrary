@@ -2,6 +2,7 @@ import xlsxwriter
 from .create_graphs_api import *
 from random import randrange
 from .submit_results import submit
+import pickle
 
 
 app_name_column_size = 30
@@ -157,7 +158,15 @@ class BenchmarkingResults:
         self.correctness_data.append({"graph_name": graph_name, "app_name": app_name, "correctness_val": value})
 
     def submit(self, arch):
-        submit(arch, self.performance_data, self.correctness_data)
+        send_dict = {"arch_name": arch, "performance_data": self.performance_data, "correctness_data": self.correctness_data}
+        submit(send_dict)
+
+    def offline_submit(self, arch):
+        send_dict = {"arch_name": arch, "performance_data": self.performance_data, "correctness_data": self.correctness_data}
+        # send_dict
+        a_file = open("vgl_rating_data.pkl", "wb")
+        pickle.dump(send_dict, a_file)
+        a_file.close()
 
     def finalize(self):
         self.workbook.close()

@@ -77,6 +77,9 @@ if __name__ == "__main__":
     parser.add_option('-z', '--submit',
                       action="store", dest="submit",
                       help="submits performance data to VGL rating with specified arch name", default=None)
+    parser.add_option('-o', '--offline-submit',
+                      action="store_true", dest="offline_submit",
+                      help="export results into json file instead of submitting", default=False)
 
     options, args = parser.parse_args()
 
@@ -102,6 +105,9 @@ if __name__ == "__main__":
         run_verify(options, arch, benchmarking_results)
 
     if options.submit is not None:
-        benchmarking_results.submit(options.submit)
+        if not options.offline_submit:
+            benchmarking_results.submit(options.submit)
+        else:
+            benchmarking_results.offline_submit(options.submit)
 
     benchmarking_results.finalize()
