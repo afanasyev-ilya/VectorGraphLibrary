@@ -29,10 +29,12 @@ def get_coefficient(graph, app):
     return 1.0
 
 
-def compute_weighted_normalized_rating():
-    unique_graphs = mongo_api.distinct({}, "graph_name") # TODO select required graphs in query
-    unique_apps = mongo_api.distinct({}, "app_name") # TODO select required apps in query
+def compute_weighted_normalized_rating(graph_filter_criteria, apps_filter_criteria):
+    unique_graphs = mongo_api.distinct(graph_filter_criteria, "graph_name") # TODO select required graphs in query
+    unique_apps = mongo_api.distinct(apps_filter_criteria, "app_name") # TODO select required apps in query
     unique_architectures = mongo_api.distinct({}, "arch_name")
+    print(unique_graphs)
+    print(unique_apps)
 
     rating_values = {}
     for arch in unique_architectures:
@@ -52,10 +54,8 @@ def compute_weighted_normalized_rating():
 
 
 def print_rating_to_cmd():
-    rating = compute_weighted_normalized_rating()
-    print(rating)
+    rating = compute_weighted_normalized_rating({}, {})
     data_sorted = {k: v for k, v in sorted(rating.items(), key=lambda x: x[1])}
-    print(rating)
 
     pos = 1
     for k in sorted(rating, key=rating.get, reverse=True):

@@ -74,6 +74,9 @@ if __name__ == "__main__":
     parser.add_option('-d', '--download-only',
                       action="store_true", dest="download_only",
                       help="download SNAP graphs and quit", default=False)
+    parser.add_option('-z', '--submit',
+                      action="store", dest="submit",
+                      help="submits performance data to VGL rating with specified arch name", default=None)
 
     options, args = parser.parse_args()
 
@@ -98,6 +101,7 @@ if __name__ == "__main__":
     if options.verify:
         run_verify(options, arch, benchmarking_results)
 
-    benchmarking_results.submit("kunpeng")
+    if options.submit is not None:
+        benchmarking_results.submit(options.submit)
 
     benchmarking_results.finalize()
