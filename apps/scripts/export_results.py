@@ -120,13 +120,13 @@ class BenchmarkingResults:
             self.worksheet.write(self.line_pos + i, 7, graph_name, self.current_format)
             i += 1
 
-    def add_performance_value_to_xls_table(self, perf_value, graph_name):
+    def add_performance_value_to_xls_table(self, perf_value, graph_name, app_name):
         row = int(get_row_pos(graph_name))
         col = int(get_column_pos(graph_name))
 
         self.worksheet.write(self.line_pos + row, col - 1, graph_name, self.current_format)
         self.worksheet.write(self.line_pos + row, col, perf_value, self.current_format)
-        self.performance_data.append({"graph_name": graph_name, "val": perf_value})
+        self.performance_data.append({"graph_name": graph_name, "app_name": app_name, "perf_val": perf_value})
 
     def add_performance_separator_to_xls_table(self):
         self.line_pos += lines_in_test() + 1
@@ -152,9 +152,9 @@ class BenchmarkingResults:
     def add_correctness_separator_to_xls_table(self):
         self.line_pos += 1
 
-    def add_correctness_value_to_xls_table(self, value, graph_name):
+    def add_correctness_value_to_xls_table(self, value, graph_name, app_name):
         self.worksheet.write(self.line_pos, get_list_of_verification_graphs().index(graph_name) + 1, value)
-        self.correctness_data.append({"graph_name": graph_name, "val": value})
+        self.correctness_data.append({"graph_name": graph_name, "app_name": app_name, "correctness_val": value})
 
     def submit(self, arch):
         submit(arch, self.performance_data, self.correctness_data)

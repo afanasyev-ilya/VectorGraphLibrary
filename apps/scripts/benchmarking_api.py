@@ -36,8 +36,6 @@ def benchmark_app(app_name, arch, benchmarking_results):
     create_graphs_if_required(list_of_graphs, arch)
     common_args = ["-it", str(common_iterations)]
 
-    benchmarking_results.add_performance_header_to_xls_table()
-
     for current_args in benchmark_args[app_name]:
         benchmarking_results.add_performance_test_name_to_xls_table(app_name, current_args + common_args)
 
@@ -48,6 +46,6 @@ def benchmark_app(app_name, arch, benchmarking_results):
             output = proc.stdout.read().decode("utf-8")
 
             perf_value = extract_perf_val(find_perf_line(output))
-            benchmarking_results.add_performance_value_to_xls_table(perf_value, current_graph)
+            benchmarking_results.add_performance_value_to_xls_table(perf_value, current_graph, app_name)
 
         benchmarking_results.add_performance_separator_to_xls_table()

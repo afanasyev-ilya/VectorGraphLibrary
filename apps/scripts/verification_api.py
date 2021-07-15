@@ -20,8 +20,6 @@ def verify_app(app_name, arch, benchmarking_results):
     create_graphs_if_required(list_of_graphs, arch)
     common_args = ["-check", "-it", "1"]
 
-    benchmarking_results.add_correctness_header_to_xls_table()
-
     for current_args in benchmark_args[app_name]:
         benchmarking_results.add_correctness_test_name_to_xls_table(app_name, current_args + common_args)
 
@@ -35,6 +33,6 @@ def verify_app(app_name, arch, benchmarking_results):
             correctness_lines = check_app_correctness(output)
             print(correctness_lines)
 
-            benchmarking_results.add_correctness_value_to_xls_table(str(correctness_lines), current_graph)
+            benchmarking_results.add_correctness_value_to_xls_table(str(correctness_lines), current_graph, app_name)
 
         benchmarking_results.add_performance_separator_to_xls_table()

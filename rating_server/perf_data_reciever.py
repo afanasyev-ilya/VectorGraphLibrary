@@ -1,7 +1,7 @@
 import pickle
 import socket
 import struct
-from mongo_api import *
+import mongo_api
 
 
 def verify_correctness(correctness_data):
@@ -12,8 +12,36 @@ def verify_correctness(correctness_data):
     return True
 
 
+def arch_is_already_in_db(arch_name):
+    print(mongo_api.count_documents({"arch": arch_name}))
+    if mongo_api.count_documents({"arch": arch_name}) > 0:
+        return True
+    return False
+
+
+def add_meta_data(received_document, arch):
+    received_document["arch_name"] = arch
+    received_document["graph_nature"] = "synthetic"
+    received_document["graph_scale"] = "small"
+
+
+def insert_data_into_db(received_data, arch):
+    print("inserting")
+    for received_document in received_data:
+        add_meta_data(received_document, arch)
+
+    for received_document in received_data:
+        print(received_document)
+
+    mongo_api.insert_many(received_data)
+
+
+def update_data_in_db():
+    print("updating")
+
+
 def process_results(benchmarking_data):
-    arch_name = benchmarking_data["arch"]
+    arch_name = benchmarking_data["arch_name"]
     performance_data = benchmarking_data["performance_data"]
     correctness_data = benchmarking_data["correctness_data"]
     print(arch_name)
@@ -22,8 +50,10 @@ def process_results(benchmarking_data):
 
     correctness = verify_correctness(correctness_data)
 
-    if check_if_results_for_arch_exist(arch_name):
-        add_performance_stats(performance_data, arch_name)
+    if arch_is_already_in_db(arch_name):
+        update_data_in_db()
+    else:
+        insert_data_into_db(performance_data, arch_name)
 
     return correctness
 
@@ -51,8 +81,8 @@ def listen_to_users(port_name):
     server_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     server_sock.bind((host, port))
 
-    dump_db_data()
-    remove_collection()
+    #dump_db_data()
+    #remove_collection()
 
     while True:
         server_sock.listen(1)

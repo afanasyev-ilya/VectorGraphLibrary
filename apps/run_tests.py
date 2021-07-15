@@ -22,6 +22,7 @@ def run_benchmarks(options, arch, benchmarking_results):
     list_of_apps = prepare_list_of_apps(options.apps)
 
     set_omp_environments(options)
+    benchmarking_results.add_performance_header_to_xls_table()
 
     for app_name in list_of_apps:
         if is_valid(app_name, arch, options):
@@ -34,6 +35,7 @@ def run_verify(options, arch, benchmarking_results):
     list_of_apps = prepare_list_of_apps(options.apps)
 
     set_omp_environments(options)
+    benchmarking_results.add_correctness_header_to_xls_table()
 
     for app_name in list_of_apps:
         if is_valid(app_name, arch, options):
@@ -96,6 +98,6 @@ if __name__ == "__main__":
     if options.verify:
         run_verify(options, arch, benchmarking_results)
 
-    benchmarking_results.submit("intel xeon 6140")
+    benchmarking_results.submit("kunpeng")
 
     benchmarking_results.finalize()

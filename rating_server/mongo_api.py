@@ -12,59 +12,64 @@ def connect_to_mongo():
     return True
 
 
-def check_if_results_for_arch_exist(arch_name):
-    try:
-        connect = pymongo.MongoClient('mongodb://localhost:27017/')
-        db = connect.vgl_rankings_db
-        collection = db.performance_data
-        if collection.count_documents({"arch": arch_name}):
-            return True
-    except pymongo.errors.ServerSelectionTimeoutError as err:
-        print(err)
-    return False
-
-
-def add_performance_stats(received_data, arch):
+def count_documents(graphs_criteria):
     try:
         connect = pymongo.MongoClient('mongodb://localhost:27017/')
         db = connect.vgl_rankings_db
         collection = db.performance_data
 
-        for received_document in received_data:
-            print(received_document)
-
-            extended_document = add_meta_data(received_document, arch)
-            collection.insert_one(extended_document)
+        return collection.count_documents(graphs_criteria)
     except pymongo.errors.ServerSelectionTimeoutError as err:
         print(err)
-        return False
+    return 0
 
 
-def dump_db_data():
+def insert_many(documents):
     try:
         connect = pymongo.MongoClient('mongodb://localhost:27017/')
         db = connect.vgl_rankings_db
         collection = db.performance_data
-        search_results = collection.find()
-        for res in search_results:
-            print(res)
+        collection.insert_many(documents)
     except pymongo.errors.ServerSelectionTimeoutError as err:
         print(err)
-    return False
 
 
-def remove_collection():
+def cursor_to_array(cursor):
+    result_list = []
+    for res in cursor:
+        result_list.append(res)
+    return result_list
+
+
+def distinct(search_criteria, field_name):
+    try:
+        connect = pymongo.MongoClient('mongodb://localhost:27017/')
+        db = connect.vgl_rankings_db
+        collection = db.performance_data
+        return cursor_to_array(collection.find(search_criteria).distinct(field_name))
+    except pymongo.errors.ServerSelectionTimeoutError as err:
+        print(err)
+        return []
+
+
+def find(graphs_criteria, projection=None):
+    try:
+        connect = pymongo.MongoClient('mongodb://localhost:27017/')
+        db = connect.vgl_rankings_db
+        collection = db.performance_data
+        if projection is None:
+            return cursor_to_array(collection.find(graphs_criteria))
+        else:
+            return cursor_to_array(collection.find(graphs_criteria, projection))
+    except pymongo.errors.ServerSelectionTimeoutError as err:
+        print(err)
+        return []
+
+
+def drop_collection():
     try:
         connect = pymongo.MongoClient('mongodb://localhost:27017/')
         db = connect.vgl_rankings_db
         db.performance_data.drop()
     except pymongo.errors.ServerSelectionTimeoutError as err:
         print(err)
-    return False
-
-
-def add_meta_data(received_document, arch):
-    received_document["arch"] = arch
-    received_document["graph_nature"] = "synthetic"
-    received_document["scale"] = "small"
-    return received_document
