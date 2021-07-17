@@ -89,7 +89,7 @@ if __name__ == "__main__":
     benchmarking_results = BenchmarkingResults()
 
     if options.download_only:
-        download_snap_graphs()
+        download_all_real_world_graphs()
         exit(0)
 
     if options.compile:

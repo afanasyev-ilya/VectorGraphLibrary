@@ -45,14 +45,25 @@ class BenchmarkMode(Enum):
 mode = BenchmarkMode.medium
 
 
-snap_links = {"web_berk_stan": "web-BerkStan.txt.gz",
-              "soc_lj":  "soc-LiveJournal1.txt.gz",
-              "soc_pokec": "soc-pokec-relationships.txt.gz",
-              "wiki_talk": "wiki-topcats.txt.gz",
-              "soc_orkut": "com-orkut.ungraph.txt.gz",
-              "wiki_topcats": "wiki-topcats.txt.gz",
-              "roads_ca": "roadNet-CA.txt.gz",
-              "cit_patents": "cit-Patents.txt.gz",
-              "soc_stackoverflow": "sx-stackoverflow.txt.gz",
-              "skitter": "as-skitter.txt.gz"}
+konect_links = {"soc_pokec": "soc-pokec-relationships",
+                "web_baidu": "zhishi-baidu-internallink",
+                "road_california": "roadNet-CA"}
+
+
+#http://konect.cc/files/download.tsv.zhishi-baidu-internallink.tar.bz2
+#http://konect.cc/files/download.tsv.soc-pokec-relationships.tar.bz2
+#http://konect.cc/files/download.tsv.trackers-trackers.tar.bz2
+#http://konect.cc/files/download.tsv.roadNet-CA.tar.bz2
+
+
+#snap_links = {"web_berk_stan": "web-BerkStan.txt.gz",
+#              "soc_lj":  "soc-LiveJournal1.txt.gz",
+#              "soc_pokec": "soc-pokec-relationships.txt.gz",
+#              "wiki_talk": "wiki-topcats.txt.gz",
+#              "soc_orkut": "com-orkut.ungraph.txt.gz",
+#              "wiki_topcats": "wiki-topcats.txt.gz",
+#              "roads_ca": "roadNet-CA.txt.gz",
+#              "cit_patents": "cit-Patents.txt.gz",
+#              "soc_stackoverflow": "sx-stackoverflow.txt.gz",
+#              "skitter": "as-skitter.txt.gz"}
 

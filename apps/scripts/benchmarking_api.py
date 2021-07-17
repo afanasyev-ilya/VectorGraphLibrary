@@ -30,8 +30,7 @@ def extract_perf_val(perf_lines):
 
 
 def benchmark_app(app_name, arch, benchmarking_results):
-    list_of_graphs = get_list_of_rmat_graphs() + get_list_of_ru_graphs() + get_list_of_soc_graphs() + \
-                     get_list_of_misc_graphs()
+    list_of_graphs = get_list_of_all_graphs()
 
     create_graphs_if_required(list_of_graphs, arch)
     common_args = ["-it", str(common_iterations)]

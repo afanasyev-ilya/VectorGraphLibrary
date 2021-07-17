@@ -4,107 +4,91 @@ import os.path
 from os import path
 
 
-def get_list_of_soc_graphs():
-    graphs = []
-    if mode == BenchmarkMode.short:
-        graphs = ["soc_pokec"]
-    elif (mode == BenchmarkMode.long) or (mode == BenchmarkMode.medium):
-        graphs = ["soc_stackoverflow",
-                  "soc_orkut",
-                  "soc_lj",
-                  "soc_pokec"]
+# real-world graphs
+def get_list_of_social_graphs():
+    graphs = ["soc_pokec"]
     return graphs
 
 
-def get_list_of_misc_graphs():
-    graphs = []
-    if mode == BenchmarkMode.short:
-        graphs = ["wiki_topcats"]
-    elif (mode == BenchmarkMode.long) or (mode == BenchmarkMode.medium):
-        graphs = ["wiki_talk",
-                  "wiki_topcats",
-                  "web_berk_stan",
-                  "cit_patents",
-                  "skitter",
-                  "roads_ca"]
+def get_list_of_web_graphs():
+    graphs = ["web_baidu"]
     return graphs
 
 
+def get_list_of_road_graphs():
+    graphs = ["road_california"]
+    return graphs
+
+
+# synthetic graphs
 def get_list_of_rmat_graphs():
-    graphs = []
-    edge_factor = synthetic_edge_factor
-    min_scale = synthetic_min_scale
-    max_scale = min_scale + 1
-    if mode == BenchmarkMode.short:
-        max_scale = min_scale + 2
-    elif mode == BenchmarkMode.medium:
-        max_scale = synthetic_medium_scale
-    elif mode == BenchmarkMode.long:
-        max_scale = synthetic_medium_scale
-    for scale in range(min_scale, max_scale + 1):
-        new_graph = "rmat_" + str(scale) + "_" + str(edge_factor)
-        graphs += [new_graph]
+    graphs = ["syn_rmat_20_32"]
     return graphs
 
 
-def get_list_of_ru_graphs():
-    graphs = []
-    edge_factor = synthetic_edge_factor
-    min_scale = synthetic_min_scale
-    max_scale = min_scale + 1
-    if mode == BenchmarkMode.short:
-        max_scale = min_scale + 2
-    elif mode == BenchmarkMode.medium:
-        max_scale = synthetic_medium_scale
-    elif mode == BenchmarkMode.long:
-        max_scale = synthetic_medium_scale
-    for scale in range(min_scale, max_scale + 1):
-        new_graph = "ru_" + str(scale) + "_" + str(edge_factor)
-        graphs += [new_graph]
+def get_list_of_uniform_random_graphs():
+    graphs = ["syn_ru_20_32"]
     return graphs
 
 
-def get_list_of_verification_graphs():
-    return ["rmat_20_"+str(synthetic_edge_factor),
-            "ru_20_"+str(synthetic_edge_factor),
-            "soc_pokec",
-            "wiki_talk"]
+# all graphs
+def get_list_of_synthetic_graphs():
+    return get_list_of_rmat_graphs() + get_list_of_uniform_random_graphs()
+
+
+def get_list_of_real_world_graphs():
+    return get_list_of_social_graphs() + get_list_of_web_graphs() + get_list_of_road_graphs()
 
 
 def get_list_of_all_graphs():
-    list_of_graphs = get_list_of_rmat_graphs() + get_list_of_ru_graphs() + get_list_of_soc_graphs() + \
-                     get_list_of_misc_graphs() + get_list_of_verification_graphs()
-    return list_of_graphs
+    return get_list_of_synthetic_graphs() + get_list_of_real_world_graphs()
 
 
-def download_snap_graphs():
-    snap_graphs = get_list_of_soc_graphs() + get_list_of_misc_graphs()
-    for graph_name in snap_graphs:
+def get_list_of_verification_graphs():
+    synthetic_graph = get_list_of_synthetic_graphs()[0]
+    social_graph = get_list_of_social_graphs()[0]
+    web_graph = get_list_of_web_graphs()[0]
+    road_graph = get_list_of_road_graphs()[0]
+    return [synthetic_graph, social_graph, web_graph, road_graph]
+
+
+def download_all_real_world_graphs():
+    real_world_graphs = get_list_of_real_world_graphs()
+    for graph_name in real_world_graphs:
         download_graph(graph_name)
 
 
 def download_graph(graph_name):
-    if not path.exists(SOURCE_GRAPH_DIR + "/" + snap_links[graph_name]):
-        print("Trying to download " + SOURCE_GRAPH_DIR + snap_links[graph_name])
+    if not path.exists(SOURCE_GRAPH_DIR + "/" + konect_links[graph_name]):
+        print("Trying to download " + SOURCE_GRAPH_DIR + konect_links[graph_name] + " using " +
+              "http://konect.cc/files/download.tsv." + konect_links[graph_name] + ".tar.bz2")
 
-        if not internet_on():
-            print("Error! no internet connection available.")
-            return
+        #if not internet_on():
+        #    print("Error! no internet connection available.")
+        #    return
 
-        link = "https://snap.stanford.edu/data/" + snap_links[graph_name]
+        # old snap usage
+        #link = "https://snap.stanford.edu/data/" + snap_links[graph_name]
+        #cmd = ["wget", link, "-q", "--no-check-certificate", "--directory", SOURCE_GRAPH_DIR]
+        #print(' '.join(cmd))
+        #subprocess.call(cmd, shell=False, stdout=subprocess.PIPE)
+
+        #link = "https://snap.stanford.edu/data/bigdata/communities/" + snap_links[graph_name]
+        #cmd = ["wget", link, "-q", "--no-check-certificate", "--directory", SOURCE_GRAPH_DIR]
+        #print(' '.join(cmd))
+        #subprocess.call(cmd, shell=False, stdout=subprocess.PIPE)
+
+        # new konect usage
+        link = "http://konect.cc/files/download.tsv." + konect_links[graph_name] + ".tar.bz2"
         cmd = ["wget", link, "-q", "--no-check-certificate", "--directory", SOURCE_GRAPH_DIR]
         print(' '.join(cmd))
         subprocess.call(cmd, shell=False, stdout=subprocess.PIPE)
 
-        link = "https://snap.stanford.edu/data/bigdata/communities/" + snap_links[graph_name]
-        cmd = ["wget", link, "-q", "--no-check-certificate", "--directory", SOURCE_GRAPH_DIR]
-        print(' '.join(cmd))
-        subprocess.call(cmd, shell=False, stdout=subprocess.PIPE)
-
-    if path.exists(SOURCE_GRAPH_DIR + snap_links[graph_name]):
-        print("File " + SOURCE_GRAPH_DIR + snap_links[graph_name] + " downloaded!")
+    file_name = SOURCE_GRAPH_DIR + "download.tsv." + konect_links[graph_name] + ".tar.bz2"
+    if path.exists(file_name):
+        print(file_name + " downloaded!")
     else:
-        print("Error! Can not download file " + SOURCE_GRAPH_DIR + snap_links[graph_name])
+        print("Error! Can not download file " + file_name)
 
 
 def get_path_to_graph(short_name, undir = False):
@@ -128,18 +112,18 @@ def create_real_world_graph(graph_name, arch):
     if not file_exists(output_graph_file_name):
         download_graph(graph_name)
 
-        tar_name = SOURCE_GRAPH_DIR + snap_links[graph_name]
-        cmd = ["gunzip", "-f", tar_name]
+        tar_name = SOURCE_GRAPH_DIR + "download.tsv." + konect_links[graph_name] + ".tar.bz2"
+        cmd = ["tar", "-xjf", tar_name, '-C', "./bin/source_graphs"]
         subprocess.call(cmd, shell=False, stdout=subprocess.PIPE)
 
-        source_name = os.path.splitext(tar_name)[0]
+        source_name = "./bin/source_graphs/" + konect_links[graph_name] + "/out." + konect_links[graph_name]
+        #os.path.splitext(tar_name)[0]
 
         cmd = [get_binary_path("create_vgl_graphs", arch), "-convert", source_name, "-directed",
                "-file", output_graph_file_name]
         print(' '.join(cmd))
         subprocess.Popen(cmd, shell=False, stdout=subprocess.PIPE).wait()
         verify_graph_existence(output_graph_file_name)
-        print("Graph " + output_graph_file_name + " has been created")
 
     if GENERATE_UNDIRECTED_GRAPHS:
         output_graph_file_name = get_path_to_graph(graph_name, True)
@@ -149,14 +133,13 @@ def create_real_world_graph(graph_name, arch):
             print(' '.join(cmd))
             subprocess.Popen(cmd, shell=False, stdout=subprocess.PIPE).wait()
             verify_graph_existence(output_graph_file_name)
-            print("Graph " + output_graph_file_name + " has been created")
 
 
 def create_synthetic_graph(graph_name, arch):
     dat = graph_name.split("_")
-    type = dat[0]
-    scale = dat[1]
-    edge_factor = dat[2]
+    type = dat[1]
+    scale = dat[2]
+    edge_factor = dat[3]
 
     output_graph_file_name = get_path_to_graph(graph_name)
     if not file_exists(output_graph_file_name):

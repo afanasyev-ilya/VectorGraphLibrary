@@ -12,33 +12,23 @@ colors = ["#CCFFFF", "#CCFFCC", "#FFFF99", "#FF99FF", "#66CCFF", "#FF9966"]
 
 
 def lines_in_test():
-    sizes = [len(get_list_of_rmat_graphs()),
-             len(get_list_of_ru_graphs()),
-             len(get_list_of_soc_graphs()),
-             len(get_list_of_misc_graphs())]
-    return int(max(sizes))
+    return int(max(len(get_list_of_synthetic_graphs()), len(get_list_of_real_world_graphs())))
 
 
 def get_column_pos(graph_name):
-    if "rmat" in graph_name:
+    if graph_name in get_list_of_synthetic_graphs():
         return 2
-    elif "ru" in graph_name:
+    elif graph_name in get_list_of_real_world_graphs():
         return 4
-    elif graph_name in get_list_of_soc_graphs():
-        return 6
-    elif graph_name in get_list_of_misc_graphs():
-        return 8
     else:
         raise ValueError("Incorrect graph name")
 
 
 def get_row_pos(graph_name):
-    if "rmat" in graph_name or "ru" in graph_name:
-        return int(graph_name.split('_')[1]) - synthetic_min_scale
-    elif graph_name in get_list_of_soc_graphs():
-        return get_list_of_soc_graphs().index(graph_name)
-    elif graph_name in get_list_of_misc_graphs():
-        return get_list_of_misc_graphs().index(graph_name)
+    if graph_name in get_list_of_synthetic_graphs():
+        return get_list_of_synthetic_graphs().index(graph_name)
+    elif graph_name in get_list_of_real_world_graphs():
+        return get_list_of_real_world_graphs().index(graph_name)
 
 
 class BenchmarkingResults:
@@ -82,44 +72,6 @@ class BenchmarkingResults:
 
         self.worksheet.merge_range(self.line_pos, 0, self.line_pos + lines_in_test() - 1, 0,
                                    test_name, self.current_format)
-
-    def tmp(self, app_name, app_args):
-        test_name = ' '.join([app_name] + app_args)
-        self.worksheet.write(self.line_pos, 0, test_name)
-        self.current_app_name = app_name
-
-        color = colors[randrange(len(colors))]
-        self.current_format = self.workbook.add_format({'border': 1,
-                                                        'align': 'center',
-                                                        'valign': 'vcenter',
-                                                        'fg_color': color})
-
-        self.worksheet.merge_range(self.line_pos, 0, self.line_pos + lines_in_test() - 1, 0,
-                                   test_name, self.current_format)
-
-        rmat_graphs = get_list_of_rmat_graphs()
-        i = 0
-        for graph_name in rmat_graphs:
-            self.worksheet.write(self.line_pos + i, 1, graph_name, self.current_format)
-            i += 1
-
-        ru_graphs = get_list_of_ru_graphs()
-        i = 0
-        for graph_name in ru_graphs:
-            self.worksheet.write(self.line_pos + i, 3, graph_name, self.current_format)
-            i += 1
-
-        soc_graphs = get_list_of_soc_graphs()
-        i = 0
-        for graph_name in soc_graphs:
-            self.worksheet.write(self.line_pos + i, 5, graph_name, self.current_format)
-            i += 1
-
-        misc_graphs = get_list_of_misc_graphs()
-        i = 0
-        for graph_name in misc_graphs:
-            self.worksheet.write(self.line_pos + i, 7, graph_name, self.current_format)
-            i += 1
 
     def add_performance_value_to_xls_table(self, perf_value, graph_name, app_name):
         row = int(get_row_pos(graph_name))
