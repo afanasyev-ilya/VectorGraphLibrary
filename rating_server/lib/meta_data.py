@@ -84,4 +84,4 @@ def add_meta_data(received_document, arch):
     document_with_metadata.update(received_document)
     document_with_metadata.update(get_meta_data(received_document["graph_name"]))
     document_with_metadata["arch_name"] = arch
-    return received_document
+    return document_with_metadata

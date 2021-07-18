@@ -66,6 +66,18 @@ def find(graphs_criteria, projection=None):
         return []
 
 
+def update_perf(search_criteria, new_perf):
+    try:
+        connect = pymongo.MongoClient('mongodb://localhost:27017/')
+        db = connect.vgl_rankings_db
+        collection = db.performance_data
+
+        collection.update_one(search_criteria, {'$set': {'perf_val': new_perf}}, upsert=False)
+    except pymongo.errors.ServerSelectionTimeoutError as err:
+        print(err)
+        return []
+
+
 def drop_collection():
     try:
         connect = pymongo.MongoClient('mongodb://localhost:27017/')
@@ -79,3 +91,4 @@ def print_collection():
     documents = find({})
     for doc in documents:
         print(doc)
+

@@ -14,16 +14,15 @@ def verify_correctness(correctness_data):
 
 
 def arch_is_already_in_db(arch_name):
-    print(mongo_api.count_documents({"arch": arch_name}))
-    if mongo_api.count_documents({"arch": arch_name}) > 0:
+    if mongo_api.count_documents({"arch_name": arch_name}) > 0:
         return True
     return False
 
 
 def insert_data_into_db(received_data, arch):
-    print("inserting")
-    for received_document in received_data:
-        add_meta_data(received_document, arch)
+    for i in range(len(received_data)):
+        print("inserting new")
+        received_data[i] = add_meta_data(received_data[i], arch)
 
     for received_document in received_data:
         print(received_document)
@@ -31,22 +30,30 @@ def insert_data_into_db(received_data, arch):
     mongo_api.insert_many(received_data)
 
 
-def update_data_in_db():
-    print("updating")
+def update_data_in_db(received_data, arch):
+    for new_val in received_data:
+        search_pattern = {"graph_name": new_val["graph_name"], "arch_name": arch}
+        old_val = mongo_api.find(search_pattern)
+
+        if len(old_val) > 0:
+            print(str(old_val[0]["perf_val"]) + " vs " + str(new_val["perf_val"]))
+            new_perf = new_val["perf_val"]
+            old_perf = old_val[0]["perf_val"]
+            mongo_api.update_perf(search_pattern, max(new_perf, old_perf))
+        else:
+            new_val = add_meta_data(new_val, arch)
+            mongo_api.insert_many([new_val])
 
 
 def process_results(benchmarking_data):
     arch_name = benchmarking_data["arch_name"]
     performance_data = benchmarking_data["performance_data"]
     correctness_data = benchmarking_data["correctness_data"]
-    print(arch_name)
-    print(performance_data)
-    print(correctness_data)
+    correctness = verify_correctness(correctness_data) # TODO
 
-    correctness = verify_correctness(correctness_data)
-
+    print(arch_name + " !!!!!!!!!!")
     if arch_is_already_in_db(arch_name):
-        update_data_in_db()
+        update_data_in_db(performance_data, arch_name)
     else:
         insert_data_into_db(performance_data, arch_name)
 
