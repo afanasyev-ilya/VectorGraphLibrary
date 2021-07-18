@@ -1,0 +1,8 @@
+//
+// Created by Dmitrii on 18.07.2021.
+//
+
+#ifndef VECTORGRAPHLIBRARY_TC_GPU_CUH
+#define VECTORGRAPHLIBRARY_TC_GPU_CUH
+
+#endif //VECTORGRAPHLIBRARY_TC_GPU_CUH

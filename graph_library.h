@@ -86,6 +86,7 @@ using namespace std;
 #include "algorithms/hits/hits.h"
 #include "algorithms/scc/scc.h"
 #include "algorithms/coloring/coloring.h"
+#include "algorithms/tc/tc.h"
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
