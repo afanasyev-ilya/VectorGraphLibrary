@@ -1,4 +1,4 @@
-from lib import mongo_api
+from . import mongo_api
 
 
 def print_db_contents():
@@ -53,14 +53,21 @@ def compute_weighted_normalized_rating(graph_filter_criteria, apps_filter_criter
     return rating_values
 
 
-def print_rating_to_cmd():
+def get_rating_list():
+    rating = []
+    rating = compute_weighted_normalized_rating({}, {})
+    data_sorted = {k: v for k, v in sorted(rating.items(), key=lambda x: x[1])}
+    for k in sorted(rating, key=rating.get, reverse=True):
+        rating.append({"arch": str(k), "rating": str(rating[k])})
+
+
+def get_text_rating():
     rating = compute_weighted_normalized_rating({}, {})
     data_sorted = {k: v for k, v in sorted(rating.items(), key=lambda x: x[1])}
 
+    text = ""
     pos = 1
     for k in sorted(rating, key=rating.get, reverse=True):
-        print(str(pos) + ") arch: " + str(k) + " rating: " + str(rating[k]))
+        text += (str(pos) + ") arch: " + str(k) + "         |         rating: " + str(rating[k]))
         pos += 1
-
-
-print_rating_to_cmd()
+    return text
