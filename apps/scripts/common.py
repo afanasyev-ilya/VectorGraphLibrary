@@ -45,15 +45,21 @@ class BenchmarkMode(Enum):
 mode = BenchmarkMode.medium
 
 
-konect_links = {"soc_pokec": "soc-pokec-relationships",
-                "web_baidu": "zhishi-baidu-internallink",
-                "road_california": "roadNet-CA"}
+# tiny
+# small
+# medium
+# large
 
 
-#http://konect.cc/files/download.tsv.zhishi-baidu-internallink.tar.bz2
-#http://konect.cc/files/download.tsv.soc-pokec-relationships.tar.bz2
-#http://konect.cc/files/download.tsv.trackers-trackers.tar.bz2
-#http://konect.cc/files/download.tsv.roadNet-CA.tar.bz2
+konect_graphs_data = {"soc_pokec": {"link": "soc-pokec-relationships"},
+                      "web_baidu": {"link": "zhishi-baidu-internallink"},
+                      "road_california": {"link": "roadNet-CA"},
+                      "soc_livejournal": {"link": "soc-LiveJournal1"},
+                      "road_full_us": {"link": "dimacs9-USA"},
+                      "road_central_us": {"link": "dimacs9-CTR"},
+                      "web_zhishi": {"link": "zhishi-all"},
+                      "web_dbpedia": {"link": "dbpedia-link"},
+                      "soc_orkut": {"link": "orkut-links"}}
 
 
 #snap_links = {"web_berk_stan": "web-BerkStan.txt.gz",

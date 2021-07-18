@@ -73,3 +73,9 @@ def drop_collection():
         db.performance_data.drop()
     except pymongo.errors.ServerSelectionTimeoutError as err:
         print(err)
+
+
+def print_collection():
+    documents = find({})
+    for doc in documents:
+        print(doc)

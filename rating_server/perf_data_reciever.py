@@ -1,7 +1,8 @@
 import pickle
 import socket
 import struct
-import mongo_api
+from lib import mongo_api
+from lib.meta_data import add_meta_data
 
 
 def verify_correctness(correctness_data):
@@ -17,12 +18,6 @@ def arch_is_already_in_db(arch_name):
     if mongo_api.count_documents({"arch": arch_name}) > 0:
         return True
     return False
-
-
-def add_meta_data(received_document, arch):
-    received_document["arch_name"] = arch
-    received_document["graph_nature"] = "synthetic"
-    received_document["graph_scale"] = "small"
 
 
 def insert_data_into_db(received_data, arch):

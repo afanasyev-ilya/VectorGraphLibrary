@@ -1,4 +1,4 @@
-import mongo_api
+from lib import mongo_api
 
 
 def print_db_contents():
