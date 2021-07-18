@@ -53,8 +53,6 @@ add_executable(VectorGraphLibrary
         algorithms/cc/nec_bfs_based.hpp
         algorithms/cc/nec_shiloach_vishkin.hpp
         algorithms/cc/seq_bfs_based.hpp
-        algorithms/kcore/kcore.h
-        algorithms/kcore/kcore.hpp
         algorithms/lp/lp.h
         algorithms/lp/lp.hpp
         algorithms/pr/pr.h
@@ -95,19 +93,7 @@ add_executable(VectorGraphLibrary
         graph_processing_API/nec/delayed_write/delayed_write_nec.hpp
         graph_processing_API/nec/frontier/frontier_nec.h
         graph_processing_API/nec/frontier/frontier_nec.hpp
-        graph_processing_API/nec/graph_primitives/advance.hpp
-        graph_processing_API/nec/graph_primitives/advance_all_active.hpp
-        graph_processing_API/nec/graph_primitives/advance_dense.hpp
-        graph_processing_API/nec/graph_primitives/advance_partial.hpp
-        graph_processing_API/nec/graph_primitives/advance_sparse.hpp
-        graph_processing_API/nec/graph_primitives/compute.hpp
-        graph_processing_API/nec/graph_primitives/filter.hpp
-        graph_processing_API/nec/graph_primitives/generate_new_frontier.hpp
-        graph_processing_API/nec/graph_primitives/graph_primitives_nec.h
-        graph_processing_API/nec/graph_primitives/graph_primitives_nec.hpp
-        graph_processing_API/nec/graph_primitives/tests.hpp
         graph_processing_API/nec/vector_register/vector_registers.h
-        graph_representations/common/graph_types.h
         graph_representations/edges_list_graph/edges_list_graph.h
         graph_representations/edges_list_graph/edges_list_graph.hpp
         graph_representations/undirected_csr_graph/vector_extension/vector_extension.h
@@ -117,21 +103,7 @@ add_executable(VectorGraphLibrary
         graph_representations/undirected_csr_graph/gpu_api.hpp
         graph_representations/undirected_csr_graph/import.hpp
         graph_representations/undirected_csr_graph/nec_api.hpp
-        graph_representations/sharded_csr_graph/shard_base/shard_base.h
-        graph_representations/sharded_csr_graph/shard_base/shard_base.hpp
-        graph_representations/sharded_csr_graph/shard_CSR/shard_CSR.h
-        graph_representations/sharded_csr_graph/shard_CSR/shard_CSR.hpp
-        graph_representations/sharded_csr_graph/shard_CSR/shard_CSR_pointer_data.h
-        graph_representations/sharded_csr_graph/shard_vect_csr/shard_vect_CSR.h
-        graph_representations/sharded_csr_graph/shard_vect_csr/shard_vect_CSR.hpp
-        graph_representations/sharded_csr_graph/shard_vect_csr/shard_vect_CSR_pointer_data.h
         graph_representations/sharded_csr_graph/sharded_csr_graph.h
         graph_representations/sharded_csr_graph/sharded_csr_graph.hpp
         graph_representations/base_graph.h
-        misc/custom_test.cpp
-        misc/generate_memory_traces.cpp
-        misc/lambda_tests.cpp
-        misc/nvgraph_comparison.cpp
-        verification/page_rank_verification.hpp
-        verification/shortest_paths_verification.hpp
         architectures.h)
