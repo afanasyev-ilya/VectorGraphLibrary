@@ -32,7 +32,7 @@ def insert_data_into_db(received_data, arch):
 
 def update_data_in_db(received_data, arch):
     for new_val in received_data:
-        search_pattern = {"graph_name": new_val["graph_name"], "arch_name": arch, "app_name": received_data["app_name"]}
+        search_pattern = {"graph_name": new_val["graph_name"], "arch_name": arch, "app_name": new_val["app_name"]}
         old_val = mongo_api.find(search_pattern)
 
         if len(old_val) > 0:

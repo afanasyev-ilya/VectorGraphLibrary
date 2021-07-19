@@ -5,10 +5,10 @@ GENERATE_UNDIRECTED_GRAPHS = False
 UNDIRECTED_PREFIX = "undir_"
 
 
-benchmark_args = {"bfs": [ ["-top-down"], ["-do"] ],
-                  "sssp": [ ["-push", "-all-active"], ["-pull", "-all-active"], ["-push", "-partial-active"] ],
+benchmark_args = {"bfs": [ ["-top-down"]],
+                  "sssp": [ ["-push", "-all-active"] ],
                   "pr": [ ["-pull"] ],
-                  "cc": [ ["-bfs-based"], ["-cv"] ],
+                  "cc": [ ["-cv"] ],
                   "sswp": [ ["-push"] ],
                   "rw": [ ["-it", "100", "-wv", "20"] ],
                   "hits": [ [] ],
@@ -45,12 +45,6 @@ class BenchmarkMode(Enum):
 mode = BenchmarkMode.medium
 
 
-# tiny
-# small
-# medium
-# large
-
-
 konect_graphs_data = {"soc_pokec": {"link": "soc-pokec-relationships"},
                       "web_baidu": {"link": "zhishi-baidu-internallink"},
                       "road_california": {"link": "roadNet-CA"},
@@ -60,6 +54,10 @@ konect_graphs_data = {"soc_pokec": {"link": "soc-pokec-relationships"},
                       "web_zhishi": {"link": "zhishi-all"},
                       "web_dbpedia": {"link": "dbpedia-link"},
                       "soc_orkut": {"link": "orkut-links"}}
+
+
+apps_and_graphs_ingore = {"sssp": ["road_full_us", "road_central_us"],
+                          "bfs": ["road_full_us", "road_central_us"]}
 
 
 #snap_links = {"web_berk_stan": "web-BerkStan.txt.gz",

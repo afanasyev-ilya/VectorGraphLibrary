@@ -39,6 +39,10 @@ def benchmark_app(app_name, arch, benchmarking_results):
         benchmarking_results.add_performance_test_name_to_xls_table(app_name, current_args + common_args)
 
         for current_graph in list_of_graphs:
+            if app_name in apps_and_graphs_ingore and current_graph in apps_and_graphs_ingore[app_name]:
+                print("graph " + current_graph + " is set to be ignored for app " + app_name + "!")
+                continue
+
             cmd = [get_binary_path(app_name, arch), "-load", get_path_to_graph(current_graph)] + current_args + common_args
             print(' '.join(cmd))
             proc = subprocess.Popen(cmd, shell=False, stdout=subprocess.PIPE)
