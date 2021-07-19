@@ -66,6 +66,17 @@ def find(graphs_criteria, projection=None):
         return []
 
 
+def find_one(graphs_criteria):
+    try:
+        connect = pymongo.MongoClient('mongodb://localhost:27017/')
+        db = connect.vgl_rankings_db
+        collection = db.performance_data
+        return collection.find_one(graphs_criteria)
+    except pymongo.errors.ServerSelectionTimeoutError as err:
+        print(err)
+        return None
+
+
 def update_perf(search_criteria, new_perf):
     try:
         connect = pymongo.MongoClient('mongodb://localhost:27017/')

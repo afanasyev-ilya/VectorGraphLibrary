@@ -22,13 +22,42 @@
     <br/>
 </div>
 
-<b>social input</b>
-<input type="range" min="0" max="100" value="50" class="slider" id="slider_social_input">
 
-<b>web input</b>
-<input type="range" min="0" max="100" value="50" class="slider" id="slider_web_input">
+{% if slider_vals is none %}
+<form method="GET" action="{{url_for('update_rating')}}">
+    <b>synthetic input</b>
+    <input type="range" min="0" max="100" value="100" class="slider" name="synthetic">
+    <br/>
+    <b>social input</b>
+    <input type="range" min="0" max="100" value="100" class="slider" name="Online social network">
+    <br/>
+    <b>web input</b>
+    <input type="range" min="0" max="100" value="100" class="slider" name="Hyperlink network">
+    <br/>
+    <b>road input</b>
+    <input type="range" min="0" max="100" value="100" class="slider" name="Infrastructure network">
+    <br/>
+    <input type="submit" value="Submit">
+</form>
+{% else %}
+<form method="GET" action="{{url_for('update_rating')}}">
+    <b>synthetic input</b>
+    <input type="range" min="0" max="100" value="{{slider_vals['synthetic']}}" class="slider" name="synthetic">
+    <br/>
+    <b>social input</b>
+    <input type="range" min="0" max="100" value="{{slider_vals['Online social network']}}" class="slider" name="Online social network">
+    <br/>
+    <b>web input</b>
+    <input type="range" min="0" max="100" value="{{slider_vals['Hyperlink network']}}" class="slider" name="Hyperlink network">
+    <br/>
+    <b>road input</b>
+    <input type="range" min="0" max="100" value="{{slider_vals['Infrastructure network']}}" class="slider" name="Infrastructure network">
+    <br/>
+    <input type="submit" value="Submit">
+</form>
+{% endif %}
 
-<b>road input</b>
-<input type="range" min="0" max="100" value="50" class="slider" id="slider_road_input">
+
+{{slider_vals}}
 
 {% endblock %}

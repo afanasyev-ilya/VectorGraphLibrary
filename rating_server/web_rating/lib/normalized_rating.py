@@ -7,10 +7,6 @@ def print_db_contents():
         print(res)
 
 
-def build_rating_for_graph():
-    print("hehe")
-
-
 def get_max_perf(perf_data):
     max_perf = 0
     for val in perf_data:
@@ -25,11 +21,24 @@ def normalize(perf_data, max_perf):
     return perf_data
 
 
-def get_coefficient(graph, app):
+def get_graph_coef(graph_name, slider_values):
+    if slider_values == {}:
+        return 1.0
+    else:
+        graph_category = mongo_api.find_one({"graph_name": graph_name})["graph_category"]
+        k = float(slider_values[graph_category])/100.0
+        return k
+
+
+def get_app_coef(app, slider_values):
     return 1.0
 
 
-def compute_weighted_normalized_rating(graph_filter_criteria, apps_filter_criteria):
+def get_coefficient(graph, app, slider_values):
+    return get_graph_coef(graph, slider_values) * get_app_coef(app, slider_values)
+
+
+def compute_weighted_normalized_rating(graph_filter_criteria, apps_filter_criteria, slider_values):
     unique_graphs = mongo_api.distinct(graph_filter_criteria, "graph_name") # TODO select required graphs in query
     unique_apps = mongo_api.distinct(apps_filter_criteria, "app_name") # TODO select required apps in query
     unique_architectures = mongo_api.distinct({}, "arch_name")
@@ -46,26 +55,28 @@ def compute_weighted_normalized_rating(graph_filter_criteria, apps_filter_criter
             max_perf = get_max_perf(perf_data)
             normalized_data = normalize(perf_data, max_perf)
 
-            k = get_coefficient(graph, app)
+            k = get_coefficient(graph, app, slider_values)
             for data in normalized_data:
                 rating_values[data["arch_name"]] += k * data["perf_val"]
 
     return rating_values
 
 
-def get_list_rating():
+def get_list_rating(slider_values):
     rating_list = []
-    rating = compute_weighted_normalized_rating({}, {})
+    rating = compute_weighted_normalized_rating({}, {}, slider_values)
     data_sorted = {k: v for k, v in sorted(rating.items(), key=lambda x: x[1])}
     pos = 1
     for k in sorted(rating, key=rating.get, reverse=True):
-        rating_list.append({"pos": pos, "arch": str(k), "rating": str(rating[k])})
+        rating_val = float(rating[k])
+        rating_val = round(rating_val, 2)
+        rating_list.append({"pos": pos, "arch": str(k), "rating": str(rating_val)})
         pos += 1
     return rating_list
 
 
-def get_text_rating():
-    rating = compute_weighted_normalized_rating({}, {})
+def get_text_rating(slider_values):
+    rating = compute_weighted_normalized_rating({}, {}, slider_values)
     data_sorted = {k: v for k, v in sorted(rating.items(), key=lambda x: x[1])}
 
     text = ""
