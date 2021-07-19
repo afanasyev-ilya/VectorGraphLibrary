@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+
+{% extends "layout.html" %}
+
+{% block content %}
+<div class="home">
+    <h1>Normalized VGL rating: </h1> <br/>
+    <table width=\"100%\" border=\"" + str(border_size) + "\">
+    <tr>
+        <td bgcolor="FAEBD7">№</td>
+        <td bgcolor="FAEBD7">Архитектура</td>
+        <td bgcolor="FAEBD7">Рейтинг</td>
+    </tr>
+    {% for result in rating_data %}
+    <tr>
+        <td bgcolor="F0F8FF">{{result.pos}}</td>
+        <td bgcolor="F0F8FF">{{result.arch}}</td>
+        <td bgcolor="F0F8FF">{{result.rating}}</td>
+    </tr>
+    {% endfor %}
+    </table>
+    <br/>
+</div>
+
+<b>social input</b>
+<input type="range" min="0" max="100" value="50" class="slider" id="slider_social_input">
+
+<b>web input</b>
+<input type="range" min="0" max="100" value="50" class="slider" id="slider_web_input">
+
+<b>road input</b>
+<input type="range" min="0" max="100" value="50" class="slider" id="slider_road_input">
+
+{% endblock %}
