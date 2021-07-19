@@ -1,8 +1,8 @@
 import pickle
 import socket
 import struct
-from lib import mongo_api
-from lib.meta_data import add_meta_data
+from web_rating.lib import mongo_api
+from web_rating.lib.meta_data import add_meta_data
 
 
 def verify_correctness(correctness_data):
@@ -32,7 +32,7 @@ def insert_data_into_db(received_data, arch):
 
 def update_data_in_db(received_data, arch):
     for new_val in received_data:
-        search_pattern = {"graph_name": new_val["graph_name"], "arch_name": arch}
+        search_pattern = {"graph_name": new_val["graph_name"], "arch_name": arch, "app_name": received_data["app_name"]}
         old_val = mongo_api.find(search_pattern)
 
         if len(old_val) > 0:
