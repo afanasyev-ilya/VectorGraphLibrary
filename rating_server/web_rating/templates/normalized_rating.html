@@ -24,7 +24,7 @@
 
 
 {% if slider_vals is none %}
-<form method="GET" action="{{url_for('update_rating')}}">
+<form method="GET" action="{{url_for('home')}}">
     <b>synthetic input</b>
     <input type="range" min="0" max="100" value="100" class="slider" name="synthetic">
     <br/>
@@ -40,7 +40,7 @@
     <input type="submit" value="Submit">
 </form>
 {% else %}
-<form method="GET" action="{{url_for('update_rating')}}">
+<form method="GET" action="{{url_for('home')}}">
     <b>synthetic input</b>
     <input type="range" min="0" max="100" value="{{slider_vals['synthetic']}}" class="slider" name="synthetic">
     <br/>
@@ -57,7 +57,28 @@
 </form>
 {% endif %}
 
-
 {{slider_vals}}
+<h1>Full performance table: </h1> <br/>
+<table border=\"" + str(border_size) + "\">
+<tr>
+    <td bgcolor="FAEBD7">алгоритм</td>
+    {%for graph_name in full_perf_table['pr']%}
+        <td bgcolor="FAEBD7"> {{graph_name}} </td>
+    {% endfor %}
+</tr>
+{%for app_name,app_data in full_perf_table.items() %}
+<tr>
+    <td> {{app_name}} </td>
+    {% for graph_name,graph_data in app_data.items() %}
+        <td>
+            {% for item in graph_data %}
+                {{item['arch_name']}}___{{item['perf_val']}}__MTEPS <br>
+            {% endfor %}
+        </td>
+    {% endfor %}
+</tr>
+{% endfor %}
+</table>
+<br/>
 
 {% endblock %}

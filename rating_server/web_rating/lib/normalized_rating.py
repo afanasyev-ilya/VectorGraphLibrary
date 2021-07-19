@@ -42,8 +42,6 @@ def compute_weighted_normalized_rating(graph_filter_criteria, apps_filter_criter
     unique_graphs = mongo_api.distinct(graph_filter_criteria, "graph_name") # TODO select required graphs in query
     unique_apps = mongo_api.distinct(apps_filter_criteria, "app_name") # TODO select required apps in query
     unique_architectures = mongo_api.distinct({}, "arch_name")
-    print(unique_graphs)
-    print(unique_apps)
 
     rating_values = {}
     for arch in unique_architectures:
@@ -51,7 +49,7 @@ def compute_weighted_normalized_rating(graph_filter_criteria, apps_filter_criter
 
     for app in unique_apps:
         for graph in unique_graphs:
-            perf_data = mongo_api.find({"graph_name": graph, "app_name": app}, {"arch_name": 1, "perf_val": 1})
+            perf_data = mongo_api.find({"graph_name": graph, "app_name": app}, {"arch_name": 1, "perf_val": 1}) # 1 means present
             max_perf = get_max_perf(perf_data)
             normalized_data = normalize(perf_data, max_perf)
 
@@ -60,6 +58,24 @@ def compute_weighted_normalized_rating(graph_filter_criteria, apps_filter_criter
                 rating_values[data["arch_name"]] += k * data["perf_val"]
 
     return rating_values
+
+
+def get_perf_table():
+    unique_graphs = mongo_api.distinct({}, "graph_name")
+    unique_apps = mongo_api.distinct({}, "app_name")
+    unique_architectures = mongo_api.distinct({}, "arch_name")
+
+    perf_table = {}
+
+    for app in unique_apps:
+        perf_table[app] = {}
+        for graph in unique_graphs:
+            perf_data = mongo_api.find({"graph_name": graph, "app_name": app}, {"arch_name": 1, "perf_val": 1})  # 1 means present
+            #del perf_data['_id']
+            perf_table[app][graph] = perf_data
+    #print(perf_table)
+    return perf_table
+
 
 
 def get_list_rating(slider_values):
