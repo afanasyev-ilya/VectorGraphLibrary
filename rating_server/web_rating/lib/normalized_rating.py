@@ -26,8 +26,11 @@ def get_graph_coef(graph_name, slider_values):
         return 1.0
     else:
         graph_category = mongo_api.find_one({"graph_name": graph_name})["graph_category"]
-        k = float(slider_values[graph_category])/100.0
-        return k
+        k1 = float(slider_values[graph_category])/100.0
+
+        graph_vertex_scale = mongo_api.find_one({"graph_name": graph_name})["vertex_scale"]
+        k2 = float(slider_values[graph_vertex_scale])/100.0
+        return k1 * k2
 
 
 def get_app_coef(app_name, slider_values):
