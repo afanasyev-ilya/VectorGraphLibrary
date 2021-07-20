@@ -33,6 +33,15 @@ def extract_category(line):
     return remove_prefix(line, "Category")
 
 
+#vertices scale tiny
+# small
+# medium
+# large
+
+#def get_vertices_scale(num_vertices):
+#    if num_vertices <
+
+
 def load_konect_metadata(graph_link):
     url = "http://konect.cc/networks/" + graph_link
     html = urlopen(url).read()

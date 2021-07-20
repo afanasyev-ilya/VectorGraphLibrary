@@ -23,41 +23,84 @@
 </div>
 
 
-{% if slider_vals is none %}
 <form method="GET" action="{{url_for('home')}}">
-    <b>synthetic input</b>
-    <input type="range" min="0" max="100" value="100" class="slider" name="synthetic">
-    <br/>
-    <b>social input</b>
-    <input type="range" min="0" max="100" value="100" class="slider" name="Online social network">
-    <br/>
-    <b>web input</b>
-    <input type="range" min="0" max="100" value="100" class="slider" name="Hyperlink network">
-    <br/>
-    <b>road input</b>
-    <input type="range" min="0" max="100" value="100" class="slider" name="Infrastructure network">
-    <br/>
-    <input type="submit" value="Submit">
-</form>
-{% else %}
-<form method="GET" action="{{url_for('home')}}">
-    <b>synthetic input</b>
-    <input type="range" min="0" max="100" value="{{slider_vals['synthetic']}}" class="slider" name="synthetic">
-    <br/>
-    <b>social input</b>
-    <input type="range" min="0" max="100" value="{{slider_vals['Online social network']}}" class="slider" name="Online social network">
-    <br/>
-    <b>web input</b>
-    <input type="range" min="0" max="100" value="{{slider_vals['Hyperlink network']}}" class="slider" name="Hyperlink network">
-    <br/>
-    <b>road input</b>
-    <input type="range" min="0" max="100" value="{{slider_vals['Infrastructure network']}}" class="slider" name="Infrastructure network">
-    <br/>
-    <input type="submit" value="Submit">
-</form>
-{% endif %}
+    <table width=\"100%\">
+        <tr>
+            <td>
+                <table>
+                    <tr>
+                        Input of graph category
+                    </tr>
+                    <tr>
+                        <td> <b>Synthetic</b> </td>
+                        <td>
+                            <input type="range" min="0" max="100" value="{{slider_vals['synthetic']}}" class="slider" name="synthetic">
+                        </td>
+                    </tr>
 
-{{slider_vals}}
+                    <tr>
+                        <td> <b>Social</b> </td>
+                        <td>
+                            <input type="range" min="0" max="100" value="{{slider_vals['Online social network']}}" class="slider" name="Online social network">
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td> <b>Hyperlink</b> </td>
+                        <td>
+                            <input type="range" min="0" max="100" value="{{slider_vals['Hyperlink network']}}" class="slider" name="Hyperlink network">
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td> <b>Infrastructure</b> </td>
+                        <td>
+                            <input type="range" min="0" max="100" value="{{slider_vals['Infrastructure network']}}" class="slider" name="Infrastructure network">
+                        </td>
+                    </tr>
+                </table>
+            </td>
+
+            <td>
+                <table>
+                    <tr>
+                        Algorithm input
+                    </tr>
+                    <tr>
+                        <td> <b>Page Rank</b> </td>
+                        <td>
+                            <input type="range" min="0" max="100" value="{{slider_vals['pr']}}" class="slider" name="pr">
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td> <b>HITS</b> </td>
+                        <td>
+                            <input type="range" min="0" max="100" value="{{slider_vals['hits']}}" class="slider" name="hits">
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td> <b>Shortest Paths</b> </td>
+                        <td>
+                            <input type="range" min="0" max="100" value="{{slider_vals['sssp']}}" class="slider" name="sssp">
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td> <b>BFS</b> </td>
+                        <td>
+                            <input type="range" min="0" max="100" value="{{slider_vals['bfs']}}" class="slider" name="bfs">
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    </table>
+    <input type="submit" value="Update Rating">
+</form>
+
+
 <h1>Full performance table: </h1> <br/>
 <table border=\"" + str(border_size) + "\">
 <tr>

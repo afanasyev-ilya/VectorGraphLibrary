@@ -30,8 +30,12 @@ def get_graph_coef(graph_name, slider_values):
         return k
 
 
-def get_app_coef(app, slider_values):
-    return 1.0
+def get_app_coef(app_name, slider_values):
+    if slider_values == {}:
+        return 1.0
+    else:
+        k = float(slider_values[app_name])/100.0
+        return k
 
 
 def get_coefficient(graph, app, slider_values):
@@ -63,7 +67,6 @@ def compute_weighted_normalized_rating(graph_filter_criteria, apps_filter_criter
 def get_perf_table():
     unique_graphs = mongo_api.distinct({}, "graph_name")
     unique_apps = mongo_api.distinct({}, "app_name")
-    unique_architectures = mongo_api.distinct({}, "arch_name")
 
     perf_table = {}
 
@@ -71,11 +74,8 @@ def get_perf_table():
         perf_table[app] = {}
         for graph in unique_graphs:
             perf_data = mongo_api.find({"graph_name": graph, "app_name": app}, {"arch_name": 1, "perf_val": 1})  # 1 means present
-            #del perf_data['_id']
             perf_table[app][graph] = perf_data
-    #print(perf_table)
     return perf_table
-
 
 
 def get_list_rating(slider_values):
