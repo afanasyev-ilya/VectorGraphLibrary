@@ -38,8 +38,15 @@ def extract_category(line):
 # medium
 # large
 
-#def get_vertices_scale(num_vertices):
-#    if num_vertices <
+def get_vertex_scale(num_vertices):
+    if num_vertices < pow(2, 16):
+        return "tiny_vertex_scale"
+    if pow(2, 16) <= num_vertices < pow(2, 22):
+        return "small_vertex_scale"
+    if pow(2, 22) <= num_vertices < pow(2, 24):
+        return "medium_vertex_scale"
+    else:
+        return "large_vertex_scale"
 
 
 def load_konect_metadata(graph_link):
@@ -69,12 +76,13 @@ def load_konect_metadata(graph_link):
     #print(edges_factor)
     #print(category)
 
-    meta_data_dict = {"graph_category": category}
+    meta_data_dict = {"graph_category": category, "vertex_scale": get_vertex_scale(vertices_count)}
     return meta_data_dict
 
 
 def compute_synthetic_metadata(graph_name):
-    meta_data_dict = {"graph_category": "synthetic"}
+    vertices_count = pow(2, int(graph_name.split("_")[2]))
+    meta_data_dict = {"graph_category": "synthetic", "vertex_scale": get_vertex_scale(vertices_count)}
     return meta_data_dict
 
 

@@ -16,10 +16,11 @@ def print_db_stats():
 
 def update_all_meta_data():
     mongo_api.print_collection()
+    print_db_stats()
     graph_names = mongo_api.distinct({}, "graph_name")
     for graph_name in graph_names:
         meta_data = get_meta_data(graph_name)
-        print(meta_data)
+        mongo_api.update_many({"graph_name": graph_name}, meta_data)
     print_db_stats()
 
 
