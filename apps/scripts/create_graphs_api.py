@@ -100,15 +100,17 @@ def create_real_world_graph(graph_name, arch):
         cmd = ["tar", "-xjf", tar_name, '-C', "./bin/source_graphs"]
         subprocess.call(cmd, shell=False, stdout=subprocess.PIPE)
 
-        source_name = "./bin/source_graphs/" + konect_graphs_data[graph_name]["link"] + "/out." + konect_graphs_data[graph_name]["link"]
-        #os.path.splitext(tar_name)[0]
+        if "unarch_graph_name" in konect_graphs_data[graph_name]:
+            source_name = "./bin/source_graphs/" + konect_graphs_data[graph_name]["link"] + "/out." + konect_graphs_data[graph_name]["unarch_graph_name"]
+        else:
+            source_name = "./bin/source_graphs/" + konect_graphs_data[graph_name]["link"] + "/out." + konect_graphs_data[graph_name]["link"]
 
         cmd = [get_binary_path("create_vgl_graphs", arch), "-convert", source_name, "-directed",
                "-file", output_graph_file_name]
         print(' '.join(cmd))
         subprocess.Popen(cmd, shell=False, stdout=subprocess.PIPE).wait()
-        verify_graph_existence(output_graph_file_name)
-        print("Graph " + output_graph_file_name + " has been created\n")
+        if verify_graph_existence(output_graph_file_name):
+            print("Graph " + output_graph_file_name + " has been created\n")
 
     if GENERATE_UNDIRECTED_GRAPHS:
         output_graph_file_name = get_path_to_graph(graph_name, True)
@@ -117,8 +119,8 @@ def create_real_world_graph(graph_name, arch):
                    "-file", output_graph_file_name]
             print(' '.join(cmd))
             subprocess.Popen(cmd, shell=False, stdout=subprocess.PIPE).wait()
-            verify_graph_existence(output_graph_file_name)
-            print("Graph " + output_graph_file_name + " has been created\n")
+            if verify_graph_existence(output_graph_file_name):
+                print("Graph " + output_graph_file_name + " has been created\n")
 
 
 def create_synthetic_graph(graph_name, arch):
@@ -133,8 +135,8 @@ def create_synthetic_graph(graph_name, arch):
                "-file", output_graph_file_name]
         print(' '.join(cmd))
         subprocess.Popen(cmd, shell=False, stdout=subprocess.PIPE).wait()
-        verify_graph_existence(output_graph_file_name)
-        print("Graph " + output_graph_file_name + " has been created\n")
+        if verify_graph_existence(output_graph_file_name):
+            print("Graph " + output_graph_file_name + " has been created\n")
 
     if GENERATE_UNDIRECTED_GRAPHS:
         output_graph_file_name = get_path_to_graph(graph_name, True)
@@ -143,8 +145,8 @@ def create_synthetic_graph(graph_name, arch):
                    "-type", type, "-undirected", "-file", output_graph_file_name]
             print(' '.join(cmd))
             subprocess.Popen(cmd, shell=False, stdout=subprocess.PIPE).wait()
-            verify_graph_existence(output_graph_file_name)
-            print("Graph " + output_graph_file_name + " has been created\n")
+            if verify_graph_existence(output_graph_file_name):
+                print("Graph " + output_graph_file_name + " has been created\n")
 
 
 def create_graph(graph_name, arch):

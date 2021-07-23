@@ -45,19 +45,36 @@ class BenchmarkMode(Enum):
 mode = BenchmarkMode.medium
 
 
+# how to add new graph with new category
+# 1. add link (http://konect.cc/networks/amazon/ for example) to both dicts
+# 2.
+
+
 konect_graphs_data = {"soc_pokec": {"link": "soc-pokec-relationships"},
-                      "web_baidu": {"link": "zhishi-baidu-internallink"},
-                      "road_california": {"link": "roadNet-CA"},
                       "soc_livejournal": {"link": "soc-LiveJournal1"},
-                      "road_full_us": {"link": "dimacs9-USA"},
-                      "road_central_us": {"link": "dimacs9-CTR"},
+                      "soc_orkut": {"link": "orkut-links"},
+                      "soc_catster_dogster": {"link": "petster-carnivore"},
+                      "soc_libimseti": {"link": "libimseti"}, # 157 degree
+                      "soc_youtube_friendship": {"link": "youtube-u-growth"}, # low friends - 5
+                      #
+                      "web_wikipedia_link_en": {"link": "wikipedia_link_en"},
+                      "web_baidu": {"link": "zhishi-baidu-internallink"},
                       "web_zhishi": {"link": "zhishi-all"},
                       "web_dbpedia": {"link": "dbpedia-link"},
-                      "soc_orkut": {"link": "orkut-links"}}
+                      "web_trackers": {"link": "trackers-trackers", "unarch_graph_name": "trackers"},
+                      #
+                      "road_full_us": {"link": "dimacs9-USA"},
+                      "road_central_us": {"link": "dimacs9-CTR"},
+                      "road_california": {"link": "roadNet-CA"},
+                      "road_eastern_us": {"link": "dimacs9-E"},
+                      "road_western_us": {"link": "dimacs9-W"},
+                      "road_colorado": {"link": "dimacs9-COL"},
+                      #
+                      "rating_yahoo_song": {"link": "yahoo-song"},
+                      "rating_amazon_ratings": {"link": "amazon-ratings"}}
 
-
-apps_and_graphs_ingore = {"sssp": ["road_full_us", "road_central_us"],
-                          "bfs": ["road_full_us", "road_central_us"]}
+apps_and_graphs_ingore = {"sssp": [],
+                          "bfs": []}
 
 
 #snap_links = {"web_berk_stan": "web-BerkStan.txt.gz",
