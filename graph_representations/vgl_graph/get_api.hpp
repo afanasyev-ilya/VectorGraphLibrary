@@ -1,0 +1,51 @@
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+int VGL_Graph::get_edge_dst(int _src_id, int _local_edge_pos, TraversalDirection _direction)
+{
+    if(_direction == SCATTER)
+        return this->outgoing_data->get_edge_dst(_src_id, _local_edge_pos);
+    else if(_direction == GATHER)
+        return this->incoming_data->get_edge_dst(_src_id, _local_edge_pos);
+    return -1;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+int VGL_Graph::get_incoming_edge_dst(int _src_id, int _local_edge_pos)
+{
+    return this->incoming_data->get_edge_dst(_src_id, _local_edge_pos);
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+int VGL_Graph::get_outgoing_edge_dst(int _src_id, int _local_edge_pos)
+{
+    return this->outgoing_data->get_edge_dst(_src_id, _local_edge_pos);
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+int VGL_Graph::get_connections_count(int _src_id, TraversalDirection _direction)
+{
+    if(_direction == SCATTER)
+        return this->outgoing_data->get_connections_count(_src_id);
+    else if(_direction == GATHER)
+        return this->incoming_data->get_connections_count(_src_id);
+    return -1;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+int VGL_Graph::get_incoming_connections_count(int _src_id)
+{
+    return this->incoming_data->get_connections_count(_src_id);
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+int VGL_Graph::get_outgoing_connections_count(int _src_id)
+{
+    return this->outgoing_data->get_connections_count(_src_id);
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

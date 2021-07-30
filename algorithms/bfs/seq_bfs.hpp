@@ -10,20 +10,17 @@ using namespace std;
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template <typename _T>
-void BFS::seq_top_down(VectCSRGraph &_graph,
+void BFS::seq_top_down(VGL_Graph &_graph,
                        VerticesArray<_T> &_levels,
                        int _source_vertex)
 {
-    VectorCSRGraph *outgoing_graph_ptr = _graph.get_outgoing_data();
-    LOAD_VECTOR_CSR_GRAPH_DATA((*outgoing_graph_ptr));
-
     _source_vertex = _graph.reorder(_source_vertex, ORIGINAL, SCATTER);
 
     Timer tm;
     tm.start();
 
     // Mark all the vertices as not visited
-    for(int i = 0; i < vertices_count; i++)
+    for(int i = 0; i < _graph.get_vertices_count(); i++)
         _levels[i] = UNVISITED_VERTEX;
 
     // Create a queue for BFS
@@ -51,7 +48,6 @@ void BFS::seq_top_down(VectCSRGraph &_graph,
         }
     }
     tm.end();
-
 
     #ifdef __PRINT_SAMPLES_PERFORMANCE_STATS__
     performance_stats.print_algorithm_performance_stats("BFS (Top-Down, Sequential)", tm.get_time(), _graph.get_edges_count());

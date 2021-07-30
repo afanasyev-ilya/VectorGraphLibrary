@@ -18,6 +18,14 @@ public:
     UndirectedGraph *get_incoming_data() { return incoming_data; };
     bool outgoing_is_stored() { return true; }; // TODO FIX
 
+    inline int get_edge_dst(int _src_id, int _local_edge_pos, TraversalDirection _direction);
+    inline int get_incoming_edge_dst(int _src_id, int _local_edge_pos);
+    inline int get_outgoing_edge_dst(int _src_id, int _local_edge_pos);
+
+    inline int get_connections_count(int _src_id, TraversalDirection _direction);
+    inline int get_incoming_connections_count(int _src_id);
+    inline int get_outgoing_connections_count(int _src_id);
+
     /* print API */
     void print();
     void print_size();
@@ -44,5 +52,6 @@ public:
 
 #include "vgl_graph.hpp"
 #include "reorder.hpp"
+#include "get_api.hpp"
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

@@ -42,13 +42,13 @@ public:
                                  int *_buffer1, int *_buffer2);
     #endif*/
 
-    /*template <typename _T>
-    static void seq_top_down(VectCSRGraph &_graph, VerticesArray<_T> &_levels, int _source_vertex);*/
+    template <typename _T>
+    static void seq_top_down(VGL_Graph &_graph, VerticesArray<_T> &_levels, int _source_vertex);
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-//#include "seq_bfs.hpp"
+#include "seq_bfs.hpp"
 #include "gpu_bfs.hpp"
 #include "bfs.hpp"
 #include "change_state/change_state.hpp"

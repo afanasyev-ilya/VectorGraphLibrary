@@ -37,13 +37,13 @@ int main(int argc, char **argv)
             int source_vertex = graph.select_random_vertex(ORIGINAL);
             BFS::vgl_top_down(graph, levels, source_vertex);
 
-            /*if(parser.get_check_flag())
+            if(parser.get_check_flag())
             {
                 VerticesArray<int> check_levels(graph, SCATTER);
                 BFS::seq_top_down(graph, check_levels, source_vertex);
 
                 verify_results(levels, check_levels, 0);
-            }*/
+            }
         }
         VGL_COMMON_API::stop_measuring_stats(graph.get_edges_count());
         VGL_COMMON_API::finalize_library();

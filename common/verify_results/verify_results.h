@@ -233,7 +233,7 @@ void print_component_sizes(VerticesArray<_T> &_components)
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template <typename _T>
-void verify_colors(VectCSRGraph &_graph, VerticesArray<_T> &_colors, int _error_count_print = 30)
+void verify_colors(VGL_Graph &_graph, VerticesArray<_T> &_colors, int _error_count_print = 30)
 {
     size_t error_count = 0;
     for(int src_id = 0; src_id < _graph.get_vertices_count(); src_id++)
