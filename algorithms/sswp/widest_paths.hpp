@@ -76,7 +76,7 @@ void SSWP::vgl_dijkstra(VectCSRGraph &_graph,
 
 /*
 #ifdef __USE_NEC_SX_AURORA__
-void SSWP::nec_dijkstra(UndirectedVectCSRGraph &_graph,
+void SSWP::nec_dijkstra(VectorCSRGraph &_graph,
                         _TEdgeWeight *_widths,
                         int _source_vertex,
                         AlgorithmTraversalType _traversal_direction)
@@ -84,7 +84,7 @@ void SSWP::nec_dijkstra(UndirectedVectCSRGraph &_graph,
     #ifdef __PRINT_SAMPLES_PERFORMANCE_STATS__
     double t1 = omp_get_wtime();
     #endif
-    LOAD_UNDIRECTED_VECT_CSR_GRAPH_DATA(_graph);
+    LOAD_VECTOR_CSR_GRAPH_DATA(_graph);
     _TEdgeWeight *old_widths = class_old_widths;
 
     frontier.set_all_active();

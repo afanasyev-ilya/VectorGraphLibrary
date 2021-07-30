@@ -30,10 +30,10 @@ void VectCSRGraph::init(int _vertices_count, long long _edges_count)
     incoming_graph = NULL;
 
     if(outgoing_is_stored())
-        outgoing_graph = new UndirectedVectCSRGraph(this->vertices_count, this->edges_count );
+        outgoing_graph = new VectorCSRGraph(this->vertices_count, this->edges_count );
 
     if(incoming_is_stored())
-        incoming_graph = new UndirectedVectCSRGraph(this->vertices_count, this->edges_count );
+        incoming_graph = new VectorCSRGraph(this->vertices_count, this->edges_count );
 
     MemoryAPI::allocate_array(&vertices_reorder_buffer, this->vertices_count);
 }

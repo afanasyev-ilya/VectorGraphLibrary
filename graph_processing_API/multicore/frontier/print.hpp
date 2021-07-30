@@ -34,7 +34,7 @@ void FrontierMulticore::print_stats()
 {
     #pragma omp master
     {
-        UndirectedVectCSRGraph *current_direction_graph;
+        VectorCSRGraph *current_direction_graph;
         if(graph_ptr->get_type() == VECT_CSR_GRAPH)
         {
             VectCSRGraph *vect_csr_ptr = (VectCSRGraph*)graph_ptr;

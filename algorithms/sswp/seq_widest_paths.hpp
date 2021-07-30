@@ -8,8 +8,8 @@ void SSWP::seq_dijkstra(VectCSRGraph &_graph,
                         VerticesArray<_T> &_widths,
                         int _source_vertex)
 {
-    UndirectedVectCSRGraph *outgoing_graph_ptr = _graph.get_outgoing_graph_ptr();
-    LOAD_UNDIRECTED_VECT_CSR_GRAPH_DATA((*outgoing_graph_ptr));
+    VectorCSRGraph *outgoing_graph_ptr = _graph.get_outgoing_graph_ptr();
+    LOAD_VECTOR_CSR_GRAPH_DATA((*outgoing_graph_ptr));
 
     _source_vertex = _graph.reorder(_source_vertex, ORIGINAL, SCATTER);
 

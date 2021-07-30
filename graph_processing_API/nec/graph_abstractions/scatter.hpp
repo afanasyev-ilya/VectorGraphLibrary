@@ -16,7 +16,7 @@ void GraphAbstractionsNEC::scatter(VectCSRGraph &_graph,
 {
     Timer tm;
     tm.start();
-    UndirectedVectCSRGraph *current_direction_graph;
+    VectorCSRGraph *current_direction_graph;
 
     if(current_traversal_direction != SCATTER)
     {
@@ -108,7 +108,7 @@ void GraphAbstractionsNEC::scatter(ShardedCSRGraph &_graph,
 
         for(int shard_id =  first_shard; shard_id < _graph.get_shards_number(); shard_id += shards_step)
         {
-            UndirectedVectCSRGraph *current_shard = _graph.get_outgoing_shard_ptr(shard_id);
+            VectorCSRGraph *current_shard = _graph.get_outgoing_shard_ptr(shard_id);
 
             // prepare user data for current shard
             for(auto& current_container : user_data_containers)

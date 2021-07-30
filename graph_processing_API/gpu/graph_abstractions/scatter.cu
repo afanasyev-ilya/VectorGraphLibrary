@@ -16,7 +16,7 @@ void GraphAbstractionsGPU::scatter(VectCSRGraph &_graph,
 {
     Timer tm;
     tm.start();
-    UndirectedVectCSRGraph *current_direction_graph;
+    VectorCSRGraph *current_direction_graph;
 
     if(current_traversal_direction != SCATTER)
     {

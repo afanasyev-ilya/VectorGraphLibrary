@@ -92,7 +92,7 @@ public:
     void test_full_advance();
 
     /* import and preprocess API */
-    // creates UndirectedVectCSRGraph format from EdgesListGraph
+    // creates VectorCSRGraph format from EdgesListGraph
     void import(EdgesListGraph &_old_graph, bool _random_shuffle_required = true);
 
     friend class GraphAbstractions;

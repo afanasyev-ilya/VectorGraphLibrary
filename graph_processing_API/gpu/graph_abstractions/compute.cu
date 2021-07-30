@@ -57,11 +57,11 @@ void __global__ compute_kernel_sparse(const int *_frontier_ids,
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template <typename ComputeOperation>
-void GraphAbstractionsGPU::compute_worker(UndirectedVectCSRGraph &_graph,
+void GraphAbstractionsGPU::compute_worker(VectorCSRGraph &_graph,
                                           FrontierGPU &_frontier,
                                           ComputeOperation &&compute_op)
 {
-    LOAD_UNDIRECTED_VECT_CSR_GRAPH_DATA(_graph);
+    LOAD_VECTOR_CSR_GRAPH_DATA(_graph);
 
     if(_frontier.type == ALL_ACTIVE_FRONTIER)
     {
@@ -97,7 +97,7 @@ void GraphAbstractionsGPU::compute(VectCSRGraph &_graph,
         throw "Error in GraphAbstractionsGPU::compute : wrong frontier direction";
     }
 
-    UndirectedVectCSRGraph *current_direction_graph;
+    VectorCSRGraph *current_direction_graph;
     if(current_traversal_direction == SCATTER)
     {
         current_direction_graph = _graph.get_outgoing_graph_ptr();

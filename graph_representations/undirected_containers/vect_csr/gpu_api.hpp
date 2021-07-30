@@ -3,7 +3,7 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #ifdef __USE_GPU__
-void UndirectedVectCSRGraph::move_to_device()
+void VectorCSRGraph::move_to_device()
 {
     if(this->graph_on_device)
     {
@@ -25,7 +25,7 @@ void UndirectedVectCSRGraph::move_to_device()
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #ifdef __USE_GPU__
-void UndirectedVectCSRGraph::move_to_host()
+void VectorCSRGraph::move_to_host()
 {
     if(!this->graph_on_device)
     {

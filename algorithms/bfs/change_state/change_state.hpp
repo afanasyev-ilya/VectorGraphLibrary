@@ -7,7 +7,7 @@
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-GraphStructure check_graph_structure(UndirectedVectCSRGraph &_graph)
+GraphStructure check_graph_structure(VectorCSRGraph &_graph)
 {
     int vertices_count    = _graph.get_vertices_count();
     long long edges_count = _graph.get_edges_count   ();

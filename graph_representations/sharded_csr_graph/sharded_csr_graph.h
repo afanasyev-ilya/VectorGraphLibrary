@@ -19,8 +19,8 @@ private:
     int shards_number;
     int max_cached_vertices;
 
-    UndirectedVectCSRGraph *outgoing_shards;
-    UndirectedVectCSRGraph *incoming_shards;
+    VectorCSRGraph *outgoing_shards;
+    VectorCSRGraph *incoming_shards;
 
     long long *vertices_reorder_buffer;
 
@@ -44,9 +44,9 @@ public:
 
     /* get API */
     inline int get_shards_number() {return shards_number;};
-    inline UndirectedVectCSRGraph *get_outgoing_shard_ptr(int _shard_id) {return &(outgoing_shards[_shard_id]);};
-    inline UndirectedVectCSRGraph *get_incoming_shard_ptr(int _shard_id) {return &(incoming_shards[_shard_id]);};
-    inline UndirectedVectCSRGraph *get_shard_ptr(int _shard_id, TraversalDirection _direction);
+    inline VectorCSRGraph *get_outgoing_shard_ptr(int _shard_id) {return &(outgoing_shards[_shard_id]);};
+    inline VectorCSRGraph *get_incoming_shard_ptr(int _shard_id) {return &(incoming_shards[_shard_id]);};
+    inline VectorCSRGraph *get_shard_ptr(int _shard_id, TraversalDirection _direction);
 
     inline long long get_edges_count_outgoing_shard(int _shard_id) {return outgoing_shards[_shard_id].get_edges_count();};
     inline long long get_edges_count_incoming_shard(int _shard_id) {return incoming_shards[_shard_id].get_edges_count();};

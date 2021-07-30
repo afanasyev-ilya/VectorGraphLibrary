@@ -2,7 +2,7 @@
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void UndirectedVectCSRGraph::extract_connection_count(EdgesContainer &_edges_container,
+void VectorCSRGraph::extract_connection_count(EdgesContainer &_edges_container,
                                                       int *_work_buffer,
                                                       int *_connections_array,
                                                       int _threads_num)
@@ -58,7 +58,7 @@ void UndirectedVectCSRGraph::extract_connection_count(EdgesContainer &_edges_con
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void UndirectedVectCSRGraph::sort_vertices_by_degree(int *_connections_array,
+void VectorCSRGraph::sort_vertices_by_degree(int *_connections_array,
                                                  vgl_sort_indexes *_sort_indexes,
                                                  int _el_vertices_count,
                                                  int *_forward_conversion,
@@ -100,7 +100,7 @@ void UndirectedVectCSRGraph::sort_vertices_by_degree(int *_connections_array,
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void UndirectedVectCSRGraph::construct_CSR(EdgesContainer &_edges_container)
+void VectorCSRGraph::construct_CSR(EdgesContainer &_edges_container)
 {
     Timer tm;
     tm.start();
@@ -154,7 +154,7 @@ void UndirectedVectCSRGraph::construct_CSR(EdgesContainer &_edges_container)
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void UndirectedVectCSRGraph::copy_edges_indexes(vgl_sort_indexes *_sort_indexes)
+void VectorCSRGraph::copy_edges_indexes(vgl_sort_indexes *_sort_indexes)
 {
     #pragma _NEC ivdep
     #pragma omp parallel for
@@ -166,7 +166,7 @@ void UndirectedVectCSRGraph::copy_edges_indexes(vgl_sort_indexes *_sort_indexes)
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void UndirectedVectCSRGraph::remove_loops_and_multiple_arcs()
+void VectorCSRGraph::remove_loops_and_multiple_arcs()
 {
     int *new_connections_count, *new_adjacent_ids;
     long long *new_vertex_pointers;
@@ -198,7 +198,7 @@ void UndirectedVectCSRGraph::remove_loops_and_multiple_arcs()
         new_edges_count += new_connections_count[src_id];
     }
 
-    cout << "UndirectedVectCSRGraph::remove_loops_and_multiple_arcs reduced edges from " << this->edges_count << " to " << new_edges_count << endl;
+    cout << "VectorCSRGraph::remove_loops_and_multiple_arcs reduced edges from " << this->edges_count << " to " << new_edges_count << endl;
     MemoryAPI::allocate_array(&new_adjacent_ids, new_edges_count);
 
     // obtain new vertex pointers
@@ -254,7 +254,7 @@ void UndirectedVectCSRGraph::remove_loops_and_multiple_arcs()
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void UndirectedVectCSRGraph::import(EdgesContainer &_edges_container)
+void VectorCSRGraph::import(EdgesContainer &_edges_container)
 {
     // get size of edges list graph
     int el_vertices_count = _edges_container.get_vertices_count();
@@ -339,7 +339,7 @@ void UndirectedVectCSRGraph::import(EdgesContainer &_edges_container)
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void UndirectedVectCSRGraph::sort_adjacent_edges()
+void VectorCSRGraph::sort_adjacent_edges()
 {
     for(long long cur_vertex = 0; cur_vertex < this->vertices_count; cur_vertex++)
     {

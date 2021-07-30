@@ -41,7 +41,7 @@ void GraphAbstractionsMulticore::advance_worker(EdgesListGraph &_graph,
 template <typename EdgeOperation, typename VertexPreprocessOperation,
         typename VertexPostprocessOperation, typename CollectiveEdgeOperation, typename CollectiveVertexPreprocessOperation,
         typename CollectiveVertexPostprocessOperation>
-void GraphAbstractionsMulticore::advance_worker(UndirectedVectCSRGraph &_graph,
+void GraphAbstractionsMulticore::advance_worker(VectorCSRGraph &_graph,
                                           FrontierMulticore &_frontier,
                                           EdgeOperation &&edge_op,
                                           VertexPreprocessOperation &&vertex_preprocess_op,
@@ -55,7 +55,7 @@ void GraphAbstractionsMulticore::advance_worker(UndirectedVectCSRGraph &_graph,
 {
     double wall_time = 0, ve_time = 0, vc_time = 0, collective_time = 0, t1 = 0, t2 = 0;
 
-    LOAD_UNDIRECTED_VECT_CSR_GRAPH_DATA(_graph);
+    LOAD_VECTOR_CSR_GRAPH_DATA(_graph);
     const int vector_engine_threshold_start = 0;
     const int vector_engine_threshold_end = _graph.get_vector_engine_threshold_vertex();
     const int vector_core_threshold_start = _graph.get_vector_engine_threshold_vertex();

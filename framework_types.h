@@ -6,7 +6,7 @@
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-class UndirectedVectCSRGraph;
+class VectorCSRGraph;
 class EdgesListGraph;
 class VectCSRGraph;
 class ShardedCSRGraph;
@@ -42,7 +42,7 @@ class GraphAnalytics;
 
 enum GraphType
 {
-    UNDIRECTED_VECT_CSR_GRAPH = 0,
+    VECTOR_CSR_GRAPH = 0,
     EDGES_LIST_GRAPH = 1,
     VECT_CSR_GRAPH = 2,
     SHARDED_CSR_GRAPH = 3,

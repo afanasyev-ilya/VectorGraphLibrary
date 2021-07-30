@@ -2,10 +2,10 @@
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void UndirectedVectCSRGraph::print()
+void VectorCSRGraph::print()
 {
     cout << endl;
-    cout << "UndirectedVectCSRGraph format" << endl;
+    cout << "VectorCSRGraph format" << endl;
 
     cout << "|V|=" << this->vertices_count << endl;
     cout << "|E|=" << this->edges_count << endl;
@@ -38,10 +38,10 @@ void UndirectedVectCSRGraph::print()
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template <typename _T>
-void UndirectedVectCSRGraph::print_with_weights(EdgesArray<_T> &_weights, TraversalDirection _direction)
+void VectorCSRGraph::print_with_weights(EdgesArray<_T> &_weights, TraversalDirection _direction)
 {
     cout << endl;
-    cout << "UndirectedVectCSRGraph format" << endl;
+    cout << "VectorCSRGraph format" << endl;
 
     cout << "|V|=" << this->vertices_count << endl;
     cout << "|E|=" << this->edges_count << endl;
@@ -78,16 +78,16 @@ void UndirectedVectCSRGraph::print_with_weights(EdgesArray<_T> &_weights, Traver
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void UndirectedVectCSRGraph::print_size()
+void VectorCSRGraph::print_size()
 {
-    cout << "Wall size (UndirectedVectCSRGraph): " << get_size()/1e9 << " GB" << endl;
+    cout << "Wall size (VectorCSRGraph): " << get_size()/1e9 << " GB" << endl;
     cout << "     CSR size: " << get_csr_size()/1e9 << " GB" << endl;
     cout << "     VE  size: " << get_ve_size()/1e9 << " GB" << endl;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-size_t UndirectedVectCSRGraph::get_size()
+size_t VectorCSRGraph::get_size()
 {
     size_t size = 0;
     size += sizeof(vertex_pointers[0])*(this->vertices_count+1);
@@ -100,7 +100,7 @@ size_t UndirectedVectCSRGraph::get_size()
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-size_t UndirectedVectCSRGraph::get_csr_size()
+size_t VectorCSRGraph::get_csr_size()
 {
     size_t size = 0;
     size += sizeof(vertex_pointers[0])*(this->vertices_count+1);
@@ -110,14 +110,14 @@ size_t UndirectedVectCSRGraph::get_csr_size()
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-size_t UndirectedVectCSRGraph::get_ve_size()
+size_t VectorCSRGraph::get_ve_size()
 {
     return last_vertices_ve.get_size() + sizeof(edges_reorder_indexes[0])*this->edges_count;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void UndirectedVectCSRGraph::print_vertex_information(int _src_id, int _num_edges)
+void VectorCSRGraph::print_vertex_information(int _src_id, int _num_edges)
 {
     cout << "vertex " << _src_id << " connected to: ";
     long long first = vertex_pointers[_src_id];
@@ -133,7 +133,7 @@ void UndirectedVectCSRGraph::print_vertex_information(int _src_id, int _num_edge
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void UndirectedVectCSRGraph::print_stats()
+void VectorCSRGraph::print_stats()
 {
     #ifdef __USE_NEC_SX_AURORA__
     cout << "threshold vertices: " << vector_engine_threshold_vertex << " " << vector_core_threshold_vertex << " " << vertices_count << endl;

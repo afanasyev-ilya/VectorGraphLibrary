@@ -4,7 +4,7 @@
 
 template <typename EdgeOperation, typename VertexPreprocessOperation,
         typename VertexPostprocessOperation>
-void GraphAbstractionsMulticore::vector_engine_per_vertex_kernel_sparse(UndirectedVectCSRGraph &_graph,
+void GraphAbstractionsMulticore::vector_engine_per_vertex_kernel_sparse(VectorCSRGraph &_graph,
                                                                   FrontierMulticore &_frontier,
                                                                   EdgeOperation edge_op,
                                                                   VertexPreprocessOperation vertex_preprocess_op,
@@ -17,7 +17,7 @@ void GraphAbstractionsMulticore::vector_engine_per_vertex_kernel_sparse(Undirect
     tm.start();
     #endif
 
-    LOAD_UNDIRECTED_VECT_CSR_GRAPH_DATA(_graph);
+    LOAD_VECTOR_CSR_GRAPH_DATA(_graph);
     int *frontier_ids = &(_frontier.get_ids()[0]);
     int frontier_segment_size = _frontier.get_vector_engine_part_size();
 
@@ -72,7 +72,7 @@ void GraphAbstractionsMulticore::vector_engine_per_vertex_kernel_sparse(Undirect
 
 template <typename EdgeOperation, typename VertexPreprocessOperation,
         typename VertexPostprocessOperation>
-void GraphAbstractionsMulticore::vector_core_per_vertex_kernel_sparse(UndirectedVectCSRGraph &_graph,
+void GraphAbstractionsMulticore::vector_core_per_vertex_kernel_sparse(VectorCSRGraph &_graph,
                                                                 FrontierMulticore &_frontier,
                                                                 EdgeOperation edge_op,
                                                                 VertexPreprocessOperation vertex_preprocess_op,
@@ -85,7 +85,7 @@ void GraphAbstractionsMulticore::vector_core_per_vertex_kernel_sparse(Undirected
     tm.start();
     #endif
 
-    LOAD_UNDIRECTED_VECT_CSR_GRAPH_DATA(_graph);
+    LOAD_VECTOR_CSR_GRAPH_DATA(_graph);
     int *frontier_ids = &(_frontier.get_ids()[_frontier.get_vector_engine_part_size()]);
     int frontier_segment_size = _frontier.get_vector_core_part_size();
 
@@ -132,7 +132,7 @@ void GraphAbstractionsMulticore::vector_core_per_vertex_kernel_sparse(Undirected
 
 template <typename EdgeOperation, typename VertexPreprocessOperation,
         typename VertexPostprocessOperation>
-void GraphAbstractionsMulticore::collective_vertex_processing_kernel_sparse(UndirectedVectCSRGraph &_graph,
+void GraphAbstractionsMulticore::collective_vertex_processing_kernel_sparse(VectorCSRGraph &_graph,
                                                                       FrontierMulticore &_frontier,
                                                                       const int _first_vertex,
                                                                       const int _last_vertex,
@@ -147,7 +147,7 @@ void GraphAbstractionsMulticore::collective_vertex_processing_kernel_sparse(Undi
     tm.start();
     #endif
 
-    LOAD_UNDIRECTED_VECT_CSR_GRAPH_DATA(_graph);
+    LOAD_VECTOR_CSR_GRAPH_DATA(_graph);
     int *frontier_ids = &(_frontier.get_ids()[_frontier.get_vector_core_part_size() + _frontier.get_vector_engine_part_size()]);
     int frontier_segment_size = _frontier.get_collective_part_size();
 

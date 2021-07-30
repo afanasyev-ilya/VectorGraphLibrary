@@ -4,7 +4,7 @@
 
 #ifdef __USE_NEC_SX_AURORA__
 
-bool MF::nec_bfs(UndirectedVectCSRGraph &_graph,
+bool MF::nec_bfs(VectorCSRGraph &_graph,
                  int _source,
                  int _sink,
                  int *_parents,
@@ -12,7 +12,7 @@ bool MF::nec_bfs(UndirectedVectCSRGraph &_graph,
                  GraphPrimitivesNEC &_graph_API,
                  FrontierNEC &_frontier)
 {
-    LOAD_UNDIRECTED_VECT_CSR_GRAPH_DATA(_graph);
+    LOAD_VECTOR_CSR_GRAPH_DATA(_graph);
     _frontier.set_all_active();
 
     auto init = [_parents, _source, _levels] __VGL_COMPUTE_ARGS__
@@ -81,13 +81,13 @@ void construct_path(int _source, int _sink, int *_parents, int *_path, int &_pat
 
 #ifdef __USE_NEC_SX_AURORA__
 
-_TEdgeWeight MF::nec_ford_fulkerson(UndirectedVectCSRGraph &_graph,
+_TEdgeWeight MF::nec_ford_fulkerson(VectorCSRGraph &_graph,
                                     int _source, int _sink)
 {
     GraphPrimitivesNEC graph_API;
     FrontierNEC frontier(_graph);
 
-    LOAD_UNDIRECTED_VECT_CSR_GRAPH_DATA(_graph);
+    LOAD_VECTOR_CSR_GRAPH_DATA(_graph);
 
     int *parents;
     int *levels;

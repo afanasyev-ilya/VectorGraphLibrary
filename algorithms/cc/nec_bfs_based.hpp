@@ -52,8 +52,8 @@ void CC::nec_bfs_based(VectCSRGraph &_graph, VerticesArray<_T> &_components)
     tm.start();
 
     //
-    UndirectedVectCSRGraph *outgoing_graph_ptr = _graph.get_outgoing_graph_ptr();
-    LOAD_UNDIRECTED_VECT_CSR_GRAPH_DATA((*outgoing_graph_ptr));
+    VectorCSRGraph *outgoing_graph_ptr = _graph.get_outgoing_graph_ptr();
+    LOAD_VECTOR_CSR_GRAPH_DATA((*outgoing_graph_ptr));
 
     //int vertices_count = _graph.get_vertices_count();
 

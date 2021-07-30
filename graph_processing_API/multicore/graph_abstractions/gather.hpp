@@ -16,7 +16,7 @@ void GraphAbstractionsMulticore::gather(VectCSRGraph &_graph,
 {
     Timer tm;
     tm.start();
-    UndirectedVectCSRGraph *current_direction_graph;
+    VectorCSRGraph *current_direction_graph;
 
     if(current_traversal_direction != GATHER)
     {
@@ -103,7 +103,7 @@ void GraphAbstractionsMulticore::gather(ShardedCSRGraph &_graph,
             throw "Error in GraphAbstractionsMulticore::gather : sparse/dense frontiers are currently not supported";
         }
 
-        UndirectedVectCSRGraph *current_shard = _graph.get_incoming_shard_ptr(shard_id);
+        VectorCSRGraph *current_shard = _graph.get_incoming_shard_ptr(shard_id);
 
         // prepare user data for current shard
         for(auto& current_container : user_data_containers)

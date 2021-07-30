@@ -2,21 +2,21 @@
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-int UndirectedVectCSRGraph::get_edge_dst(int _src_id, int _edge_pos)
+int VectorCSRGraph::get_edge_dst(int _src_id, int _edge_pos)
 {
     return adjacent_ids[vertex_pointers[_src_id] + _edge_pos];
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-int UndirectedVectCSRGraph::get_connections_count(int _vertex_id)
+int VectorCSRGraph::get_connections_count(int _vertex_id)
 {
     return (vertex_pointers[_vertex_id + 1] - vertex_pointers[_vertex_id]);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-long long UndirectedVectCSRGraph::get_csr_edge_id(int _src_id, int _dst_id)
+long long VectorCSRGraph::get_csr_edge_id(int _src_id, int _dst_id)
 {
     const long long int start = vertex_pointers[_src_id];
     const long long int end = vertex_pointers[_src_id + 1];
@@ -31,7 +31,7 @@ long long UndirectedVectCSRGraph::get_csr_edge_id(int _src_id, int _dst_id)
             return global_edge_pos;
         }
     }
-    throw "Error in UndirectedVectCSRGraph::get_csr_edge_id(): specified dst_id not found for current src vertex";
+    throw "Error in VectorCSRGraph::get_csr_edge_id(): specified dst_id not found for current src vertex";
     return -1;
 }
 
@@ -46,7 +46,7 @@ inline bool in_between(size_t _val, size_t _first, size_t _second)
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-int UndirectedVectCSRGraph::get_non_zero_degree_vertices_count()
+int VectorCSRGraph::get_non_zero_degree_vertices_count()
 {
     int result = this->vertices_count;
     #pragma omp parallel for
@@ -63,7 +63,7 @@ int UndirectedVectCSRGraph::get_non_zero_degree_vertices_count()
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #ifdef __USE_MPI__
-std::pair<int, int> UndirectedVectCSRGraph::get_mpi_thresholds(int _mpi_rank, int _v1, int _v2)
+std::pair<int, int> VectorCSRGraph::get_mpi_thresholds(int _mpi_rank, int _v1, int _v2)
 {
     size_t edges_counter = 0;
     int mpi_proc_num = vgl_library_data.get_mpi_proc_num();

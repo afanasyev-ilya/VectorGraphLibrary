@@ -3,7 +3,7 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template<typename _TVertexValue, typename _TEdgeWeight>
-void always_active(UndirectedVectCSRGraph &_graph,
+void always_active(VectorCSRGraph &_graph,
                    GraphAbstractionsGPU &graph_API,
                    FrontierGPU &frontier,
                    int *new_ptr,
@@ -36,7 +36,7 @@ void always_active(UndirectedVectCSRGraph &_graph,
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template<typename _TVertexValue, typename _TEdgeWeight>
-void active_passive_inner(UndirectedVectCSRGraph &_graph,
+void active_passive_inner(VectorCSRGraph &_graph,
                           GraphAbstractionsGPU &graph_API,
                           FrontierGPU &frontier,
                           int *new_ptr,
@@ -135,7 +135,7 @@ void active_passive_inner(UndirectedVectCSRGraph &_graph,
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template<typename _TVertexValue, typename _TEdgeWeight>
-void label_changed_on_previous_iteration(UndirectedVectCSRGraph &_graph,
+void label_changed_on_previous_iteration(VectorCSRGraph &_graph,
                                          GraphAbstractionsGPU &graph_API,
                                          FrontierGPU &frontier,
                                          int *new_ptr,
@@ -174,7 +174,7 @@ void label_changed_on_previous_iteration(UndirectedVectCSRGraph &_graph,
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template<typename _TVertexValue, typename _TEdgeWeight>
-void label_changed_recently(UndirectedVectCSRGraph &_graph,
+void label_changed_recently(VectorCSRGraph &_graph,
                             GraphAbstractionsGPU &graph_API,
                             FrontierGPU &frontier,
                             int *new_ptr,

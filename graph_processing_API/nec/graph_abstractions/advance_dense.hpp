@@ -4,7 +4,7 @@
 
 template <typename EdgeOperation, typename VertexPreprocessOperation,
         typename VertexPostprocessOperation>
-void GraphAbstractionsNEC::vector_engine_per_vertex_kernel_dense(UndirectedVectCSRGraph &_graph,
+void GraphAbstractionsNEC::vector_engine_per_vertex_kernel_dense(VectorCSRGraph &_graph,
                                                                  FrontierNEC &_frontier,
                                                                  const int _first_vertex,
                                                                  const int _last_vertex,
@@ -109,7 +109,7 @@ void GraphAbstractionsNEC::vector_engine_per_vertex_kernel_dense(UndirectedVectC
 
 template <typename EdgeOperation, typename VertexPreprocessOperation,
         typename VertexPostprocessOperation>
-void GraphAbstractionsNEC::vector_core_per_vertex_kernel_dense(UndirectedVectCSRGraph &_graph,
+void GraphAbstractionsNEC::vector_core_per_vertex_kernel_dense(VectorCSRGraph &_graph,
                                                                FrontierNEC &_frontier,
                                                                const int _first_vertex,
                                                                const int _last_vertex,
@@ -195,7 +195,7 @@ void GraphAbstractionsNEC::vector_core_per_vertex_kernel_dense(UndirectedVectCSR
 
 template <typename EdgeOperation, typename VertexPreprocessOperation,
         typename VertexPostprocessOperation>
-void GraphAbstractionsNEC::ve_collective_vertex_processing_kernel_dense(UndirectedVectCSRGraph &_graph,
+void GraphAbstractionsNEC::ve_collective_vertex_processing_kernel_dense(VectorCSRGraph &_graph,
                                                                         FrontierNEC &_frontier,
                                                                         const int _first_vertex,
                                                                         const int _last_vertex,
@@ -210,7 +210,7 @@ void GraphAbstractionsNEC::ve_collective_vertex_processing_kernel_dense(Undirect
     tm.start();
     #endif
 
-    LOAD_UNDIRECTED_VECT_CSR_GRAPH_DATA(_graph);
+    LOAD_VECTOR_CSR_GRAPH_DATA(_graph);
     int *frontier_flags        = _frontier.get_flags();
 
     TraversalDirection traversal = current_traversal_direction;

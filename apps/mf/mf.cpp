@@ -20,7 +20,7 @@ int main(int argc, char **argv)
         parser.parse_args(argc, argv);
 
         // load graph
-        UndirectedVectCSRGraph<int, int> graph;
+        VectorCSRGraph<int, int> graph;
         EdgesListGraph<int, int> rand_graph;
         if(parser.get_compute_mode() == GENERATE_NEW_GRAPH)
         {

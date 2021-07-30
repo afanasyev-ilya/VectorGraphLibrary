@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-UndirectedVectCSRGraph *VectCSRGraph::get_outgoing_graph_ptr()
+VectorCSRGraph *VectCSRGraph::get_outgoing_graph_ptr()
 {
     if(outgoing_is_stored())
     {
@@ -12,7 +12,7 @@ UndirectedVectCSRGraph *VectCSRGraph::get_outgoing_graph_ptr()
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-UndirectedVectCSRGraph *VectCSRGraph::get_incoming_graph_ptr()
+VectorCSRGraph *VectCSRGraph::get_incoming_graph_ptr()
 {
     if(incoming_is_stored())
     {
@@ -24,7 +24,7 @@ UndirectedVectCSRGraph *VectCSRGraph::get_incoming_graph_ptr()
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-UndirectedVectCSRGraph *VectCSRGraph::get_direction_graph_ptr(TraversalDirection _direction)
+VectorCSRGraph *VectCSRGraph::get_direction_graph_ptr(TraversalDirection _direction)
 {
     if(_direction == SCATTER)
         return this->get_outgoing_graph_ptr();

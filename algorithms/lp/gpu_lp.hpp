@@ -4,12 +4,12 @@
 
 #ifdef __USE_GPU__
 
-void LP::gpu_lp(UndirectedVectCSRGraph &_graph,
+void LP::gpu_lp(VectorCSRGraph &_graph,
                 int *_labels,
                 GpuActiveConditionType _gpu_active_condition_type,
                 int _max_iterations)
 {
-    LOAD_UNDIRECTED_VECT_CSR_GRAPH_DATA(_graph);
+    LOAD_VECTOR_CSR_GRAPH_DATA(_graph);
 
     int *device_labels;
     MemoryAPI::allocate_device_array(&device_labels, vertices_count);

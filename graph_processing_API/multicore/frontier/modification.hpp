@@ -25,7 +25,7 @@ void FrontierMulticore::add_vertex(int src_id)
         throw "Error in FrontierMulticore::add_vertex: VGL can not add vertex to non-empty frontier";
     }
 
-    UndirectedVectCSRGraph *current_direction_graph;
+    VectorCSRGraph *current_direction_graph;
     if(graph_ptr->get_type() == VECT_CSR_GRAPH)
     {
         VectCSRGraph *vect_csr_ptr = (VectCSRGraph*)graph_ptr;

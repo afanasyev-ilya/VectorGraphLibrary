@@ -21,7 +21,7 @@ int main(int argc, char **argv)
         Parser parser;
         parser.parse_args(argc, argv);
 
-        VGL_Graph main_graph(UNDIRECTED_VECT_CSR_GRAPH);
+        VGL_Graph main_graph(VECTOR_CSR_GRAPH);
 
         if(parser.get_compute_mode() == GENERATE_NEW_GRAPH)
         {

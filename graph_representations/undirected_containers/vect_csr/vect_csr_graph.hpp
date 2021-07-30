@@ -2,9 +2,9 @@
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-UndirectedVectCSRGraph::UndirectedVectCSRGraph(int _vertices_count, long long _edges_count)
+VectorCSRGraph::VectorCSRGraph(int _vertices_count, long long _edges_count)
 {
-    this->graph_type = UNDIRECTED_VECT_CSR_GRAPH;
+    this->graph_type = VECTOR_CSR_GRAPH;
     this->supported_direction = USE_SCATTER_ONLY;
 
     alloc(_vertices_count, _edges_count);
@@ -12,14 +12,14 @@ UndirectedVectCSRGraph::UndirectedVectCSRGraph(int _vertices_count, long long _e
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-UndirectedVectCSRGraph::~UndirectedVectCSRGraph()
+VectorCSRGraph::~VectorCSRGraph()
 {
     free();
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void UndirectedVectCSRGraph::alloc(int _vertices_count, long long _edges_count)
+void VectorCSRGraph::alloc(int _vertices_count, long long _edges_count)
 {
     this->vertices_count = _vertices_count;
     this->edges_count = _edges_count;
@@ -35,7 +35,7 @@ void UndirectedVectCSRGraph::alloc(int _vertices_count, long long _edges_count)
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void UndirectedVectCSRGraph::free()
+void VectorCSRGraph::free()
 {
     MemoryAPI::free_array(vertex_pointers);
     MemoryAPI::free_array(adjacent_ids);
@@ -48,7 +48,7 @@ void UndirectedVectCSRGraph::free()
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void UndirectedVectCSRGraph::resize(int _vertices_count, long long _edges_count)
+void VectorCSRGraph::resize(int _vertices_count, long long _edges_count)
 {
     this->free();
     this->alloc(_vertices_count, _edges_count);
@@ -57,7 +57,7 @@ void UndirectedVectCSRGraph::resize(int _vertices_count, long long _edges_count)
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template <typename _TVertexValue>
-void UndirectedVectCSRGraph::save_to_graphviz_file(string _file_name, VerticesArray<_TVertexValue> &_vertex_data,
+void VectorCSRGraph::save_to_graphviz_file(string _file_name, VerticesArray<_TVertexValue> &_vertex_data,
                                                VisualisationMode _visualisation_mode)
 {
     ofstream dot_output(_file_name.c_str());
@@ -95,7 +95,7 @@ void UndirectedVectCSRGraph::save_to_graphviz_file(string _file_name, VerticesAr
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-int UndirectedVectCSRGraph::select_random_vertex()
+int VectorCSRGraph::select_random_vertex()
 {
     int attempt_num = 0;
     while(attempt_num < ATTEMPTS_THRESHOLD)
@@ -105,13 +105,13 @@ int UndirectedVectCSRGraph::select_random_vertex()
             return vertex_id;
         attempt_num++;
     }
-    throw "Error in UndirectedVectCSRGraph::select_random_vertex: can not select non-zero degree vertex in ATTEMPTS_THRESHOLD attempts";
+    throw "Error in VectorCSRGraph::select_random_vertex: can not select non-zero degree vertex in ATTEMPTS_THRESHOLD attempts";
     return -1;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void UndirectedVectCSRGraph::save_main_content_to_binary_file(FILE *_graph_file)
+void VectorCSRGraph::save_main_content_to_binary_file(FILE *_graph_file)
 {
     fwrite(reinterpret_cast<const char*>(vertex_pointers), sizeof(long long), vertices_count + 1, _graph_file);
     fwrite(reinterpret_cast<const char*>(adjacent_ids), sizeof(int), edges_count, _graph_file);
@@ -123,7 +123,7 @@ void UndirectedVectCSRGraph::save_main_content_to_binary_file(FILE *_graph_file)
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void UndirectedVectCSRGraph::load_main_content_from_binary_file(FILE *_graph_file)
+void VectorCSRGraph::load_main_content_from_binary_file(FILE *_graph_file)
 {
     fread(reinterpret_cast<char*>(vertex_pointers), sizeof(long long), vertices_count + 1, _graph_file);
     fread(reinterpret_cast<char*>(adjacent_ids), sizeof(int), edges_count, _graph_file);
@@ -144,7 +144,7 @@ void UndirectedVectCSRGraph::load_main_content_from_binary_file(FILE *_graph_fil
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-bool UndirectedVectCSRGraph::save_to_binary_file(string _file_name)
+bool VectorCSRGraph::save_to_binary_file(string _file_name)
 {
     FILE *graph_file = fopen(_file_name.c_str(), "wb");
     if(graph_file == NULL)
@@ -165,7 +165,7 @@ bool UndirectedVectCSRGraph::save_to_binary_file(string _file_name)
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-bool UndirectedVectCSRGraph::load_from_binary_file(string _file_name)
+bool VectorCSRGraph::load_from_binary_file(string _file_name)
 {
     FILE * graph_file = fopen(_file_name.c_str(), "rb");
     cout << _file_name.c_str() << endl;
@@ -173,9 +173,9 @@ bool UndirectedVectCSRGraph::load_from_binary_file(string _file_name)
         return false;
 
     fread(reinterpret_cast<char*>(&(this->graph_type)), sizeof(GraphType), 1, graph_file);
-    if(this->graph_type != UNDIRECTED_VECT_CSR_GRAPH)
+    if(this->graph_type != VECTOR_CSR_GRAPH)
     {
-        throw "Error in UndirectedVectCSRGraph::load_from_binary_file : graph type in file is not equal to UNDIRECTED_VECT_CSR_GRAPH";
+        throw "Error in VectorCSRGraph::load_from_binary_file : graph type in file is not equal to VECTOR_CSR_GRAPH";
     }
 
     fread(reinterpret_cast<char*>(&this->vertices_count), sizeof(int), 1, graph_file);

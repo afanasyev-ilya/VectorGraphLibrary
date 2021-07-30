@@ -3,11 +3,11 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template <typename _T, typename ReduceOperation>
-_T GraphAbstractionsNEC::reduce_sum(UndirectedVectCSRGraph &_graph,
+_T GraphAbstractionsNEC::reduce_sum(VectorCSRGraph &_graph,
                                     FrontierNEC &_frontier,
                                     ReduceOperation &&reduce_op)
 {
-    LOAD_UNDIRECTED_VECT_CSR_GRAPH_DATA(_graph);
+    LOAD_VECTOR_CSR_GRAPH_DATA(_graph);
 
     _T reduce_result = 0.0;
 
@@ -93,7 +93,7 @@ _T GraphAbstractionsNEC::reduce(VectCSRGraph &_graph,
         throw "Error in GraphAbstractionsNEC::reduce : wrong frontier direction";
     }
 
-    UndirectedVectCSRGraph *current_direction_graph;
+    VectorCSRGraph *current_direction_graph;
     if(current_traversal_direction == SCATTER)
     {
         current_direction_graph = _graph.get_outgoing_graph_ptr();
@@ -138,7 +138,7 @@ _T GraphAbstractionsNEC::reduce(ShardedCSRGraph &_graph,
         throw "Error in GraphAbstractionsNEC::reduce : wrong frontier direction";
     }
 
-    UndirectedVectCSRGraph *current_direction_graph;
+    VectorCSRGraph *current_direction_graph;
     if(current_traversal_direction == SCATTER)
     {
         current_direction_graph = _graph.get_outgoing_shard_ptr(0); // TODO need rework for all shards (connections count problem)

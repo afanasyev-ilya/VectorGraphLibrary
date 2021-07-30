@@ -4,7 +4,7 @@
 
 template <typename EdgeOperation, typename VertexPreprocessOperation,
         typename VertexPostprocessOperation>
-void GraphAbstractionsNEC::vector_engine_per_vertex_kernel_all_active(UndirectedVectCSRGraph &_graph,
+void GraphAbstractionsNEC::vector_engine_per_vertex_kernel_all_active(VectorCSRGraph &_graph,
                                                                       const int _first_vertex,
                                                                       const int _last_vertex,
                                                                       EdgeOperation edge_op,
@@ -105,7 +105,7 @@ void GraphAbstractionsNEC::vector_engine_per_vertex_kernel_all_active(Undirected
 
 template <typename EdgeOperation, typename VertexPreprocessOperation,
         typename VertexPostprocessOperation>
-void GraphAbstractionsNEC::vector_core_per_vertex_kernel_all_active(UndirectedVectCSRGraph &_graph,
+void GraphAbstractionsNEC::vector_core_per_vertex_kernel_all_active(VectorCSRGraph &_graph,
                                                                     const int _first_vertex,
                                                                     const int _last_vertex,
                                                                     EdgeOperation edge_op,
@@ -205,7 +205,7 @@ void GraphAbstractionsNEC::vector_core_per_vertex_kernel_all_active(UndirectedVe
 
 template <typename EdgeOperation, typename VertexPreprocessOperation,
         typename VertexPostprocessOperation>
-void GraphAbstractionsNEC::ve_collective_vertex_processing_kernel_all_active(UndirectedVectCSRGraph &_graph,
+void GraphAbstractionsNEC::ve_collective_vertex_processing_kernel_all_active(VectorCSRGraph &_graph,
                                                                              const int _first_vertex,
                                                                              const int _last_vertex,
                                                                              EdgeOperation edge_op,
@@ -220,7 +220,7 @@ void GraphAbstractionsNEC::ve_collective_vertex_processing_kernel_all_active(Und
     tm.start();
     #endif
 
-    LOAD_UNDIRECTED_VECT_CSR_GRAPH_DATA(_graph);
+    LOAD_VECTOR_CSR_GRAPH_DATA(_graph);
 
     TraversalDirection traversal = current_traversal_direction;
     int storage = VE_STORAGE;

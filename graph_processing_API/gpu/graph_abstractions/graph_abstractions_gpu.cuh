@@ -14,7 +14,7 @@ private:
 
     template <typename EdgeOperation, typename VertexPreprocessOperation,
         typename VertexPostprocessOperation>
-    void advance_worker(UndirectedVectCSRGraph &_graph,
+    void advance_worker(VectorCSRGraph &_graph,
                         FrontierGPU &_frontier,
                         EdgeOperation edge_op,
                         VertexPreprocessOperation vertex_preprocess_op,
@@ -22,12 +22,12 @@ private:
                         bool _generate_frontier);
 
     template <typename ComputeOperation>
-    void compute_worker(UndirectedVectCSRGraph &_graph,
+    void compute_worker(VectorCSRGraph &_graph,
                         FrontierGPU &_frontier,
                         ComputeOperation &&compute_op);
 
     template <typename _T, typename ReduceOperation>
-    _T GraphAbstractionsGPU::reduce_worker(UndirectedVectCSRGraph &_graph,
+    _T GraphAbstractionsGPU::reduce_worker(VectorCSRGraph &_graph,
                                            FrontierGPU &_frontier,
                                            ReduceOperation &&reduce_op,
                                            REDUCE_TYPE _reduce_type);

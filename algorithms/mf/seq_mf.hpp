@@ -3,10 +3,10 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-bool MF::seq_bfs(UndirectedVectCSRGraph &_graph, int _source, int _sink, int *_parents)
+bool MF::seq_bfs(VectorCSRGraph &_graph, int _source, int _sink, int *_parents)
 {
     // Create a visited array and mark all vertices as not visited
-    LOAD_UNDIRECTED_VECT_CSR_GRAPH_DATA(_graph);
+    LOAD_VECTOR_CSR_GRAPH_DATA(_graph);
 
     bool *visited = new bool[vertices_count];
     memset(visited, 0, sizeof(bool)*vertices_count);
@@ -50,9 +50,9 @@ bool MF::seq_bfs(UndirectedVectCSRGraph &_graph, int _source, int _sink, int *_p
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-_TEdgeWeight MF::get_flow(UndirectedVectCSRGraph &_graph, int _src_id, int _dst_id)
+_TEdgeWeight MF::get_flow(VectorCSRGraph &_graph, int _src_id, int _dst_id)
 {
-    LOAD_UNDIRECTED_VECT_CSR_GRAPH_DATA(_graph);
+    LOAD_VECTOR_CSR_GRAPH_DATA(_graph);
 
     const long long edge_start = vertex_pointers[_src_id];
     const int connections_count = vertex_pointers[_src_id + 1] - vertex_pointers[_src_id];
@@ -71,9 +71,9 @@ _TEdgeWeight MF::get_flow(UndirectedVectCSRGraph &_graph, int _src_id, int _dst_
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-void MF::add_flow(UndirectedVectCSRGraph &_graph, int _src_id, int _dst_id, _TEdgeWeight update_val)
+void MF::add_flow(VectorCSRGraph &_graph, int _src_id, int _dst_id, _TEdgeWeight update_val)
 {
-    LOAD_UNDIRECTED_VECT_CSR_GRAPH_DATA(_graph);
+    LOAD_VECTOR_CSR_GRAPH_DATA(_graph);
 
     const long long edge_start = vertex_pointers[_src_id];
     const int connections_count = vertex_pointers[_src_id + 1] - vertex_pointers[_src_id];
@@ -91,9 +91,9 @@ void MF::add_flow(UndirectedVectCSRGraph &_graph, int _src_id, int _dst_id, _TEd
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-void MF::subtract_flow(UndirectedVectCSRGraph &_graph, int _src_id, int _dst_id, _TEdgeWeight update_val)
+void MF::subtract_flow(VectorCSRGraph &_graph, int _src_id, int _dst_id, _TEdgeWeight update_val)
 {
-    LOAD_UNDIRECTED_VECT_CSR_GRAPH_DATA(_graph);
+    LOAD_VECTOR_CSR_GRAPH_DATA(_graph);
 
     const long long edge_start = vertex_pointers[_src_id];
     const int connections_count = vertex_pointers[_src_id + 1] - vertex_pointers[_src_id];
@@ -111,10 +111,10 @@ void MF::subtract_flow(UndirectedVectCSRGraph &_graph, int _src_id, int _dst_id,
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-_TEdgeWeight MF::seq_ford_fulkerson(UndirectedVectCSRGraph &_graph,
+_TEdgeWeight MF::seq_ford_fulkerson(VectorCSRGraph &_graph,
                                     int _source, int _sink)
 {
-    LOAD_UNDIRECTED_VECT_CSR_GRAPH_DATA(_graph);
+    LOAD_VECTOR_CSR_GRAPH_DATA(_graph);
 
     int *parents;
     MemoryAPI::allocate_array(&parents, vertices_count);

@@ -18,8 +18,8 @@
 class VectCSRGraph : public BaseGraph
 {
 private:
-    UndirectedVectCSRGraph *outgoing_graph;
-    UndirectedVectCSRGraph *incoming_graph;
+    VectorCSRGraph *outgoing_graph;
+    VectorCSRGraph *incoming_graph;
 
     long long *vertices_reorder_buffer;
 
@@ -88,9 +88,9 @@ public:
     /* Further - VectCSRGraph specific API : reorder, working with double-directions, etc.*/
 
     // get pointers to the specific undirected part of graph (incoming or outgoing ids)
-    UndirectedVectCSRGraph *get_outgoing_graph_ptr();
-    UndirectedVectCSRGraph *get_incoming_graph_ptr();
-    UndirectedVectCSRGraph *get_direction_graph_ptr(TraversalDirection _direction);
+    VectorCSRGraph *get_outgoing_graph_ptr();
+    VectorCSRGraph *get_incoming_graph_ptr();
+    VectorCSRGraph *get_direction_graph_ptr(TraversalDirection _direction);
 
     // allows to get vector engine size
     inline long long get_edges_count_in_outgoing_ve();

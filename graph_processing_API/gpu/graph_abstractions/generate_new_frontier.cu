@@ -60,8 +60,8 @@ void GraphAbstractionsGPU::generate_new_frontier(VectCSRGraph &_graph,
     _frontier.set_direction(current_traversal_direction);
     _frontier.type = SPARSE_FRONTIER; // TODO
 
-    UndirectedVectCSRGraph *current_direction_graph = _graph.get_direction_graph_ptr(current_traversal_direction);
-    LOAD_UNDIRECTED_VECT_CSR_GRAPH_DATA((*current_direction_graph));
+    VectorCSRGraph *current_direction_graph = _graph.get_direction_graph_ptr(current_traversal_direction);
+    LOAD_VECTOR_CSR_GRAPH_DATA((*current_direction_graph));
 
     // generate frontier flags
     SAFE_KERNEL_CALL((copy_frontier_ids_kernel<<<(vertices_count - 1)/BLOCK_SIZE + 1, BLOCK_SIZE>>>(_frontier.ids, _frontier.flags,

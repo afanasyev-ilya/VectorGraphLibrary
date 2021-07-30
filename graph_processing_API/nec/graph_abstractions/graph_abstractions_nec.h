@@ -33,20 +33,20 @@ private:
 
     // compute inner implementation
     template <typename ComputeOperation>
-    void compute_worker(UndirectedVectCSRGraph &_graph,
+    void compute_worker(VectorCSRGraph &_graph,
                         FrontierNEC &_frontier,
                         ComputeOperation &&compute_op);
 
     // reduce inner implementation
     template <typename _T, typename ReduceOperation>
-    _T reduce_sum(UndirectedVectCSRGraph &_graph,
+    _T reduce_sum(VectorCSRGraph &_graph,
                   FrontierNEC &_frontier,
                   ReduceOperation &&reduce_op);
 
     template <typename EdgeOperation, typename VertexPreprocessOperation,
             typename VertexPostprocessOperation, typename CollectiveEdgeOperation, typename CollectiveVertexPreprocessOperation,
             typename CollectiveVertexPostprocessOperation>
-    void advance_worker(UndirectedVectCSRGraph &_graph,
+    void advance_worker(VectorCSRGraph &_graph,
                         FrontierNEC &_frontier,
                         EdgeOperation &&edge_op,
                         VertexPreprocessOperation &&vertex_preprocess_op,
@@ -65,7 +65,7 @@ private:
     // all-active advance inner implementation
     template <typename EdgeOperation, typename VertexPreprocessOperation,
             typename VertexPostprocessOperation>
-    inline void vector_engine_per_vertex_kernel_all_active(UndirectedVectCSRGraph &_graph,
+    inline void vector_engine_per_vertex_kernel_all_active(VectorCSRGraph &_graph,
                                                            const int _first_vertex,
                                                            const int _last_vertex,
                                                            EdgeOperation edge_op,
@@ -78,7 +78,7 @@ private:
     // all-active advance inner implementation
     template <typename EdgeOperation, typename VertexPreprocessOperation,
             typename VertexPostprocessOperation>
-    inline void vector_core_per_vertex_kernel_all_active(UndirectedVectCSRGraph &_graph,
+    inline void vector_core_per_vertex_kernel_all_active(VectorCSRGraph &_graph,
                                                          const int _first_vertex,
                                                          const int _last_vertex,
                                                          EdgeOperation edge_op,
@@ -91,7 +91,7 @@ private:
     // all-active advance inner implementation
     template <typename EdgeOperation, typename VertexPreprocessOperation,
             typename VertexPostprocessOperation>
-    inline void ve_collective_vertex_processing_kernel_all_active(UndirectedVectCSRGraph &_graph,
+    inline void ve_collective_vertex_processing_kernel_all_active(VectorCSRGraph &_graph,
                                                                   const int _first_vertex,
                                                                   const int _last_vertex,
                                                                   EdgeOperation edge_op,
@@ -104,7 +104,7 @@ private:
     // dense advance implementation
     template <typename EdgeOperation, typename VertexPreprocessOperation,
             typename VertexPostprocessOperation>
-    inline void vector_engine_per_vertex_kernel_dense(UndirectedVectCSRGraph &_graph,
+    inline void vector_engine_per_vertex_kernel_dense(VectorCSRGraph &_graph,
                                                       FrontierNEC &_frontier,
                                                       const int _first_vertex,
                                                       const int _last_vertex,
@@ -117,7 +117,7 @@ private:
     // dense advance implementation
     template <typename EdgeOperation, typename VertexPreprocessOperation,
             typename VertexPostprocessOperation>
-    inline void vector_core_per_vertex_kernel_dense(UndirectedVectCSRGraph &_graph,
+    inline void vector_core_per_vertex_kernel_dense(VectorCSRGraph &_graph,
                                                     FrontierNEC &_frontier,
                                                     const int _first_vertex,
                                                     const int _last_vertex,
@@ -130,7 +130,7 @@ private:
     // dense advance implementation
     template <typename EdgeOperation, typename VertexPreprocessOperation,
             typename VertexPostprocessOperation>
-    inline void ve_collective_vertex_processing_kernel_dense(UndirectedVectCSRGraph &_graph,
+    inline void ve_collective_vertex_processing_kernel_dense(VectorCSRGraph &_graph,
                                                              FrontierNEC &_frontier,
                                                              const int _first_vertex,
                                                              const int _last_vertex,
@@ -143,7 +143,7 @@ private:
     // sparse advance implementation
     template <typename EdgeOperation, typename VertexPreprocessOperation,
             typename VertexPostprocessOperation>
-    inline void vector_engine_per_vertex_kernel_sparse(UndirectedVectCSRGraph &_graph,
+    inline void vector_engine_per_vertex_kernel_sparse(VectorCSRGraph &_graph,
                                                        FrontierNEC &_frontier,
                                                        EdgeOperation edge_op,
                                                        VertexPreprocessOperation vertex_preprocess_op,
@@ -154,7 +154,7 @@ private:
     // sparse advance implementation
     template <typename EdgeOperation, typename VertexPreprocessOperation,
             typename VertexPostprocessOperation>
-    inline void vector_core_per_vertex_kernel_sparse(UndirectedVectCSRGraph &_graph,
+    inline void vector_core_per_vertex_kernel_sparse(VectorCSRGraph &_graph,
                                                      FrontierNEC &_frontier,
                                                      EdgeOperation edge_op,
                                                      VertexPreprocessOperation vertex_preprocess_op,
@@ -165,7 +165,7 @@ private:
     // sparse advance implementation
     template <typename EdgeOperation, typename VertexPreprocessOperation,
             typename VertexPostprocessOperation>
-    inline void collective_vertex_processing_kernel_sparse(UndirectedVectCSRGraph &_graph,
+    inline void collective_vertex_processing_kernel_sparse(VectorCSRGraph &_graph,
                                                            FrontierNEC &_frontier,
                                                            const int _first_vertex,
                                                            const int _last_vertex,
