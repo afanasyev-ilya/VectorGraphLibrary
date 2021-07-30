@@ -16,6 +16,7 @@ public:
     UndirectedGraph *get_direction_data(TraversalDirection _direction);
     UndirectedGraph *get_outgoing_data() { return outgoing_data; };
     UndirectedGraph *get_incoming_data() { return incoming_data; };
+    bool outgoing_is_stored() { return true; }; // TODO FIX
 
     /* print API */
     void print();

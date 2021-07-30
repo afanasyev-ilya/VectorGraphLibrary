@@ -14,14 +14,13 @@ GraphAbstractions::GraphAbstractions()
 
 }
 
-/*
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template <typename EdgeOperation, typename VertexPreprocessOperation, typename VertexPostprocessOperation,
         typename CollectiveEdgeOperation, typename CollectiveVertexPreprocessOperation,
         typename CollectiveVertexPostprocessOperation>
-void GraphAbstractions::scatter(VectCSRGraph &_graph,
-                                FrontierNEC &_frontier,
+void GraphAbstractions::scatter(VGL_Graph &_graph,
+                                VGL_Frontier &_frontier,
                                 EdgeOperation &&edge_op,
                                 VertexPreprocessOperation &&vertex_preprocess_op,
                                 VertexPostprocessOperation &&vertex_postprocess_op,
@@ -37,8 +36,8 @@ void GraphAbstractions::scatter(VectCSRGraph &_graph,
 template <typename EdgeOperation, typename VertexPreprocessOperation, typename VertexPostprocessOperation,
         typename CollectiveEdgeOperation, typename CollectiveVertexPreprocessOperation,
         typename CollectiveVertexPostprocessOperation>
-void GraphAbstractions::gather(VectCSRGraph &_graph,
-                               FrontierNEC &_frontier,
+void GraphAbstractions::gather(VGL_Graph &_graph,
+                               VGL_Frontier &_frontier,
                                EdgeOperation &&edge_op,
                                VertexPreprocessOperation &&vertex_preprocess_op,
                                VertexPostprocessOperation &&vertex_postprocess_op,
@@ -47,7 +46,7 @@ void GraphAbstractions::gather(VectCSRGraph &_graph,
                                CollectiveVertexPostprocessOperation &&collective_vertex_postprocess_op)
 {
 
-}*/
+}
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -60,10 +59,10 @@ void GraphAbstractions::compute(VGL_Graph &_graph,
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
+
 template <typename _T, typename ReduceOperation>
-_T GraphAbstractions::reduce(VectCSRGraph &_graph,
-                             FrontierNEC &_frontier,
+_T GraphAbstractions::reduce(VGL_Graph &_graph,
+                             VGL_Frontier &_frontier,
                              ReduceOperation &&reduce_op,
                              REDUCE_TYPE _reduce_type)
 {
@@ -73,8 +72,8 @@ _T GraphAbstractions::reduce(VectCSRGraph &_graph,
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template <typename FilterCondition>
-void GraphAbstractions::generate_new_frontier(VectCSRGraph &_graph,
-                                              FrontierNEC &_frontier,
+void GraphAbstractions::generate_new_frontier(VGL_Graph &_graph,
+                                              VGL_Frontier &_frontier,
                                               FilterCondition &&filter_cond)
 {
 
@@ -137,7 +136,7 @@ void GraphAbstractions::attach_data(VerticesArray<_T> &_array)
 {
     user_data_containers.push_back(&_array);
 }
-*/
+
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 

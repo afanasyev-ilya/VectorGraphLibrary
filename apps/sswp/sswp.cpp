@@ -77,6 +77,37 @@ int main(int argc, char **argv)
         frontier.clear();
         frontier.add_vertex(source_vertex);
 
+        int current_level = 1;
+        // Loop over BFS levels. If level (frontier) contains no vertices, stop the algorithm.
+        while(frontier.size() > 0)
+        {
+            // For each vertex, visit all its outgoing edges (scatter direction).
+            auto edge_op = [levels, current_level](int src_id, int dst_id, int local_edge_pos,
+                                                       long long int global_edge_pos, int vector_index, DelayedWriteNEC &delayed_write)
+            {
+                int src_level = levels[src_id];
+                int dst_level = levels[dst_id];
+                if((src_level == current_level) && (dst_level == -1))
+                {
+                    levels[dst_id] = current_level + 1;
+                }
+            };
+            graph_API.scatter(graph, frontier, edge_op);
+
+            /*// Generate a new level of graph vertices, which have been visited in scatter abstraction.
+            auto on_next_level = [levels_ptr, current_level] (int src_id, int connections_count)->int
+            {
+                int result = NOT_IN_FRONTIER_FLAG;
+                if(levels_ptr[src_id] == (current_level + 1))
+                    result = IN_FRONTIER_FLAG;
+                return result;
+            };
+            graph_API.generate_new_frontier(graph, frontier, on_next_level);*/
+
+            break;
+
+            current_level++;
+        }
 
         /*EdgesArray_Vect<float> capacities(graph);
         //capacities.set_all_random(MAX_WEIGHT);

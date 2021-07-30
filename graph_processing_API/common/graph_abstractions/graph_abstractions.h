@@ -21,13 +21,12 @@ public:
     // attaches graph-processing API to the specific graph
     GraphAbstractions();
 
-    /*
     // performs user-defined "edge_op" operation over all OUTGOING edges, neighbouring specified frontier
     template <typename EdgeOperation, typename VertexPreprocessOperation, typename VertexPostprocessOperation,
             typename CollectiveEdgeOperation, typename CollectiveVertexPreprocessOperation,
             typename CollectiveVertexPostprocessOperation>
-    void scatter(VectCSRGraph &_graph,
-                 FrontierNEC &_frontier,
+    void scatter(VGL_Graph &_graph,
+                 VGL_Frontier &_frontier,
                  EdgeOperation &&edge_op,
                  VertexPreprocessOperation &&vertex_preprocess_op,
                  VertexPostprocessOperation &&vertex_postprocess_op,
@@ -39,14 +38,14 @@ public:
     template <typename EdgeOperation, typename VertexPreprocessOperation, typename VertexPostprocessOperation,
             typename CollectiveEdgeOperation, typename CollectiveVertexPreprocessOperation,
             typename CollectiveVertexPostprocessOperation>
-    void gather(VectCSRGraph &_graph,
-                FrontierNEC &_frontier,
+    void gather(VGL_Graph &_graph,
+                VGL_Frontier &_frontier,
                 EdgeOperation &&edge_op,
                 VertexPreprocessOperation &&vertex_preprocess_op,
                 VertexPostprocessOperation &&vertex_postprocess_op,
                 CollectiveEdgeOperation &&collective_edge_op,
                 CollectiveVertexPreprocessOperation &&collective_vertex_preprocess_op,
-                CollectiveVertexPostprocessOperation &&collective_vertex_postprocess_op);*/
+                CollectiveVertexPostprocessOperation &&collective_vertex_postprocess_op);
 
     // performs user-defined "compute_op" operation for each element in the given frontier
     template <typename ComputeOperation>
@@ -54,18 +53,18 @@ public:
                  VGL_Frontier &_frontier,
                  ComputeOperation &&compute_op);
 
-    /*// performs reduction using user-defined "reduce_op" operation for each element in the given frontier
+    // performs reduction using user-defined "reduce_op" operation for each element in the given frontier
     template <typename _T, typename ReduceOperation>
-    _T reduce(VectCSRGraph &_graph,
-              FrontierNEC &_frontier,
+    _T reduce(VGL_Graph &_graph,
+              VGL_Frontier &_frontier,
               ReduceOperation &&reduce_op,
               REDUCE_TYPE _reduce_type);
 
     // creates new frontier, which satisfy user-defined "cond" condition
     template <typename FilterCondition>
-    void generate_new_frontier(VectCSRGraph &_graph,
-                               FrontierNEC &_frontier,
-                               FilterCondition &&filter_cond);*/
+    void generate_new_frontier(VGL_Graph &_graph,
+                               VGL_Frontier &_frontier,
+                               FilterCondition &&filter_cond);
 
     // allows to check if multiple arrays (vertexArrays, frontiers) have correct direction
     bool have_correct_direction();

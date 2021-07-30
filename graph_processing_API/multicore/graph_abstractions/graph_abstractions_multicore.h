@@ -44,13 +44,13 @@ private:
     template <typename _T, typename ReduceOperation>
     _T reduce_sum(VectorCSRGraph &_graph,
                   FrontierMulticore &_frontier,
-                  ReduceOperation &&reduce_op);
+                  ReduceOperation &&reduce_op);*/
 
     template <typename EdgeOperation, typename VertexPreprocessOperation,
             typename VertexPostprocessOperation, typename CollectiveEdgeOperation, typename CollectiveVertexPreprocessOperation,
             typename CollectiveVertexPostprocessOperation>
     void advance_worker(VectorCSRGraph &_graph,
-                        FrontierMulticore &_frontier,
+                        VGL_Frontier &_frontier,
                         EdgeOperation &&edge_op,
                         VertexPreprocessOperation &&vertex_preprocess_op,
                         VertexPostprocessOperation &&vertex_postprocess_op,
@@ -65,7 +65,7 @@ private:
     void advance_worker(EdgesListGraph &_graph, EdgeOperation &&edge_op);
 
     // all-active advance inner implementation
-    template <typename EdgeOperation, typename VertexPreprocessOperation,
+    /*template <typename EdgeOperation, typename VertexPreprocessOperation,
             typename VertexPostprocessOperation>
     inline void vector_engine_per_vertex_kernel_all_active(VectorCSRGraph &_graph,
                                                            const int _first_vertex,
@@ -189,16 +189,12 @@ public:
     // attaches graph-processing API to the specific graph
     GraphAbstractionsMulticore(VGL_Graph &_graph, TraversalDirection _initial_traversal = SCATTER);
 
-    /*GraphAbstractionsMulticore(VectCSRGraph &_graph, TraversalDirection _initial_traversal = SCATTER);
-    GraphAbstractionsMulticore(ShardedCSRGraph &_graph, TraversalDirection _initial_traversal = SCATTER);
-    GraphAbstractionsMulticore(EdgesListGraph &_graph, TraversalDirection _initial_traversal = ORIGINAL);
-
     // performs user-defined "edge_op" operation over all OUTGOING edges, neighbouring specified frontier
     template <typename EdgeOperation, typename VertexPreprocessOperation, typename VertexPostprocessOperation,
             typename CollectiveEdgeOperation, typename CollectiveVertexPreprocessOperation,
             typename CollectiveVertexPostprocessOperation>
-    void scatter(VectCSRGraph &_graph,
-                 FrontierMulticore &_frontier,
+    void scatter(VGL_Graph &_graph,
+                 VGL_Frontier &_frontier,
                  EdgeOperation &&edge_op,
                  VertexPreprocessOperation &&vertex_preprocess_op,
                  VertexPostprocessOperation &&vertex_postprocess_op,
@@ -208,40 +204,16 @@ public:
 
     // performs user-defined "edge_op" operation over all OUTGOING edges, neighbouring specified frontier
     template <typename EdgeOperation>
-    void scatter(VectCSRGraph &_graph,
-                 FrontierMulticore &_frontier,
-                 EdgeOperation &&edge_op);
-
-    // performs user-defined "edge_op" operation over all OUTGOING edges, neighbouring specified frontier
-    template <typename EdgeOperation, typename VertexPreprocessOperation, typename VertexPostprocessOperation,
-            typename CollectiveEdgeOperation, typename CollectiveVertexPreprocessOperation,
-            typename CollectiveVertexPostprocessOperation>
-    void scatter(ShardedCSRGraph &_graph,
-                 FrontierMulticore &_frontier,
-                 EdgeOperation &&edge_op,
-                 VertexPreprocessOperation &&vertex_preprocess_op,
-                 VertexPostprocessOperation &&vertex_postprocess_op,
-                 CollectiveEdgeOperation &&collective_edge_op,
-                 CollectiveVertexPreprocessOperation &&collective_vertex_preprocess_op,
-                 CollectiveVertexPostprocessOperation &&collective_vertex_postprocess_op);
-
-    // performs user-defined "edge_op" operation over all OUTGOING edges, neighbouring specified frontier
-    template <typename EdgeOperation>
-    void scatter(ShardedCSRGraph &_graph,
-                 FrontierMulticore &_frontier,
-                 EdgeOperation &&edge_op);
-
-    // performs user-defined "edge_op" operation over all OUTGOING edges, neighbouring specified frontier
-    template <typename EdgeOperation>
-    void scatter(EdgesListGraph &_graph,
+    void scatter(VGL_Graph &_graph,
+                 VGL_Frontier &_frontier,
                  EdgeOperation &&edge_op);
 
     // performs user-defined "edge_op" operation over all INCOMING edges, neighbouring specified frontier
     template <typename EdgeOperation, typename VertexPreprocessOperation, typename VertexPostprocessOperation,
             typename CollectiveEdgeOperation, typename CollectiveVertexPreprocessOperation,
             typename CollectiveVertexPostprocessOperation>
-    void gather(VectCSRGraph &_graph,
-                FrontierMulticore &_frontier,
+    void gather(VGL_Graph &_graph,
+                VGL_Frontier &_frontier,
                 EdgeOperation &&edge_op,
                 VertexPreprocessOperation &&vertex_preprocess_op,
                 VertexPostprocessOperation &&vertex_postprocess_op,
@@ -251,28 +223,9 @@ public:
 
     // performs user-defined "edge_op" operation over all INCOMING edges, neighbouring specified frontier
     template <typename EdgeOperation>
-    void gather(VectCSRGraph &_graph,
-                FrontierMulticore &_frontier,
+    void gather(VGL_Graph &_graph,
+                VGL_Frontier &_frontier,
                 EdgeOperation &&edge_op);
-
-    // performs user-defined "edge_op" operation over all INCOMING edges, neighbouring specified frontier
-    template <typename EdgeOperation, typename VertexPreprocessOperation, typename VertexPostprocessOperation,
-            typename CollectiveEdgeOperation, typename CollectiveVertexPreprocessOperation,
-            typename CollectiveVertexPostprocessOperation>
-    void gather(ShardedCSRGraph &_graph,
-                FrontierMulticore &_frontier,
-                EdgeOperation &&edge_op,
-                VertexPreprocessOperation &&vertex_preprocess_op,
-                VertexPostprocessOperation &&vertex_postprocess_op,
-                CollectiveEdgeOperation &&collective_edge_op,
-                CollectiveVertexPreprocessOperation &&collective_vertex_preprocess_op,
-                CollectiveVertexPostprocessOperation &&collective_vertex_postprocess_op);
-
-    // performs user-defined "edge_op" operation over all INCOMING edges, neighbouring specified frontier
-    template <typename EdgeOperation>
-    void gather(ShardedCSRGraph &_graph,
-                FrontierMulticore &_frontier,
-                EdgeOperation &&edge_op);*/
 
     // performs user-defined "compute_op" operation for each element in the given frontier
     template <typename ComputeOperation>
@@ -281,12 +234,6 @@ public:
                  ComputeOperation &&compute_op);
 
     /*
-    // performs user-defined "compute_op" operation for each element in the given frontier
-    template <typename ComputeOperation>
-    void compute(ShardedCSRGraph &_graph,
-                 FrontierMulticore &_frontier,
-                 ComputeOperation &&compute_op);
-
     // performs reduction using user-defined "reduce_op" operation for each element in the given frontier
     template <typename _T, typename ReduceOperation>
     _T reduce(VectCSRGraph &_graph,
@@ -320,12 +267,13 @@ public:
 #include "helpers.hpp"
 #include "graph_abstractions_multicore.hpp"
 #include "compute.hpp"
-/*#include "scatter.hpp"
+#include "scatter.hpp"
 #include "gather.hpp"
 #include "advance_worker.hpp"
-#include "advance_all_active.hpp"
+/*#include "advance_all_active.hpp"
 #include "advance_dense.hpp"
 #include "advance_sparse.hpp"
+/*
 #include "generate_new_frontier.hpp"
 #include "reduce.hpp"*/
 
