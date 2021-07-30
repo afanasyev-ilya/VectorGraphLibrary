@@ -98,7 +98,7 @@ void GraphAbstractionsMulticore::gather(ShardedCSRGraph &_graph,
 
     for(int shard_id = 0; shard_id < _graph.get_shards_number(); shard_id++)
     {
-        if(_frontier.get_type() != ALL_ACTIVE_FRONTIER)
+        if(_frontier.get_sparsity_type() != ALL_ACTIVE_FRONTIER)
         {
             throw "Error in GraphAbstractionsMulticore::gather : sparse/dense frontiers are currently not supported";
         }

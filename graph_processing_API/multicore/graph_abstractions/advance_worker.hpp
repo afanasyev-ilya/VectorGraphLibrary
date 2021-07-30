@@ -63,7 +63,7 @@ void GraphAbstractionsMulticore::advance_worker(VectorCSRGraph &_graph,
     const int collective_threshold_start = _graph.get_vector_core_threshold_vertex();
     const int collective_threshold_end = _graph.get_vertices_count();
 
-    if(_frontier.type == ALL_ACTIVE_FRONTIER)
+    if(_frontier.get_sparsity_type() == ALL_ACTIVE_FRONTIER)
     {
         t1 = omp_get_wtime();
         if((vector_engine_threshold_end - vector_engine_threshold_start) > 0)
@@ -97,13 +97,13 @@ void GraphAbstractionsMulticore::advance_worker(VectorCSRGraph &_graph,
         if(_frontier.vector_engine_part_size > 0)
         {
             t1 = omp_get_wtime();
-            if (_frontier.type == DENSE_FRONTIER)
+            if (_frontier.get_sparsity_type() == DENSE_FRONTIER)
             {
                 vector_engine_per_vertex_kernel_dense(_graph, _frontier, vector_engine_threshold_start, vector_engine_threshold_end,
                                                       edge_op, vertex_preprocess_op, vertex_postprocess_op,
                                                       _first_edge, _outgoing_graph_is_stored);
             }
-            else if (_frontier.type == SPARSE_FRONTIER)
+            else if (_frontier.get_sparsity_type() == SPARSE_FRONTIER)
             {
                 vector_engine_per_vertex_kernel_sparse(_graph, _frontier, edge_op, vertex_preprocess_op, vertex_postprocess_op,
                                                        _first_edge, _outgoing_graph_is_stored);
@@ -115,12 +115,12 @@ void GraphAbstractionsMulticore::advance_worker(VectorCSRGraph &_graph,
         if(_frontier.vector_core_part_size > 0)
         {
             t1 = omp_get_wtime();
-            if(_frontier.type == DENSE_FRONTIER)
+            if(_frontier.get_sparsity_type() == DENSE_FRONTIER)
             {
                 vector_core_per_vertex_kernel_dense(_graph, _frontier, vector_core_threshold_start, vector_core_threshold_end, edge_op,
                                                     vertex_preprocess_op, vertex_postprocess_op, _first_edge, _outgoing_graph_is_stored);
             }
-            else if(_frontier.type == SPARSE_FRONTIER)
+            else if(_frontier.get_sparsity_type() == SPARSE_FRONTIER)
             {
                 vector_core_per_vertex_kernel_sparse(_graph, _frontier, edge_op, vertex_preprocess_op, vertex_postprocess_op, _first_edge,
                                                      _outgoing_graph_is_stored);
@@ -132,14 +132,14 @@ void GraphAbstractionsMulticore::advance_worker(VectorCSRGraph &_graph,
         if(_frontier.collective_part_size > 0)
         {
             t1 = omp_get_wtime();
-            if(_frontier.type == DENSE_FRONTIER)
+            if(_frontier.get_sparsity_type() == DENSE_FRONTIER)
             {
                 ve_collective_vertex_processing_kernel_dense(_graph, _frontier, collective_threshold_start, collective_threshold_end,
                                                              collective_edge_op, collective_vertex_preprocess_op,
                                                              collective_vertex_postprocess_op, _first_edge,
                                                              _outgoing_graph_is_stored);
             }
-            else if(_frontier.type == SPARSE_FRONTIER)
+            else if(_frontier.get_sparsity_type() == SPARSE_FRONTIER)
             {
                 collective_vertex_processing_kernel_sparse(_graph, _frontier, collective_threshold_start,
                                                            collective_threshold_end, collective_edge_op,
@@ -156,7 +156,7 @@ void GraphAbstractionsMulticore::advance_worker(VectorCSRGraph &_graph,
     {
         wall_time = ve_time + vc_time + collective_time;
         size_t work = 0;
-        if(_frontier.type == ALL_ACTIVE_FRONTIER)
+        if(_frontier.get_sparsity_type() == ALL_ACTIVE_FRONTIER)
             work = _graph.get_edges_count();
         else
             work = _frontier.get_vector_engine_part_neighbours_count() +

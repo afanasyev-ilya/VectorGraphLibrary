@@ -63,17 +63,17 @@ void GraphAbstractionsGPU::compute_worker(VectorCSRGraph &_graph,
 {
     LOAD_VECTOR_CSR_GRAPH_DATA(_graph);
 
-    if(_frontier.type == ALL_ACTIVE_FRONTIER)
+    if(_frontier.get_sparsity_type() == ALL_ACTIVE_FRONTIER)
     {
         SAFE_KERNEL_CALL((compute_kernel_all_active <<< (vertices_count - 1) / BLOCK_SIZE + 1, BLOCK_SIZE >>>
                 (vertices_count, vertex_pointers, compute_op)));
     }
-    else if(_frontier.type == DENSE_FRONTIER)
+    else if(_frontier.get_sparsity_type() == DENSE_FRONTIER)
     {
         SAFE_KERNEL_CALL((compute_kernel_dense <<< (vertices_count - 1) / BLOCK_SIZE + 1, BLOCK_SIZE >>>
                 (_frontier.flags, vertices_count, vertex_pointers, compute_op)));
     }
-    else if(_frontier.type == SPARSE_FRONTIER)
+    else if(_frontier.get_sparsity_type() == SPARSE_FRONTIER)
     {
         int frontier_size = _frontier.size();
         SAFE_KERNEL_CALL((compute_kernel_sparse <<< (frontier_size - 1) / BLOCK_SIZE + 1, BLOCK_SIZE >>>

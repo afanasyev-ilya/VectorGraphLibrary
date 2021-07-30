@@ -18,9 +18,9 @@ private:
     long long vector_core_part_neighbours_count;
     long long collective_part_neighbours_count;
 
-    FrontierType vector_engine_part_type;
-    FrontierType vector_core_part_type;
-    FrontierType collective_part_type;
+    FrontierSparsityType vector_engine_part_type;
+    FrontierSparsityType vector_core_part_type;
+    FrontierSparsityType collective_part_type;
 
     void init();
 public:

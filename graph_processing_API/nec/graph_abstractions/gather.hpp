@@ -94,7 +94,7 @@ void GraphAbstractionsNEC::gather(ShardedCSRGraph &_graph,
         {
             throw "Error in GraphAbstractionsNEC::gather : wrong frontier direction";
         }
-        if(_frontier.get_type() != ALL_ACTIVE_FRONTIER)
+        if(_frontier.get_sparsity_type() != ALL_ACTIVE_FRONTIER)
         {
             throw "Error in GraphAbstractionsNEC::gather : sparse/dense frontiers are currently not supported";
         }

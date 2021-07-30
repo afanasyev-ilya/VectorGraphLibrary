@@ -11,7 +11,7 @@ _T GraphAbstractionsMulticore::reduce_sum(VectorCSRGraph &_graph,
 
     _T reduce_result = 0.0;
 
-    if(_frontier.type == ALL_ACTIVE_FRONTIER)
+    if(_frontier.get_sparsity_type() == ALL_ACTIVE_FRONTIER)
     {
         int frontier_size = _frontier.max_size;
 
@@ -27,7 +27,7 @@ _T GraphAbstractionsMulticore::reduce_sum(VectorCSRGraph &_graph,
             reduce_result += val;
         }
     }
-    else if(_frontier.type == DENSE_FRONTIER)
+    else if(_frontier.get_sparsity_type() == DENSE_FRONTIER)
     {
         int frontier_size = _frontier.max_size;
         int *frontier_flags = _frontier.flags;
@@ -47,7 +47,7 @@ _T GraphAbstractionsMulticore::reduce_sum(VectorCSRGraph &_graph,
             }
         }
     }
-    else if(_frontier.type == SPARSE_FRONTIER)
+    else if(_frontier.get_sparsity_type() == SPARSE_FRONTIER)
     {
         int frontier_size = _frontier.current_size;
         int *frontier_ids = _frontier.ids;

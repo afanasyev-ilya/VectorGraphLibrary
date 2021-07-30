@@ -4,9 +4,13 @@
 
 void FrontierVectorCSR::set_all_active()
 {
-    type = ALL_ACTIVE_FRONTIER;
-    current_size = max_size;
+    cout << "SETTING" << endl;
+
+    sparsity_type = ALL_ACTIVE_FRONTIER;
+    this->size = graph_ptr->get_vertices_count();
     neighbours_count = graph_ptr->get_edges_count();
+
+    cout << this->size << " !! " << endl;
 
     vector_engine_part_neighbours_count = 0; // TODO
     vector_core_part_neighbours_count = 0; // TODO
@@ -26,7 +30,7 @@ void FrontierVectorCSR::set_all_active()
 
 void FrontierVectorCSR::add_vertex(int src_id)
 {
-    if(current_size > 0)
+    if(this->size > 0)
     {
         throw "Error in FrontierVectorCSR::add_vertex: VGL can not add vertex to non-empty frontier";
     }
@@ -71,8 +75,8 @@ void FrontierVectorCSR::add_vertex(int src_id)
                 vect_csr_graph->get_vertex_pointers()[src_id];
     }
 
-    type = SPARSE_FRONTIER;
-    current_size = 1;
+    sparsity_type = SPARSE_FRONTIER;
+    this->size = 1;
 
     #ifdef __USE_MPI__
     throw "Error: MPI thresholds calculation is not implemented in FrontierVectorCSR::add_vertex";
@@ -83,12 +87,13 @@ void FrontierVectorCSR::add_vertex(int src_id)
 
 void FrontierVectorCSR::add_group_of_vertices(int *_vertex_ids, int _number_of_vertices)
 {
-    if(current_size > 0)
+    if(this->size > 0)
     {
         throw "VGL ERROR: can not add vertices to non-empty frontier";
     }
 
     Sorter::sort(_vertex_ids, NULL, _number_of_vertices, SORT_ASCENDING);
+    int max_size = graph_ptr->get_vertices_count();
     memset(flags, 0, sizeof(int)*max_size);
 
     // copy ids to frontier inner datastrcuture
@@ -99,37 +104,37 @@ void FrontierVectorCSR::add_group_of_vertices(int *_vertex_ids, int _number_of_v
         ids[idx] = _vertex_ids[idx];
         flags[ids[idx]] = IN_FRONTIER_FLAG;
     }
-    current_size = _number_of_vertices;
+    this->size = _number_of_vertices;
 
     VectorCSRGraph *vect_csr_graph = (VectorCSRGraph *)graph_ptr->get_direction_data(direction);
 
     #pragma _NEC vector
     #pragma omp parallel for
-    for(int idx = 0; idx < current_size; idx++)
+    for(int idx = 0; idx < this->size; idx++)
     {
         const int current_id = ids[idx];
         const int next_id = ids[idx+1];
 
         int current_size = vect_csr_graph->get_connections_count(current_id);
         int next_size = 0;
-        if(idx < (current_size - 1))
+        if(idx < (this->size - 1))
         {
             next_size = vect_csr_graph->get_connections_count(next_id);
         }
 
-        if((current_size > VECTOR_ENGINE_THRESHOLD_VALUE) && (next_size <= VECTOR_ENGINE_THRESHOLD_VALUE))
+        if((this->size > VECTOR_ENGINE_THRESHOLD_VALUE) && (next_size <= VECTOR_ENGINE_THRESHOLD_VALUE))
         {
             vector_engine_part_size = idx + 1;
         }
 
-        if((current_size > VECTOR_CORE_THRESHOLD_VALUE) && (next_size <= VECTOR_CORE_THRESHOLD_VALUE))
+        if((this->size > VECTOR_CORE_THRESHOLD_VALUE) && (next_size <= VECTOR_CORE_THRESHOLD_VALUE))
         {
             vector_core_part_size = idx + 1 - vector_engine_part_size;
         }
     }
-    collective_part_size = current_size - vector_engine_part_size - vector_core_part_size;
+    collective_part_size = this->size - vector_engine_part_size - vector_core_part_size;
 
-    type = SPARSE_FRONTIER;
+    sparsity_type = SPARSE_FRONTIER;
     vector_engine_part_type = SPARSE_FRONTIER;
     vector_core_part_type = SPARSE_FRONTIER;
     collective_part_type = SPARSE_FRONTIER;

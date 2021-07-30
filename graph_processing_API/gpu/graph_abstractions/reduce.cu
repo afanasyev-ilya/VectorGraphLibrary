@@ -134,15 +134,15 @@ _T GraphAbstractionsGPU::reduce_worker(VectorCSRGraph &_graph,
     MemoryAPI::move_array_to_device(managed_reduced_result, 1);
     LOAD_VECTOR_CSR_GRAPH_DATA(_graph);
 
-    if(_frontier.type == ALL_ACTIVE_FRONTIER)
+    if(_frontier.get_sparsity_type() == ALL_ACTIVE_FRONTIER)
     {
         SAFE_KERNEL_CALL((reduce_kernel_all_active<<< (vertices_count - 1) / BLOCK_SIZE + 1, BLOCK_SIZE >>>(vertices_count, vertex_pointers, reduce_op, managed_reduced_result)));
     }
-    else if(_frontier.type == DENSE_FRONTIER)
+    else if(_frontier.get_sparsity_type() == DENSE_FRONTIER)
     {
         throw "Error: dense frontier in reduce is not supported";
     }
-    else if(_frontier.type == SPARSE_FRONTIER)
+    else if(_frontier.get_sparsity_type() == SPARSE_FRONTIER)
     {
         int frontier_size = _frontier.size();
         SAFE_KERNEL_CALL((reduce_kernel_sparse<<< (frontier_size - 1) / BLOCK_SIZE + 1, BLOCK_SIZE >>>(_frontier.ids, frontier_size, vertex_pointers, reduce_op, managed_reduced_result)));

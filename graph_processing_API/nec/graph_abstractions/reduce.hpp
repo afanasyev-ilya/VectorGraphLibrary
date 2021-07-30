@@ -11,7 +11,7 @@ _T GraphAbstractionsNEC::reduce_sum(VectorCSRGraph &_graph,
 
     _T reduce_result = 0.0;
 
-    if(_frontier.type == ALL_ACTIVE_FRONTIER)
+    if(_frontier.get_sparsity_type() == ALL_ACTIVE_FRONTIER)
     {
         int frontier_size = _frontier.max_size;
         #pragma _NEC cncall
@@ -28,7 +28,7 @@ _T GraphAbstractionsNEC::reduce_sum(VectorCSRGraph &_graph,
             reduce_result += val;
         }
     }
-    else if((_frontier.type == DENSE_FRONTIER) || (_frontier.type == SPARSE_FRONTIER)) // TODO FIX SPARSE
+    else if((_frontier.get_sparsity_type() == DENSE_FRONTIER) || (_frontier.get_sparsity_type() == SPARSE_FRONTIER)) // TODO FIX SPARSE
     {
         if((_frontier.vector_engine_part_type == SPARSE_FRONTIER) &&
            (_frontier.vector_core_part_type == SPARSE_FRONTIER) &&

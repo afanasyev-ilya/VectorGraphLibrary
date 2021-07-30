@@ -92,7 +92,7 @@ void GraphAbstractionsNEC::advance_worker(VectorCSRGraph &_graph,
         collective_threshold_end = _graph.get_vertices_count();
     }
 
-    if(_frontier.type == ALL_ACTIVE_FRONTIER)
+    if(_frontier.get_sparsity_type() == ALL_ACTIVE_FRONTIER)
     {
         t1 = omp_get_wtime();
         if((vector_engine_threshold_end - vector_engine_threshold_start) > 0)
@@ -185,7 +185,7 @@ void GraphAbstractionsNEC::advance_worker(VectorCSRGraph &_graph,
     {
         wall_time = ve_time + vc_time + collective_time;
         size_t work = 0;
-        if(_frontier.type == ALL_ACTIVE_FRONTIER)
+        if(_frontier.get_sparsity_type() == ALL_ACTIVE_FRONTIER)
             work = _graph.get_edges_count();
         else
             work = _frontier.get_vector_engine_part_neighbours_count() +

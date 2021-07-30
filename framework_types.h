@@ -95,7 +95,13 @@ enum REDUCE_TYPE
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-enum FrontierType {
+enum FrontierClassType {
+    BASE_FRONTIER = 0,
+    VECTOR_CSR_FRONTIER = 1,
+    GENERAL_FRONTIER = 2
+};
+
+enum FrontierSparsityType {
     ALL_ACTIVE_FRONTIER = 2,
     SPARSE_FRONTIER = 1,
     DENSE_FRONTIER = 0

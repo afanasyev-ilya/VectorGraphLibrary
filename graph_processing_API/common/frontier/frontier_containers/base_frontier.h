@@ -3,6 +3,8 @@
 class BaseFrontier
 {
 protected:
+    FrontierClassType class_type;
+
     int size;
     VGL_Graph *graph_ptr;
     TraversalDirection direction;
@@ -10,18 +12,19 @@ protected:
     // all frontiers have flags and ids - ?
     int *flags;
     int *ids;
-    FrontierType type;
+    FrontierSparsityType sparsity_type;
 public:
     BaseFrontier(VGL_Graph &_graph, TraversalDirection _direction)
     {
-        graph_ptr = &_graph; direction = _direction;
+        graph_ptr = &_graph; direction = _direction; class_type = BASE_FRONTIER;
     };
 
     // get API
     inline int get_size() { return size; };
     inline int *get_ids() { return ids; };
     inline int *get_flags() { return flags; };
-    inline FrontierType get_type() { return type; };
+    inline FrontierSparsityType get_sparsity_type() { return sparsity_type; };
+    inline FrontierClassType get_class_type() { return class_type; };
 
     // printing API
     virtual void print_stats() = 0;

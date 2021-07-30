@@ -23,7 +23,8 @@ public:
     inline int get_size() { return frontier_representation->get_size(); };
     inline int *get_ids() { return frontier_representation->get_ids(); };
     inline int *get_flags() { return frontier_representation->get_flags(); };
-    inline FrontierType get_type() { return frontier_representation->get_type(); };
+    inline FrontierSparsityType get_sparsity_type() { return frontier_representation->get_sparsity_type(); };
+    inline FrontierClassType get_class_type() { return frontier_representation->get_class_type(); };
 
     // printing API
     inline void print_stats() { frontier_representation->print_stats(); };

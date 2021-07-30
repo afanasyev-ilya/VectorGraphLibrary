@@ -58,7 +58,7 @@ void GraphAbstractionsGPU::generate_new_frontier(VectCSRGraph &_graph,
     Timer tm;
     tm.start();
     _frontier.set_direction(current_traversal_direction);
-    _frontier.type = SPARSE_FRONTIER; // TODO
+    _frontier.sparsity_type = SPARSE_FRONTIER; // TODO
 
     VectorCSRGraph *current_direction_graph = _graph.get_direction_graph_ptr(current_traversal_direction);
     LOAD_VECTOR_CSR_GRAPH_DATA((*current_direction_graph));
@@ -73,7 +73,7 @@ void GraphAbstractionsGPU::generate_new_frontier(VectCSRGraph &_graph,
     // calculate frontier size
     _frontier.current_size = new_end - _frontier.ids;
     if(_frontier.size() == _graph.get_vertices_count())
-        _frontier.type = ALL_ACTIVE_FRONTIER;
+        _frontier.sparsity_type = ALL_ACTIVE_FRONTIER;
 
     // calculate neighbours count
     auto reduce_connections = [] __VGL_COMPUTE_ARGS__->int

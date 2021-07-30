@@ -8,9 +8,7 @@ private:
     // this is how Vector CSR frontier is represented
     int *work_buffer;
 
-    int max_size;
     int neighbours_count;
-    int current_size;
 
     int vector_engine_part_size;
     int vector_core_part_size;
@@ -20,9 +18,9 @@ private:
     long long vector_core_part_neighbours_count;
     long long collective_part_neighbours_count;
 
-    FrontierType vector_engine_part_type;
-    FrontierType vector_core_part_type;
-    FrontierType collective_part_type;
+    FrontierSparsityType vector_engine_part_type;
+    FrontierSparsityType vector_core_part_type;
+    FrontierSparsityType collective_part_type;
 
     void init();
 public:
@@ -47,9 +45,7 @@ public:
     inline void set_all_active();
     inline void add_vertex(int _src_id);
     inline void add_group_of_vertices(int *_vertex_ids, int _number_of_vertices);
-    void clear() {type = SPARSE_FRONTIER; current_size = 0; neighbours_count = 0; };
-
-    //friend class GraphAbstractionsNEC; // TODO
+    void clear() {sparsity_type = SPARSE_FRONTIER; this->size = 0; neighbours_count = 0; };
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

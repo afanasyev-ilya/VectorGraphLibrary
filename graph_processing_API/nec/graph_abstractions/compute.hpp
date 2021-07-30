@@ -8,7 +8,7 @@ void GraphAbstractionsNEC::compute_worker(VectorCSRGraph &_graph,
                                           ComputeOperation &&compute_op)
 {
     LOAD_VECTOR_CSR_GRAPH_DATA(_graph);
-    if(_frontier.type == ALL_ACTIVE_FRONTIER)
+    if(_frontier.get_sparsity_type() == ALL_ACTIVE_FRONTIER)
     {
         int frontier_size = _frontier.max_size;
         #pragma _NEC cncall
@@ -24,7 +24,7 @@ void GraphAbstractionsNEC::compute_worker(VectorCSRGraph &_graph,
             compute_op(src_id, connections_count, vector_index);
         }
     }
-    else if((_frontier.type == DENSE_FRONTIER) || (_frontier.type == SPARSE_FRONTIER))
+    else if((_frontier.get_sparsity_type() == DENSE_FRONTIER) || (_frontier.get_sparsity_type() == SPARSE_FRONTIER))
     {
         if((_frontier.vector_engine_part_type == SPARSE_FRONTIER) &&
            (_frontier.vector_core_part_type == SPARSE_FRONTIER) &&

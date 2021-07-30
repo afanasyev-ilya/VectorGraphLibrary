@@ -117,15 +117,15 @@ void GraphAbstractionsNEC::generate_new_frontier(VectCSRGraph &_graph,
     // set type of the whole frontier
     if(_frontier.current_size == _frontier.max_size)
     {
-        _frontier.type = ALL_ACTIVE_FRONTIER;
+        _frontier.sparsity_type = ALL_ACTIVE_FRONTIER;
     }
     else if(!copy_if_work) // flags array
     {
-        _frontier.type = DENSE_FRONTIER;
+        _frontier.sparsity_type = DENSE_FRONTIER;
     }
     else
     {
-        _frontier.type = SPARSE_FRONTIER;
+        _frontier.sparsity_type = SPARSE_FRONTIER;
     }
 
     tm_copy_if.end();
