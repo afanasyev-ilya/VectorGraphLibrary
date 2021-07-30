@@ -14,6 +14,8 @@ int main(int argc, char **argv)
 {
     try
     {
+        cout << "HAHAHA!!!" << endl;
+
         cout << "SSSP (Single Source Shortest Paths) test..." << endl;
         cout << "max threads: " << omp_get_max_threads() << endl;
 

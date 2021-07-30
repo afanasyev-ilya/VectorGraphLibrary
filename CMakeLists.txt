@@ -32,9 +32,9 @@ include_directories(graph_processing_API/nec/graph_primitives)
 include_directories(graph_processing_API/nec/vector_register)
 include_directories(graph_representations)
 include_directories(graph_representations/common)
-include_directories(graph_representations/edges_list_graph)
-include_directories(graph_representations/undirected_csr_graph)
-include_directories(graph_representations/undirected_csr_graph/vector_extension)
+include_directories(graph_representations/undirected_containers/edges_list)
+include_directories(graph_representations/undirected_containers/vect_csr)
+include_directories(graph_representations/undirected_containers/vect_csr/vector_extension)
 include_directories(graph_representations/sharded_csr_graph)
 include_directories(graph_representations/sharded_csr_graph/shard_base)
 include_directories(graph_representations/sharded_csr_graph/shard_CSR)
@@ -108,15 +108,15 @@ add_executable(VectorGraphLibrary
         graph_processing_API/nec/graph_primitives/tests.hpp
         graph_processing_API/nec/vector_register/vector_registers.h
         graph_representations/common/graph_types.h
-        graph_representations/edges_list_graph/edges_list_graph.h
-        graph_representations/edges_list_graph/edges_list_graph.hpp
-        graph_representations/undirected_csr_graph/vector_extension/vector_extension.h
-        graph_representations/undirected_csr_graph/vector_extension/vector_extension.hpp
-        graph_representations/undirected_csr_graph/undirected_csr_graph.h
-        graph_representations/undirected_csr_graph/undirected_csr_graph.hpp
-        graph_representations/undirected_csr_graph/gpu_api.hpp
-        graph_representations/undirected_csr_graph/import.hpp
-        graph_representations/undirected_csr_graph/nec_api.hpp
+        graph_representations/undirected_containers/edges_list/edges_list_graph.h
+        graph_representations/undirected_containers/edges_list/edges_list_graph.hpp
+        graph_representations/undirected_containers/vect_csr/vector_extension/vector_extension.h
+        graph_representations/undirected_containers/vect_csr/vector_extension/vector_extension.hpp
+        graph_representations/undirected_containers/vect_csr/vect_csr_graph.h
+        graph_representations/undirected_containers/vect_csr/vect_csr_graph.hpp
+        graph_representations/undirected_containers/vect_csr/gpu_api.hpp
+        graph_representations/undirected_containers/vect_csr/import.hpp
+        graph_representations/undirected_containers/vect_csr/nec_api.hpp
         graph_representations/sharded_csr_graph/shard_base/shard_base.h
         graph_representations/sharded_csr_graph/shard_base/shard_base.hpp
         graph_representations/sharded_csr_graph/shard_CSR/shard_CSR.h

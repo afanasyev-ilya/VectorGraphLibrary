@@ -56,9 +56,14 @@ using namespace std;
 
 // main VGL part: graphs in different formats
 #include "graph_representations/base_graph.h"
-#include "graph_representations/edges_list_graph/edges_list_graph.h"
-#include "graph_representations/undirected_csr_graph/undirected_csr_graph.h"
-#include "graph_representations/csr_graph/csr_graph.h"
+#include "graph_representations/undirected_containers/undirected_graph.h"
+#include "graph_representations/undirected_containers/edges_list/edges_list_graph.h"
+#include "graph_representations/undirected_containers/vect_csr/vect_csr_graph.h"
+#include "graph_representations/undirected_containers/csr/csr_graph.h"
+
+#include "graph_representations/graph/graph.h"
+
+// TODO old
 #include "graph_representations/vect_csr_graph/vect_csr_graph.h"
 #include "graph_representations/sharded_csr_graph/sharded_csr_graph.h"
 
@@ -78,10 +83,10 @@ using namespace std;
 
 // algorithm implementations
 
-#include "algorithms/bfs/bfs.h"
+#include "algorithms/sswp/widest_paths.h" // since vect max
 
 #ifndef __USE_GPU__
-#include "algorithms/sswp/widest_paths.h" // since vect max
+#include "algorithms/bfs/bfs.h"
 #include "algorithms/sssp/shortest_paths.h"
 #include "algorithms/pr/pr.h"
 #include "algorithms/cc/cc.h"

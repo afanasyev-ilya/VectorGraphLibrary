@@ -28,7 +28,7 @@ class EdgesArray;
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-class UndirectedVectCSRGraph: public BaseGraph
+class UndirectedVectCSRGraph: public UndirectedGraph
 {
 private:
     long long     *vertex_pointers;
@@ -214,7 +214,7 @@ int *ve_adjacent_ids = (input_graph.get_ve_ptr())->get_adjacent_ids();\
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#include "undirected_csr_graph.hpp"
+#include "vect_csr_graph.hpp"
 #include "import.hpp"
 #include "gpu_api.hpp"
 #include "reorder.hpp"
