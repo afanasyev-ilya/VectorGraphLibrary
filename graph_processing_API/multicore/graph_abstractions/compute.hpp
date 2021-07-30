@@ -14,11 +14,6 @@ void GraphAbstractionsMulticore::compute_worker(VGL_Graph &_graph,
     int *frontier_ids = _frontier.get_ids();
     FrontierSparsityType frontier_type = _frontier.get_sparsity_type();
 
-    #pragma omp master
-    {
-        cout << frontier_size << " ???? " << frontier_type << endl;
-    }
-
     if(frontier_type == ALL_ACTIVE_FRONTIER)
     {
         #pragma simd

@@ -10,8 +10,6 @@ void FrontierVectorCSR::set_all_active()
     this->size = graph_ptr->get_vertices_count();
     neighbours_count = graph_ptr->get_edges_count();
 
-    cout << this->size << " !! " << endl;
-
     vector_engine_part_neighbours_count = 0; // TODO
     vector_core_part_neighbours_count = 0; // TODO
     collective_part_neighbours_count = graph_ptr->get_edges_count(); // TODO

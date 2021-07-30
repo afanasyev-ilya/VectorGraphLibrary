@@ -51,7 +51,6 @@ def process_results(benchmarking_data):
     correctness_data = benchmarking_data["correctness_data"]
     correctness = verify_correctness(correctness_data) # TODO
 
-    print(arch_name + " !!!!!!!!!!")
     if arch_is_already_in_db(arch_name):
         update_data_in_db(performance_data, arch_name)
     else:

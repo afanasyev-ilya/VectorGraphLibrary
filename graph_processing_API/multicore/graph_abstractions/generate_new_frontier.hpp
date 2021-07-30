@@ -1,7 +1,7 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template <typename FilterCondition>
-void GraphAbstractionsMulticore::estimate_sorted_frontier_part_size(FrontierMulticore &_frontier,
+void GraphAbstractionsMulticore::estimate_sorted_frontier_part_size(FrontierVectorCSR &_frontier,
                                                                     long long *_vertex_pointers,
                                                                     int _first_vertex,
                                                                     int _last_vertex,
@@ -33,29 +33,26 @@ void GraphAbstractionsMulticore::estimate_sorted_frontier_part_size(FrontierMult
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template <typename FilterCondition>
-void GraphAbstractionsMulticore::generate_new_frontier(VectCSRGraph &_graph,
-                                                       FrontierMulticore &_frontier,
-                                                       FilterCondition &&filter_cond)
+void GraphAbstractionsMulticore::generate_new_frontier_worker(VectorCSRGraph &_graph,
+                                                              FrontierVectorCSR &_frontier,
+                                                              FilterCondition &&filter_cond)
 {
     Timer tm_flags, tm_wall;
     tm_flags.start();
     tm_wall.start();
+    
+    LOAD_VECTOR_CSR_GRAPH_DATA(_graph);
 
-    _frontier.set_direction(current_traversal_direction);
-
-    VectorCSRGraph *current_direction_graph = _graph.get_direction_graph_ptr(current_traversal_direction);
-    LOAD_VECTOR_CSR_GRAPH_DATA((*current_direction_graph));
-
-    const int ve_threshold = current_direction_graph->get_vector_engine_threshold_vertex();
-    int vc_threshold = current_direction_graph->get_vector_core_threshold_vertex();
+    const int ve_threshold = _graph->get_vector_engine_threshold_vertex();
+    int vc_threshold = _graph->get_vector_core_threshold_vertex();
 
     // calculate numbers of elements in different frontier parts
     estimate_sorted_frontier_part_size(_frontier, vertex_pointers, 0, ve_threshold, filter_cond,
-                          _frontier.vector_engine_part_size, _frontier.vector_engine_part_neighbours_count);
+                                       _frontier.vector_engine_part_size, _frontier.vector_engine_part_neighbours_count);
     estimate_sorted_frontier_part_size(_frontier, vertex_pointers, ve_threshold, vc_threshold, filter_cond,
-                          _frontier.vector_core_part_size, _frontier.vector_core_part_neighbours_count);
+                                       _frontier.vector_core_part_size, _frontier.vector_core_part_neighbours_count);
     estimate_sorted_frontier_part_size(_frontier, vertex_pointers, vc_threshold, vertices_count, filter_cond,
-                          _frontier.collective_part_size, _frontier.collective_part_neighbours_count);
+                                       _frontier.collective_part_size, _frontier.collective_part_neighbours_count);
 
     // calculate total size of frontier
     _frontier.current_size = _frontier.vector_engine_part_size + _frontier.vector_core_part_size + _frontier.collective_part_size;
@@ -102,6 +99,28 @@ void GraphAbstractionsMulticore::generate_new_frontier(VectCSRGraph &_graph,
     if(copy_if_work)
         tm_copy_if.print_bandwidth_stats("GNF copy if", work, 2.0*sizeof(int));
     #endif
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+template <typename FilterCondition>
+void GraphAbstractionsMulticore::generate_new_frontier(VGL_Graph &_graph,
+                                                       VGL_Frontier &_frontier,
+                                                       FilterCondition &&filter_cond)
+{
+    _frontier.set_direction(current_traversal_direction);
+
+    if((_graph.get_container_type() == VECTOR_CSR_GRAPH) && (_frontier.get_class_type() == FrontierSparsityType))
+    {
+        VectorCSRGraph *current_direction_graph = (VectorCSRGraph *)_graph.get_direction_data(current_traversal_direction);
+        FrontierVectorCSR *current_frontier = (FrontierVectorCSR *)_frontier.get_container_data();
+
+        generate_new_frontier_worker(*current_direction_graph, *current_frontier, filter_cond);
+    }
+    else
+    {
+        throw "Error: unsupported graph and frontier type in GraphAbstractionsMulticore::generate_new_frontier";
+    }
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

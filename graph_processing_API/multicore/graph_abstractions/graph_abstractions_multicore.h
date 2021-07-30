@@ -23,9 +23,6 @@ auto EMPTY_COMPUTE_OP = [] __VGL_COMPUTE_ARGS__ {};
 class GraphAbstractionsMulticore : public GraphAbstractions
 {
 private:
-    // current the number of vertices, neighbouring a frontier (for Advance perf)
-    /*long long count_frontier_neighbours(VectCSRGraph &_graph, FrontierMulticore &_frontier);
-*/
     bool use_safe_stores;
 
     inline long long compute_process_shift(long long _shard_shift, TraversalDirection _traversal, int _storage,
@@ -61,6 +58,11 @@ private:
 
     template <typename EdgeOperation>
     void advance_worker(EdgesListGraph &_graph, EdgeOperation &&edge_op);
+
+    template <typename FilterCondition>
+    void generate_new_frontier_worker(VectorCSRGraph &_graph,
+                                      FrontierVectorCSR &_frontier,
+                                      FilterCondition &&filter_cond);
 
     // all-active advance inner implementation
     template <typename EdgeOperation, typename VertexPreprocessOperation,
@@ -175,14 +177,14 @@ private:
                                                            const int _first_edge,
                                                            bool _outgoing_graph_is_stored);
 
-    /*template <typename FilterCondition>
-    void estimate_sorted_frontier_part_size(FrontierMulticore &_frontier,
+    template <typename FilterCondition>
+    void estimate_sorted_frontier_part_size(FrontierVectorCSR &_frontier,
                                             long long *_vertex_pointers,
                                             int _first_vertex,
                                             int _last_vertex,
                                             FilterCondition &&filter_cond,
                                             int &_elements_count,
-                                            long long &_neighbours_count);*/
+                                            long long &_neighbours_count);
 public:
     // attaches graph-processing API to the specific graph
     GraphAbstractionsMulticore(VGL_Graph &_graph, TraversalDirection _initial_traversal = SCATTER);

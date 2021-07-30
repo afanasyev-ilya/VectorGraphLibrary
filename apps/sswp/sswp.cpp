@@ -93,22 +93,23 @@ int main(int argc, char **argv)
             };
             graph_API.scatter(graph, frontier, edge_op);
 
-            /*// Generate a new level of graph vertices, which have been visited in scatter abstraction.
-            auto on_next_level = [levels_ptr, current_level] (int src_id, int connections_count)->int
+            // Generate a new level of graph vertices, which have been visited in scatter abstraction.
+            auto on_next_level = [levels, current_level] __VGL_GNF_ARGS__
             {
                 int result = NOT_IN_FRONTIER_FLAG;
-                if(levels_ptr[src_id] == (current_level + 1))
+                if(levels[src_id] == (current_level + 1))
                     result = IN_FRONTIER_FLAG;
                 return result;
             };
-            graph_API.generate_new_frontier(graph, frontier, on_next_level);*/
-
-            break;
-
+            graph_API.generate_new_frontier(graph, frontier, on_next_level);
             current_level++;
-        }
 
-        levels.print();
+            frontier.print();
+            levels.print();
+
+            if(current_level > 5)
+                break;
+        }
 
         /*EdgesArray_Vect<float> capacities(graph);
         //capacities.set_all_random(MAX_WEIGHT);
