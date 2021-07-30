@@ -14,14 +14,16 @@ int main(int argc, char **argv)
 {
     try
     {
-        cout << "SSSP (Single Source Shortest Paths) test..." << endl;
-        cout << "max threads: " << omp_get_max_threads() << endl;
+        vgl_library_data.init(argc, argv);
+        cout << "SSSP (Single Source Widest Paths) test..." << endl;
 
         // parse args
         Parser parser;
         parser.parse_args(argc, argv);
 
-        VGL_Graph main_graph(VECTOR_CSR_GRAPH);
+        VGL_Graph graph(VECTOR_CSR_GRAPH);
+
+        // obtain_graph(main_graph, parser); TODO
 
         if(parser.get_compute_mode() == GENERATE_NEW_GRAPH)
         {
@@ -31,7 +33,7 @@ int main(int argc, char **argv)
                 GraphGenerationAPI::R_MAT(edges_container, v, v * parser.get_avg_degree(), 57, 19, 19, 5, DIRECTED_GRAPH);
             else if(parser.get_graph_type() == RANDOM_UNIFORM)
                 GraphGenerationAPI::random_uniform(edges_container, v, v * parser.get_avg_degree(), DIRECTED_GRAPH);
-            main_graph.import(edges_container);
+            graph.import(edges_container);
         }
         else if(parser.get_compute_mode() == LOAD_GRAPH_FROM_FILE)
         {
@@ -43,18 +45,18 @@ int main(int argc, char **argv)
             tm.print_time_stats("Graph load");*/
         }
 
-        main_graph.print();
-
-        // print graphs stats
-        /*graph.print_size();
-        #ifndef __USE_NEC_SX_AURORA__
-        graph.print_stats();
-        #endif
+        graph.print();
 
         // do calculations
         cout << "Computations started..." << endl;
         cout << "Doing " << parser.get_number_of_rounds() << " SSSP iterations..." << endl;
-        EdgesArray_Vect<float> capacities(graph);
+
+        // define BFS-levels for each graph vertex
+        VerticesArray<int> levels(graph, SCATTER);
+        GraphAbstractionsNEC graph_API(graph, SCATTER);
+
+
+        /*EdgesArray_Vect<float> capacities(graph);
         //capacities.set_all_random(MAX_WEIGHT);
         capacities.set_all_constant(1.0);
         for(int i = 0; i < parser.get_number_of_rounds(); i++)
