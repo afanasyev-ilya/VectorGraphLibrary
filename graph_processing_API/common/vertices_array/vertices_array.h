@@ -66,9 +66,9 @@ public:
     inline void set(int _idx, _T _val) {this->vertices_data[_idx] = _val;};
     inline _T& operator[](int _idx) { return vertices_data[_idx]; }
     inline _T& operator[] (int _idx) const { return vertices_data[_idx]; };
+    #endif
 
     inline _T cached_load(int _idx, _T *_private_data);
-    #endif
 
     inline void prefetch_data_into_cache();
     inline _T* get_private_data_pointer();

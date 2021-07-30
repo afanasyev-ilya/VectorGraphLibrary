@@ -1,9 +1,9 @@
-CUDA_DIR = /usr/local/cuda/
+CUDA_DIR = /home/afanasyevi/local_cuda/
 CUDA_COMPILER = $(CUDA_DIR)/bin/nvcc
 
 # Include paths...
 Include_Path = -I $(CUDA_DIR)/include -I ../external_libraries/cub -I ../
-Flags = -O2 -w -m64 -std=c++11 -Xptxas -dlcm=ca --expt-extended-lambda -gencode arch=compute_60,code=sm_60 -gencode arch=compute_70,code=sm_70 -gencode arch=compute_80,code=sm_80 -Xcompiler -fopenmp
+Flags = -O2 -D __USE_GPU__ -w -m64 -std=c++11 -Xptxas -dlcm=ca --expt-extended-lambda -gencode arch=compute_60,code=sm_60 -gencode arch=compute_70,code=sm_70 -Xcompiler -fopenmp
 
 # Library paths...
 Library_Path = -L $(CUDA_DIR)/lib -L $(CUDA_DIR)/lib64

@@ -36,9 +36,11 @@ public:
     static void nec_top_down(VectCSRGraph &_graph, VerticesArray<_T> &_levels, int _source_vertex);
     #endif
 
+    #if defined(__USE_NEC_SX_AURORA__)
     template <typename _T>
     static void hardwired_do_bfs(VectCSRGraph &_graph, VerticesArray<_T> &_levels, int _source_vertex, BFS_GraphVE &_vector_extension,
                                  int *_buffer1, int *_buffer2);
+    #endif
 
     template <typename _T>
     static void seq_top_down(VectCSRGraph &_graph, VerticesArray<_T> &_levels, int _source_vertex);
@@ -50,7 +52,9 @@ public:
 #include "gpu_bfs.hpp"
 #include "nec_bfs.hpp"
 #include "change_state/change_state.hpp"
+#if defined(__USE_NEC_SX_AURORA__)
 #include "hardwired_do_bfs.hpp"
+#endif
 #include "bfs_graph_ve.hpp"
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

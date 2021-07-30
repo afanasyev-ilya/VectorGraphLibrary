@@ -77,8 +77,11 @@ using namespace std;
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // algorithm implementations
-#include "algorithms/sswp/widest_paths.h" // since vect max
+
 #include "algorithms/bfs/bfs.h"
+
+#ifndef __USE_GPU__
+#include "algorithms/sswp/widest_paths.h" // since vect max
 #include "algorithms/sssp/shortest_paths.h"
 #include "algorithms/pr/pr.h"
 #include "algorithms/cc/cc.h"
@@ -86,6 +89,7 @@ using namespace std;
 #include "algorithms/hits/hits.h"
 #include "algorithms/scc/scc.h"
 #include "algorithms/coloring/coloring.h"
+#endif
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 

@@ -1,10 +1,10 @@
-CXX = g++
+CXX = FCCpx
 
 # Include paths...
 
 # Include paths...
 Include_Path = -I ../
-Flags = -D __USE_MULTICORE__ -O3 -fopenmp -ftree-vectorize -std=c++17
+Flags = -D __USE_MULTICORE__ -O3 -std=c++17 FCCpx -Kfast,openmp -Nfjomplib -mcmodel=large -x=noquick -Kassume=memory_bandwidth -Knodynamic_iteration -D_A64FX -Kassume=noshortloop -Kassume=notime_saving_compilation
 
 # Library paths...
 Library_Path =
