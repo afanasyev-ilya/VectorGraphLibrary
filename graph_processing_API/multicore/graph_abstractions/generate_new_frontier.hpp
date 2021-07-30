@@ -43,8 +43,8 @@ void GraphAbstractionsMulticore::generate_new_frontier_worker(VectorCSRGraph &_g
     
     LOAD_VECTOR_CSR_GRAPH_DATA(_graph);
 
-    const int ve_threshold = _graph->get_vector_engine_threshold_vertex();
-    int vc_threshold = _graph->get_vector_core_threshold_vertex();
+    const int ve_threshold = _graph.get_vector_engine_threshold_vertex();
+    int vc_threshold = _graph.get_vector_core_threshold_vertex();
 
     // calculate numbers of elements in different frontier parts
     estimate_sorted_frontier_part_size(_frontier, vertex_pointers, 0, ve_threshold, filter_cond,
@@ -55,7 +55,7 @@ void GraphAbstractionsMulticore::generate_new_frontier_worker(VectorCSRGraph &_g
                                        _frontier.collective_part_size, _frontier.collective_part_neighbours_count);
 
     // calculate total size of frontier
-    _frontier.current_size = _frontier.vector_engine_part_size + _frontier.vector_core_part_size + _frontier.collective_part_size;
+    _frontier.size = _frontier.vector_engine_part_size + _frontier.vector_core_part_size + _frontier.collective_part_size;
     _frontier.neighbours_count = _frontier.vector_engine_part_neighbours_count + _frontier.vector_core_part_neighbours_count + _frontier.collective_part_neighbours_count;
 
     tm_flags.end();
@@ -65,11 +65,11 @@ void GraphAbstractionsMulticore::generate_new_frontier_worker(VectorCSRGraph &_g
     bool copy_if_work = false;
 
     // set type of the whole frontier
-    if(_frontier.current_size == _frontier.max_size)
+    if(_frontier.size == vertices_count)
     {
         _frontier.sparsity_type = ALL_ACTIVE_FRONTIER;
     }
-    else if(double(_frontier.current_size)/_frontier.max_size > 0.7) // flags array
+    else if(double(_frontier.size)/_graph.get_vertices_count() > 0.7) // flags array
     {
         _frontier.sparsity_type = DENSE_FRONTIER;
         _frontier.vector_engine_part_type = DENSE_FRONTIER;
@@ -83,12 +83,12 @@ void GraphAbstractionsMulticore::generate_new_frontier_worker(VectorCSRGraph &_g
         _frontier.vector_engine_part_type = SPARSE_FRONTIER;
         _frontier.vector_core_part_type = SPARSE_FRONTIER;
         _frontier.collective_part_type = SPARSE_FRONTIER;
-        parallel_buffers_copy_if(_frontier.flags,  _frontier.ids, _frontier.work_buffer, _frontier.max_size);
+        parallel_buffers_copy_if(_frontier.flags,  _frontier.ids, _frontier.work_buffer, vertices_count);
     }
 
     tm_copy_if.end();
     tm_wall.end();
-    long long work = _frontier.max_size;
+    long long work = vertices_count;
     performance_stats.update_gnf_time(tm_wall);
     performance_stats.update_bytes_requested(work*2.0*sizeof(int));
     if(copy_if_work)
@@ -110,7 +110,7 @@ void GraphAbstractionsMulticore::generate_new_frontier(VGL_Graph &_graph,
 {
     _frontier.set_direction(current_traversal_direction);
 
-    if((_graph.get_container_type() == VECTOR_CSR_GRAPH) && (_frontier.get_class_type() == FrontierSparsityType))
+    if((_graph.get_container_type() == VECTOR_CSR_GRAPH) && (_frontier.get_class_type() == VECTOR_CSR_FRONTIER))
     {
         VectorCSRGraph *current_direction_graph = (VectorCSRGraph *)_graph.get_direction_data(current_traversal_direction);
         FrontierVectorCSR *current_frontier = (FrontierVectorCSR *)_frontier.get_container_data();

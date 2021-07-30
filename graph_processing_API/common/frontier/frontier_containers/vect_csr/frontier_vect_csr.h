@@ -46,6 +46,9 @@ public:
     inline void add_vertex(int _src_id);
     inline void add_group_of_vertices(int *_vertex_ids, int _number_of_vertices);
     void clear() {sparsity_type = SPARSE_FRONTIER; this->size = 0; neighbours_count = 0; };
+
+    friend class GraphAbstractionsMulticore;
+    friend class GraphAbstractionsNEC;
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

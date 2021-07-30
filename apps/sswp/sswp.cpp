@@ -106,9 +106,6 @@ int main(int argc, char **argv)
 
             frontier.print();
             levels.print();
-
-            if(current_level > 5)
-                break;
         }
 
         /*EdgesArray_Vect<float> capacities(graph);

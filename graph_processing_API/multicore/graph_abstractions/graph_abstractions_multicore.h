@@ -239,15 +239,15 @@ public:
     _T reduce(VectCSRGraph &_graph,
               FrontierMulticore &_frontier,
               ReduceOperation &&reduce_op,
-              REDUCE_TYPE _reduce_type);
+              REDUCE_TYPE _reduce_type);*/
 
     // creates new frontier, which satisfy user-defined "cond" condition
     template <typename FilterCondition>
-    void generate_new_frontier(VectCSRGraph &_graph,
-                               FrontierMulticore &_frontier,
+    void generate_new_frontier(VGL_Graph &_graph,
+                               VGL_Frontier &_frontier,
                                FilterCondition &&filter_cond);
 
-    template <typename _T1, typename _T2>
+    /*template <typename _T1, typename _T2>
     void pack_vertices_arrays(VerticesArray<VGL_PACK_TYPE> &_packed_data,
                               VerticesArray<_T1> &_first,
                               VerticesArray<_T2> &_second);
@@ -273,8 +273,7 @@ public:
 #include "advance_all_active.hpp"
 #include "advance_dense.hpp"
 #include "advance_sparse.hpp"
-/*
 #include "generate_new_frontier.hpp"
-#include "reduce.hpp"*/
+//#include "reduce.hpp"
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
