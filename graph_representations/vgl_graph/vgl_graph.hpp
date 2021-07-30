@@ -19,6 +19,8 @@ VGL_Graph::VGL_Graph(GraphType _container_type)
 
 void VGL_Graph::import(EdgesContainer &_edges_container)
 {
+    this->vertices_count = _edges_container.get_vertices_count();
+    this->edges_count = _edges_container.get_edges_count();
     outgoing_data->import(_edges_container);
     incoming_data->import(_edges_container);
 }

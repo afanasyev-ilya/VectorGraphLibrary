@@ -59,10 +59,24 @@ int main(int argc, char **argv)
 
         // do compute - will be cool
 
-        frontier.clear();
-        frontier.add_vertex(1);
+        int source_vertex = 1;
+        levels.print();
 
-        frontier.print();
+        auto init_levels = [levels, source_vertex] (int src_id, int connections_count, int vector_index)
+        {
+            if(src_id == source_vertex)
+                levels[source_vertex] = 1;
+            else
+                levels[src_id] = -1;
+        };
+        frontier.set_all_active();
+        graph_API.compute(graph, frontier, init_levels);
+
+        levels.print();
+
+        frontier.clear();
+        frontier.add_vertex(source_vertex);
+
 
         /*EdgesArray_Vect<float> capacities(graph);
         //capacities.set_all_random(MAX_WEIGHT);

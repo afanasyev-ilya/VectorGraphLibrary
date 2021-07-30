@@ -14,7 +14,7 @@ protected:
 public:
     BaseFrontier(VGL_Graph &_graph, TraversalDirection _direction)
     {
-        graph_ptr = &_graph; direction = _direction; cout << "IN ABSTR" << endl;
+        graph_ptr = &_graph; direction = _direction;
     };
 
     // get API
@@ -31,6 +31,9 @@ public:
     virtual void add_vertex(int _src_id) = 0;
     virtual void add_group_of_vertices(int *_vertex_ids, int _number_of_vertices) = 0;
     virtual void clear() = 0;
+
+    // modification
+    virtual void set_all_active() = 0;
 
     // frontier direction API
     TraversalDirection get_direction() { return direction; };

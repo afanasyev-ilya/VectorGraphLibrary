@@ -88,30 +88,6 @@ void GraphAbstractionsMulticore::compute(VGL_Graph &_graph,
         }
     }
 
-    VectorCSRGraph *current_direction_graph;
-    if(current_traversal_direction == SCATTER)
-    {
-        current_direction_graph = _graph.get_outgoing_data();
-    }
-    else if(current_traversal_direction == GATHER)
-    {
-        current_direction_graph = _graph.get_incoming_data();
-    }
-
-    if(omp_in_parallel())
-    {
-        #pragma omp barrier
-        compute_worker(*current_direction_graph, _frontier, compute_op);
-        #pragma omp barrier
-    }
-    else
-    {
-        #pragma omp parallel
-        {
-            compute_worker(*current_direction_graph, _frontier, compute_op);
-        }
-    }
-
     tm.end();
     long long work = _frontier.size();
     performance_stats.update_compute_time(tm);

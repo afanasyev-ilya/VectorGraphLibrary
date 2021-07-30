@@ -32,6 +32,7 @@ public:
     // frontier modification API
     inline void add_vertex(int _src_id) { frontier_representation->add_vertex(_src_id); };
     inline void clear() { frontier_representation->clear(); };
+    inline void set_all_active() { frontier_representation->set_all_active(); };
 
     // frontier direction API
     inline TraversalDirection get_direction() { return frontier_representation->get_direction(); };
