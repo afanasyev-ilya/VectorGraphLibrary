@@ -51,6 +51,7 @@ using namespace std;
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #include "graph_analytics/graph_analytics.h"
+#include "graph_generation_API/graph_generation_API.h"
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -59,25 +60,25 @@ using namespace std;
 #include "graph_representations/undirected_containers/undirected_graph.h"
 #include "graph_representations/undirected_containers/edges_list/edges_list_graph.h"
 #include "graph_representations/undirected_containers/vect_csr/vect_csr_graph.h"
-#include "graph_representations/undirected_containers/csr/csr_graph.h"
+//#include "graph_representations/undirected_containers/csr/csr_graph.h"
 
 #include "graph_representations/graph/graph.h"
 
 // TODO old
-#include "graph_representations/vect_csr_graph/vect_csr_graph.h"
-#include "graph_representations/sharded_csr_graph/sharded_csr_graph.h"
+//#include "graph_representations/vect_csr_graph/vect_csr_graph.h"
+//#include "graph_representations/sharded_csr_graph/sharded_csr_graph.h"
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // main VGL part: computational and data abstractions
-#include "graph_processing_API/common/vertices_array/vertices_array.h"
+/*#include "graph_processing_API/common/vertices_array/vertices_array.h"
 #include "graph_processing_API/common/edges_array/edges_array.h"
 #include "graph_processing_API/common/frontier/frontier.h"
 #include "graph_processing_API/common/graph_abstractions/graph_abstractions.h"
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#include "graph_generation_API/graph_generation_API.h"
+
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -107,7 +108,7 @@ using namespace std;
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#include "graph_analytics/graph_analytics.hpp"
+#include "graph_analytics/graph_analytics.hpp"*/
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 

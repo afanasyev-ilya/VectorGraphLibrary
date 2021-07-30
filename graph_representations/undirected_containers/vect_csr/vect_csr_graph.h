@@ -70,7 +70,7 @@ private:
     #endif
 
     // import functions
-    void extract_connection_count(EdgesListGraph &_el_graph,
+    void extract_connection_count(EdgesContainer &_edges_container,
                                   int *_work_buffer,
                                   int *_connections_count,
                                   int _threads_num);
@@ -79,7 +79,7 @@ private:
                                  int _el_vertices_count, int *_forward_conversion,
                                  int *_backward_conversion);
 
-    void construct_CSR(EdgesListGraph &_el_graph);
+    void construct_CSR(EdgesContainer &_edges_container);
 
     void copy_edges_indexes(vgl_sort_indexes *_sort_indexes);
 
@@ -179,8 +179,7 @@ public:
                                VisualisationMode _visualisation_mode = VISUALISE_AS_DIRECTED);
 
     /* import and preprocess API */
-    // creates UndirectedVectCSRGraph format from EdgesListGraph
-    void import(EdgesListGraph &_old_graph);
+    void import(EdgesContainer &_edges_container);
 
     void remove_loops_and_multiple_arcs(); // WARNING! this function is unsafe to call
 

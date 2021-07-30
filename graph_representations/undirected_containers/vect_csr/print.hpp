@@ -147,7 +147,7 @@ void UndirectedVectCSRGraph::print_stats()
     cout << "collective group size: " << edges_in_collective_group << ", " << 100.0*((float)edges_in_collective_group)/this->edges_count << " %" << endl;
     #endif
 
-    GraphAnalytics::analyse_degrees(*this);
+    //GraphAnalytics::analyse_degrees(*this);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

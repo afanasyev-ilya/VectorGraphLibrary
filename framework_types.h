@@ -46,7 +46,8 @@ enum GraphType
     EDGES_LIST_GRAPH = 1,
     VECT_CSR_GRAPH = 2,
     SHARDED_CSR_GRAPH = 3,
-    CSR_GRAPH = 4
+    CSR_GRAPH = 4,
+    VGL_GRAPH = 5
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

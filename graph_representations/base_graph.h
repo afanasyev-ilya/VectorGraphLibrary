@@ -19,6 +19,9 @@ public:
     BaseGraph() {this->graph_on_device = false;};
     ~BaseGraph() {};
 
+    /* import functions */
+    virtual void import(EdgesContainer &_edges_container) = 0;
+
     /* get API */
     inline int get_vertices_count() {return vertices_count;};
     inline long long get_edges_count() {return edges_count;};

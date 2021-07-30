@@ -2,17 +2,17 @@
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void UndirectedVectCSRGraph::extract_connection_count(EdgesListGraph &_el_graph,
-                                                  int *_work_buffer,
-                                                  int *_connections_array,
-                                                  int _threads_num)
+void UndirectedVectCSRGraph::extract_connection_count(EdgesContainer &_edges_container,
+                                                      int *_work_buffer,
+                                                      int *_connections_array,
+                                                      int _threads_num)
 {
     Timer tm;
     tm.start();
 
-    int el_vertices_count = _el_graph.get_vertices_count();
-    long long el_edges_count = _el_graph.get_edges_count();
-    int *el_src_ids = _el_graph.get_src_ids();
+    int el_vertices_count = _edges_container.get_vertices_count();
+    long long el_edges_count = _edges_container.get_edges_count();
+    int *el_src_ids = _edges_container.get_src_ids();
 
     memset(_connections_array, 0, el_vertices_count*sizeof(int));
     memset(_work_buffer, 0, el_vertices_count*_threads_num*sizeof(int));
@@ -100,15 +100,15 @@ void UndirectedVectCSRGraph::sort_vertices_by_degree(int *_connections_array,
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void UndirectedVectCSRGraph::construct_CSR(EdgesListGraph &_el_graph)
+void UndirectedVectCSRGraph::construct_CSR(EdgesContainer &_edges_container)
 {
     Timer tm;
     tm.start();
 
-    int el_vertices_count = _el_graph.get_vertices_count();
-    long long el_edges_count = _el_graph.get_edges_count();
-    int *el_src_ids = _el_graph.get_src_ids();
-    int *el_dst_ids = _el_graph.get_dst_ids();
+    int el_vertices_count = _edges_container.get_vertices_count();
+    long long el_edges_count = _edges_container.get_edges_count();
+    int *el_src_ids = _edges_container.get_src_ids();
+    int *el_dst_ids = _edges_container.get_dst_ids();
 
     #pragma _NEC ivdep
     #pragma omp parallel for
@@ -254,11 +254,11 @@ void UndirectedVectCSRGraph::remove_loops_and_multiple_arcs()
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void UndirectedVectCSRGraph::import(EdgesListGraph &_el_graph)
+void UndirectedVectCSRGraph::import(EdgesContainer &_edges_container)
 {
     // get size of edges list graph
-    int el_vertices_count = _el_graph.get_vertices_count();
-    long long el_edges_count = _el_graph.get_edges_count();
+    int el_vertices_count = _edges_container.get_vertices_count();
+    long long el_edges_count = _edges_container.get_edges_count();
 
     // reorder buffers
     int *loc_forward_conversion, *loc_backward_conversion;
@@ -266,15 +266,13 @@ void UndirectedVectCSRGraph::import(EdgesListGraph &_el_graph)
     MemoryAPI::allocate_array(&loc_backward_conversion, el_vertices_count);
 
     int max_threads_in_extract = 1;
-    #ifdef __USE_MULTICORE__
+    #ifdef __USE_NEC_SX_AURORA__
+    max_threads_in_extract = omp_get_max_threads();
+    #else
     // if arch have many cores, we don't use many threads in order to prevent huge memory consumption.
     // instead, we use edge factor threads
     int edge_factor = el_edges_count/el_vertices_count;
     max_threads_in_extract = edge_factor;
-    #endif
-
-    #ifdef __USE_NEC_SX_AURORA__
-    max_threads_in_extract = omp_get_max_threads();
     #endif
 
     // allocate buffers
@@ -287,7 +285,7 @@ void UndirectedVectCSRGraph::import(EdgesListGraph &_el_graph)
     MemoryAPI::allocate_array(&work_buffer, max(el_edges_count, (long long)el_vertices_count*max_threads_in_extract));
 
     // obtain connections array from edges list graph
-    extract_connection_count(_el_graph, work_buffer, connections_array, max_threads_in_extract);
+    extract_connection_count(_edges_container, work_buffer, connections_array, max_threads_in_extract);
 
     // get reorder data (sort by vertex degree)
     sort_vertices_by_degree(connections_array, sort_indexes, el_vertices_count, loc_forward_conversion,
@@ -295,10 +293,10 @@ void UndirectedVectCSRGraph::import(EdgesListGraph &_el_graph)
     MemoryAPI::free_array(connections_array);
 
     // reorder ids in edges list graph
-    _el_graph.renumber_vertices(loc_forward_conversion, work_buffer);
+    _edges_container.renumber_vertices(loc_forward_conversion, work_buffer);
 
     // sorting preprocessed edges list graph
-    _el_graph.preprocess_into_csr_based(work_buffer, sort_indexes);
+    _edges_container.preprocess_into_csr_based(work_buffer, sort_indexes);
 
     // resize constructed graph
     this->resize(el_vertices_count, el_edges_count);
@@ -309,7 +307,7 @@ void UndirectedVectCSRGraph::import(EdgesListGraph &_el_graph)
     MemoryAPI::free_array(sort_indexes);
 
     // construct CSR representation
-    this->construct_CSR(_el_graph);
+    this->construct_CSR(_edges_container);
 
     // sort edges
     this->sort_adjacent_edges();
@@ -319,7 +317,7 @@ void UndirectedVectCSRGraph::import(EdgesListGraph &_el_graph)
     MemoryAPI::copy(backward_conversion, loc_backward_conversion, this->vertices_count);
 
     // return edges list graph to original state
-    _el_graph.renumber_vertices(loc_backward_conversion, work_buffer);
+    _edges_container.renumber_vertices(loc_backward_conversion, work_buffer);
 
     // free conversion arrays
     MemoryAPI::free_array(loc_forward_conversion);
@@ -328,7 +326,7 @@ void UndirectedVectCSRGraph::import(EdgesListGraph &_el_graph)
     // free buffer
     MemoryAPI::free_array(work_buffer);
 
-    #if defined(__USE_NEC_SX_AURORA__) || defined(__USE_MULTICORE__)
+    #if defined(__USE_NEC_SX_AURORA__) || defined(__USE_MULTICORE__) // - bad
     estimate_nec_thresholds();
     last_vertices_ve.init_from_graph(this->vertex_pointers, this->adjacent_ids,
                                      vector_core_threshold_vertex, this->vertices_count);
@@ -337,6 +335,7 @@ void UndirectedVectCSRGraph::import(EdgesListGraph &_el_graph)
     #endif
     #endif
 }
+
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 

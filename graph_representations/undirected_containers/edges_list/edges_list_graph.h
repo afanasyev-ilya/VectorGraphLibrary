@@ -56,6 +56,7 @@ public:
     /* import and preprocess API */
     // allows to import form 2 arrays (src_ids and dst_ids)
     void import(int *_src_ids, int *_dst_ids, int _vertices_count, long long _edges_count);
+    void import(EdgesContainer &_edges_container) {cout << "HERE EL" << endl;};
 
     // 2D segmenting preprocessing (each segment fits into LLC cache)
     void preprocess_into_segmented();

@@ -23,29 +23,30 @@ int main(int argc, char **argv)
         Parser parser;
         parser.parse_args(argc, argv);
 
-        VectCSRGraph graph;
+        VGL_Graph main_graph(UNDIRECTED_VECT_CSR_GRAPH);
+
         if(parser.get_compute_mode() == GENERATE_NEW_GRAPH)
         {
-            EdgesListGraph el_graph;
+            EdgesContainer edges_container;
             int v = pow(2.0, parser.get_scale());
             if(parser.get_graph_type() == RMAT)
-                GraphGenerationAPI::R_MAT(el_graph, v, v * parser.get_avg_degree(), 57, 19, 19, 5, DIRECTED_GRAPH);
+                GraphGenerationAPI::R_MAT(edges_container, v, v * parser.get_avg_degree(), 57, 19, 19, 5, DIRECTED_GRAPH);
             else if(parser.get_graph_type() == RANDOM_UNIFORM)
-                GraphGenerationAPI::random_uniform(el_graph, v, v * parser.get_avg_degree(), DIRECTED_GRAPH);
-            graph.import(el_graph);
+                GraphGenerationAPI::random_uniform(edges_container, v, v * parser.get_avg_degree(), DIRECTED_GRAPH);
+            main_graph.import(edges_container);
         }
         else if(parser.get_compute_mode() == LOAD_GRAPH_FROM_FILE)
         {
-            Timer tm;
+            /*Timer tm;
             tm.start();
-            if(!graph.load_from_binary_file(parser.get_graph_file_name()))
+            if(!main_graph.load_from_binary_file(parser.get_graph_file_name()))
                 throw "Error: graph file not found";
             tm.end();
-            tm.print_time_stats("Graph load");
+            tm.print_time_stats("Graph load");*/
         }
 
         // print graphs stats
-        graph.print_size();
+        /*graph.print_size();
         #ifndef __USE_NEC_SX_AURORA__
         graph.print_stats();
         #endif
@@ -74,7 +75,7 @@ int main(int argc, char **argv)
                 verify_results(widths, check_widths, 20);
             }
         }
-        performance_stats.print_perf(graph.get_edges_count());
+        performance_stats.print_perf(graph.get_edges_count());*/
     }
     catch (string error)
     {

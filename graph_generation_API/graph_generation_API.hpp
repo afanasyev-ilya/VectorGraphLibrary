@@ -2,7 +2,7 @@
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void GraphGenerationAPI::random_uniform(EdgesListGraph &_graph,
+void GraphGenerationAPI::random_uniform(EdgesContainer &_edges_container,
                                         int _vertices_count, long long _edges_count,
                                         DirectionType _direction_type)
 {
@@ -12,12 +12,12 @@ void GraphGenerationAPI::random_uniform(EdgesListGraph &_graph,
     int directed_edges_count = edges_count;
     if(!_direction_type)
         edges_count *= 2;
-    
-    _graph.resize(vertices_count, edges_count);
+
+    _edges_container.resize(vertices_count, edges_count);
 
     // get pointers
-    int *src_ids = _graph.get_src_ids();
-    int *dst_ids = _graph.get_dst_ids();
+    int *src_ids = _edges_container.get_src_ids();
+    int *dst_ids = _edges_container.get_dst_ids();
 
     #pragma omp parallel
     {};
@@ -91,7 +91,7 @@ struct BatchedRand
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void GraphGenerationAPI::R_MAT(EdgesListGraph &_graph,
+void GraphGenerationAPI::R_MAT(EdgesContainer &_edges_container,
                                int _vertices_count, long long _edges_count,
                                int _a_prob, int _b_prob, int _c_prob,
                                int _d_prob, DirectionType _direction_type)
@@ -108,16 +108,16 @@ void GraphGenerationAPI::R_MAT(EdgesListGraph &_graph,
     int step = 1;
     if(_direction_type)
     {
-        _graph.resize(vertices_count, edges_count);
+        _edges_container.resize(vertices_count, edges_count);
     }
     else
     {
         step = 2;
-        _graph.resize(vertices_count, 2*edges_count);
+        _edges_container.resize(vertices_count, 2*edges_count);
     }
     
-    int *src_ids = _graph.get_src_ids();
-    int *dst_ids = _graph.get_dst_ids();
+    int *src_ids = _edges_container.get_src_ids();
+    int *dst_ids = _edges_container.get_dst_ids();
 
     int threads_count = omp_get_max_threads();
     
@@ -196,7 +196,7 @@ struct GenSCCdata
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
+/*
 void GraphGenerationAPI::SCC_uniform(EdgesListGraph &_graph,
                                      int _vertices_count, int _min_scc_size, int _max_scc_size)
 {
@@ -338,5 +338,5 @@ void GraphGenerationAPI::init_from_txt_file(EdgesListGraph &_graph, string _txt_
     
     infile.close();
 }
-
+*/
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

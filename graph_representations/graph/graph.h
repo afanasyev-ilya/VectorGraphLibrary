@@ -1,11 +1,35 @@
 #pragma once
 
-class Graph: public BaseGraph
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+class VGL_Graph: public BaseGraph
 {
 private:
-
+    UndirectedGraph *outgoing_data;
+    UndirectedGraph *incoming_data;
 public:
+    VGL_Graph(GraphType _container_type);
+    void import(EdgesContainer &_edges_container);
 
+    /* print API */
+    void print() {};
+    void print_size() {};
+    size_t get_size() { return 0; };
+
+    /* file load/store API */
+    bool save_to_binary_file(string _file_name) { return false; };
+    bool load_from_binary_file(string _file_name)  { return false; };
+
+    /* GPU specific (copy) API */
+    #ifdef __USE_GPU__
+    void move_to_device() {};
+    void move_to_host() {};
+    #endif
 };
 
-#include "graph.h"
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+#include "graph.hpp"
+#include "import.hpp"
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

@@ -2,18 +2,10 @@
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-class UndirectedGraph : public BaseGraph
+void VGL_Graph::import(EdgesContainer &_edges_container)
 {
-protected:
-
-public:
-    UndirectedGraph() {};
-    ~UndirectedGraph() {};
-
-    // get vertex();
-    // get adjacent edges - bad
-    //
-};
+    outgoing_data->import(_edges_container);
+    incoming_data->import(_edges_container);
+}
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
