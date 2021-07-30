@@ -46,15 +46,15 @@ public:
                 VertexPostprocessOperation &&vertex_postprocess_op,
                 CollectiveEdgeOperation &&collective_edge_op,
                 CollectiveVertexPreprocessOperation &&collective_vertex_preprocess_op,
-                CollectiveVertexPostprocessOperation &&collective_vertex_postprocess_op);
+                CollectiveVertexPostprocessOperation &&collective_vertex_postprocess_op);*/
 
     // performs user-defined "compute_op" operation for each element in the given frontier
     template <typename ComputeOperation>
-    void compute(VectCSRGraph &_graph,
-                 FrontierNEC &_frontier,
+    void compute(VGL_Graph &_graph,
+                 VGL_Frontier &_frontier,
                  ComputeOperation &&compute_op);
 
-    // performs reduction using user-defined "reduce_op" operation for each element in the given frontier
+    /*// performs reduction using user-defined "reduce_op" operation for each element in the given frontier
     template <typename _T, typename ReduceOperation>
     _T reduce(VectCSRGraph &_graph,
               FrontierNEC &_frontier,

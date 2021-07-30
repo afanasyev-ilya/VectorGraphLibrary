@@ -6,6 +6,11 @@ protected:
     int size;
     VGL_Graph *graph_ptr;
     TraversalDirection direction;
+
+    // all frontiers have flags and ids - ?
+    int *flags;
+    int *ids;
+    FrontierType type;
 public:
     BaseFrontier(VGL_Graph &_graph, TraversalDirection _direction)
     {
@@ -14,6 +19,9 @@ public:
 
     // get API
     inline int get_size() { return size; };
+    inline int *get_ids() { return ids; };
+    inline int *get_flags() { return flags; };
+    inline FrontierType get_type() { return type; };
 
     // printing API
     virtual void print_stats() = 0;

@@ -31,12 +31,15 @@ private:
     inline long long compute_process_shift(long long _shard_shift, TraversalDirection _traversal, int _storage,
                                            long long _edges_count, bool _outgoing_graph_is_stored);
 
+    */
+
     // compute inner implementation
     template <typename ComputeOperation>
-    inline void compute_worker(VectorCSRGraph &_graph,
-                               FrontierMulticore &_frontier,
+    inline void compute_worker(VGL_Graph &_graph,
+                               VGL_Frontier &_frontier,
                                ComputeOperation &&compute_op);
 
+    /*
     // reduce inner implementation
     template <typename _T, typename ReduceOperation>
     _T reduce_sum(VectorCSRGraph &_graph,
@@ -269,14 +272,15 @@ public:
     template <typename EdgeOperation>
     void gather(ShardedCSRGraph &_graph,
                 FrontierMulticore &_frontier,
-                EdgeOperation &&edge_op);
+                EdgeOperation &&edge_op);*/
 
     // performs user-defined "compute_op" operation for each element in the given frontier
     template <typename ComputeOperation>
-    void compute(VectCSRGraph &_graph,
-                 FrontierMulticore &_frontier,
+    void compute(VGL_Graph &_graph,
+                 VGL_Frontier &_frontier,
                  ComputeOperation &&compute_op);
 
+    /*
     // performs user-defined "compute_op" operation for each element in the given frontier
     template <typename ComputeOperation>
     void compute(ShardedCSRGraph &_graph,
@@ -313,11 +317,10 @@ public:
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 //#include "pack.hpp"
-//#include "helpers.hpp"
+#include "helpers.hpp"
 #include "graph_abstractions_multicore.hpp"
-/*
 #include "compute.hpp"
-#include "scatter.hpp"
+/*#include "scatter.hpp"
 #include "gather.hpp"
 #include "advance_worker.hpp"
 #include "advance_all_active.hpp"

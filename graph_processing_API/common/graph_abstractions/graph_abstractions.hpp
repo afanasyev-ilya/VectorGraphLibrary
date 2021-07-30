@@ -47,20 +47,20 @@ void GraphAbstractions::gather(VectCSRGraph &_graph,
                                CollectiveVertexPostprocessOperation &&collective_vertex_postprocess_op)
 {
 
-}
+}*/
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template <typename ComputeOperation>
-void GraphAbstractions::compute(VectCSRGraph &_graph,
-                                FrontierNEC &_frontier,
+void GraphAbstractions::compute(VGL_Graph &_graph,
+                                VGL_Frontier &_frontier,
                                 ComputeOperation &&compute_op)
 {
 
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
+/*
 template <typename _T, typename ReduceOperation>
 _T GraphAbstractions::reduce(VectCSRGraph &_graph,
                              FrontierNEC &_frontier,

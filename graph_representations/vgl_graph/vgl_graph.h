@@ -14,8 +14,8 @@ public:
     /* get/set API */
     GraphType get_container_type() { return outgoing_data->get_type(); };
     UndirectedGraph *get_direction_data(TraversalDirection _direction);
-    UndirectedGraph *get_outgoing_data(TraversalDirection) { return outgoing_data; };
-    UndirectedGraph *get_incoming_data(TraversalDirection) { return incoming_data; };
+    UndirectedGraph *get_outgoing_data() { return outgoing_data; };
+    UndirectedGraph *get_incoming_data() { return incoming_data; };
 
     /* print API */
     void print();

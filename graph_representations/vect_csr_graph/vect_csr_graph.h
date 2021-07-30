@@ -88,8 +88,8 @@ public:
     /* Further - VectCSRGraph specific API : reorder, working with double-directions, etc.*/
 
     // get pointers to the specific undirected part of graph (incoming or outgoing ids)
-    VectorCSRGraph *get_outgoing_graph_ptr();
-    VectorCSRGraph *get_incoming_graph_ptr();
+    VectorCSRGraph *get_outgoing_data();
+    VectorCSRGraph *get_incoming_data();
     VectorCSRGraph *get_direction_graph_ptr(TraversalDirection _direction);
 
     // allows to get vector engine size

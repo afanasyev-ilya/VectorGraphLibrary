@@ -6,14 +6,11 @@ class FrontierVectorCSR : public BaseFrontier
 {
 private:
     // this is how Vector CSR frontier is represented
-    int *flags;
-    int *ids;
     int *work_buffer;
 
     int max_size;
     int neighbours_count;
     int current_size;
-    FrontierType type;
 
     int vector_engine_part_size;
     int vector_core_part_size;
@@ -34,8 +31,6 @@ public:
     ~FrontierVectorCSR();
 
     /* Get API */
-    inline int *get_flags() {return flags;};
-    inline int *get_ids() {return ids;};
     inline int get_vector_engine_part_size(){return vector_engine_part_size;};
     inline int get_vector_core_part_size(){return vector_core_part_size;};
     inline int get_collective_part_size(){return collective_part_size;};

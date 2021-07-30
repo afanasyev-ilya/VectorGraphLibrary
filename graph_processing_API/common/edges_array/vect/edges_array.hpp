@@ -93,9 +93,9 @@ void EdgesArray_Vect<_T>::set_all_random(_T _max_rand)
 
     // copy data from CSR parts to VE parts TODO functions (maybe)
     if(vect_ptr->outgoing_is_stored() && (edges_count_in_outgoing_ve > 0))
-        vect_ptr->get_outgoing_graph_ptr()->get_ve_ptr()->copy_array_from_csr_to_ve(outgoing_ve_ptr, outgoing_csr_ptr);
+        vect_ptr->get_outgoing_data()->get_ve_ptr()->copy_array_from_csr_to_ve(outgoing_ve_ptr, outgoing_csr_ptr);
     if(vect_ptr->incoming_is_stored() && (edges_count_in_incoming_ve > 0))
-        vect_ptr->get_incoming_graph_ptr()->get_ve_ptr()->copy_array_from_csr_to_ve(incoming_ve_ptr, incoming_csr_ptr);
+        vect_ptr->get_incoming_data()->get_ve_ptr()->copy_array_from_csr_to_ve(incoming_ve_ptr, incoming_csr_ptr);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -115,9 +115,9 @@ void EdgesArray_Vect<_T>::operator = (const EdgesArray_EL<_T> &_el_data)
 
     // copy data from CSR parts to VE parts
     if(vect_ptr->outgoing_is_stored() && (edges_count_in_outgoing_ve > 0))
-        vect_ptr->get_outgoing_graph_ptr()->get_ve_ptr()->copy_array_from_csr_to_ve(outgoing_ve_ptr, outgoing_csr_ptr);
+        vect_ptr->get_outgoing_data()->get_ve_ptr()->copy_array_from_csr_to_ve(outgoing_ve_ptr, outgoing_csr_ptr);
     if(vect_ptr->incoming_is_stored() && (edges_count_in_incoming_ve > 0))
-        vect_ptr->get_incoming_graph_ptr()->get_ve_ptr()->copy_array_from_csr_to_ve(incoming_ve_ptr, incoming_csr_ptr);
+        vect_ptr->get_incoming_data()->get_ve_ptr()->copy_array_from_csr_to_ve(incoming_ve_ptr, incoming_csr_ptr);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

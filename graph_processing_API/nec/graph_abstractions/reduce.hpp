@@ -96,11 +96,11 @@ _T GraphAbstractionsNEC::reduce(VectCSRGraph &_graph,
     VectorCSRGraph *current_direction_graph;
     if(current_traversal_direction == SCATTER)
     {
-        current_direction_graph = _graph.get_outgoing_graph_ptr();
+        current_direction_graph = _graph.get_outgoing_data();
     }
     else if(current_traversal_direction == GATHER)
     {
-        current_direction_graph = _graph.get_incoming_graph_ptr();
+        current_direction_graph = _graph.get_incoming_data();
     }
 
     if(_reduce_type == REDUCE_SUM)

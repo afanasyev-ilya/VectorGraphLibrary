@@ -26,7 +26,7 @@ void GraphAbstractionsMulticore::scatter(VectCSRGraph &_graph,
     {
         throw "Error in GraphAbstractionsMulticore::scatter : wrong frontier direction";
     }
-    current_direction_graph = _graph.get_outgoing_graph_ptr();
+    current_direction_graph = _graph.get_outgoing_data();
 
     bool outgoing_graph_is_stored = _graph.outgoing_is_stored();
 

@@ -11,7 +11,7 @@ BFS_GraphVE::BFS_GraphVE(VectCSRGraph &_graph)
     //FrontierNEC frontier(_graph, GATHER);
 
     // already should be sorted
-    //_graph.get_incoming_graph_ptr()->sort_adjacent_edges();
+    //_graph.get_incoming_data()->sort_adjacent_edges();
 
     frontier.set_all_active();
     auto calculate_non_zero_count = []__VGL_COMPUTE_ARGS__->int
@@ -71,8 +71,8 @@ BFS_GraphVE::BFS_GraphVE(VectCSRGraph &_graph)
     #endif*/
 
     int vertices_count       = _graph.get_vertices_count();
-    long long *outgoing_ptrs = _graph.get_outgoing_graph_ptr()->get_vertex_pointers();
-    int       *outgoing_ids  = _graph.get_outgoing_graph_ptr()->get_adjacent_ids();
+    long long *outgoing_ptrs = _graph.get_outgoing_data()->get_vertex_pointers();
+    int       *outgoing_ids  = _graph.get_outgoing_data()->get_adjacent_ids();
 
     int zero_nodes_count = 0;
     #pragma _NEC vector

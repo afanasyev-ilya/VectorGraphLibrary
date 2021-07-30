@@ -21,6 +21,9 @@ public:
     // get API
     inline int size() { return frontier_representation->get_size(); };
     inline int get_size() { return frontier_representation->get_size(); };
+    inline int *get_ids() { return frontier_representation->get_ids(); };
+    inline int *get_flags() { return frontier_representation->get_flags(); };
+    inline FrontierType get_type() { return frontier_representation->get_type(); };
 
     // printing API
     inline void print_stats() { frontier_representation->print_stats(); };

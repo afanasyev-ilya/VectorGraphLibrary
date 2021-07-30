@@ -26,7 +26,7 @@ void GraphAbstractionsNEC::gather(VectCSRGraph &_graph,
     {
         throw "Error in GraphAbstractionsNEC::gather : wrong frontier direction";
     }
-    current_direction_graph = _graph.get_incoming_graph_ptr();
+    current_direction_graph = _graph.get_incoming_data();
 
     bool outgoing_graph_is_stored = _graph.outgoing_is_stored();
     bool inner_mpi_processing = false;

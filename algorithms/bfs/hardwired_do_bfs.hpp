@@ -6,8 +6,8 @@ GraphStructure check_graph_structure(VectCSRGraph &_graph)
 {
     int vertices_count    = _graph.get_vertices_count();
     long long edges_count = _graph.get_edges_count   ();
-    long long    *outgoing_ptrs = _graph.get_outgoing_graph_ptr()->get_vertex_pointers();
-    int          *outgoing_ids = _graph.get_outgoing_graph_ptr()->get_adjacent_ids();
+    long long    *outgoing_ptrs = _graph.get_outgoing_data()->get_vertex_pointers();
+    int          *outgoing_ids = _graph.get_outgoing_data()->get_adjacent_ids();
 
     int portion_of_first_vertices = 0.01 * vertices_count + 1;
     long long number_of_edges_in_first_portion = outgoing_ptrs[portion_of_first_vertices];
@@ -177,8 +177,8 @@ inline int new_sorted_copy_if(VectCSRGraph &_graph,
                               int &_medium_border)
 {
     // get borders
-    const int ve_threshold = _graph.get_outgoing_graph_ptr()->get_vector_engine_threshold_vertex();
-    int vc_threshold = _graph.get_outgoing_graph_ptr()->get_vector_core_threshold_vertex();
+    const int ve_threshold = _graph.get_outgoing_data()->get_vector_engine_threshold_vertex();
+    int vc_threshold = _graph.get_outgoing_data()->get_vector_core_threshold_vertex();
 
     int first = fast_sparse_copy_if(_in_data, _out_data, _tmp_buffer, _buffer_size,
                                     _start, ve_threshold, _desired_value);
@@ -868,8 +868,8 @@ void BFS::hardwired_do_bfs(VectCSRGraph &_graph,
     double t1, t2, t3, t4;
     int vertices_count    = _graph.get_vertices_count();
     long long edges_count = _graph.get_edges_count   ();
-    long long    *outgoing_ptrs = _graph.get_outgoing_graph_ptr()->get_vertex_pointers();
-    int          *outgoing_ids = _graph.get_outgoing_graph_ptr()->get_adjacent_ids();
+    long long    *outgoing_ptrs = _graph.get_outgoing_data()->get_vertex_pointers();
+    int          *outgoing_ids = _graph.get_outgoing_data()->get_adjacent_ids();
     int *active_ids = _buffer1;
     int *active_vertices_buffer = _buffer2;
 

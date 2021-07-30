@@ -22,6 +22,7 @@ public:
     /* get API */
     inline int *get_src_ids() {return src_ids;};
     inline int *get_dst_ids() {return dst_ids;};
+    int get_connections_count(int _vertex_id) { throw "Error: get_connections_count not implemented in Edges List Graph"; };
 
     /* print API */
     void print();

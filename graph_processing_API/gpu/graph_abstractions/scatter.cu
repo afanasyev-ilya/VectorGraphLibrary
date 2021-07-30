@@ -26,7 +26,7 @@ void GraphAbstractionsGPU::scatter(VectCSRGraph &_graph,
     {
         throw "Error in GraphAbstractionsGPU::scatter : wrong frontier direction";
     }
-    current_direction_graph = _graph.get_outgoing_graph_ptr();
+    current_direction_graph = _graph.get_outgoing_data();
 
     advance_worker(*current_direction_graph, _frontier, edge_op, vertex_preprocess_op, vertex_postprocess_op, false);
 

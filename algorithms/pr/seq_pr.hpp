@@ -12,8 +12,8 @@ void PR::seq_page_rank(VectCSRGraph &_graph,
     tm.start();
 
     // get graph pointers
-    VectorCSRGraph *outgoing_graph_ptr = _graph.get_outgoing_graph_ptr();
-    VectorCSRGraph *incoming_graph_ptr = _graph.get_outgoing_graph_ptr();
+    VectorCSRGraph *outgoing_graph_ptr = _graph.get_outgoing_data();
+    VectorCSRGraph *incoming_graph_ptr = _graph.get_outgoing_data();
     int vertices_count = _graph.get_vertices_count();
     long long edges_count = _graph.get_edges_count();
 

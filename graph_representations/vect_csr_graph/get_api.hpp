@@ -1,24 +1,24 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-VectorCSRGraph *VectCSRGraph::get_outgoing_graph_ptr()
+VectorCSRGraph *VectCSRGraph::get_outgoing_data()
 {
     if(outgoing_is_stored())
     {
         return outgoing_graph;
     }
-    throw "Error in VectCSRGraph::get_outgoing_graph_ptr : outgoing graph is not stored";
+    throw "Error in VectCSRGraph::get_outgoing_data : outgoing graph is not stored";
     return NULL;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-VectorCSRGraph *VectCSRGraph::get_incoming_graph_ptr()
+VectorCSRGraph *VectCSRGraph::get_incoming_data()
 {
     if(incoming_is_stored())
     {
         return incoming_graph;
     }
-    throw "Error in VectCSRGraph::get_incoming_graph_ptr : incoming graph is not stored";
+    throw "Error in VectCSRGraph::get_incoming_data : incoming graph is not stored";
     return NULL;
 }
 
@@ -27,9 +27,9 @@ VectorCSRGraph *VectCSRGraph::get_incoming_graph_ptr()
 VectorCSRGraph *VectCSRGraph::get_direction_graph_ptr(TraversalDirection _direction)
 {
     if(_direction == SCATTER)
-        return this->get_outgoing_graph_ptr();
+        return this->get_outgoing_data();
     else if(_direction == GATHER)
-        return this->get_incoming_graph_ptr();
+        return this->get_incoming_data();
     throw "Error in VectCSRGraph::get_direction_graph_ptr : incorrect _direction value";
     return NULL;
 }
