@@ -2,25 +2,19 @@
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-Frontier::Frontier()
+VGL_Frontier::VGL_Frontier(VGL_Graph &_graph, TraversalDirection _direction)
 {
     object_type = FRONTIER;
-    neighbours_count = 0;
+
+    if(_graph.get_container_type() == VECTOR_CSR_GRAPH)
+        frontier_representation = new FrontierVectorCSR(_graph, _direction);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-string get_frontier_status_string(FrontierType _type)
+VGL_Frontier::~VGL_Frontier()
 {
-    string status;
-    if(_type == ALL_ACTIVE_FRONTIER)
-        status = "all active";
-    if(_type == SPARSE_FRONTIER)
-        status = "sparse";
-    if(_type == DENSE_FRONTIER)
-        status = "dense";
-
-    return status;
+    delete frontier_representation;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

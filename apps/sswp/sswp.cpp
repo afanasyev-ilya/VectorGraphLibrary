@@ -53,8 +53,16 @@ int main(int argc, char **argv)
 
         // define BFS-levels for each graph vertex
         VerticesArray<int> levels(graph, SCATTER);
-        GraphAbstractionsNEC graph_API(graph, SCATTER);
 
+        VGL_Frontier frontier(graph, SCATTER);
+        //VGL_GRAPH_ABSTRACTIONS graph_API(graph, SCATTER);
+
+        // do compute - will be cool
+
+        frontier.clear();
+        frontier.add_vertex(1);
+
+        frontier.print();
 
         /*EdgesArray_Vect<float> capacities(graph);
         //capacities.set_all_random(MAX_WEIGHT);

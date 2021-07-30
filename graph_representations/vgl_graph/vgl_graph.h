@@ -11,6 +11,12 @@ public:
     VGL_Graph(GraphType _container_type);
     void import(EdgesContainer &_edges_container);
 
+    /* get/set API */
+    GraphType get_container_type() { return outgoing_data->get_type(); };
+    UndirectedGraph *get_direction_data(TraversalDirection _direction);
+    UndirectedGraph *get_outgoing_data(TraversalDirection) { return outgoing_data; };
+    UndirectedGraph *get_incoming_data(TraversalDirection) { return incoming_data; };
+
     /* print API */
     void print();
     void print_size() {};
