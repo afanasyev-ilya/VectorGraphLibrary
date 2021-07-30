@@ -31,10 +31,11 @@ void GraphAbstractionsMulticore::gather(VGL_Graph &_graph,
     if(_graph.get_container_type() == VECTOR_CSR_GRAPH)
     {
         VectorCSRGraph *current_direction_graph = (VectorCSRGraph *)_graph.get_outgoing_data();
+        FrontierVectorCSR *current_frontier = (FrontierVectorCSR *)_frontier.get_container_data();
         if(omp_in_parallel())
         {
             #pragma omp barrier
-            advance_worker(*current_direction_graph, _frontier, edge_op, vertex_preprocess_op, vertex_postprocess_op,
+            advance_worker(*current_direction_graph, *current_frontier, edge_op, vertex_preprocess_op, vertex_postprocess_op,
                            collective_edge_op, collective_vertex_preprocess_op, collective_vertex_postprocess_op, 0, 0,
                            outgoing_graph_is_stored);
             #pragma omp barrier
@@ -43,7 +44,7 @@ void GraphAbstractionsMulticore::gather(VGL_Graph &_graph,
         {
             #pragma omp parallel
             {
-                advance_worker(*current_direction_graph, _frontier, edge_op, vertex_preprocess_op, vertex_postprocess_op,
+                advance_worker(*current_direction_graph, *current_frontier, edge_op, vertex_preprocess_op, vertex_postprocess_op,
                                collective_edge_op, collective_vertex_preprocess_op, collective_vertex_postprocess_op, 0, 0,
                                outgoing_graph_is_stored);
             }

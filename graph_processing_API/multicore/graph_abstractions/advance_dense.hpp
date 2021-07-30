@@ -5,7 +5,7 @@
 template <typename EdgeOperation, typename VertexPreprocessOperation,
         typename VertexPostprocessOperation>
 void GraphAbstractionsMulticore::vector_engine_per_vertex_kernel_dense(VectorCSRGraph &_graph,
-                                                                 FrontierMulticore &_frontier,
+                                                                 FrontierVectorCSR &_frontier,
                                                                  const int _first_vertex,
                                                                  const int _last_vertex,
                                                                  EdgeOperation edge_op,
@@ -25,8 +25,6 @@ void GraphAbstractionsMulticore::vector_engine_per_vertex_kernel_dense(VectorCSR
     TraversalDirection traversal = current_traversal_direction;
     int storage = CSR_STORAGE;
     long long process_shift = compute_process_shift(0/*shard shift*/, traversal, storage, edges_count, _outgoing_graph_is_stored);
-
-
 
     for(int front_pos = _first_vertex; front_pos < _last_vertex; front_pos++)
     {
@@ -78,7 +76,7 @@ void GraphAbstractionsMulticore::vector_engine_per_vertex_kernel_dense(VectorCSR
 template <typename EdgeOperation, typename VertexPreprocessOperation,
         typename VertexPostprocessOperation>
 void GraphAbstractionsMulticore::vector_core_per_vertex_kernel_dense(VectorCSRGraph &_graph,
-                                                               FrontierMulticore &_frontier,
+                                                               FrontierVectorCSR &_frontier,
                                                                const int _first_vertex,
                                                                const int _last_vertex,
                                                                EdgeOperation edge_op,
@@ -141,7 +139,7 @@ void GraphAbstractionsMulticore::vector_core_per_vertex_kernel_dense(VectorCSRGr
 template <typename EdgeOperation, typename VertexPreprocessOperation,
         typename VertexPostprocessOperation>
 void GraphAbstractionsMulticore::ve_collective_vertex_processing_kernel_dense(VectorCSRGraph &_graph,
-                                                                        FrontierMulticore &_frontier,
+                                                                        FrontierVectorCSR &_frontier,
                                                                         const int _first_vertex,
                                                                         const int _last_vertex,
                                                                         EdgeOperation edge_op,

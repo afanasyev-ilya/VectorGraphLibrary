@@ -25,13 +25,11 @@ class GraphAbstractionsMulticore : public GraphAbstractions
 private:
     // current the number of vertices, neighbouring a frontier (for Advance perf)
     /*long long count_frontier_neighbours(VectCSRGraph &_graph, FrontierMulticore &_frontier);
-
+*/
     bool use_safe_stores;
 
     inline long long compute_process_shift(long long _shard_shift, TraversalDirection _traversal, int _storage,
                                            long long _edges_count, bool _outgoing_graph_is_stored);
-
-    */
 
     // compute inner implementation
     template <typename ComputeOperation>
@@ -50,7 +48,7 @@ private:
             typename VertexPostprocessOperation, typename CollectiveEdgeOperation, typename CollectiveVertexPreprocessOperation,
             typename CollectiveVertexPostprocessOperation>
     void advance_worker(VectorCSRGraph &_graph,
-                        VGL_Frontier &_frontier,
+                        FrontierVectorCSR &_frontier,
                         EdgeOperation &&edge_op,
                         VertexPreprocessOperation &&vertex_preprocess_op,
                         VertexPostprocessOperation &&vertex_postprocess_op,
@@ -65,7 +63,7 @@ private:
     void advance_worker(EdgesListGraph &_graph, EdgeOperation &&edge_op);
 
     // all-active advance inner implementation
-    /*template <typename EdgeOperation, typename VertexPreprocessOperation,
+    template <typename EdgeOperation, typename VertexPreprocessOperation,
             typename VertexPostprocessOperation>
     inline void vector_engine_per_vertex_kernel_all_active(VectorCSRGraph &_graph,
                                                            const int _first_vertex,
@@ -107,7 +105,7 @@ private:
     template <typename EdgeOperation, typename VertexPreprocessOperation,
             typename VertexPostprocessOperation>
     inline void vector_engine_per_vertex_kernel_dense(VectorCSRGraph &_graph,
-                                                      FrontierMulticore &_frontier,
+                                                      FrontierVectorCSR &_frontier,
                                                       const int _first_vertex,
                                                       const int _last_vertex,
                                                       EdgeOperation edge_op,
@@ -120,7 +118,7 @@ private:
     template <typename EdgeOperation, typename VertexPreprocessOperation,
             typename VertexPostprocessOperation>
     inline void vector_core_per_vertex_kernel_dense(VectorCSRGraph &_graph,
-                                                    FrontierMulticore &_frontier,
+                                                    FrontierVectorCSR &_frontier,
                                                     const int _first_vertex,
                                                     const int _last_vertex,
                                                     EdgeOperation edge_op,
@@ -133,7 +131,7 @@ private:
     template <typename EdgeOperation, typename VertexPreprocessOperation,
             typename VertexPostprocessOperation>
     inline void ve_collective_vertex_processing_kernel_dense(VectorCSRGraph &_graph,
-                                                             FrontierMulticore &_frontier,
+                                                             FrontierVectorCSR &_frontier,
                                                              const int _first_vertex,
                                                              const int _last_vertex,
                                                              EdgeOperation edge_op,
@@ -146,7 +144,7 @@ private:
     template <typename EdgeOperation, typename VertexPreprocessOperation,
             typename VertexPostprocessOperation>
     inline void vector_engine_per_vertex_kernel_sparse(VectorCSRGraph &_graph,
-                                                       FrontierMulticore &_frontier,
+                                                       FrontierVectorCSR &_frontier,
                                                        EdgeOperation edge_op,
                                                        VertexPreprocessOperation vertex_preprocess_op,
                                                        VertexPostprocessOperation vertex_postprocess_op,
@@ -157,7 +155,7 @@ private:
     template <typename EdgeOperation, typename VertexPreprocessOperation,
             typename VertexPostprocessOperation>
     inline void vector_core_per_vertex_kernel_sparse(VectorCSRGraph &_graph,
-                                                     FrontierMulticore &_frontier,
+                                                     FrontierVectorCSR &_frontier,
                                                      EdgeOperation edge_op,
                                                      VertexPreprocessOperation vertex_preprocess_op,
                                                      VertexPostprocessOperation vertex_postprocess_op,
@@ -168,7 +166,7 @@ private:
     template <typename EdgeOperation, typename VertexPreprocessOperation,
             typename VertexPostprocessOperation>
     inline void collective_vertex_processing_kernel_sparse(VectorCSRGraph &_graph,
-                                                           FrontierMulticore &_frontier,
+                                                           FrontierVectorCSR &_frontier,
                                                            const int _first_vertex,
                                                            const int _last_vertex,
                                                            EdgeOperation edge_op,
@@ -177,7 +175,7 @@ private:
                                                            const int _first_edge,
                                                            bool _outgoing_graph_is_stored);
 
-    template <typename FilterCondition>
+    /*template <typename FilterCondition>
     void estimate_sorted_frontier_part_size(FrontierMulticore &_frontier,
                                             long long *_vertex_pointers,
                                             int _first_vertex,
@@ -270,7 +268,7 @@ public:
 #include "scatter.hpp"
 #include "gather.hpp"
 #include "advance_worker.hpp"
-/*#include "advance_all_active.hpp"
+#include "advance_all_active.hpp"
 #include "advance_dense.hpp"
 #include "advance_sparse.hpp"
 /*

@@ -42,16 +42,16 @@ template <typename EdgeOperation, typename VertexPreprocessOperation,
         typename VertexPostprocessOperation, typename CollectiveEdgeOperation, typename CollectiveVertexPreprocessOperation,
         typename CollectiveVertexPostprocessOperation>
 void GraphAbstractionsMulticore::advance_worker(VectorCSRGraph &_graph,
-                                              VGL_Frontier &_frontier,
-                                              EdgeOperation &&edge_op,
-                                              VertexPreprocessOperation &&vertex_preprocess_op,
-                                              VertexPostprocessOperation &&vertex_postprocess_op,
-                                              CollectiveEdgeOperation &&collective_edge_op,
-                                              CollectiveVertexPreprocessOperation &&collective_vertex_preprocess_op,
-                                              CollectiveVertexPostprocessOperation &&collective_vertex_postprocess_op,
-                                              int _first_edge,
-                                              const long long _shard_shift,
-                                              bool _outgoing_graph_is_stored)
+                                                FrontierVectorCSR &_frontier,
+                                                EdgeOperation &&edge_op,
+                                                VertexPreprocessOperation &&vertex_preprocess_op,
+                                                VertexPostprocessOperation &&vertex_postprocess_op,
+                                                CollectiveEdgeOperation &&collective_edge_op,
+                                                CollectiveVertexPreprocessOperation &&collective_vertex_preprocess_op,
+                                                CollectiveVertexPostprocessOperation &&collective_vertex_postprocess_op,
+                                                int _first_edge,
+                                                const long long _shard_shift,
+                                                bool _outgoing_graph_is_stored)
 {
     double wall_time = 0, ve_time = 0, vc_time = 0, collective_time = 0, t1 = 0, t2 = 0;
 
@@ -63,7 +63,7 @@ void GraphAbstractionsMulticore::advance_worker(VectorCSRGraph &_graph,
     const int collective_threshold_start = _graph.get_vector_core_threshold_vertex();
     const int collective_threshold_end = _graph.get_vertices_count();
 
-    /*if(_frontier.get_sparsity_type() == ALL_ACTIVE_FRONTIER)
+    if(_frontier.get_sparsity_type() == ALL_ACTIVE_FRONTIER)
     {
         t1 = omp_get_wtime();
         if((vector_engine_threshold_end - vector_engine_threshold_start) > 0)
@@ -94,7 +94,7 @@ void GraphAbstractionsMulticore::advance_worker(VectorCSRGraph &_graph,
     }
     else
     {
-        if(_frontier.vector_engine_part_size > 0)
+        if(_frontier.get_vector_engine_part_size() > 0)
         {
             t1 = omp_get_wtime();
             if (_frontier.get_sparsity_type() == DENSE_FRONTIER)
@@ -112,7 +112,7 @@ void GraphAbstractionsMulticore::advance_worker(VectorCSRGraph &_graph,
             ve_time += t2 - t1;
         }
 
-        if(_frontier.vector_core_part_size > 0)
+        if(_frontier.get_vector_core_part_size() > 0)
         {
             t1 = omp_get_wtime();
             if(_frontier.get_sparsity_type() == DENSE_FRONTIER)
@@ -129,7 +129,7 @@ void GraphAbstractionsMulticore::advance_worker(VectorCSRGraph &_graph,
             vc_time += t2 - t1;
         }
 
-        if(_frontier.collective_part_size > 0)
+        if(_frontier.get_collective_part_size() > 0)
         {
             t1 = omp_get_wtime();
             if(_frontier.get_sparsity_type() == DENSE_FRONTIER)
@@ -165,7 +165,7 @@ void GraphAbstractionsMulticore::advance_worker(VectorCSRGraph &_graph,
 
         performance_stats.fast_update_advance_stats(wall_time, ve_time, vc_time, collective_time,
                                                     work*INT_ELEMENTS_PER_EDGE*sizeof(int), work);
-    }*/
+    }
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

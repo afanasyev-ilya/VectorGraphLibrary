@@ -26,6 +26,8 @@ public:
     inline FrontierSparsityType get_sparsity_type() { return frontier_representation->get_sparsity_type(); };
     inline FrontierClassType get_class_type() { return frontier_representation->get_class_type(); };
 
+    BaseFrontier *get_container_data() { return frontier_representation; };
+
     // printing API
     inline void print_stats() { frontier_representation->print_stats(); };
     inline void print() { frontier_representation->print(); };

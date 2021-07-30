@@ -82,8 +82,7 @@ int main(int argc, char **argv)
         while(frontier.size() > 0)
         {
             // For each vertex, visit all its outgoing edges (scatter direction).
-            auto edge_op = [levels, current_level](int src_id, int dst_id, int local_edge_pos,
-                                                       long long int global_edge_pos, int vector_index, DelayedWriteNEC &delayed_write)
+            auto edge_op = [levels, current_level] __VGL_SCATTER_ARGS__
             {
                 int src_level = levels[src_id];
                 int dst_level = levels[dst_id];
@@ -108,6 +107,8 @@ int main(int argc, char **argv)
 
             current_level++;
         }
+
+        levels.print();
 
         /*EdgesArray_Vect<float> capacities(graph);
         //capacities.set_all_random(MAX_WEIGHT);

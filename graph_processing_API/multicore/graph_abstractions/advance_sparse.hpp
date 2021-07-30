@@ -5,7 +5,7 @@
 template <typename EdgeOperation, typename VertexPreprocessOperation,
         typename VertexPostprocessOperation>
 void GraphAbstractionsMulticore::vector_engine_per_vertex_kernel_sparse(VectorCSRGraph &_graph,
-                                                                  FrontierMulticore &_frontier,
+                                                                  FrontierVectorCSR &_frontier,
                                                                   EdgeOperation edge_op,
                                                                   VertexPreprocessOperation vertex_preprocess_op,
                                                                   VertexPostprocessOperation vertex_postprocess_op,
@@ -73,7 +73,7 @@ void GraphAbstractionsMulticore::vector_engine_per_vertex_kernel_sparse(VectorCS
 template <typename EdgeOperation, typename VertexPreprocessOperation,
         typename VertexPostprocessOperation>
 void GraphAbstractionsMulticore::vector_core_per_vertex_kernel_sparse(VectorCSRGraph &_graph,
-                                                                FrontierMulticore &_frontier,
+                                                                FrontierVectorCSR &_frontier,
                                                                 EdgeOperation edge_op,
                                                                 VertexPreprocessOperation vertex_preprocess_op,
                                                                 VertexPostprocessOperation vertex_postprocess_op,
@@ -133,7 +133,7 @@ void GraphAbstractionsMulticore::vector_core_per_vertex_kernel_sparse(VectorCSRG
 template <typename EdgeOperation, typename VertexPreprocessOperation,
         typename VertexPostprocessOperation>
 void GraphAbstractionsMulticore::collective_vertex_processing_kernel_sparse(VectorCSRGraph &_graph,
-                                                                      FrontierMulticore &_frontier,
+                                                                      FrontierVectorCSR &_frontier,
                                                                       const int _first_vertex,
                                                                       const int _last_vertex,
                                                                       EdgeOperation edge_op,
