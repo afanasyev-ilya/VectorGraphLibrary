@@ -46,7 +46,7 @@ add_executable(VectorGraphLibrary
         algorithms/bfs/change_state/change_state.hpp
         algorithms/bfs/bfs.h
         algorithms/bfs/gpu_bfs.hpp
-        algorithms/bfs/nec_bfs.hpp
+        algorithms/bfs/bfs.hpp
         algorithms/bfs/seq_bfs.hpp
         algorithms/cc/cc.h
         algorithms/cc/gpu_shiloach_vishkin.hpp

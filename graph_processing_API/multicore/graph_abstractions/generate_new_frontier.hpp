@@ -88,6 +88,8 @@ void GraphAbstractionsMulticore::generate_new_frontier_worker(VectorCSRGraph &_g
 
     tm_copy_if.end();
     tm_wall.end();
+
+    // timer stats
     long long work = vertices_count;
     performance_stats.update_gnf_time(tm_wall);
     performance_stats.update_bytes_requested(work*2.0*sizeof(int));

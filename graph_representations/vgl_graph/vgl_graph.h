@@ -36,6 +36,8 @@ public:
     /* reorder API */
     template <typename _T>
     void reorder(VerticesArray<_T> &_data, TraversalDirection _output_dir);
+    int reorder(int _vertex_id, TraversalDirection _input_dir, TraversalDirection _output_dir);
+    int select_random_vertex(TraversalDirection _direction = ORIGINAL);
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

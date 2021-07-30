@@ -4,8 +4,6 @@
 
 void FrontierVectorCSR::set_all_active()
 {
-    cout << "SETTING" << endl;
-
     sparsity_type = ALL_ACTIVE_FRONTIER;
     this->size = graph_ptr->get_vertices_count();
     neighbours_count = graph_ptr->get_edges_count();

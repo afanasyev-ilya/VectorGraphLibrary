@@ -24,7 +24,7 @@ int main(int argc, char **argv)
         vgl_library_data.init(argc, argv);
         cout << "SSSP (Single Source Shortest Paths) test..." << endl;
 
-        // parse args
+        // parse args and prepare graph
         Parser parser;
         parser.parse_args(argc, argv);
 

@@ -69,6 +69,10 @@ public:
     void operator = (const EdgesListGraph &_copy_graph);
 
     void remove_loops_and_multiple_arcs();
+
+    int reorder_to_sorted(int _vertex_id) { return _vertex_id; };
+    int reorder_to_original(int _vertex_id) { return _vertex_id; };
+    int select_random_vertex() { return rand() % this->vertices_count; };
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

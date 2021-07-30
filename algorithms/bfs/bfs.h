@@ -33,29 +33,29 @@ public:
 
     #if defined(__USE_NEC_SX_AURORA__) || defined(__USE_MULTICORE__)
     template <typename _T>
-    static void nec_top_down(VectCSRGraph &_graph, VerticesArray<_T> &_levels, int _source_vertex);
+    static void vgl_top_down(VGL_Graph &_graph, VerticesArray<_T> &_levels, int _source_vertex);
     #endif
 
-    #if defined(__USE_NEC_SX_AURORA__)
+    /*#if defined(__USE_NEC_SX_AURORA__)
     template <typename _T>
     static void hardwired_do_bfs(VectCSRGraph &_graph, VerticesArray<_T> &_levels, int _source_vertex, BFS_GraphVE &_vector_extension,
                                  int *_buffer1, int *_buffer2);
-    #endif
+    #endif*/
 
-    template <typename _T>
-    static void seq_top_down(VectCSRGraph &_graph, VerticesArray<_T> &_levels, int _source_vertex);
+    /*template <typename _T>
+    static void seq_top_down(VectCSRGraph &_graph, VerticesArray<_T> &_levels, int _source_vertex);*/
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#include "seq_bfs.hpp"
+//#include "seq_bfs.hpp"
 #include "gpu_bfs.hpp"
-#include "nec_bfs.hpp"
+#include "bfs.hpp"
 #include "change_state/change_state.hpp"
 #if defined(__USE_NEC_SX_AURORA__)
-#include "hardwired_do_bfs.hpp"
+//#include "hardwired_do_bfs.hpp"
 #endif
-#include "bfs_graph_ve.hpp"
+//#include "bfs_graph_ve.hpp"
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 

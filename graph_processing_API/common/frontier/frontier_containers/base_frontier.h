@@ -41,5 +41,5 @@ public:
     // frontier direction API
     TraversalDirection get_direction() { return direction; };
     void set_direction(TraversalDirection _direction) { direction = _direction; };
-    void reorder(TraversalDirection _direction) { throw " FRONTIER reorder not implemented yet"; };
+    void reorder(TraversalDirection _direction) { set_direction(_direction); };
 };

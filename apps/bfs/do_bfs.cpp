@@ -26,16 +26,38 @@ int main(int argc, char **argv)
         parser.parse_args(argc, argv);
 
         // prepare graph
-        VGL_Graph graph(VECTOR_CSR_GRAPH);
+        VGL_Graph graph;
         VGL_COMMON_API::prepare_graph(graph, parser);
 
-        // start algorithm
-        VGL_COMMON_API::start_measuring_stats();
+        // init ve and tmp datastructures
+        BFS_GraphVE vector_extension_for_bfs(graph);
+        int *buffer1, *buffer2;
+        MemoryAPI::allocate_array(&buffer1, graph.get_vertices_count());
+        MemoryAPI::allocate_array(&buffer2, graph.get_vertices_count());
+
+        // compute BFS
+        cout << "Computations started..." << endl;
+        cout << "Doing " << parser.get_number_of_rounds() << " BFS iterations..." << endl;
+
+        // do runs
+        double avg_time = 0;
         VerticesArray<int> levels(graph, SCATTER);
+
         for(int i = 0; i < parser.get_number_of_rounds(); i++)
         {
             int source_vertex = graph.select_random_vertex(ORIGINAL);
+            cout << "selected source vertex " << source_vertex << " on run № " << i << endl;
+            cout << "this vertex is " << graph.reorder(source_vertex, ORIGINAL, SCATTER) << ", " << 100.0*graph.reorder(source_vertex, ORIGINAL, SCATTER)/graph.get_vertices_count() << " % pos" << endl;
+
+            performance_stats.reset_timers();
+
+            //if(parser.get_algorithm_bfs() == DIRECTION_OPTIMIZING_BFS_ALGORITHM)
+            //    BFS::hardwired_do_bfs(graph, levels, source_vertex, vector_extension_for_bfs, buffer1, buffer2);
+            //else if(parser.get_algorithm_bfs() == TOP_DOWN_BFS_ALGORITHM)
             BFS::vgl_top_down(graph, levels, source_vertex);
+
+            performance_stats.update_timer_stats();
+            performance_stats.print_timers_stats();
 
             /*if(parser.get_check_flag())
             {
@@ -45,8 +67,10 @@ int main(int argc, char **argv)
                 verify_results(levels, check_levels, 0);
             }*/
         }
-        VGL_COMMON_API::stop_measuring_stats(graph.get_edges_count());
-        VGL_COMMON_API::finalize_library();
+        performance_stats.print_perf(graph.get_edges_count());
+
+        MemoryAPI::free_array(buffer1);
+        MemoryAPI::free_array(buffer2);
     }
     catch (string error)
     {

@@ -4,7 +4,7 @@
 
 #if defined(__USE_NEC_SX_AURORA__) || defined(__USE_MULTICORE__)
 template <typename _T>
-void BFS::nec_top_down(VectCSRGraph &_graph,
+void BFS::vgl_top_down(VGL_Graph &_graph,
                        VerticesArray<_T> &_levels,
                        int _source_vertex)
 {
@@ -62,7 +62,6 @@ void BFS::nec_top_down(VectCSRGraph &_graph,
         current_level++;
     }
     tm.end();
-
 
     #ifdef __PRINT_SAMPLES_PERFORMANCE_STATS__
     performance_stats.print_algorithm_performance_stats("BFS (Top-down, NEC/multicore)", tm.get_time(), _graph.get_edges_count());

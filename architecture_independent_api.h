@@ -27,15 +27,14 @@
 
 #ifdef __USE_NEC_SX_AURORA__
 #define VGL_GRAPH_ABSTRACTIONS GraphAbstractionsNEC
-#define VGL_FRONTIER FrontierNEC
 #endif
 
 #ifdef __USE_MULTICORE__
 #define VGL_GRAPH_ABSTRACTIONS GraphAbstractionsMulticore
-#define VGL_FRONTIER FrontierMulticore
 #endif
 
 #ifdef __USE_GPU__
 #define VGL_GRAPH_ABSTRACTIONS GraphAbstractionsGPU
-#define VGL_FRONTIER FrontierGPU
 #endif
+
+#define VGL_FRONTIER VGL_Frontier
