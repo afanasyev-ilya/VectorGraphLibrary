@@ -55,7 +55,7 @@ int main(int argc, char **argv)
         VerticesArray<int> levels(graph, SCATTER);
 
         VGL_Frontier frontier(graph, SCATTER);
-        //VGL_GRAPH_ABSTRACTIONS graph_API(graph, SCATTER);
+        VGL_GRAPH_ABSTRACTIONS graph_API(graph, SCATTER);
 
         // do compute - will be cool
 

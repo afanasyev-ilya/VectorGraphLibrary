@@ -21,6 +21,7 @@ public:
     // attaches graph-processing API to the specific graph
     GraphAbstractions();
 
+    /*
     // performs user-defined "edge_op" operation over all OUTGOING edges, neighbouring specified frontier
     template <typename EdgeOperation, typename VertexPreprocessOperation, typename VertexPostprocessOperation,
             typename CollectiveEdgeOperation, typename CollectiveVertexPreprocessOperation,
@@ -64,7 +65,7 @@ public:
     template <typename FilterCondition>
     void generate_new_frontier(VectCSRGraph &_graph,
                                FrontierNEC &_frontier,
-                               FilterCondition &&filter_cond);
+                               FilterCondition &&filter_cond);*/
 
     // allows to check if multiple arrays (vertexArrays, frontiers) have correct direction
     bool have_correct_direction();
@@ -87,11 +88,11 @@ public:
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #ifdef __USE_NEC_SX_AURORA__
-#include "graph_processing_API/nec/graph_abstractions/graph_abstractions_nec.h"
+//#include "graph_processing_API/nec/graph_abstractions/graph_abstractions_nec.h"
 #endif
 
 #ifdef __USE_GPU__
-#include "graph_processing_API/gpu/graph_abstractions/graph_abstractions_gpu.cuh"
+//#include "graph_processing_API/gpu/graph_abstractions/graph_abstractions_gpu.cuh"
 #endif
 
 #if defined(__USE_MULTICORE__)

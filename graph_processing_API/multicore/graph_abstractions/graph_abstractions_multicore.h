@@ -24,7 +24,7 @@ class GraphAbstractionsMulticore : public GraphAbstractions
 {
 private:
     // current the number of vertices, neighbouring a frontier (for Advance perf)
-    long long count_frontier_neighbours(VectCSRGraph &_graph, FrontierMulticore &_frontier);
+    /*long long count_frontier_neighbours(VectCSRGraph &_graph, FrontierMulticore &_frontier);
 
     bool use_safe_stores;
 
@@ -181,10 +181,12 @@ private:
                                             int _last_vertex,
                                             FilterCondition &&filter_cond,
                                             int &_elements_count,
-                                            long long &_neighbours_count);
+                                            long long &_neighbours_count);*/
 public:
     // attaches graph-processing API to the specific graph
-    GraphAbstractionsMulticore(VectCSRGraph &_graph, TraversalDirection _initial_traversal = SCATTER);
+    GraphAbstractionsMulticore(VGL_Graph &_graph, TraversalDirection _initial_traversal = SCATTER);
+
+    /*GraphAbstractionsMulticore(VectCSRGraph &_graph, TraversalDirection _initial_traversal = SCATTER);
     GraphAbstractionsMulticore(ShardedCSRGraph &_graph, TraversalDirection _initial_traversal = SCATTER);
     GraphAbstractionsMulticore(EdgesListGraph &_graph, TraversalDirection _initial_traversal = ORIGINAL);
 
@@ -305,14 +307,15 @@ public:
                                 VerticesArray<_T2> &_second);
 
     void enable_safe_stores() {use_safe_stores = true;};
-    void disable_safe_stores() {use_safe_stores = false;};
+    void disable_safe_stores() {use_safe_stores = false;};*/
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#include "pack.hpp"
-#include "helpers.hpp"
+//#include "pack.hpp"
+//#include "helpers.hpp"
 #include "graph_abstractions_multicore.hpp"
+/*
 #include "compute.hpp"
 #include "scatter.hpp"
 #include "gather.hpp"
@@ -321,6 +324,6 @@ public:
 #include "advance_dense.hpp"
 #include "advance_sparse.hpp"
 #include "generate_new_frontier.hpp"
-#include "reduce.hpp"
+#include "reduce.hpp"*/
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

@@ -27,10 +27,16 @@ void VGL_Graph::import(EdgesContainer &_edges_container)
 
 void VGL_Graph::print()
 {
-    cout << " ------------ VGL GRAPH ------------ " << endl;
     outgoing_data->print();
     incoming_data->print();
-    cout << " ------------ VGL GRAPH ------------ " << endl;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+void VGL_Graph::print_size()
+{
+    outgoing_data->print_size();
+    incoming_data->print_size();
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

@@ -19,8 +19,8 @@ public:
 
     /* print API */
     void print();
-    void print_size() {};
-    size_t get_size() { return 0; };
+    void print_size();
+    size_t get_size() { return outgoing_data->get_size() + incoming_data->get_size(); };
 
     /* file load/store API */
     bool save_to_binary_file(string _file_name) { return false; };

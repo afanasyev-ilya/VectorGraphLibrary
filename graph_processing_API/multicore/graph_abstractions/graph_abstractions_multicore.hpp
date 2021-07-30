@@ -2,34 +2,13 @@
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-GraphAbstractionsMulticore::GraphAbstractionsMulticore(VectCSRGraph &_graph, TraversalDirection _initial_traversal)
+GraphAbstractionsMulticore::GraphAbstractionsMulticore(VGL_Graph &_graph, TraversalDirection _initial_traversal)
 {
     processed_graph_ptr = &_graph;
     current_traversal_direction = _initial_traversal;
-    direction_shift = _graph.get_direction_shift();
-    use_safe_stores = false;
 }
 
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-GraphAbstractionsMulticore::GraphAbstractionsMulticore(ShardedCSRGraph &_graph, TraversalDirection _initial_traversal)
-{
-    processed_graph_ptr = &_graph;
-    current_traversal_direction = _initial_traversal;
-    direction_shift = _graph.get_direction_shift();
-    use_safe_stores = false;
-}
-
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-GraphAbstractionsMulticore::GraphAbstractionsMulticore(EdgesListGraph &_graph, TraversalDirection _initial_traversal)
-{
-    processed_graph_ptr = &_graph;
-    current_traversal_direction = _initial_traversal;
-    direction_shift = 0;
-    use_safe_stores = false;
-}
-
+/*
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 long long GraphAbstractionsMulticore::count_frontier_neighbours(VectCSRGraph &_graph,
@@ -57,5 +36,5 @@ long long GraphAbstractionsMulticore::compute_process_shift(long long _shard_shi
     return _shard_shift + traversal_shift + storage_shift;
 }
 
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////*/
 

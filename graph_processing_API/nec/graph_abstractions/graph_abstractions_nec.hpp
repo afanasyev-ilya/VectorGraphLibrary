@@ -6,7 +6,7 @@ GraphAbstractionsNEC::GraphAbstractionsNEC(VectCSRGraph &_graph, TraversalDirect
 {
     processed_graph_ptr = &_graph;
     current_traversal_direction = _initial_traversal;
-    direction_shift = _graph.get_direction_shift();
+    //direction_shift = _graph.get_direction_shift();
     use_safe_stores = false;
 }
 
@@ -16,7 +16,7 @@ GraphAbstractionsNEC::GraphAbstractionsNEC(ShardedCSRGraph &_graph, TraversalDir
 {
     processed_graph_ptr = &_graph;
     current_traversal_direction = _initial_traversal;
-    direction_shift = _graph.get_direction_shift();
+    //direction_shift = _graph.get_direction_shift();
     use_safe_stores = false;
 }
 
@@ -26,7 +26,7 @@ GraphAbstractionsNEC::GraphAbstractionsNEC(EdgesListGraph &_graph, TraversalDire
 {
     processed_graph_ptr = &_graph;
     current_traversal_direction = _initial_traversal;
-    direction_shift = 0;
+    //direction_shift = 0;
     use_safe_stores = false;
 }
 
