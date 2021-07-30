@@ -14,8 +14,6 @@ int main(int argc, char **argv)
 {
     try
     {
-        cout << "HAHAHA!!!" << endl;
-
         cout << "SSSP (Single Source Shortest Paths) test..." << endl;
         cout << "max threads: " << omp_get_max_threads() << endl;
 
@@ -44,6 +42,8 @@ int main(int argc, char **argv)
             tm.end();
             tm.print_time_stats("Graph load");*/
         }
+
+        main_graph.print();
 
         // print graphs stats
         /*graph.print_size();
