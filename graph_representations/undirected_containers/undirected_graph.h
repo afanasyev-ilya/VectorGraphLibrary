@@ -18,6 +18,8 @@ public:
 
     virtual int select_random_vertex() = 0;
 
+    virtual void reorder_to_original(char *_data, char *_buffer, size_t _elem_size) = 0;
+    virtual void reorder_to_sorted(char *_data, char *_buffer, size_t _elem_size) = 0;
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

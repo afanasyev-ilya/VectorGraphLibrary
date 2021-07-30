@@ -7,8 +7,22 @@ class VGL_Graph: public BaseGraph
 private:
     UndirectedGraph *outgoing_data;
     UndirectedGraph *incoming_data;
+
+    long long *vertices_reorder_buffer;
+
+    // vertex reorder API (used in GraphAbstractions and VerticesArray)
+    template <typename _T>
+    bool vertices_buffer_can_be_used(VerticesArray<_T> &_data);
+
+    template <typename _T>
+    void reorder_to_original(VerticesArray<_T> &_data);
+    template <typename _T>
+    void reorder_to_scatter(VerticesArray<_T> &_data);
+    template <typename _T>
+    void reorder_to_gather(VerticesArray<_T> &_data);
 public:
     VGL_Graph(GraphType _container_type);
+    ~VGL_Graph();
     void import(EdgesContainer &_edges_container);
 
     /* get/set API */

@@ -13,6 +13,21 @@ VGL_Graph::VGL_Graph(GraphType _container_type)
         outgoing_data = new EdgesListGraph();
         incoming_data = new EdgesListGraph();
     }
+    else
+    {
+        throw "Error: unsupported graph type in VGL_Graph::VGL_Graph";
+    }
+
+    MemoryAPI::allocate_array(&vertices_reorder_buffer, 1);
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+VGL_Graph::~VGL_Graph()
+{
+    delete outgoing_data;
+    delete incoming_data;
+    MemoryAPI::free_array(vertices_reorder_buffer);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -23,6 +38,9 @@ void VGL_Graph::import(EdgesContainer &_edges_container)
     this->edges_count = _edges_container.get_edges_count();
     outgoing_data->import(_edges_container);
     incoming_data->import(_edges_container);
+
+    MemoryAPI::free_array(vertices_reorder_buffer);
+    MemoryAPI::allocate_array(&vertices_reorder_buffer, this->vertices_count);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

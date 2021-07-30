@@ -61,6 +61,16 @@ void MemoryAPI::set(_T *_data, _T _val, size_t _size)
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+template <typename _T>
+void MemoryAPI::resize(_T **_ptr, size_t _new_size)
+{
+    if(*_ptr != NULL)
+        MemoryAPI::free_array(*_ptr);
+    MemoryAPI::allocate_array(_ptr, _new_size);
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 #ifdef __USE_GPU__
 template <typename _T>
 void MemoryAPI::move_array_to_device(_T *_ptr, size_t _size)

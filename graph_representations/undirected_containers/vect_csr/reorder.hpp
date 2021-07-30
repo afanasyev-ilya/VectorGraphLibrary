@@ -16,15 +16,14 @@ int VectorCSRGraph::reorder_to_sorted(int _vertex_id)
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-template <typename _T>
-void VectorCSRGraph::reorder_to_original(_T *_data, _T *_buffer)
+void VectorCSRGraph::reorder_to_original(char *_data, char *_buffer, size_t _elem_size)
 {
     #if defined(__USE_GPU__)
-    cuda_reorder_wrapper_scatter(_data, _buffer, backward_conversion, this->vertices_count);
+    //cuda_reorder_wrapper_scatter(_data, _buffer, backward_conversion, this->vertices_count);
     return;
     #endif
 
-    if(omp_in_parallel())
+    /*if(omp_in_parallel())
     {
         #if defined(__USE_NEC_SX_AURORA__) || defined(__USE_MULTICORE__)
         #pragma _NEC ivdep
@@ -51,22 +50,21 @@ void VectorCSRGraph::reorder_to_original(_T *_data, _T *_buffer)
     {
         #pragma omp parallel
         {
-            reorder_to_original(_data, _buffer);
+            reorder_to_original(_data, _buffer, _elem_size);
         }
-    }
+    }*/
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-template <typename _T>
-void VectorCSRGraph::reorder_to_sorted(_T *_data, _T *_buffer)
+void VectorCSRGraph::reorder_to_sorted(char *_data, char *_buffer, size_t _elem_size)
 {
     #if defined(__USE_GPU__)
-    cuda_reorder_wrapper_scatter(_data, _buffer, forward_conversion, this->vertices_count); // TODO which direction is faster?
+    //cuda_reorder_wrapper_scatter(_data, _buffer, forward_conversion, this->vertices_count); // TODO which direction is faster?
     return;
     #endif
 
-    if(omp_in_parallel())
+    /*if(omp_in_parallel())
     {
         #if defined(__USE_NEC_SX_AURORA__) || defined(__USE_MULTICORE__)
         #pragma _NEC ivdep
@@ -93,9 +91,9 @@ void VectorCSRGraph::reorder_to_sorted(_T *_data, _T *_buffer)
     {
         #pragma omp parallel
         {
-            reorder_to_sorted(_data, _buffer);
+            reorder_to_sorted(_data, _buffer, _elem_size);
         }
-    }
+    }*/
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

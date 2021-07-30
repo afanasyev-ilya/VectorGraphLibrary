@@ -11,6 +11,9 @@ class EdgesListGraph : public UndirectedGraph
 private:
     int *src_ids;
     int *dst_ids;
+
+    void reorder_to_sorted(char *_data, char *_buffer, size_t _elem_size) {return;};
+    void reorder_to_original(char *_data, char *_buffer, size_t _elem_size) {return;};
     
     void alloc(int _vertices_count, long long _edges_count);
     void free();

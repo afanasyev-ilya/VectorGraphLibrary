@@ -21,6 +21,9 @@ public:
     template <typename _T>
     static void set(_T *_data, _T val, size_t _size);
 
+    template <typename _T>
+    static void resize(_T **_ptr, size_t _new_size);
+
     #ifdef __USE_GPU__
     template <typename _T>
     static void move_array_to_device(_T *_ptr, size_t _size);

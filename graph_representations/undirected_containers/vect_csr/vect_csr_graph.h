@@ -88,12 +88,12 @@ private:
     int reorder_to_sorted(int _vertex_id);
     // reorders a single vertex from sorted (undirectedCSR) to original (edges list)
     int reorder_to_original(int _vertex_id);
+
     // reorders a vertexArray(pointer) from original (edges list) to sorted (undirectedCSR)
-    template <typename _T>
-    void reorder_to_sorted(_T *_data, _T *_buffer);
+    void reorder_to_sorted(char *_data, char *_buffer, size_t _elem_size);
     // reorders a vertexArray(pointer)  from sorted (undirectedCSR) to original (edges list)
-    template <typename _T>
-    void reorder_to_original(_T *_data, _T *_buffer);
+    void reorder_to_original(char *_data, char *_buffer, size_t _elem_size);
+
     // allows to save edge reorder indexes
     void update_edge_reorder_indexes_using_superposition(vgl_sort_indexes *_edges_reorder_indexes);
     // in-place edges reorder from original to sorted, buffer can be provided for better speed
