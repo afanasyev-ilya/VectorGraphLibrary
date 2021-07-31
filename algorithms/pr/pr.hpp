@@ -4,7 +4,7 @@
 
 #if defined(__USE_NEC_SX_AURORA__) || defined(__USE_MULTICORE__)
 template <typename _T>
-void PR::nec_page_rank(VectCSRGraph &_graph,
+void PR::vgl_page_rank(VGL_Graph &_graph,
                        VerticesArray<_T> &_page_ranks,
                        _T _convergence_factor,
                        int _max_iterations)

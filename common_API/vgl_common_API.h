@@ -7,7 +7,7 @@ class VGL_COMMON_API
 public:
     static void init_library(int argc, char **argv)
     {
-
+        vgl_library_data.init(argc, argv);
     }
 
     static void info_message(string _algo_name)
@@ -36,11 +36,15 @@ public:
             tm.end();
             tm.print_time_stats("Graph load");*/
         }
+
+        #ifdef __USE_MPI__
+        vgl_library_data.allocate_exchange_buffers(_graph.get_vertices_count(), sizeof(double));
+        #endif
     }
 
     static void finalize_library()
     {
-
+        vgl_library_data.finalize();
     }
 
     static void start_measuring_stats()

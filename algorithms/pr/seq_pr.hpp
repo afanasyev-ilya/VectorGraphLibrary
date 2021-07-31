@@ -3,7 +3,7 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template <typename _T>
-void PR::seq_page_rank(VectCSRGraph &_graph,
+void PR::seq_page_rank(VGL_Graph &_graph,
                        VerticesArray<_T> &_page_ranks,
                        _T _convergence_factor,
                        int _max_iterations)
@@ -11,11 +11,7 @@ void PR::seq_page_rank(VectCSRGraph &_graph,
     Timer tm;
     tm.start();
 
-    // get graph pointers
-    VectorCSRGraph *outgoing_graph_ptr = _graph.get_outgoing_data();
-    VectorCSRGraph *incoming_graph_ptr = _graph.get_outgoing_data();
     int vertices_count = _graph.get_vertices_count();
-    long long edges_count = _graph.get_edges_count();
 
     // set PR parameters
     _T d = 0.85;
