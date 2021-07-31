@@ -3,13 +3,12 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template <typename _T>
-void CC::seq_bfs_based(VectCSRGraph &_graph, VerticesArray<_T> &_components)
+void CC::seq_bfs_based(VGL_Graph &_graph, VerticesArray<_T> &_components)
 {
     Timer tm;
     tm.start();
 
-    VectorCSRGraph *outgoing_graph_ptr = _graph.get_outgoing_data();
-    LOAD_VECTOR_CSR_GRAPH_DATA((*outgoing_graph_ptr));
+    int vertices_count = _graph.get_vertices_count();
 
     for(int v = 0; v < vertices_count; v++)
     {
@@ -31,13 +30,11 @@ void CC::seq_bfs_based(VectCSRGraph &_graph, VerticesArray<_T> &_components)
                 int s = queue.front();
                 queue.pop_front();
 
-                const long long edge_start = vertex_pointers[s];
-                const int connections_count = vertex_pointers[s + 1] - vertex_pointers[s];
+                const int connections_count = _graph.get_outgoing_connections_count(s);
 
                 for(int edge_pos = 0; edge_pos < connections_count; edge_pos++)
                 {
-                    long long int global_edge_pos = edge_start + edge_pos;
-                    int dst_id = adjacent_ids[global_edge_pos];
+                    int dst_id = _graph.get_outgoing_edge_dst(s, edge_pos);
                     if(_components[dst_id] == COMPONENT_UNSET)
                     {
                         _components[dst_id] = current_component_num;

@@ -15,16 +15,16 @@ public:
         cout << " ------------ VGL " << _algo_name << " algorithm ----------- " << endl;
     }
 
-    static void prepare_graph(VGL_Graph &_graph, Parser &_parser)
+    static void prepare_graph(VGL_Graph &_graph, Parser &_parser, DirectionType _direction = DIRECTED_GRAPH)
     {
         if(_parser.get_compute_mode() == GENERATE_NEW_GRAPH)
         {
             EdgesContainer edges_container;
             int v = pow(2.0, _parser.get_scale());
             if(_parser.get_graph_type() == RMAT)
-                GraphGenerationAPI::R_MAT(edges_container, v, v * _parser.get_avg_degree(), 57, 19, 19, 5, DIRECTED_GRAPH);
+                GraphGenerationAPI::R_MAT(edges_container, v, v * _parser.get_avg_degree(), 57, 19, 19, 5, _direction);
             else if(_parser.get_graph_type() == RANDOM_UNIFORM)
-                GraphGenerationAPI::random_uniform(edges_container, v, v * _parser.get_avg_degree(), DIRECTED_GRAPH);
+                GraphGenerationAPI::random_uniform(edges_container, v, v * _parser.get_avg_degree(), _direction);
             _graph.import(edges_container);
         }
         else if(_parser.get_compute_mode() == LOAD_GRAPH_FROM_FILE)

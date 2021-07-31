@@ -50,8 +50,8 @@ add_executable(VectorGraphLibrary
         algorithms/bfs/seq_bfs.hpp
         algorithms/cc/cc.h
         algorithms/cc/gpu_shiloach_vishkin.hpp
-        algorithms/cc/nec_bfs_based.hpp
-        algorithms/cc/nec_shiloach_vishkin.hpp
+        algorithms/cc/bfs_based.hpp
+        algorithms/cc/shiloach_vishkin.hpp
         algorithms/cc/seq_bfs_based.hpp
         algorithms/kcore/kcore.h
         algorithms/kcore/kcore.hpp

@@ -19,33 +19,33 @@ class ConnectedComponents
 private:
     #if defined(__USE_NEC_SX_AURORA__) || defined(__USE_MULTICORE__)
     template <typename _T>
-    static int select_pivot(VectCSRGraph &_graph, VGL_GRAPH_ABSTRACTIONS &_graph_API, VGL_FRONTIER &_frontier,
+    static int select_pivot(VGL_Graph &_graph, VGL_GRAPH_ABSTRACTIONS &_graph_API, VGL_FRONTIER &_frontier,
                             VerticesArray<_T> &_components);
     #endif
 public:
     #if defined(__USE_NEC_SX_AURORA__) || defined(__USE_MULTICORE__)
     template <typename _T>
-    static void nec_shiloach_vishkin(VectCSRGraph &_graph, VerticesArray<_T> &_components);
+    static void vgl_shiloach_vishkin(VGL_Graph &_graph, VerticesArray<_T> &_components);
     #endif
 
     #if defined(__USE_NEC_SX_AURORA__) || defined(__USE_MULTICORE__)
     template <typename _T>
-    static void nec_bfs_based(VectCSRGraph &_graph, VerticesArray<_T> &_components);
+    static void vgl_bfs_based(VGL_Graph &_graph, VerticesArray<_T> &_components);
     #endif
 
     #ifdef __USE_GPU__
     template <typename _T>
-    static void gpu_shiloach_vishkin(VectCSRGraph &_graph, VerticesArray<_T> &_components);
+    static void gpu_shiloach_vishkin(VGL_Graph &_graph, VerticesArray<_T> &_components);
     #endif
 
     template <typename _T>
-    static void seq_bfs_based(VectCSRGraph &_graph, VerticesArray<_T> &_components);
+    static void seq_bfs_based(VGL_Graph &_graph, VerticesArray<_T> &_components);
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#include "nec_shiloach_vishkin.hpp"
-#include "nec_bfs_based.hpp"
+#include "shiloach_vishkin.hpp"
+#include "bfs_based.hpp"
 #include "seq_bfs_based.hpp"
 #include "gpu_shiloach_vishkin.hpp"
 

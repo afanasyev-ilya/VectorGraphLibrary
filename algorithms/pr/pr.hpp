@@ -132,7 +132,7 @@ void PR::vgl_page_rank(VGL_Graph &_graph,
             return _page_ranks[src_id];
         };
         _T ranks_sum = graph_API.reduce<_T>(_graph, frontier, reduce_ranks_sum, REDUCE_SUM);
-        //cout << "ranks sum: " << ranks_sum << endl;
+        cout << "ranks sum: " << ranks_sum << endl;
     }
     tm.end();
 

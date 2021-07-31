@@ -72,16 +72,15 @@ using namespace std;
 
 #include "algorithms/bfs/bfs.h"
 #include "algorithms/pr/pr.h"
+#include "algorithms/cc/cc.h"
+//#include "algorithms/hits/hits.h"
 
 //#include "algorithms/sswp/widest_paths.h" // since vect max
 
 #ifndef __USE_GPU__
 /*#include "algorithms/bfs/bfs.h"
 #include "algorithms/sssp/shortest_paths.h"
-
-#include "algorithms/cc/cc.h"
 #include "algorithms/rw/random_walk.h"
-#include "algorithms/hits/hits.h"
 #include "algorithms/scc/scc.h"
 #include "algorithms/coloring/coloring.h"*/
 #endif

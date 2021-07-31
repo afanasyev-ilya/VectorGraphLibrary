@@ -102,7 +102,7 @@ void PR::seq_page_rank(VGL_Graph &_graph,
         {
             ranks_sum += _page_ranks[i];
         }
-        //cout << "ranks sum: " << ranks_sum << endl;
+        cout << "ranks sum: " << ranks_sum << endl;
     }
 
     tm.end();

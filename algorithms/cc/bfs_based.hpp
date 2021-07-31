@@ -4,7 +4,7 @@
 
 #if defined(__USE_NEC_SX_AURORA__) || defined(__USE_MULTICORE__)
 template <typename _T>
-int CC::select_pivot(VectCSRGraph &_graph,
+int CC::select_pivot(VGL_Graph &_graph,
                      VGL_GRAPH_ABSTRACTIONS &_graph_API,
                      VGL_FRONTIER &_frontier,
                      VerticesArray<_T> &_components)
@@ -38,7 +38,7 @@ int CC::select_pivot(VectCSRGraph &_graph,
 
 #if defined(__USE_NEC_SX_AURORA__) || defined(__USE_MULTICORE__)
 template <typename _T>
-void CC::nec_bfs_based(VectCSRGraph &_graph, VerticesArray<_T> &_components)
+void CC::vgl_bfs_based(VGL_Graph &_graph, VerticesArray<_T> &_components)
 {
     VGL_GRAPH_ABSTRACTIONS graph_API(_graph, SCATTER);
     VGL_FRONTIER frontier(_graph, SCATTER);
@@ -51,11 +51,7 @@ void CC::nec_bfs_based(VectCSRGraph &_graph, VerticesArray<_T> &_components)
     Timer tm;
     tm.start();
 
-    //
-    VectorCSRGraph *outgoing_graph_ptr = _graph.get_outgoing_data();
-    LOAD_VECTOR_CSR_GRAPH_DATA((*outgoing_graph_ptr));
-
-    //int vertices_count = _graph.get_vertices_count();
+    int vertices_count = _graph.get_vertices_count();
 
     frontier.set_all_active();
     auto init_and_remove_zero_nodes = [&_components, vertices_count] __VGL_COMPUTE_ARGS__
@@ -71,7 +67,7 @@ void CC::nec_bfs_based(VectCSRGraph &_graph, VerticesArray<_T> &_components)
     do
     {
         int pivot = select_pivot(_graph, graph_API, frontier, _components);
-        cout << "pivot: " << pivot << " " << _components[pivot] << " " << vertex_pointers[pivot + 1] - vertex_pointers[pivot] << endl;
+        cout << "pivot: " << pivot << " " << _components[pivot] << " " << _graph.get_outgoing_connections_count(pivot) << endl;
 
         if(pivot == -1)
         {
