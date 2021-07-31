@@ -109,7 +109,7 @@ _T GraphAbstractionsNEC::reduce(VectCSRGraph &_graph,
     }
     else
     {
-        throw "Error in GraphPrimitivesNEC::reduce: non-sum reduce are currently unsupported";
+        throw "Error in GraphAbstractionsNEC::reduce: non-sum reduce are currently unsupported";
         return 0;
     }
 
@@ -154,7 +154,7 @@ _T GraphAbstractionsNEC::reduce(ShardedCSRGraph &_graph,
     }
     else
     {
-        throw "Error in GraphPrimitivesNEC::reduce: non-sum reduce are currently unsupported";
+        throw "Error in GraphAbstractionsNEC::reduce: non-sum reduce are currently unsupported";
         return 0;
     }
 
