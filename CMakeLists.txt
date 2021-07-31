@@ -77,8 +77,8 @@ add_executable(VectorGraphLibrary
         common/gpu_API/cuda_error_handling.h
         common/memory_API/memory_API.h
         common/memory_API/memory_API.hpp
-        common/parallel_primitives/copy_if.h
-        common/parallel_primitives/get_elements_count.h
+        common/parallel_primitives/copy_if/copy_if.h
+        common/parallel_primitives/count_if/count_if.h
         common/random_generator/asl_generator/asl_generator.h
         common/random_generator/asl_generator/asl_generator.hpp
         common/random_generator/common_generator/common_generator.h

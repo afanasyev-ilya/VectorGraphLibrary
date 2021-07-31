@@ -1,13 +1,4 @@
-//
-//  get_elements_count.h
-//  ParallelGraphLibrary
-//
-//  Created by Elijah Afanasiev on 05/11/2019.
-//  Copyright © 2019 MSU. All rights reserved.
-//
-
-#ifndef get_elements_count_h
-#define get_elements_count_h
+#pragma once
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -29,4 +20,3 @@ inline int get_elements_count(int *_data, int _size, int _desired_value)
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#endif /* get_elements_count_h */
