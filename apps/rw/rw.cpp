@@ -3,7 +3,7 @@
 #define COMPUTE_INT_ELEMENTS 10.0 // or 8?
 #define FRONTIER_TYPE_CHANGE_THRESHOLD 1.0
 
-#define __PRINT_API_PERFORMANCE_STATS__
+//#define __PRINT_API_PERFORMANCE_STATS__
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -50,8 +50,8 @@ int main(int argc, char **argv)
 
         if(parser.get_check_flag())
         {
-            VerticesArray<int> check_walk_results(graph);
-            RW::seq_random_walk(graph, walk_vertices, walk_vertices_num, walk_length, check_walk_results);
+            //VerticesArray<int> check_walk_results(graph);
+            //RW::seq_random_walk(graph, walk_vertices, walk_vertices_num, walk_length, check_walk_results);
             cout << "since walks are random it is not possible to check" << endl;
         }
 

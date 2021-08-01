@@ -3,7 +3,7 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template <typename _T>
-class EdgesArray_Vect : public EdgesArray<_T>
+class EdgesArrayVectorCSR : public BaseEdgesArray<_T>
 {
 private:
     _T *outgoing_csr_ptr;
@@ -18,9 +18,9 @@ private:
     long long edges_count_in_incoming_ve;
 public:
     /* constructors and destructors */
-    EdgesArray_Vect(VGL_Graph &_graph);
-    EdgesArray_Vect(const EdgesArray_Vect<_T> &_copy_obj);
-    ~EdgesArray_Vect();
+    EdgesArrayVectorCSR(VGL_Graph &_graph);
+    EdgesArrayVectorCSR(const EdgesArrayVectorCSR<_T> &_copy_obj);
+    ~EdgesArrayVectorCSR();
 
     /* get/set API */
     inline void set(int _src_id, int _dst_id, _T _val, TraversalDirection _direction);
@@ -39,6 +39,6 @@ public:
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#include "edges_array.hpp"
+#include "edges_array_vect_csr.hpp"
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

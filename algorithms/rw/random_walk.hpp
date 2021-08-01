@@ -14,7 +14,7 @@ void RW::vgl_random_walk(VGL_Graph &_graph,
     MemoryAPI::allocate_array(&rand_array, _walk_vertices_num);
 
     VGL_GRAPH_ABSTRACTIONS graph_API(_graph);
-    VGL_FRONTIER frontier(_graph);
+    VGL_FRONTIER frontier(_graph, SCATTER);
 
     // prepare walk positions
     Timer tm;
