@@ -33,7 +33,7 @@ void GraphAbstractionsNEC::estimate_sorted_frontier_part_size(FrontierNEC &_fron
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template <typename FilterCondition>
-void GraphAbstractionsNEC::generate_new_frontier(VectCSRGraph &_graph,
+void GraphAbstractionsNEC::generate_new_frontier(VGL_Graph &_graph,
                                                  FrontierNEC &_frontier,
                                                  FilterCondition &&filter_cond)
 {

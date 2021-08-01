@@ -15,7 +15,7 @@ int main(int argc, char **argv)
         parser.parse_args(argc, argv);
 
         // load graph
-        VectCSRGraph graph;
+        VGL_Graph graph;
         if(!graph.load_from_binary_file(parser.get_graph_file_name()))
             throw "Error: graph file not found";
 

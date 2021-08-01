@@ -10,7 +10,7 @@ class Coloring
 {
 public:
     template <typename _T>
-    static void vgl_coloring(VectCSRGraph &_graph, VerticesArray<_T> &_colors);
+    static void vgl_coloring(VGL_Graph &_graph, VerticesArray<_T> &_colors);
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

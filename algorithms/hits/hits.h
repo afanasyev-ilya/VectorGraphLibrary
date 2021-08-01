@@ -6,10 +6,10 @@ class HITS
 {
 public:
     template <typename _T>
-    static void vgl_hits(VectCSRGraph &_graph, VerticesArray<_T> &_auth, VerticesArray<_T> &_hub, int _num_steps);
+    static void vgl_hits(VGL_Graph &_graph, VerticesArray<_T> &_auth, VerticesArray<_T> &_hub, int _num_steps);
 
     template <typename _T>
-    static void seq_hits(VectCSRGraph &_graph, VerticesArray<_T> &_auth, VerticesArray<_T> &_hub, int _num_steps);
+    static void seq_hits(VGL_Graph &_graph, VerticesArray<_T> &_auth, VerticesArray<_T> &_hub, int _num_steps);
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

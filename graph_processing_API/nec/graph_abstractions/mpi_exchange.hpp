@@ -248,7 +248,7 @@ void in_group_exchange(_T *_data, int _begin, int _end)
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template <typename _T>
-void exchange_data_private(VectCSRGraph &_graph, _T *_data, int _size, TraversalDirection _direction)
+void exchange_data_private(VGL_Graph &_graph, _T *_data, int _size, TraversalDirection _direction)
 {
     MPI_Barrier(MPI_COMM_WORLD);
     Timer tm;

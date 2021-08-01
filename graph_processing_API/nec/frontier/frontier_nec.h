@@ -25,7 +25,7 @@ private:
     void init();
 public:
     /* constructors and destructors */
-    FrontierNEC(VectCSRGraph &_graph, TraversalDirection _direction = SCATTER);
+    FrontierNEC(VGL_Graph &_graph, TraversalDirection _direction = SCATTER);
     FrontierNEC(ShardedCSRGraph &_graph, TraversalDirection _direction = SCATTER);
     ~FrontierNEC();
 

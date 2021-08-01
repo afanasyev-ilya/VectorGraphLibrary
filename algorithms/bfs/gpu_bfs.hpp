@@ -2,7 +2,7 @@
 
 #ifdef __USE_GPU__
 template <typename _T>
-void BFS::gpu_top_down(VectCSRGraph &_graph,
+void BFS::gpu_top_down(VGL_Graph &_graph,
                        VerticesArray<_T> &_levels,
                        int _source_vertex)
 {

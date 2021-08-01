@@ -4,7 +4,7 @@
 
 #ifdef __USE_GPU__
 template <typename _T>
-void PR::gpu_page_rank(VectCSRGraph &_graph,
+void PR::gpu_page_rank(VGL_Graph &_graph,
                        VerticesArray<_T> &_page_ranks,
                        _T _convergence_factor,
                        int _max_iterations,

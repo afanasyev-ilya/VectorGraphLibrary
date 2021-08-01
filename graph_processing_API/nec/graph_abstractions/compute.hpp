@@ -72,7 +72,7 @@ void GraphAbstractionsNEC::compute_worker(VectorCSRGraph &_graph,
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template <typename ComputeOperation>
-void GraphAbstractionsNEC::compute(VectCSRGraph &_graph,
+void GraphAbstractionsNEC::compute(VGL_Graph &_graph,
                                    FrontierNEC &_frontier,
                                    ComputeOperation &&compute_op)
 {

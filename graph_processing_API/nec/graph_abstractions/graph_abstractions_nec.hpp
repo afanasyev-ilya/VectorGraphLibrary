@@ -2,7 +2,7 @@
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-GraphAbstractionsNEC::GraphAbstractionsNEC(VectCSRGraph &_graph, TraversalDirection _initial_traversal)
+GraphAbstractionsNEC::GraphAbstractionsNEC(VGL_Graph &_graph, TraversalDirection _initial_traversal)
 {
     processed_graph_ptr = &_graph;
     current_traversal_direction = _initial_traversal;
@@ -32,7 +32,7 @@ GraphAbstractionsNEC::GraphAbstractionsNEC(EdgesListGraph &_graph, TraversalDire
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-long long GraphAbstractionsNEC::count_frontier_neighbours(VectCSRGraph &_graph,
+long long GraphAbstractionsNEC::count_frontier_neighbours(VGL_Graph &_graph,
                                                           FrontierNEC &_frontier)
 {
     auto sum_connections = []__VGL_COMPUTE_ARGS__->int

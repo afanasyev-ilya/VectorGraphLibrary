@@ -2,7 +2,7 @@
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-GraphStructure check_graph_structure(VectCSRGraph &_graph)
+GraphStructure check_graph_structure(VGL_Graph &_graph)
 {
     int vertices_count    = _graph.get_vertices_count();
     long long edges_count = _graph.get_edges_count   ();
@@ -165,7 +165,7 @@ inline int fast_sparse_copy_if(const int *_in_data,
 }
 
 
-inline int new_sorted_copy_if(VectCSRGraph &_graph,
+inline int new_sorted_copy_if(VGL_Graph &_graph,
                               const int *_in_data,
                               int *_out_data,
                               int *_tmp_buffer,
@@ -509,7 +509,7 @@ void hardwired_nec_top_down_step(long long *_outgoing_ptrs,
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template <typename _T>
-void hardwired_nec_bottom_up_step(VectCSRGraph &_graph,
+void hardwired_nec_bottom_up_step(VGL_Graph &_graph,
                         long long *_outgoing_ptrs,
                         int *_outgoing_ids,
                         int *_vectorised_outgoing_ids,
@@ -856,7 +856,7 @@ void hardwired_nec_bottom_up_step(VectCSRGraph &_graph,
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template <typename _T>
-void BFS::hardwired_do_bfs(VectCSRGraph &_graph,
+void BFS::hardwired_do_bfs(VGL_Graph &_graph,
                            VerticesArray<_T> &_levels,
                            int _source_vertex,
                            BFS_GraphVE &_vector_extension,

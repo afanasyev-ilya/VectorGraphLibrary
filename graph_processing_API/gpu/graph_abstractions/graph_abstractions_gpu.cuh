@@ -33,7 +33,7 @@ private:
                                            REDUCE_TYPE _reduce_type);
 public:
     // attaches graph-processing API to the specific graph
-    GraphAbstractionsGPU(VectCSRGraph &_graph, TraversalDirection _initial_traversal = SCATTER);
+    GraphAbstractionsGPU(VGL_Graph &_graph, TraversalDirection _initial_traversal = SCATTER);
     GraphAbstractionsGPU(ShardedCSRGraph &_graph, TraversalDirection _initial_traversal = SCATTER);
     ~GraphAbstractionsGPU();
 
@@ -41,7 +41,7 @@ public:
     template <typename EdgeOperation, typename VertexPreprocessOperation, typename VertexPostprocessOperation,
             typename CollectiveEdgeOperation, typename CollectiveVertexPreprocessOperation,
             typename CollectiveVertexPostprocessOperation>
-    void scatter(VectCSRGraph &_graph,
+    void scatter(VGL_Graph &_graph,
                  FrontierGPU &_frontier,
                  EdgeOperation &&edge_op,
                  VertexPreprocessOperation &&vertex_preprocess_op,
@@ -52,13 +52,13 @@ public:
 
     // performs user-defined "edge_op" operation over all OUTGOING edges, neighbouring specified frontier
     template <typename EdgeOperation>
-    void scatter(VectCSRGraph &_graph, FrontierGPU &_frontier, EdgeOperation &&edge_op);
+    void scatter(VGL_Graph &_graph, FrontierGPU &_frontier, EdgeOperation &&edge_op);
 
     // performs user-defined "edge_op" operation over all OUTGOING edges, neighbouring specified frontier
     template <typename EdgeOperation, typename VertexPreprocessOperation, typename VertexPostprocessOperation,
             typename CollectiveEdgeOperation, typename CollectiveVertexPreprocessOperation,
             typename CollectiveVertexPostprocessOperation>
-    void gather(VectCSRGraph &_graph,
+    void gather(VGL_Graph &_graph,
                 FrontierGPU &_frontier,
                 EdgeOperation &&edge_op,
                 VertexPreprocessOperation &&vertex_preprocess_op,
@@ -69,19 +69,19 @@ public:
 
     // performs user-defined "edge_op" operation over all OUTGOING edges, neighbouring specified frontier
     template <typename EdgeOperation>
-    void gather(VectCSRGraph &_graph, FrontierGPU &_frontier, EdgeOperation &&edge_op);
+    void gather(VGL_Graph &_graph, FrontierGPU &_frontier, EdgeOperation &&edge_op);
 
     // performs user-defined "compute_op" operation for each element in the given frontier
     template <typename ComputeOperation>
-    void compute(VectCSRGraph &_graph, FrontierGPU &_frontier, ComputeOperation &&compute_op);
+    void compute(VGL_Graph &_graph, FrontierGPU &_frontier, ComputeOperation &&compute_op);
 
     // creates new frontier, which satisfy user-defined "cond" condition
     template <typename Condition>
-    void generate_new_frontier(VectCSRGraph &_graph, FrontierGPU &_frontier, Condition &&cond);
+    void generate_new_frontier(VGL_Graph &_graph, FrontierGPU &_frontier, Condition &&cond);
 
     // performs reduction using user-defined "reduce_op" operation for each element in the given frontier
     template <typename _T, typename ReduceOperation>
-    _T reduce(VectCSRGraph &_graph, FrontierGPU &_frontier, ReduceOperation &&reduce_op, REDUCE_TYPE _reduce_type);
+    _T reduce(VGL_Graph &_graph, FrontierGPU &_frontier, ReduceOperation &&reduce_op, REDUCE_TYPE _reduce_type);
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

@@ -2,7 +2,7 @@
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-FrontierGPU::FrontierGPU(VectCSRGraph &_graph, TraversalDirection _direction)
+FrontierGPU::FrontierGPU(VGL_Graph &_graph, TraversalDirection _direction)
 {
     max_size = _graph.get_vertices_count();
     direction = _direction;

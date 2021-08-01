@@ -47,7 +47,7 @@ public:
     void move_to_host() {throw "not implemented yet";};
     #endif
 
-    /* Further - VectCSRGraph specific API : reorder, working with double-directions, etc.*/
+    /* Further - VGL_Graph specific API : reorder, working with double-directions, etc.*/
     // resize graph
     void resize(int _vertices_count, long long _edges_count);
     void clear() {free();};

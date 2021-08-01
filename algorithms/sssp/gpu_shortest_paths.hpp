@@ -4,7 +4,7 @@
 
 #ifdef __USE_GPU__
 template <typename _T>
-void SSSP::gpu_dijkstra_all_active_push(VectCSRGraph &_graph,
+void SSSP::gpu_dijkstra_all_active_push(VGL_Graph &_graph,
                                         EdgesArray_Vect<_T> &_weights,
                                         VerticesArray<_T> &_distances,
                                         int _source_vertex)
@@ -67,7 +67,7 @@ void SSSP::gpu_dijkstra_all_active_push(VectCSRGraph &_graph,
 
 #ifdef __USE_GPU__
 template <typename _T>
-void SSSP::gpu_dijkstra_all_active_pull(VectCSRGraph &_graph,
+void SSSP::gpu_dijkstra_all_active_pull(VGL_Graph &_graph,
                                         EdgesArray_Vect<_T> &_weights,
                                         VerticesArray<_T> &_distances,
                                         int _source_vertex)
@@ -130,7 +130,7 @@ void SSSP::gpu_dijkstra_all_active_pull(VectCSRGraph &_graph,
 
 #ifdef __USE_GPU__
 template <typename _T>
-void SSSP::gpu_dijkstra_partial_active(VectCSRGraph &_graph,
+void SSSP::gpu_dijkstra_partial_active(VGL_Graph &_graph,
                                        EdgesArray_Vect<_T> &_weights,
                                        VerticesArray<_T> &_distances,
                                        int _source_vertex)
@@ -200,7 +200,7 @@ void SSSP::gpu_dijkstra_partial_active(VectCSRGraph &_graph,
 
 #ifdef __USE_GPU__
 template <typename _T>
-void SSSP::gpu_dijkstra(VectCSRGraph &_graph,
+void SSSP::gpu_dijkstra(VGL_Graph &_graph,
                         EdgesArray_Vect<_T> &_weights,
                         VerticesArray<_T> &_distances,
                         int _source_vertex,

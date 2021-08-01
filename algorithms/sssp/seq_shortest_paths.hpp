@@ -6,7 +6,7 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template <typename _T>
-void SSSP::seq_dijkstra(VectCSRGraph &_graph, EdgesArray_Vect<_T> &_weights, VerticesArray<_T> &_distances,
+void SSSP::seq_dijkstra(VGL_Graph &_graph, EdgesArray_Vect<_T> &_weights, VerticesArray<_T> &_distances,
                         int _source_vertex)
 {
     VectorCSRGraph *outgoing_graph_ptr = _graph.get_outgoing_data();

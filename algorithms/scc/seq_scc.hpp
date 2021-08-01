@@ -11,7 +11,7 @@ struct SnapShotStruct
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void SCC::seq_tarjan_kernel(VectCSRGraph &_graph,
+void SCC::seq_tarjan_kernel(VGL_Graph &_graph,
                             int _root,
                             VerticesArray<int> &_disc,
                             VerticesArray<int> &_low,
@@ -115,7 +115,7 @@ void SCC::seq_tarjan_kernel(VectCSRGraph &_graph,
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void SCC::seq_tarjan(VectCSRGraph &_graph, VerticesArray<int> &_components)
+void SCC::seq_tarjan(VGL_Graph &_graph, VerticesArray<int> &_components)
 {
     // allocate memory for Tarjan's algorithm computations
     Timer tm;

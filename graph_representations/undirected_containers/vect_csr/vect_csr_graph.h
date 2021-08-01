@@ -186,7 +186,7 @@ public:
     void sort_adjacent_edges();
 
     friend class GraphAbstractions;
-    friend class VectCSRGraph;
+    friend class VGL_Graph;
     friend class ShardedCSRGraph;
     friend class EdgesListGraph;
     template<class _T> friend class EdgesArray_Vect;

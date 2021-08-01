@@ -37,7 +37,7 @@ private:
                                int &_thread_threshold_start, int &_thread_threshold_end);
 public:
     /* constructors and destructors */
-    FrontierGPU(VectCSRGraph &_graph, TraversalDirection _direction = SCATTER);
+    FrontierGPU(VGL_Graph &_graph, TraversalDirection _direction = SCATTER);
     ~FrontierGPU();
 
     /* Get API */

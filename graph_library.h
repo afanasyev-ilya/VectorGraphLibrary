@@ -41,9 +41,6 @@ using namespace std;
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
 #include "graph_analytics/graph_analytics.h"
 #include "graph_generation_API/graph_generation_API.h"
 
@@ -73,7 +70,7 @@ using namespace std;
 #include "algorithms/bfs/bfs.h"
 #include "algorithms/pr/pr.h"
 #include "algorithms/cc/cc.h"
-//#include "algorithms/hits/hits.h"
+#include "algorithms/hits/hits.h"
 
 //#include "algorithms/sswp/widest_paths.h" // since vect max
 

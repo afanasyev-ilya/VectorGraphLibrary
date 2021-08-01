@@ -96,7 +96,7 @@ public:
     void import(EdgesListGraph &_old_graph, bool _random_shuffle_required = true);
 
     friend class GraphAbstractions;
-    friend class VectCSRGraph;
+    friend class VGL_Graph;
     friend class ShardedCSRGraph;
     friend class EdgesListGraph;
     template<class _T> friend class EdgesArray_Vect;

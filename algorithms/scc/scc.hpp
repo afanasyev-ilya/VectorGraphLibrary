@@ -4,7 +4,7 @@
 
 #if defined(__USE_NEC_SX_AURORA__) || defined(__USE_MULTICORE__)
 template <typename _T>
-void SCC::trim_step(VectCSRGraph &_graph,
+void SCC::trim_step(VGL_Graph &_graph,
                     VGL_GRAPH_ABSTRACTIONS &_graph_API,
                     VGL_FRONTIER &_frontier,
                     VerticesArray<_T> &_out_degrees,
@@ -123,7 +123,7 @@ void SCC::trim_step(VectCSRGraph &_graph,
 
 #if defined(__USE_NEC_SX_AURORA__) || defined(__USE_MULTICORE__)
 template <typename _T>
-void SCC::bfs_reach(VectCSRGraph &_graph,
+void SCC::bfs_reach(VGL_Graph &_graph,
                     VGL_GRAPH_ABSTRACTIONS  &_graph_API,
                     VGL_FRONTIER &_frontier,
                     VerticesArray<_T> &_bfs_result,
@@ -184,7 +184,7 @@ void SCC::bfs_reach(VectCSRGraph &_graph,
 
 #if defined(__USE_NEC_SX_AURORA__) || defined(__USE_MULTICORE__)
 template <typename _T>
-int SCC::select_pivot(VectCSRGraph &_graph,
+int SCC::select_pivot(VGL_Graph &_graph,
                       VGL_GRAPH_ABSTRACTIONS  &_graph_API,
                       VGL_FRONTIER &_frontier,
                       VerticesArray<_T> &_trees,
@@ -221,7 +221,7 @@ int SCC::select_pivot(VectCSRGraph &_graph,
 
 #if defined(__USE_NEC_SX_AURORA__) || defined(__USE_MULTICORE__)
 template <typename _T>
-void SCC::process_result(VectCSRGraph &_graph,
+void SCC::process_result(VGL_Graph &_graph,
                          VGL_GRAPH_ABSTRACTIONS  &_graph_API,
                          VGL_FRONTIER &_frontier,
                          VerticesArray<_T> &_forward_result,
@@ -266,7 +266,7 @@ void SCC::process_result(VectCSRGraph &_graph,
 
 #if defined(__USE_NEC_SX_AURORA__) || defined(__USE_MULTICORE__)
 template <typename _T>
-void SCC::FB_step(VectCSRGraph &_graph,
+void SCC::FB_step(VGL_Graph &_graph,
                   VGL_GRAPH_ABSTRACTIONS &_graph_API,
                   VGL_FRONTIER &_frontier,
                   VerticesArray<_T> &_trees,
@@ -303,7 +303,7 @@ void SCC::FB_step(VectCSRGraph &_graph,
 
 #if defined(__USE_NEC_SX_AURORA__) || defined(__USE_MULTICORE__)
 template <typename _T>
-void SCC::nec_forward_backward(VectCSRGraph &_graph, VerticesArray<_T> &_components)
+void SCC::nec_forward_backward(VGL_Graph &_graph, VerticesArray<_T> &_components)
 {
     VGL_GRAPH_ABSTRACTIONS graph_API(_graph, SCATTER);
     VGL_FRONTIER frontier(_graph, SCATTER);

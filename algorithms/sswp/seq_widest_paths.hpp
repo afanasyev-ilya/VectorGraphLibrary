@@ -3,7 +3,7 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template <typename _T>
-void SSWP::seq_dijkstra(VectCSRGraph &_graph,
+void SSWP::seq_dijkstra(VGL_Graph &_graph,
                         EdgesArray_Vect<_T> &_edges_capacities,
                         VerticesArray<_T> &_widths,
                         int _source_vertex)

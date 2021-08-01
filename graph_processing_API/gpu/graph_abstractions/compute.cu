@@ -85,7 +85,7 @@ void GraphAbstractionsGPU::compute_worker(VectorCSRGraph &_graph,
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template <typename ComputeOperation>
-void GraphAbstractionsGPU::compute(VectCSRGraph &_graph,
+void GraphAbstractionsGPU::compute(VGL_Graph &_graph,
                                    FrontierGPU &_frontier,
                                    ComputeOperation &&compute_op)
 {

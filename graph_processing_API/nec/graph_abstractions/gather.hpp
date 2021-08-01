@@ -5,7 +5,7 @@
 template <typename EdgeOperation, typename VertexPreprocessOperation,
         typename VertexPostprocessOperation, typename CollectiveEdgeOperation, typename CollectiveVertexPreprocessOperation,
         typename CollectiveVertexPostprocessOperation>
-void GraphAbstractionsNEC::gather(VectCSRGraph &_graph,
+void GraphAbstractionsNEC::gather(VGL_Graph &_graph,
                                   FrontierNEC &_frontier,
                                   EdgeOperation &&edge_op,
                                   VertexPreprocessOperation &&vertex_preprocess_op,
@@ -58,7 +58,7 @@ void GraphAbstractionsNEC::gather(VectCSRGraph &_graph,
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template <typename EdgeOperation>
-void GraphAbstractionsNEC::gather(VectCSRGraph &_graph,
+void GraphAbstractionsNEC::gather(VGL_Graph &_graph,
                                   FrontierNEC &_frontier,
                                   EdgeOperation &&edge_op)
 {

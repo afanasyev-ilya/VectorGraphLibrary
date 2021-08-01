@@ -17,7 +17,7 @@ struct BFS_GraphVE
     int ve_edges_per_vertex;
     int *ve_dst_ids;
 
-    BFS_GraphVE(VectCSRGraph &_graph);
+    BFS_GraphVE(VGL_Graph &_graph);
     ~BFS_GraphVE();
 };
 
@@ -28,7 +28,7 @@ class BFS
 public:
     #ifdef __USE_GPU__
     template <typename _T>
-    static void gpu_top_down(VectCSRGraph &_graph, VerticesArray<_T> &_levels, int _source_vertex);
+    static void gpu_top_down(VGL_Graph &_graph, VerticesArray<_T> &_levels, int _source_vertex);
     #endif
 
     #if defined(__USE_NEC_SX_AURORA__) || defined(__USE_MULTICORE__)
@@ -38,7 +38,7 @@ public:
 
     /*#if defined(__USE_NEC_SX_AURORA__)
     template <typename _T>
-    static void hardwired_do_bfs(VectCSRGraph &_graph, VerticesArray<_T> &_levels, int _source_vertex, BFS_GraphVE &_vector_extension,
+    static void hardwired_do_bfs(VGL_Graph &_graph, VerticesArray<_T> &_levels, int _source_vertex, BFS_GraphVE &_vector_extension,
                                  int *_buffer1, int *_buffer2);
     #endif*/
 

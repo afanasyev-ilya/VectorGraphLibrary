@@ -158,7 +158,7 @@ _T GraphAbstractionsGPU::reduce_worker(VectorCSRGraph &_graph,
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template <typename _T, typename ReduceOperation>
-_T GraphAbstractionsGPU::reduce(VectCSRGraph &_graph,
+_T GraphAbstractionsGPU::reduce(VGL_Graph &_graph,
                                 FrontierGPU &_frontier,
                                 ReduceOperation &&reduce_op,
                                 REDUCE_TYPE _reduce_type)

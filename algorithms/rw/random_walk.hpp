@@ -3,7 +3,7 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template <typename _T>
-void RW::vgl_random_walk(VectCSRGraph &_graph,
+void RW::vgl_random_walk(VGL_Graph &_graph,
                          vector<int> &_walk_vertices,
                          int _walk_vertices_num,
                          int _walk_lengths,
@@ -72,7 +72,7 @@ void RW::vgl_random_walk(VectCSRGraph &_graph,
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template <typename _T>
-void RW::seq_random_walk(VectCSRGraph &_graph,
+void RW::seq_random_walk(VGL_Graph &_graph,
                          vector<int> &_walk_vertices,
                          int _walk_vertices_num,
                          int _walk_lengths,

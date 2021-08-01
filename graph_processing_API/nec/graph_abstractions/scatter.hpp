@@ -5,7 +5,7 @@
 template <typename EdgeOperation, typename VertexPreprocessOperation,
         typename VertexPostprocessOperation, typename CollectiveEdgeOperation, typename CollectiveVertexPreprocessOperation,
         typename CollectiveVertexPostprocessOperation>
-void GraphAbstractionsNEC::scatter(VectCSRGraph &_graph,
+void GraphAbstractionsNEC::scatter(VGL_Graph &_graph,
                                    FrontierNEC &_frontier,
                                    EdgeOperation &&edge_op,
                                    VertexPreprocessOperation &&vertex_preprocess_op,
@@ -57,7 +57,7 @@ void GraphAbstractionsNEC::scatter(VectCSRGraph &_graph,
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template <typename EdgeOperation>
-void GraphAbstractionsNEC::scatter(VectCSRGraph &_graph,
+void GraphAbstractionsNEC::scatter(VGL_Graph &_graph,
                                    FrontierNEC &_frontier,
                                    EdgeOperation &&edge_op)
 {

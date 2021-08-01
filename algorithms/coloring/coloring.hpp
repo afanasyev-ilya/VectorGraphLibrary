@@ -64,7 +64,7 @@ inline int smallest_bit_pos(size_t _input)
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template <typename _T>
-void Coloring::vgl_coloring(VectCSRGraph &_graph, VerticesArray<_T> &_colors)
+void Coloring::vgl_coloring(VGL_Graph &_graph, VerticesArray<_T> &_colors)
 {
     VerticesArray<size_t> available_colors(_graph);
     VerticesArray<int> need_recolor(_graph);

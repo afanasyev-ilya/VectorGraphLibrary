@@ -51,7 +51,7 @@ void __global__ copy_frontier_ids_kernel(int *_frontier_ids,
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template <typename Condition>
-void GraphAbstractionsGPU::generate_new_frontier(VectCSRGraph &_graph,
+void GraphAbstractionsGPU::generate_new_frontier(VGL_Graph &_graph,
                                                  FrontierGPU &_frontier,
                                                  Condition &&cond)
 {

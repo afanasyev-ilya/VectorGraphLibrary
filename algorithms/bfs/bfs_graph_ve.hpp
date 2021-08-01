@@ -2,7 +2,7 @@
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-BFS_GraphVE::BFS_GraphVE(VectCSRGraph &_graph)
+BFS_GraphVE::BFS_GraphVE(VGL_Graph &_graph)
 {
     /*#ifdef __USE_NEC_SX_AURORA__
     GraphAbstractionsNEC graph_API(_graph, SCATTER);

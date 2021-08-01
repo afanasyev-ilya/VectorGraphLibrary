@@ -124,7 +124,7 @@ int main(int argc, char ** argv)
         {
             rand_graph.remove_loops_and_multiple_arcs();
 
-            VectCSRGraph vect_csr_graph;
+            VGL_Graph vect_csr_graph;
             Timer tm;
             tm.start();
             vect_csr_graph.import(rand_graph);

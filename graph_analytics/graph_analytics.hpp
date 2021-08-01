@@ -77,7 +77,7 @@ map<int, int> GraphAnalytics::calculate_degree_distribution(long long *_vertex_p
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-void GraphAnalytics::print_graph_memory_consumption(VectCSRGraph &_graph)
+void GraphAnalytics::print_graph_memory_consumption(VGL_Graph &_graph)
 {
     /*LOAD_VECTOR_CSR_GRAPH_DATA(_graph);
 
@@ -94,7 +94,7 @@ void GraphAnalytics::print_graph_memory_consumption(VectCSRGraph &_graph)
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void GraphAnalytics::analyse_graph_thresholds(VectCSRGraph &_graph)
+void GraphAnalytics::analyse_graph_thresholds(VGL_Graph &_graph)
 {
     /*#ifdef __USE_NEC_SX_AURORA__
     cout << endl;

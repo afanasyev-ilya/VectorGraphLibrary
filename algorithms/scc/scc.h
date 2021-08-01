@@ -22,7 +22,7 @@ class StronglyConnectedComponents
 private:
     #if defined(__USE_NEC_SX_AURORA__) || defined(__USE_MULTICORE__)
     template <typename _T>
-    static void trim_step(VectCSRGraph &_graph,
+    static void trim_step(VGL_Graph &_graph,
                           VGL_GRAPH_ABSTRACTIONS &_graph_API,
                           VGL_FRONTIER &_frontier,
                           VerticesArray<_T> &_forward_result,
@@ -33,7 +33,7 @@ private:
 
     #if defined(__USE_NEC_SX_AURORA__) || defined(__USE_MULTICORE__)
     template <typename _T>
-    static void process_result(VectCSRGraph &_graph,
+    static void process_result(VGL_Graph &_graph,
                                VGL_GRAPH_ABSTRACTIONS &_graph_API,
                                VGL_FRONTIER &_frontier,
                                VerticesArray<_T> &_forward_result,
@@ -45,7 +45,7 @@ private:
 
     #if defined(__USE_NEC_SX_AURORA__) || defined(__USE_MULTICORE__)
     template <typename _T>
-    static void bfs_reach(VectCSRGraph &_graph,
+    static void bfs_reach(VGL_Graph &_graph,
                           VGL_GRAPH_ABSTRACTIONS &_graph_API,
                           VGL_FRONTIER &_frontier,
                           VerticesArray<_T> &_bfs_result,
@@ -55,7 +55,7 @@ private:
 
     #if defined(__USE_NEC_SX_AURORA__) || defined(__USE_MULTICORE__)
     template <typename _T>
-    static void FB_step(VectCSRGraph &_graph,
+    static void FB_step(VGL_Graph &_graph,
                         VGL_GRAPH_ABSTRACTIONS &_graph_API,
                         VGL_FRONTIER &_frontier,
                         VerticesArray<_T> &_trees,
@@ -68,14 +68,14 @@ private:
 
     #if defined(__USE_NEC_SX_AURORA__) || defined(__USE_MULTICORE__)
     template <typename _T>
-    static int select_pivot(VectCSRGraph &_graph,
+    static int select_pivot(VGL_Graph &_graph,
                      VGL_GRAPH_ABSTRACTIONS &_graph_API,
                      VGL_FRONTIER &_frontier,
                      VerticesArray<_T> &_trees,
                      int _tree_num);
     #endif
 
-    static void seq_tarjan_kernel(VectCSRGraph &_graph,
+    static void seq_tarjan_kernel(VGL_Graph &_graph,
                                   int _root,
                                   VerticesArray<int> &_disc,
                                   VerticesArray<int> &_low,
@@ -85,15 +85,15 @@ private:
 public:
     #if defined(__USE_NEC_SX_AURORA__) || defined(__USE_MULTICORE__)
     template <typename _T>
-    static void nec_forward_backward(VectCSRGraph &_graph, VerticesArray<_T> &_components);
+    static void nec_forward_backward(VGL_Graph &_graph, VerticesArray<_T> &_components);
     #endif
 
     #ifdef __USE_GPU__
     template <typename _T>
-    static void gpu_forward_backward(VectCSRGraph &_graph, VerticesArray<_T> &_components);
+    static void gpu_forward_backward(VGL_Graph &_graph, VerticesArray<_T> &_components);
     #endif
 
-    static void seq_tarjan(VectCSRGraph &_graph, VerticesArray<int> &_components);
+    static void seq_tarjan(VGL_Graph &_graph, VerticesArray<int> &_components);
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

@@ -37,7 +37,7 @@ void FrontierNEC::print_stats()
         VectorCSRGraph *current_direction_graph;
         if(graph_ptr->get_type() == VECT_CSR_GRAPH)
         {
-            VectCSRGraph *vect_csr_ptr = (VectCSRGraph*)graph_ptr;
+            VGL_Graph *vect_csr_ptr = (VGL_Graph*)graph_ptr;
             current_direction_graph = vect_csr_ptr->get_direction_graph_ptr(direction);
         }
         else

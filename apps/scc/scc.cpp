@@ -21,7 +21,7 @@ int main(int argc, char **argv)
         parser.parse_args(argc, argv);
 
         // load graph
-        VectCSRGraph graph;
+        VGL_Graph graph;
         if(parser.get_compute_mode() == GENERATE_NEW_GRAPH)
         {
             EdgesListGraph el_graph;

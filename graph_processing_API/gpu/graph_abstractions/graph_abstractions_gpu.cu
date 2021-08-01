@@ -2,7 +2,7 @@
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-GraphAbstractionsGPU::GraphAbstractionsGPU(VectCSRGraph &_graph, TraversalDirection _initial_traversal)
+GraphAbstractionsGPU::GraphAbstractionsGPU(VGL_Graph &_graph, TraversalDirection _initial_traversal)
 {
     processed_graph_ptr = &_graph;
     current_traversal_direction = _initial_traversal;

@@ -3,7 +3,7 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template <typename _T>
-EdgesArray_Vect<_T>::EdgesArray_Vect(VectCSRGraph &_graph)
+EdgesArray_Vect<_T>::EdgesArray_Vect(VGL_Graph &_graph)
 {
     long long edges_count = _graph.get_edges_count();
     edges_count_in_outgoing_csr = _graph.get_edges_count_in_outgoing_csr();
@@ -75,7 +75,7 @@ template <typename _T>
 void EdgesArray_Vect<_T>::set_all_random(_T _max_rand)
 {
     // get correct pointer
-    VectCSRGraph *vect_ptr = (VectCSRGraph *)this->graph_ptr;
+    VGL_Graph *vect_ptr = (VGL_Graph *)this->graph_ptr;
     long long edges_count = this->graph_ptr->get_edges_count();
 
     // init CSR parts
@@ -104,7 +104,7 @@ template <typename _T>
 void EdgesArray_Vect<_T>::operator = (const EdgesArray_EL<_T> &_el_data)
 {
     // get correct pointer
-    VectCSRGraph *vect_ptr = (VectCSRGraph *)this->graph_ptr;
+    VGL_Graph *vect_ptr = (VGL_Graph *)this->graph_ptr;
     long long edges_count = this->graph_ptr->get_edges_count();
 
     _T *el_data_ptr = _el_data.get_ptr(); // TODO
@@ -126,7 +126,7 @@ template <typename _T>
 void EdgesArray_Vect<_T>::set(int _src_id, int _dst_id, _T _val, TraversalDirection _direction)
 {
     // get correct pointer
-    VectCSRGraph *vect_ptr = (VectCSRGraph *)this->graph_ptr;
+    VGL_Graph *vect_ptr = (VGL_Graph *)this->graph_ptr;
     long long edges_count = this->graph_ptr->get_edges_count();
 
     // set into both CSR and VE for Advance API
@@ -157,7 +157,7 @@ template <typename _T>
 _T EdgesArray_Vect<_T>::get(int _src_id, int _dst_id, TraversalDirection _direction)
 {
     // get correct pointer
-    VectCSRGraph *vect_ptr = (VectCSRGraph *)this->graph_ptr;
+    VGL_Graph *vect_ptr = (VGL_Graph *)this->graph_ptr;
     long long edges_count = this->graph_ptr->get_edges_count();
 
     // always get from CSR since it's faster

@@ -24,7 +24,7 @@ class GraphAbstractionsNEC : public GraphAbstractions
 {
 private:
     // current the number of vertices, neighbouring a frontier (for Advance perf)
-    long long count_frontier_neighbours(VectCSRGraph &_graph, FrontierNEC &_frontier);
+    long long count_frontier_neighbours(VGL_Graph &_graph, FrontierNEC &_frontier);
 
     bool use_safe_stores;
 
@@ -185,7 +185,7 @@ private:
                                             long long &_neighbours_count);
 public:
     // attaches graph-processing API to the specific graph
-    GraphAbstractionsNEC(VectCSRGraph &_graph, TraversalDirection _initial_traversal = SCATTER);
+    GraphAbstractionsNEC(VGL_Graph &_graph, TraversalDirection _initial_traversal = SCATTER);
     GraphAbstractionsNEC(ShardedCSRGraph &_graph, TraversalDirection _initial_traversal = SCATTER);
     GraphAbstractionsNEC(EdgesListGraph &_graph, TraversalDirection _initial_traversal = ORIGINAL);
 
@@ -193,7 +193,7 @@ public:
     template <typename EdgeOperation, typename VertexPreprocessOperation, typename VertexPostprocessOperation,
             typename CollectiveEdgeOperation, typename CollectiveVertexPreprocessOperation,
             typename CollectiveVertexPostprocessOperation>
-    void scatter(VectCSRGraph &_graph,
+    void scatter(VGL_Graph &_graph,
                  FrontierNEC &_frontier,
                  EdgeOperation &&edge_op,
                  VertexPreprocessOperation &&vertex_preprocess_op,
@@ -204,7 +204,7 @@ public:
 
     // performs user-defined "edge_op" operation over all OUTGOING edges, neighbouring specified frontier
     template <typename EdgeOperation>
-    void scatter(VectCSRGraph &_graph,
+    void scatter(VGL_Graph &_graph,
                  FrontierNEC &_frontier,
                  EdgeOperation &&edge_op);
 
@@ -236,7 +236,7 @@ public:
     template <typename EdgeOperation, typename VertexPreprocessOperation, typename VertexPostprocessOperation,
             typename CollectiveEdgeOperation, typename CollectiveVertexPreprocessOperation,
             typename CollectiveVertexPostprocessOperation>
-    void gather(VectCSRGraph &_graph,
+    void gather(VGL_Graph &_graph,
                 FrontierNEC &_frontier,
                 EdgeOperation &&edge_op,
                 VertexPreprocessOperation &&vertex_preprocess_op,
@@ -247,7 +247,7 @@ public:
 
     // performs user-defined "edge_op" operation over all INCOMING edges, neighbouring specified frontier
     template <typename EdgeOperation>
-    void gather(VectCSRGraph &_graph,
+    void gather(VGL_Graph &_graph,
                 FrontierNEC &_frontier,
                 EdgeOperation &&edge_op);
 
@@ -272,7 +272,7 @@ public:
 
     // performs user-defined "compute_op" operation for each element in the given frontier
     template <typename ComputeOperation>
-    void compute(VectCSRGraph &_graph,
+    void compute(VGL_Graph &_graph,
                  FrontierNEC &_frontier,
                  ComputeOperation &&compute_op);
 
@@ -284,7 +284,7 @@ public:
 
     // performs reduction using user-defined "reduce_op" operation for each element in the given frontier
     template <typename _T, typename ReduceOperation>
-    _T reduce(VectCSRGraph &_graph,
+    _T reduce(VGL_Graph &_graph,
               FrontierNEC &_frontier,
               ReduceOperation &&reduce_op,
               REDUCE_TYPE _reduce_type);
@@ -298,7 +298,7 @@ public:
 
     // creates new frontier, which satisfy user-defined "cond" condition
     template <typename FilterCondition>
-    void generate_new_frontier(VectCSRGraph &_graph,
+    void generate_new_frontier(VGL_Graph &_graph,
                                FrontierNEC &_frontier,
                                FilterCondition &&filter_cond);
 

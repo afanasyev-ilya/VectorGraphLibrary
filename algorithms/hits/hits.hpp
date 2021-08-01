@@ -3,11 +3,13 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template <typename _T>
-void HITS::vgl_hits(VectCSRGraph &_graph, VerticesArray<_T> &_auth, VerticesArray<_T> &_hub, int _num_steps)
+void HITS::vgl_hits(VGL_Graph &_graph, VerticesArray<_T> &_auth, VerticesArray<_T> &_hub, int _num_steps)
 {
     VGL_GRAPH_ABSTRACTIONS graph_API(_graph);
     VGL_FRONTIER frontier(_graph);
     int vertices_count = _graph.get_vertices_count();
+
+    graph_API.change_traversal_direction(GATHER, _hub, _auth, frontier);
 
     frontier.set_all_active();
 
@@ -85,7 +87,7 @@ void HITS::vgl_hits(VectCSRGraph &_graph, VerticesArray<_T> &_auth, VerticesArra
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template <typename _T>
-void HITS::seq_hits(VectCSRGraph &_graph, VerticesArray<_T> &_auth, VerticesArray<_T> &_hub, int _num_steps)
+void HITS::seq_hits(VGL_Graph &_graph, VerticesArray<_T> &_auth, VerticesArray<_T> &_hub, int _num_steps)
 {
     Timer tm;
     tm.start();

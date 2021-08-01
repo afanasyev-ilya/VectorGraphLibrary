@@ -5,7 +5,7 @@
 template <typename EdgeOperation, typename VertexPreprocessOperation, typename VertexPostprocessOperation,
         typename CollectiveEdgeOperation, typename CollectiveVertexPreprocessOperation,
         typename CollectiveVertexPostprocessOperation>
-void GraphAbstractionsGPU::scatter(VectCSRGraph &_graph,
+void GraphAbstractionsGPU::scatter(VGL_Graph &_graph,
                                    FrontierGPU &_frontier,
                                    EdgeOperation &&edge_op,
                                    VertexPreprocessOperation &&vertex_preprocess_op,
@@ -40,7 +40,7 @@ void GraphAbstractionsGPU::scatter(VectCSRGraph &_graph,
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template <typename EdgeOperation>
-void GraphAbstractionsGPU::scatter(VectCSRGraph &_graph,
+void GraphAbstractionsGPU::scatter(VGL_Graph &_graph,
                                    FrontierGPU &_frontier,
                                    EdgeOperation &&edge_op)
 {

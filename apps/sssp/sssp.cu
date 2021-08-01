@@ -24,7 +24,7 @@ int main(int argc, char **argv)
 
         select_device(parser.get_device_num());
 
-        VectCSRGraph graph;
+        VGL_Graph graph;
         if(parser.get_compute_mode() == GENERATE_NEW_GRAPH)
         {
             EdgesListGraph el_graph;

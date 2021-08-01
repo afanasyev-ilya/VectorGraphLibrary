@@ -2,7 +2,7 @@
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-FrontierNEC::FrontierNEC(VectCSRGraph &_graph, TraversalDirection _direction)
+FrontierNEC::FrontierNEC(VGL_Graph &_graph, TraversalDirection _direction)
 {
     max_size = _graph.get_vertices_count();
     direction = _direction;

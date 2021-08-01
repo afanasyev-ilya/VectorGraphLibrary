@@ -18,7 +18,7 @@ private:
     long long edges_count_in_incoming_ve;
 public:
     /* constructors and destructors */
-    EdgesArray_Vect(VectCSRGraph &_graph);
+    EdgesArray_Vect(VGL_Graph &_graph);
     EdgesArray_Vect(const EdgesArray_Vect<_T> &_copy_obj);
     ~EdgesArray_Vect();
 

@@ -4,7 +4,7 @@
 
 #ifdef __USE_GPU__
 template <typename _T>
-void CC::gpu_shiloach_vishkin(VectCSRGraph &_graph, VerticesArray<_T> &_components)
+void CC::gpu_shiloach_vishkin(VGL_Graph &_graph, VerticesArray<_T> &_components)
 {
     GraphAbstractionsGPU graph_API(_graph);
     FrontierGPU frontier(_graph);

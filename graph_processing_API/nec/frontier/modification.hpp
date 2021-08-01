@@ -14,9 +14,9 @@ void FrontierNEC::set_all_active()
 
     if(graph_ptr->get_type() == VECT_CSR_GRAPH)
     {
-        vector_engine_part_size = ((VectCSRGraph*)graph_ptr)->get_direction_graph_ptr(direction)->get_vector_engine_threshold_vertex();
-        vector_core_part_size = ((VectCSRGraph*)graph_ptr)->get_direction_graph_ptr(direction)->get_vector_core_threshold_vertex() - vector_engine_part_size;
-        collective_part_size = ((VectCSRGraph*)graph_ptr)->get_direction_graph_ptr(direction)->get_vertices_count() - vector_engine_part_size - vector_core_part_size;
+        vector_engine_part_size = ((VGL_Graph*)graph_ptr)->get_direction_graph_ptr(direction)->get_vector_engine_threshold_vertex();
+        vector_core_part_size = ((VGL_Graph*)graph_ptr)->get_direction_graph_ptr(direction)->get_vector_core_threshold_vertex() - vector_engine_part_size;
+        collective_part_size = ((VGL_Graph*)graph_ptr)->get_direction_graph_ptr(direction)->get_vertices_count() - vector_engine_part_size - vector_core_part_size;
     }
     else if(graph_ptr->get_type() == SHARDED_CSR_GRAPH)
     {
@@ -47,7 +47,7 @@ void FrontierNEC::add_vertex(int src_id)
     VectorCSRGraph *current_direction_graph;
     if(graph_ptr->get_type() == VECT_CSR_GRAPH)
     {
-        VectCSRGraph *vect_csr_ptr = (VectCSRGraph*)graph_ptr;
+        VGL_Graph *vect_csr_ptr = (VGL_Graph*)graph_ptr;
         current_direction_graph = vect_csr_ptr->get_direction_graph_ptr(direction);
     }
     else
@@ -123,10 +123,10 @@ void FrontierNEC::add_group_of_vertices(int *_vertex_ids, int _number_of_vertice
     }
     current_size = _number_of_vertices;
 
-    VectCSRGraph *vect_csr_ptr = NULL;
+    VGL_Graph *vect_csr_ptr = NULL;
     if(graph_ptr->get_type() == VECT_CSR_GRAPH)
     {
-        vect_csr_ptr = (VectCSRGraph*)graph_ptr;
+        vect_csr_ptr = (VGL_Graph*)graph_ptr;
     }
     else
     {
