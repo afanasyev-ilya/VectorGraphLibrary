@@ -303,7 +303,7 @@ void SCC::FB_step(VGL_Graph &_graph,
 
 #if defined(__USE_NEC_SX_AURORA__) || defined(__USE_MULTICORE__)
 template <typename _T>
-void SCC::nec_forward_backward(VGL_Graph &_graph, VerticesArray<_T> &_components)
+void SCC::vgl_forward_backward(VGL_Graph &_graph, VerticesArray<_T> &_components)
 {
     VGL_GRAPH_ABSTRACTIONS graph_API(_graph, SCATTER);
     VGL_FRONTIER frontier(_graph, SCATTER);

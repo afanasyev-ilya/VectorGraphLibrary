@@ -15,62 +15,39 @@ int main(int argc, char **argv)
 {
     try
     {
-        cout << "RW (Random Walks) test..." << endl;
+        VGL_COMMON_API::init_library(argc, argv);
+        VGL_COMMON_API::info_message("RW");
 
         // parse args
         Parser parser;
         parser.parse_args(argc, argv);
 
-        VGL_Graph graph;
-        if(parser.get_compute_mode() == GENERATE_NEW_GRAPH)
-        {
-            EdgesListGraph el_graph;
-            int v = pow(2.0, parser.get_scale());
-            if(parser.get_graph_type() == RMAT)
-                GraphGenerationAPI::R_MAT(el_graph, v, v * parser.get_avg_degree(), 57, 19, 19, 5, UNDIRECTED_GRAPH);
-            else if(parser.get_graph_type() == RANDOM_UNIFORM)
-                GraphGenerationAPI::random_uniform(el_graph, v, v * parser.get_avg_degree(), UNDIRECTED_GRAPH);
-            graph.import(el_graph);
-        }
-        else if(parser.get_compute_mode() == LOAD_GRAPH_FROM_FILE)
-        {
-            Timer tm;
-            tm.start();
-            if(!graph.load_from_binary_file(parser.get_graph_file_name()))
-                throw "Error: graph file not found";
-            tm.end();
-            tm.print_time_stats("Graph load");
-        }
+        // prepare graph
+        VGL_Graph graph(VECTOR_CSR_GRAPH);
+        VGL_COMMON_API::prepare_graph(graph, parser, UNDIRECTED_GRAPH);
 
-        // do calculations
-        cout << "Computations started..." << endl;
-        cout << "Running RW algorithm " << endl;
+        // generate list of walk vertices
         int walk_vertices_num = parser.get_walk_vertices_percent() * (graph.get_vertices_count()/100.0);
         int walk_length = parser.get_number_of_rounds();
         cout << "walk vertices num: " << walk_vertices_num << endl;
         cout << "walk length: " << walk_length << endl;
-
-        // generate list of walk vertices
         Timer tm;
         vector<int> walk_vertices;
         for(int i = 0; i < graph.get_vertices_count(); i++)
         {
-           int prob = rand() % 100;
-           if(prob < parser.get_walk_vertices_percent())
-               walk_vertices.push_back(i);
+            int prob = rand() % 100;
+            if(prob < parser.get_walk_vertices_percent())
+                walk_vertices.push_back(i);
         }
         tm.end();
         tm.print_time_stats("generate list of walk vertices");
 
-        // do random walks
+        // run algorithm
         VerticesArray<int> walk_results(graph);
-        performance_stats.reset_timers();
+        VGL_COMMON_API::start_measuring_stats();
         RW::vgl_random_walk(graph, walk_vertices, walk_vertices_num, walk_length, walk_results);
-        performance_stats.update_timer_stats();
-        performance_stats.print_timers_stats();
-        performance_stats.print_perf(graph.get_edges_count());
+        VGL_COMMON_API::stop_measuring_stats(graph.get_edges_count());
 
-        // run sequential algorithm for timing comparison
         if(parser.get_check_flag())
         {
             VerticesArray<int> check_walk_results(graph);
@@ -78,7 +55,7 @@ int main(int argc, char **argv)
             cout << "since walks are random it is not possible to check" << endl;
         }
 
-
+        VGL_COMMON_API::finalize_library();
     }
     catch (string error)
     {

@@ -16,46 +16,26 @@ int main(int argc, char **argv)
 {
     try
     {
-        cout << "Graph coloring test..." << endl;
+        VGL_COMMON_API::init_library(argc, argv);
+        VGL_COMMON_API::info_message("Coloring");
 
         // parse args
         Parser parser;
         parser.parse_args(argc, argv);
 
-        VGL_Graph graph;
-        if(parser.get_compute_mode() == GENERATE_NEW_GRAPH)
-        {
-            EdgesListGraph el_graph;
-            int v = pow(2.0, parser.get_scale());
-            if(parser.get_graph_type() == RMAT)
-                GraphGenerationAPI::R_MAT(el_graph, v, v * parser.get_avg_degree(), 57, 19, 19, 5, UNDIRECTED_GRAPH);
-            else if(parser.get_graph_type() == RANDOM_UNIFORM)
-                GraphGenerationAPI::random_uniform(el_graph, v, v * parser.get_avg_degree(), UNDIRECTED_GRAPH);
-            graph.import(el_graph);
-        }
-        else if(parser.get_compute_mode() == LOAD_GRAPH_FROM_FILE)
-        {
-            Timer tm;
-            tm.start();
-            if(!graph.load_from_binary_file(parser.get_graph_file_name()))
-                throw "Error: graph file not found";
-            tm.end();
-            tm.print_time_stats("Graph load");
-        }
+        // prepare graph
+        VGL_Graph graph(VECTOR_CSR_GRAPH);
+        VGL_COMMON_API::prepare_graph(graph, parser, UNDIRECTED_GRAPH);
 
-        // do calculations
-        cout << "Computations started..." << endl;
         VerticesArray<int> colors(graph);
-        performance_stats.reset_timers();
-        for(int it = 0; it < parser.get_number_of_rounds(); it++)
-            Coloring::vgl_coloring(graph, colors);
-        performance_stats.update_timer_stats();
-        performance_stats.print_timers_stats();
+        VGL_COMMON_API::start_measuring_stats();
+        Coloring::vgl_coloring(graph, colors);
+        VGL_COMMON_API::stop_measuring_stats(graph.get_edges_count());
 
         if(parser.get_check_flag())
             verify_colors(graph, colors);
 
-        performance_stats.print_perf(graph.get_edges_count(), parser.get_number_of_rounds());
+        VGL_COMMON_API::finalize_library();
     }
     catch (string error)
     {

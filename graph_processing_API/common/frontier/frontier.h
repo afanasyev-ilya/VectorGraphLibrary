@@ -34,6 +34,7 @@ public:
 
     // frontier modification API
     inline void add_vertex(int _src_id) { frontier_representation->add_vertex(_src_id); };
+    inline void add_group_of_vertices(int *_vertex_ids, int _number_of_vertices){ frontier_representation->add_group_of_vertices(_vertex_ids, _number_of_vertices); };
     inline void clear() { frontier_representation->clear(); };
     inline void set_all_active() { frontier_representation->set_all_active(); };
 

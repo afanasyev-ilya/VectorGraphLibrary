@@ -19,9 +19,6 @@ void SCC::seq_tarjan_kernel(VGL_Graph &_graph,
                             VerticesArray<bool> &_stack_member,
                             VerticesArray<int> &_components)
 {
-    VectorCSRGraph *outgoing_graph_ptr = _graph.get_outgoing_data();
-    LOAD_VECTOR_CSR_GRAPH_DATA((*outgoing_graph_ptr));
-
     static int time = 0;
     static int comp = 0;
 
@@ -53,12 +50,10 @@ void SCC::seq_tarjan_kernel(VGL_Graph &_graph,
                 retSnapshot.stage = 2;
                 snapshotStack.push(retSnapshot);
 
-                const long long edge_start = vertex_pointers[u];
-                const int connections_count = vertex_pointers[u + 1] - vertex_pointers[u];
+                const int connections_count = _graph.get_outgoing_connections_count(u);
                 for(int edge_pos = 0; edge_pos < connections_count; edge_pos++)
                 {
-                    long long int global_edge_pos = edge_start + edge_pos;
-                    int v = adjacent_ids[global_edge_pos];
+                    int v = _graph.get_outgoing_edge_dst(u, edge_pos);
 
                     if (_disc[v] == -1)
                     {
@@ -120,9 +115,9 @@ void SCC::seq_tarjan(VGL_Graph &_graph, VerticesArray<int> &_components)
     // allocate memory for Tarjan's algorithm computations
     Timer tm;
     tm.start();
-    VerticesArray<int>disc(_graph, SCATTER);
-    VerticesArray<int>low(_graph, SCATTER);
-    VerticesArray<bool>stack_member(_graph, SCATTER);
+    VerticesArray<int>disc(_graph);
+    VerticesArray<int>low(_graph);
+    VerticesArray<bool>stack_member(_graph);
     stack<int> st;
 
     // Initialize disc and low, and stackMember arrays
@@ -143,13 +138,9 @@ void SCC::seq_tarjan(VGL_Graph &_graph, VerticesArray<int> &_components)
     }
     tm.end();
 
-
     #ifdef __PRINT_SAMPLES_PERFORMANCE_STATS__
     performance_stats.print_algorithm_performance_stats("SCC (Sequential Tarjan)", tm.get_time(), _graph.get_edges_count());
     #endif
-
-    //_components.print();
-    //_graph.save_to_graphviz_file<int>("scc.gv", _components);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

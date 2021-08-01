@@ -85,7 +85,7 @@ private:
 public:
     #if defined(__USE_NEC_SX_AURORA__) || defined(__USE_MULTICORE__)
     template <typename _T>
-    static void nec_forward_backward(VGL_Graph &_graph, VerticesArray<_T> &_components);
+    static void vgl_forward_backward(VGL_Graph &_graph, VerticesArray<_T> &_components);
     #endif
 
     #ifdef __USE_GPU__

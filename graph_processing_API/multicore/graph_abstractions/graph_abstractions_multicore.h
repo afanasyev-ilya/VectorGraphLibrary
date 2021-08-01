@@ -253,10 +253,10 @@ public:
     template <typename _T1, typename _T2>
     void unpack_vertices_arrays(VerticesArray<VGL_PACK_TYPE> &_packed_data,
                                 VerticesArray<_T1> &_first,
-                                VerticesArray<_T2> &_second);
+                                VerticesArray<_T2> &_second);*/
 
     void enable_safe_stores() {use_safe_stores = true;};
-    void disable_safe_stores() {use_safe_stores = false;};*/
+    void disable_safe_stores() {use_safe_stores = false;};
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

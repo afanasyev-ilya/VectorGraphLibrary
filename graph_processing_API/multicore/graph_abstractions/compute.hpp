@@ -69,9 +69,8 @@ void GraphAbstractionsMulticore::compute(VGL_Graph &_graph,
     Timer tm;
     tm.start();
 
-    if(_frontier.get_direction() != current_traversal_direction)
+    if(_frontier.get_direction() != current_traversal_direction) // TODO check
     {
-        cout << _frontier.get_direction() << " " << current_traversal_direction << endl;
         throw "Error in GraphAbstractionsMulticore::compute : wrong frontier direction";
     }
 

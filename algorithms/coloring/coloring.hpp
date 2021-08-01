@@ -72,6 +72,8 @@ void Coloring::vgl_coloring(VGL_Graph &_graph, VerticesArray<_T> &_colors)
     VGL_GRAPH_ABSTRACTIONS graph_API(_graph);
     VGL_FRONTIER frontier(_graph);
 
+    graph_API.change_traversal_direction(SCATTER, frontier, _colors, available_colors, need_recolor);
+
     Timer tm;
     tm.start();
     frontier.set_all_active();
