@@ -27,6 +27,10 @@ void GraphAbstractionsNEC::scatter(VGL_Graph &_graph,
     }
 
     bool outgoing_graph_is_stored = _graph.outgoing_is_stored();
+    bool inner_mpi_processing = false;
+    #ifdef __USE_MPI__
+    inner_mpi_processing = true;
+    #endif
     if(_graph.get_container_type() == VECTOR_CSR_GRAPH)
     {
         VectorCSRGraph *current_direction_graph = (VectorCSRGraph *)_graph.get_outgoing_data();
@@ -36,7 +40,7 @@ void GraphAbstractionsNEC::scatter(VGL_Graph &_graph,
             #pragma omp barrier
             advance_worker(*current_direction_graph, *current_frontier, edge_op, vertex_preprocess_op, vertex_postprocess_op,
                            collective_edge_op, collective_vertex_preprocess_op, collective_vertex_postprocess_op, 0, 0,
-                           outgoing_graph_is_stored);
+                           outgoing_graph_is_stored, inner_mpi_processing);
             #pragma omp barrier
         }
         else
@@ -45,7 +49,7 @@ void GraphAbstractionsNEC::scatter(VGL_Graph &_graph,
             {
                 advance_worker(*current_direction_graph, *current_frontier, edge_op, vertex_preprocess_op, vertex_postprocess_op,
                                collective_edge_op, collective_vertex_preprocess_op, collective_vertex_postprocess_op, 0, 0,
-                               outgoing_graph_is_stored);
+                               outgoing_graph_is_stored, inner_mpi_processing);
             }
         }
     }
