@@ -78,6 +78,19 @@ public:
 
     template<typename _T>
     void attach_data(VerticesArray<_T> &_array);
+
+    #ifdef __USE_MPI__
+    template <typename _TGraph, typename _T>
+    void exchange_vertices_array(DataExchangePolicy _policy, _TGraph &_graph, VerticesArray<_T> &_data);
+
+    template <typename _TGraph, typename _T, typename MergeOp>
+    void exchange_vertices_array(DataExchangePolicy _policy, _TGraph &_graph, VerticesArray<_T> &_data,
+                                 MergeOp &&_merge_op);
+
+    template <typename _TGraph, typename _T, typename MergeOp>
+    void exchange_vertices_array(DataExchangePolicy _policy, _TGraph &_graph, VerticesArray<_T> &_data,
+                                 VerticesArray<_T> &_old_data, MergeOp &&_merge_op);
+    #endif
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -87,7 +100,7 @@ public:
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #ifdef __USE_NEC_SX_AURORA__
-//#include "graph_processing_API/nec/graph_abstractions/graph_abstractions_nec.h"
+#include "graph_processing_API/nec/graph_abstractions/graph_abstractions_nec.h"
 #endif
 
 #ifdef __USE_GPU__

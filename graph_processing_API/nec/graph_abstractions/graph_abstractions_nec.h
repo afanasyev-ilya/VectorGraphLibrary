@@ -3,7 +3,6 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #include "graph_processing_API/nec/vector_register/vector_registers.h"
-#include "graph_processing_API/nec/delayed_write/delayed_write_nec.h"
 #include <cstdarg>
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -24,7 +23,7 @@ class GraphAbstractionsNEC : public GraphAbstractions
 {
 private:
     // current the number of vertices, neighbouring a frontier (for Advance perf)
-    long long count_frontier_neighbours(VGL_Graph &_graph, FrontierNEC &_frontier);
+    long long count_frontier_neighbours(VGL_Graph &_graph, VGL_Frontier &_frontier);
 
     bool use_safe_stores;
 
@@ -33,21 +32,26 @@ private:
 
     // compute inner implementation
     template <typename ComputeOperation>
-    void compute_worker(VectorCSRGraph &_graph,
-                        FrontierNEC &_frontier,
+    void compute_worker(VGL_Graph &_graph,
+                        VGL_Frontier &_frontier,
                         ComputeOperation &&compute_op);
 
     // reduce inner implementation
-    template <typename _T, typename ReduceOperation>
+    /*template <typename _T, typename ReduceOperation>
     _T reduce_sum(VectorCSRGraph &_graph,
-                  FrontierNEC &_frontier,
-                  ReduceOperation &&reduce_op);
+                  VGL_Frontier &_frontier,
+                  ReduceOperation &&reduce_op);*/
+
+    template <typename FilterCondition>
+    void generate_new_frontier_worker(VectorCSRGraph &_graph,
+                                      FrontierVectorCSR &_frontier,
+                                      FilterCondition &&filter_cond);
 
     template <typename EdgeOperation, typename VertexPreprocessOperation,
             typename VertexPostprocessOperation, typename CollectiveEdgeOperation, typename CollectiveVertexPreprocessOperation,
             typename CollectiveVertexPostprocessOperation>
     void advance_worker(VectorCSRGraph &_graph,
-                        FrontierNEC &_frontier,
+                        FrontierVectorCSR &_frontier,
                         EdgeOperation &&edge_op,
                         VertexPreprocessOperation &&vertex_preprocess_op,
                         VertexPostprocessOperation &&vertex_postprocess_op,
@@ -105,7 +109,7 @@ private:
     template <typename EdgeOperation, typename VertexPreprocessOperation,
             typename VertexPostprocessOperation>
     inline void vector_engine_per_vertex_kernel_dense(VectorCSRGraph &_graph,
-                                                      FrontierNEC &_frontier,
+                                                      FrontierVectorCSR &_frontier,
                                                       const int _first_vertex,
                                                       const int _last_vertex,
                                                       EdgeOperation edge_op,
@@ -118,7 +122,7 @@ private:
     template <typename EdgeOperation, typename VertexPreprocessOperation,
             typename VertexPostprocessOperation>
     inline void vector_core_per_vertex_kernel_dense(VectorCSRGraph &_graph,
-                                                    FrontierNEC &_frontier,
+                                                    FrontierVectorCSR &_frontier,
                                                     const int _first_vertex,
                                                     const int _last_vertex,
                                                     EdgeOperation edge_op,
@@ -131,7 +135,7 @@ private:
     template <typename EdgeOperation, typename VertexPreprocessOperation,
             typename VertexPostprocessOperation>
     inline void ve_collective_vertex_processing_kernel_dense(VectorCSRGraph &_graph,
-                                                             FrontierNEC &_frontier,
+                                                             FrontierVectorCSR &_frontier,
                                                              const int _first_vertex,
                                                              const int _last_vertex,
                                                              EdgeOperation edge_op,
@@ -144,7 +148,7 @@ private:
     template <typename EdgeOperation, typename VertexPreprocessOperation,
             typename VertexPostprocessOperation>
     inline void vector_engine_per_vertex_kernel_sparse(VectorCSRGraph &_graph,
-                                                       FrontierNEC &_frontier,
+                                                       FrontierVectorCSR &_frontier,
                                                        EdgeOperation edge_op,
                                                        VertexPreprocessOperation vertex_preprocess_op,
                                                        VertexPostprocessOperation vertex_postprocess_op,
@@ -155,7 +159,7 @@ private:
     template <typename EdgeOperation, typename VertexPreprocessOperation,
             typename VertexPostprocessOperation>
     inline void vector_core_per_vertex_kernel_sparse(VectorCSRGraph &_graph,
-                                                     FrontierNEC &_frontier,
+                                                     FrontierVectorCSR &_frontier,
                                                      EdgeOperation edge_op,
                                                      VertexPreprocessOperation vertex_preprocess_op,
                                                      VertexPostprocessOperation vertex_postprocess_op,
@@ -166,7 +170,7 @@ private:
     template <typename EdgeOperation, typename VertexPreprocessOperation,
             typename VertexPostprocessOperation>
     inline void collective_vertex_processing_kernel_sparse(VectorCSRGraph &_graph,
-                                                           FrontierNEC &_frontier,
+                                                           FrontierVectorCSR &_frontier,
                                                            const int _first_vertex,
                                                            const int _last_vertex,
                                                            EdgeOperation edge_op,
@@ -176,7 +180,7 @@ private:
                                                            bool _outgoing_graph_is_stored);
 
     template <typename FilterCondition>
-    void estimate_sorted_frontier_part_size(FrontierNEC &_frontier,
+    void estimate_sorted_frontier_part_size(FrontierVectorCSR &_frontier,
                                             long long *_vertex_pointers,
                                             int _first_vertex,
                                             int _last_vertex,
@@ -186,15 +190,13 @@ private:
 public:
     // attaches graph-processing API to the specific graph
     GraphAbstractionsNEC(VGL_Graph &_graph, TraversalDirection _initial_traversal = SCATTER);
-    GraphAbstractionsNEC(ShardedCSRGraph &_graph, TraversalDirection _initial_traversal = SCATTER);
-    GraphAbstractionsNEC(EdgesListGraph &_graph, TraversalDirection _initial_traversal = ORIGINAL);
 
     // performs user-defined "edge_op" operation over all OUTGOING edges, neighbouring specified frontier
     template <typename EdgeOperation, typename VertexPreprocessOperation, typename VertexPostprocessOperation,
             typename CollectiveEdgeOperation, typename CollectiveVertexPreprocessOperation,
             typename CollectiveVertexPostprocessOperation>
     void scatter(VGL_Graph &_graph,
-                 FrontierNEC &_frontier,
+                 VGL_Frontier &_frontier,
                  EdgeOperation &&edge_op,
                  VertexPreprocessOperation &&vertex_preprocess_op,
                  VertexPostprocessOperation &&vertex_postprocess_op,
@@ -205,31 +207,7 @@ public:
     // performs user-defined "edge_op" operation over all OUTGOING edges, neighbouring specified frontier
     template <typename EdgeOperation>
     void scatter(VGL_Graph &_graph,
-                 FrontierNEC &_frontier,
-                 EdgeOperation &&edge_op);
-
-    // performs user-defined "edge_op" operation over all OUTGOING edges, neighbouring specified frontier
-    template <typename EdgeOperation, typename VertexPreprocessOperation, typename VertexPostprocessOperation,
-            typename CollectiveEdgeOperation, typename CollectiveVertexPreprocessOperation,
-            typename CollectiveVertexPostprocessOperation>
-    void scatter(ShardedCSRGraph &_graph,
-                 FrontierNEC &_frontier,
-                 EdgeOperation &&edge_op,
-                 VertexPreprocessOperation &&vertex_preprocess_op,
-                 VertexPostprocessOperation &&vertex_postprocess_op,
-                 CollectiveEdgeOperation &&collective_edge_op,
-                 CollectiveVertexPreprocessOperation &&collective_vertex_preprocess_op,
-                 CollectiveVertexPostprocessOperation &&collective_vertex_postprocess_op);
-
-    // performs user-defined "edge_op" operation over all OUTGOING edges, neighbouring specified frontier
-    template <typename EdgeOperation>
-    void scatter(ShardedCSRGraph &_graph,
-                 FrontierNEC &_frontier,
-                 EdgeOperation &&edge_op);
-
-    // performs user-defined "edge_op" operation over all OUTGOING edges, neighbouring specified frontier
-    template <typename EdgeOperation>
-    void scatter(EdgesListGraph &_graph,
+                 VGL_Frontier &_frontier,
                  EdgeOperation &&edge_op);
 
     // performs user-defined "edge_op" operation over all INCOMING edges, neighbouring specified frontier
@@ -237,7 +215,7 @@ public:
             typename CollectiveEdgeOperation, typename CollectiveVertexPreprocessOperation,
             typename CollectiveVertexPostprocessOperation>
     void gather(VGL_Graph &_graph,
-                FrontierNEC &_frontier,
+                VGL_Frontier &_frontier,
                 EdgeOperation &&edge_op,
                 VertexPreprocessOperation &&vertex_preprocess_op,
                 VertexPostprocessOperation &&vertex_postprocess_op,
@@ -248,58 +226,26 @@ public:
     // performs user-defined "edge_op" operation over all INCOMING edges, neighbouring specified frontier
     template <typename EdgeOperation>
     void gather(VGL_Graph &_graph,
-                FrontierNEC &_frontier,
-                EdgeOperation &&edge_op);
-
-    // performs user-defined "edge_op" operation over all INCOMING edges, neighbouring specified frontier
-    template <typename EdgeOperation, typename VertexPreprocessOperation, typename VertexPostprocessOperation,
-            typename CollectiveEdgeOperation, typename CollectiveVertexPreprocessOperation,
-            typename CollectiveVertexPostprocessOperation>
-    void gather(ShardedCSRGraph &_graph,
-                FrontierNEC &_frontier,
-                EdgeOperation &&edge_op,
-                VertexPreprocessOperation &&vertex_preprocess_op,
-                VertexPostprocessOperation &&vertex_postprocess_op,
-                CollectiveEdgeOperation &&collective_edge_op,
-                CollectiveVertexPreprocessOperation &&collective_vertex_preprocess_op,
-                CollectiveVertexPostprocessOperation &&collective_vertex_postprocess_op);
-
-    // performs user-defined "edge_op" operation over all INCOMING edges, neighbouring specified frontier
-    template <typename EdgeOperation>
-    void gather(ShardedCSRGraph &_graph,
-                FrontierNEC &_frontier,
+                VGL_Frontier &_frontier,
                 EdgeOperation &&edge_op);
 
     // performs user-defined "compute_op" operation for each element in the given frontier
     template <typename ComputeOperation>
     void compute(VGL_Graph &_graph,
-                 FrontierNEC &_frontier,
-                 ComputeOperation &&compute_op);
-
-    // performs user-defined "compute_op" operation for each element in the given frontier
-    template <typename ComputeOperation>
-    void compute(ShardedCSRGraph &_graph,
-                 FrontierNEC &_frontier,
+                 VGL_Frontier &_frontier,
                  ComputeOperation &&compute_op);
 
     // performs reduction using user-defined "reduce_op" operation for each element in the given frontier
-    template <typename _T, typename ReduceOperation>
+    /*template <typename _T, typename ReduceOperation>
     _T reduce(VGL_Graph &_graph,
-              FrontierNEC &_frontier,
+              VGL_Frontier &_frontier,
               ReduceOperation &&reduce_op,
-              REDUCE_TYPE _reduce_type);
-
-    // performs reduction using user-defined "reduce_op" operation for each element in the given frontier
-    template <typename _T, typename ReduceOperation>
-    _T reduce(ShardedCSRGraph &_graph,
-              FrontierNEC &_frontier,
-              ReduceOperation &&reduce_op,
-              REDUCE_TYPE _reduce_type);
+              REDUCE_TYPE _reduce_type);*/
 
     // creates new frontier, which satisfy user-defined "cond" condition
     template <typename FilterCondition>
     void generate_new_frontier(VGL_Graph &_graph,
-                               FrontierNEC &_frontier,
+                               VGL_Frontier &_frontier,
                                FilterCondition &&filter_cond);
 
     template <typename _T1, typename _T2>
@@ -314,19 +260,6 @@ public:
 
     void enable_safe_stores() {use_safe_stores = true;};
     void disable_safe_stores() {use_safe_stores = false;};
-
-    #ifdef __USE_MPI__
-    template <typename _TGraph, typename _T>
-    void exchange_vertices_array(DataExchangePolicy _policy, _TGraph &_graph, VerticesArray<_T> &_data);
-
-    template <typename _TGraph, typename _T, typename MergeOp>
-    void exchange_vertices_array(DataExchangePolicy _policy, _TGraph &_graph, VerticesArray<_T> &_data,
-                                 MergeOp &&_merge_op);
-
-    template <typename _TGraph, typename _T, typename MergeOp>
-    void exchange_vertices_array(DataExchangePolicy _policy, _TGraph &_graph, VerticesArray<_T> &_data,
-                                 VerticesArray<_T> &_old_data, MergeOp &&_merge_op);
-    #endif
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -342,7 +275,7 @@ public:
 #include "advance_dense.hpp"
 #include "advance_sparse.hpp"
 #include "generate_new_frontier.hpp"
-#include "reduce.hpp"
+//#include "reduce.hpp"
 #ifdef __USE_MPI__
 #include "mpi_exchange.hpp"
 #endif

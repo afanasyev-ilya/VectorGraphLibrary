@@ -52,7 +52,7 @@ void GraphAbstractionsMulticore::gather(VGL_Graph &_graph,
     }
     else
     {
-        throw "Error: unsupported graph type in multicore scatter";
+        throw "Error in GraphAbstractionsMulticore::gather unsupported graph type";
     }
 
     tm.end();

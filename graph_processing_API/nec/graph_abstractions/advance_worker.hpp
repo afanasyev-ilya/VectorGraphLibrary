@@ -43,7 +43,7 @@ template <typename EdgeOperation, typename VertexPreprocessOperation,
         typename VertexPostprocessOperation, typename CollectiveEdgeOperation, typename CollectiveVertexPreprocessOperation,
         typename CollectiveVertexPostprocessOperation>
 void GraphAbstractionsNEC::advance_worker(VectorCSRGraph &_graph,
-                                          FrontierNEC &_frontier,
+                                          FrontierVectorCSR &_frontier,
                                           EdgeOperation &&edge_op,
                                           VertexPreprocessOperation &&vertex_preprocess_op,
                                           VertexPostprocessOperation &&vertex_postprocess_op,
@@ -191,8 +191,6 @@ void GraphAbstractionsNEC::advance_worker(VectorCSRGraph &_graph,
             work = _frontier.get_vector_engine_part_neighbours_count() +
                    _frontier.get_vector_core_part_neighbours_count() +
                    _frontier.get_collective_part_neighbours_count();
-
-        //cout << vc_time * 1000 << " + " << collective_time*1000 << " = " << wall_time*1000 << endl; TODO why
 
         performance_stats.fast_update_advance_stats(wall_time, ve_time, vc_time, collective_time,
                                                     work*INT_ELEMENTS_PER_EDGE*sizeof(int), work);

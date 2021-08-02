@@ -4,7 +4,7 @@
 
 template <typename _T, typename ReduceOperation>
 _T GraphAbstractionsNEC::reduce_sum(VectorCSRGraph &_graph,
-                                    FrontierNEC &_frontier,
+                                    VGL_Frontier &_frontier,
                                     ReduceOperation &&reduce_op)
 {
     LOAD_VECTOR_CSR_GRAPH_DATA(_graph);
@@ -81,7 +81,7 @@ _T GraphAbstractionsNEC::reduce_sum(VectorCSRGraph &_graph,
 
 template <typename _T, typename ReduceOperation>
 _T GraphAbstractionsNEC::reduce(VGL_Graph &_graph,
-                                FrontierNEC &_frontier,
+                                VGL_Frontier &_frontier,
                                 ReduceOperation &&reduce_op,
                                 REDUCE_TYPE _reduce_type)
 {
@@ -126,7 +126,7 @@ _T GraphAbstractionsNEC::reduce(VGL_Graph &_graph,
 
 template <typename _T, typename ReduceOperation>
 _T GraphAbstractionsNEC::reduce(ShardedCSRGraph &_graph,
-                                FrontierNEC &_frontier,
+                                VGL_Frontier &_frontier,
                                 ReduceOperation &&reduce_op,
                                 REDUCE_TYPE _reduce_type)
 {

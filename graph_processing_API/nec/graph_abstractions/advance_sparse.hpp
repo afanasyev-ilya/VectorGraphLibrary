@@ -5,7 +5,7 @@
 template <typename EdgeOperation, typename VertexPreprocessOperation,
         typename VertexPostprocessOperation>
 void GraphAbstractionsNEC::vector_engine_per_vertex_kernel_sparse(VectorCSRGraph &_graph,
-                                                                  FrontierNEC &_frontier,
+                                                                  FrontierVectorCSR &_frontier,
                                                                   EdgeOperation edge_op,
                                                                   VertexPreprocessOperation vertex_preprocess_op,
                                                                   VertexPostprocessOperation vertex_postprocess_op,
@@ -107,7 +107,7 @@ void GraphAbstractionsNEC::vector_engine_per_vertex_kernel_sparse(VectorCSRGraph
 template <typename EdgeOperation, typename VertexPreprocessOperation,
         typename VertexPostprocessOperation>
 void GraphAbstractionsNEC::vector_core_per_vertex_kernel_sparse(VectorCSRGraph &_graph,
-                                                                FrontierNEC &_frontier,
+                                                                FrontierVectorCSR &_frontier,
                                                                 EdgeOperation edge_op,
                                                                 VertexPreprocessOperation vertex_preprocess_op,
                                                                 VertexPostprocessOperation vertex_postprocess_op,
@@ -192,7 +192,7 @@ void GraphAbstractionsNEC::vector_core_per_vertex_kernel_sparse(VectorCSRGraph &
 template <typename EdgeOperation, typename VertexPreprocessOperation,
         typename VertexPostprocessOperation>
 void GraphAbstractionsNEC::collective_vertex_processing_kernel_sparse(VectorCSRGraph &_graph,
-                                                                      FrontierNEC &_frontier,
+                                                                      FrontierVectorCSR &_frontier,
                                                                       const int _first_vertex,
                                                                       const int _last_vertex,
                                                                       EdgeOperation edge_op,

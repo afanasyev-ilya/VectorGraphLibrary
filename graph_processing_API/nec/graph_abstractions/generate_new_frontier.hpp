@@ -1,7 +1,7 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template <typename FilterCondition>
-void GraphAbstractionsNEC::estimate_sorted_frontier_part_size(FrontierNEC &_frontier,
+void GraphAbstractionsNEC::estimate_sorted_frontier_part_size(FrontierVectorCSR &_frontier,
                                                               long long *_vertex_pointers,
                                                               int _first_vertex,
                                                               int _last_vertex,
@@ -33,9 +33,9 @@ void GraphAbstractionsNEC::estimate_sorted_frontier_part_size(FrontierNEC &_fron
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template <typename FilterCondition>
-void GraphAbstractionsNEC::generate_new_frontier(VGL_Graph &_graph,
-                                                 FrontierNEC &_frontier,
-                                                 FilterCondition &&filter_cond)
+void GraphAbstractionsNEC::generate_new_frontier_worker(VectorCSRGraph &_graph,
+                                                        FrontierVectorCSR &_frontier,
+                                                        FilterCondition &&filter_cond)
 {
     Timer tm_flags, tm_wall;
     tm_flags.start();
@@ -145,6 +145,28 @@ void GraphAbstractionsNEC::generate_new_frontier(VGL_Graph &_graph,
     if(copy_if_work)
         tm_copy_if.print_bandwidth_stats("GNF copy if", work, 2.0*sizeof(int));
     #endif
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+template <typename FilterCondition>
+void GraphAbstractionsNEC::generate_new_frontier(VGL_Graph &_graph,
+                                                 VGL_Frontier &_frontier,
+                                                 FilterCondition &&filter_cond)
+{
+    _frontier.set_direction(current_traversal_direction);
+
+    if((_graph.get_container_type() == VECTOR_CSR_GRAPH) && (_frontier.get_class_type() == VECTOR_CSR_FRONTIER))
+    {
+        VectorCSRGraph *current_direction_graph = (VectorCSRGraph *)_graph.get_direction_data(current_traversal_direction);
+        FrontierVectorCSR *current_frontier = (FrontierVectorCSR *)_frontier.get_container_data();
+
+        generate_new_frontier_worker(*current_direction_graph, *current_frontier, filter_cond);
+    }
+    else
+    {
+        throw "Error: unsupported graph and frontier type in GraphAbstractionsNEC::generate_new_frontier";
+    }
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
