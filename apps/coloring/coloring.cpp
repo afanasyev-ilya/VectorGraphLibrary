@@ -30,7 +30,7 @@ int main(int argc, char **argv)
         VerticesArray<int> colors(graph);
         VGL_COMMON_API::start_measuring_stats();
         Coloring::vgl_coloring(graph, colors);
-        VGL_COMMON_API::stop_measuring_stats(graph.get_edges_count());
+        VGL_COMMON_API::stop_measuring_stats(graph.get_edges_count(), parser);
 
         if(parser.get_check_flag())
             verify_colors(graph, colors);

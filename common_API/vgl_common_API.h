@@ -52,11 +52,11 @@ public:
         performance_stats.reset_timers();
     }
 
-    static void stop_measuring_stats(long long _edges_count)
+    static void stop_measuring_stats(long long _edges_count, Parser &_parser)
     {
         performance_stats.update_timer_stats();
         performance_stats.print_timers_stats();
-        performance_stats.print_perf(_edges_count);
+        performance_stats.print_perf(_edges_count, _parser.get_number_of_rounds());
     }
 };
 

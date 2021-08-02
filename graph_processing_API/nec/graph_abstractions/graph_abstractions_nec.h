@@ -31,14 +31,19 @@ private:
                                     long long _edges_count, bool _outgoing_graph_is_stored);
 
     // compute inner implementation
-    template <typename ComputeOperation>
-    void compute_worker(VGL_Graph &_graph,
+    template <typename ComputeOperation, typename Graph_Container>
+    void compute_worker(Graph_Container &_graph,
                         VGL_Frontier &_frontier,
                         ComputeOperation &&compute_op);
 
+    template <typename ComputeOperation> // virtual functions prevent vectorization, thus we use templates to pass correct container to worker
+    void compute_container_call(VGL_Graph &_graph,
+                                VGL_Frontier &_frontier,
+                                ComputeOperation &&compute_op);
+
     // reduce inner implementation
-    template <typename _T, typename ReduceOperation>
-    _T reduce_worker_sum(VGL_Graph &_graph,
+    template <typename _T, typename ReduceOperation, typename Graph_Container>
+    _T reduce_worker_sum(Graph_Container &_graph,
                          VGL_Frontier &_frontier,
                          ReduceOperation &&reduce_op);
 

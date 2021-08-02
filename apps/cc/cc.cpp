@@ -32,7 +32,7 @@ int main(int argc, char **argv)
             ConnectedComponents::vgl_shiloach_vishkin(graph, components);
         else if(parser.get_algorithm_cc() == BFS_BASED_ALGORITHM)
             ConnectedComponents::vgl_bfs_based(graph, components);
-        VGL_COMMON_API::stop_measuring_stats(graph.get_edges_count());
+        VGL_COMMON_API::stop_measuring_stats(graph.get_edges_count(), parser);
 
         if(parser.get_check_flag())
         {

@@ -2,13 +2,11 @@
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-template <typename _T, typename ReduceOperation>
-_T GraphAbstractionsNEC::reduce_worker_sum(VGL_Graph &_graph,
+template <typename _T, typename ReduceOperation, typename Graph_Container>
+_T GraphAbstractionsNEC::reduce_worker_sum(Graph_Container &_graph,
                                            VGL_Frontier &_frontier,
                                            ReduceOperation &&reduce_op)
 {
-    UndirectedGraph *current_direction_graph = _graph.get_direction_data(current_traversal_direction);
-
     int frontier_size = _frontier.get_size();
     int *frontier_flags = _frontier.get_flags();
     int *frontier_ids = _frontier.get_ids();
@@ -26,7 +24,7 @@ _T GraphAbstractionsNEC::reduce_worker_sum(VGL_Graph &_graph,
         #pragma omp parallel for schedule(static) reduction(+: reduce_result)
         for(int src_id = 0; src_id < frontier_size; src_id++)
         {
-            int connections_count = current_direction_graph->get_connections_count(src_id);
+            int connections_count = _graph.get_connections_count(src_id);
             int vector_index = get_vector_index(src_id);
             _T val = reduce_op(src_id, connections_count, vector_index);
             reduce_result += val;
@@ -44,7 +42,7 @@ _T GraphAbstractionsNEC::reduce_worker_sum(VGL_Graph &_graph,
         {
             if(frontier_flags[src_id] == IN_FRONTIER_FLAG)
             {
-                int connections_count = current_direction_graph->get_connections_count(src_id);
+                int connections_count = _graph.get_connections_count(src_id);
                 int vector_index = get_vector_index(src_id);
                 _T val = reduce_op(src_id, connections_count, vector_index);
                 reduce_result += val;
@@ -62,7 +60,7 @@ _T GraphAbstractionsNEC::reduce_worker_sum(VGL_Graph &_graph,
         for (int frontier_pos = 0; frontier_pos < frontier_size; frontier_pos++)
         {
             int src_id = frontier_ids[frontier_pos];
-            int connections_count = current_direction_graph->get_connections_count(src_id);
+            int connections_count = _graph.get_connections_count(src_id);
             int vector_index = get_vector_index(src_id);
             _T val = reduce_op(src_id, connections_count, vector_index);
             reduce_result += val;
@@ -97,7 +95,15 @@ _T GraphAbstractionsNEC::reduce(VGL_Graph &_graph,
 
     if(_reduce_type == REDUCE_SUM)
     {
-        reduce_result = reduce_worker_sum<_T>(_graph, _frontier, reduce_op);
+        if(_graph.get_container_type() == VECTOR_CSR_GRAPH)
+        {
+            VectorCSRGraph *container_graph = (VectorCSRGraph *)_graph.get_direction_data(current_traversal_direction);
+            reduce_result = reduce_worker_sum<_T>(*container_graph, _frontier, reduce_op);
+        }
+        else
+        {
+            throw "Error in GraphAbstractionsNEC::compute : unsupported container type";
+        }
     }
     else
     {

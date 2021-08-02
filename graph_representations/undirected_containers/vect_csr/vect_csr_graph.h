@@ -125,8 +125,8 @@ public:
     inline VectorExtension* get_ve_ptr() {return &last_vertices_ve;};
     int get_non_zero_degree_vertices_count();
 
-    inline int get_connections_count(int _vertex_id);
-    inline int get_edge_dst(int _src_id, int _edge_pos);
+    inline int get_connections_count(int _vertex_id) final;
+    inline int get_edge_dst(int _src_id, int _edge_pos) final;
 
     #ifdef __USE_MPI__
     std::pair<int, int> get_mpi_thresholds(int _mpi_rank, int _v1, int _v2);

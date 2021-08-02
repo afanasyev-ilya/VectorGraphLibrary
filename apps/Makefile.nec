@@ -11,7 +11,7 @@ endif
 
 # Include paths...
 Include_Path = -I /opt/nec/ve/nlc/2.0.0/include/ -I ../
-Flags = -D __USE_NEC_SX_AURORA__ $(MPI_Flags) -O3 -fopenmp -proginf -mparallel -mretain-list-vector -DASL_LIB_INT64 #-report-all #-mno-vector #-ftrace
+Flags = -D __USE_NEC_SX_AURORA__ $(MPI_Flags) -O3 -fopenmp -proginf -mparallel -mretain-list-vector -DASL_LIB_INT64 -report-all #-mno-vector #-ftrace
 
 # Library paths...
 Library_Path =

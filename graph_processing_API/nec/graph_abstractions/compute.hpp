@@ -2,13 +2,11 @@
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-template <typename ComputeOperation>
-void GraphAbstractionsNEC::compute_worker(VGL_Graph &_graph,
+template <typename ComputeOperation, typename Graph_Container>
+void GraphAbstractionsNEC::compute_worker(Graph_Container &_graph,
                                           VGL_Frontier &_frontier,
                                           ComputeOperation &&compute_op)
 {
-    UndirectedGraph *current_direction_graph = _graph.get_direction_data(current_traversal_direction);
-
     int frontier_size = _frontier.get_size();
     int *frontier_flags = _frontier.get_flags();
     int *frontier_ids = _frontier.get_ids();
@@ -24,7 +22,7 @@ void GraphAbstractionsNEC::compute_worker(VGL_Graph &_graph,
         #pragma omp for schedule(static)
         for(int src_id = 0; src_id < frontier_size; src_id++)
         {
-            int connections_count = current_direction_graph->get_connections_count(src_id);
+            int connections_count = _graph.get_connections_count(src_id);
             int vector_index = get_vector_index(src_id);
             compute_op(src_id, connections_count, vector_index);
         }
@@ -41,7 +39,7 @@ void GraphAbstractionsNEC::compute_worker(VGL_Graph &_graph,
         {
             if(frontier_flags[src_id] == IN_FRONTIER_FLAG)
             {
-                int connections_count = current_direction_graph->get_connections_count(src_id);
+                int connections_count = _graph.get_connections_count(src_id);
                 int vector_index = get_vector_index(src_id);
                 compute_op(src_id, connections_count, vector_index);
             }
@@ -58,10 +56,28 @@ void GraphAbstractionsNEC::compute_worker(VGL_Graph &_graph,
         for(int frontier_pos = 0; frontier_pos < frontier_size; frontier_pos++)
         {
             int src_id = frontier_ids[frontier_pos];
-            int connections_count = current_direction_graph->get_connections_count(src_id);
+            int connections_count = _graph.get_connections_count(src_id);
             int vector_index = get_vector_index(src_id);
             compute_op(src_id, connections_count, vector_index);
         }
+    }
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+template <typename ComputeOperation>
+void GraphAbstractionsNEC::compute_container_call(VGL_Graph &_graph,
+                                                  VGL_Frontier &_frontier,
+                                                  ComputeOperation &&compute_op)
+{
+    if(_graph.get_container_type() == VECTOR_CSR_GRAPH)
+    {
+        VectorCSRGraph *container_graph = (VectorCSRGraph *)_graph.get_direction_data(current_traversal_direction);
+        compute_worker(*container_graph, _frontier, compute_op);
+    }
+    else
+    {
+        throw "Error in GraphAbstractionsNEC::compute : unsupported container type";
     }
 }
 
@@ -83,14 +99,14 @@ void GraphAbstractionsNEC::compute(VGL_Graph &_graph,
     if(omp_in_parallel())
     {
         #pragma omp barrier
-        compute_worker(_graph, _frontier, compute_op);
+        compute_container_call(_graph, _frontier, compute_op);
         #pragma omp barrier
     }
     else
     {
         #pragma omp parallel
         {
-            compute_worker(_graph, _frontier, compute_op);
+            compute_container_call(_graph, _frontier, compute_op);
         }
     }
 

@@ -46,7 +46,7 @@ int main(int argc, char **argv)
         VerticesArray<int> walk_results(graph);
         VGL_COMMON_API::start_measuring_stats();
         RW::vgl_random_walk(graph, walk_vertices, walk_vertices_num, walk_length, walk_results);
-        VGL_COMMON_API::stop_measuring_stats(graph.get_edges_count());
+        VGL_COMMON_API::stop_measuring_stats(graph.get_edges_count(), parser);
 
         if(parser.get_check_flag())
         {

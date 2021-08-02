@@ -6,6 +6,9 @@
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+#define __PRINT_API_PERFORMANCE_STATS__
+#define __PRINT_SAMPLES_PERFORMANCE_STATS__
+
 #include "graph_library.h"
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -38,7 +41,7 @@ int main(int argc, char **argv)
 
         VGL_COMMON_API::start_measuring_stats();
         HITS::vgl_hits(graph, auth, hub, parser.get_number_of_rounds());
-        VGL_COMMON_API::stop_measuring_stats(graph.get_edges_count());
+        VGL_COMMON_API::stop_measuring_stats(graph.get_edges_count(), parser);
 
         if(parser.get_check_flag())
         {

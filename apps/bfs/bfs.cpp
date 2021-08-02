@@ -7,8 +7,6 @@
 #define COLLECTIVE_FRONTIER_TYPE_CHANGE_THRESHOLD 0.35
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//#define __PRINT_API_PERFORMANCE_STATS__
-#define __PRINT_SAMPLES_PERFORMANCE_STATS__
 
 #include "graph_library.h"
 
@@ -30,21 +28,23 @@ int main(int argc, char **argv)
         VGL_COMMON_API::prepare_graph(graph, parser);
 
         // start algorithm
+        int source_vertex = 0;
         VGL_COMMON_API::start_measuring_stats();
         VerticesArray<int> levels(graph, SCATTER);
         for(int i = 0; i < parser.get_number_of_rounds(); i++)
         {
-            int source_vertex = graph.select_random_vertex(ORIGINAL);
+            source_vertex = graph.select_random_vertex(ORIGINAL);
             BFS::vgl_top_down(graph, levels, source_vertex);
-
-            if(parser.get_check_flag())
-            {
-                VerticesArray<int> check_levels(graph, SCATTER);
-                BFS::seq_top_down(graph, check_levels, source_vertex);
-                verify_results(levels, check_levels, 0);
-            }
         }
-        VGL_COMMON_API::stop_measuring_stats(graph.get_edges_count());
+        VGL_COMMON_API::stop_measuring_stats(graph.get_edges_count(), parser);
+
+        if(parser.get_check_flag())
+        {
+            VerticesArray<int> check_levels(graph, SCATTER);
+            BFS::seq_top_down(graph, check_levels, source_vertex);
+            verify_results(levels, check_levels, 0);
+        }
+
         VGL_COMMON_API::finalize_library();
     }
     catch (string error)
