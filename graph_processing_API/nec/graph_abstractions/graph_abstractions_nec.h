@@ -37,10 +37,10 @@ private:
                         ComputeOperation &&compute_op);
 
     // reduce inner implementation
-    /*template <typename _T, typename ReduceOperation>
-    _T reduce_sum(VectorCSRGraph &_graph,
-                  VGL_Frontier &_frontier,
-                  ReduceOperation &&reduce_op);*/
+    template <typename _T, typename ReduceOperation>
+    _T reduce_worker_sum(VGL_Graph &_graph,
+                         VGL_Frontier &_frontier,
+                         ReduceOperation &&reduce_op);
 
     template <typename FilterCondition>
     void generate_new_frontier_worker(VectorCSRGraph &_graph,
@@ -236,11 +236,11 @@ public:
                  ComputeOperation &&compute_op);
 
     // performs reduction using user-defined "reduce_op" operation for each element in the given frontier
-    /*template <typename _T, typename ReduceOperation>
+    template <typename _T, typename ReduceOperation>
     _T reduce(VGL_Graph &_graph,
               VGL_Frontier &_frontier,
               ReduceOperation &&reduce_op,
-              REDUCE_TYPE _reduce_type);*/
+              REDUCE_TYPE _reduce_type);
 
     // creates new frontier, which satisfy user-defined "cond" condition
     template <typename FilterCondition>
@@ -275,7 +275,7 @@ public:
 #include "advance_dense.hpp"
 #include "advance_sparse.hpp"
 #include "generate_new_frontier.hpp"
-//#include "reduce.hpp"
+#include "reduce.hpp"
 #ifdef __USE_MPI__
 #include "mpi_exchange.hpp"
 #endif
