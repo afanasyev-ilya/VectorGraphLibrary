@@ -78,6 +78,11 @@ enum SupportedDirection {
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+enum EdgesStorageType { // TODO legacy?
+    CSR_STORAGE = 0,
+    VE_STORAGE = 1
+};
+
 enum EdgesArrayClassType {
     BASE_EDGES_ARRAY = 0,
     VECTOR_CSR_EDGES_ARRAY = 1,

@@ -45,8 +45,8 @@ void GraphAbstractionsNEC::generate_new_frontier_worker(VectorCSRGraph &_graph,
 
     LOAD_VECTOR_CSR_GRAPH_DATA(_graph);
 
-    const int ve_threshold = current_direction_graph->get_vector_engine_threshold_vertex();
-    int vc_threshold = current_direction_graph->get_vector_core_threshold_vertex();
+    const int ve_threshold = _graph.get_vector_engine_threshold_vertex();
+    int vc_threshold = _graph.get_vector_core_threshold_vertex();
 
     // calculate numbers of elements in different frontier parts
     estimate_sorted_frontier_part_size(_frontier, vertex_pointers, 0, ve_threshold, filter_cond,
@@ -72,7 +72,7 @@ void GraphAbstractionsNEC::generate_new_frontier_worker(VectorCSRGraph &_graph,
         if(_frontier.vector_engine_part_size > 0)
         {
             copy_if_work = true;
-            vector_sparse_copy_if(_frontier.flags, _frontier.ids, _frontier.work_buffer, _frontier.max_size, 0, ve_threshold);
+            vector_sparse_copy_if(_frontier.flags, _frontier.ids, _frontier.work_buffer, vertices_count, 0, ve_threshold);
         }
     }
     else
@@ -88,7 +88,7 @@ void GraphAbstractionsNEC::generate_new_frontier_worker(VectorCSRGraph &_graph,
         {
             copy_if_work = true;
             vector_sparse_copy_if(_frontier.flags, &_frontier.ids[_frontier.vector_engine_part_size], _frontier.work_buffer,
-                           _frontier.max_size, ve_threshold, vc_threshold);
+                           vertices_count, ve_threshold, vc_threshold);
         }
     }
     else
@@ -114,7 +114,7 @@ void GraphAbstractionsNEC::generate_new_frontier_worker(VectorCSRGraph &_graph,
     }
 
     // set type of the whole frontier
-    if(_frontier.current_size == _frontier.max_size)
+    if(_frontier.size == vertices_count)
     {
         _frontier.sparsity_type = ALL_ACTIVE_FRONTIER;
     }
@@ -129,7 +129,7 @@ void GraphAbstractionsNEC::generate_new_frontier_worker(VectorCSRGraph &_graph,
 
     tm_copy_if.end();
     tm_wall.end();
-    long long work = _frontier.max_size;
+    long long work = vertices_count;
     performance_stats.update_gnf_time(tm_wall);
     performance_stats.update_bytes_requested(work*2.0*sizeof(int));
     if(copy_if_work)
