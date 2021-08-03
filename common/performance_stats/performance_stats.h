@@ -67,11 +67,7 @@ public:
     inline void update_MPI_functions_time(Timer &_timer);
     #endif
 
-    inline void update_advance_ve_part_time(Timer &_timer);
-    inline void update_advance_vc_part_time(Timer &_timer);
-    inline void update_advance_collective_part_time(Timer &_timer);
-
-    inline void fast_update_advance_stats(double _wall_time,
+    inline void update_advance_stats_vect_csr(double _wall_time,
                                           double _ve_part_time,
                                           double _vc_part_time,
                                           double _collective_part_time,

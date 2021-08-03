@@ -2,23 +2,6 @@
 
 void CSRGraph::construct_unsorted_csr(EdgesListGraph &_el_graph, bool _random_shuffle_required)
 {
-    if(_random_shuffle_required)
-    {
-        srand ( unsigned ( time(0) ) );
-
-        vector<int> reorder_ids(_el_graph.get_vertices_count());
-        for (int i = 0; i < _el_graph.get_vertices_count(); i++)
-            reorder_ids[i] = i;
-        random_shuffle (reorder_ids.begin(), reorder_ids.end() );
-
-        for(long long i = 0; i < _el_graph.get_edges_count(); i++)
-        {
-            _el_graph.get_src_ids()[i] = reorder_ids[_el_graph.get_src_ids()[i]];
-            _el_graph.get_dst_ids()[i] = reorder_ids[_el_graph.get_dst_ids()[i]];
-        }
-        cout << "CSRGraph::construct_unsorted_csr : random shuffle is done!" << endl;
-    }
-
     int *work_buffer;
     vgl_sort_indexes *sort_indexes;
     MemoryAPI::allocate_array(&sort_indexes, this->edges_count);
@@ -37,7 +20,7 @@ void CSRGraph::construct_unsorted_csr(EdgesListGraph &_el_graph, bool _random_sh
     {
         int src_id = _el_graph.get_src_ids()[cur_edge];
         int dst_id = _el_graph.get_dst_ids()[cur_edge];
-        adjacent_ids[cur_edge] = /*rand() % this->vertices_count;*/ dst_id;
+        adjacent_ids[cur_edge] = dst_id;
 
         int prev_id = _el_graph.get_src_ids()[cur_edge - 1];
         if(src_id != prev_id)

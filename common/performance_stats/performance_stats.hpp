@@ -10,7 +10,7 @@ PerformanceStats::PerformanceStats()
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void PerformanceStats::fast_update_advance_stats(double _wall_time,
+void PerformanceStats::update_advance_stats_vect_csr(double _wall_time,
                                                  double _ve_part_time,
                                                  double _vc_part_time,
                                                  double _collective_part_time,
@@ -34,37 +34,7 @@ void PerformanceStats::update_advance_time(Timer &_timer)
     #pragma omp single
     {
         advance_time += _timer.get_time();
-    }
-}
-
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-void PerformanceStats::update_advance_ve_part_time(Timer &_timer)
-{
-    #pragma omp single
-    {
         inner_wall_time += _timer.get_time();
-        advance_ve_part_time += _timer.get_time();
-    }
-}
-
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-void PerformanceStats::update_advance_vc_part_time(Timer &_timer)
-{
-    #pragma omp single
-    {
-        advance_vc_part_time += _timer.get_time();
-    }
-}
-
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-void PerformanceStats::update_advance_collective_part_time(Timer &_timer)
-{
-    #pragma omp single
-    {
-        advance_collective_part_time += _timer.get_time();
     }
 }
 

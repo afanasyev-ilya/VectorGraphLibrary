@@ -120,6 +120,8 @@ void EdgesListGraph::import(EdgesContainer &_edges_container)
 
     MemoryAPI::copy(this->src_ids, _edges_container.get_src_ids(), _edges_container.get_edges_count());
     MemoryAPI::copy(this->dst_ids, _edges_container.get_dst_ids(), _edges_container.get_edges_count());
+
+
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

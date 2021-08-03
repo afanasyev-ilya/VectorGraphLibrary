@@ -29,6 +29,10 @@ public:
                 GraphGenerationAPI::R_MAT(edges_container, v, v * _parser.get_avg_degree(), 57, 19, 19, 5, _direction);
             else if(_parser.get_graph_type() == RANDOM_UNIFORM)
                 GraphGenerationAPI::random_uniform(edges_container, v, v * _parser.get_avg_degree(), _direction);
+
+            // if required
+            edges_container.random_shuffle_edges();
+
             _graph.import(edges_container);
         }
         else if(_parser.get_compute_mode() == LOAD_GRAPH_FROM_FILE)

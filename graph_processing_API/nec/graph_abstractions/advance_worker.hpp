@@ -35,6 +35,11 @@ void GraphAbstractionsNEC::advance_worker(EdgesListGraph &_graph,
 
     tm.end();
     performance_stats.update_advance_time(tm);
+
+    #ifdef __PRINT_API_PERFORMANCE_STATS__
+    long long work = edges_count;
+    tm.print_time_and_bandwidth_stats("Advance (edges list)", work, (INT_ELEMENTS_PER_EDGE + 1)*sizeof(int));
+    #endif
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -192,7 +197,7 @@ void GraphAbstractionsNEC::advance_worker(VectorCSRGraph &_graph,
                    _frontier.get_vector_core_part_neighbours_count() +
                    _frontier.get_collective_part_neighbours_count();
 
-        performance_stats.fast_update_advance_stats(wall_time, ve_time, vc_time, collective_time,
+        performance_stats.update_advance_stats_vect_csr(wall_time, ve_time, vc_time, collective_time,
                                                     work*INT_ELEMENTS_PER_EDGE*sizeof(int), work);
     }
 }

@@ -37,7 +37,6 @@ void GraphAbstractionsNEC::generate_new_frontier_worker(Graph_Container &_graph,
                                                         Frontier_Container &_frontier,
                                                         FilterCondition &&filter_cond)
 {
-    cout << "general frontier GNF worker" << endl;
     Timer tm_wall;
     tm_wall.start();
 
@@ -47,6 +46,7 @@ void GraphAbstractionsNEC::generate_new_frontier_worker(Graph_Container &_graph,
     int elements_count = 0;
     long long neighbours_count = 0;
 
+    #pragma _NEC cncall
     #pragma _NEC vovertake
     #pragma _NEC novob
     #pragma _NEC vector
@@ -65,12 +65,12 @@ void GraphAbstractionsNEC::generate_new_frontier_worker(Graph_Container &_graph,
     _frontier.size = elements_count;
     _frontier.neighbours_count = neighbours_count;
 
-    vector_sparse_copy_if(_frontier.flags, _frontier.ids, _frontier.work_buffer,
-                          vertices_count, 0, vertices_count);
+    /*vector_sparse_copy_if(_frontier.flags, _frontier.ids, _frontier.work_buffer,
+                          vertices_count, 0, vertices_count);*/
 
     #ifdef __PRINT_API_PERFORMANCE_STATS__
     tm_wall.end();
-    tm_wall.print_bandwidth_stats("GNF", vertices_count, 4.0*sizeof(int));
+    tm_wall.print_bandwidth_stats("GNF", vertices_count, 2.0*sizeof(int));
     #endif
 }
 
@@ -81,7 +81,6 @@ void GraphAbstractionsNEC::generate_new_frontier_worker(VectorCSRGraph &_graph,
                                                         FrontierVectorCSR &_frontier,
                                                         FilterCondition &&filter_cond)
 {
-    cout << "vect CSR frontier GNF worker" << endl;
     Timer tm_flags, tm_wall;
     tm_flags.start();
     tm_wall.start();
