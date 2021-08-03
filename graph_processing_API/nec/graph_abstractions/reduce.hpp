@@ -100,6 +100,11 @@ _T GraphAbstractionsNEC::reduce(VGL_Graph &_graph,
             VectorCSRGraph *container_graph = (VectorCSRGraph *)_graph.get_direction_data(current_traversal_direction);
             reduce_result = reduce_worker_sum<_T>(*container_graph, _frontier, reduce_op);
         }
+        else if(_graph.get_container_type() == EDGES_LIST_GRAPH)
+        {
+            EdgesListGraph *container_graph = (EdgesListGraph *)_graph.get_direction_data(current_traversal_direction);
+            reduce_result = reduce_worker_sum<_T>(*container_graph, _frontier, reduce_op);
+        }
         else
         {
             throw "Error in GraphAbstractionsNEC::compute : unsupported container type";

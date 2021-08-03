@@ -12,6 +12,7 @@ private:
     ComputeMode compute_mode;
     AlgorithmFrontierType algorithm_frontier_type;
     AlgorithmTraversalType traversal_direction;
+    GraphType graph_storage_format;
     
     int scale;
     int avg_degree;
@@ -40,6 +41,7 @@ public:
     bool get_check_flag() { return check_flag; };
     int get_number_of_rounds() { return number_of_rounds; };
     int get_device_num() { return device_num; };
+    GraphType get_graph_storage_format() {return graph_storage_format;};
 
     int get_store_walk_paths() {return store_walk_paths;};
     int get_walk_vertices_percent() {return walk_vertices_percent;};

@@ -3,6 +3,7 @@
 VGL_Graph::VGL_Graph(GraphType _container_type)
 {
     graph_type = VGL_GRAPH;
+
     if(_container_type == VECTOR_CSR_GRAPH)
     {
         outgoing_data = new VectorCSRGraph();
@@ -37,7 +38,9 @@ void VGL_Graph::import(EdgesContainer &_edges_container)
     this->vertices_count = _edges_container.get_vertices_count();
     this->edges_count = _edges_container.get_edges_count();
     outgoing_data->import(_edges_container);
+    _edges_container.transpose();
     incoming_data->import(_edges_container);
+    _edges_container.transpose();
 
     MemoryAPI::free_array(vertices_reorder_buffer);
     MemoryAPI::allocate_array(&vertices_reorder_buffer, this->vertices_count);

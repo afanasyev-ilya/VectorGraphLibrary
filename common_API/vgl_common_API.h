@@ -46,6 +46,11 @@ public:
         #endif
     }
 
+    static GraphType select_graph_format(Parser &_parser)
+    {
+        return _parser.get_graph_storage_format();
+    }
+
     static void finalize_library()
     {
         #ifdef __USE_ASL__

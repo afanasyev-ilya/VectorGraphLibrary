@@ -35,6 +35,13 @@ public:
     int get_vertices_count() {return vertices_count;};
     long long get_edges_count() {return edges_count;};
 
+    void transpose()
+    {
+        int *tmp = src_ids;
+        src_ids = dst_ids;
+        dst_ids = tmp;
+    }
+
     void resize(int _vertices_count, long long _edges_count)
     {
         vertices_count = _vertices_count;

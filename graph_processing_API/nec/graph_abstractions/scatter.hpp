@@ -53,6 +53,23 @@ void GraphAbstractionsNEC::scatter(VGL_Graph &_graph,
             }
         }
     }
+    else if(_graph.get_container_type() == EDGES_LIST_GRAPH)
+    {
+        EdgesListGraph *current_direction_graph = (EdgesListGraph *)_graph.get_outgoing_data();
+        if(omp_in_parallel())
+        {
+            #pragma omp barrier
+            advance_worker(*current_direction_graph, edge_op);
+            #pragma omp barrier
+        }
+        else
+        {
+            #pragma omp parallel
+            {
+                advance_worker(*current_direction_graph, edge_op);
+            }
+        }
+    }
     else
     {
         throw "Error in GraphAbstractionsNEC::scatter unsupported graph type";

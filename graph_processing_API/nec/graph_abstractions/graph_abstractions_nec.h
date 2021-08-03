@@ -47,6 +47,11 @@ private:
                          VGL_Frontier &_frontier,
                          ReduceOperation &&reduce_op);
 
+    template <typename FilterCondition, typename Graph_Container, typename Frontier_Container>
+    void generate_new_frontier_worker(Graph_Container &_graph,
+                                      Frontier_Container &_frontier,
+                                      FilterCondition &&filter_cond);
+
     template <typename FilterCondition>
     void generate_new_frontier_worker(VectorCSRGraph &_graph,
                                       FrontierVectorCSR &_frontier,

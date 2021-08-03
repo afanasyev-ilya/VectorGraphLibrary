@@ -30,7 +30,7 @@ void GraphAbstractionsMulticore::gather(VGL_Graph &_graph,
     bool outgoing_graph_is_stored = _graph.outgoing_is_stored();
     if(_graph.get_container_type() == VECTOR_CSR_GRAPH)
     {
-        VectorCSRGraph *current_direction_graph = (VectorCSRGraph *)_graph.get_outgoing_data();
+        VectorCSRGraph *current_direction_graph = (VectorCSRGraph *)_graph.get_incoming_data();
         FrontierVectorCSR *current_frontier = (FrontierVectorCSR *)_frontier.get_container_data();
         if(omp_in_parallel())
         {

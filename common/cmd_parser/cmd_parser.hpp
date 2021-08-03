@@ -15,6 +15,7 @@ Parser::Parser()
     number_of_rounds = 1;
     algorithm_bfs = TOP_DOWN_BFS_ALGORITHM;
     algorithm_cc = SHILOACH_VISHKIN_ALGORITHM;
+    graph_storage_format = VECTOR_CSR_GRAPH;
 
     device_num = 0;
 
@@ -64,6 +65,16 @@ void Parser::parse_args(int _argc, char **_argv)
                 graph_type = RMAT;
             if((tmp_type == "random_uniform") || (tmp_type == "ru"))
                 graph_type = RANDOM_UNIFORM;
+        }
+
+        if ((option.compare("-format") == 0))
+        {
+            string tmp_type = _argv[++i];
+            if((tmp_type == "el") || (tmp_type == "edges_list"))
+                graph_storage_format = EDGES_LIST_GRAPH;
+            if((tmp_type == "vcsr") || (tmp_type == "vect_csr"))
+                graph_storage_format = VECTOR_CSR_GRAPH;
+            cout << "graph_storage_format: " << graph_storage_format << endl;
         }
 
         if ((option.compare("-edges") == 0) || (option.compare("-e") == 0))

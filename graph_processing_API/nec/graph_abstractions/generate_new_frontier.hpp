@@ -32,11 +32,56 @@ void GraphAbstractionsNEC::estimate_sorted_frontier_part_size(FrontierVectorCSR 
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+template <typename FilterCondition, typename Graph_Container, typename Frontier_Container>
+void GraphAbstractionsNEC::generate_new_frontier_worker(Graph_Container &_graph,
+                                                        Frontier_Container &_frontier,
+                                                        FilterCondition &&filter_cond)
+{
+    cout << "general frontier GNF worker" << endl;
+    Timer tm_wall;
+    tm_wall.start();
+
+    _frontier.set_direction(current_traversal_direction);
+    int vertices_count = _graph.get_vertices_count();
+
+    int elements_count = 0;
+    long long neighbours_count = 0;
+
+    #pragma _NEC vovertake
+    #pragma _NEC novob
+    #pragma _NEC vector
+    #pragma _NEC ivdep
+    #pragma omp parallel for schedule(static) reduction(+: elements_count, neighbours_count)
+    for (int src_id = 0; src_id < vertices_count; src_id++)
+    {
+        int connections_count = _graph.get_connections_count(src_id);
+        int new_flag = filter_cond(src_id, connections_count);
+        _frontier.flags[src_id] = new_flag;
+        elements_count  += new_flag;
+        if(new_flag == IN_FRONTIER_FLAG)
+            neighbours_count += connections_count;
+    }
+
+    _frontier.size = elements_count;
+    _frontier.neighbours_count = neighbours_count;
+
+    vector_sparse_copy_if(_frontier.flags, _frontier.ids, _frontier.work_buffer,
+                          vertices_count, 0, vertices_count);
+
+    #ifdef __PRINT_API_PERFORMANCE_STATS__
+    tm_wall.end();
+    tm_wall.print_bandwidth_stats("GNF", vertices_count, 4.0*sizeof(int));
+    #endif
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 template <typename FilterCondition>
 void GraphAbstractionsNEC::generate_new_frontier_worker(VectorCSRGraph &_graph,
                                                         FrontierVectorCSR &_frontier,
                                                         FilterCondition &&filter_cond)
 {
+    cout << "vect CSR frontier GNF worker" << endl;
     Timer tm_flags, tm_wall;
     tm_flags.start();
     tm_wall.start();
@@ -159,6 +204,13 @@ void GraphAbstractionsNEC::generate_new_frontier(VGL_Graph &_graph,
     {
         VectorCSRGraph *current_direction_graph = (VectorCSRGraph *)_graph.get_direction_data(current_traversal_direction);
         FrontierVectorCSR *current_frontier = (FrontierVectorCSR *)_frontier.get_container_data();
+
+        generate_new_frontier_worker(*current_direction_graph, *current_frontier, filter_cond);
+    }
+    else if(_graph.get_container_type() == EDGES_LIST_GRAPH)
+    {
+        EdgesListGraph *current_direction_graph = (EdgesListGraph *)_graph.get_direction_data(current_traversal_direction);
+        FrontierGeneral *current_frontier = (FrontierGeneral *)_frontier.get_container_data();
 
         generate_new_frontier_worker(*current_direction_graph, *current_frontier, filter_cond);
     }
