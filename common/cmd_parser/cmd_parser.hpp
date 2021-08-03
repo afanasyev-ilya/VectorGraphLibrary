@@ -72,9 +72,12 @@ void Parser::parse_args(int _argc, char **_argv)
             string tmp_type = _argv[++i];
             if((tmp_type == "el") || (tmp_type == "edges_list"))
                 graph_storage_format = EDGES_LIST_GRAPH;
-            if((tmp_type == "vcsr") || (tmp_type == "vect_csr"))
+            else if((tmp_type == "vcsr") || (tmp_type == "vect_csr"))
                 graph_storage_format = VECTOR_CSR_GRAPH;
-            cout << "graph_storage_format: " << graph_storage_format << endl;
+            else if(tmp_type == "csr")
+                graph_storage_format = CSR_GRAPH;
+            else
+                throw "Error in Parser::parse_args : unknown graph_storage_format";
         }
 
         if ((option.compare("-edges") == 0) || (option.compare("-e") == 0))

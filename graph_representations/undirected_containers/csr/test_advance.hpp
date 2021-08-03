@@ -1,5 +1,31 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+struct CSRVertexGroup
+{
+    int *ids;
+    int size;
+    long long neighbours;
+
+    CSRVertexGroup()
+    {
+        size = 1;
+        neighbours = 0;
+        MemoryAPI::allocate_array(&ids, size);
+    }
+
+    void resize(int _new_size)
+    {
+        size = _new_size;
+        MemoryAPI::free_array(ids);
+        MemoryAPI::allocate_array(&ids, size);
+    }
+
+    ~CSRVertexGroup()
+    {
+        MemoryAPI::free_array(ids);
+    }
+};
+
 void CSRGraph::test_advance()
 {
     CSRVertexGroup large_degree, medium_degree, small_degree, lowest_degree, test_group;

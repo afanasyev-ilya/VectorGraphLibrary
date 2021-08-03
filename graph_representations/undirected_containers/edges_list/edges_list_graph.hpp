@@ -25,6 +25,8 @@ void EdgesListGraph::alloc(int _vertices_count, long long _edges_count)
     this->edges_count    = _edges_count;
     MemoryAPI::allocate_array(&src_ids, this->edges_count);
     MemoryAPI::allocate_array(&dst_ids, this->edges_count);
+    MemoryAPI::allocate_array(&connections_count, this->vertices_count);
+    MemoryAPI::set(connections_count, 0, this->vertices_count);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -33,9 +35,11 @@ void EdgesListGraph::free()
 {
     MemoryAPI::free_array(src_ids);
     MemoryAPI::free_array(dst_ids);
+    MemoryAPI::free_array(connections_count);
 
     src_ids = NULL;
     dst_ids = NULL;
+    connections_count = NULL;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -191,6 +195,7 @@ void EdgesListGraph::operator = (const EdgesListGraph &_copy_graph)
 
     MemoryAPI::copy(this->src_ids, _copy_graph.src_ids, this->edges_count);
     MemoryAPI::copy(this->dst_ids, _copy_graph.dst_ids, this->edges_count);
+    MemoryAPI::copy(this->connections_count, _copy_graph.connections_count, this->vertices_count);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -206,6 +211,7 @@ EdgesListGraph::EdgesListGraph(const EdgesListGraph &_copy_graph)
 
     MemoryAPI::copy(this->src_ids, _copy_graph.src_ids, this->edges_count);
     MemoryAPI::copy(this->dst_ids, _copy_graph.dst_ids, this->edges_count);
+    MemoryAPI::copy(this->connections_count, _copy_graph.connections_count, this->vertices_count);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

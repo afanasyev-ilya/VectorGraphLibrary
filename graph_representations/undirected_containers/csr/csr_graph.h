@@ -19,34 +19,6 @@ class EdgesArray;
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-struct CSRVertexGroup
-{
-    int *ids;
-    int size;
-    long long neighbours;
-
-    CSRVertexGroup()
-    {
-        size = 1;
-        neighbours = 0;
-        MemoryAPI::allocate_array(&ids, size);
-    }
-
-    void resize(int _new_size)
-    {
-        size = _new_size;
-        MemoryAPI::free_array(ids);
-        MemoryAPI::allocate_array(&ids, size);
-    }
-
-    ~CSRVertexGroup()
-    {
-        MemoryAPI::free_array(ids);
-    }
-};
-
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
 class CSRGraph: public UndirectedGraph
 {
 private:
@@ -56,23 +28,13 @@ private:
     void alloc(int _vertices_count, long long _edges_count);
     void free();
 
-    void construct_unsorted_csr(EdgesListGraph &_el_graph, bool _random_shuffle_required);
-
-    void create_vertices_group_array(CSRVertexGroup &_group_data, int _bottom, int _top);
-
-    int *data;
-    int *result;
-    void test_advance_changed_vl(CSRVertexGroup &_group_data, string _name);
-    void test_advance_fixed_vl(CSRVertexGroup &_group_data, string _name);
-    void test_advance_sparse(CSRVertexGroup &_group_data, string _name);
-    void test_advance_virtual_warp(CSRVertexGroup &_group_data, string _name);
-    void test_advance_sparse_packed(CSRVertexGroup &_group_data, string _name);
+    void construct_unsorted_csr(EdgesContainer &_edges_container);
 public:
     CSRGraph(int _vertices_count = 1, long long _edges_count = 1);
     ~CSRGraph();
 
-    inline int get_connections_count(int _vertex_id) {return 0;};
-    inline int get_edge_dst(int _src_id, int _edge_pos) {return 0;};
+    inline int get_connections_count(int _src_id) {return vertex_pointers[_src_id+1] - vertex_pointers[_src_id];};
+    inline int get_edge_dst(int _src_id, int _edge_pos) {return adjacent_ids[vertex_pointers[_src_id] + _edge_pos];};
 
     /* print API */
     void print() {};
@@ -93,7 +55,7 @@ public:
 
     /* import and preprocess API */
     // creates VectorCSRGraph format from EdgesListGraph
-    void import(EdgesListGraph &_old_graph, bool _random_shuffle_required = true);
+    void import(EdgesContainer &_edges_container);
 
     friend class GraphAbstractions;
     friend class VGL_Graph;

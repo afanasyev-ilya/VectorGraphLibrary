@@ -1,28 +1,28 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void CSRGraph::construct_unsorted_csr(EdgesListGraph &_el_graph, bool _random_shuffle_required)
+void CSRGraph::construct_unsorted_csr(EdgesContainer &_edges_container)
 {
     int *work_buffer;
     vgl_sort_indexes *sort_indexes;
     MemoryAPI::allocate_array(&sort_indexes, this->edges_count);
     MemoryAPI::allocate_array(&work_buffer, max(this->edges_count, (long long)this->vertices_count*8));//TODO 8
-    _el_graph.preprocess_into_csr_based(work_buffer, sort_indexes);
+    _edges_container.preprocess_into_csr_based(work_buffer, sort_indexes);
 
     #pragma omp parallel for
     for(int i = 0; i < this->vertices_count; i++)
         vertex_pointers[i] = -1;
 
     vertex_pointers[0] = 0;
-    adjacent_ids[0] = _el_graph.get_dst_ids()[0];
+    adjacent_ids[0] = _edges_container.get_dst_ids()[0];
 
     #pragma omp parallel for
     for(long long cur_edge = 1; cur_edge < this->edges_count; cur_edge++)
     {
-        int src_id = _el_graph.get_src_ids()[cur_edge];
-        int dst_id = _el_graph.get_dst_ids()[cur_edge];
+        int src_id = _edges_container.get_src_ids()[cur_edge];
+        int dst_id = _edges_container.get_dst_ids()[cur_edge];
         adjacent_ids[cur_edge] = dst_id;
 
-        int prev_id = _el_graph.get_src_ids()[cur_edge - 1];
+        int prev_id = _edges_container.get_src_ids()[cur_edge - 1];
         if(src_id != prev_id)
             vertex_pointers[src_id] = cur_edge;
     }
@@ -43,10 +43,10 @@ void CSRGraph::construct_unsorted_csr(EdgesListGraph &_el_graph, bool _random_sh
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void CSRGraph::import(EdgesListGraph &_el_graph, bool _random_shuffle_required)
+void CSRGraph::import(EdgesContainer &_edges_container)
 {
-    resize(_el_graph.get_vertices_count(), _el_graph.get_edges_count());
-    construct_unsorted_csr(_el_graph, _random_shuffle_required);
+    resize(_edges_container.get_vertices_count(), _edges_container.get_edges_count());
+    construct_unsorted_csr(_edges_container);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

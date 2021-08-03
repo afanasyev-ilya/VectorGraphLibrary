@@ -51,7 +51,7 @@ using namespace std;
 #include "graph_representations/undirected_containers/undirected_graph.h"
 #include "graph_representations/undirected_containers/edges_list/edges_list_graph.h"
 #include "graph_representations/undirected_containers/vect_csr/vect_csr_graph.h"
-//#include "graph_representations/undirected_containers/csr/csr_graph.h"
+#include "graph_representations/undirected_containers/csr/csr_graph.h"
 
 #include "graph_representations/vgl_graph/vgl_graph.h"
 
