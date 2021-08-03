@@ -114,21 +114,12 @@ void EdgesListGraph::remove_loops_and_multiple_arcs()
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void EdgesListGraph::import(int *_src_ids, int *_dst_ids, int _vertices_count, long long _edges_count)
+void EdgesListGraph::import(EdgesContainer &_edges_container)
 {
-    this->resize(_vertices_count, _edges_count);
+    this->resize(_edges_container.get_vertices_count(), _edges_container.get_edges_count());
 
-    MemoryAPI::copy(this->src_ids, _src_ids, _edges_count);
-    MemoryAPI::copy(this->dst_ids, _dst_ids, _edges_count);
+    MemoryAPI::copy(this->src_ids, _edges_container.get_src_ids(), _edges_container.get_edges_count());
+    MemoryAPI::copy(this->dst_ids, _edges_container.get_dst_ids(), _edges_container.get_edges_count());
 }
-
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-/*
-void EdgesListGraph::import(ShardedCSRGraph &_sharded_graph)
-{
-
-}
-*/
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

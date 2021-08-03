@@ -45,10 +45,21 @@ void VGL_Graph::import(EdgesContainer &_edges_container)
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+#define PRINT_VERTICES_THRESHOLD 32
+#define PRINT_EDGES_THRESHOLD PRINT_VERTICES_THRESHOLD * 4
+
 void VGL_Graph::print()
 {
-    outgoing_data->print();
-    incoming_data->print();
+    if((this->vertices_count < PRINT_VERTICES_THRESHOLD) && (this->edges_count < PRINT_EDGES_THRESHOLD))
+    {
+        outgoing_data->print();
+        incoming_data->print();
+    }
+    else
+    {
+        cout << "Warning! Graph is too large to print: " << this->vertices_count << " vertices, "
+            << this->edges_count << " edges" << endl;
+    }
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

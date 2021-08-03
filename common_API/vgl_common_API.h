@@ -8,6 +8,10 @@ public:
     static void init_library(int argc, char **argv)
     {
         vgl_library_data.init(argc, argv);
+
+        #ifdef __USE_ASL__
+        ASL_CALL(asl_library_initialize());
+        #endif
     }
 
     static void info_message(string _algo_name)
@@ -44,6 +48,10 @@ public:
 
     static void finalize_library()
     {
+        #ifdef __USE_ASL__
+        ASL_CALL(asl_library_finalize());
+        #endif
+
         vgl_library_data.finalize();
     }
 

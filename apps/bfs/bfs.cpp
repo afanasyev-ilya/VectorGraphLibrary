@@ -27,6 +27,8 @@ int main(int argc, char **argv)
         VGL_Graph graph(VECTOR_CSR_GRAPH);
         VGL_COMMON_API::prepare_graph(graph, parser);
 
+        graph.print();
+
         // start algorithm
         int source_vertex = 0;
         VGL_COMMON_API::start_measuring_stats();
