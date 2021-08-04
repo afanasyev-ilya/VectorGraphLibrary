@@ -32,9 +32,9 @@ void GraphAbstractionsNEC::estimate_sorted_frontier_part_size(FrontierVectorCSR 
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-template <typename FilterCondition, typename Graph_Container, typename Frontier_Container>
+template <typename FilterCondition, typename Graph_Container>
 void GraphAbstractionsNEC::generate_new_frontier_worker(Graph_Container &_graph,
-                                                        Frontier_Container &_frontier,
+                                                        FrontierGeneral &_frontier,
                                                         FilterCondition &&filter_cond)
 {
     Timer tm_wall;
@@ -42,6 +42,12 @@ void GraphAbstractionsNEC::generate_new_frontier_worker(Graph_Container &_graph,
 
     _frontier.set_direction(current_traversal_direction);
     int vertices_count = _graph.get_vertices_count();
+
+    if(_graph.get_type() == EDGES_LIST_GRAPH) // TODO separate?
+    {
+        _frontier.set_all_active();
+        return;
+    }
 
     int elements_count = 0;
     long long neighbours_count = 0;
@@ -65,8 +71,8 @@ void GraphAbstractionsNEC::generate_new_frontier_worker(Graph_Container &_graph,
     _frontier.size = elements_count;
     _frontier.neighbours_count = neighbours_count;
 
-    /*vector_sparse_copy_if(_frontier.flags, _frontier.ids, _frontier.work_buffer,
-                          vertices_count, 0, vertices_count);*/
+    vector_sparse_copy_if(_frontier.flags, _frontier.ids, _frontier.work_buffer,
+                          vertices_count, 0, vertices_count);
 
     #ifdef __PRINT_API_PERFORMANCE_STATS__
     tm_wall.end();

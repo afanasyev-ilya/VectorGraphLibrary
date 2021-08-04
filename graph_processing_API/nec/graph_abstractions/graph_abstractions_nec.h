@@ -24,7 +24,6 @@ class GraphAbstractionsNEC : public GraphAbstractions
 private:
     // current the number of vertices, neighbouring a frontier (for Advance perf)
     long long count_frontier_neighbours(VGL_Graph &_graph, VGL_Frontier &_frontier);
-
     bool use_safe_stores;
 
     long long compute_process_shift(long long _shard_shift, TraversalDirection _traversal, int _storage,
@@ -47,9 +46,9 @@ private:
                          VGL_Frontier &_frontier,
                          ReduceOperation &&reduce_op);
 
-    template <typename FilterCondition, typename Graph_Container, typename Frontier_Container>
+    template <typename FilterCondition, typename Graph_Container>
     void generate_new_frontier_worker(Graph_Container &_graph,
-                                      Frontier_Container &_frontier,
+                                      FrontierGeneral &_frontier,
                                       FilterCondition &&filter_cond);
 
     template <typename FilterCondition>
@@ -200,6 +199,7 @@ private:
 public:
     // attaches graph-processing API to the specific graph
     GraphAbstractionsNEC(VGL_Graph &_graph, TraversalDirection _initial_traversal = SCATTER);
+    ~GraphAbstractionsNEC();
 
     // performs user-defined "edge_op" operation over all OUTGOING edges, neighbouring specified frontier
     template <typename EdgeOperation, typename VertexPreprocessOperation, typename VertexPostprocessOperation,

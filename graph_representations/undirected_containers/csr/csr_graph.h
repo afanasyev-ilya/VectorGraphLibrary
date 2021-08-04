@@ -33,8 +33,8 @@ public:
     CSRGraph(int _vertices_count = 1, long long _edges_count = 1);
     ~CSRGraph();
 
-    inline int get_connections_count(int _src_id) {return vertex_pointers[_src_id+1] - vertex_pointers[_src_id];};
-    inline int get_edge_dst(int _src_id, int _edge_pos) {return adjacent_ids[vertex_pointers[_src_id] + _edge_pos];};
+    inline int get_connections_count(int _src_id) final {return vertex_pointers[_src_id+1] - vertex_pointers[_src_id];};
+    inline int get_edge_dst(int _src_id, int _edge_pos) final {return adjacent_ids[vertex_pointers[_src_id] + _edge_pos];};
 
     /* print API */
     void print() {};

@@ -26,8 +26,8 @@ public:
     /* get API */
     inline int *get_src_ids() {return src_ids;};
     inline int *get_dst_ids() {return dst_ids;};
-    inline int get_connections_count(int _vertex_id) { return connections_count[_vertex_id]; };
-    inline int get_edge_dst(int _src_id, int _edge_pos) { return 0; };
+    inline int get_connections_count(int _vertex_id) final { return connections_count[_vertex_id]; };
+    inline int get_edge_dst(int _src_id, int _edge_pos) final { return 0; };
 
     /* print API */
     void print();
