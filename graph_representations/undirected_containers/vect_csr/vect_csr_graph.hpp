@@ -95,7 +95,7 @@ void VectorCSRGraph::save_to_graphviz_file(string _file_name, VerticesArray<_TVe
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-int VectorCSRGraph::select_random_vertex()
+int VectorCSRGraph::select_random_nz_vertex()
 {
     int attempt_num = 0;
     while(attempt_num < ATTEMPTS_THRESHOLD)

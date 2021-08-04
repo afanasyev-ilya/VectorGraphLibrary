@@ -64,7 +64,7 @@ public:
     void import(EdgesContainer &_edges_container);
 
     /* vertices API */
-    int select_random_vertex() { return rand() % this->vertices_count; };
+    int select_random_nz_vertex();
 
     friend class GraphAbstractions;
 };

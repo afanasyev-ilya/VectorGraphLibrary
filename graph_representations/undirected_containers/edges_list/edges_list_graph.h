@@ -78,7 +78,7 @@ public:
     void remove_loops_and_multiple_arcs();
 
     /* vertices API */
-    int select_random_vertex() { return rand() % this->vertices_count; };
+    int select_random_nz_vertex();
 
     friend class GraphAbstractions;
 };

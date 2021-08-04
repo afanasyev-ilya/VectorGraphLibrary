@@ -181,7 +181,7 @@ public:
     void sort_adjacent_edges();
 
     // selects random vertex (possibly with zero degree)
-    int select_random_vertex();
+    int select_random_nz_vertex() final;
 
     friend class GraphAbstractions;
 };
