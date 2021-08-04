@@ -74,44 +74,30 @@ void EdgesListGraph::save_to_graphviz_file(string _file_name, VisualisationMode 
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-bool EdgesListGraph::save_to_binary_file(string _file_name)
+void EdgesListGraph::save_main_content_to_binary_file(FILE *_graph_file)
 {
-    FILE * graph_file = fopen(_file_name.c_str(), "wb");
-    if(graph_file == NULL)
-        return false;
-
     int vertices_count = this->vertices_count;
     long long edges_count = this->edges_count;
-    fwrite(reinterpret_cast<void*>(&this->graph_type), sizeof(GraphType), 1, graph_file);
-    fwrite(reinterpret_cast<const void*>(&vertices_count), sizeof(int), 1, graph_file);
-    fwrite(reinterpret_cast<const void*>(&edges_count), sizeof(long long), 1, graph_file);
+    fwrite(reinterpret_cast<const void*>(&vertices_count), sizeof(int), 1, _graph_file);
+    fwrite(reinterpret_cast<const void*>(&edges_count), sizeof(long long), 1, _graph_file);
+    fwrite(reinterpret_cast<void*>(&this->graph_type), sizeof(GraphType), 1, _graph_file);
 
-    fwrite(reinterpret_cast<const void*>(src_ids), sizeof(int), this->edges_count, graph_file);
-    fwrite(reinterpret_cast<const void*>(dst_ids), sizeof(int), this->edges_count, graph_file);
-
-    fclose(graph_file);
-    return true;
+    fwrite(reinterpret_cast<const void*>(src_ids), sizeof(int), this->edges_count, _graph_file);
+    fwrite(reinterpret_cast<const void*>(dst_ids), sizeof(int), this->edges_count, _graph_file);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-bool EdgesListGraph::load_from_binary_file(string _file_name)
+void EdgesListGraph::load_main_content_from_binary_file(FILE *_graph_file)
 {
-    FILE * graph_file = fopen(_file_name.c_str(), "rb");
-    if(graph_file == NULL)
-        return false;
-
-    fread(reinterpret_cast<void*>(&this->graph_type), sizeof(GraphType), 1, graph_file);
-    fread(reinterpret_cast<void*>(&this->vertices_count), sizeof(int), 1, graph_file);
-    fread(reinterpret_cast<void*>(&this->edges_count), sizeof(long long), 1, graph_file);
+    fread(reinterpret_cast<void*>(&this->vertices_count), sizeof(int), 1, _graph_file);
+    fread(reinterpret_cast<void*>(&this->edges_count), sizeof(long long), 1, _graph_file);
+    fread(reinterpret_cast<void*>(&this->graph_type), sizeof(GraphType), 1, _graph_file);
 
     resize(this->vertices_count, this->edges_count);
     
-    fread(reinterpret_cast<void*>(src_ids), sizeof(int), this->edges_count, graph_file);
-    fread(reinterpret_cast<void*>(dst_ids), sizeof(int), this->edges_count, graph_file);
-    
-    fclose(graph_file);
-    return true;
+    fread(reinterpret_cast<void*>(src_ids), sizeof(int), this->edges_count, _graph_file);
+    fread(reinterpret_cast<void*>(dst_ids), sizeof(int), this->edges_count, _graph_file);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

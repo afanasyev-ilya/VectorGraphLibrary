@@ -8,3 +8,4 @@
 - reduce
 
 4. implement new advance worker in each architecture class
+5. add extension

@@ -2,6 +2,12 @@
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+#include <string>
+
+using namespace std;
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 #define VGL_PACK_TYPE long long
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -42,13 +48,39 @@ class GraphAnalytics;
 
 enum GraphType
 {
-    VECTOR_CSR_GRAPH = 0,
-    EDGES_LIST_GRAPH = 1,
-    VECT_CSR_GRAPH = 2,
-    SHARDED_CSR_GRAPH = 3,
-    CSR_GRAPH = 4,
-    VGL_GRAPH = 5
+    VGL_GRAPH = 0,
+    VECTOR_CSR_GRAPH = 1,
+    EDGES_LIST_GRAPH = 2,
+    CSR_GRAPH = 3
 };
+
+string get_graph_type_name(GraphType _type)
+{
+    if(_type == VGL_GRAPH)
+        return "VGL_GRAPH";
+    else if(_type == VECTOR_CSR_GRAPH)
+        return "VECTOR_CSR_GRAPH";
+    else if(_type == EDGES_LIST_GRAPH)
+        return "EDGES_LIST_GRAPH";
+    else if(_type == CSR_GRAPH)
+        return "CSR_GRAPH";
+    else
+        return "UNKNOWN";
+}
+
+string get_graph_extension(GraphType _type)
+{
+    if(_type == VGL_GRAPH)
+        return ".vgl";
+    else if(_type == VECTOR_CSR_GRAPH)
+        return ".vcsr";
+    else if(_type == EDGES_LIST_GRAPH)
+        return ".el";
+    else if(_type == CSR_GRAPH)
+        return ".csr";
+    else
+        return ".unknown";
+}
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 

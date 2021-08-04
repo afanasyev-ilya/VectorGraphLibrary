@@ -11,11 +11,12 @@ void CSRGraph::print()
     cout << "|E|=" << this->edges_count << endl;
     for(int cur_vertex = 0; cur_vertex < this->vertices_count; cur_vertex++)
     {
-        cout << "vertex " << cur_vertex << " connected to: ";
+        cout << "vertex " << cur_vertex << " connected to: " << vertex_pointers[cur_vertex + 1] - vertex_pointers[cur_vertex] << " vertices";
+        /*cout << "vertex " << cur_vertex << " connected to: ";
         for(long long edge_pos = vertex_pointers[cur_vertex]; edge_pos < vertex_pointers[cur_vertex + 1]; edge_pos++)
         {
             cout << "(" << adjacent_ids[edge_pos] << ")" << " ";
-        }
+        }*/
         cout << endl;
     }
     cout << endl;

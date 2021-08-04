@@ -37,12 +37,12 @@ public:
         }
         else if(_parser.get_compute_mode() == LOAD_GRAPH_FROM_FILE)
         {
-            /*Timer tm;
+            Timer tm;
             tm.start();
             if(!_graph.load_from_binary_file(_parser.get_graph_file_name()))
                 throw "Error: graph file not found";
             tm.end();
-            tm.print_time_stats("Graph load");*/
+            tm.print_time_stats("Graph load");
         }
 
         #ifdef __USE_MPI__

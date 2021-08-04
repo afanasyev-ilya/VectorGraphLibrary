@@ -112,8 +112,9 @@ private:
     // allows to get position of specified edge in VE representation
     inline long long get_ve_edge_id (int _src_id, int _dst_id) { return last_vertices_ve.get_ve_edge_id(_src_id, _dst_id); };
 
-    void save_main_content_to_binary_file(FILE *_graph_file);
-    void load_main_content_from_binary_file(FILE *_graph_file);
+    /* file load/store API */
+    void save_main_content_to_binary_file(FILE *_graph_file) final;
+    void load_main_content_from_binary_file(FILE *_graph_file) final;
 public:
     VectorCSRGraph(int _vertices_count = 1, long long _edges_count = 1);
     ~VectorCSRGraph();
@@ -143,10 +144,6 @@ public:
     template <typename _T>
     void print_with_weights(EdgesArray<_T> &_weights, TraversalDirection _direction);
     void print_vertex_information(int _src_id, int _num_edges);
-
-    /* file load/store API */
-    bool save_to_binary_file(string _file_name);
-    bool load_from_binary_file(string _file_name);
 
     /* GPU specific (copy) API */
     #ifdef __USE_GPU__

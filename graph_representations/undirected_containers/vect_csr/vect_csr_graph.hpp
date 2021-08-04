@@ -113,6 +113,12 @@ int VectorCSRGraph::select_random_nz_vertex()
 
 void VectorCSRGraph::save_main_content_to_binary_file(FILE *_graph_file)
 {
+    int vertices_count = this->vertices_count;
+    long long edges_count = this->edges_count;
+    fwrite(reinterpret_cast<const void*>(&vertices_count), sizeof(int), 1, _graph_file);
+    fwrite(reinterpret_cast<const void*>(&edges_count), sizeof(long long), 1, _graph_file);
+    fwrite(reinterpret_cast<void*>(&this->graph_type), sizeof(GraphType), 1, _graph_file);
+
     fwrite(reinterpret_cast<const char*>(vertex_pointers), sizeof(long long), vertices_count + 1, _graph_file);
     fwrite(reinterpret_cast<const char*>(adjacent_ids), sizeof(int), edges_count, _graph_file);
 
@@ -125,6 +131,12 @@ void VectorCSRGraph::save_main_content_to_binary_file(FILE *_graph_file)
 
 void VectorCSRGraph::load_main_content_from_binary_file(FILE *_graph_file)
 {
+    fread(reinterpret_cast<void*>(&this->vertices_count), sizeof(int), 1, _graph_file);
+    fread(reinterpret_cast<void*>(&this->edges_count), sizeof(long long), 1, _graph_file);
+    fread(reinterpret_cast<void*>(&this->graph_type), sizeof(GraphType), 1, _graph_file);
+
+    resize(this->vertices_count, this->edges_count);
+
     fread(reinterpret_cast<char*>(vertex_pointers), sizeof(long long), vertices_count + 1, _graph_file);
     fread(reinterpret_cast<char*>(adjacent_ids), sizeof(int), edges_count, _graph_file);
 
@@ -140,53 +152,6 @@ void VectorCSRGraph::load_main_content_from_binary_file(FILE *_graph_file)
     estimate_mpi_thresholds();
     #endif
     #endif
-}
-
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-bool VectorCSRGraph::save_to_binary_file(string _file_name)
-{
-    FILE *graph_file = fopen(_file_name.c_str(), "wb");
-    if(graph_file == NULL)
-        return false;
-
-    int vertices_count = this->vertices_count;
-    long long edges_count = this->edges_count;
-
-    fwrite(reinterpret_cast<const char*>(&(this->graph_type)), sizeof(GraphType), 1, graph_file);
-    fwrite(reinterpret_cast<const char*>(&vertices_count), sizeof(int), 1, graph_file);
-    fwrite(reinterpret_cast<const char*>(&edges_count), sizeof(long long), 1, graph_file);
-
-    save_main_content_to_binary_file(graph_file);
-
-    fclose(graph_file);
-    return true;
-}
-
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-bool VectorCSRGraph::load_from_binary_file(string _file_name)
-{
-    FILE * graph_file = fopen(_file_name.c_str(), "rb");
-    cout << _file_name.c_str() << endl;
-    if(graph_file == NULL)
-        return false;
-
-    fread(reinterpret_cast<char*>(&(this->graph_type)), sizeof(GraphType), 1, graph_file);
-    if(this->graph_type != VECTOR_CSR_GRAPH)
-    {
-        throw "Error in VectorCSRGraph::load_from_binary_file : graph type in file is not equal to VECTOR_CSR_GRAPH";
-    }
-
-    fread(reinterpret_cast<char*>(&this->vertices_count), sizeof(int), 1, graph_file);
-    fread(reinterpret_cast<char*>(&this->edges_count), sizeof(long long), 1, graph_file);
-
-    resize(this->vertices_count, this->edges_count);
-
-    load_main_content_from_binary_file(graph_file);
-
-    fclose(graph_file);
-    return true;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

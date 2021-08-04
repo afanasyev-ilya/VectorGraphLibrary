@@ -26,11 +26,12 @@ void remove_extension(string &_full_string)
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void add_extension(string &_full_string, string const &_extension)
+string add_extension(string _short_name, GraphType _type)
 {
-    if(has_extension(_full_string, _extension))
-        remove_extension(_full_string);
-    _full_string += _extension;
+    string extension = get_graph_extension(_type);
+
+    string full_name = _short_name + extension;
+    return full_name;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

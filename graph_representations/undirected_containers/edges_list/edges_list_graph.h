@@ -21,6 +21,10 @@ private:
     
     void alloc(int _vertices_count, long long _edges_count);
     void free();
+
+    /* file load/store API */
+    void save_main_content_to_binary_file(FILE *_graph_file) final;
+    void load_main_content_from_binary_file(FILE *_graph_file) final;
 public:
     EdgesListGraph(int _vertices_count = 1, long long _edges_count = 1);
     EdgesListGraph(const EdgesListGraph &_copy_graph);
@@ -42,8 +46,6 @@ public:
 
     /* file load/store API */
     void save_to_graphviz_file(string file_name, VisualisationMode _visualisation_mode = VISUALISE_AS_DIRECTED);
-    bool save_to_binary_file(string file_name);
-    bool load_from_binary_file(string file_name);
 
     /* GPU specific (copy) API */
     #ifdef __USE_GPU__

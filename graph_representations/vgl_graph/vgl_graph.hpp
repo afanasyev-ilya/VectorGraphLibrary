@@ -4,6 +4,24 @@ VGL_Graph::VGL_Graph(GraphType _container_type)
 {
     graph_type = VGL_GRAPH;
 
+    create_containers(_container_type);
+
+    MemoryAPI::allocate_array(&vertices_reorder_buffer, 1);
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+VGL_Graph::~VGL_Graph()
+{
+    delete outgoing_data;
+    delete incoming_data;
+    MemoryAPI::free_array(vertices_reorder_buffer);
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+void VGL_Graph::create_containers(GraphType _container_type)
+{
     if(_container_type == VECTOR_CSR_GRAPH)
     {
         outgoing_data = new VectorCSRGraph();
@@ -23,17 +41,6 @@ VGL_Graph::VGL_Graph(GraphType _container_type)
     {
         throw "Error: unsupported graph type in VGL_Graph::VGL_Graph";
     }
-
-    MemoryAPI::allocate_array(&vertices_reorder_buffer, 1);
-}
-
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-VGL_Graph::~VGL_Graph()
-{
-    delete outgoing_data;
-    delete incoming_data;
-    MemoryAPI::free_array(vertices_reorder_buffer);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -86,6 +93,60 @@ UndirectedGraph *VGL_Graph::get_direction_data(TraversalDirection _direction)
         return outgoing_data;
     else
         return incoming_data;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+bool VGL_Graph::save_to_binary_file(string _file_name)
+{
+    FILE *graph_file = fopen(_file_name.c_str(), "wb");
+    if(graph_file == NULL)
+        return false;
+
+    int vertices_count = this->vertices_count;
+    long long edges_count = this->edges_count;
+    GraphType container_type = get_container_type();
+
+    fwrite(reinterpret_cast<const char*>(&vertices_count), sizeof(int), 1, graph_file);
+    fwrite(reinterpret_cast<const char*>(&edges_count), sizeof(long long), 1, graph_file);
+    fwrite(reinterpret_cast<const char*>(&container_type), sizeof(GraphType), 1, graph_file);
+
+    outgoing_data->save_main_content_to_binary_file(graph_file);
+    incoming_data->save_main_content_to_binary_file(graph_file);
+
+    fclose(graph_file);
+    return true;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+bool VGL_Graph::load_from_binary_file(string _file_name)
+{
+    FILE * graph_file = fopen(_file_name.c_str(), "rb");
+    if(graph_file == NULL)
+        return false;
+
+    GraphType new_container_type = VGL_GRAPH;
+    fread(reinterpret_cast<char*>(&this->vertices_count), sizeof(int), 1, graph_file);
+    fread(reinterpret_cast<char*>(&this->edges_count), sizeof(long long), 1, graph_file);
+    fread(reinterpret_cast<char*>(&new_container_type), sizeof(GraphType), 1, graph_file);
+
+    if(new_container_type != get_container_type())
+    {
+        cout << "Warning! changing container type from " << get_graph_type_name(get_container_type()) << " to "
+                << get_graph_type_name(new_container_type) << endl;
+    }
+
+    delete outgoing_data;
+    delete incoming_data;
+
+    create_containers(new_container_type);
+
+    outgoing_data->load_main_content_from_binary_file(graph_file);
+    incoming_data->load_main_content_from_binary_file(graph_file);
+
+    fclose(graph_file);
+    return true;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

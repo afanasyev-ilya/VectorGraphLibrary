@@ -35,6 +35,10 @@ private:
     int reorder_to_original(int _vertex_id) { return _vertex_id; };
 
     void construct_unsorted_csr(EdgesContainer &_edges_container);
+
+    /* file load/store API */
+    void save_main_content_to_binary_file(FILE *_graph_file) final {};
+    void load_main_content_from_binary_file(FILE *_graph_file) final {};
 public:
     CSRGraph(int _vertices_count = 1, long long _edges_count = 1);
     ~CSRGraph();

@@ -8,6 +8,8 @@ private:
     UndirectedGraph *outgoing_data;
     UndirectedGraph *incoming_data;
 
+    void create_containers(GraphType _container_type);
+
     long long *vertices_reorder_buffer;
 
     // vertex reorder API (used in GraphAbstractions and VerticesArray)
@@ -46,8 +48,8 @@ public:
     size_t get_size() { return outgoing_data->get_size() + incoming_data->get_size(); };
 
     /* file load/store API */
-    bool save_to_binary_file(string _file_name) { return false; };
-    bool load_from_binary_file(string _file_name)  { return false; };
+    bool save_to_binary_file(string _file_name);
+    bool load_from_binary_file(string _file_name);
 
     /* GPU specific (copy) API */
     #ifdef __USE_GPU__
