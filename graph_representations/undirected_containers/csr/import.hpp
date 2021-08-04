@@ -28,12 +28,16 @@ void CSRGraph::construct_unsorted_csr(EdgesContainer &_edges_container)
     }
     vertex_pointers[this->vertices_count] = this->edges_count;
 
-    #pragma omp parallel for
-    for(long long cur_vertex = this->vertices_count; cur_vertex >= 0; cur_vertex--)
+    //#pragma omp parallel for
+
+    long long cnt = 0;
+    for(long long cur_vertex = 0; cur_vertex < (vertices_count + 1); cur_vertex++)
     {
-        if(vertex_pointers[cur_vertex] == -1) // if vertex has zero degree
+        if(vertex_pointers[cur_vertex] != -1)
+            cnt = vertex_pointers[cur_vertex];
+        if(vertex_pointers[cur_vertex] == -1)
         {
-            vertex_pointers[cur_vertex] = this->edges_count; // since graph is sorted
+            vertex_pointers[cur_vertex] = cnt;
         }
     }
 

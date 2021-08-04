@@ -88,12 +88,6 @@ void GraphAbstractionsMulticore::advance_worker(CSRGraph &_graph,
         int *frontier_ids = _frontier.get_ids();
         int *frontier_flags = _frontier.get_flags();
 
-
-        #pragma omp master
-        {
-            cout << "frontier size: " << frontier_size << endl;
-        }
-
         #pragma omp for schedule(guided, 1024)
         for (int front_pos = 0; front_pos < frontier_size; front_pos++)
         {
@@ -119,11 +113,6 @@ void GraphAbstractionsMulticore::advance_worker(CSRGraph &_graph,
             }
 
             vertex_postprocess_op(src_id, connections_count, 0);
-        }
-
-        #pragma omp master
-        {
-            cout << "done" << endl;
         }
     }
 
