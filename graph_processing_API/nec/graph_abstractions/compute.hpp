@@ -73,12 +73,17 @@ void GraphAbstractionsNEC::compute_container_call(VGL_Graph &_graph,
     if(_graph.get_container_type() == VECTOR_CSR_GRAPH)
     {
         VectorCSRGraph *container_graph = (VectorCSRGraph *)_graph.get_direction_data(current_traversal_direction);
-        compute_worker(*container_graph, _frontier, compute_op);
+        OMP_PARALLEL_CALL((compute_worker(*container_graph, _frontier, compute_op)));
     }
     else if(_graph.get_container_type() == EDGES_LIST_GRAPH)
     {
         EdgesListGraph *container_graph = (EdgesListGraph *)_graph.get_direction_data(current_traversal_direction);
-        compute_worker(*container_graph, _frontier, compute_op);
+        OMP_PARALLEL_CALL((compute_worker(*container_graph, _frontier, compute_op)));
+    }
+    else if(_graph.get_container_type() == CSR_GRAPH)
+    {
+        CSRGraph *container_graph = (CSRGraph *)_graph.get_direction_data(current_traversal_direction);
+        OMP_PARALLEL_CALL((compute_worker(*container_graph, _frontier, compute_op)));
     }
     else
     {
@@ -101,19 +106,7 @@ void GraphAbstractionsNEC::compute(VGL_Graph &_graph,
         throw "Error in GraphAbstractionsNEC::compute : wrong frontier direction";
     }
 
-    if(omp_in_parallel())
-    {
-        #pragma omp barrier
-        compute_container_call(_graph, _frontier, compute_op);
-        #pragma omp barrier
-    }
-    else
-    {
-        #pragma omp parallel
-        {
-            compute_container_call(_graph, _frontier, compute_op);
-        }
-    }
+    compute_container_call(_graph, _frontier, compute_op);
 
     tm.end();
     long long work = _frontier.size();

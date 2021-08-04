@@ -22,11 +22,6 @@ void FrontierGeneral::init()
     // by default frontier is all active
     sparsity_type = ALL_ACTIVE_FRONTIER;
     this->size = vertices_count;
-
-    if(graph_ptr->get_container_type() != EDGES_LIST_GRAPH)
-    {
-        throw "Error: incorrect graph container type in FrontierGeneral";
-    }
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

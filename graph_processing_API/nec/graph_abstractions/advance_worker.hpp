@@ -44,6 +44,51 @@ void GraphAbstractionsNEC::advance_worker(EdgesListGraph &_graph,
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+/*
+template <typename EdgeOperation, typename VertexPreprocessOperation,
+        typename VertexPostprocessOperation>
+void GraphAbstractionsNEC::advance_worker(CSRGraph &_graph,
+                                          FrontierVectorCSR &_frontier,
+                                          EdgeOperation &&edge_op,
+                                          VertexPreprocessOperation &&vertex_preprocess_op,
+                                          VertexPostprocessOperation &&vertex_postprocess_op)
+{
+    Timer tm;
+    tm.start();
+    LOAD_CSR_GRAPH_DATA(_graph);
+
+    #pragma omp for schedule(static)
+    for(long long vec_start = 0; vec_start < edges_count; vec_start += VECTOR_LENGTH)
+    {
+        #pragma _NEC ivdep
+        #pragma _NEC vovertake
+        #pragma _NEC novob
+        #pragma _NEC vector
+        #pragma _NEC gather_reorder
+        for(int i = 0; i < VECTOR_LENGTH; i++)
+        {
+            long long edge_pos = vec_start + i;
+            if((vec_start + i) < edges_count)
+            {
+                int src_id = src_ids[edge_pos];
+                int dst_id = dst_ids[edge_pos];
+                int vector_index = i;
+                edge_op(src_id, dst_id, edge_pos, edge_pos, vector_index);
+            }
+        }
+    }
+
+    tm.end();
+    performance_stats.update_advance_time(tm);
+
+#ifdef __PRINT_API_PERFORMANCE_STATS__
+    long long work = edges_count;
+    tm.print_time_and_bandwidth_stats("Advance (edges list)", work, (INT_ELEMENTS_PER_EDGE + 1)*sizeof(int));
+#endif
+}*/
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 template <typename EdgeOperation, typename VertexPreprocessOperation,
         typename VertexPostprocessOperation, typename CollectiveEdgeOperation, typename CollectiveVertexPreprocessOperation,
         typename CollectiveVertexPostprocessOperation>

@@ -13,8 +13,11 @@ private:
     int *dst_ids;
     int *connections_count;
 
+    /* dummy reorder API */
     void reorder_to_sorted(char *_data, char *_buffer, size_t _elem_size) {return;};
     void reorder_to_original(char *_data, char *_buffer, size_t _elem_size) {return;};
+    int reorder_to_sorted(int _vertex_id) { return _vertex_id; };
+    int reorder_to_original(int _vertex_id) { return _vertex_id; };
     
     void alloc(int _vertices_count, long long _edges_count);
     void free();
@@ -74,9 +77,10 @@ public:
 
     void remove_loops_and_multiple_arcs();
 
-    int reorder_to_sorted(int _vertex_id) { return _vertex_id; };
-    int reorder_to_original(int _vertex_id) { return _vertex_id; };
+    /* vertices API */
     int select_random_vertex() { return rand() % this->vertices_count; };
+
+    friend class GraphAbstractions;
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

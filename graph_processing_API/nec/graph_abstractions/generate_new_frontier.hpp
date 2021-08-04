@@ -43,12 +43,6 @@ void GraphAbstractionsNEC::generate_new_frontier_worker(Graph_Container &_graph,
     _frontier.set_direction(current_traversal_direction);
     int vertices_count = _graph.get_vertices_count();
 
-    if(_graph.get_type() == EDGES_LIST_GRAPH) // TODO separate?
-    {
-        _frontier.set_all_active();
-        return;
-    }
-
     int elements_count = 0;
     long long neighbours_count = 0;
 

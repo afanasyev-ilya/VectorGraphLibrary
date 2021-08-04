@@ -1,0 +1,2 @@
+1. add if to VGL_Graph::VGL_Graph(GraphType _container_type)
+2. add if to VGL_Frontier::VGL_Frontier

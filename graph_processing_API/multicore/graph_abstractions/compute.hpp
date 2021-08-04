@@ -74,19 +74,7 @@ void GraphAbstractionsMulticore::compute(VGL_Graph &_graph,
         throw "Error in GraphAbstractionsMulticore::compute : wrong frontier direction";
     }
 
-    if(omp_in_parallel())
-    {
-        #pragma omp barrier
-        compute_worker(_graph, _frontier, compute_op);
-        #pragma omp barrier
-    }
-    else
-    {
-        #pragma omp parallel
-        {
-            compute_worker(_graph, _frontier, compute_op);
-        }
-    }
+    OMP_PARALLEL_CALL((compute_worker(_graph, _frontier, compute_op)));
 
     tm.end();
     long long work = _frontier.size();

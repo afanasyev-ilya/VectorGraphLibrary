@@ -170,9 +170,6 @@ public:
     pair<int,int> get_collective_mpi_thresholds() {return collective_mpi_thresholds; };
     #endif
 
-    // selects random vertex with non-zero degree
-    int select_random_vertex();
-
     // performs simple graph visualization using GraphViz API
     template <typename _TVertexValue>
     void save_to_graphviz_file(string _file_name, VerticesArray<_TVertexValue> &_vertex_data,
@@ -180,18 +177,13 @@ public:
 
     /* import and preprocess API */
     void import(EdgesContainer &_edges_container);
-
     void remove_loops_and_multiple_arcs(); // WARNING! this function is unsafe to call
-
     void sort_adjacent_edges();
 
+    // selects random vertex (possibly with zero degree)
+    int select_random_vertex();
+
     friend class GraphAbstractions;
-    friend class VGL_Graph;
-    friend class ShardedCSRGraph;
-    friend class EdgesListGraph;
-    template<class _T> friend class EdgesArray_Vect;
-    template<class _T> friend class EdgesArray_Sharded;
-    template<class _T> friend class EdgesArray_EL;
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

@@ -28,6 +28,12 @@ private:
     void alloc(int _vertices_count, long long _edges_count);
     void free();
 
+    /* dummy reorder API */
+    void reorder_to_sorted(char *_data, char *_buffer, size_t _elem_size) {return;};
+    void reorder_to_original(char *_data, char *_buffer, size_t _elem_size) {return;};
+    int reorder_to_sorted(int _vertex_id) { return _vertex_id; };
+    int reorder_to_original(int _vertex_id) { return _vertex_id; };
+
     void construct_unsorted_csr(EdgesContainer &_edges_container);
 public:
     CSRGraph(int _vertices_count = 1, long long _edges_count = 1);
@@ -37,11 +43,11 @@ public:
     inline int get_edge_dst(int _src_id, int _edge_pos) final {return adjacent_ids[vertex_pointers[_src_id] + _edge_pos];};
 
     /* print API */
-    void print() {};
-    void print_size() {};
+    void print();
+    void print_size();
     void print_stats() {};
 
-    size_t get_size() {return 0;};
+    size_t get_size();
 
     /* file load/store API */
     bool save_to_binary_file(string _file_name);
@@ -50,26 +56,21 @@ public:
     // resize graph
     void resize(int _vertices_count, long long _edges_count);
 
-    void test_advance();
-    void test_full_advance();
-
     /* import and preprocess API */
     // creates VectorCSRGraph format from EdgesListGraph
     void import(EdgesContainer &_edges_container);
 
+    /* vertices API */
+    int select_random_vertex() { return rand() % this->vertices_count; };
+
     friend class GraphAbstractions;
-    friend class VGL_Graph;
-    friend class ShardedCSRGraph;
-    friend class EdgesListGraph;
-    template<class _T> friend class EdgesArray_Vect;
-    template<class _T> friend class EdgesArray_Sharded;
-    template<class _T> friend class EdgesArray_EL;
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #include "csr_graph.hpp"
 #include "import.hpp"
+#include "print.hpp"
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 

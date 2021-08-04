@@ -14,6 +14,11 @@ VGL_Graph::VGL_Graph(GraphType _container_type)
         outgoing_data = new EdgesListGraph();
         incoming_data = new EdgesListGraph();
     }
+    else if(_container_type == CSR_GRAPH)
+    {
+        outgoing_data = new CSRGraph();
+        incoming_data = new CSRGraph();
+    }
     else
     {
         throw "Error: unsupported graph type in VGL_Graph::VGL_Graph";
