@@ -8,8 +8,6 @@ private:
     // this is how Vector CSR frontier is represented
     int *work_buffer;
 
-    int neighbours_count;
-
     int vector_engine_part_size;
     int vector_core_part_size;
     int collective_part_size;

@@ -8,8 +8,6 @@ private:
     // this is how General frontier is represented
     int *work_buffer;
 
-    int neighbours_count;
-
     void init();
 public:
     /* constructors and destructors */

@@ -11,6 +11,8 @@ protected:
     VGL_Graph *graph_ptr;
     TraversalDirection direction;
 
+    int neighbours_count;
+
     // all frontiers have flags and ids - ?
     int *flags;
     int *ids;
@@ -27,6 +29,7 @@ public:
     inline int *get_flags() { return flags; };
     inline FrontierSparsityType get_sparsity_type() { return sparsity_type; };
     inline FrontierClassType get_class_type() { return class_type; };
+    inline long long get_neighbours_count() { return neighbours_count; };
 
     // printing API
     virtual void print_stats() = 0;

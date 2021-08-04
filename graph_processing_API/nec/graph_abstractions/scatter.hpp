@@ -45,6 +45,12 @@ void GraphAbstractionsNEC::scatter(VGL_Graph &_graph,
         EdgesListGraph *current_direction_graph = (EdgesListGraph *)_graph.get_outgoing_data();
         OMP_PARALLEL_CALL((advance_worker(*current_direction_graph, edge_op)));
     }
+    else if(_graph.get_container_type() == CSR_GRAPH)
+    {
+        CSRGraph *current_direction_graph = (CSRGraph *)_graph.get_outgoing_data();
+        FrontierGeneral *current_frontier = (FrontierGeneral *)_frontier.get_container_data();
+        OMP_PARALLEL_CALL((advance_worker(*current_direction_graph, *current_frontier, edge_op, vertex_preprocess_op, vertex_postprocess_op)));
+    }
     else
     {
         throw "Error in GraphAbstractionsNEC::scatter unsupported graph type";

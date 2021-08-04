@@ -213,6 +213,13 @@ void GraphAbstractionsNEC::generate_new_frontier(VGL_Graph &_graph,
 
         generate_new_frontier_worker(*current_direction_graph, *current_frontier, filter_cond);
     }
+    else if(_graph.get_container_type() == CSR_GRAPH)
+    {
+        CSRGraph *current_direction_graph = (CSRGraph *)_graph.get_direction_data(current_traversal_direction);
+        FrontierGeneral *current_frontier = (FrontierGeneral *)_frontier.get_container_data();
+
+        generate_new_frontier_worker(*current_direction_graph, *current_frontier, filter_cond);
+    }
     else
     {
         throw "Error: unsupported graph and frontier type in GraphAbstractionsNEC::generate_new_frontier";

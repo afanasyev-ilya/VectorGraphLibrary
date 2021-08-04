@@ -1,2 +1,10 @@
 1. add if to VGL_Graph::VGL_Graph(GraphType _container_type)
 2. add if to VGL_Frontier::VGL_Frontier
+3. update calls in abstractions in each architecture class:
+- gather
+- scatter
+- compute
+- gnf
+- reduce
+
+4. implement new advance worker in each architecture class

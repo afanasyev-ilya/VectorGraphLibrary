@@ -75,6 +75,14 @@ private:
     template <typename EdgeOperation>
     void advance_worker(EdgesListGraph &_graph, EdgeOperation &&edge_op);
 
+    template <typename EdgeOperation, typename VertexPreprocessOperation,
+            typename VertexPostprocessOperation>
+    void advance_worker(CSRGraph &_graph,
+                        FrontierGeneral &_frontier,
+                        EdgeOperation &&edge_op,
+                        VertexPreprocessOperation &&vertex_preprocess_op,
+                        VertexPostprocessOperation &&vertex_postprocess_op);
+
     // all-active advance inner implementation
     template <typename EdgeOperation, typename VertexPreprocessOperation,
             typename VertexPostprocessOperation>

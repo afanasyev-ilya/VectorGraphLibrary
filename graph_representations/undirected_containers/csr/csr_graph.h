@@ -39,6 +39,10 @@ public:
     CSRGraph(int _vertices_count = 1, long long _edges_count = 1);
     ~CSRGraph();
 
+    /* get API */
+    inline long long *get_vertex_pointers() {return vertex_pointers;};
+    inline int       *get_adjacent_ids()    {return adjacent_ids;};
+
     inline int get_connections_count(int _src_id) final {return vertex_pointers[_src_id+1] - vertex_pointers[_src_id];};
     inline int get_edge_dst(int _src_id, int _edge_pos) final {return adjacent_ids[vertex_pointers[_src_id] + _edge_pos];};
 
@@ -46,7 +50,6 @@ public:
     void print();
     void print_size();
     void print_stats() {};
-
     size_t get_size();
 
     /* file load/store API */
@@ -65,6 +68,15 @@ public:
 
     friend class GraphAbstractions;
 };
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+#define LOAD_CSR_GRAPH_DATA(input_graph)  \
+int vertices_count            = input_graph.get_vertices_count(); \
+long long int edges_count     = input_graph.get_edges_count   (); \
+\
+long long    *vertex_pointers = input_graph.get_vertex_pointers   ();\
+int          *adjacent_ids    = input_graph.get_adjacent_ids    ();\
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 

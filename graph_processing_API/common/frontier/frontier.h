@@ -26,6 +26,7 @@ public:
     inline int *get_flags() { return frontier_representation->get_flags(); };
     inline FrontierSparsityType get_sparsity_type() { return frontier_representation->get_sparsity_type(); };
     inline FrontierClassType get_class_type() { return frontier_representation->get_class_type(); };
+    inline long long get_neighbours_count() { return frontier_representation->get_neighbours_count(); };
 
     BaseFrontier *get_container_data() { return frontier_representation; };
 
