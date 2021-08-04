@@ -56,12 +56,70 @@ void GraphAbstractionsNEC::advance_worker(CSRGraph &_graph,
     tm.start();
     LOAD_CSR_GRAPH_DATA(_graph);
 
-    /*if(_frontier.get_sparsity_type() == SPARSE_FRONTIER)
-    #pragma omp for schedule(static)
-    for(int frontier_pos = 0; frontier_pos < vertices_count; frontier_pos++)
+    if(_frontier.get_sparsity_type() == ALL_ACTIVE_FRONTIER)
     {
-        int src_ids =
-    }*/
+        #pragma omp for schedule(static)
+        for (int src_id = 0; src_id < vertices_count; src_id++)
+        {
+            const long long int start = vertex_pointers[src_id];
+            const long long int end = vertex_pointers[src_id + 1];
+            const int connections_count = end - start;
+
+            vertex_preprocess_op(src_id, connections_count, 0);
+
+            #pragma _NEC cncall
+            #pragma _NEC ivdep
+            #pragma _NEC vob
+            #pragma _NEC vector
+            #pragma _NEC gather_reorder
+            for (int local_edge_pos = 0; local_edge_pos < connections_count; local_edge_pos++)
+            {
+                const long long internal_edge_pos = start + local_edge_pos;
+                const int vector_index = get_vector_index(local_edge_pos);
+                const int dst_id = adjacent_ids[internal_edge_pos];
+                const long long external_edge_pos = /*process_shift + */internal_edge_pos; // todo
+
+                edge_op(src_id, dst_id, local_edge_pos, external_edge_pos, vector_index);
+            }
+
+            vertex_postprocess_op(src_id, connections_count, 0);
+        }
+    }
+    else
+    {
+        int frontier_size = _frontier.get_size();
+        int *frontier_ids = _frontier.get_ids();
+
+        #pragma omp for schedule(static)
+        for (int front_pos = 0; front_pos < frontier_size; front_pos++)
+        {
+            const int src_id = frontier_ids[front_pos];
+
+            const long long int start = vertex_pointers[src_id];
+            const long long int end = vertex_pointers[src_id + 1];
+            const int connections_count = end - start;
+
+            vertex_preprocess_op(src_id, connections_count, 0);
+
+            #pragma _NEC cncall
+            #pragma _NEC ivdep
+            #pragma _NEC vob
+            #pragma _NEC vector
+            #pragma _NEC gather_reorder
+            for (int local_edge_pos = 0; local_edge_pos < connections_count; local_edge_pos++)
+            {
+                const long long internal_edge_pos = start + local_edge_pos;
+                const int vector_index = get_vector_index(local_edge_pos);
+                const int dst_id = adjacent_ids[internal_edge_pos];
+                const long long external_edge_pos = /*process_shift + */internal_edge_pos; // todo
+
+                edge_op(src_id, dst_id, local_edge_pos, external_edge_pos, vector_index);
+            }
+
+            vertex_postprocess_op(src_id, connections_count, 0);
+        }
+    }
+
 
     tm.end();
     performance_stats.update_advance_time(tm);

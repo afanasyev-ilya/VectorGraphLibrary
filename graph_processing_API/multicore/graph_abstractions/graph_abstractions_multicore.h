@@ -58,6 +58,19 @@ private:
     template <typename EdgeOperation>
     void advance_worker(EdgesListGraph &_graph, EdgeOperation &&edge_op);
 
+    template <typename EdgeOperation, typename VertexPreprocessOperation,
+            typename VertexPostprocessOperation>
+    void advance_worker(CSRGraph &_graph,
+                        FrontierGeneral &_frontier,
+                        EdgeOperation &&edge_op,
+                        VertexPreprocessOperation &&vertex_preprocess_op,
+                        VertexPostprocessOperation &&vertex_postprocess_op);
+
+    template <typename FilterCondition, typename Graph_Container>
+    void generate_new_frontier_worker(Graph_Container &_graph,
+                                      FrontierGeneral &_frontier,
+                                      FilterCondition &&filter_cond);
+
     template <typename FilterCondition>
     void generate_new_frontier_worker(VectorCSRGraph &_graph,
                                       FrontierVectorCSR &_frontier,
