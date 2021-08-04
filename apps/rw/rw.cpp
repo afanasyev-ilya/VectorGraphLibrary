@@ -23,7 +23,7 @@ int main(int argc, char **argv)
         parser.parse_args(argc, argv);
 
         // prepare graph
-        VGL_Graph graph(VECTOR_CSR_GRAPH);
+        VGL_Graph graph(VGL_COMMON_API::select_graph_format(parser));
         VGL_COMMON_API::prepare_graph(graph, parser, UNDIRECTED_GRAPH);
 
         // generate list of walk vertices

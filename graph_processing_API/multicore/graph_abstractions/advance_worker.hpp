@@ -57,7 +57,7 @@ void GraphAbstractionsMulticore::advance_worker(CSRGraph &_graph,
 
     if(_frontier.get_sparsity_type() == ALL_ACTIVE_FRONTIER)
     {
-        #pragma omp for schedule(static)
+        #pragma omp for schedule(guided, 1024)
         for (int src_id = 0; src_id < vertices_count; src_id++)
         {
             const long long int start = vertex_pointers[src_id];
@@ -66,11 +66,9 @@ void GraphAbstractionsMulticore::advance_worker(CSRGraph &_graph,
 
             vertex_preprocess_op(src_id, connections_count, 0);
 
-            #pragma _NEC cncall
-            #pragma _NEC ivdep
-            #pragma _NEC vob
-            #pragma _NEC vector
-            #pragma _NEC gather_reorder
+            #pragma simd
+            #pragma vector
+            #pragma ivdep
             for (int local_edge_pos = 0; local_edge_pos < connections_count; local_edge_pos++)
             {
                 const long long internal_edge_pos = start + local_edge_pos;
@@ -88,8 +86,15 @@ void GraphAbstractionsMulticore::advance_worker(CSRGraph &_graph,
     {
         int frontier_size = _frontier.get_size();
         int *frontier_ids = _frontier.get_ids();
+        int *frontier_flags = _frontier.get_flags();
 
-        #pragma omp for schedule(static)
+
+        #pragma omp master
+        {
+            cout << "frontier size: " << frontier_size << endl;
+        }
+
+        #pragma omp for schedule(guided, 1024)
         for (int front_pos = 0; front_pos < frontier_size; front_pos++)
         {
             const int src_id = frontier_ids[front_pos];
@@ -100,11 +105,9 @@ void GraphAbstractionsMulticore::advance_worker(CSRGraph &_graph,
 
             vertex_preprocess_op(src_id, connections_count, 0);
 
-            #pragma _NEC cncall
-            #pragma _NEC ivdep
-            #pragma _NEC vob
-            #pragma _NEC vector
-            #pragma _NEC gather_reorder
+            #pragma simd
+            #pragma vector
+            #pragma ivdep
             for (int local_edge_pos = 0; local_edge_pos < connections_count; local_edge_pos++)
             {
                 const long long internal_edge_pos = start + local_edge_pos;
@@ -116,6 +119,11 @@ void GraphAbstractionsMulticore::advance_worker(CSRGraph &_graph,
             }
 
             vertex_postprocess_op(src_id, connections_count, 0);
+        }
+
+        #pragma omp master
+        {
+            cout << "done" << endl;
         }
     }
 
