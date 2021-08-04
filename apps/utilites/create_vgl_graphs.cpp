@@ -12,10 +12,10 @@ int main(int argc, char ** argv)
         parser.parse_args(argc, argv);
 
         EdgesContainer edges_container;
-        if(false) // TODO
+        if(parser.get_convert()) // TODO
         {
             cout << get_separators_upper_string("converting " + parser.get_graph_file_name()) << endl;
-            //GraphGenerationAPI::init_from_txt_file(edges_container, input_file_name, direction_type);
+            GraphGenerationAPI::init_from_txt_file(edges_container, parser.get_convert_name(), DIRECTED_GRAPH);
         }
         else
         {

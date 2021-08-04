@@ -251,12 +251,11 @@ void GraphGenerationAPI::SCC_uniform(EdgesListGraph &_graph,
             current_edges_pos++;
         }
     }
-}
+}*/
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-
-void GraphGenerationAPI::init_from_txt_file(EdgesListGraph &_graph, string _txt_file_name,
+void GraphGenerationAPI::init_from_txt_file(EdgesContainer &_edges_container, string _txt_file_name,
                                             DirectionType _direction_type)
 {
     ifstream infile(_txt_file_name.c_str());
@@ -310,20 +309,20 @@ void GraphGenerationAPI::init_from_txt_file(EdgesListGraph &_graph, string _txt_
         cout << "loaded " << i << " directed edges, " << i/2 << " undirected" << endl;
     
     edges_count = i;
-    
-    _graph.resize(vertices_count, edges_count);
+
+    _edges_container.resize(vertices_count, edges_count);
     int seed = int(time(NULL));
     for(i = 0; i < edges_count; i++)
     {
-        _graph.get_src_ids()[i] = tmp_src_ids[i];
-        _graph.get_dst_ids()[i] = tmp_dst_ids[i];
+        _edges_container.get_src_ids()[i] = tmp_src_ids[i];
+        _edges_container.get_dst_ids()[i] = tmp_dst_ids[i];
     }
     
     // validate
     for(i = 0; i < edges_count; i++)
     {
-        int src_id = _graph.get_src_ids()[i];
-        int dst_id = _graph.get_dst_ids()[i];
+        int src_id = _edges_container.get_src_ids()[i];
+        int dst_id = _edges_container.get_dst_ids()[i];
         if((src_id >= vertices_count) || (src_id < 0))
         {
             cout << "error src: " << src_id << endl;
@@ -338,5 +337,5 @@ void GraphGenerationAPI::init_from_txt_file(EdgesListGraph &_graph, string _txt_
     
     infile.close();
 }
-*/
+
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

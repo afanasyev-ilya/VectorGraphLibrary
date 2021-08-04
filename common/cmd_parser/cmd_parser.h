@@ -31,6 +31,9 @@ private:
     int walk_vertices_percent;
 
     int device_num;
+
+    bool convert;
+    string convert_name;
 public:
     Parser();
     
@@ -42,6 +45,9 @@ public:
     int get_number_of_rounds() { return number_of_rounds; };
     int get_device_num() { return device_num; };
     GraphType get_graph_storage_format() {return graph_storage_format;};
+
+    bool get_convert() {return convert;};
+    string get_convert_name() {return convert_name;};
 
     int get_store_walk_paths() {return store_walk_paths;};
     int get_walk_vertices_percent() {return walk_vertices_percent;};

@@ -49,11 +49,11 @@ public:
     static void SCC_uniform(EdgesListGraph &_graph,
                             int _vertices_count,
                             int _min_scc_size,
-                            int _max_scc_size);
+                            int _max_scc_size);*/
     
-    static void init_from_txt_file(EdgesListGraph &_graph,
+    static void init_from_txt_file(EdgesContainer &_edges_container,
                                    string _txt_file_name,
-                                   DirectionType _direction_type = DIRECTED_GRAPH);*/
+                                   DirectionType _direction_type = DIRECTED_GRAPH);
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

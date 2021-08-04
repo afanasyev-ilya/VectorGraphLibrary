@@ -21,6 +21,9 @@ Parser::Parser()
 
     store_walk_paths = false;
     walk_vertices_percent = 1;
+
+    convert = false;
+    convert_name = "";
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -36,6 +39,12 @@ void Parser::parse_args(int _argc, char **_argv)
         {
             graph_file_name = _argv[++i];
             compute_mode = LOAD_GRAPH_FROM_FILE;
+        }
+
+        if (option.compare("-convert") == 0)
+        {
+            convert_name = _argv[++i];
+            convert = true;
         }
         
         if ((option.compare("-gen") == 0) || (option.compare("-generate") == 0))
