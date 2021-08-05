@@ -8,7 +8,7 @@
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#define __PRINT_API_PERFORMANCE_STATS__
+//#define __PRINT_API_PERFORMANCE_STATS__
 #include "graph_library.h"
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -36,7 +36,7 @@ int main(int argc, char **argv)
         VerticesArray<int> levels(graph, SCATTER);
         for(int i = 0; i < parser.get_number_of_rounds(); i++)
         {
-            source_vertex = graph.select_random_nz_vertex(ORIGINAL);
+            source_vertex = graph.select_random_nz_vertex(SCATTER);
             BFS::vgl_top_down(graph, levels, source_vertex);
         }
         VGL_COMMON_API::stop_measuring_stats(graph.get_edges_count(), parser);

@@ -62,11 +62,12 @@ void GraphAbstractionsNEC::generate_new_frontier_worker(Graph_Container &_graph,
             neighbours_count += connections_count;
     }
 
-    _frontier.size = elements_count;
+    int *frontier_flags = _frontier.flags;
+    auto in_frontier = [frontier_flags] (int src_id) {
+        return frontier_flags[src_id];
+    };
     _frontier.neighbours_count = neighbours_count;
-
-    vector_sparse_copy_if(_frontier.flags, _frontier.ids, _frontier.work_buffer,
-                          vertices_count, 0, vertices_count);
+    _frontier.size = copy_if_indexes(in_frontier, _frontier.ids, vertices_count, _frontier.work_buffer, 0);
 
     tm_wall.end();
     long long work = vertices_count;
@@ -112,6 +113,11 @@ void GraphAbstractionsNEC::generate_new_frontier_worker(VectorCSRGraph &_graph,
     Timer tm_copy_if;
     tm_copy_if.start();
 
+    int *frontier_flags = _frontier.flags;
+    auto in_frontier = [frontier_flags] (int src_id) {
+        return frontier_flags[src_id];
+    };
+
     bool copy_if_work = false;
     // estimate first (VE) part sparsity
     if(double(_frontier.vector_engine_part_size)/(ve_threshold - 0) < VE_FRONTIER_TYPE_CHANGE_THRESHOLD)
@@ -120,7 +126,8 @@ void GraphAbstractionsNEC::generate_new_frontier_worker(VectorCSRGraph &_graph,
         if(_frontier.vector_engine_part_size > 0)
         {
             copy_if_work = true;
-            vector_sparse_copy_if(_frontier.flags, _frontier.ids, _frontier.work_buffer, vertices_count, 0, ve_threshold);
+            copy_if_indexes(in_frontier, _frontier.ids, ve_threshold, _frontier.work_buffer, 0);
+            //vector_sparse_copy_if(_frontier.flags, _frontier.ids, _frontier.work_buffer, vertices_count, 0, ve_threshold);
         }
     }
     else
@@ -135,8 +142,10 @@ void GraphAbstractionsNEC::generate_new_frontier_worker(VectorCSRGraph &_graph,
         if(_frontier.vector_core_part_size > 0)
         {
             copy_if_work = true;
-            vector_sparse_copy_if(_frontier.flags, &_frontier.ids[_frontier.vector_engine_part_size], _frontier.work_buffer,
-                           vertices_count, ve_threshold, vc_threshold);
+            copy_if_indexes(in_frontier, &_frontier.ids[_frontier.vector_engine_part_size], vc_threshold - ve_threshold,
+                            _frontier.work_buffer, ve_threshold);
+            //vector_sparse_copy_if(_frontier.flags, &_frontier.ids[_frontier.vector_engine_part_size], _frontier.work_buffer,
+            //               vertices_count, ve_threshold, vc_threshold);
         }
     }
     else
@@ -153,7 +162,9 @@ void GraphAbstractionsNEC::generate_new_frontier_worker(VectorCSRGraph &_graph,
             copy_if_work = true;
             int segment_shift = vc_threshold;
             int segment_size = vertices_count - vc_threshold;
-            int copied_elements = vector_dense_copy_if(&_frontier.flags[segment_shift], &_frontier.ids[_frontier.vector_core_part_size + _frontier.vector_engine_part_size], _frontier.work_buffer, segment_size, segment_shift, SAVE_ORDER);
+            copy_if_indexes(in_frontier, &_frontier.ids[_frontier.vector_core_part_size], vertices_count - vc_threshold,
+                            _frontier.work_buffer, vc_threshold);
+            //int copied_elements = vector_dense_copy_if(&_frontier.flags[segment_shift], &_frontier.ids[_frontier.vector_core_part_size + _frontier.vector_engine_part_size], _frontier.work_buffer, segment_size, segment_shift, SAVE_ORDER);
         }
     }
     else

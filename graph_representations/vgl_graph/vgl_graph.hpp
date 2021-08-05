@@ -153,7 +153,12 @@ bool VGL_Graph::load_from_binary_file(string _file_name)
 
 int VGL_Graph::select_random_nz_vertex(TraversalDirection _direction)
 {
-    return reorder(outgoing_data->select_random_vertex(), SCATTER, _direction);
+    if(_direction == SCATTER)
+        return outgoing_data->select_random_nz_vertex();
+    else if(_direction == GATHER)
+        return incoming_data->select_random_nz_vertex();
+    return reorder(outgoing_data->select_random_nz_vertex(), SCATTER, ORIGINAL); // TODO
+    //return reorder(outgoing_data->select_random_vertex(), SCATTER, _direction);
 }
 
 

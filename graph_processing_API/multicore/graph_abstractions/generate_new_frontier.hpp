@@ -119,6 +119,8 @@ void GraphAbstractionsMulticore::generate_new_frontier_worker(Graph_Container &_
 
     _frontier.set_direction(current_traversal_direction);
     int vertices_count = _graph.get_vertices_count();
+    int *frontier_flags = _frontier.flags;
+    int *frontier_ids = _frontier.ids;
 
     int elements_count = 0;
     long long neighbours_count = 0;
@@ -131,30 +133,25 @@ void GraphAbstractionsMulticore::generate_new_frontier_worker(Graph_Container &_
     {
         int connections_count = 0;//_graph.get_connections_count(src_id);
         int new_flag = filter_cond(src_id, connections_count);
-        _frontier.flags[src_id] = new_flag;
+        frontier_flags[src_id] = new_flag;
         elements_count += new_flag;
         if(new_flag == IN_FRONTIER_FLAG)
             neighbours_count += connections_count;
     }
-    tm_wall.end();
-    tm_wall.print_bandwidth_stats("GNF flags", vertices_count, 2.0*sizeof(int));
 
-    tm_wall.start();
-    int *frontier_flags = _frontier.flags;
     auto in_frontier = [frontier_flags] (int src_id) {
         return frontier_flags[src_id];
     };
     _frontier.neighbours_count = neighbours_count;
-    _frontier.size = copy_if_indexes(in_frontier, _frontier.ids, vertices_count, _frontier.work_buffer, 0);
-    tm_wall.end();
-    tm_wall.print_bandwidth_stats("GNF copy if", vertices_count, 2.0*sizeof(int));
+    _frontier.size = copy_if_indexes(in_frontier, frontier_ids, vertices_count, _frontier.work_buffer, 0);
 
+    tm_wall.end();
     long long work = vertices_count;
     performance_stats.update_gnf_time(tm_wall);
     performance_stats.update_bytes_requested(work*4.0*sizeof(int));
 
     #ifdef __PRINT_API_PERFORMANCE_STATS__
-    //tm_wall.print_bandwidth_stats("GNF", vertices_count, 4.0*sizeof(int));
+    tm_wall.print_bandwidth_stats("GNF", vertices_count, 4.0*sizeof(int));
     #endif
 }
 

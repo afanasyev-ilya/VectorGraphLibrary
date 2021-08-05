@@ -532,42 +532,19 @@ inline int generic_dense_copy_if(Cond &&_cond,
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template <typename CopyCondition>
-inline int copy_if_indexes(CopyCondition &&_cond,
-                           int *_out_data,
-                           size_t _size,
-                           int *_buffer,
-                           const int _index_offset)
-{
-    #ifdef __USE_NEC_SX_AURORA__
-    //cout << "NEC call" << endl;
-    return vector_copy_if_indexes(_cond, _out_data, _size, _buffer, _index_offset);
-    #elif __USE_MULTICORE__
-    //cout << "MC call" << endl;
-    return omp_copy_if_indexes(_cond, _out_data, _size, _buffer, _index_offset);
-    #else
-    throw "Error in copy_if_indexes : unsupported architecture";
-    #endif
-}
-
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-template <typename CopyCondition>
 inline int vector_copy_if_indexes(CopyCondition &&_cond,
                                   int *_out_data,
                                   size_t _size,
                                   int *_buffer,
                                   const int _index_offset)
 {
-    int threads_count = MAX_SX_AURORA_THREADS;
-    int elements_per_thread = (_size - 1)/threads_count + 1;
-    int elements_per_vector = (_size - 1)/VECTOR_LENGTH + 1;
+    int _threads_count = MAX_SX_AURORA_THREADS;
+    int elements_per_thread = (_size - 1)/_threads_count + 1;
+    int elements_per_vector = (elements_per_thread - 1)/VECTOR_LENGTH + 1;
     int shifts_array[MAX_SX_AURORA_THREADS];
 
-    /*if(omp_get_max_threads() != threads_count)
-        throw " Error in vector_copy_if_indexes : incorrect threads number";*/
-
     int elements_count = 0;
-    #pragma omp parallel num_threads(threads_count) shared(elements_count)
+    #pragma omp parallel num_threads(_threads_count) shared(elements_count)
     {
         int tid = omp_get_thread_num();
         int start_pointers_reg[VECTOR_LENGTH];
@@ -595,10 +572,10 @@ inline int vector_copy_if_indexes(CopyCondition &&_cond,
             for(int i = 0; i < VECTOR_LENGTH; i++)
             {
                 int src_id = vec_start + i;
-                int global_src_id = src_id + _index_offset;
-                if((src_id < _size) && (_cond(global_src_id) > 0))
+                int global_id = src_id + _index_offset;
+                if((src_id < _size) && (_cond(global_id) > 0))
                 {
-                    _buffer[current_pointers_reg[i]] = global_src_id;
+                    _buffer[current_pointers_reg[i]] = global_id;
                     current_pointers_reg[i]++;
                 }
             }
@@ -620,14 +597,14 @@ inline int vector_copy_if_indexes(CopyCondition &&_cond,
         #pragma omp master
         {
             int cur_shift = 0;
-            for(int i = 1; i < threads_count; i++)
+            for(int i = 1; i < _threads_count; i++)
             {
                 shifts_array[i] += shifts_array[i - 1];
             }
 
-            elements_count = shifts_array[threads_count - 1];
+            elements_count = shifts_array[_threads_count - 1];
 
-            for(int i = (threads_count - 1); i >= 1; i--)
+            for(int i = (_threads_count - 1); i >= 1; i--)
             {
                 shifts_array[i] = shifts_array[i - 1];
             }
@@ -727,6 +704,24 @@ inline int omp_copy_if_indexes(CopyCondition &&_cond,
         output_size += sum_array[i];
     }
     return output_size;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+template <typename CopyCondition>
+inline int copy_if_indexes(CopyCondition &&_cond,
+                           int *_out_data,
+                           size_t _size,
+                           int *_buffer,
+                           const int _index_offset)
+{
+    #ifdef __USE_NEC_SX_AURORA__
+    return vector_copy_if_indexes(_cond, _out_data, _size, _buffer, _index_offset);
+    #elif __USE_MULTICORE__
+    return omp_copy_if_indexes(_cond, _out_data, _size, _buffer, _index_offset);
+    #else
+    throw "Error in copy_if_indexes : unsupported architecture";
+    #endif
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

@@ -14,8 +14,6 @@ void BFS::seq_top_down(VGL_Graph &_graph,
                        VerticesArray<_T> &_levels,
                        int _source_vertex)
 {
-    _source_vertex = _graph.reorder(_source_vertex, ORIGINAL, SCATTER);
-
     Timer tm;
     tm.start();
 
