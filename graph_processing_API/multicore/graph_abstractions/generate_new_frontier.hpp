@@ -11,10 +11,9 @@ void GraphAbstractionsMulticore::estimate_sorted_frontier_part_size(FrontierVect
 {
     int flags_sum = 0;
     long long connections_sum = 0;
-    #pragma _NEC vovertake
-    #pragma _NEC novob
-    #pragma _NEC vector
-    #pragma _NEC ivdep
+    #pragma simd
+    #pragma vector
+    #pragma ivdep
     #pragma omp parallel for schedule(static) reduction(+: flags_sum, connections_sum)
     for (int src_id = _first_vertex; src_id < _last_vertex; src_id++)
     {
@@ -119,11 +118,9 @@ void GraphAbstractionsMulticore::generate_new_frontier_worker(Graph_Container &_
     int elements_count = 0;
     long long neighbours_count = 0;
 
-    #pragma _NEC cncall
-    #pragma _NEC vovertake
-    #pragma _NEC novob
-    #pragma _NEC vector
-    #pragma _NEC ivdep
+    #pragma simd
+    #pragma vector
+    #pragma ivdep
     #pragma omp parallel for schedule(static) reduction(+: elements_count, neighbours_count)
     for (int src_id = 0; src_id < vertices_count; src_id++)
     {
@@ -141,9 +138,14 @@ void GraphAbstractionsMulticore::generate_new_frontier_worker(Graph_Container &_
     vector_sparse_copy_if(_frontier.flags, _frontier.ids, _frontier.work_buffer,
                           vertices_count, 0, vertices_count);
 
-    #ifdef __PRINT_API_PERFORMANCE_STATS__
     tm_wall.end();
-    tm_wall.print_bandwidth_stats("GNF", vertices_count, 2.0*sizeof(int));
+
+    long long work = vertices_count;
+    performance_stats.update_gnf_time(tm_wall);
+    performance_stats.update_bytes_requested(work*4.0*sizeof(int));
+
+    #ifdef __PRINT_API_PERFORMANCE_STATS__
+    tm_wall.print_bandwidth_stats("GNF", vertices_count, 4.0*sizeof(int));
     #endif
 }
 

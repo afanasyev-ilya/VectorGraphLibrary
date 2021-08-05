@@ -68,9 +68,13 @@ void GraphAbstractionsNEC::generate_new_frontier_worker(Graph_Container &_graph,
     vector_sparse_copy_if(_frontier.flags, _frontier.ids, _frontier.work_buffer,
                           vertices_count, 0, vertices_count);
 
-    #ifdef __PRINT_API_PERFORMANCE_STATS__
     tm_wall.end();
-    tm_wall.print_bandwidth_stats("GNF", vertices_count, 2.0*sizeof(int));
+    long long work = vertices_count;
+    performance_stats.update_gnf_time(tm_wall);
+    performance_stats.update_bytes_requested(work*4.0*sizeof(int));
+
+    #ifdef __PRINT_API_PERFORMANCE_STATS__
+    tm_wall.print_bandwidth_stats("GNF", vertices_count, 4.0*sizeof(int));
     #endif
 }
 
