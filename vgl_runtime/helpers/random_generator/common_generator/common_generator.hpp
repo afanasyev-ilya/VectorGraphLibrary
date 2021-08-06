@@ -3,40 +3,57 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template <typename _T>
-void CommonRandomGenerator::generate_array_of_random_uniform_values(_T *_array, int _size, _T _max_val)
+void CommonRandomGenerator::generate_array_of_random_uniform_values(_T *_array, size_t _size, _T _max_val)
 {
-    random_device r;
-    std::vector<std::default_random_engine> generators;
-    for (int i = 0, N = omp_get_max_threads(); i < N; ++i) {
-        generators.emplace_back(default_random_engine(r()));
-    }
-
-    #pragma omp parallel for
-    for (int i = 0; i < _size; ++i)
+    srand(time(NULL));
+    #pragma omp parallel
     {
-        default_random_engine& engine = generators[omp_get_thread_num()];
-        uniform_int_distribution<int> uniform_dist(0, _max_val);
-        _array[i] = uniform_dist(engine); // I assume this is thread unsafe
+        unsigned int seed = int(time(NULL)) ^ rand() ^ omp_get_thread_num();
+        #pragma omp master
+        {
+            cout << seed << endl;
+        }
+        #pragma omp for
+        for (size_t i = 0; i < _size; ++i)
+        {
+            _array[i] = rand_r(&seed) % _max_val;
+        }
     }
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template <>
-void CommonRandomGenerator::generate_array_of_random_uniform_values<float>(float *_array, int _size, float _max_val)
+void CommonRandomGenerator::generate_array_of_random_uniform_values<float>(float *_array, size_t _size, float _max_val)
 {
-    random_device r;
-    std::vector<std::default_random_engine> generators;
-    for (int i = 0, N = omp_get_max_threads(); i < N; ++i) {
-        generators.emplace_back(default_random_engine(r()));
-    }
-
-    #pragma omp parallel for
-    for (int i = 0; i < _size; ++i)
+    srand(time(NULL));
+    #pragma omp parallel
     {
-        default_random_engine& engine = generators[omp_get_thread_num()];
-        std::uniform_real_distribution<float> uniform_dist(0.0, _max_val);
-        _array[i] = uniform_dist(engine); // I assume this is thread unsafe
+        unsigned int seed = int(time(NULL)) ^ rand() ^ omp_get_thread_num();
+        #pragma omp for
+        for (size_t i = 0; i < _size; ++i)
+        {
+            float random = ((float) rand_r(&seed)) / (float) RAND_MAX;
+            _array[i] = random*_max_val;
+        }
+    }
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+template <>
+void CommonRandomGenerator::generate_array_of_random_uniform_values<double>(double *_array, size_t _size, double _max_val)
+{
+    srand(time(NULL));
+    #pragma omp parallel
+    {
+        unsigned int seed = int(time(NULL)) ^ rand() ^ omp_get_thread_num();
+        #pragma omp for
+        for (size_t i = 0; i < _size; ++i)
+        {
+            float random = ((double) rand_r(&seed)) / (double) RAND_MAX;
+            _array[i] = random*_max_val;
+        }
     }
 }
 

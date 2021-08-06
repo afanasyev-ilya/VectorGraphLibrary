@@ -32,13 +32,16 @@ int main(int argc, char **argv)
         VGL_Graph graph(VGL_RUNTIME::select_graph_format(parser));
         VGL_RUNTIME::prepare_graph(graph, parser);
 
-        // start algorithm
+        graph.print();
+
+        // prepare weights and distances
         int source_vertex = 0;
         VerticesArray<float> distances(graph, SCATTER);
         EdgesArray<float> weights(graph);
         //weights.set_all_random(MAX_WEIGHT);
         weights.set_all_constant(1.3);
 
+        // start algorithm
         VGL_RUNTIME::start_measuring_stats();
         for(int i = 0; i < parser.get_number_of_rounds(); i++)
         {

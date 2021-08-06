@@ -12,7 +12,7 @@ class CommonRandomGenerator
 {
 public:
     template <typename _T>
-    void generate_array_of_random_uniform_values(_T *_array, int _size, _T _max_val);
+    void generate_array_of_random_uniform_values(_T *_array, size_t _size, _T _max_val);
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

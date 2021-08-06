@@ -7,10 +7,6 @@ void CSRGraph::print()
     cout << endl;
     cout << "CSRGraph format" << endl;
 
-    for(int cur_vertex = 0; cur_vertex < this->vertices_count + 1; cur_vertex++)
-        cout << vertex_pointers[cur_vertex] << " ";
-    cout << endl;
-
     cout << "|V|=" << this->vertices_count << endl;
     cout << "|E|=" << this->edges_count << endl;
     for(int cur_vertex = 0; cur_vertex < this->vertices_count; cur_vertex++)

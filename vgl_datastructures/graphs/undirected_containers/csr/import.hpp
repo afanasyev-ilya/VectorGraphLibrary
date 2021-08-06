@@ -28,8 +28,6 @@ void CSRGraph::construct_unsorted_csr(EdgesContainer &_edges_container)
     }
     vertex_pointers[this->vertices_count] = this->edges_count;
 
-    //#pragma omp parallel for
-
     long long cnt = 0;
     for(long long cur_vertex = 0; cur_vertex < (vertices_count + 1); cur_vertex++)
     {

@@ -125,7 +125,7 @@ void GraphGenerationAPI::R_MAT(EdgesContainer &_edges_container,
     unsigned int seed = 0;
     #pragma omp parallel private(seed) num_threads(threads_count)
     {
-        seed = /*int(time(NULL)) * */omp_get_thread_num();
+        seed = int(time(NULL)) * omp_get_thread_num();
         
         #pragma omp for schedule(guided, 1024)
         for (long long cur_edge = 0; cur_edge < edges_count; cur_edge += step)

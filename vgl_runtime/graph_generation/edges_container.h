@@ -22,6 +22,14 @@ public:
         dst_ids = tmp;
     }
 
+    void print()
+    {
+        for(long long i = 0; i < edges_count; i++)
+        {
+            cout << src_ids[i] << " " << dst_ids[i] << endl;
+        }
+    }
+
     void resize(int _vertices_count, long long _edges_count)
     {
         vertices_count = _vertices_count;
