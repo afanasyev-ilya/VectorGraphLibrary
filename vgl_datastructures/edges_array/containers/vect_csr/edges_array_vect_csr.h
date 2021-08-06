@@ -18,7 +18,7 @@ private:
     long long edges_count_in_incoming_ve;
 public:
     /* constructors and destructors */
-    EdgesArrayVectorCSR(VGL_Graph &_graph);
+    EdgesArrayVectorCSR(VGL_Graph &_graph, _T *_data_ptr);
     EdgesArrayVectorCSR(const EdgesArrayVectorCSR<_T> &_copy_obj);
     ~EdgesArrayVectorCSR();
 

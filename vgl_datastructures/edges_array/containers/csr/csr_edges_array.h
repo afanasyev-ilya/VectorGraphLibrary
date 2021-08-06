@@ -3,13 +3,12 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template <typename _T>
-class EdgesArray_EL : public BaseEdgesArray<_T>
+class EdgesArray_CSR : public BaseEdgesArray<_T>
 {
 public:
     /* constructors and destructors */
-    EdgesArray_EL(VGL_Graph &_graph, _T *_data_ptr);
-    EdgesArray_EL(const EdgesArray_EL<_T> &_copy_obj);
-    ~EdgesArray_EL();
+    EdgesArray_CSR(VGL_Graph &_graph);
+    ~EdgesArray_CSR();
 
     /* initialization API */
     void set_all_constant(_T _const);
@@ -22,6 +21,6 @@ public:
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#include "edges_array.hpp"
+#include "csr_edges_array.hpp"
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

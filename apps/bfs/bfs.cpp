@@ -30,6 +30,13 @@ int main(int argc, char **argv)
 
         graph.print();
 
+        // !
+        EdgesArray<float> edges(graph);
+        edges.set_all_random(20);
+        edges.print();
+        cout << edges[3] << " !!!! " << endl;
+        // !
+
         // start algorithm
         int source_vertex = 0;
         VGL_RUNTIME::start_measuring_stats();

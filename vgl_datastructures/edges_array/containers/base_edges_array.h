@@ -1,10 +1,12 @@
+#pragma once
 
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template <typename _T>
 class BaseEdgesArray
 {
 protected:
-    BaseGraph *graph_ptr;
+    VGL_Graph *graph_ptr;
 
     _T *edges_data;
     long long edges_count;
@@ -17,17 +19,7 @@ public:
     ~BaseEdgesArray() {};
 
     /* get/set API */
-    #ifdef __USE_GPU__
-    __host__ __device__ inline _T get(long long _global_idx) const {return edges_data[_global_idx];};
-    __host__ __device__ inline _T set(long long _global_idx, _T _val) const {edges_data[_global_idx] = _val;};
-    __host__ __device__ inline _T& operator[] (long long _global_idx) const { return edges_data[_global_idx]; };
-    #else
-    inline _T get(long long _global_idx) const {return edges_data[_global_idx];};
-    inline void set(long long _global_idx, _T _val) const {edges_data[_global_idx] = _val;};
-    inline _T& operator[] (long long _global_idx) const { return edges_data[_global_idx]; };
-    #endif
-
-    inline _T *get_ptr() const {return edges_data;};
+    long long get_total_array_size() { return total_array_size; };
 
     /* initialization API */
     virtual void set_all_constant(_T _const) = 0;
@@ -36,9 +28,11 @@ public:
     /* print API */
     virtual void print() = 0;
 
-    /* GPU specific (copy) API */
-    #ifdef __USE_GPU__
-    void move_to_device();
-    void move_to_host();
-    #endif
+    void attach_pointer(_T *_outer_data) {edges_data = _outer_data;};
 };
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+#include "csr/csr_edges_array.h"
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

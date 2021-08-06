@@ -23,13 +23,13 @@ include_directories(vgl_runtime/helpers/verify_results)
 include_directories(vgl_runtime/export_graphs)
 include_directories(vgl_runtime/graph_analytics)
 include_directories(vgl_runtime/graph_generation)
-include_directories(vgl_graph_abstractions)
-include_directories(vgl_graph_abstractions/gpu)
-include_directories(vgl_graph_abstractions/nec)
-include_directories(vgl_graph_abstractions/nec/delayed_write)
-include_directories(vgl_graph_abstractions/nec/frontier)
-include_directories(vgl_graph_abstractions/nec/graph_primitives)
-include_directories(vgl_graph_abstractions/nec/vector_register)
+include_directories(vgl_compute_api)
+include_directories(vgl_compute_api/gpu)
+include_directories(vgl_compute_api/nec)
+include_directories(vgl_compute_api/nec/delayed_write)
+include_directories(vgl_compute_api/nec/frontier)
+include_directories(vgl_compute_api/nec/graph_primitives)
+include_directories(vgl_compute_api/nec/vector_register)
 include_directories(vgl_datastructures)
 include_directories(vgl_datastructures/common)
 include_directories(vgl_datastructures/graphs/undirected_containers/edges_list)
@@ -91,22 +91,22 @@ add_executable(VectorGraphLibrary
         vgl_runtime/graph_analytics/graph_analytics.hpp
         vgl_runtime/graph_generation/graph_generation.h
         vgl_runtime/graph_generation/graph_generation.hpp
-        vgl_graph_abstractions/nec/delayed_write/delayed_write_nec.h
-        vgl_graph_abstractions/nec/delayed_write/delayed_write_nec.hpp
-        vgl_graph_abstractions/nec/frontier/frontier_nec.h
-        vgl_graph_abstractions/nec/frontier/frontier_nec.hpp
-        vgl_graph_abstractions/nec/graph_primitives/advance.hpp
-        vgl_graph_abstractions/nec/graph_primitives/advance_all_active.hpp
-        vgl_graph_abstractions/nec/graph_primitives/advance_dense.hpp
-        vgl_graph_abstractions/nec/graph_primitives/advance_partial.hpp
-        vgl_graph_abstractions/nec/graph_primitives/advance_sparse.hpp
-        vgl_graph_abstractions/nec/graph_primitives/compute.hpp
-        vgl_graph_abstractions/nec/graph_primitives/filter.hpp
-        vgl_graph_abstractions/nec/graph_primitives/generate_new_frontier.hpp
-        vgl_graph_abstractions/nec/graph_primitives/graph_primitives_nec.h
-        vgl_graph_abstractions/nec/graph_primitives/graph_primitives_nec.hpp
-        vgl_graph_abstractions/nec/graph_primitives/tests.hpp
-        vgl_graph_abstractions/nec/vector_register/vector_registers.h
+        vgl_compute_api/nec/delayed_write/delayed_write_nec.h
+        vgl_compute_api/nec/delayed_write/delayed_write_nec.hpp
+        vgl_compute_api/nec/frontier/frontier_nec.h
+        vgl_compute_api/nec/frontier/frontier_nec.hpp
+        vgl_compute_api/nec/graph_primitives/advance.hpp
+        vgl_compute_api/nec/graph_primitives/advance_all_active.hpp
+        vgl_compute_api/nec/graph_primitives/advance_dense.hpp
+        vgl_compute_api/nec/graph_primitives/advance_partial.hpp
+        vgl_compute_api/nec/graph_primitives/advance_sparse.hpp
+        vgl_compute_api/nec/graph_primitives/compute.hpp
+        vgl_compute_api/nec/graph_primitives/filter.hpp
+        vgl_compute_api/nec/graph_primitives/generate_new_frontier.hpp
+        vgl_compute_api/nec/graph_primitives/graph_primitives_nec.h
+        vgl_compute_api/nec/graph_primitives/graph_primitives_nec.hpp
+        vgl_compute_api/nec/graph_primitives/tests.hpp
+        vgl_compute_api/nec/vector_register/vector_registers.h
         vgl_datastructures/common/graph_types.h
         vgl_datastructures/graphs/undirected_containers/edges_list/edges_list_graph.h
         vgl_datastructures/graphs/undirected_containers/edges_list/edges_list_graph.hpp

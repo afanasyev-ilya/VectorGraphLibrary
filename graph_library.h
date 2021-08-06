@@ -36,13 +36,13 @@ using namespace std;
 // VGL datastructures
 #include "vgl_datastructures/graphs/vgl_graph/vgl_graph.h"
 #include "vgl_datastructures/vertices_array/vertices_array.h"
-//#include "graph_processing_API/edges_array/edges_array.h" // TODO ACTIVATE
+#include "vgl_datastructures/edges_array/edges_array.h"
 #include "vgl_datastructures/frontier/frontier.h"
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // VGL computational API
-#include "vgl_graph_abstractions/common/graph_abstractions/graph_abstractions.h"
+#include "vgl_compute_api/common/graph_abstractions/graph_abstractions.h"
 #include "architecture_independent_api.h"
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
