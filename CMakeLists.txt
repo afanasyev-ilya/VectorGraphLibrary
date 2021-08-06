@@ -59,7 +59,7 @@ add_executable(VectorGraphLibrary
         algorithms/lp/lp.hpp
         algorithms/pr/pr.h
         algorithms/sssp/gpu_shortest_paths.hpp
-        algorithms/sssp/nec_shortest_paths.hpp
+        algorithms/sssp/shortest_paths.hpp
         algorithms/sssp/seq_shortest_paths.hpp
         algorithms/sssp/shortest_paths.h
         algorithms/sswp/widest_paths.h

@@ -6,16 +6,15 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template <typename _T>
-void SSSP::seq_dijkstra(VGL_Graph &_graph, EdgesArray_Vect<_T> &_weights, VerticesArray<_T> &_distances,
+void SSSP::seq_dijkstra(VGL_Graph &_graph, EdgesArray<_T> &_weights, VerticesArray<_T> &_distances,
                         int _source_vertex)
 {
-    VectorCSRGraph *outgoing_graph_ptr = _graph.get_outgoing_data();
-    LOAD_VECTOR_CSR_GRAPH_DATA((*outgoing_graph_ptr));
-
     _source_vertex = _graph.reorder(_source_vertex, ORIGINAL, SCATTER);
 
     Timer tm;
     tm.start();
+
+    int vertices_count = _graph.get_vertices_count();
 
     // Create a priority queue to store vertices that
     // are being preprocessed.
@@ -46,14 +45,11 @@ void SSSP::seq_dijkstra(VGL_Graph &_graph, EdgesArray_Vect<_T> &_weights, Vertic
         int src_id = pq.top().second;
         pq.pop();
 
-        const long long edge_start = vertex_pointers[src_id];
-        const int connections_count = vertex_pointers[src_id + 1] - vertex_pointers[src_id];
-
+        int connections_count = _graph.get_outgoing_connections_count(src_id);
         for(int edge_pos = 0; edge_pos < connections_count; edge_pos++)
         {
-            long long int global_edge_pos = edge_start + edge_pos;
-            int dst_id = adjacent_ids[global_edge_pos];
-            _T weight = _weights[global_edge_pos];
+            int dst_id = _graph.get_outgoing_edge_dst(src_id, edge_pos);
+            _T weight = 1.3;//_weights[global_edge_pos]; // TODO....
 
             if (_distances[dst_id] > _distances[src_id] + weight)
             {
@@ -65,7 +61,6 @@ void SSSP::seq_dijkstra(VGL_Graph &_graph, EdgesArray_Vect<_T> &_weights, Vertic
         }
     }
     tm.end();
-
 
     #ifdef __PRINT_SAMPLES_PERFORMANCE_STATS__
     performance_stats.print_algorithm_performance_stats("SSSP (Dijkstra, Sequential)", tm.get_time(), _graph.get_edges_count());

@@ -55,8 +55,8 @@ using namespace std;
 #include "algorithms/coloring/coloring.h"
 #include "algorithms/scc/scc.h"
 #include "algorithms/rw/random_walk.h"
+#include "algorithms/sssp/shortest_paths.h"
 //#include "algorithms/sswp/widest_paths.h"
-//#include "algorithms/sssp/shortest_paths.h"
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 

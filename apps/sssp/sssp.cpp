@@ -21,77 +21,42 @@ int main(int argc, char **argv)
 {
     try
     {
-        vgl_library_data.init(argc, argv);
-        cout << "SSSP (Single Source Shortest Paths) test..." << endl;
+        VGL_RUNTIME::init_library(argc, argv);
+        VGL_RUNTIME::info_message("SSSP");
 
-        // parse args and prepare graph
+        // parse args
         Parser parser;
         parser.parse_args(argc, argv);
 
-        VGL_Graph graph;
-        if(parser.get_compute_mode() == GENERATE_NEW_GRAPH)
-        {
-            EdgesListGraph el_graph;
-            int v = pow(2.0, parser.get_scale());
-            if(parser.get_graph_type() == RMAT)
-                GraphGenerationAPI::R_MAT(el_graph, v, v * parser.get_avg_degree(), 57, 19, 19, 5, DIRECTED_GRAPH);
-            else if(parser.get_graph_type() == RANDOM_UNIFORM)
-                GraphGenerationAPI::random_uniform(el_graph, v, v * parser.get_avg_degree(), DIRECTED_GRAPH);
-            graph.import(el_graph);
-        }
-        else if(parser.get_compute_mode() == LOAD_GRAPH_FROM_FILE)
-        {
-            Timer tm;
-            tm.start();
-            if(!graph.load_from_binary_file(parser.get_graph_file_name()))
-                throw "Error: graph file not found";
-            tm.end();
-            tm.print_time_stats("Graph load");
-        }
+        // prepare graph
+        VGL_Graph graph(VGL_RUNTIME::select_graph_format(parser));
+        VGL_RUNTIME::prepare_graph(graph, parser);
 
-        #ifdef __USE_MPI__
-        vgl_library_data.allocate_exchange_buffers(graph.get_vertices_count(), sizeof(float));
-        #endif
-
-        // do calculations
-        EdgesArray_Vect<float> weights(graph);
+        // start algorithm
+        int source_vertex = 0;
+        VerticesArray<float> distances(graph, SCATTER);
+        EdgesArray<float> weights(graph);
         //weights.set_all_random(MAX_WEIGHT);
-        weights.set_all_constant(1.0);
+        weights.set_all_constant(1.3);
 
-        // heat run
-        VerticesArray<float> distances(graph, Parser::convert_traversal_type(parser.get_traversal_direction()));
-        ShortestPaths::nec_dijkstra(graph, weights, distances, 0,
-                                    parser.get_algorithm_frontier_type(),
-                                    parser.get_traversal_direction());
-
-        cout << "Computations started..." << endl;
-        cout << "Doing " << parser.get_number_of_rounds() << " SSSP iterations..." << endl;
+        VGL_RUNTIME::start_measuring_stats();
         for(int i = 0; i < parser.get_number_of_rounds(); i++)
         {
-            int source_vertex = graph.select_random_vertex(ORIGINAL);
-            cout << "selected source vertex " << source_vertex << endl;
-            #ifdef __USE_MPI__
-            vgl_library_data.bcast(&source_vertex, 1, 0);
-            #endif
-
-            performance_stats.reset_timers();
-            ShortestPaths::nec_dijkstra(graph, weights, distances, source_vertex,
+            source_vertex = graph.select_random_nz_vertex(SCATTER);
+            ShortestPaths::vgl_dijkstra(graph, weights, distances, source_vertex,
                                         parser.get_algorithm_frontier_type(),
                                         parser.get_traversal_direction());
-            performance_stats.update_timer_stats();
+        }
+        VGL_RUNTIME::stop_measuring_stats(graph.get_edges_count(), parser);
 
-            // check if required
-            if(parser.get_check_flag())
-            {
-                VerticesArray<float> check_distances(graph, SCATTER);
-                ShortestPaths::seq_dijkstra(graph, weights, check_distances, source_vertex);
-                verify_results(distances, check_distances);
-            }
+        if(parser.get_check_flag())
+        {
+            VerticesArray<float> check_distances(graph, SCATTER);
+            ShortestPaths::seq_dijkstra(graph, weights, check_distances, source_vertex);
+            verify_results(distances, check_distances, graph.get_vertices_count());
         }
 
-        performance_stats.print_perf(graph.get_edges_count());
-
-        vgl_library_data.finalize();
+        VGL_RUNTIME::finalize_library();
     }
     catch (string error)
     {

@@ -28,19 +28,11 @@ int main(int argc, char **argv)
         VGL_Graph graph(VGL_RUNTIME::select_graph_format(parser));
         VGL_RUNTIME::prepare_graph(graph, parser);
 
-        graph.print();
-
-        // !
-        EdgesArray<float> edges(graph);
-        edges.set_all_random(20);
-        edges.print();
-        cout << edges[3] << " !!!! " << endl;
-        // !
+        int source_vertex = 0;
+        VerticesArray<int> levels(graph, SCATTER);
 
         // start algorithm
-        int source_vertex = 0;
         VGL_RUNTIME::start_measuring_stats();
-        VerticesArray<int> levels(graph, SCATTER);
         for(int i = 0; i < parser.get_number_of_rounds(); i++)
         {
             source_vertex = graph.select_random_nz_vertex(SCATTER);
