@@ -12,33 +12,33 @@ include_directories(algorithms/pr)
 include_directories(algorithms/sssp)
 include_directories(algorithms/sswp)
 include_directories(apps)
-include_directories(common)
-include_directories(common/cmd_parser)
-include_directories(common/gpu_API)
-include_directories(common/memory_API)
-include_directories(common/parallel_primitives)
-include_directories(common/random_generator)
-include_directories(common/sorter)
-include_directories(common/verify_results)
-include_directories(export_graphs)
-include_directories(graph_analytics)
-include_directories(graph_generation_API)
-include_directories(graph_processing_API)
-include_directories(graph_processing_API/gpu)
-include_directories(graph_processing_API/nec)
-include_directories(graph_processing_API/nec/delayed_write)
-include_directories(graph_processing_API/nec/frontier)
-include_directories(graph_processing_API/nec/graph_primitives)
-include_directories(graph_processing_API/nec/vector_register)
-include_directories(graph_representations)
-include_directories(graph_representations/common)
-include_directories(graph_representations/undirected_containers/edges_list)
-include_directories(graph_representations/undirected_containers/vect_csr)
-include_directories(graph_representations/undirected_containers/vect_csr/vector_extension)
-include_directories(graph_representations/sharded_csr_graph)
-include_directories(graph_representations/sharded_csr_graph/shard_base)
-include_directories(graph_representations/sharded_csr_graph/shard_CSR)
-include_directories(graph_representations/sharded_csr_graph/shard_vect_csr)
+include_directories(vgl_runtime/helpers)
+include_directories(vgl_runtime/helpers/cmd_parser)
+include_directories(vgl_runtime/helpers/gpu_API)
+include_directories(vgl_runtime/helpers/memory_API)
+include_directories(vgl_runtime/helpers/parallel_primitives)
+include_directories(vgl_runtime/helpers/random_generator)
+include_directories(vgl_runtime/helpers/sorter)
+include_directories(vgl_runtime/helpers/verify_results)
+include_directories(vgl_runtime/export_graphs)
+include_directories(vgl_runtime/graph_analytics)
+include_directories(vgl_runtime/graph_generation)
+include_directories(vgl_graph_abstractions)
+include_directories(vgl_graph_abstractions/gpu)
+include_directories(vgl_graph_abstractions/nec)
+include_directories(vgl_graph_abstractions/nec/delayed_write)
+include_directories(vgl_graph_abstractions/nec/frontier)
+include_directories(vgl_graph_abstractions/nec/graph_primitives)
+include_directories(vgl_graph_abstractions/nec/vector_register)
+include_directories(vgl_datastructures)
+include_directories(vgl_datastructures/common)
+include_directories(vgl_datastructures/graphs/undirected_containers/edges_list)
+include_directories(vgl_datastructures/graphs/undirected_containers/vect_csr)
+include_directories(vgl_datastructures/graphs/undirected_containers/vect_csr/vector_extension)
+include_directories(vgl_datastructures/graphs/undirected_containers/sharded_csr_graph)
+include_directories(vgl_datastructures/graphs/undirected_containers/sharded_csr_graph/shard_base)
+include_directories(vgl_datastructures/graphs/undirected_containers/sharded_csr_graph/shard_CSR)
+include_directories(vgl_datastructures/graphs/undirected_containers/sharded_csr_graph/shard_vect_csr)
 include_directories(verification)
 
 add_executable(VectorGraphLibrary
@@ -71,63 +71,63 @@ add_executable(VectorGraphLibrary
         apps/Makefile.nec
         apps/pr/pr.cpp
         apps/sssp/sssp.cpp
-        common/cmd_parser/cmd_parser.h
-        common/cmd_parser/cmd_parser.hpp
-        common/cmd_parser/parser_options.h
-        common/gpu_API/cuda_error_handling.h
-        common/memory_API/memory_API.h
-        common/memory_API/memory_API.hpp
-        common/parallel_primitives/copy_if/copy_if.h
-        common/parallel_primitives/count_if/count_if.h
-        common/random_generator/asl_generator/asl_generator.h
-        common/random_generator/asl_generator/asl_generator.hpp
-        common/random_generator/common_generator/common_generator.h
-        common/random_generator/random_generator.h
-        common/sorter/sorter.h
-        common/verify_results/verify_results.h
-        export_graphs/edges_list_export.h
-        export_graphs/ligra_export.h
-        graph_analytics/graph_analytics.h
-        graph_analytics/graph_analytics.hpp
-        graph_generation_API/graph_generation_API.h
-        graph_generation_API/graph_generation_API.hpp
-        graph_processing_API/nec/delayed_write/delayed_write_nec.h
-        graph_processing_API/nec/delayed_write/delayed_write_nec.hpp
-        graph_processing_API/nec/frontier/frontier_nec.h
-        graph_processing_API/nec/frontier/frontier_nec.hpp
-        graph_processing_API/nec/graph_primitives/advance.hpp
-        graph_processing_API/nec/graph_primitives/advance_all_active.hpp
-        graph_processing_API/nec/graph_primitives/advance_dense.hpp
-        graph_processing_API/nec/graph_primitives/advance_partial.hpp
-        graph_processing_API/nec/graph_primitives/advance_sparse.hpp
-        graph_processing_API/nec/graph_primitives/compute.hpp
-        graph_processing_API/nec/graph_primitives/filter.hpp
-        graph_processing_API/nec/graph_primitives/generate_new_frontier.hpp
-        graph_processing_API/nec/graph_primitives/graph_primitives_nec.h
-        graph_processing_API/nec/graph_primitives/graph_primitives_nec.hpp
-        graph_processing_API/nec/graph_primitives/tests.hpp
-        graph_processing_API/nec/vector_register/vector_registers.h
-        graph_representations/common/graph_types.h
-        graph_representations/undirected_containers/edges_list/edges_list_graph.h
-        graph_representations/undirected_containers/edges_list/edges_list_graph.hpp
-        graph_representations/undirected_containers/vect_csr/vector_extension/vector_extension.h
-        graph_representations/undirected_containers/vect_csr/vector_extension/vector_extension.hpp
-        graph_representations/undirected_containers/vect_csr/vect_csr_graph.h
-        graph_representations/undirected_containers/vect_csr/vect_csr_graph.hpp
-        graph_representations/undirected_containers/vect_csr/gpu_api.hpp
-        graph_representations/undirected_containers/vect_csr/import.hpp
-        graph_representations/undirected_containers/vect_csr/nec_api.hpp
-        graph_representations/sharded_csr_graph/shard_base/shard_base.h
-        graph_representations/sharded_csr_graph/shard_base/shard_base.hpp
-        graph_representations/sharded_csr_graph/shard_CSR/shard_CSR.h
-        graph_representations/sharded_csr_graph/shard_CSR/shard_CSR.hpp
-        graph_representations/sharded_csr_graph/shard_CSR/shard_CSR_pointer_data.h
-        graph_representations/sharded_csr_graph/shard_vect_csr/shard_vect_CSR.h
-        graph_representations/sharded_csr_graph/shard_vect_csr/shard_vect_CSR.hpp
-        graph_representations/sharded_csr_graph/shard_vect_csr/shard_vect_CSR_pointer_data.h
-        graph_representations/sharded_csr_graph/sharded_csr_graph.h
-        graph_representations/sharded_csr_graph/sharded_csr_graph.hpp
-        graph_representations/base_graph.h
+        vgl_runtime/helpers/cmd_parser/cmd_parser.h
+        vgl_runtime/helpers/cmd_parser/cmd_parser.hpp
+        vgl_runtime/helpers/cmd_parser/parser_options.h
+        vgl_runtime/helpers/gpu_API/cuda_error_handling.h
+        vgl_runtime/helpers/memory_API/memory_API.h
+        vgl_runtime/helpers/memory_API/memory_API.hpp
+        vgl_runtime/helpers/parallel_primitives/copy_if/copy_if.h
+        vgl_runtime/helpers/parallel_primitives/count_if/count_if.h
+        vgl_runtime/helpers/random_generator/asl_generator/asl_generator.h
+        vgl_runtime/helpers/random_generator/asl_generator/asl_generator.hpp
+        vgl_runtime/helpers/random_generator/common_generator/common_generator.h
+        vgl_runtime/helpers/random_generator/random_generator.h
+        vgl_runtime/helpers/sorter/sorter.h
+        vgl_runtime/helpers/verify_results/verify_results.h
+        vgl_runtime/export_graphs/edges_list_export.h
+        vgl_runtime/export_graphs/ligra_export.h
+        vgl_runtime/graph_analytics/graph_analytics.h
+        vgl_runtime/graph_analytics/graph_analytics.hpp
+        vgl_runtime/graph_generation/graph_generation.h
+        vgl_runtime/graph_generation/graph_generation.hpp
+        vgl_graph_abstractions/nec/delayed_write/delayed_write_nec.h
+        vgl_graph_abstractions/nec/delayed_write/delayed_write_nec.hpp
+        vgl_graph_abstractions/nec/frontier/frontier_nec.h
+        vgl_graph_abstractions/nec/frontier/frontier_nec.hpp
+        vgl_graph_abstractions/nec/graph_primitives/advance.hpp
+        vgl_graph_abstractions/nec/graph_primitives/advance_all_active.hpp
+        vgl_graph_abstractions/nec/graph_primitives/advance_dense.hpp
+        vgl_graph_abstractions/nec/graph_primitives/advance_partial.hpp
+        vgl_graph_abstractions/nec/graph_primitives/advance_sparse.hpp
+        vgl_graph_abstractions/nec/graph_primitives/compute.hpp
+        vgl_graph_abstractions/nec/graph_primitives/filter.hpp
+        vgl_graph_abstractions/nec/graph_primitives/generate_new_frontier.hpp
+        vgl_graph_abstractions/nec/graph_primitives/graph_primitives_nec.h
+        vgl_graph_abstractions/nec/graph_primitives/graph_primitives_nec.hpp
+        vgl_graph_abstractions/nec/graph_primitives/tests.hpp
+        vgl_graph_abstractions/nec/vector_register/vector_registers.h
+        vgl_datastructures/common/graph_types.h
+        vgl_datastructures/graphs/undirected_containers/edges_list/edges_list_graph.h
+        vgl_datastructures/graphs/undirected_containers/edges_list/edges_list_graph.hpp
+        vgl_datastructures/graphs/undirected_containers/vect_csr/vector_extension/vector_extension.h
+        vgl_datastructures/graphs/undirected_containers/vect_csr/vector_extension/vector_extension.hpp
+        vgl_datastructures/graphs/undirected_containers/vect_csr/vect_csr_graph.h
+        vgl_datastructures/graphs/undirected_containers/vect_csr/vect_csr_graph.hpp
+        vgl_datastructures/graphs/undirected_containers/vect_csr/gpu_api.hpp
+        vgl_datastructures/graphs/undirected_containers/vect_csr/import.hpp
+        vgl_datastructures/graphs/undirected_containers/vect_csr/nec_api.hpp
+        vgl_datastructures/graphs/undirected_containers/sharded_csr_graph/shard_base/shard_base.h
+        vgl_datastructures/graphs/undirected_containers/sharded_csr_graph/shard_base/shard_base.hpp
+        vgl_datastructures/graphs/undirected_containers/sharded_csr_graph/shard_CSR/shard_CSR.h
+        vgl_datastructures/graphs/undirected_containers/sharded_csr_graph/shard_CSR/shard_CSR.hpp
+        vgl_datastructures/graphs/undirected_containers/sharded_csr_graph/shard_CSR/shard_CSR_pointer_data.h
+        vgl_datastructures/graphs/undirected_containers/sharded_csr_graph/shard_vect_csr/shard_vect_CSR.h
+        vgl_datastructures/graphs/undirected_containers/sharded_csr_graph/shard_vect_csr/shard_vect_CSR.hpp
+        vgl_datastructures/graphs/undirected_containers/sharded_csr_graph/shard_vect_csr/shard_vect_CSR_pointer_data.h
+        vgl_datastructures/graphs/undirected_containers/sharded_csr_graph/sharded_csr_graph.h
+        vgl_datastructures/graphs/undirected_containers/sharded_csr_graph/sharded_csr_graph.hpp
+        vgl_datastructures/graphs/base_graph.h
         misc/custom_test.cpp
         misc/generate_memory_traces.cpp
         misc/lambda_tests.cpp

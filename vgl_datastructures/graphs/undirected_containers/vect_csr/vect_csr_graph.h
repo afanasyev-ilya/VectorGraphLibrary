@@ -8,10 +8,7 @@
 #include <fstream>
 #include <stdio.h>
 #include <string.h>
-
-#include "common/cmd_parser/parser_options.h"
 #include "vector_extension/vector_extension.h"
-#include "common/memory_API/memory_API.h"
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 

@@ -14,25 +14,25 @@ int main(int argc, char **argv)
 {
     try
     {
-        VGL_COMMON_API::init_library(argc, argv);
-        VGL_COMMON_API::info_message("CC");
+        VGL_RUNTIME::init_library(argc, argv);
+        VGL_RUNTIME::info_message("CC");
 
         // parse args
         Parser parser;
         parser.parse_args(argc, argv);
 
         // prepare graph
-        VGL_Graph graph(VGL_COMMON_API::select_graph_format(parser));
-        VGL_COMMON_API::prepare_graph(graph, parser, UNDIRECTED_GRAPH);
+        VGL_Graph graph(VGL_RUNTIME::select_graph_format(parser));
+        VGL_RUNTIME::prepare_graph(graph, parser, UNDIRECTED_GRAPH);
 
         VerticesArray<int> components(graph, SCATTER);
 
-        VGL_COMMON_API::start_measuring_stats();
+        VGL_RUNTIME::start_measuring_stats();
         if(parser.get_algorithm_cc() == SHILOACH_VISHKIN_ALGORITHM)
             ConnectedComponents::vgl_shiloach_vishkin(graph, components);
         else if(parser.get_algorithm_cc() == BFS_BASED_ALGORITHM)
             ConnectedComponents::vgl_bfs_based(graph, components);
-        VGL_COMMON_API::stop_measuring_stats(graph.get_edges_count(), parser);
+        VGL_RUNTIME::stop_measuring_stats(graph.get_edges_count(), parser);
 
         if(parser.get_check_flag())
         {
@@ -41,7 +41,7 @@ int main(int argc, char **argv)
             equal_components(components, check_components);
         }
 
-        VGL_COMMON_API::finalize_library();
+        VGL_RUNTIME::finalize_library();
     }
     catch (string error)
     {

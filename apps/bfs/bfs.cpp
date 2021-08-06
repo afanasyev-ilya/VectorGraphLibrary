@@ -17,29 +17,29 @@ int main(int argc, char **argv)
 {
     try
     {
-        VGL_COMMON_API::init_library(argc, argv);
-        VGL_COMMON_API::info_message("BFS");
+        VGL_RUNTIME::init_library(argc, argv);
+        VGL_RUNTIME::info_message("BFS");
 
         // parse args
         Parser parser;
         parser.parse_args(argc, argv);
 
         // prepare graph
-        VGL_Graph graph(VGL_COMMON_API::select_graph_format(parser));
-        VGL_COMMON_API::prepare_graph(graph, parser);
+        VGL_Graph graph(VGL_RUNTIME::select_graph_format(parser));
+        VGL_RUNTIME::prepare_graph(graph, parser);
 
         graph.print();
 
         // start algorithm
         int source_vertex = 0;
-        VGL_COMMON_API::start_measuring_stats();
+        VGL_RUNTIME::start_measuring_stats();
         VerticesArray<int> levels(graph, SCATTER);
         for(int i = 0; i < parser.get_number_of_rounds(); i++)
         {
             source_vertex = graph.select_random_nz_vertex(SCATTER);
             BFS::vgl_top_down(graph, levels, source_vertex);
         }
-        VGL_COMMON_API::stop_measuring_stats(graph.get_edges_count(), parser);
+        VGL_RUNTIME::stop_measuring_stats(graph.get_edges_count(), parser);
 
         if(parser.get_check_flag())
         {
@@ -48,7 +48,7 @@ int main(int argc, char **argv)
             verify_results(levels, check_levels, 0);
         }
 
-        VGL_COMMON_API::finalize_library();
+        VGL_RUNTIME::finalize_library();
     }
     catch (string error)
     {

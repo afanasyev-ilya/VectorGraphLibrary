@@ -18,8 +18,8 @@ int main(int argc, char **argv)
 {
     try
     {
-        VGL_COMMON_API::init_library(argc, argv);
-        VGL_COMMON_API::info_message("BFS");
+        VGL_RUNTIME::init_library(argc, argv);
+        VGL_RUNTIME::info_message("BFS");
 
         // parse args
         Parser parser;
@@ -27,7 +27,7 @@ int main(int argc, char **argv)
 
         // prepare graph
         VGL_Graph graph;
-        VGL_COMMON_API::prepare_graph(graph, parser);
+        VGL_RUNTIME::prepare_graph(graph, parser);
 
         // init ve and tmp datastructures
         BFS_GraphVE vector_extension_for_bfs(graph);

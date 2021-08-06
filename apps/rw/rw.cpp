@@ -15,16 +15,16 @@ int main(int argc, char **argv)
 {
     try
     {
-        VGL_COMMON_API::init_library(argc, argv);
-        VGL_COMMON_API::info_message("RW");
+        VGL_RUNTIME::init_library(argc, argv);
+        VGL_RUNTIME::info_message("RW");
 
         // parse args
         Parser parser;
         parser.parse_args(argc, argv);
 
         // prepare graph
-        VGL_Graph graph(VGL_COMMON_API::select_graph_format(parser));
-        VGL_COMMON_API::prepare_graph(graph, parser, UNDIRECTED_GRAPH);
+        VGL_Graph graph(VGL_RUNTIME::select_graph_format(parser));
+        VGL_RUNTIME::prepare_graph(graph, parser, UNDIRECTED_GRAPH);
 
         // generate list of walk vertices
         int walk_vertices_num = parser.get_walk_vertices_percent() * (graph.get_vertices_count()/100.0);
@@ -44,9 +44,9 @@ int main(int argc, char **argv)
 
         // run algorithm
         VerticesArray<int> walk_results(graph);
-        VGL_COMMON_API::start_measuring_stats();
+        VGL_RUNTIME::start_measuring_stats();
         RW::vgl_random_walk(graph, walk_vertices, walk_vertices_num, walk_length, walk_results);
-        VGL_COMMON_API::stop_measuring_stats(graph.get_edges_count(), parser);
+        VGL_RUNTIME::stop_measuring_stats(graph.get_edges_count(), parser);
 
         if(parser.get_check_flag())
         {
@@ -55,7 +55,7 @@ int main(int argc, char **argv)
             cout << "since walks are random it is not possible to check" << endl;
         }
 
-        VGL_COMMON_API::finalize_library();
+        VGL_RUNTIME::finalize_library();
     }
     catch (string error)
     {

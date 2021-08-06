@@ -21,16 +21,16 @@ int main(int argc, char **argv)
 {
     try
     {
-        VGL_COMMON_API::init_library(argc, argv);
-        VGL_COMMON_API::info_message("HITS");
+        VGL_RUNTIME::init_library(argc, argv);
+        VGL_RUNTIME::info_message("HITS");
 
         // parse args
         Parser parser;
         parser.parse_args(argc, argv);
 
         // prepare graph
-        VGL_Graph graph(VGL_COMMON_API::select_graph_format(parser));
-        VGL_COMMON_API::prepare_graph(graph, parser);
+        VGL_Graph graph(VGL_RUNTIME::select_graph_format(parser));
+        VGL_RUNTIME::prepare_graph(graph, parser);
 
         VerticesArray<base_type> auth(graph);
         VerticesArray<base_type> hub(graph);
@@ -39,9 +39,9 @@ int main(int argc, char **argv)
         HITS::vgl_hits(graph, auth, hub, parser.get_number_of_rounds());
         #endif
 
-        VGL_COMMON_API::start_measuring_stats();
+        VGL_RUNTIME::start_measuring_stats();
         HITS::vgl_hits(graph, auth, hub, parser.get_number_of_rounds());
-        VGL_COMMON_API::stop_measuring_stats(graph.get_edges_count(), parser);
+        VGL_RUNTIME::stop_measuring_stats(graph.get_edges_count(), parser);
 
         if(parser.get_check_flag())
         {
@@ -53,7 +53,7 @@ int main(int argc, char **argv)
             verify_results(hub, check_hub, 0);
         }
 
-        VGL_COMMON_API::finalize_library();
+        VGL_RUNTIME::finalize_library();
     }
     catch (string error)
     {

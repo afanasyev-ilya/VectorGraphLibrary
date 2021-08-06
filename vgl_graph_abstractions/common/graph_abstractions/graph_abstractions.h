@@ -100,15 +100,15 @@ public:
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #ifdef __USE_NEC_SX_AURORA__
-#include "graph_processing_API/nec/graph_abstractions/graph_abstractions_nec.h"
+#include "vgl_graph_abstractions/nec/graph_abstractions/graph_abstractions_nec.h"
 #endif
 
 #ifdef __USE_GPU__
-//#include "graph_processing_API/gpu/graph_abstractions/graph_abstractions_gpu.cuh"
+//#include "vgl_graph_abstractions/gpu/graph_abstractions/graph_abstractions_gpu.cuh"
 #endif
 
 #if defined(__USE_MULTICORE__)
-#include "graph_processing_API/multicore/graph_abstractions/graph_abstractions_multicore.h"
+#include "vgl_graph_abstractions/multicore/graph_abstractions/graph_abstractions_multicore.h"
 #endif
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
