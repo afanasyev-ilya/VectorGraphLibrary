@@ -24,6 +24,8 @@ void CSRGraph::alloc(int _vertices_count, long long _edges_count)
 
     MemoryAPI::allocate_array(&vertex_pointers, this->vertices_count + 1);
     MemoryAPI::allocate_array(&adjacent_ids, this->edges_count);
+
+    MemoryAPI::allocate_array(&edges_reorder_indexes, this->edges_count);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -32,6 +34,8 @@ void CSRGraph::free()
 {
     MemoryAPI::free_array(vertex_pointers);
     MemoryAPI::free_array(adjacent_ids);
+
+    MemoryAPI::free_array(edges_reorder_indexes);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

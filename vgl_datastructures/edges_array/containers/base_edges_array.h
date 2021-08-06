@@ -28,7 +28,7 @@ public:
     /* print API */
     virtual void print() = 0;
 
-    void attach_pointer(_T *_outer_data) {edges_data = _outer_data;};
+    virtual void attach_pointer(_T *_outer_data) = 0;
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

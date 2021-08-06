@@ -9,10 +9,6 @@ void CommonRandomGenerator::generate_array_of_random_uniform_values(_T *_array, 
     #pragma omp parallel
     {
         unsigned int seed = int(time(NULL)) ^ rand() ^ omp_get_thread_num();
-        #pragma omp master
-        {
-            cout << seed << endl;
-        }
         #pragma omp for
         for (size_t i = 0; i < _size; ++i)
         {

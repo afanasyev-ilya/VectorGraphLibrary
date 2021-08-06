@@ -253,7 +253,6 @@ void VectorCSRGraph::reorder_and_copy_edges_from_original_to_sorted(_T *_dst_sor
 
     #if defined(__USE_GPU__)
     cuda_reorder_wrapper_gather_copy(_dst_sorted, _src_original, edges_reorder_indexes, this->edges_count);
-    //throw "Error VectorCSRGraph::reorder_and_copy_edges_from_original_to_sorted : not implemented yet";
     #endif
 }
 

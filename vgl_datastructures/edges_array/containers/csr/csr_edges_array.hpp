@@ -7,7 +7,7 @@ EdgesArray_CSR<_T>::EdgesArray_CSR(VGL_Graph &_graph)
 {
     this->graph_ptr = &_graph;
     this->edges_count = _graph.get_edges_count();
-    this->total_array_size = _graph.get_edges_count();
+    this->total_array_size = _graph.get_edges_count() * _graph.get_number_of_directions();
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -31,7 +31,11 @@ template <typename _T>
 void EdgesArray_CSR<_T>::set_all_random(_T _max_rand)
 {
     RandomGenerator rng_api;
-    rng_api.generate_array_of_random_values<_T>(this->edges_data, this->total_array_size, _max_rand);
+    rng_api.generate_array_of_random_values<_T>(outgoing_edges, this->edges_count, _max_rand);
+    if(this->graph_ptr->get_number_of_directions() == 2)
+    {
+        this->graph_ptr->copy_outgoing_to_incoming_edges(outgoing_edges, incoming_edges);
+    }
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -52,11 +56,34 @@ template <typename _T>
 void EdgesArray_CSR<_T>::print()
 {
     cout << "Edges Array (CSR)" << endl;
-    for(long long i = 0; i < this->total_array_size; i++)
+    cout << "outgoing: ";
+    for(long long i = 0; i < this->edges_count; i++)
     {
-        cout << this->edges_data[i] << " ";
+        cout << outgoing_edges[i] << " ";
     }
-    cout << endl;
+    cout << endl << endl;
+    if(this->graph_ptr->get_number_of_directions() == 2)
+    {
+        cout << "incoming: ";
+        for(long long i = 0; i < this->edges_count; i++)
+        {
+            cout << incoming_edges[i] << " ";
+        }
+        cout << endl << endl;
+    }
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+template <typename _T>
+void EdgesArray_CSR<_T>::attach_pointer(_T *_outer_data)
+{
+    this->edges_data = _outer_data;
+
+    outgoing_edges = this->edges_data;
+    incoming_edges = &(this->edges_data[this->edges_count]);
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+

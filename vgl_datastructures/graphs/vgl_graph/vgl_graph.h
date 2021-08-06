@@ -42,6 +42,8 @@ public:
     inline int get_incoming_connections_count(int _src_id);
     inline int get_outgoing_connections_count(int _src_id);
 
+    inline int get_number_of_directions() {return 2;};
+
     /* print API */
     void print();
     void print_size();
@@ -63,6 +65,13 @@ public:
     int reorder(int _vertex_id, TraversalDirection _input_dir, TraversalDirection _output_dir);
     int select_random_vertex(TraversalDirection _direction = ORIGINAL);
     int select_random_nz_vertex(TraversalDirection _direction = ORIGINAL);
+
+    template <typename _T>
+    void copy_outgoing_to_incoming_edges(_T *_outgoing_edges, _T *_incoming_edges)
+    {
+        CSRGraph *my_ptr = (CSRGraph *)incoming_data;
+        my_ptr->reorder_edges_gather(_outgoing_edges /* src */, _incoming_edges /* dst */);
+    }
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

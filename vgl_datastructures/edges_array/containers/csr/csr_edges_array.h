@@ -5,6 +5,9 @@
 template <typename _T>
 class EdgesArray_CSR : public BaseEdgesArray<_T>
 {
+private:
+    _T *outgoing_edges;
+    _T *incoming_edges;
 public:
     /* constructors and destructors */
     EdgesArray_CSR(VGL_Graph &_graph);
@@ -17,6 +20,8 @@ public:
 
     /* print API */
     void print();
+
+    void attach_pointer(_T *_outer_data) final;
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

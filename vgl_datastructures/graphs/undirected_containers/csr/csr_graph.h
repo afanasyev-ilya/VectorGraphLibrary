@@ -25,6 +25,8 @@ private:
     long long     *vertex_pointers;
     int           *adjacent_ids;
 
+    vgl_sort_indexes *edges_reorder_indexes; // allows to convert VectorCSRGraph edges (and weights) from sorted to original order
+
     void alloc(int _vertices_count, long long _edges_count);
     void free();
 
@@ -35,6 +37,7 @@ private:
     int reorder_to_original(int _vertex_id) { return _vertex_id; };
 
     void construct_unsorted_csr(EdgesContainer &_edges_container);
+    void copy_edges_indexes(vgl_sort_indexes *_sort_indexes);
 
     /* file load/store API */
     void save_main_content_to_binary_file(FILE *_graph_file) final {};
@@ -66,6 +69,21 @@ public:
     /* import and preprocess API */
     // creates VectorCSRGraph format from EdgesListGraph
     void import(EdgesContainer &_edges_container);
+
+    template <typename _T>
+    void reorder_edges_gather(_T *_src, _T *_dst)
+    {
+        #if defined(__USE_NEC_SX_AURORA__) || defined(__USE_MULTICORE__)
+        #pragma omp parallel
+        {
+            openmp_reorder_wrapper_gather_inplace(_src, _dst, edges_reorder_indexes, this->edges_count);
+        }
+        #endif
+
+        #if defined(__USE_GPU__)
+        //cuda_reorde_gather_copy(_dst_sorted, _src_original, edges_reorder_indexes, this->edges_count);
+        #endif
+    }
 
     /* vertices API */
     int select_random_nz_vertex();

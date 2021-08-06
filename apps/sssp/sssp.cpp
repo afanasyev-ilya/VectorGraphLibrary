@@ -38,8 +38,9 @@ int main(int argc, char **argv)
         int source_vertex = 0;
         VerticesArray<float> distances(graph, SCATTER);
         EdgesArray<float> weights(graph);
-        //weights.set_all_random(MAX_WEIGHT);
-        weights.set_all_constant(1.3);
+        weights.set_all_random(MAX_WEIGHT);
+        //weights.set_all_constant(1.3);
+        weights.print();
 
         // start algorithm
         VGL_RUNTIME::start_measuring_stats();

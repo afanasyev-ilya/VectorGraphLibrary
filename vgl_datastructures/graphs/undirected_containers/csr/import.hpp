@@ -8,6 +8,8 @@ void CSRGraph::construct_unsorted_csr(EdgesContainer &_edges_container)
     MemoryAPI::allocate_array(&work_buffer, max(this->edges_count, (long long)this->vertices_count*8));//TODO 8
     _edges_container.preprocess_into_csr_based(work_buffer, sort_indexes);
 
+    this->copy_edges_indexes(sort_indexes);
+
     #pragma omp parallel for
     for(int i = 0; i < this->vertices_count; i++)
         vertex_pointers[i] = -1;
@@ -41,6 +43,17 @@ void CSRGraph::construct_unsorted_csr(EdgesContainer &_edges_container)
 
     MemoryAPI::free_array(work_buffer);
     MemoryAPI::free_array(sort_indexes);
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+void CSRGraph::copy_edges_indexes(vgl_sort_indexes *_sort_indexes)
+{
+    #pragma omp parallel for
+    for(long long i = 0; i < this->edges_count; i++)
+    {
+        edges_reorder_indexes[i] = _sort_indexes[i];
+    }
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

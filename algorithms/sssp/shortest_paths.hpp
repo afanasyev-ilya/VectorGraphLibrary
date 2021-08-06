@@ -204,8 +204,7 @@ void SSSP::vgl_dijkstra_all_active_pull(VGL_Graph &_graph,
         {
             NEC_REGISTER_FLT(distances, 0);
 
-            auto edge_op_pull = [&_distances, &_weights, &reg_distances](int src_id, int dst_id, int local_edge_pos,
-                    long long int global_edge_pos, int vector_index)
+            auto edge_op_pull = [&_distances, &_weights, &reg_distances] __VGL_GATHER_ARGS__
             {
                 _T weight = _weights[global_edge_pos];
                 _T dst_weight = _distances[dst_id];
