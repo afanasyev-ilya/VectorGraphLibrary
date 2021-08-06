@@ -55,6 +55,8 @@ void GraphAbstractionsMulticore::advance_worker(CSRGraph &_graph,
     tm.start();
     LOAD_CSR_GRAPH_DATA(_graph);
 
+    long long process_shift = current_traversal_direction * edges_count;
+
     if(_frontier.get_sparsity_type() == ALL_ACTIVE_FRONTIER)
     {
         #pragma omp for schedule(guided, 1024)
@@ -74,7 +76,7 @@ void GraphAbstractionsMulticore::advance_worker(CSRGraph &_graph,
                 const long long internal_edge_pos = start + local_edge_pos;
                 const int vector_index = get_vector_index(local_edge_pos);
                 const int dst_id = adjacent_ids[internal_edge_pos];
-                const long long external_edge_pos = /*process_shift + */internal_edge_pos; // todo
+                const long long external_edge_pos = process_shift + internal_edge_pos;
 
                 edge_op(src_id, dst_id, local_edge_pos, external_edge_pos, vector_index);
             }
@@ -107,7 +109,7 @@ void GraphAbstractionsMulticore::advance_worker(CSRGraph &_graph,
                 const long long internal_edge_pos = start + local_edge_pos;
                 const int vector_index = get_vector_index(local_edge_pos);
                 const int dst_id = adjacent_ids[internal_edge_pos];
-                const long long external_edge_pos = /*process_shift + */internal_edge_pos; // todo
+                const long long external_edge_pos = process_shift + internal_edge_pos; // todo
 
                 edge_op(src_id, dst_id, local_edge_pos, external_edge_pos, vector_index);
             }
