@@ -81,7 +81,22 @@ public:
         #endif
 
         #if defined(__USE_GPU__)
-        //cuda_reorde_gather_copy(_dst_sorted, _src_original, edges_reorder_indexes, this->edges_count);
+        cuda_reorder_wrapper_gather_inplace(_src, _dst, edges_reorder_indexes, this->edges_count);
+        #endif
+    }
+
+    template <typename _T>
+    void reorder_edges_gather(_T *_src, _T *_dst)
+    {
+        #if defined(__USE_NEC_SX_AURORA__) || defined(__USE_MULTICORE__)
+        #pragma omp parallel
+        {
+            openmp_reorder_scatter_gather_inplace(_src, _dst, edges_reorder_indexes, this->edges_count);
+        }
+        #endif
+
+        #if defined(__USE_GPU__)
+        cuda_reorder_wrapper_scatter_inplace(_src, _dst, edges_reorder_indexes, this->edges_count);
         #endif
     }
 

@@ -38,37 +38,6 @@ void VectorCSRGraph::reorder_to_original(char *_data, char *_buffer, size_t _ele
         }
     }
     #endif
-
-    /*if(omp_in_parallel())
-    {
-        #if defined(__USE_NEC_SX_AURORA__) || defined(__USE_MULTICORE__)
-        #pragma _NEC ivdep
-        #pragma _NEC vovertake
-        #pragma _NEC novob
-        #pragma _NEC vector
-        #pragma omp for
-        for(int i = 0; i < this->vertices_count; i++)
-        {
-            int sorted_index = forward_conversion[i];
-            int original_index = i;
-            _buffer[original_index] = _data[sorted_index];
-        }
-
-        #pragma _NEC ivdep
-        #pragma omp for
-        for(int i = 0; i < this->vertices_count; i++)
-        {
-            _data[i] = _buffer[i];
-        }
-        #endif
-    }
-    else
-    {
-        #pragma omp parallel
-        {
-            reorder_to_original(_data, _buffer, _elem_size);
-        }
-    }*/
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -99,37 +68,6 @@ void VectorCSRGraph::reorder_to_sorted(char *_data, char *_buffer, size_t _elem_
         }
     }
     #endif
-
-    /*if(omp_in_parallel())
-    {
-        #if defined(__USE_NEC_SX_AURORA__) || defined(__USE_MULTICORE__)
-        #pragma _NEC ivdep
-        #pragma _NEC vovertake
-        #pragma _NEC novob
-        #pragma _NEC vector
-        #pragma omp for
-        for(int i = 0; i < this->vertices_count; i++)
-        {
-            int original_index = backward_conversion[i];
-            int sorted_index = i;
-            _buffer[sorted_index] = _data[original_index];
-        }
-
-        #pragma _NEC ivdep
-        #pragma omp for
-        for(int i = 0; i < this->vertices_count; i++)
-        {
-            _data[i] = _buffer[i];
-        }
-        #endif
-    }
-    else
-    {
-        #pragma omp parallel
-        {
-            reorder_to_sorted(_data, _buffer, _elem_size);
-        }
-    }*/
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

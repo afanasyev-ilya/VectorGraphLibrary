@@ -72,6 +72,13 @@ public:
         CSRGraph *my_ptr = (CSRGraph *)incoming_data;
         my_ptr->reorder_edges_gather(_outgoing_edges /* src */, _incoming_edges /* dst */);
     }
+
+    template <typename _T>
+    void copy_incoming_to_outgoing_edges(_T *_outgoing_edges, _T *_incoming_edges)
+    {
+        CSRGraph *my_ptr = (CSRGraph *)incoming_data;
+        my_ptr->reorder_edges_scatter(_outgoing_edges /* src */, _incoming_edges /* dst */);
+    }
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

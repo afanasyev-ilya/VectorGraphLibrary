@@ -3,23 +3,30 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template <typename _T, typename _TIndex>
-void openmp_reorder_wrapper_gather(_T *_data, _T *_data_buffer, _TIndex *_indexes, _TIndex _size)
+void openmp_reorder_gather(_T *_data, _T *_data_buffer, _TIndex *_indexes, _TIndex _size)
 {
-    #pragma _NEC ivdep
-    #pragma _NEC vovertake
-    #pragma _NEC novob
-    #pragma _NEC vector
-    #pragma omp for
-    for(_TIndex i = 0; i < _size; i++)
+    if(omp_in_parallel())
     {
-        _data_buffer[i] = _data[_indexes[i]];
-    }
+        #pragma _NEC ivdep
+        #pragma _NEC vovertake
+        #pragma _NEC novob
+        #pragma _NEC vector
+        #pragma omp parallel for
+        for(_TIndex i = 0; i < _size; i++)
+        {
+            _data_buffer[i] = _data[_indexes[i]];
+        }
 
-    #pragma _NEC ivdep
-    #pragma omp for
-    for(_TIndex i = 0; i < _size; i++)
+        #pragma _NEC ivdep
+        #pragma omp parallel for
+        for(_TIndex i = 0; i < _size; i++)
+        {
+            _data[i] = _data_buffer[i];
+        }
+    }
+    else
     {
-        _data[i] = _data_buffer[i];
+        openmp_reorder_gather(_data, _data_buffer, _indexes, _size);
     }
 }
 
