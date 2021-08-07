@@ -108,6 +108,9 @@ public:
     inline int get_connections_count(int _vertex_id) final;
     inline int get_edge_dst(int _src_id, int _edge_pos) final;
 
+    inline size_t get_edges_array_index(int _v, int _edge_pos) final { return vertex_pointers[_v] + _edge_pos; };
+    inline size_t get_edges_array_direction_shift_size() final { return this->edges_count + last_vertices_ve.get_edges_count_in_ve(); };
+
     #ifdef __USE_MPI__
     std::pair<int, int> get_mpi_thresholds(int _mpi_rank, int _v1, int _v2);
     #endif

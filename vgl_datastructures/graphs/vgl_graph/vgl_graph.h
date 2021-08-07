@@ -2,6 +2,8 @@
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+#define BOTH_DIRECTIONS 2
+
 class VGL_Graph: public BaseGraph
 {
 private:
@@ -42,7 +44,10 @@ public:
     inline int get_incoming_connections_count(int _src_id);
     inline int get_outgoing_connections_count(int _src_id);
 
-    inline int get_number_of_directions() {return 2;};
+    inline size_t get_outgoing_edges_array_index(int _v, int _edge_pos);
+    inline size_t get_incoming_edges_array_index(int _v, int _edge_pos);
+
+    inline int get_number_of_directions() {return BOTH_DIRECTIONS;};
 
     /* print API */
     void print();

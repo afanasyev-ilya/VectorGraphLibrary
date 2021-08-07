@@ -32,7 +32,7 @@ void EdgesArray_CSR<_T>::set_all_random(_T _max_rand)
 {
     RandomGenerator rng_api;
     rng_api.generate_array_of_random_values<_T>(outgoing_edges, this->edges_count, _max_rand);
-    if(this->graph_ptr->get_number_of_directions() == 2)
+    if(this->graph_ptr->get_number_of_directions() == BOTH_DIRECTIONS)
     {
         this->graph_ptr->copy_outgoing_to_incoming_edges(outgoing_edges, incoming_edges);
     }
@@ -62,7 +62,7 @@ void EdgesArray_CSR<_T>::print()
         cout << outgoing_edges[i] << " ";
     }
     cout << endl << endl;
-    if(this->graph_ptr->get_number_of_directions() == 2)
+    if(this->graph_ptr->get_number_of_directions() == BOTH_DIRECTIONS)
     {
         cout << "incoming: ";
         for(long long i = 0; i < this->edges_count; i++)

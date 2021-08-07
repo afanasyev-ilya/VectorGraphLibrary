@@ -49,7 +49,7 @@ void SSSP::seq_dijkstra(VGL_Graph &_graph, EdgesArray<_T> &_weights, VerticesArr
         for(int edge_pos = 0; edge_pos < connections_count; edge_pos++)
         {
             int dst_id = _graph.get_outgoing_edge_dst(src_id, edge_pos);
-            _T weight = 1.3;//_weights[global_edge_pos]; // TODO....
+            _T weight = _weights[_graph.get_outgoing_edges_array_index(src_id, edge_pos)];
 
             if (_distances[dst_id] > _distances[src_id] + weight)
             {

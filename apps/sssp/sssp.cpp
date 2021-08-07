@@ -57,6 +57,10 @@ int main(int argc, char **argv)
         {
             VerticesArray<float> check_distances(graph, SCATTER);
             ShortestPaths::seq_dijkstra(graph, weights, check_distances, source_vertex);
+
+            distances.print();
+            check_distances.print();
+
             verify_results(distances, check_distances, graph.get_vertices_count());
         }
 

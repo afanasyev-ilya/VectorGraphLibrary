@@ -10,8 +10,15 @@ public:
     UndirectedGraph() {};
     ~UndirectedGraph() {};
 
+    /* get/set API */
+
     virtual int get_connections_count(int _vertex_id) = 0;
     virtual int get_edge_dst(int _src_id, int _edge_pos) = 0;
+
+    virtual size_t get_edges_array_index(int _v, int _edge_pos) = 0;
+    virtual size_t get_edges_array_direction_shift_size() = 0;
+
+    /* reorder API */
 
     virtual int reorder_to_sorted(int _vertex_id) = 0;
     virtual int reorder_to_original(int _vertex_id) = 0;
