@@ -9,8 +9,7 @@ void GraphAbstractionsMulticore::vector_engine_per_vertex_kernel_sparse(VectorCS
                                                                   EdgeOperation edge_op,
                                                                   VertexPreprocessOperation vertex_preprocess_op,
                                                                   VertexPostprocessOperation vertex_postprocess_op,
-                                                                  const int _first_edge,
-                                                                  bool _outgoing_graph_is_stored)
+                                                                  const int _first_edge)
 {
     #ifdef __PRINT_API_PERFORMANCE_STATS__
     Timer tm;
@@ -23,7 +22,7 @@ void GraphAbstractionsMulticore::vector_engine_per_vertex_kernel_sparse(VectorCS
 
     TraversalDirection traversal = current_traversal_direction;
     int storage = CSR_STORAGE;
-    long long process_shift = compute_process_shift(0/*shard shift*/, traversal, storage, edges_count, _outgoing_graph_is_stored);
+    long long process_shift = compute_process_shift(traversal, storage);
 
     for (int front_pos = 0; front_pos < frontier_segment_size; front_pos++)
     {
@@ -77,8 +76,7 @@ void GraphAbstractionsMulticore::vector_core_per_vertex_kernel_sparse(VectorCSRG
                                                                 EdgeOperation edge_op,
                                                                 VertexPreprocessOperation vertex_preprocess_op,
                                                                 VertexPostprocessOperation vertex_postprocess_op,
-                                                                const int _first_edge,
-                                                                bool _outgoing_graph_is_stored)
+                                                                const int _first_edge)
 {
     #ifdef __PRINT_API_PERFORMANCE_STATS__
     Timer tm;
@@ -91,7 +89,7 @@ void GraphAbstractionsMulticore::vector_core_per_vertex_kernel_sparse(VectorCSRG
 
     TraversalDirection traversal = current_traversal_direction;
     int storage = CSR_STORAGE;
-    long long process_shift = compute_process_shift(0/*shard shift*/, traversal, storage, edges_count, _outgoing_graph_is_stored);
+    long long process_shift = compute_process_shift(traversal, storage);
 
     #pragma omp for schedule(static, 2)
     for (int front_pos = 0; front_pos < frontier_segment_size; front_pos++)
@@ -139,8 +137,7 @@ void GraphAbstractionsMulticore::collective_vertex_processing_kernel_sparse(Vect
                                                                       EdgeOperation edge_op,
                                                                       VertexPreprocessOperation vertex_preprocess_op,
                                                                       VertexPostprocessOperation vertex_postprocess_op,
-                                                                      const int _first_edge,
-                                                                      bool _outgoing_graph_is_stored)
+                                                                      const int _first_edge)
 {
     #ifdef __PRINT_API_PERFORMANCE_STATS__
     Timer tm;
@@ -153,7 +150,7 @@ void GraphAbstractionsMulticore::collective_vertex_processing_kernel_sparse(Vect
 
     TraversalDirection traversal = current_traversal_direction;
     int storage = CSR_STORAGE;
-    long long process_shift = compute_process_shift(0/*shard shift*/, traversal, storage, edges_count, _outgoing_graph_is_stored);
+    long long process_shift = compute_process_shift(traversal, storage);
 
     long long int reg_start[VECTOR_LENGTH];
     long long int reg_end[VECTOR_LENGTH];

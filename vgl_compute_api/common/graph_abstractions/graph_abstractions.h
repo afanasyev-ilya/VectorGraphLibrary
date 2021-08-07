@@ -7,9 +7,10 @@ class GraphAbstractions
 protected:
     vector<UserDataContainer*> user_data_containers;
 
-    BaseGraph *processed_graph_ptr;
+    VGL_Graph *processed_graph_ptr;
     TraversalDirection current_traversal_direction;
-    long long direction_shift;
+
+    inline size_t compute_process_shift(TraversalDirection _traversal, int _storage);
 
     bool same_direction(TraversalDirection _first, TraversalDirection _second);
 

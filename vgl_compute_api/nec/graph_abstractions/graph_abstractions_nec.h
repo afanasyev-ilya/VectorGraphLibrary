@@ -26,9 +26,6 @@ private:
     long long count_frontier_neighbours(VGL_Graph &_graph, VGL_Frontier &_frontier);
     bool use_safe_stores;
 
-    long long compute_process_shift(long long _shard_shift, TraversalDirection _traversal, int _storage,
-                                    long long _edges_count, bool _outgoing_graph_is_stored);
-
     // compute inner implementation
     template <typename ComputeOperation, typename Graph_Container>
     void compute_worker(Graph_Container &_graph,

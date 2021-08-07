@@ -48,6 +48,7 @@ public:
     inline size_t get_incoming_edges_array_index(int _v, int _edge_pos);
 
     inline int get_number_of_directions() {return BOTH_DIRECTIONS;};
+    inline size_t get_edges_array_direction_shift_size() {return outgoing_data->get_edges_array_direction_shift_size();};
 
     /* print API */
     void print();

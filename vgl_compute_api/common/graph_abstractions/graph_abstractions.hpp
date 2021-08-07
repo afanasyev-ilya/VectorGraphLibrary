@@ -16,6 +16,19 @@ GraphAbstractions::GraphAbstractions()
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+size_t GraphAbstractions::compute_process_shift(TraversalDirection _traversal, int _storage)
+{
+    size_t direction_shift = processed_graph_ptr->get_edges_array_direction_shift_size();
+    size_t traversal_shift = 0;
+    if(processed_graph_ptr->get_number_of_directions() == BOTH_DIRECTIONS)
+        traversal_shift = _traversal * direction_shift;
+
+    size_t storage_shift = _storage * processed_graph_ptr->get_edges_count();
+    return traversal_shift + storage_shift;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 template <typename EdgeOperation, typename VertexPreprocessOperation, typename VertexPostprocessOperation,
         typename CollectiveEdgeOperation, typename CollectiveVertexPreprocessOperation,
         typename CollectiveVertexPostprocessOperation>

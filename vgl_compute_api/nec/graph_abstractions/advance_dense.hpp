@@ -26,7 +26,7 @@ void GraphAbstractionsNEC::vector_engine_per_vertex_kernel_dense(VectorCSRGraph 
 
     TraversalDirection traversal = current_traversal_direction;
     int storage = CSR_STORAGE;
-    long long process_shift = compute_process_shift(0/*shard shift*/, traversal, storage, edges_count, _outgoing_graph_is_stored);
+    long long process_shift = compute_process_shift(traversal, storage);
 
     for(int front_pos = _first_vertex; front_pos < _last_vertex; front_pos++)
     {
@@ -131,7 +131,7 @@ void GraphAbstractionsNEC::vector_core_per_vertex_kernel_dense(VectorCSRGraph &_
 
     TraversalDirection traversal = current_traversal_direction;
     int storage = CSR_STORAGE;
-    long long process_shift = compute_process_shift(0/*shard shift*/, traversal, storage, edges_count, _outgoing_graph_is_stored);
+    long long process_shift = compute_process_shift(traversal, storage);
 
     #pragma omp for schedule(static, 8)
     for (int front_pos = _first_vertex; front_pos < _last_vertex; front_pos++)
@@ -215,7 +215,7 @@ void GraphAbstractionsNEC::ve_collective_vertex_processing_kernel_dense(VectorCS
 
     TraversalDirection traversal = current_traversal_direction;
     int storage = VE_STORAGE;
-    long long process_shift = compute_process_shift(0/*shard shift*/, traversal, storage, edges_count, _outgoing_graph_is_stored);
+    long long process_shift = compute_process_shift(traversal, storage);
 
     long long reg_real_start[VECTOR_LENGTH];
     int reg_real_connections_count[VECTOR_LENGTH];

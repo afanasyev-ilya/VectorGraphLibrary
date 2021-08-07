@@ -25,7 +25,7 @@ void GraphAbstractionsNEC::vector_engine_per_vertex_kernel_sparse(VectorCSRGraph
 
     TraversalDirection traversal = current_traversal_direction;
     int storage = CSR_STORAGE;
-    long long process_shift = compute_process_shift(0/*shard shift*/, traversal, storage, edges_count, _outgoing_graph_is_stored);
+    long long process_shift = compute_process_shift(traversal, storage);
 
     for (int front_pos = 0; front_pos < frontier_segment_size; front_pos++)
     {
@@ -127,7 +127,7 @@ void GraphAbstractionsNEC::vector_core_per_vertex_kernel_sparse(VectorCSRGraph &
 
     TraversalDirection traversal = current_traversal_direction;
     int storage = CSR_STORAGE;
-    long long process_shift = compute_process_shift(0/*shard shift*/, traversal, storage, edges_count, _outgoing_graph_is_stored);
+    long long process_shift = compute_process_shift(traversal, storage);
 
     #pragma omp for schedule(static)
     for (int front_pos = 0; front_pos < frontier_segment_size; front_pos++)
@@ -216,7 +216,7 @@ void GraphAbstractionsNEC::collective_vertex_processing_kernel_sparse(VectorCSRG
 
     TraversalDirection traversal = current_traversal_direction;
     int storage = CSR_STORAGE;
-    long long process_shift = compute_process_shift(0/*shard shift*/, traversal, storage, edges_count, _outgoing_graph_is_stored);
+    long long process_shift = compute_process_shift(traversal, storage);
 
     long long int reg_start[VECTOR_LENGTH];
     long long int reg_end[VECTOR_LENGTH];
