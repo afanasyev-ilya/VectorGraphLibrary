@@ -36,17 +36,16 @@ int main(int argc, char **argv)
 
         // prepare weights and distances
         int source_vertex = 0;
-        VerticesArray<float> distances(graph, SCATTER);
+        VerticesArray<float> distances(graph, Parser::convert_traversal_type(parser.get_traversal_direction()));
         EdgesArray<float> weights(graph);
         weights.set_all_random(MAX_WEIGHT);
-        //weights.set_all_constant(1.3);
         weights.print();
 
         // start algorithm
         VGL_RUNTIME::start_measuring_stats();
         for(int i = 0; i < parser.get_number_of_rounds(); i++)
         {
-            source_vertex = graph.select_random_nz_vertex(SCATTER);
+            source_vertex = graph.select_random_nz_vertex(Parser::convert_traversal_type(parser.get_traversal_direction()));
             ShortestPaths::vgl_dijkstra(graph, weights, distances, source_vertex,
                                         parser.get_algorithm_frontier_type(),
                                         parser.get_traversal_direction());
@@ -56,12 +55,9 @@ int main(int argc, char **argv)
         if(parser.get_check_flag())
         {
             VerticesArray<float> check_distances(graph, SCATTER);
+            source_vertex = graph.reorder(source_vertex, Parser::convert_traversal_type(parser.get_traversal_direction()), SCATTER);
             ShortestPaths::seq_dijkstra(graph, weights, check_distances, source_vertex);
-
-            distances.print();
-            check_distances.print();
-
-            verify_results(distances, check_distances, graph.get_vertices_count());
+            verify_results(distances, check_distances, graph.get_vertices_count(), 0);
         }
 
         VGL_RUNTIME::finalize_library();

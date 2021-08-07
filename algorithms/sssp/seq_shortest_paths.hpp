@@ -9,8 +9,6 @@ template <typename _T>
 void SSSP::seq_dijkstra(VGL_Graph &_graph, EdgesArray<_T> &_weights, VerticesArray<_T> &_distances,
                         int _source_vertex)
 {
-    _source_vertex = _graph.reorder(_source_vertex, ORIGINAL, SCATTER);
-
     Timer tm;
     tm.start();
 
