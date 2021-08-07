@@ -299,13 +299,13 @@ void SSSP::vgl_dijkstra(VGL_Graph &_graph,
     if(_frontier_type == ALL_ACTIVE)
     {
         if(_traversal_direction == PUSH_TRAVERSAL)
-            vgl_dijkstra_all_active_push(_graph, _weights, _distances, _graph.reorder(_source_vertex, ORIGINAL, SCATTER));
+            vgl_dijkstra_all_active_push(_graph, _weights, _distances, _source_vertex);
         else if(_traversal_direction == PULL_TRAVERSAL)
-            vgl_dijkstra_all_active_pull(_graph, _weights, _distances, _graph.reorder(_source_vertex, ORIGINAL, GATHER));
+            vgl_dijkstra_all_active_pull(_graph, _weights, _distances, _source_vertex);
     }
     else if(_frontier_type == PARTIAL_ACTIVE)
     {
-        vgl_dijkstra_partial_active(_graph, _weights, _distances, _graph.reorder(_source_vertex, ORIGINAL, SCATTER));
+        vgl_dijkstra_partial_active(_graph, _weights, _distances, _source_vertex);
     }
 }
 #endif

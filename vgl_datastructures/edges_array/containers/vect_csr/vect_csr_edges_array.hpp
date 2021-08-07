@@ -51,23 +51,18 @@ void EdgesArray_VectorCSR<_T>::set_all_constant(_T _const)
 template <typename _T>
 void EdgesArray_VectorCSR<_T>::set_all_random(_T _max_rand)
 {
-    cout << "here " << endl;
     VectorCSRGraph *outgoing_container = (VectorCSRGraph *)this->graph_ptr->get_outgoing_data();
     VectorCSRGraph *incoming_container = (VectorCSRGraph *)this->graph_ptr->get_incoming_data();
 
     RandomGenerator rng_api;
     rng_api.generate_array_of_random_values<_T>(outgoing_edges, this->edges_count, _max_rand);
-    cout << "here 2 " << endl;
     outgoing_container->get_ve_ptr()->copy_array_from_csr_to_ve(outgoing_edges_ve, outgoing_edges);
 
-    cout << "here 3 " << endl;
     if(this->graph_ptr->get_number_of_directions() == BOTH_DIRECTIONS)
     {
         this->graph_ptr->copy_outgoing_to_incoming_edges(outgoing_edges, incoming_edges);
-        cout << "here 4 " << endl;
         incoming_container->get_ve_ptr()->copy_array_from_csr_to_ve(incoming_edges_ve, incoming_edges);
     }
-    cout << "here 5 " << endl;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
