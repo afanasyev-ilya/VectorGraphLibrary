@@ -11,8 +11,7 @@ void GraphAbstractionsNEC::vector_engine_per_vertex_kernel_dense(VectorCSRGraph 
                                                                  EdgeOperation edge_op,
                                                                  VertexPreprocessOperation vertex_preprocess_op,
                                                                  VertexPostprocessOperation vertex_postprocess_op,
-                                                                 const int _first_edge,
-                                                                 bool _outgoing_graph_is_stored)
+                                                                 const int _first_edge)
 {
     #ifdef __PRINT_API_PERFORMANCE_STATS__
     Timer tm;
@@ -116,8 +115,7 @@ void GraphAbstractionsNEC::vector_core_per_vertex_kernel_dense(VectorCSRGraph &_
                                                                EdgeOperation edge_op,
                                                                VertexPreprocessOperation vertex_preprocess_op,
                                                                VertexPostprocessOperation vertex_postprocess_op,
-                                                               const int _first_edge,
-                                                               bool _outgoing_graph_is_stored)
+                                                               const int _first_edge)
 {
     #ifdef __PRINT_API_PERFORMANCE_STATS__
     Timer tm;
@@ -202,8 +200,7 @@ void GraphAbstractionsNEC::ve_collective_vertex_processing_kernel_dense(VectorCS
                                                                         EdgeOperation edge_op,
                                                                         VertexPreprocessOperation vertex_preprocess_op,
                                                                         VertexPostprocessOperation vertex_postprocess_op,
-                                                                        const int _first_edge,
-                                                                        bool _outgoing_graph_is_stored)
+                                                                        const int _first_edge)
 {
     #ifdef __PRINT_API_PERFORMANCE_STATS__
     Timer tm;

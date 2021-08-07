@@ -10,9 +10,7 @@ void GraphAbstractionsNEC::vector_engine_per_vertex_kernel_all_active(VectorCSRG
                                                                       EdgeOperation edge_op,
                                                                       VertexPreprocessOperation vertex_preprocess_op,
                                                                       VertexPostprocessOperation vertex_postprocess_op,
-                                                                      const int _first_edge,
-                                                                      const long long _shard_shift,
-                                                                      bool _outgoing_graph_is_stored)
+                                                                      const int _first_edge)
 {
     #ifdef __PRINT_API_PERFORMANCE_STATS__
     Timer tm;
@@ -110,9 +108,7 @@ void GraphAbstractionsNEC::vector_core_per_vertex_kernel_all_active(VectorCSRGra
                                                                     EdgeOperation edge_op,
                                                                     VertexPreprocessOperation vertex_preprocess_op,
                                                                     VertexPostprocessOperation vertex_postprocess_op,
-                                                                    const int _first_edge,
-                                                                    const long long _shard_shift,
-                                                                    bool _outgoing_graph_is_stored)
+                                                                    const int _first_edge)
 {
     #ifdef __PRINT_API_PERFORMANCE_STATS__
     Timer tm;
@@ -209,9 +205,7 @@ void GraphAbstractionsNEC::ve_collective_vertex_processing_kernel_all_active(Vec
                                                                              EdgeOperation edge_op,
                                                                              VertexPreprocessOperation vertex_preprocess_op,
                                                                              VertexPostprocessOperation vertex_postprocess_op,
-                                                                             const int _first_edge,
-                                                                             const long long _shard_shift,
-                                                                             bool _outgoing_graph_is_stored)
+                                                                             const int _first_edge)
 {
     #ifdef __PRINT_API_PERFORMANCE_STATS__
     Timer tm;

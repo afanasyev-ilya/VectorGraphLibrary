@@ -64,9 +64,7 @@ private:
                         CollectiveEdgeOperation &&collective_edge_op,
                         CollectiveVertexPreprocessOperation &&collective_vertex_preprocess_op,
                         CollectiveVertexPostprocessOperation &&collective_vertex_postprocess_op,
-                        int _first_edge,
-                        const long long _shard_shift,
-                        bool _outgoing_graph_is_stored,
+                        int _first_edge
                         bool _inner_mpi_processing);
 
     template <typename EdgeOperation>
@@ -89,9 +87,7 @@ private:
                                                            EdgeOperation edge_op,
                                                            VertexPreprocessOperation vertex_preprocess_op,
                                                            VertexPostprocessOperation vertex_postprocess_op,
-                                                           const int _first_edge,
-                                                           const long long _shard_shift,
-                                                           bool _outgoing_graph_is_stored);
+                                                           const int _first_edge);
 
     // all-active advance inner implementation
     template <typename EdgeOperation, typename VertexPreprocessOperation,
@@ -102,9 +98,7 @@ private:
                                                          EdgeOperation edge_op,
                                                          VertexPreprocessOperation vertex_preprocess_op,
                                                          VertexPostprocessOperation vertex_postprocess_op,
-                                                         const int _first_edge,
-                                                         const long long _shard_shift,
-                                                         bool _outgoing_graph_is_stored);
+                                                         const int _first_edge);
 
     // all-active advance inner implementation
     template <typename EdgeOperation, typename VertexPreprocessOperation,
@@ -115,9 +109,7 @@ private:
                                                                   EdgeOperation edge_op,
                                                                   VertexPreprocessOperation vertex_preprocess_op,
                                                                   VertexPostprocessOperation vertex_postprocess_op,
-                                                                  const int _first_edge,
-                                                                  const long long _shard_shift,
-                                                                  bool _outgoing_graph_is_stored);
+                                                                  const int _first_edge);
 
     // dense advance implementation
     template <typename EdgeOperation, typename VertexPreprocessOperation,
@@ -129,8 +121,7 @@ private:
                                                       EdgeOperation edge_op,
                                                       VertexPreprocessOperation vertex_preprocess_op,
                                                       VertexPostprocessOperation vertex_postprocess_op,
-                                                      const int _first_edge,
-                                                      bool _outgoing_graph_is_stored);
+                                                      const int _first_edge);
 
     // dense advance implementation
     template <typename EdgeOperation, typename VertexPreprocessOperation,
@@ -142,8 +133,7 @@ private:
                                                     EdgeOperation edge_op,
                                                     VertexPreprocessOperation vertex_preprocess_op,
                                                     VertexPostprocessOperation vertex_postprocess_op,
-                                                    const int _first_edge,
-                                                    bool _outgoing_graph_is_stored);
+                                                    const int _first_edge);
 
     // dense advance implementation
     template <typename EdgeOperation, typename VertexPreprocessOperation,
@@ -155,8 +145,7 @@ private:
                                                              EdgeOperation edge_op,
                                                              VertexPreprocessOperation vertex_preprocess_op,
                                                              VertexPostprocessOperation vertex_postprocess_op,
-                                                             const int _first_edge,
-                                                             bool _outgoing_graph_is_stored);
+                                                             const int _first_edge);
 
     // sparse advance implementation
     template <typename EdgeOperation, typename VertexPreprocessOperation,
@@ -166,8 +155,7 @@ private:
                                                        EdgeOperation edge_op,
                                                        VertexPreprocessOperation vertex_preprocess_op,
                                                        VertexPostprocessOperation vertex_postprocess_op,
-                                                       const int _first_edge,
-                                                       bool _outgoing_graph_is_stored);
+                                                       const int _first_edge);
 
     // sparse advance implementation
     template <typename EdgeOperation, typename VertexPreprocessOperation,
@@ -177,8 +165,7 @@ private:
                                                      EdgeOperation edge_op,
                                                      VertexPreprocessOperation vertex_preprocess_op,
                                                      VertexPostprocessOperation vertex_postprocess_op,
-                                                     const int _first_edge,
-                                                     bool _outgoing_graph_is_stored);
+                                                     const int _first_edge);
 
     // sparse advance implementation
     template <typename EdgeOperation, typename VertexPreprocessOperation,
@@ -190,8 +177,7 @@ private:
                                                            EdgeOperation edge_op,
                                                            VertexPreprocessOperation vertex_preprocess_op,
                                                            VertexPostprocessOperation vertex_postprocess_op,
-                                                           const int _first_edge,
-                                                           bool _outgoing_graph_is_stored);
+                                                           const int _first_edge);
 
     template <typename FilterCondition>
     void estimate_sorted_frontier_part_size(FrontierVectorCSR &_frontier,
