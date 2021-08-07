@@ -37,12 +37,6 @@ private:
     vgl_sort_indexes *edges_reorder_indexes; // allows to convert VectorCSRGraph edges (and weights) from sorted to original order
 
     VectorExtension last_vertices_ve; // store last vertices in the vector extension
-    
-    #ifdef __USE_GPU__
-    int gpu_grid_threshold_vertex;
-    int gpu_block_threshold_vertex;
-    int gpu_warp_threshold_vertex;
-    #endif
 
     #if defined(__USE_NEC_SX_AURORA__) || defined(__USE_MULTICORE__)
     int vector_engine_threshold_vertex;
@@ -90,18 +84,6 @@ private:
     void reorder_to_sorted(char *_data, char *_buffer, size_t _elem_size);
     // reorders a vertexArray(pointer)  from sorted (undirectedCSR) to original (edges list)
     void reorder_to_original(char *_data, char *_buffer, size_t _elem_size);
-
-    // allows to save edge reorder indexes
-    void update_edge_reorder_indexes_using_superposition(vgl_sort_indexes *_edges_reorder_indexes);
-    // in-place edges reorder from original to sorted, buffer can be provided for better speed
-    template <typename _T>
-    void reorder_edges_to_sorted(_T *_data, _T *_buffer = NULL);
-    // in-place edges reorder from sorted to original, buffer can be provided for better speed
-    template <typename _T>
-    void reorder_edges_to_original(_T *_data, _T *_buffer = NULL);
-    // allows to copy data from original (usually EdgesList weights) to sorted. Original array can be larger (used in sharded API).
-    template <typename _T>
-    void reorder_and_copy_edges_from_original_to_sorted(_T *_dst_sorted, _T *_src_original);
 
     // allows to get position of specified edge in CSR representation
     inline long long get_csr_edge_id(int _src_id, int _dst_id);

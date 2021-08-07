@@ -67,18 +67,10 @@ public:
     int select_random_nz_vertex(TraversalDirection _direction = ORIGINAL);
 
     template <typename _T>
-    void copy_outgoing_to_incoming_edges(_T *_outgoing_edges, _T *_incoming_edges)
-    {
-        CSRGraph *my_ptr = (CSRGraph *)incoming_data;
-        my_ptr->reorder_edges_gather(_outgoing_edges /* src */, _incoming_edges /* dst */);
-    }
+    void copy_outgoing_to_incoming_edges(_T *_outgoing_edges, _T *_incoming_edges);
 
     template <typename _T>
-    void copy_incoming_to_outgoing_edges(_T *_outgoing_edges, _T *_incoming_edges)
-    {
-        CSRGraph *my_ptr = (CSRGraph *)incoming_data;
-        my_ptr->reorder_edges_scatter(_outgoing_edges /* src */, _incoming_edges /* dst */);
-    }
+    void copy_incoming_to_outgoing_edges(_T *_outgoing_edges, _T *_incoming_edges);
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

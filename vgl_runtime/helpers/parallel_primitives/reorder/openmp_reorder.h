@@ -3,7 +3,7 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template <typename _T, typename _TIndex>
-void openmp_reorder_gather(_T *_data, _T *_data_buffer, _TIndex *_indexes, _TIndex _size)
+void openmp_reorder_gather(_T *_result, _T *_buffer, _TIndex *_indexes, _TIndex _size)
 {
     if(omp_in_parallel())
     {
@@ -11,77 +11,110 @@ void openmp_reorder_gather(_T *_data, _T *_data_buffer, _TIndex *_indexes, _TInd
         #pragma _NEC vovertake
         #pragma _NEC novob
         #pragma _NEC vector
-        #pragma omp parallel for
+        #pragma omp for
         for(_TIndex i = 0; i < _size; i++)
         {
-            _data_buffer[i] = _data[_indexes[i]];
+            _buffer[i] = _result[_indexes[i]];
         }
 
         #pragma _NEC ivdep
-        #pragma omp parallel for
+        #pragma omp for
         for(_TIndex i = 0; i < _size; i++)
         {
-            _data[i] = _data_buffer[i];
+            _result[i] = _buffer[i];
         }
     }
     else
     {
-        openmp_reorder_gather(_data, _data_buffer, _indexes, _size);
+        #pragma omp parallel
+        {
+            openmp_reorder_gather(_result, _buffer, _indexes, _size);
+        }
     }
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template <typename _T, typename _TIndex>
-void openmp_reorder_wrapper_gather_inplace(_T *_gather_from, _T *_output, _TIndex *_indexes, _TIndex _size)
+void openmp_reorder_gather_inplace(_T *_gather_from, _T *_output, _TIndex *_indexes, _TIndex _size)
 {
-    #pragma _NEC ivdep
-    #pragma _NEC vovertake
-    #pragma _NEC novob
-    #pragma _NEC vector
-    #pragma omp for
-    for(_TIndex i = 0; i < _size; i++)
+    if(omp_in_parallel())
     {
-        _output[i] = _gather_from[_indexes[i]];
+        #pragma _NEC ivdep
+        #pragma _NEC vovertake
+        #pragma _NEC novob
+        #pragma _NEC vector
+        #pragma omp for
+        for (_TIndex i = 0; i < _size; i++)
+        {
+            _output[i] = _gather_from[_indexes[i]];
+        }
+    }
+    else
+    {
+        #pragma omp parallel
+        {
+            openmp_reorder_gather_inplace(_gather_from, _output, _indexes, _size);
+        }
     }
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template <typename _T, typename _TIndex>
-void openmp_reorder_wrapper_scatter(_T *_data, _T *_data_buffer, _TIndex *_indexes, _TIndex _size)
+void openmp_reorder_scatter(_T *_result, _T *_buffer, _TIndex *_indexes, _TIndex _size)
 {
-    #pragma _NEC ivdep
-    #pragma _NEC vovertake
-    #pragma _NEC novob
-    #pragma _NEC vector
-    #pragma omp for
-    for(_TIndex i = 0; i < _size; i++)
+    if(omp_in_parallel())
     {
-        _data_buffer[_indexes[i]] = _data[i];
-    }
+        #pragma _NEC ivdep
+        #pragma _NEC vovertake
+        #pragma _NEC novob
+        #pragma _NEC vector
+        #pragma omp for
+        for(_TIndex i = 0; i < _size; i++)
+        {
+            _buffer[_indexes[i]] = _result[i];
+        }
 
-    #pragma _NEC ivdep
-    #pragma omp for
-    for(_TIndex i = 0; i < _size; i++)
+        #pragma _NEC ivdep
+        #pragma omp for
+        for(_TIndex i = 0; i < _size; i++)
+        {
+            _result[i] = _buffer[i];
+        }
+    }
+    else
     {
-        _data[i] = _data_buffer[i];
+        #pragma omp parallel
+        {
+            openmp_reorder_scatter(_result, _buffer, _indexes, _size);
+        }
     }
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template <typename _T, typename _TIndex>
-void openmp_reorder_wrapper_scatter_copy(_T *_in_data, _T *_out_data, _TIndex *_indexes, _TIndex _size)
+void openmp_reorder_scatter_inplace(_T *_scatter_from, _T *_output, _TIndex *_indexes, _TIndex _size)
 {
-    #pragma _NEC ivdep
-    #pragma _NEC vovertake
-    #pragma _NEC novob
-    #pragma _NEC vector
-    #pragma omp for
-    for(_TIndex i = 0; i < _size; i++)
+    if(omp_in_parallel())
     {
-        _out_data[_indexes[i]] = _in_data[i];
+        #pragma _NEC ivdep
+        #pragma _NEC vovertake
+        #pragma _NEC novob
+        #pragma _NEC vector
+        #pragma omp for
+        for(_TIndex i = 0; i < _size; i++)
+        {
+            _output[_indexes[i]] = _scatter_from[i];
+        }
+    }
+    else
+    {
+        #pragma omp parallel
+        {
+            openmp_reorder_scatter(_scatter_from, _output, _indexes, _size);
+        }
     }
 }
 

@@ -71,34 +71,9 @@ public:
     void import(EdgesContainer &_edges_container);
 
     template <typename _T>
-    void reorder_edges_gather(_T *_src, _T *_dst)
-    {
-        #if defined(__USE_NEC_SX_AURORA__) || defined(__USE_MULTICORE__)
-        #pragma omp parallel
-        {
-            openmp_reorder_wrapper_gather_inplace(_src, _dst, edges_reorder_indexes, this->edges_count);
-        }
-        #endif
-
-        #if defined(__USE_GPU__)
-        cuda_reorder_wrapper_gather_inplace(_src, _dst, edges_reorder_indexes, this->edges_count);
-        #endif
-    }
-
+    void reorder_edges_gather(_T *_src, _T *_dst);
     template <typename _T>
-    void reorder_edges_gather(_T *_src, _T *_dst)
-    {
-        #if defined(__USE_NEC_SX_AURORA__) || defined(__USE_MULTICORE__)
-        #pragma omp parallel
-        {
-            openmp_reorder_scatter_gather_inplace(_src, _dst, edges_reorder_indexes, this->edges_count);
-        }
-        #endif
-
-        #if defined(__USE_GPU__)
-        cuda_reorder_wrapper_scatter_inplace(_src, _dst, edges_reorder_indexes, this->edges_count);
-        #endif
-    }
+    void reorder_edges_scatter(_T *_src, _T *_dst);
 
     /* vertices API */
     int select_random_nz_vertex();
@@ -120,6 +95,7 @@ int          *adjacent_ids    = input_graph.get_adjacent_ids    ();\
 #include "csr_graph.hpp"
 #include "import.hpp"
 #include "print.hpp"
+#include "reorder.hpp"
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 

@@ -224,3 +224,22 @@ int VGL_Graph::reorder(int _vertex_id, TraversalDirection _input_dir, TraversalD
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+template <typename _T>
+void VGL_Graph::copy_outgoing_to_incoming_edges(_T *_outgoing_edges, _T *_incoming_edges)
+{
+    CSRGraph *my_ptr = (CSRGraph *)incoming_data;
+    my_ptr->reorder_edges_gather(_outgoing_edges /* src */, _incoming_edges /* dst */);
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+template <typename _T>
+void VGL_Graph::copy_incoming_to_outgoing_edges(_T *_outgoing_edges, _T *_incoming_edges)
+{
+    CSRGraph *my_ptr = (CSRGraph *)incoming_data;
+    my_ptr->reorder_edges_scatter(_outgoing_edges /* src */, _incoming_edges /* dst */);
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
