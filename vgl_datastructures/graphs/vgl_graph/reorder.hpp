@@ -220,7 +220,7 @@ int VGL_Graph::reorder(int _vertex_id, TraversalDirection _input_dir, TraversalD
             return outgoing_data->reorder_to_sorted(incoming_data->reorder_to_original(_vertex_id));
         }
     }
-    return -1;
+    return _vertex_id; // if input_dir == output_dir
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
