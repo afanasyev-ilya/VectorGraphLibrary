@@ -3,25 +3,13 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template <typename _T>
-EdgesArray_EL<_T>::EdgesArray_EL(VGL_Graph &_graph, _T *_data_ptr)
+EdgesArray_EL<_T>::EdgesArray_EL(VGL_Graph &_graph)
 {
-    this->total_array_size = _graph.get_edges_count();
-
-    MemoryAPI::allocate_array(&this->edges_data, this->total_array_size);
+    this->total_array_size = _graph.get_edges_count() * 2;
+    this->edges_count = _graph.get_edges_count();
 
     this->graph_ptr = &_graph;
     this->is_copy = false;
-}
-
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-template <typename _T>
-EdgesArray_EL<_T>::EdgesArray_EL(const EdgesArray_EL<_T> &_copy_obj)
-{
-    this->graph_ptr = _copy_obj.graph_ptr;
-    this->edges_data = _copy_obj.edges_data;
-    this->total_array_size = _copy_obj.total_array_size;
-    this->is_copy = true;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -78,7 +66,13 @@ void EdgesArray_EL<_T>::print()
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-template class EdgesArray_EL<int>;
-template class EdgesArray_EL<float>;
+template <typename _T>
+void EdgesArray_EL<_T>::attach_pointer(_T *_outer_data)
+{
+    this->edges_data = _outer_data;
+
+    outgoing_edges = this->edges_data;
+    incoming_edges = &(this->edges_data[this->edges_count]);
+}
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

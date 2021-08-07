@@ -73,10 +73,8 @@ public:
     // creates VectorCSRGraph format from EdgesListGraph
     void import(EdgesContainer &_edges_container);
 
-    template <typename _T>
-    void reorder_edges_gather(_T *_src, _T *_dst);
-    template <typename _T>
-    void reorder_edges_scatter(_T *_src, _T *_dst);
+    void reorder_edges_gather(char *_src, char *_dst, size_t _elem_size) final;
+    void reorder_edges_scatter(char *_src, char *_dst, size_t _elem_size) final;
 
     /* vertices API */
     int select_random_nz_vertex();

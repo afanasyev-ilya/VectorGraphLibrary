@@ -29,6 +29,9 @@ public:
     virtual void reorder_to_original(char *_data, char *_buffer, size_t _elem_size) = 0;
     virtual void reorder_to_sorted(char *_data, char *_buffer, size_t _elem_size) = 0;
 
+    virtual void reorder_edges_gather(char *_src, char *_dst, size_t _elem_size) = 0;
+    virtual void reorder_edges_scatter(char *_src, char *_dst, size_t _elem_size) = 0;
+
     /* file load/store API */
     virtual void save_main_content_to_binary_file(FILE *_graph_file) = 0;
     virtual void load_main_content_from_binary_file(FILE *_graph_file) = 0;

@@ -159,6 +159,9 @@ public:
     void remove_loops_and_multiple_arcs(); // WARNING! this function is unsafe to call
     void sort_adjacent_edges();
 
+    void reorder_edges_gather(char *_src, char *_dst, size_t _elem_size) final;
+    void reorder_edges_scatter(char *_src, char *_dst, size_t _elem_size) final;
+
     // selects random vertex (possibly with zero degree)
     int select_random_nz_vertex() final;
 

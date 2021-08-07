@@ -71,6 +71,9 @@ public:
     // allows to import form 2 arrays (src_ids and dst_ids)
     void import(EdgesContainer &_edges_container);
 
+    void reorder_edges_gather(char *_src, char *_dst, size_t _elem_size) final {};
+    void reorder_edges_scatter(char *_src, char *_dst, size_t _elem_size) final {};
+
     // 2D segmenting preprocessing (each segment fits into LLC cache)
     void preprocess_into_segmented();
 

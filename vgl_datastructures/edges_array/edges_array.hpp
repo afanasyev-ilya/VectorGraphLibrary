@@ -5,8 +5,23 @@
 template <typename _T>
 EdgesArray<_T>::EdgesArray(VGL_Graph &_graph)
 {
-    // TODO if
-    container = new EdgesArray_CSR<_T>(_graph);
+    if(_graph.get_container_type() == VECTOR_CSR_GRAPH)
+    {
+        container = new EdgesArray_VectorCSR<_T>(_graph);
+    }
+    /*else if(_graph.get_container_type() == EDGES_LIST_GRAPH)
+    {
+        container = new EdgesArray_EL<_T>(_graph);
+    }*/
+    else if(_graph.get_container_type() == CSR_GRAPH)
+    {
+        container = new EdgesArray_CSR<_T>(_graph);
+    }
+    else
+    {
+        throw "Error in EdgesArray::EdgesArray";
+    }
+
 
     MemoryAPI::allocate_array(&edges_data, container->get_total_array_size());
 

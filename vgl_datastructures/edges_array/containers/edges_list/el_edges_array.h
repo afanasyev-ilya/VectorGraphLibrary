@@ -7,8 +7,7 @@ class EdgesArray_EL : public BaseEdgesArray<_T>
 {
 public:
     /* constructors and destructors */
-    EdgesArray_EL(VGL_Graph &_graph, _T *_data_ptr);
-    EdgesArray_EL(const EdgesArray_EL<_T> &_copy_obj);
+    EdgesArray_EL(VGL_Graph &_graph);
     ~EdgesArray_EL();
 
     /* initialization API */
@@ -18,10 +17,12 @@ public:
 
     /* print API */
     void print();
+
+    void attach_pointer(_T *_outer_data) final;
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#include "edges_array.hpp"
+#include "el_edges_array.hpp"
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

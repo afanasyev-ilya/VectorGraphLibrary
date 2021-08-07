@@ -228,8 +228,8 @@ int VGL_Graph::reorder(int _vertex_id, TraversalDirection _input_dir, TraversalD
 template <typename _T>
 void VGL_Graph::copy_outgoing_to_incoming_edges(_T *_outgoing_edges, _T *_incoming_edges)
 {
-    CSRGraph *my_ptr = (CSRGraph *)incoming_data;
-    my_ptr->reorder_edges_gather(_outgoing_edges /* src */, _incoming_edges /* dst */);
+    if(get_number_of_directions() == BOTH_DIRECTIONS)
+        incoming_data->reorder_edges_gather((char*)_outgoing_edges /* src */, (char*)_incoming_edges /* dst */, sizeof(_T));
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -237,8 +237,8 @@ void VGL_Graph::copy_outgoing_to_incoming_edges(_T *_outgoing_edges, _T *_incomi
 template <typename _T>
 void VGL_Graph::copy_incoming_to_outgoing_edges(_T *_outgoing_edges, _T *_incoming_edges)
 {
-    CSRGraph *my_ptr = (CSRGraph *)incoming_data;
-    my_ptr->reorder_edges_scatter(_outgoing_edges /* src */, _incoming_edges /* dst */);
+    if(get_number_of_directions() == BOTH_DIRECTIONS)
+        incoming_data->reorder_edges_scatter((char*)_outgoing_edges /* src */, (char*)_incoming_edges /* dst */, sizeof(_T));
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
