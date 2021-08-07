@@ -46,10 +46,13 @@ int main(int argc, char **argv)
         for(int i = 0; i < parser.get_number_of_rounds(); i++)
         {
             source_vertex = graph.select_random_nz_vertex(Parser::convert_traversal_type(parser.get_traversal_direction()));
-            cout << "source vertex: " << source_vertex << endl;
             ShortestPaths::vgl_dijkstra(graph, weights, distances, source_vertex,
                                         parser.get_algorithm_frontier_type(),
                                         parser.get_traversal_direction());
+
+            ShortestPaths::vgl_dijkstra(graph, weights, distances, source_vertex,
+                                        parser.get_algorithm_frontier_type(),
+                                        PUSH_TRAVERSAL);
         }
         VGL_RUNTIME::stop_measuring_stats(graph.get_edges_count(), parser);
 
@@ -57,7 +60,6 @@ int main(int argc, char **argv)
         {
             VerticesArray<float> check_distances(graph, SCATTER);
             source_vertex = graph.reorder(source_vertex, Parser::convert_traversal_type(parser.get_traversal_direction()), SCATTER);
-            cout << "source vertex seq: " << source_vertex << endl;
             ShortestPaths::seq_dijkstra(graph, weights, check_distances, source_vertex);
 
             distances.print();

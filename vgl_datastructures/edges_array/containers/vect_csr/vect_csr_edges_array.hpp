@@ -51,6 +51,8 @@ void EdgesArray_VectorCSR<_T>::set_all_constant(_T _const)
 template <typename _T>
 void EdgesArray_VectorCSR<_T>::set_all_random(_T _max_rand)
 {
+    set_all_constant(0);
+
     VectorCSRGraph *outgoing_container = (VectorCSRGraph *)this->graph_ptr->get_outgoing_data();
     VectorCSRGraph *incoming_container = (VectorCSRGraph *)this->graph_ptr->get_incoming_data();
 
