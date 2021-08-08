@@ -310,7 +310,9 @@ void VectorCSRGraph::import(EdgesContainer &_edges_container)
     this->construct_CSR(_edges_container);
 
     // sort edges
+    #ifdef __SORT_ADJACENT_EDGES__
     this->sort_adjacent_edges();
+    #endif
 
     // save conversion arrays into graph
     MemoryAPI::copy(forward_conversion, loc_forward_conversion, this->vertices_count);
