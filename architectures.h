@@ -2,6 +2,8 @@
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+#define __USE_CSR_VERTEX_GROUPS__
+
 #ifdef __USE_NEC_SX_AURORA__
 //#warning "NEC SX-Aurora TSUBASA API is used!"
 #pragma message("NEC SX-Aurora TSUBASA API is used!")
@@ -16,6 +18,12 @@
 //#warning "GPU API is used!"
 #pragma message("GPU API is used!")
 #endif
+
+#ifdef __USE_CSR_VERTEX_GROUPS__
+//#warning "NEC SX-Aurora TSUBASA API is used!"
+#pragma message("CSR vertex groups are used!")
+#endif
+
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // SX-Aurora properties

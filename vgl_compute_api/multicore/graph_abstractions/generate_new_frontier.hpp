@@ -150,7 +150,9 @@ void GraphAbstractionsMulticore::generate_new_frontier_worker(Graph_Container &_
     performance_stats.update_gnf_time(tm_wall);
     performance_stats.update_bytes_requested(work*4.0*sizeof(int));
 
+    #ifdef __USE_CSR_VERTEX_GROUPS__
     _frontier.fill_vertex_group_data();
+    #endif
 
     #ifdef __PRINT_API_PERFORMANCE_STATS__
     tm_wall.print_bandwidth_stats("GNF", vertices_count, 4.0*sizeof(int));

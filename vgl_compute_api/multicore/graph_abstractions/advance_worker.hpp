@@ -57,7 +57,22 @@ void GraphAbstractionsMulticore::advance_worker(CSRGraph &_graph,
 
     long long process_shift = compute_process_shift(current_traversal_direction, CSR_STORAGE);
 
-    double t1 = omp_get_wtime();
+    #ifdef __USE_CSR_VERTEX_GROUPS__
+    vertex_group_advance_changed_vl(_frontier.large_degree, vertex_pointers, adjacent_ids, edge_op, vertex_preprocess_op,
+                                    vertex_postprocess_op, process_shift);
+    vertex_group_advance_fixed_vl(_frontier.degree_256_to_128, vertex_pointers, adjacent_ids, edge_op, vertex_preprocess_op,
+                                  vertex_postprocess_op, process_shift);
+    vertex_group_advance_fixed_vl(_frontier.degree_128_to_64, vertex_pointers, adjacent_ids, edge_op, vertex_preprocess_op,
+                                  vertex_postprocess_op, process_shift);
+    vertex_group_advance_sparse(_frontier.degree_64_to_32, vertex_pointers, adjacent_ids, edge_op, vertex_preprocess_op,
+                                vertex_postprocess_op, process_shift);
+    vertex_group_advance_sparse(_frontier.degree_32_to_16, vertex_pointers, adjacent_ids, edge_op, vertex_preprocess_op,
+                                vertex_postprocess_op, process_shift);
+    vertex_group_advance_sparse(_frontier.degree_16_to_8, vertex_pointers, adjacent_ids, edge_op, vertex_preprocess_op,
+                                vertex_postprocess_op, process_shift);
+    vertex_group_advance_sparse(_frontier.degree_8_to_0, vertex_pointers, adjacent_ids, edge_op, vertex_preprocess_op,
+                                vertex_postprocess_op, process_shift);
+    #else
     if(_frontier.get_sparsity_type() == ALL_ACTIVE_FRONTIER)
     {
         #pragma omp for schedule(guided, 1024)
@@ -118,32 +133,7 @@ void GraphAbstractionsMulticore::advance_worker(CSRGraph &_graph,
             vertex_postprocess_op(src_id, connections_count, 0);
         }
     }
-    double t2 = omp_get_wtime();
-    #pragma omp master
-    {
-        cout << " ALL ACTIVE old: " << 1000.0 * (t2 - t1) << " ms" << endl;
-    }
-
-    t1 = omp_get_wtime();
-    vertex_group_advance_changed_vl(_frontier.large_degree, vertex_pointers, adjacent_ids, edge_op, vertex_preprocess_op,
-                                    vertex_postprocess_op, process_shift);
-    vertex_group_advance_fixed_vl(_frontier.degree_256_to_128, vertex_pointers, adjacent_ids, edge_op, vertex_preprocess_op,
-                                  vertex_postprocess_op, process_shift);
-    vertex_group_advance_fixed_vl(_frontier.degree_128_to_64, vertex_pointers, adjacent_ids, edge_op, vertex_preprocess_op,
-                                  vertex_postprocess_op, process_shift);
-    vertex_group_advance_sparse(_frontier.degree_64_to_32, vertex_pointers, adjacent_ids, edge_op, vertex_preprocess_op,
-                                vertex_postprocess_op, process_shift);
-    vertex_group_advance_sparse(_frontier.degree_32_to_16, vertex_pointers, adjacent_ids, edge_op, vertex_preprocess_op,
-                                vertex_postprocess_op, process_shift);
-    vertex_group_advance_sparse(_frontier.degree_16_to_8, vertex_pointers, adjacent_ids, edge_op, vertex_preprocess_op,
-                                vertex_postprocess_op, process_shift);
-    vertex_group_advance_sparse(_frontier.degree_8_to_0, vertex_pointers, adjacent_ids, edge_op, vertex_preprocess_op,
-                                vertex_postprocess_op, process_shift);
-    t2 = omp_get_wtime();
-    #pragma omp master
-    {
-        cout << " ALL ACTIVE new: " << 1000.0 * (t2 - t1) << " ms" << endl;
-    };
+    #endif
 
     tm.end();
     performance_stats.update_advance_time(tm);

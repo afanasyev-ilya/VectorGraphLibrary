@@ -2,7 +2,7 @@
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#include "vector_register/vector_registers.h"
+#include "../vector_register/vector_registers.h"
 #include <cstdarg>
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -64,7 +64,7 @@ private:
                         CollectiveEdgeOperation &&collective_edge_op,
                         CollectiveVertexPreprocessOperation &&collective_vertex_preprocess_op,
                         CollectiveVertexPostprocessOperation &&collective_vertex_postprocess_op,
-                        int _first_edge
+                        int _first_edge,
                         bool _inner_mpi_processing);
 
     template <typename EdgeOperation>
@@ -179,6 +179,36 @@ private:
                                                            VertexPostprocessOperation vertex_postprocess_op,
                                                            const int _first_edge);
 
+    template <typename EdgeOperation, typename VertexPreprocessOperation,
+            typename VertexPostprocessOperation>
+    inline void vertex_group_advance_changed_vl(CSRVertexGroup &_group_data,
+                                                long long *_vertex_pointers,
+                                                int *_adjacent_ids,
+                                                EdgeOperation edge_op,
+                                                VertexPreprocessOperation vertex_preprocess_op,
+                                                VertexPostprocessOperation vertex_postprocess_op,
+                                                long long _process_shift);
+
+    template <typename EdgeOperation, typename VertexPreprocessOperation,
+            typename VertexPostprocessOperation>
+    inline void vertex_group_advance_fixed_vl(CSRVertexGroup &_group_data,
+                                              long long *_vertex_pointers,
+                                              int *_adjacent_ids,
+                                              EdgeOperation edge_op,
+                                              VertexPreprocessOperation vertex_preprocess_op,
+                                              VertexPostprocessOperation vertex_postprocess_op,
+                                              long long _process_shift);
+
+    template <typename EdgeOperation, typename VertexPreprocessOperation,
+            typename VertexPostprocessOperation>
+    inline void vertex_group_advance_sparse(CSRVertexGroup &_group_data,
+                                            long long *_vertex_pointers,
+                                            int *_adjacent_ids,
+                                            EdgeOperation edge_op,
+                                            VertexPreprocessOperation vertex_preprocess_op,
+                                            VertexPostprocessOperation vertex_postprocess_op,
+                                            long long _process_shift);
+
     template <typename FilterCondition>
     void estimate_sorted_frontier_part_size(FrontierVectorCSR &_frontier,
                                             long long *_vertex_pointers,
@@ -275,6 +305,7 @@ public:
 #include "advance_all_active.hpp"
 #include "advance_dense.hpp"
 #include "advance_sparse.hpp"
+#include "advance_csr.hpp"
 #include "generate_new_frontier.hpp"
 #include "reduce.hpp"
 #ifdef __USE_MPI__

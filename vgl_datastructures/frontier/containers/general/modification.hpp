@@ -8,7 +8,9 @@ void FrontierGeneral::set_all_active()
     this->size = graph_ptr->get_vertices_count();
     neighbours_count = graph_ptr->get_edges_count();
 
+    #ifdef __USE_CSR_VERTEX_GROUPS__
     fill_vertex_group_data();
+    #endif
 
     #pragma omp parallel // dummy for performance evaluation
     {};
