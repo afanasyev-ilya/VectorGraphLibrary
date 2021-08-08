@@ -27,7 +27,7 @@ void GraphAbstractionsMulticore::vertex_group_advance_changed_vl(CSRVertexGroup 
         {
             int local_edge_pos = local_edge_pos - first;
             const long long internal_edge_pos = edge_pos;
-            const int vector_index = i % VECTOR_LENGTH;
+            const int vector_index = edge_pos % VECTOR_LENGTH;
             const long long external_edge_pos = _process_shift + internal_edge_pos;
 
             const int dst_id = _adjacent_ids[internal_edge_pos];

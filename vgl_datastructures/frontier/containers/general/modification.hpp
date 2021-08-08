@@ -86,10 +86,6 @@ void FrontierGeneral::create_vertices_group_array(CSRVertexGroup &_group_data, i
             pos++;
         }
     }
-
-    cout << "borders: " << _bottom << " " << _top << endl;
-    cout << "size: " << _group_data.size << endl;
-    cout << "neighbours: " << _group_data.neighbours << endl;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
