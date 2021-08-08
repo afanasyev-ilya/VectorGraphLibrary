@@ -67,6 +67,10 @@ public:
     inline void update_MPI_functions_time(Timer &_timer);
     #endif
 
+    inline void update_advance_stats(double _wall_time,
+                                     size_t _bytes,
+                                     size_t _edges);
+
     inline void update_advance_stats_vect_csr(double _wall_time,
                                           double _ve_part_time,
                                           double _vc_part_time,

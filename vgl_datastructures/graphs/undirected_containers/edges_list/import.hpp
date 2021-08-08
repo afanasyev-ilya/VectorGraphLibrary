@@ -121,8 +121,14 @@ void EdgesListGraph::import(EdgesContainer &_edges_container)
     MemoryAPI::copy(this->src_ids, _edges_container.get_src_ids(), _edges_container.get_edges_count());
     MemoryAPI::copy(this->dst_ids, _edges_container.get_dst_ids(), _edges_container.get_edges_count());
 
-    // TODO connections count
-    // preprocess to CSR BASE
+    MemoryAPI::set(connections_count, 0, this->vertices_count);
+    #pragma omp parallel for
+    for(long long i = 0; i < this->edges_count; i++)
+    {
+        int vertex = this->src_ids[i];
+        #pragma omp atomic
+        connections_count[vertex]++;
+    }
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

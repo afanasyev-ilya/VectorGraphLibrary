@@ -32,8 +32,6 @@ int main(int argc, char **argv)
         VGL_Graph graph(VGL_RUNTIME::select_graph_format(parser));
         VGL_RUNTIME::prepare_graph(graph, parser);
 
-        graph.print();
-
         // prepare weights and distances
         int source_vertex = 0;
         VerticesArray<float> distances(graph, Parser::convert_traversal_type(parser.get_traversal_direction()));

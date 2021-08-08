@@ -10,12 +10,23 @@ PerformanceStats::PerformanceStats()
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+void PerformanceStats::update_advance_stats(double _wall_time,
+                                            size_t _bytes,
+                                            size_t _edges)
+{
+    advance_time += _wall_time;
+    bytes_requested += _bytes;
+    edges_visited += _edges;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 void PerformanceStats::update_advance_stats_vect_csr(double _wall_time,
-                                                 double _ve_part_time,
-                                                 double _vc_part_time,
-                                                 double _collective_part_time,
-                                                 size_t _bytes,
-                                                 size_t _edges)
+                                                     double _ve_part_time,
+                                                     double _vc_part_time,
+                                                     double _collective_part_time,
+                                                     size_t _bytes,
+                                                     size_t _edges)
 {
     advance_time += _wall_time;
     advance_ve_part_time += _ve_part_time;

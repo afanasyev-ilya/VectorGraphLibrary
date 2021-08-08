@@ -36,8 +36,13 @@ void GraphAbstractionsNEC::advance_worker(EdgesListGraph &_graph,
     tm.end();
     performance_stats.update_advance_time(tm);
 
-    #ifdef __PRINT_API_PERFORMANCE_STATS__
     long long work = edges_count;
+    #pragma omp master
+    {
+        performance_stats.update_advance_stats(tm.get_time(), work*(INT_ELEMENTS_PER_EDGE + 1)*sizeof(int), work);
+    }
+
+    #ifdef __PRINT_API_PERFORMANCE_STATS__
     tm.print_time_and_bandwidth_stats("Advance (edges list)", work, (INT_ELEMENTS_PER_EDGE + 1)*sizeof(int));
     #endif
 }
@@ -142,8 +147,13 @@ void GraphAbstractionsNEC::advance_worker(CSRGraph &_graph,
     tm.end();
     performance_stats.update_advance_time(tm);
 
-    #ifdef __PRINT_API_PERFORMANCE_STATS__
     long long work = _frontier.get_neighbours_count();
+    #pragma omp master
+    {
+        performance_stats.update_advance_stats(tm.get_time(), work*(INT_ELEMENTS_PER_EDGE + 1)*sizeof(int), work);
+    }
+
+    #ifdef __PRINT_API_PERFORMANCE_STATS__
     tm.print_time_and_bandwidth_stats("Advance (CSR)", work, (INT_ELEMENTS_PER_EDGE + 1)*sizeof(int));
     #endif
 }
