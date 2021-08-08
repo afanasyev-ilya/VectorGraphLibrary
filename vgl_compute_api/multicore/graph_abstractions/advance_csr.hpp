@@ -20,18 +20,14 @@ void GraphAbstractionsMulticore::vertex_group_advance_changed_vl(CSRVertexGroup 
 
         vertex_preprocess_op(src_id, connections_count, 0);
 
-        #pragma _NEC cncall
-        #pragma _NEC ivdep
-        #pragma _NEC vovertake
-        #pragma _NEC novob
-        #pragma _NEC vob
-        #pragma _NEC vector
-        #pragma _NEC gather_reorder
+        #pragma simd
+        #pragma vector
+        #pragma ivdep
         for(long long edge_pos = first; edge_pos < last; edge_pos++)
         {
             int local_edge_pos = local_edge_pos - first;
             const long long internal_edge_pos = edge_pos;
-            const int vector_index = 0;//TODO
+            const int vector_index = i % VECTOR_LENGTH;
             const long long external_edge_pos = _process_shift + internal_edge_pos;
 
             const int dst_id = _adjacent_ids[internal_edge_pos];
@@ -64,13 +60,10 @@ void GraphAbstractionsMulticore::vertex_group_advance_fixed_vl(CSRVertexGroup &_
 
         vertex_preprocess_op(src_id, connections_count, 0);
 
-        #pragma _NEC cncall
-        #pragma _NEC ivdep
-        #pragma _NEC vovertake
-        #pragma _NEC novob
-        #pragma _NEC vob
-        #pragma _NEC vector
-        #pragma _NEC gather_reorder
+        #pragma simd
+        #pragma vector
+        #pragma ivdep
+        #pragma unroll(VECTOR_LENGTH)
         for(int i = 0; i < VECTOR_LENGTH; i++)
         {
             long long edge_pos = first + i;
@@ -80,6 +73,7 @@ void GraphAbstractionsMulticore::vertex_group_advance_fixed_vl(CSRVertexGroup &_
                 const long long internal_edge_pos = edge_pos;
                 const int vector_index = i;
                 const long long external_edge_pos = _process_shift + internal_edge_pos;
+
                 const int dst_id = _adjacent_ids[internal_edge_pos];
                 edge_op(src_id, dst_id, local_edge_pos, external_edge_pos, vector_index);
             }
@@ -126,8 +120,10 @@ void GraphAbstractionsMulticore::vertex_group_advance_sparse(CSRVertexGroup &_gr
     #pragma omp for schedule(static, 8)
     for(int idx = 0; idx < _group_data.size; idx += VECTOR_LENGTH)
     {
-        #pragma _NEC ivdep
-        #pragma _NEC vector
+        #pragma simd
+        #pragma vector
+        #pragma ivdep
+        #pragma unroll(VECTOR_LENGTH)
         for(int i = 0; i < VECTOR_LENGTH; i++)
         {
             if((idx + i) < _group_data.size)
@@ -142,7 +138,10 @@ void GraphAbstractionsMulticore::vertex_group_advance_sparse(CSRVertexGroup &_gr
         }
 
         int max_conn = 0;
-        #pragma _NEC vector
+        #pragma simd
+        #pragma vector
+        #pragma ivdep
+        #pragma unroll(VECTOR_LENGTH)
         for(int i = 0; i < VECTOR_LENGTH; i++)
         {
             int conn = connections_reg[i];
@@ -152,13 +151,10 @@ void GraphAbstractionsMulticore::vertex_group_advance_sparse(CSRVertexGroup &_gr
 
         for(int pos = 0; pos < max_conn; pos++)
         {
-            #pragma _NEC cncall
-            #pragma _NEC ivdep
-            #pragma _NEC vovertake
-            #pragma _NEC novob
-            #pragma _NEC vob
-            #pragma _NEC vector
-            #pragma _NEC gather_reorder
+            #pragma simd
+            #pragma vector
+            #pragma ivdep
+            #pragma unroll(VECTOR_LENGTH)
             for(int i = 0; i < VECTOR_LENGTH; i++)
             {
                 long long edge_pos = first_reg[i] + pos;

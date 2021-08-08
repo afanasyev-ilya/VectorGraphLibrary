@@ -61,14 +61,14 @@ void GraphAbstractionsMulticore::advance_worker(CSRGraph &_graph,
 
     long long process_shift = compute_process_shift(current_traversal_direction, CSR_STORAGE);
 
-    #ifdef __USE_CSR_VERTEX_GROUPS__
+    #ifdef __USE_CSR_VERTEX_GROUPS__ // can't used fixed VL here since VL < 256
     vertex_group_advance_changed_vl(_frontier.large_degree, vertex_pointers, adjacent_ids, edge_op, vertex_preprocess_op,
                                     vertex_postprocess_op, process_shift);
-    vertex_group_advance_fixed_vl(_frontier.degree_256_to_128, vertex_pointers, adjacent_ids, edge_op, vertex_preprocess_op,
+    vertex_group_advance_changed_vl(_frontier.degree_256_to_128, vertex_pointers, adjacent_ids, edge_op, vertex_preprocess_op,
                                   vertex_postprocess_op, process_shift);
-    vertex_group_advance_fixed_vl(_frontier.degree_128_to_64, vertex_pointers, adjacent_ids, edge_op, vertex_preprocess_op,
+    vertex_group_advance_changed_vl(_frontier.degree_128_to_64, vertex_pointers, adjacent_ids, edge_op, vertex_preprocess_op,
                                   vertex_postprocess_op, process_shift);
-    vertex_group_advance_sparse(_frontier.degree_64_to_32, vertex_pointers, adjacent_ids, edge_op, vertex_preprocess_op,
+    vertex_group_advance_changed_vl(_frontier.degree_64_to_32, vertex_pointers, adjacent_ids, edge_op, vertex_preprocess_op,
                                 vertex_postprocess_op, process_shift);
     vertex_group_advance_sparse(_frontier.degree_32_to_16, vertex_pointers, adjacent_ids, edge_op, vertex_preprocess_op,
                                 vertex_postprocess_op, process_shift);
