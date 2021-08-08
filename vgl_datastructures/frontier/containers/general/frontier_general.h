@@ -2,6 +2,10 @@
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+#include "vertex_group.h"
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 class FrontierGeneral : public BaseFrontier
 {
 private:
@@ -9,6 +13,15 @@ private:
     int *work_buffer;
 
     void init();
+
+    CSRVertexGroup large_degree;
+    CSRVertexGroup degree_256_to_128;
+    CSRVertexGroup degree_128_to_64;
+    CSRVertexGroup degree_64_to_32;
+    CSRVertexGroup degree_32_to_16;
+    CSRVertexGroup degree_16_to_8;
+    CSRVertexGroup degree_8_to_0;
+    void create_vertices_group_array(CSRVertexGroup &_group_data, int _bottom, int _top);
 public:
     /* constructors and destructors */
     FrontierGeneral(VGL_Graph &_graph, TraversalDirection _direction = SCATTER);
