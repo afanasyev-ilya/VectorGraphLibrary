@@ -21,6 +21,8 @@ private:
     CSRVertexGroup degree_32_to_16;
     CSRVertexGroup degree_16_to_8;
     CSRVertexGroup degree_8_to_0;
+
+    void fill_vertex_group_data();
     void create_vertices_group_array(CSRVertexGroup &_group_data, int _bottom, int _top);
 public:
     /* constructors and destructors */

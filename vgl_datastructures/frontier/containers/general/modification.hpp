@@ -8,7 +8,16 @@ void FrontierGeneral::set_all_active()
     this->size = graph_ptr->get_vertices_count();
     neighbours_count = graph_ptr->get_edges_count();
 
+    fill_vertex_group_data();
 
+    #pragma omp parallel // dummy for performance evaluation
+    {};
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+void FrontierGeneral::fill_vertex_group_data()
+{
     create_vertices_group_array(large_degree, 256, 2147483647);
     create_vertices_group_array(degree_256_to_128, 128, 256);
     create_vertices_group_array(degree_128_to_64, 64, 128);
@@ -16,10 +25,6 @@ void FrontierGeneral::set_all_active()
     create_vertices_group_array(degree_32_to_16, 16, 32);
     create_vertices_group_array(degree_16_to_8, 8, 16);
     create_vertices_group_array(degree_8_to_0, 0, 8);
-
-
-    #pragma omp parallel // dummy for performance evaluation
-    {};
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
