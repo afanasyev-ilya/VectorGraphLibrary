@@ -6,6 +6,7 @@ void CSRGraph::construct_unsorted_csr(EdgesContainer &_edges_container)
     vgl_sort_indexes *sort_indexes;
     MemoryAPI::allocate_array(&sort_indexes, this->edges_count);
     MemoryAPI::allocate_array(&work_buffer, max(this->edges_count, (long long)this->vertices_count*8));//TODO 8
+
     _edges_container.preprocess_into_csr_based(work_buffer, sort_indexes);
 
     this->copy_edges_indexes(sort_indexes);
