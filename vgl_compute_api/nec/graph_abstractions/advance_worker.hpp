@@ -67,8 +67,8 @@ void GraphAbstractionsNEC::advance_worker(CSRGraph &_graph,
                                     vertex_postprocess_op, process_shift);
     vertex_group_advance_fixed_vl(_frontier.degree_256_to_128, vertex_pointers, adjacent_ids, edge_op, vertex_preprocess_op,
                                   vertex_postprocess_op, process_shift);
-    vertex_group_advance_fixed_vl(_frontier.degree_128_to_64, vertex_pointers, adjacent_ids, edge_op, vertex_preprocess_op,
-                                  vertex_postprocess_op, process_shift);
+    vertex_group_advance_sparse(_frontier.degree_128_to_64, vertex_pointers, adjacent_ids, edge_op, vertex_preprocess_op,
+                                vertex_postprocess_op, process_shift);
     vertex_group_advance_sparse(_frontier.degree_64_to_32, vertex_pointers, adjacent_ids, edge_op, vertex_preprocess_op,
                                 vertex_postprocess_op, process_shift);
     vertex_group_advance_sparse(_frontier.degree_32_to_16, vertex_pointers, adjacent_ids, edge_op, vertex_preprocess_op,
@@ -148,11 +148,11 @@ void GraphAbstractionsNEC::advance_worker(CSRGraph &_graph,
     long long work = _frontier.get_neighbours_count();
     #pragma omp master
     {
-        performance_stats.update_advance_stats(tm.get_time(), work*(INT_ELEMENTS_PER_EDGE + 1)*sizeof(int), work);
+        performance_stats.update_advance_stats(tm.get_time(), work*INT_ELEMENTS_PER_EDGE*sizeof(int), work);
     }
 
     #ifdef __PRINT_API_PERFORMANCE_STATS__
-    tm.print_time_and_bandwidth_stats("Advance (CSR)", work, (INT_ELEMENTS_PER_EDGE + 1)*sizeof(int));
+    tm.print_time_and_bandwidth_stats("Advance (CSR)", work, INT_ELEMENTS_PER_EDGE*sizeof(int));
     #endif
 }
 

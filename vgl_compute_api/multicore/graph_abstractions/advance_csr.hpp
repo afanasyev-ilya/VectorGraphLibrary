@@ -10,6 +10,11 @@ void GraphAbstractionsMulticore::vertex_group_advance_changed_vl(CSRVertexGroup 
                                                                  VertexPostprocessOperation vertex_postprocess_op,
                                                                  long long _process_shift)
 {
+    #ifdef __PRINT_API_PERFORMANCE_STATS__
+    Timer tm;
+    tm.start();
+    #endif
+
     #pragma omp for schedule(static, 8)
     for(int idx = 0; idx < _group_data.size; idx++)
     {
@@ -36,6 +41,11 @@ void GraphAbstractionsMulticore::vertex_group_advance_changed_vl(CSRVertexGroup 
 
         vertex_postprocess_op(src_id, connections_count, 0);
     }
+
+    #ifdef __PRINT_API_PERFORMANCE_STATS__
+    tm.end();
+    tm.print_time_and_bandwidth_stats("Advance changed vl", _group_data.neighbours, INT_ELEMENTS_PER_EDGE*sizeof(int));
+    #endif
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -50,6 +60,11 @@ void GraphAbstractionsMulticore::vertex_group_advance_fixed_vl(CSRVertexGroup &_
                                                                VertexPostprocessOperation vertex_postprocess_op,
                                                                long long _process_shift)
 {
+    #ifdef __PRINT_API_PERFORMANCE_STATS__
+    Timer tm;
+    tm.start();
+    #endif
+
     #pragma omp for schedule(static, 8)
     for(int idx = 0; idx < _group_data.size; idx++)
     {
@@ -81,6 +96,12 @@ void GraphAbstractionsMulticore::vertex_group_advance_fixed_vl(CSRVertexGroup &_
 
         vertex_postprocess_op(src_id, connections_count, 0);
     }
+
+    #ifdef __PRINT_API_PERFORMANCE_STATS__
+    double t2 = omp_get_wtime();
+    tm.end();
+    tm.print_time_and_bandwidth_stats("Advance fixed vl", _group_data.neighbours, INT_ELEMENTS_PER_EDGE*sizeof(int));
+    #endif
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -95,6 +116,11 @@ void GraphAbstractionsMulticore::vertex_group_advance_sparse(CSRVertexGroup &_gr
                                                              VertexPostprocessOperation vertex_postprocess_op,
                                                              long long _process_shift)
 {
+    #ifdef __PRINT_API_PERFORMANCE_STATS__
+    Timer tm;
+    tm.start();
+    #endif
+
     int src_id_reg[VECTOR_LENGTH];
     long long first_reg[VECTOR_LENGTH];
     long long last_reg[VECTOR_LENGTH];
@@ -183,6 +209,11 @@ void GraphAbstractionsMulticore::vertex_group_advance_sparse(CSRVertexGroup &_gr
             }
         }
     }
+
+    #ifdef __PRINT_API_PERFORMANCE_STATS__
+    tm.end();
+    tm.print_time_and_bandwidth_stats("Advance sparse vl", _group_data.neighbours, INT_ELEMENTS_PER_EDGE*sizeof(int));
+    #endif
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

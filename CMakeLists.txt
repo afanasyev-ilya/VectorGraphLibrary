@@ -134,4 +134,4 @@ add_executable(VectorGraphLibrary
         misc/nvgraph_comparison.cpp
         verification/page_rank_verification.hpp
         verification/shortest_paths_verification.hpp
-        architectures.h
+        settings.h

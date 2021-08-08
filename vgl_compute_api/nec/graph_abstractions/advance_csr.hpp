@@ -10,6 +10,11 @@ void GraphAbstractionsNEC::vertex_group_advance_changed_vl(CSRVertexGroup &_grou
                                                            VertexPostprocessOperation vertex_postprocess_op,
                                                            long long _process_shift)
 {
+    #ifdef __PRINT_API_PERFORMANCE_STATS__
+    Timer tm;
+    tm.start();
+    #endif
+
     #pragma omp for schedule(static, 8)
     for(int idx = 0; idx < _group_data.size; idx++)
     {
@@ -31,7 +36,7 @@ void GraphAbstractionsNEC::vertex_group_advance_changed_vl(CSRVertexGroup &_grou
         {
             int local_edge_pos = local_edge_pos - first;
             const long long internal_edge_pos = edge_pos;
-            const int vector_index = 0;//TODO
+            const int vector_index = 0; //TODO
             const long long external_edge_pos = _process_shift + internal_edge_pos;
 
             const int dst_id = _adjacent_ids[internal_edge_pos];
@@ -40,6 +45,11 @@ void GraphAbstractionsNEC::vertex_group_advance_changed_vl(CSRVertexGroup &_grou
 
         vertex_postprocess_op(src_id, connections_count, 0);
     }
+
+    #ifdef __PRINT_API_PERFORMANCE_STATS__
+    tm.end();
+    tm.print_time_and_bandwidth_stats("Advance changed vl", _group_data.neighbours, INT_ELEMENTS_PER_EDGE*sizeof(int));
+    #endif
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -54,6 +64,11 @@ void GraphAbstractionsNEC::vertex_group_advance_fixed_vl(CSRVertexGroup &_group_
                                                          VertexPostprocessOperation vertex_postprocess_op,
                                                          long long _process_shift)
 {
+    #ifdef __PRINT_API_PERFORMANCE_STATS__
+    Timer tm;
+    tm.start();
+    #endif
+
     #pragma omp for schedule(static, 8)
     for(int idx = 0; idx < _group_data.size; idx++)
     {
@@ -87,6 +102,11 @@ void GraphAbstractionsNEC::vertex_group_advance_fixed_vl(CSRVertexGroup &_group_
 
         vertex_postprocess_op(src_id, connections_count, 0);
     }
+
+    #ifdef __PRINT_API_PERFORMANCE_STATS__
+    tm.end();
+    tm.print_time_and_bandwidth_stats("Advance fixed vl", _group_data.neighbours, INT_ELEMENTS_PER_EDGE*sizeof(int));
+    #endif
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -101,6 +121,11 @@ void GraphAbstractionsNEC::vertex_group_advance_sparse(CSRVertexGroup &_group_da
                                                        VertexPostprocessOperation vertex_postprocess_op,
                                                        long long _process_shift)
 {
+    #ifdef __PRINT_API_PERFORMANCE_STATS__
+    Timer tm;
+    tm.start();
+    #endif
+
     int src_id_reg[VECTOR_LENGTH];
     long long first_reg[VECTOR_LENGTH];
     long long last_reg[VECTOR_LENGTH];
@@ -187,6 +212,11 @@ void GraphAbstractionsNEC::vertex_group_advance_sparse(CSRVertexGroup &_group_da
             }
         }
     }
+
+    #ifdef __PRINT_API_PERFORMANCE_STATS__
+    tm.end();
+    tm.print_time_and_bandwidth_stats("Advance sparse", _group_data.neighbours, INT_ELEMENTS_PER_EDGE*sizeof(int));
+    #endif
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
