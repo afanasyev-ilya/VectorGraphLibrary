@@ -24,17 +24,26 @@ void VGL_RUNTIME::prepare_graph(VGL_Graph &_graph, Parser &_parser, DirectionTyp
 {
     if(_parser.get_compute_mode() == GENERATE_NEW_GRAPH)
     {
+        Timer tm;
+        tm.start();
         EdgesContainer edges_container;
         int v = pow(2.0, _parser.get_scale());
         if(_parser.get_graph_type() == RMAT)
             GraphGenerationAPI::R_MAT(edges_container, v, v * _parser.get_avg_degree(), 57, 19, 19, 5, _direction);
         else if(_parser.get_graph_type() == RANDOM_UNIFORM)
             GraphGenerationAPI::random_uniform(edges_container, v, v * _parser.get_avg_degree(), _direction);
+        tm.end();
+        tm.print_time_stats("graph generation");
 
-        // if required
+        tm.start();
         edges_container.random_shuffle_edges();
+        tm.end();
+        tm.print_time_stats("random_shuffle");
 
+        tm.start();
         _graph.import(edges_container);
+        tm.end();
+        tm.print_time_stats("import graph");
     }
     else if(_parser.get_compute_mode() == LOAD_GRAPH_FROM_FILE)
     {

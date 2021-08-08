@@ -13,6 +13,9 @@ protected:
     long long total_array_size;
 
     bool is_copy;
+
+    _T *outgoing_edges;
+    _T *incoming_edges;
 public:
     /* constructors and destructors */
     BaseEdgesArray() {};
@@ -34,7 +37,7 @@ public:
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #include "csr/csr_edges_array.h"
-//#include "edges_list/el_edges_array.h"
+#include "edges_list/el_edges_array.h"
 #include "vect_csr/vect_csr_edges_array.h"
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

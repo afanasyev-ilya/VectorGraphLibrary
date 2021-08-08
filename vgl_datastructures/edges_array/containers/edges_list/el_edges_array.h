@@ -11,12 +11,11 @@ public:
     ~EdgesArray_EL();
 
     /* initialization API */
-    void set_all_constant(_T _const);
-    void set_all_random(_T _max_rand);
-    void set_equal_to_index();
+    void set_all_constant(_T _const) final;
+    void set_all_random(_T _max_rand) final;
 
     /* print API */
-    void print();
+    void print() final;
 
     void attach_pointer(_T *_outer_data) final;
 };

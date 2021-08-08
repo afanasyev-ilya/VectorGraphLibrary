@@ -31,22 +31,10 @@ template <typename _T>
 void EdgesArray_CSR<_T>::set_all_random(_T _max_rand)
 {
     RandomGenerator rng_api;
-    rng_api.generate_array_of_random_values<_T>(outgoing_edges, this->edges_count, _max_rand);
+    rng_api.generate_array_of_random_values<_T>(this->outgoing_edges, this->edges_count, _max_rand);
     if(this->graph_ptr->get_number_of_directions() == BOTH_DIRECTIONS)
     {
-        this->graph_ptr->copy_outgoing_to_incoming_edges(outgoing_edges, incoming_edges);
-    }
-}
-
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-template <typename _T>
-void EdgesArray_CSR<_T>::set_equal_to_index()
-{
-    #pragma omp parallel for
-    for(long long i = 0; i < this->total_array_size; i++)
-    {
-        this->edges_data[i] = i;
+        this->graph_ptr->copy_outgoing_to_incoming_edges(this->outgoing_edges, this->incoming_edges);
     }
 }
 
@@ -59,7 +47,7 @@ void EdgesArray_CSR<_T>::print()
     cout << "outgoing: ";
     for(long long i = 0; i < this->edges_count; i++)
     {
-        cout << outgoing_edges[i] << " ";
+        cout << this->outgoing_edges[i] << " ";
     }
     cout << endl << endl;
     if(this->graph_ptr->get_number_of_directions() == BOTH_DIRECTIONS)
@@ -67,7 +55,7 @@ void EdgesArray_CSR<_T>::print()
         cout << "incoming: ";
         for(long long i = 0; i < this->edges_count; i++)
         {
-            cout << incoming_edges[i] << " ";
+            cout << this->incoming_edges[i] << " ";
         }
         cout << endl << endl;
     }
@@ -80,8 +68,8 @@ void EdgesArray_CSR<_T>::attach_pointer(_T *_outer_data)
 {
     this->edges_data = _outer_data;
 
-    outgoing_edges = this->edges_data;
-    incoming_edges = &(this->edges_data[this->edges_count]);
+    this->outgoing_edges = this->edges_data;
+    this->incoming_edges = &(this->edges_data[this->edges_count]);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
