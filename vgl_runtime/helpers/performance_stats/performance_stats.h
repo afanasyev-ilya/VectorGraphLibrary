@@ -52,7 +52,6 @@ public:
     inline void update_edges_visited(size_t edges);
     inline void update_graph_processing_stats(size_t _bytes, size_t _edges);
 
-    inline void update_advance_time(Timer &_timer);
     inline void update_scatter_time(Timer &_timer);
     inline void update_gather_time(Timer &_timer);
     inline void update_compute_time(Timer &_timer);

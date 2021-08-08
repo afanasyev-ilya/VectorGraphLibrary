@@ -34,7 +34,6 @@ void GraphAbstractionsNEC::advance_worker(EdgesListGraph &_graph,
     }
 
     tm.end();
-    performance_stats.update_advance_time(tm);
 
     long long work = edges_count;
     #pragma omp master
@@ -145,7 +144,6 @@ void GraphAbstractionsNEC::advance_worker(CSRGraph &_graph,
     #endif
 
     tm.end();
-    performance_stats.update_advance_time(tm);
 
     long long work = _frontier.get_neighbours_count();
     #pragma omp master

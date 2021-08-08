@@ -15,6 +15,7 @@ void PerformanceStats::update_advance_stats(double _wall_time,
                                             size_t _edges)
 {
     advance_time += _wall_time;
+    inner_wall_time += _wall_time;
     bytes_requested += _bytes;
     edges_visited += _edges;
 }
@@ -36,17 +37,6 @@ void PerformanceStats::update_advance_stats_vect_csr(double _wall_time,
 
     bytes_requested += _bytes;
     edges_visited += _edges;
-}
-
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-void PerformanceStats::update_advance_time(Timer &_timer)
-{
-    #pragma omp single
-    {
-        advance_time += _timer.get_time();
-        inner_wall_time += _timer.get_time();
-    }
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -388,7 +378,7 @@ void PerformanceStats::print_max_perf(long long _edges_count, int _k)
 
     if(print_condition)
     {
-        cout << "MAX_PERF: " << get_max_perf(_edges_count, _k) << " MTEPS (among " << number_of_runs << " runs)"
+        cout << "MAX_PERF: " << get_max_perf(_edges_count, _k) << " MTEPS (among " << _k << " runs)"
              << endl;
     }
 
@@ -417,7 +407,7 @@ void PerformanceStats::print_min_perf(long long _edges_count, int _k)
 
     if(print_condition)
     {
-        cout << "MIN_PERF: " << get_min_perf(_edges_count, _k) << " MTEPS (among " << number_of_runs << " runs)" << endl;
+        cout << "MIN_PERF: " << get_min_perf(_edges_count, _k) << " MTEPS (among " << _k << " runs)" << endl;
     }
 
     #ifdef __USE_MPI__
@@ -446,7 +436,7 @@ void PerformanceStats::print_avg_perf(long long _edges_count, int _k)
 
     if(print_condition)
     {
-        cout << "AVG_PERF: " << get_avg_perf(_edges_count, _k) << " MTEPS (among " << number_of_runs << " runs)" << endl;
+        cout << "AVG_PERF: " << get_avg_perf(_edges_count, _k) << " MTEPS (among " << _k << " runs)" << endl;
     }
 
     #ifdef __USE_MPI__

@@ -306,7 +306,6 @@ void GraphAbstractionsGPU::advance_worker(VectorCSRGraph &_graph,
     cudaDeviceSynchronize();
 
     tm.end();
-    performance_stats.update_advance_time(tm);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
