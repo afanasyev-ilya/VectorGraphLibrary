@@ -59,12 +59,6 @@ public:
     bool save_to_binary_file(string _file_name);
     bool load_from_binary_file(string _file_name);
 
-    /* GPU specific (copy) API */
-    #ifdef __USE_GPU__
-    void move_to_device() {};
-    void move_to_host() {};
-    #endif
-
     /* reorder API */
     template <typename _T>
     void reorder(VerticesArray<_T> &_data, TraversalDirection _output_dir);
@@ -77,6 +71,12 @@ public:
 
     template <typename _T>
     void copy_incoming_to_outgoing_edges(_T *_outgoing_edges, _T *_incoming_edges);
+
+    /* GPU specific (copy) API */
+    #ifdef __USE_GPU__
+    void move_to_device() final;
+    void move_to_host() final;
+    #endif
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

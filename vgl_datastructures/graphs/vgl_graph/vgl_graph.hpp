@@ -161,8 +161,31 @@ int VGL_Graph::select_random_nz_vertex(TraversalDirection _direction)
     //return reorder(outgoing_data->select_random_vertex(), SCATTER, _direction);
 }
 
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+#ifdef __USE_GPU__
+void VGL_Graph::move_to_device()
+{
+    outgoing_data->move_to_device();
+    if(get_number_of_directions() == BOTH_DIRECTIONS)
+        incoming_data->move_to_device();
+}
+#endif
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+#ifdef __USE_GPU__
+void VGL_Graph::move_to_host()
+{
+    outgoing_data->move_to_host();
+    if(get_number_of_directions() == BOTH_DIRECTIONS)
+        incoming_data->move_to_dhost();
+}
+#endif
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
 
 
 

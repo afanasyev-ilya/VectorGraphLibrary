@@ -38,10 +38,8 @@ private:
 
     VectorExtension last_vertices_ve; // store last vertices in the vector extension
 
-    #if defined(__USE_NEC_SX_AURORA__) || defined(__USE_MULTICORE__)
     int vector_engine_threshold_vertex;
     int vector_core_threshold_vertex;
-    #endif
 
     #ifdef __USE_MPI__
     pair<int, int> vector_engine_mpi_thresholds;
@@ -52,9 +50,7 @@ private:
     void alloc(int _vertices_count, long long _edges_count);
     void free();
 
-    #if defined(__USE_NEC_SX_AURORA__) || defined(__USE_MULTICORE__)
-    void estimate_nec_thresholds();
-    #endif
+    void estimate_thresholds();
 
     #ifdef __USE_MPI__
     void estimate_mpi_thresholds();
@@ -138,10 +134,8 @@ public:
     void resize(int _vertices_count, long long _edges_count);
 
     // API to calculate NEC and multicore thresholds (including MPI)
-    #if defined(__USE_NEC_SX_AURORA__) || defined(__USE_MULTICORE__)
     inline int get_vector_engine_threshold_vertex(){return vector_engine_threshold_vertex;};
     inline int get_vector_core_threshold_vertex(){return vector_core_threshold_vertex;};
-    #endif
 
     #ifdef __USE_MPI__
     pair<int,int> get_vector_engine_mpi_thresholds() {return vector_engine_mpi_thresholds; };

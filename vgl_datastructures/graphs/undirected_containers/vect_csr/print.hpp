@@ -135,7 +135,6 @@ void VectorCSRGraph::print_vertex_information(int _src_id, int _num_edges)
 
 void VectorCSRGraph::print_stats()
 {
-    #ifdef __USE_NEC_SX_AURORA__
     cout << "threshold vertices: " << vector_engine_threshold_vertex << " " << vector_core_threshold_vertex << " " << vertices_count << endl;
 
     long long edges_in_ve_group = vertex_pointers[vector_engine_threshold_vertex] - vertex_pointers[0];
@@ -145,9 +144,6 @@ void VectorCSRGraph::print_stats()
     cout << "ve group size: " << edges_in_ve_group << ", " << 100.0*((float)edges_in_ve_group)/this->edges_count << " %" << endl;
     cout << "vc group size: " << edges_in_vc_group << ", " << 100.0*((float)edges_in_vc_group)/this->edges_count << " %" << endl;
     cout << "collective group size: " << edges_in_collective_group << ", " << 100.0*((float)edges_in_collective_group)/this->edges_count << " %" << endl;
-    #endif
-
-    //GraphAnalytics::analyse_degrees(*this);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

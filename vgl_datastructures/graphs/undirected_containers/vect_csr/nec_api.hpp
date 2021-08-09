@@ -2,8 +2,7 @@
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#if defined(__USE_NEC_SX_AURORA__) || defined(__USE_MULTICORE__)
-void VectorCSRGraph::estimate_nec_thresholds()
+void VectorCSRGraph::estimate_thresholds()
 {
     Timer tm;
     tm.start();
@@ -49,6 +48,5 @@ void VectorCSRGraph::estimate_nec_thresholds()
     tm.print_time_stats("Estimate thresholds");
     #endif
 }
-#endif
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

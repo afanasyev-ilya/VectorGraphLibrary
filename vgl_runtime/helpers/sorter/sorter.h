@@ -13,7 +13,6 @@
 #define vgl_sort_indexes long long
 #endif
 
-#include <math.h>
 #include <algorithm>
 #include <functional>
 

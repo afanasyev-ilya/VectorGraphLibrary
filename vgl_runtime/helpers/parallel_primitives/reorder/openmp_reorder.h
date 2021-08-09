@@ -3,7 +3,7 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template <typename _T, typename _TIndex>
-void openmp_reorder_gather(_T *_result, _T *_buffer, _TIndex *_indexes, size_t _size)
+void openmp_reorder_gather_inplace(_T *_result, _T *_buffer, _TIndex *_indexes, size_t _size)
 {
     if(omp_in_parallel())
     {
@@ -28,7 +28,7 @@ void openmp_reorder_gather(_T *_result, _T *_buffer, _TIndex *_indexes, size_t _
     {
         #pragma omp parallel
         {
-            openmp_reorder_gather(_result, _buffer, _indexes, _size);
+            openmp_reorder_gather_inplace(_result, _buffer, _indexes, _size);
         }
     }
 }
@@ -36,7 +36,7 @@ void openmp_reorder_gather(_T *_result, _T *_buffer, _TIndex *_indexes, size_t _
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template <typename _T, typename _TIndex>
-void openmp_reorder_gather_inplace(_T *_gather_from, _T *_output, _TIndex *_indexes, size_t _size)
+void openmp_reorder_gather_copy(_T *_gather_from, _T *_output, _TIndex *_indexes, size_t _size)
 {
     if(omp_in_parallel())
     {
@@ -54,7 +54,7 @@ void openmp_reorder_gather_inplace(_T *_gather_from, _T *_output, _TIndex *_inde
     {
         #pragma omp parallel
         {
-            openmp_reorder_gather_inplace(_gather_from, _output, _indexes, _size);
+            openmp_reorder_gather_copy(_gather_from, _output, _indexes, _size);
         }
     }
 }
@@ -62,7 +62,7 @@ void openmp_reorder_gather_inplace(_T *_gather_from, _T *_output, _TIndex *_inde
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template <typename _T, typename _TIndex>
-void openmp_reorder_scatter(_T *_result, _T *_buffer, _TIndex *_indexes, size_t _size)
+void openmp_reorder_scatter_inplace(_T *_result, _T *_buffer, _TIndex *_indexes, size_t _size)
 {
     if(omp_in_parallel())
     {
@@ -87,7 +87,7 @@ void openmp_reorder_scatter(_T *_result, _T *_buffer, _TIndex *_indexes, size_t 
     {
         #pragma omp parallel
         {
-            openmp_reorder_scatter(_result, _buffer, _indexes, _size);
+            openmp_reorder_scatter_inplace(_result, _buffer, _indexes, _size);
         }
     }
 }
@@ -95,7 +95,7 @@ void openmp_reorder_scatter(_T *_result, _T *_buffer, _TIndex *_indexes, size_t 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template <typename _T, typename _TIndex>
-void openmp_reorder_scatter_inplace(_T *_scatter_from, _T *_output, _TIndex *_indexes, size_t _size)
+void openmp_reorder_scatter_copy(_T *_scatter_from, _T *_output, _TIndex *_indexes, size_t _size)
 {
     if(omp_in_parallel())
     {
@@ -113,7 +113,7 @@ void openmp_reorder_scatter_inplace(_T *_scatter_from, _T *_output, _TIndex *_in
     {
         #pragma omp parallel
         {
-            openmp_reorder_scatter(_scatter_from, _output, _indexes, _size);
+            openmp_reorder_scatter_inplace(_scatter_from, _output, _indexes, _size);
         }
     }
 }
