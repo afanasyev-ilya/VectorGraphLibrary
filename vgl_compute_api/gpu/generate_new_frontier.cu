@@ -52,7 +52,7 @@ void __global__ copy_frontier_ids_kernel(int *_frontier_ids,
 
 template <typename Condition>
 void GraphAbstractionsGPU::generate_new_frontier(VGL_Graph &_graph,
-                                                 FrontierGPU &_frontier,
+                                                 VGL_Frontier &_frontier,
                                                  Condition &&cond)
 {
     Timer tm;

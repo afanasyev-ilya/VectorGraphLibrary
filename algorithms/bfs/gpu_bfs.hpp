@@ -2,15 +2,15 @@
 
 #ifdef __USE_GPU__
 template <typename _T>
-void BFS::gpu_top_down(VGL_Graph &_graph,
+void BFS::vgl_top_down(VGL_Graph &_graph,
                        VerticesArray<_T> &_levels,
                        int _source_vertex)
 {
     _graph.move_to_device();
     _levels.move_to_device();
 
-    GraphAbstractionsGPU graph_API(_graph);
-    FrontierGPU frontier(_graph);
+    VGL_GRAPH_ABSTRACTIONS graph_API(_graph);
+    VGL_FRONTIER frontier(_graph);
     graph_API.change_traversal_direction(SCATTER, _levels, frontier);
 
     _source_vertex = _graph.reorder(_source_vertex, ORIGINAL, SCATTER);
@@ -31,7 +31,7 @@ void BFS::gpu_top_down(VGL_Graph &_graph,
     Timer tm;
     tm.start();
 
-    int current_level = FIRST_LEVEL_VERTEX;
+    /*int current_level = FIRST_LEVEL_VERTEX;
     while(frontier.size() > 0)
     {
         auto edge_op = [_levels, current_level] __device__ (int src_id, int dst_id, int local_edge_pos,
@@ -57,7 +57,7 @@ void BFS::gpu_top_down(VGL_Graph &_graph,
         graph_API.generate_new_frontier(_graph, frontier, on_next_level);
 
         current_level++;
-    }
+    }*/
     tm.end();
 
     #ifdef __PRINT_SAMPLES_PERFORMANCE_STATS__

@@ -10,7 +10,7 @@ void SSSP::gpu_dijkstra_all_active_push(VGL_Graph &_graph,
                                         int _source_vertex)
 {
     GraphAbstractionsGPU graph_API(_graph, SCATTER);
-    FrontierGPU frontier(_graph, SCATTER);
+    VGL_Frontier frontier(_graph, SCATTER);
     graph_API.change_traversal_direction(SCATTER, _distances, frontier);
 
     Timer tm;
@@ -73,7 +73,7 @@ void SSSP::gpu_dijkstra_all_active_pull(VGL_Graph &_graph,
                                         int _source_vertex)
 {
     GraphAbstractionsGPU graph_API(_graph, GATHER);
-    FrontierGPU frontier(_graph, GATHER);
+    VGL_Frontier frontier(_graph, GATHER);
     graph_API.change_traversal_direction(GATHER, _distances, frontier);
 
     Timer tm;
@@ -136,7 +136,7 @@ void SSSP::gpu_dijkstra_partial_active(VGL_Graph &_graph,
                                        int _source_vertex)
 {
     GraphAbstractionsGPU graph_API(_graph, SCATTER);
-    FrontierGPU frontier(_graph, SCATTER);
+    VGL_Frontier frontier(_graph, SCATTER);
     VerticesArray<char> was_updated(_graph, SCATTER);
     graph_API.change_traversal_direction(SCATTER, _distances, frontier, was_updated);
 

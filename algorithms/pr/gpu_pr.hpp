@@ -13,7 +13,7 @@ void PR::gpu_page_rank(VGL_Graph &_graph,
     int vertices_count = _graph.get_vertices_count();
     long long edges_count = _graph.get_edges_count();
     GraphAbstractionsGPU graph_API(_graph);
-    FrontierGPU frontier(_graph);
+    VGL_Frontier frontier(_graph);
     frontier.set_all_active();
 
     TraversalDirection reversed_direction = GATHER;

@@ -28,7 +28,7 @@ class BFS
 public:
     #ifdef __USE_GPU__
     template <typename _T>
-    static void gpu_top_down(VGL_Graph &_graph, VerticesArray<_T> &_levels, int _source_vertex);
+    static void vgl_top_down(VGL_Graph &_graph, VerticesArray<_T> &_levels, int _source_vertex);
     #endif
 
     #if defined(__USE_NEC_SX_AURORA__) || defined(__USE_MULTICORE__)

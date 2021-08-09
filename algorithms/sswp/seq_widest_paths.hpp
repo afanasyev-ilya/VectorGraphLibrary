@@ -8,8 +8,7 @@ void SSWP::seq_dijkstra(VGL_Graph &_graph,
                         VerticesArray<_T> &_widths,
                         int _source_vertex)
 {
-    VectorCSRGraph *outgoing_graph_ptr = _graph.get_outgoing_data();
-    LOAD_VECTOR_CSR_GRAPH_DATA((*outgoing_graph_ptr));
+    int vertices_count = _graph.get_vertices_count();
 
     _source_vertex = _graph.reorder(_source_vertex, ORIGINAL, SCATTER);
 
@@ -35,13 +34,12 @@ void SSWP::seq_dijkstra(VGL_Graph &_graph,
 
         container.pop();
 
-        long long edge_start = vertex_pointers[src_id];
-        int connections_count = vertex_pointers[src_id + 1] - vertex_pointers[src_id];
+        int connections_count = _graph.get_outgoing_connections_count(src_id);
 
         for(int edge_pos = 0; edge_pos < connections_count; edge_pos++)
         {
-            int dst_id = adjacent_ids[edge_start + edge_pos];
-            _T weight = _edges_capacities[edge_start + edge_pos];
+            int dst_id = _graph.get_outgoing_edge_dst(src_id, edge_pos);
+            _T weight = _edges_capacities[_graph.get_outgoing_edges_array_index(src_id, edge_pos)];
 
             // Finding the widest distance to the vertex
             // using current_source vertex's widest distance

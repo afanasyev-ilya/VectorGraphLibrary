@@ -7,7 +7,7 @@ template <typename _T>
 void CC::gpu_shiloach_vishkin(VGL_Graph &_graph, VerticesArray<_T> &_components)
 {
     GraphAbstractionsGPU graph_API(_graph);
-    FrontierGPU frontier(_graph);
+    VGL_Frontier frontier(_graph);
     graph_API.change_traversal_direction(SCATTER, _components, frontier);
 
     frontier.set_all_active();

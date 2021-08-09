@@ -6,7 +6,7 @@ template <typename EdgeOperation, typename VertexPreprocessOperation, typename V
         typename CollectiveEdgeOperation, typename CollectiveVertexPreprocessOperation,
         typename CollectiveVertexPostprocessOperation>
 void GraphAbstractionsGPU::scatter(VGL_Graph &_graph,
-                                   FrontierGPU &_frontier,
+                                   VGL_Frontier &_frontier,
                                    EdgeOperation &&edge_op,
                                    VertexPreprocessOperation &&vertex_preprocess_op,
                                    VertexPostprocessOperation &&vertex_postprocess_op,
@@ -41,7 +41,7 @@ void GraphAbstractionsGPU::scatter(VGL_Graph &_graph,
 
 template <typename EdgeOperation>
 void GraphAbstractionsGPU::scatter(VGL_Graph &_graph,
-                                   FrontierGPU &_frontier,
+                                   VGL_Frontier &_frontier,
                                    EdgeOperation &&edge_op)
 {
     auto EMPTY_VERTEX_OP = [] __device__(int src_id, int position_in_frontier, int connections_count){};

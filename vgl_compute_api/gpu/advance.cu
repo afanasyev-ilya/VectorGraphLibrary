@@ -35,7 +35,7 @@ void __global__ block_per_vertex_kernel(const long long *_vertex_pointers,
                 const long long int internal_edge_pos = edge_start + edge_pos;
                 const int dst_id = _adjacent_ids[internal_edge_pos];
                 const int local_edge_pos = edge_pos;
-                int vector_index = cub::LaneId();
+                int vector_index = lane_id();
 
                 long long global_edge_pos = _traversal * _direction_shift + internal_edge_pos;
                 edge_op(src_id, dst_id, local_edge_pos, global_edge_pos, vector_index);
@@ -85,7 +85,7 @@ void __global__ warp_per_vertex_kernel(const long long *_vertex_pointers,
                 const long long int internal_edge_pos = edge_start + edge_pos;
                 const int dst_id = _adjacent_ids[internal_edge_pos];
                 const int local_edge_pos = edge_pos;
-                int vector_index = cub::LaneId();
+                int vector_index = lane_id();
 
                 long long global_edge_pos = _traversal * _direction_shift + internal_edge_pos;
                 edge_op(src_id, dst_id, local_edge_pos, global_edge_pos, vector_index);
@@ -133,7 +133,7 @@ void __global__ thread_per_vertex_kernel(const long long *_vertex_pointers,
                 const long long int internal_edge_pos = edge_start + edge_pos;
                 const int dst_id = _adjacent_ids[internal_edge_pos];
                 const int local_edge_pos = edge_pos;
-                int vector_index = cub::LaneId();
+                int vector_index = lane_id();
 
                 long long global_edge_pos = _traversal * _direction_shift + internal_edge_pos;
                 edge_op(src_id, dst_id, local_edge_pos, global_edge_pos, vector_index);
@@ -184,7 +184,7 @@ void __global__ virtual_warp_per_vertex_kernel(const long long *_vertex_pointers
                 const long long int internal_edge_pos = edge_start + edge_pos;
                 const int dst_id = _adjacent_ids[internal_edge_pos];
                 const int local_edge_pos = edge_pos;
-                int vector_index = cub::LaneId();
+                int vector_index = lane_id();
 
                 long long global_edge_pos = _traversal * _direction_shift + internal_edge_pos;
                 edge_op(src_id, dst_id, local_edge_pos, global_edge_pos, vector_index);
@@ -201,7 +201,7 @@ void __global__ virtual_warp_per_vertex_kernel(const long long *_vertex_pointers
 template <typename EdgeOperation, typename VertexPreprocessOperation,
         typename VertexPostprocessOperation>
 void GraphAbstractionsGPU::advance_worker(VectorCSRGraph &_graph,
-                                          FrontierGPU &_frontier,
+                                          VGL_Frontier &_frontier,
                                           EdgeOperation edge_op,
                                           VertexPreprocessOperation vertex_preprocess_op,
                                           VertexPostprocessOperation vertex_postprocess_op,

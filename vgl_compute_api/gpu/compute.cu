@@ -11,7 +11,7 @@ void __global__ compute_kernel_all_active(const int _frontier_size,
     if(src_id < _frontier_size)
     {
         int connections_count = _vertex_pointers[src_id + 1] - _vertex_pointers[src_id];
-        int vector_index = cub::LaneId();
+        int vector_index = lane_id();
         compute_op(src_id, connections_count, vector_index);
     }
 }
@@ -30,7 +30,7 @@ void __global__ compute_kernel_dense(const int *_frontier_flags,
         if(_frontier_flags[src_id] > 0)
         {
             int connections_count = _vertex_pointers[src_id + 1] - _vertex_pointers[src_id];
-            int vector_index = cub::LaneId();
+            int vector_index = lane_id();
             compute_op(src_id, connections_count, vector_index);
         }
     }
@@ -49,7 +49,7 @@ void __global__ compute_kernel_sparse(const int *_frontier_ids,
     {
         int src_id = _frontier_ids[idx];
         int connections_count = _vertex_pointers[src_id + 1] - _vertex_pointers[src_id];
-        int vector_index = cub::LaneId();
+        int vector_index = lane_id();
         compute_op(src_id, connections_count, vector_index);
     }
 }
@@ -57,11 +57,11 @@ void __global__ compute_kernel_sparse(const int *_frontier_ids,
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template <typename ComputeOperation>
-void GraphAbstractionsGPU::compute_worker(VectorCSRGraph &_graph,
-                                          FrontierGPU &_frontier,
+void GraphAbstractionsGPU::compute_worker(CSRGraph &_graph,
+                                          FrontierGeneral &_frontier,
                                           ComputeOperation &&compute_op)
 {
-    LOAD_VECTOR_CSR_GRAPH_DATA(_graph);
+    LOAD_CSR_GRAPH_DATA(_graph);
 
     if(_frontier.get_sparsity_type() == ALL_ACTIVE_FRONTIER)
     {
@@ -75,7 +75,7 @@ void GraphAbstractionsGPU::compute_worker(VectorCSRGraph &_graph,
     }
     else if(_frontier.get_sparsity_type() == SPARSE_FRONTIER)
     {
-        int frontier_size = _frontier.size();
+        int frontier_size = _frontier.get_size();
         SAFE_KERNEL_CALL((compute_kernel_sparse <<< (frontier_size - 1) / BLOCK_SIZE + 1, BLOCK_SIZE >>>
                 (_frontier.ids, frontier_size, vertex_pointers, compute_op)));
     }
@@ -85,34 +85,45 @@ void GraphAbstractionsGPU::compute_worker(VectorCSRGraph &_graph,
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template <typename ComputeOperation>
+void GraphAbstractionsGPU::compute_container_call(VGL_Graph &_graph,
+                                                  VGL_Frontier &_frontier,
+                                                  ComputeOperation &&compute_op)
+{
+    if(_graph.get_container_type() == CSR_GRAPH)
+    {
+        CSRGraph *container_graph = (CSRGraph *)_graph.get_direction_data(current_traversal_direction);
+        FrontierGeneral *container_frontier = (FrontierGeneral *)_frontier.get_container_data();
+        compute_worker(*container_graph, *container_frontier, compute_op);
+    }
+    else
+    {
+        throw "Error in GraphAbstractionsGPU::compute : unsupported container type";
+    }
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+template <typename ComputeOperation>
 void GraphAbstractionsGPU::compute(VGL_Graph &_graph,
-                                   FrontierGPU &_frontier,
+                                   VGL_Frontier &_frontier,
                                    ComputeOperation &&compute_op)
 {
     Timer tm;
     tm.start();
 
-    if(_frontier.get_direction() != current_traversal_direction)
+    if(_frontier.get_direction() != current_traversal_direction) // TODO check
     {
         throw "Error in GraphAbstractionsGPU::compute : wrong frontier direction";
     }
 
-    VectorCSRGraph *current_direction_graph;
-    if(current_traversal_direction == SCATTER)
-    {
-        current_direction_graph = _graph.get_outgoing_data();
-    }
-    else if(current_traversal_direction == GATHER)
-    {
-        current_direction_graph = _graph.get_incoming_data();
-    }
-
-    compute_worker(*current_direction_graph, _frontier, compute_op);
+    compute_container_call(_graph, _frontier, compute_op);
 
     tm.end();
+    long long work = _frontier.size();
     performance_stats.update_compute_time(tm);
+    performance_stats.update_bytes_requested(COMPUTE_INT_ELEMENTS*sizeof(int)*work);
     #ifdef __PRINT_API_PERFORMANCE_STATS__
-    tm.print_time_and_bandwidth_stats("Compute", _frontier.size(), COMPUTE_INT_ELEMENTS*sizeof(int));
+    tm.print_bandwidth_stats("Compute", work, COMPUTE_INT_ELEMENTS*sizeof(int));
     #endif
 }
 

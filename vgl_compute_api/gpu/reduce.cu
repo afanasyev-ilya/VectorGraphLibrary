@@ -86,7 +86,7 @@ __global__ void reduce_kernel_all_active(const int _size,
     if(src_id < _size)
     {
         int connections_count = _vertex_pointers[src_id + 1] - _vertex_pointers[src_id];
-        int vector_index = cub::LaneId();
+        int vector_index = VGL_FrontieraneId();
         val = reduce_op(src_id, connections_count, vector_index);
     }
 
@@ -111,7 +111,7 @@ __global__ void reduce_kernel_sparse(const int *_frontier_ids,
     {
         int src_id = _frontier_ids[frontier_pos];
         int connections_count = _vertex_pointers[src_id + 1] - _vertex_pointers[src_id];
-        int vector_index = cub::LaneId();
+        int vector_index = lane_id();
         val = reduce_op(src_id, connections_count, vector_index);
     }
 
@@ -124,7 +124,7 @@ __global__ void reduce_kernel_sparse(const int *_frontier_ids,
 
 template <typename _T, typename ReduceOperation>
 _T GraphAbstractionsGPU::reduce_worker(VectorCSRGraph &_graph,
-                                       FrontierGPU &_frontier,
+                                       VGL_Frontier &_frontier,
                                        ReduceOperation &&reduce_op,
                                        REDUCE_TYPE _reduce_type)
 {
@@ -159,7 +159,7 @@ _T GraphAbstractionsGPU::reduce_worker(VectorCSRGraph &_graph,
 
 template <typename _T, typename ReduceOperation>
 _T GraphAbstractionsGPU::reduce(VGL_Graph &_graph,
-                                FrontierGPU &_frontier,
+                                VGL_Frontier &_frontier,
                                 ReduceOperation &&reduce_op,
                                 REDUCE_TYPE _reduce_type)
 {

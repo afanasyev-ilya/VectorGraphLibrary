@@ -44,6 +44,14 @@ endif
 # binaries
 ##########
 
+install:
+	if [ ! -d ../external_libraries/cub ];then\
+                        git clone https://github.com/NVlabs/cub ../external_libraries/cub;\
+                fi
+	if [ ! -d ../external_libraries/moderngpu ];then\
+                        git clone https://www.github.com/moderngpu/moderngpu ../external_libraries/moderngpu;\
+                fi
+
 all: sssp sssp_sharded sswp bfs scc pr cc rw hits apsp coloring print_graph_info create_vgl_graphs
 
 sssp: create_folders sssp.o

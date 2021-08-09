@@ -190,7 +190,7 @@ void gpu_lp_wrapper(VectorCSRGraph &_graph,
 {
     LOAD_VECTOR_CSR_GRAPH_DATA(_graph);
     GraphAbstractionsGPU graph_API;
-    FrontierGPU frontier(_graph.get_vertices_count());
+    VGL_Frontier frontier(_graph.get_vertices_count());
 
     mgpu::standard_context_t context;
 
