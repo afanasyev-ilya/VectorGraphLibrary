@@ -55,7 +55,7 @@ int main(int argc, char **argv)
             source_vertex = graph.reorder(source_vertex, Parser::convert_traversal_type(parser.get_traversal_direction()), SCATTER);
             ShortestPaths::seq_dijkstra(graph, weights, check_distances, source_vertex);
 
-            verify_results(distances, check_distances);
+            verify_results(distances, check_distances, graph.get_vertices_count());
         }
 
         VGL_RUNTIME::finalize_library();

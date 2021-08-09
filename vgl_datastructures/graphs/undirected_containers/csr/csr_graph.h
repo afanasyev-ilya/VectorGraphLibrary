@@ -79,6 +79,12 @@ public:
     /* vertices API */
     int select_random_nz_vertex();
 
+    /* GPU specific (copy) API */
+    #ifdef __USE_GPU__
+    void move_to_device() final;
+    void move_to_host() final;
+    #endif
+
     friend class GraphAbstractions;
 };
 

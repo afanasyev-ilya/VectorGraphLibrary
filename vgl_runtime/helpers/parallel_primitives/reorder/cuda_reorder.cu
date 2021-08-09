@@ -3,7 +3,7 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template <typename _T, typename _TIndex>
-void __global__ reorder_kernel_scatter(_T *_data, _T *_data_buffer, _TIndex *_indexes, _TIndex _size)
+void __global__ reorder_kernel_scatter(_T *_data, _T *_data_buffer, _TIndex *_indexes, size_t _size)
 {
     const _TIndex idx = blockIdx.x * blockDim.x + threadIdx.x;
     if(idx < _size)
@@ -15,7 +15,7 @@ void __global__ reorder_kernel_scatter(_T *_data, _T *_data_buffer, _TIndex *_in
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template <typename _T, typename _TIndex>
-void __global__ reorder_kernel_gather(_T *_data, _T *_data_buffer, _TIndex *_indexes, _TIndex _size)
+void __global__ reorder_kernel_gather(_T *_data, _T *_data_buffer, _TIndex *_indexes, size_t _size)
 {
     const _TIndex idx = blockIdx.x * blockDim.x + threadIdx.x;
     if(idx < _size)

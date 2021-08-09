@@ -50,12 +50,6 @@ public:
     /* file load/store API */
     void save_to_graphviz_file(string file_name, VisualisationMode _visualisation_mode = VISUALISE_AS_DIRECTED);
 
-    /* GPU specific (copy) API */
-    #ifdef __USE_GPU__
-    void move_to_device() {throw "not implemented yet";};
-    void move_to_host() {throw "not implemented yet";};
-    #endif
-
     /* Further - VGL_Graph specific API : reorder, working with double-directions, etc.*/
     // resize graph
     void resize(int _vertices_count, long long _edges_count);
@@ -87,6 +81,12 @@ public:
 
     /* vertices API */
     int select_random_nz_vertex();
+
+    /* GPU specific (copy) API */
+    #ifdef __USE_GPU__
+    void move_to_device() final;
+    void move_to_host() final;
+    #endif
 
     friend class GraphAbstractions;
 };

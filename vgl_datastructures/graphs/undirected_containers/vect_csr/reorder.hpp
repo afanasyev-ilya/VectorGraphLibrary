@@ -19,7 +19,12 @@ int VectorCSRGraph::reorder_to_sorted(int _vertex_id)
 void VectorCSRGraph::reorder_to_original(char *_data, char *_buffer, size_t _elem_size)
 {
     #if defined(__USE_GPU__)
-    //cuda_reorder_wrapper_scatter(_data, _buffer, backward_conversion, this->vertices_count);
+    if(_elem_size == sizeof(float))
+        cuda_reorder_gather_inplace((float*)_data, (float*)_buffer, forward_conversion, this->vertices_count);
+    else if(_elem_size == sizeof(double))
+        cuda_reorder_gather_inplace((double*)_data, (double*)_buffer, forward_conversion, this->vertices_count);
+    else
+        throw "Error: incorrect element size in VectorCSRGraph::reorder_to_original";
     #else
     if(_elem_size == sizeof(float))
         openmp_reorder_gather_inplace((float*)_data, (float*)_buffer, forward_conversion, this->vertices_count);
@@ -35,7 +40,12 @@ void VectorCSRGraph::reorder_to_original(char *_data, char *_buffer, size_t _ele
 void VectorCSRGraph::reorder_to_sorted(char *_data, char *_buffer, size_t _elem_size)
 {
     #if defined(__USE_GPU__)
-    //cuda_reorder_wrapper_scatter(_data, _buffer, forward_conversion, this->vertices_count);
+    if(_elem_size == sizeof(float))
+        cuda_reorder_gather_inplace((float*)_data, (float*)_buffer, backward_conversion, this->vertices_count);
+    else if(_elem_size == sizeof(double))
+        cuda_reorder_gather_inplace((double*)_data, (double*)_buffer, backward_conversion, this->vertices_count);
+    else
+        throw "Error: incorrect element size in VectorCSRGraph::reorder_to_sorted";
     #else
     if(_elem_size == sizeof(float))
         openmp_reorder_gather_inplace((float*)_data, (float*)_buffer, backward_conversion, this->vertices_count);

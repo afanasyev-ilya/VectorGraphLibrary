@@ -210,3 +210,40 @@ int EdgesListGraph::select_random_nz_vertex()
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+#ifdef __USE_GPU__
+void EdgesListGraph::move_to_device()
+{
+    if(this->graph_on_device)
+    {
+        return;
+    }
+
+    this->graph_on_device = true;
+
+    MemoryAPI::move_array_to_device(connections_count, this->vertices_count);
+    MemoryAPI::move_array_to_device(src_ids, this->edges_count);
+    MemoryAPI::move_array_to_device(src_ids, this->edges_count);
+}
+#endif
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+#ifdef __USE_GPU__
+void EdgesListGraph::move_to_host()
+{
+    if(!this->graph_on_device)
+    {
+        return;
+    }
+
+    this->graph_on_device = false;
+
+    MemoryAPI::move_array_to_host(connections_count, this->vertices_count);
+    MemoryAPI::move_array_to_host(src_ids, this->edges_count);
+    MemoryAPI::move_array_to_host(src_ids, this->edges_count);
+}
+#endif
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+

@@ -183,7 +183,6 @@ int *ve_adjacent_ids = (input_graph.get_ve_ptr())->get_adjacent_ids();\
 
 #include "vect_csr_graph.hpp"
 #include "import.hpp"
-#include "gpu_api.hpp"
 #include "reorder.hpp"
 #include "print.hpp"
 #include "get_api.hpp"

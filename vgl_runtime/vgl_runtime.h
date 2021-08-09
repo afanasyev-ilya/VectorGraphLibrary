@@ -2,6 +2,11 @@
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+#ifdef __USE_GPU__
+#include "helpers/gpu_API/cuda_error_handling.h"
+#include "helpers/gpu_API/select_device.cuh"
+#endif
+
 #include "helpers/parallel_primitives/primitives.h"
 #include "helpers/timer/timer.h"
 #include "helpers/memory_API/memory_API.h"

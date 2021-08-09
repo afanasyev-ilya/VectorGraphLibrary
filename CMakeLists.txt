@@ -114,7 +114,6 @@ add_executable(VectorGraphLibrary
         vgl_datastructures/graphs/undirected_containers/vect_csr/vector_extension/vector_extension.hpp
         vgl_datastructures/graphs/undirected_containers/vect_csr/vect_csr_graph.h
         vgl_datastructures/graphs/undirected_containers/vect_csr/vect_csr_graph.hpp
-        vgl_datastructures/graphs/undirected_containers/vect_csr/gpu_api.hpp
         vgl_datastructures/graphs/undirected_containers/vect_csr/import.hpp
         vgl_datastructures/graphs/undirected_containers/vect_csr/nec_api.hpp
         vgl_datastructures/graphs/undirected_containers/sharded_csr_graph/shard_base/shard_base.h

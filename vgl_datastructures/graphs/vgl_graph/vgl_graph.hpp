@@ -179,7 +179,7 @@ void VGL_Graph::move_to_host()
 {
     outgoing_data->move_to_host();
     if(get_number_of_directions() == BOTH_DIRECTIONS)
-        incoming_data->move_to_dhost();
+        incoming_data->move_to_host();
 }
 #endif
 
