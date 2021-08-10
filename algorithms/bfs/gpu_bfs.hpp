@@ -31,7 +31,7 @@ void BFS::vgl_top_down(VGL_Graph &_graph,
     Timer tm;
     tm.start();
 
-    /*int current_level = FIRST_LEVEL_VERTEX;
+    int current_level = FIRST_LEVEL_VERTEX;
     while(frontier.size() > 0)
     {
         auto edge_op = [_levels, current_level] __device__ (int src_id, int dst_id, int local_edge_pos,
@@ -57,7 +57,7 @@ void BFS::vgl_top_down(VGL_Graph &_graph,
         graph_API.generate_new_frontier(_graph, frontier, on_next_level);
 
         current_level++;
-    }*/
+    }
     tm.end();
 
     #ifdef __PRINT_SAMPLES_PERFORMANCE_STATS__

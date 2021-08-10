@@ -8,12 +8,13 @@ void __global__ edges_list_advance_kernel(int *_src_ids,
                                           long long _edges_count,
                                           EdgeOperation edge_op)
 {
-    const int idx = blockIdx.x * blockDim.x + threadIdx.x;
-    if(idx < _edges_count)
+    const int edge_pos = blockIdx.x * blockDim.x + threadIdx.x;
+    if(edge_pos < _edges_count)
     {
-        const int src_id = src_ids[idx];
-        const int dst_id = dst_ids[idx];
+        const int src_id = _src_ids[edge_pos];
+        const int dst_id = _dst_ids[edge_pos];
         int vector_index = lane_id();
+        long long edge_pos = edge_pos;
         edge_op(src_id, dst_id, edge_pos, edge_pos, vector_index);
     }
 }
@@ -337,8 +338,11 @@ void GraphAbstractionsGPU::advance_worker(EdgesListGraph &_graph,
     Timer tm;
     tm.start();
     LOAD_EDGES_LIST_GRAPH_DATA(_graph);
+    cout << "edges count " << edges_count << endl;
 
     SAFE_KERNEL_CALL(( edges_list_advance_kernel<<< (edges_count - 1)/BLOCK_SIZE + 1, BLOCK_SIZE >>>(src_ids, dst_ids, edges_count, edge_op) ));
+
+    tm.end();
 
     long long work = edges_count;
     performance_stats.update_advance_stats(tm.get_time(), work*(INT_ELEMENTS_PER_EDGE + 1)*sizeof(int), work);

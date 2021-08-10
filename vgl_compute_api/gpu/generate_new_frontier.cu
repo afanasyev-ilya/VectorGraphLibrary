@@ -55,7 +55,7 @@ void GraphAbstractionsGPU::generate_new_frontier(VGL_Graph &_graph,
                                                  VGL_Frontier &_frontier,
                                                  Condition &&cond)
 {
-    Timer tm;
+    /*Timer tm;
     tm.start();
     _frontier.set_direction(current_traversal_direction);
     _frontier.sparsity_type = SPARSE_FRONTIER; // TODO
@@ -87,7 +87,7 @@ void GraphAbstractionsGPU::generate_new_frontier(VGL_Graph &_graph,
     performance_stats.update_gnf_time(tm);
     #ifdef __PRINT_API_PERFORMANCE_STATS__
     tm.print_bandwidth_stats("GNF", _frontier.size(), 4.0*sizeof(int));
-    #endif
+    #endif*/
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

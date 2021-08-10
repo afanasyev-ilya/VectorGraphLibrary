@@ -9,6 +9,10 @@ void VGL_RUNTIME::init_library(int argc, char **argv)
     #ifdef __USE_ASL__
     ASL_CALL(asl_library_initialize());
     #endif
+
+    #ifdef __USE_GPU__
+    select_device(0);
+    #endif
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////

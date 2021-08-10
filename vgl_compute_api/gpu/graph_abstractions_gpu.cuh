@@ -112,7 +112,7 @@ public:
 #include "advance.cu"
 #include "compute.cu"
 //#include "reduce.cu"
-//#include "generate_new_frontier.cu"
+#include "generate_new_frontier.cu"
 #include "graph_abstractions_gpu.cu"
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
