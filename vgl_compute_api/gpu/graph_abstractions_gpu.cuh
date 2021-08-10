@@ -43,16 +43,14 @@ private:
                                 VGL_Frontier &_frontier,
                                 ComputeOperation &&compute_op);
 
-    template <typename ComputeOperation, typename Graph_Container>
-    void compute_worker(Graph_Container &_graph,
-                        FrontierGeneral &_frontier,
-                        ComputeOperation &&compute_op);
+    template <typename ComputeOperation, typename GraphContainer, typename FrontierContainer>
+    void compute_worker(GraphContainer &_graph, FrontierContainer &_frontier, ComputeOperation &&compute_op);
 
     template <typename _T, typename ReduceOperation>
-    _T GraphAbstractionsGPU::reduce_worker(VectorCSRGraph &_graph,
-                                           VGL_Frontier &_frontier,
-                                           ReduceOperation &&reduce_op,
-                                           REDUCE_TYPE _reduce_type);
+    _T reduce_worker(VectorCSRGraph &_graph,
+                     VGL_Frontier &_frontier,
+                     ReduceOperation &&reduce_op,
+                     REDUCE_TYPE _reduce_type);
 public:
     // attaches graph-processing API to the specific graph
     GraphAbstractionsGPU(VGL_Graph &_graph, TraversalDirection _initial_traversal = SCATTER);
@@ -103,6 +101,8 @@ public:
     // performs reduction using user-defined "reduce_op" operation for each element in the given frontier
     template <typename _T, typename ReduceOperation>
     _T reduce(VGL_Graph &_graph, VGL_Frontier &_frontier, ReduceOperation &&reduce_op, REDUCE_TYPE _reduce_type);
+
+    friend class GraphAbstractions;
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

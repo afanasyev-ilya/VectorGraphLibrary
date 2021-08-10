@@ -7,34 +7,19 @@
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-auto EMPTY_EDGE_OP = [] (int src_id, int dst_id, int local_edge_pos, long long int global_edge_pos, int vector_index) {};
-auto EMPTY_VERTEX_OP = [] (int src_id, int connections_count, int vector_index){};
-
-auto ALL_ACTIVE_FRONTIER_CONDITION = [] (int src_id)->int
-{
-    return IN_FRONTIER_FLAG;
-};
-
-auto EMPTY_COMPUTE_OP = [] __VGL_COMPUTE_ARGS__ {};
-
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
 class GraphAbstractionsMulticore : public GraphAbstractions
 {
 private:
     bool use_safe_stores;
 
     // compute inner implementation
-    template <typename ComputeOperation>
-    inline void compute_worker(VGL_Graph &_graph,
-                               VGL_Frontier &_frontier,
-                               ComputeOperation &&compute_op);
+    template <typename ComputeOperation, typename GraphContainer, typename FrontierContainer>
+    void compute_worker(GraphContainer &_graph, FrontierContainer &_frontier, ComputeOperation &&compute_op);
 
     // reduce inner implementation
-    template <typename _T, typename ReduceOperation>
-    _T reduce_worker_sum(VGL_Graph &_graph,
-                         VGL_Frontier &_frontier,
-                         ReduceOperation &&reduce_op);
+    template <typename _T, typename ReduceOperation, typename GraphContainer, typename FrontierContainer>
+    void reduce_worker_sum(GraphContainer &_graph, FrontierContainer &_frontier, ReduceOperation &&reduce_op,
+                           _T &_result);
 
     template <typename EdgeOperation, typename VertexPreprocessOperation,
             typename VertexPostprocessOperation, typename CollectiveEdgeOperation, typename CollectiveVertexPreprocessOperation,
@@ -47,7 +32,8 @@ private:
                         CollectiveEdgeOperation &&collective_edge_op,
                         CollectiveVertexPreprocessOperation &&collective_vertex_preprocess_op,
                         CollectiveVertexPostprocessOperation &&collective_vertex_postprocess_op,
-                        int _first_edge);
+                        int _first_edge,
+                        bool _inner_mpi_processing);
 
     template <typename EdgeOperation>
     void advance_worker(EdgesListGraph &_graph, EdgeOperation &&edge_op);
@@ -60,8 +46,8 @@ private:
                         VertexPreprocessOperation &&vertex_preprocess_op,
                         VertexPostprocessOperation &&vertex_postprocess_op);
 
-    template <typename FilterCondition, typename Graph_Container>
-    void generate_new_frontier_worker(Graph_Container &_graph,
+    template <typename FilterCondition, typename GraphContainer>
+    void generate_new_frontier_worker(GraphContainer &_graph,
                                       FrontierGeneral &_frontier,
                                       FilterCondition &&filter_cond);
 
@@ -282,6 +268,8 @@ public:
 
     void enable_safe_stores() {use_safe_stores = true;};
     void disable_safe_stores() {use_safe_stores = false;};
+
+    friend class GraphAbstractions;
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

@@ -164,7 +164,8 @@ void GraphAbstractionsMulticore::advance_worker(VectorCSRGraph &_graph,
                                                 CollectiveEdgeOperation &&collective_edge_op,
                                                 CollectiveVertexPreprocessOperation &&collective_vertex_preprocess_op,
                                                 CollectiveVertexPostprocessOperation &&collective_vertex_postprocess_op,
-                                                int _first_edge)
+                                                int _first_edge,
+                                                bool _inner_mpi_processing)
 {
     double wall_time = 0, ve_time = 0, vc_time = 0, collective_time = 0, t1 = 0, t2 = 0;
 

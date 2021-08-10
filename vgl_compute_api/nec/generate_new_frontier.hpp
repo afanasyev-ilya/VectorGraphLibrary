@@ -32,8 +32,8 @@ void GraphAbstractionsNEC::estimate_sorted_frontier_part_size(FrontierVectorCSR 
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-template <typename FilterCondition, typename Graph_Container>
-void GraphAbstractionsNEC::generate_new_frontier_worker(Graph_Container &_graph,
+template <typename FilterCondition, typename GraphContainer>
+void GraphAbstractionsNEC::generate_new_frontier_worker(GraphContainer &_graph,
                                                         FrontierGeneral &_frontier,
                                                         FilterCondition &&filter_cond)
 {
@@ -213,33 +213,7 @@ void GraphAbstractionsNEC::generate_new_frontier(VGL_Graph &_graph,
                                                  VGL_Frontier &_frontier,
                                                  FilterCondition &&filter_cond)
 {
-    _frontier.set_direction(current_traversal_direction);
-
-    if((_graph.get_container_type() == VECTOR_CSR_GRAPH) && (_frontier.get_class_type() == VECTOR_CSR_FRONTIER))
-    {
-        VectorCSRGraph *current_direction_graph = (VectorCSRGraph *)_graph.get_direction_data(current_traversal_direction);
-        FrontierVectorCSR *current_frontier = (FrontierVectorCSR *)_frontier.get_container_data();
-
-        generate_new_frontier_worker(*current_direction_graph, *current_frontier, filter_cond);
-    }
-    else if(_graph.get_container_type() == EDGES_LIST_GRAPH)
-    {
-        EdgesListGraph *current_direction_graph = (EdgesListGraph *)_graph.get_direction_data(current_traversal_direction);
-        FrontierGeneral *current_frontier = (FrontierGeneral *)_frontier.get_container_data();
-
-        generate_new_frontier_worker(*current_direction_graph, *current_frontier, filter_cond);
-    }
-    else if(_graph.get_container_type() == CSR_GRAPH)
-    {
-        CSRGraph *current_direction_graph = (CSRGraph *)_graph.get_direction_data(current_traversal_direction);
-        FrontierGeneral *current_frontier = (FrontierGeneral *)_frontier.get_container_data();
-
-        generate_new_frontier_worker(*current_direction_graph, *current_frontier, filter_cond);
-    }
-    else
-    {
-        throw "Error: unsupported graph and frontier type in GraphAbstractionsNEC::generate_new_frontier";
-    }
+    common_generate_new_frontier(_graph, _frontier, filter_cond, this);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

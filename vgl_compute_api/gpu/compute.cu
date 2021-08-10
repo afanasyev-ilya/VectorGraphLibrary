@@ -56,9 +56,9 @@ void __global__ compute_kernel_sparse(const int *_frontier_ids,
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-template <typename ComputeOperation, typename Graph_Container>
-void GraphAbstractionsGPU::compute_worker(Graph_Container &_graph,
-                                          FrontierGeneral &_frontier,
+template <typename ComputeOperation, typename GraphContainer, typename FrontierContainer>
+void GraphAbstractionsGPU::compute_worker(GraphContainer &_graph,
+                                          FrontierContainer &_frontier,
                                           ComputeOperation &&compute_op)
 {
     int vertices_count = _graph.get_vertices_count();
@@ -84,52 +84,11 @@ void GraphAbstractionsGPU::compute_worker(Graph_Container &_graph,
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template <typename ComputeOperation>
-void GraphAbstractionsGPU::compute_container_call(VGL_Graph &_graph,
-                                                  VGL_Frontier &_frontier,
-                                                  ComputeOperation &&compute_op)
-{
-    if(_graph.get_container_type() == CSR_GRAPH)
-    {
-        CSRGraph *container_graph = (CSRGraph *)_graph.get_direction_data(current_traversal_direction);
-        FrontierGeneral *container_frontier = (FrontierGeneral *)_frontier.get_container_data();
-        compute_worker(*container_graph, *container_frontier, compute_op);
-    }
-    else if(_graph.get_container_type() == EDGES_LIST_GRAPH)
-    {
-        EdgesListGraph *container_graph = (EdgesListGraph *)_graph.get_direction_data(current_traversal_direction);
-        FrontierGeneral *container_frontier = (FrontierGeneral *)_frontier.get_container_data();
-        compute_worker(*container_graph, *container_frontier, compute_op);
-    }
-    else
-    {
-        throw "Error in GraphAbstractionsGPU::compute : unsupported container type";
-    }
-}
-
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-template <typename ComputeOperation>
 void GraphAbstractionsGPU::compute(VGL_Graph &_graph,
                                    VGL_Frontier &_frontier,
                                    ComputeOperation &&compute_op)
 {
-    Timer tm;
-    tm.start();
-
-    if(_frontier.get_direction() != current_traversal_direction) // TODO check
-    {
-        throw "Error in GraphAbstractionsGPU::compute : wrong frontier direction";
-    }
-
-    compute_container_call(_graph, _frontier, compute_op);
-
-    tm.end();
-    long long work = _frontier.size();
-    performance_stats.update_compute_time(tm);
-    performance_stats.update_bytes_requested(COMPUTE_INT_ELEMENTS*sizeof(int)*work);
-    #ifdef __PRINT_API_PERFORMANCE_STATS__
-    tm.print_bandwidth_stats("Compute", work, COMPUTE_INT_ELEMENTS*sizeof(int));
-    #endif
+    this->common_compute(_graph, _frontier, compute_op, this);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

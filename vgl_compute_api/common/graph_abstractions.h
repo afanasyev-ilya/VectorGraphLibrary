@@ -2,6 +2,20 @@
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+#ifndef __USE_GPU__
+auto EMPTY_EDGE_OP = [] __VGL_ADVANCE_ARGS__ {};
+auto EMPTY_VERTEX_OP = [] __VGL_ADVANCE_PREPROCESS_ARGS__ {};
+
+auto ALL_ACTIVE_FRONTIER_CONDITION = [] (int src_id)->int
+{
+    return IN_FRONTIER_FLAG;
+};
+
+auto EMPTY_COMPUTE_OP = [] __VGL_COMPUTE_ARGS__ {};
+#endif
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 class GraphAbstractions
 {
 protected:
@@ -18,6 +32,59 @@ protected:
     void set_correct_direction();
     template<typename _T, typename ... Types>
     void set_correct_direction(_T &_first_arg, Types &... _args);
+
+    // common abstractions
+    template <typename EdgeOperation, typename VertexPreprocessOperation,
+            typename VertexPostprocessOperation, typename CollectiveEdgeOperation, typename CollectiveVertexPreprocessOperation,
+            typename CollectiveVertexPostprocessOperation, typename AbstractionClass>
+    inline void common_scatter(VGL_Graph &_graph,
+                               VGL_Frontier &_frontier,
+                               EdgeOperation &&edge_op,
+                               VertexPreprocessOperation &&vertex_preprocess_op,
+                               VertexPostprocessOperation &&vertex_postprocess_op,
+                               CollectiveEdgeOperation &&collective_edge_op,
+                               CollectiveVertexPreprocessOperation &&collective_vertex_preprocess_op,
+                               CollectiveVertexPostprocessOperation &&collective_vertex_postprocess_op,
+                               AbstractionClass *_abstraction_class);
+
+    template <typename EdgeOperation, typename VertexPreprocessOperation,
+            typename VertexPostprocessOperation, typename CollectiveEdgeOperation, typename CollectiveVertexPreprocessOperation,
+            typename CollectiveVertexPostprocessOperation, typename AbstractionClass>
+    inline void common_gather(VGL_Graph &_graph,
+                              VGL_Frontier &_frontier,
+                              EdgeOperation &&edge_op,
+                              VertexPreprocessOperation &&vertex_preprocess_op,
+                              VertexPostprocessOperation &&vertex_postprocess_op,
+                              CollectiveEdgeOperation &&collective_edge_op,
+                              CollectiveVertexPreprocessOperation &&collective_vertex_preprocess_op,
+                              CollectiveVertexPostprocessOperation &&collective_vertex_postprocess_op,
+                              AbstractionClass *_abstraction_class);
+
+    template <typename ComputeOperation, typename AbstractionClass>
+    void compute_container_call(VGL_Graph &_graph,
+                                VGL_Frontier &_frontier,
+                                ComputeOperation &&compute_op,
+                                AbstractionClass *_abstraction_class);
+
+    template <typename ComputeOperation, typename AbstractionClass>
+    void common_compute(VGL_Graph &_graph,
+                        VGL_Frontier &_frontier,
+                        ComputeOperation &&compute_op,
+                        AbstractionClass *_abstraction_class);
+
+    template <typename _T, typename ReduceOperation, typename AbstractionClass>
+    void common_reduce(VGL_Graph &_graph,
+                       VGL_Frontier &_frontier,
+                       ReduceOperation &&reduce_op,
+                       REDUCE_TYPE _reduce_type,
+                       _T &_result,
+                       AbstractionClass *_abstraction_class);
+
+    template <typename FilterCondition, typename AbstractionClass>
+    void common_generate_new_frontier(VGL_Graph &_graph,
+                                      VGL_Frontier &_frontier,
+                                      FilterCondition &&filter_cond,
+                                      AbstractionClass *_abstraction_class);
 public:
     // attaches graph-processing API to the specific graph
     GraphAbstractions();
@@ -34,6 +101,9 @@ public:
                  CollectiveEdgeOperation &&collective_edge_op,
                  CollectiveVertexPreprocessOperation &&collective_vertex_preprocess_op,
                  CollectiveVertexPostprocessOperation &&collective_vertex_postprocess_op);
+
+    template <typename EdgeOperation>
+    void scatter(VGL_Graph &_graph, VGL_Frontier &_frontier, EdgeOperation &&edge_op);
 
     // performs user-defined "edge_op" operation over all INCOMING edges, neighbouring specified frontier
     template <typename EdgeOperation, typename VertexPreprocessOperation, typename VertexPostprocessOperation,
@@ -97,6 +167,10 @@ public:
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #include "graph_abstractions.hpp"
+#include "advance.hpp"
+#include "compute.hpp"
+#include "generate_new_frontier.hpp"
+#include "reduce.hpp"
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 

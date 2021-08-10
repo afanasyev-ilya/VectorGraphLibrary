@@ -1,0 +1,1 @@
+friend GraphAbstractions_ARCH_NAME; into GraphAbstractions

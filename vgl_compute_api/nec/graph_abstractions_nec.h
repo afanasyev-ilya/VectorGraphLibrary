@@ -7,18 +7,6 @@
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-auto EMPTY_EDGE_OP = [] (int src_id, int dst_id, int local_edge_pos, long long int global_edge_pos, int vector_index) {};
-auto EMPTY_VERTEX_OP = [] (int src_id, int connections_count, int vector_index){};
-
-auto ALL_ACTIVE_FRONTIER_CONDITION = [] (int src_id)->int
-{
-    return IN_FRONTIER_FLAG;
-};
-
-auto EMPTY_COMPUTE_OP = [] __VGL_COMPUTE_ARGS__ {};
-
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
 class GraphAbstractionsNEC : public GraphAbstractions
 {
 private:
@@ -27,24 +15,17 @@ private:
     bool use_safe_stores;
 
     // compute inner implementation
-    template <typename ComputeOperation, typename Graph_Container>
-    void compute_worker(Graph_Container &_graph,
-                        VGL_Frontier &_frontier,
-                        ComputeOperation &&compute_op);
-
-    template <typename ComputeOperation> // virtual functions prevent vectorization, thus we use templates to pass correct container to worker
-    void compute_container_call(VGL_Graph &_graph,
-                                VGL_Frontier &_frontier,
-                                ComputeOperation &&compute_op);
+    template <typename ComputeOperation, typename GraphContainer, typename FrontierContainer>
+    void compute_worker(GraphContainer &_graph, FrontierContainer &_frontier, ComputeOperation &&compute_op);
 
     // reduce inner implementation
-    template <typename _T, typename ReduceOperation, typename Graph_Container>
-    _T reduce_worker_sum(Graph_Container &_graph,
-                         VGL_Frontier &_frontier,
-                         ReduceOperation &&reduce_op);
+    template <typename _T, typename ReduceOperation, typename GraphContainer, typename FrontierContainer>
+    void reduce_worker_sum(GraphContainer &_graph, FrontierContainer &_frontier, ReduceOperation &&reduce_op,
+                           _T &_result);
 
-    template <typename FilterCondition, typename Graph_Container>
-    void generate_new_frontier_worker(Graph_Container &_graph,
+    // gnf inner implementation
+    template <typename FilterCondition, typename GraphContainer>
+    void generate_new_frontier_worker(GraphContainer &_graph,
                                       FrontierGeneral &_frontier,
                                       FilterCondition &&filter_cond);
 
@@ -291,6 +272,8 @@ public:
 
     void enable_safe_stores() {use_safe_stores = true;};
     void disable_safe_stores() {use_safe_stores = false;};
+
+    friend class GraphAbstractions;
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

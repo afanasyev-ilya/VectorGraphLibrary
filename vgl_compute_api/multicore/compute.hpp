@@ -2,13 +2,11 @@
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-template <typename ComputeOperation>
-void GraphAbstractionsMulticore::compute_worker(VGL_Graph &_graph,
-                                                VGL_Frontier &_frontier,
+template <typename ComputeOperation, typename GraphContainer, typename FrontierContainer>
+void GraphAbstractionsMulticore::compute_worker(GraphContainer &_graph,
+                                                FrontierContainer &_frontier,
                                                 ComputeOperation &&compute_op)
 {
-    UndirectedGraph *current_direction_graph = _graph.get_direction_data(current_traversal_direction);
-
     int frontier_size = _frontier.get_size();
     int *frontier_flags = _frontier.get_flags();
     int *frontier_ids = _frontier.get_ids();
@@ -22,7 +20,7 @@ void GraphAbstractionsMulticore::compute_worker(VGL_Graph &_graph,
         #pragma omp for schedule(static)
         for(int src_id = 0; src_id < frontier_size; src_id++)
         {
-            int connections_count = current_direction_graph->get_connections_count(src_id);
+            int connections_count = _graph.get_connections_count(src_id);
             int vector_index = get_vector_index(src_id);
             compute_op(src_id, connections_count, vector_index);
         }
@@ -37,7 +35,7 @@ void GraphAbstractionsMulticore::compute_worker(VGL_Graph &_graph,
         {
             if(frontier_flags[src_id] == IN_FRONTIER_FLAG)
             {
-                int connections_count = current_direction_graph->get_connections_count(src_id);
+                int connections_count = _graph.get_connections_count(src_id);
                 int vector_index = get_vector_index(src_id);
                 compute_op(src_id, connections_count, vector_index);
             }
@@ -52,7 +50,7 @@ void GraphAbstractionsMulticore::compute_worker(VGL_Graph &_graph,
         for(int frontier_pos = 0; frontier_pos < frontier_size; frontier_pos++)
         {
             int src_id = frontier_ids[frontier_pos];
-            int connections_count = current_direction_graph->get_connections_count(src_id);
+            int connections_count = _graph.get_connections_count(src_id);
             int vector_index = get_vector_index(src_id);
             compute_op(src_id, connections_count, vector_index);
         }
@@ -66,23 +64,7 @@ void GraphAbstractionsMulticore::compute(VGL_Graph &_graph,
                                          VGL_Frontier &_frontier,
                                          ComputeOperation &&compute_op)
 {
-    Timer tm;
-    tm.start();
-
-    if(_frontier.get_direction() != current_traversal_direction) // TODO check
-    {
-        throw "Error in GraphAbstractionsMulticore::compute : wrong frontier direction";
-    }
-
-    OMP_PARALLEL_CALL((compute_worker(_graph, _frontier, compute_op)));
-
-    tm.end();
-    long long work = _frontier.size();
-    performance_stats.update_compute_time(tm);
-    performance_stats.update_bytes_requested(COMPUTE_INT_ELEMENTS*sizeof(int)*work);
-    #ifdef __PRINT_API_PERFORMANCE_STATS__
-    tm.print_bandwidth_stats("Compute", work, COMPUTE_INT_ELEMENTS*sizeof(int));
-    #endif
+    this->common_compute(_graph, _frontier, compute_op, this);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

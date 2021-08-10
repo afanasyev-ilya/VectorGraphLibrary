@@ -32,23 +32,6 @@ size_t GraphAbstractions::compute_process_shift(TraversalDirection _traversal, i
 template <typename EdgeOperation, typename VertexPreprocessOperation, typename VertexPostprocessOperation,
         typename CollectiveEdgeOperation, typename CollectiveVertexPreprocessOperation,
         typename CollectiveVertexPostprocessOperation>
-void GraphAbstractions::scatter(VGL_Graph &_graph,
-                                VGL_Frontier &_frontier,
-                                EdgeOperation &&edge_op,
-                                VertexPreprocessOperation &&vertex_preprocess_op,
-                                VertexPostprocessOperation &&vertex_postprocess_op,
-                                CollectiveEdgeOperation &&collective_edge_op,
-                                CollectiveVertexPreprocessOperation &&collective_vertex_preprocess_op,
-                                CollectiveVertexPostprocessOperation &&collective_vertex_postprocess_op)
-{
-
-}
-
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-template <typename EdgeOperation, typename VertexPreprocessOperation, typename VertexPostprocessOperation,
-        typename CollectiveEdgeOperation, typename CollectiveVertexPreprocessOperation,
-        typename CollectiveVertexPostprocessOperation>
 void GraphAbstractions::gather(VGL_Graph &_graph,
                                VGL_Frontier &_frontier,
                                EdgeOperation &&edge_op,

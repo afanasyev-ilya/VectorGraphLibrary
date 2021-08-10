@@ -2,10 +2,11 @@
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-template <typename _T, typename ReduceOperation>
-_T GraphAbstractionsMulticore::reduce_worker_sum(VGL_Graph &_graph,
-                                                 VGL_Frontier &_frontier,
-                                                 ReduceOperation &&reduce_op)
+template <typename _T, typename ReduceOperation, typename GraphContainer, typename FrontierContainer>
+void GraphAbstractionsMulticore::reduce_worker_sum(GraphContainer &_graph,
+                                                   FrontierContainer &_frontier,
+                                                   ReduceOperation &&reduce_op,
+                                                   _T &_result)
 {
     UndirectedGraph *current_direction_graph = _graph.get_direction_data(current_traversal_direction);
 
@@ -63,7 +64,7 @@ _T GraphAbstractionsMulticore::reduce_worker_sum(VGL_Graph &_graph,
         }
     }
 
-    return reduce_result;
+    _result = reduce_result;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -74,39 +75,9 @@ _T GraphAbstractionsMulticore::reduce(VGL_Graph &_graph,
                                       ReduceOperation &&reduce_op,
                                       REDUCE_TYPE _reduce_type)
 {
-    Timer tm;
-    tm.start();
-
-    _T reduce_result = 0;
-
-    if(_frontier.get_direction() != current_traversal_direction)
-    {
-        throw "Error in GraphAbstractionsMulticore::reduce : wrong frontier direction";
-    }
-
-    if(omp_in_parallel())
-    {
-        throw "Error in GraphAbstractionsMulticore::reduce : reduce can not be called in parallel region (reduction construct)";
-    }
-
-    if(_reduce_type == REDUCE_SUM)
-    {
-        reduce_result = reduce_worker_sum<_T>(_graph, _frontier, reduce_op);
-    }
-    else
-    {
-        throw "Error in GraphAbstractionsMulticore::reduce: non-sum reduce are currently unsupported";
-    }
-
-    tm.end();
-    long long work = _frontier.size();
-    performance_stats.update_reduce_time(tm);
-    performance_stats.update_bytes_requested(REDUCE_INT_ELEMENTS*sizeof(int)*work);
-    #ifdef __PRINT_API_PERFORMANCE_STATS__
-    tm.print_bandwidth_stats("Reduce", work, REDUCE_INT_ELEMENTS*sizeof(int));
-    #endif
-
-    return reduce_result;
+    _T result = 0;
+    this->common_reduce(_graph, _frontier, reduce_op, _reduce_type, result, this);
+    return result;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
