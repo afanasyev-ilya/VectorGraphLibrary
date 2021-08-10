@@ -30,22 +30,22 @@ private:
                            _T &_result);
 
     // generate new frontier implementation
-    template<typename FilterCondition, typename GraphContainer, typename FrontierContainer>
-    void generate_new_frontier_worker(GraphContainer &_graph,
-                                      FrontierContainer &_frontier,
-                                      FilterCondition &&filter_cond);
-
     template<typename FilterCondition, typename GraphContainer>
     void generate_new_frontier_worker(GraphContainer &_graph,
                                       FrontierGeneral &_frontier,
                                       FilterCondition &&filter_cond);
 
+    template<typename FilterCondition, typename GraphContainer, typename FrontierContainer>
+    void generate_new_frontier_worker(GraphContainer &_graph,
+                                      FrontierContainer &_frontier,
+                                      FilterCondition &&filter_cond);
+
     // advance inner implementation
     template<typename EdgeOperation, typename VertexPreprocessOperation,
             typename VertexPostprocessOperation, typename CollectiveEdgeOperation, typename CollectiveVertexPreprocessOperation,
-            typename CollectiveVertexPostprocessOperation, typename GraphContainer, typename FrontierContainer>
-    void advance_worker(GraphContainer &_graph,
-                        FrontierContainer &_frontier,
+            typename CollectiveVertexPostprocessOperation>
+    void advance_worker(EdgesListGraph &_graph,
+                        FrontierGeneral &_frontier,
                         EdgeOperation &&edge_op,
                         VertexPreprocessOperation &&vertex_preprocess_op,
                         VertexPostprocessOperation &&vertex_postprocess_op,
@@ -54,11 +54,11 @@ private:
                         CollectiveVertexPostprocessOperation &&collective_vertex_postprocess_op,
                         bool _inner_mpi_processing);
 
-    template <typename EdgeOperation, typename VertexPreprocessOperation,
+    template<typename EdgeOperation, typename VertexPreprocessOperation,
             typename VertexPostprocessOperation, typename CollectiveEdgeOperation, typename CollectiveVertexPreprocessOperation,
-            typename CollectiveVertexPostprocessOperation>
-    void advance_worker(EdgesListGraph &_graph,
-                        FrontierGeneral &_frontier,
+            typename CollectiveVertexPostprocessOperation, typename GraphContainer, typename FrontierContainer>
+    void advance_worker(GraphContainer &_graph,
+                        FrontierContainer &_frontier,
                         EdgeOperation &&edge_op,
                         VertexPreprocessOperation &&vertex_preprocess_op,
                         VertexPostprocessOperation &&vertex_postprocess_op,

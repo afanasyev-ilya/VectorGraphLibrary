@@ -57,7 +57,6 @@ void BFS::vgl_top_down(VGL_Graph &_graph,
         graph_API.generate_new_frontier(_graph, frontier, on_next_level);
 
         current_level++;
-        break;
     }
     tm.end();
 
