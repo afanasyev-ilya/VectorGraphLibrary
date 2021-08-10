@@ -2,3 +2,7 @@
 2. rename TEMPLATE into target arch
 3. include TODO
 4. implement all workers (otherwise errors will be thrown)
+
+
+
+7. add friend class GraphAbstractionsARCH; to all frontier containers (vgl_datastructures/frontier/containers/*)

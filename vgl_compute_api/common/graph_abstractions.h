@@ -179,13 +179,13 @@ public:
 #endif
 
 #ifdef __USE_GPU__
-#include "vgl_compute_api/gpu/graph_abstractions_gpu.cuh"
+#include "vgl_compute_api/gpu/graph_abstractions_gpu.h"
 #endif
 
 #if defined(__USE_MULTICORE__)
 #include "vgl_compute_api/multicore/graph_abstractions_multicore.h"
 #endif
 
-#include "vgl_compute_api/template/graph_abstractions_template.h"
+// #include "vgl_compute_api/template/graph_abstractions_template.h" // do include here
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
