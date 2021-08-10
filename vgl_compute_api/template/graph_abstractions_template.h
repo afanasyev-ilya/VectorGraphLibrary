@@ -11,11 +11,15 @@ private:
 
     // compute inner implementation
     template <typename ComputeOperation, typename GraphContainer, typename FrontierContainer>
-    void compute_worker(GraphContainer &_graph, FrontierContainer &_frontier, ComputeOperation &&compute_op);
+    void compute_worker(GraphContainer &_graph,
+                        FrontierContainer &_frontier,
+                        ComputeOperation &&compute_op);
 
     // reduce inner implementation
     template <typename _T, typename ReduceOperation, typename GraphContainer, typename FrontierContainer>
-    void reduce_worker_sum(GraphContainer &_graph, FrontierContainer &_frontier, ReduceOperation &&reduce_op,
+    void reduce_worker_sum(GraphContainer &_graph,
+                           FrontierContainer &_frontier,
+                           ReduceOperation &&reduce_op,
                            _T &_result);
 
     // generate new frontier implementation

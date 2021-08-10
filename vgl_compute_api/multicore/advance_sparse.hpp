@@ -8,8 +8,7 @@ void GraphAbstractionsMulticore::vector_engine_per_vertex_kernel_sparse(VectorCS
                                                                   FrontierVectorCSR &_frontier,
                                                                   EdgeOperation edge_op,
                                                                   VertexPreprocessOperation vertex_preprocess_op,
-                                                                  VertexPostprocessOperation vertex_postprocess_op,
-                                                                  const int _first_edge)
+                                                                  VertexPostprocessOperation vertex_postprocess_op)
 {
     #ifdef __PRINT_API_PERFORMANCE_STATS__
     Timer tm;
@@ -75,8 +74,7 @@ void GraphAbstractionsMulticore::vector_core_per_vertex_kernel_sparse(VectorCSRG
                                                                 FrontierVectorCSR &_frontier,
                                                                 EdgeOperation edge_op,
                                                                 VertexPreprocessOperation vertex_preprocess_op,
-                                                                VertexPostprocessOperation vertex_postprocess_op,
-                                                                const int _first_edge)
+                                                                VertexPostprocessOperation vertex_postprocess_op)
 {
     #ifdef __PRINT_API_PERFORMANCE_STATS__
     Timer tm;
@@ -136,8 +134,7 @@ void GraphAbstractionsMulticore::collective_vertex_processing_kernel_sparse(Vect
                                                                       const int _last_vertex,
                                                                       EdgeOperation edge_op,
                                                                       VertexPreprocessOperation vertex_preprocess_op,
-                                                                      VertexPostprocessOperation vertex_postprocess_op,
-                                                                      const int _first_edge)
+                                                                      VertexPostprocessOperation vertex_postprocess_op)
 {
     #ifdef __PRINT_API_PERFORMANCE_STATS__
     Timer tm;
@@ -211,7 +208,7 @@ void GraphAbstractionsMulticore::collective_vertex_processing_kernel_sparse(Vect
 
         if(max_connections > 0)
         {
-            for (int edge_pos = _first_edge; edge_pos < max_connections; edge_pos++)
+            for (int edge_pos = 0; edge_pos < max_connections; edge_pos++)
             {
                 #pragma simd
                 #pragma vector

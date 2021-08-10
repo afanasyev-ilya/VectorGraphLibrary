@@ -9,8 +9,7 @@ void GraphAbstractionsNEC::vector_engine_per_vertex_kernel_all_active(VectorCSRG
                                                                       const int _last_vertex,
                                                                       EdgeOperation edge_op,
                                                                       VertexPreprocessOperation vertex_preprocess_op,
-                                                                      VertexPostprocessOperation vertex_postprocess_op,
-                                                                      const int _first_edge)
+                                                                      VertexPostprocessOperation vertex_postprocess_op)
 {
     #ifdef __PRINT_API_PERFORMANCE_STATS__
     Timer tm;
@@ -107,8 +106,7 @@ void GraphAbstractionsNEC::vector_core_per_vertex_kernel_all_active(VectorCSRGra
                                                                     const int _last_vertex,
                                                                     EdgeOperation edge_op,
                                                                     VertexPreprocessOperation vertex_preprocess_op,
-                                                                    VertexPostprocessOperation vertex_postprocess_op,
-                                                                    const int _first_edge)
+                                                                    VertexPostprocessOperation vertex_postprocess_op)
 {
     #ifdef __PRINT_API_PERFORMANCE_STATS__
     Timer tm;
@@ -204,8 +202,7 @@ void GraphAbstractionsNEC::ve_collective_vertex_processing_kernel_all_active(Vec
                                                                              const int _last_vertex,
                                                                              EdgeOperation edge_op,
                                                                              VertexPreprocessOperation vertex_preprocess_op,
-                                                                             VertexPostprocessOperation vertex_postprocess_op,
-                                                                             const int _first_edge)
+                                                                             VertexPostprocessOperation vertex_postprocess_op)
 {
     #ifdef __PRINT_API_PERFORMANCE_STATS__
     Timer tm;
@@ -263,7 +260,7 @@ void GraphAbstractionsNEC::ve_collective_vertex_processing_kernel_all_active(Vec
 
         if(use_safe_stores) // all vector stores are safe in this branch (vob)
         {
-            for(int edge_pos = _first_edge; edge_pos < segment_connections_count; edge_pos++)
+            for(int edge_pos = 0; edge_pos < segment_connections_count; edge_pos++)
             {
                 #pragma _NEC cncall
                 #pragma _NEC ivdep
@@ -288,7 +285,7 @@ void GraphAbstractionsNEC::ve_collective_vertex_processing_kernel_all_active(Vec
         }
         else // all vector stores are NOT safe in this branch
         {
-            for(int edge_pos = _first_edge; edge_pos < segment_connections_count; edge_pos++)
+            for(int edge_pos = 0; edge_pos < segment_connections_count; edge_pos++)
             {
                 #pragma _NEC cncall
                 #pragma _NEC ivdep

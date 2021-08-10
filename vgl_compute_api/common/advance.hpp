@@ -31,38 +31,59 @@ void GraphAbstractions::common_scatter(VGL_Graph &_graph,
     #endif
     if(_graph.get_container_type() == VECTOR_CSR_GRAPH)
     {
-        VectorCSRGraph *current_direction_graph = (VectorCSRGraph *)_graph.get_outgoing_data();
-        FrontierVectorCSR *current_frontier = (FrontierVectorCSR *)_frontier.get_container_data();
+        VectorCSRGraph *container_graph = (VectorCSRGraph *)_graph.get_outgoing_data();
+        FrontierVectorCSR *container_frontier = (FrontierVectorCSR *)_frontier.get_container_data();
 
         #ifdef __USE_GPU__
-        //_abstraction_class->advance_worker(*current_direction_graph, edge_op);
+        _abstraction_class->advance_worker(*container_graph, *container_frontier, edge_op,
+                                           vertex_preprocess_op, vertex_postprocess_op,
+                                           collective_edge_op, collective_vertex_preprocess_op,
+                                           collective_vertex_postprocess_op,
+                                           inner_mpi_processing);
         #else
-        OMP_PARALLEL_CALL((_abstraction_class->advance_worker(*current_direction_graph, *current_frontier, edge_op,
+        OMP_PARALLEL_CALL((_abstraction_class->advance_worker(*container_graph, *container_frontier, edge_op,
                                                               vertex_preprocess_op, vertex_postprocess_op,
                                                               collective_edge_op, collective_vertex_preprocess_op,
-                                                              collective_vertex_postprocess_op, 0,
+                                                              collective_vertex_postprocess_op,
                                                               inner_mpi_processing)));
         #endif
     }
     else if(_graph.get_container_type() == EDGES_LIST_GRAPH)
     {
-        EdgesListGraph *current_direction_graph = (EdgesListGraph *)_graph.get_outgoing_data();
+        EdgesListGraph *container_graph = (EdgesListGraph *)_graph.get_outgoing_data();
+        FrontierGeneral *container_frontier = (FrontierGeneral *)_frontier.get_container_data();
+
         #ifdef __USE_GPU__
-        _abstraction_class->advance_worker(*current_direction_graph, edge_op);
+        _abstraction_class->advance_worker(*container_graph, *container_frontier, edge_op,
+                                           vertex_preprocess_op, vertex_postprocess_op,
+                                           collective_edge_op, collective_vertex_preprocess_op,
+                                           collective_vertex_postprocess_op,
+                                           inner_mpi_processing);
         #else
-        OMP_PARALLEL_CALL((_abstraction_class->advance_worker(*current_direction_graph, edge_op)));
+        OMP_PARALLEL_CALL((_abstraction_class->advance_worker(*container_graph, *container_frontier, edge_op,
+                                                              vertex_preprocess_op, vertex_postprocess_op,
+                                                              collective_edge_op, collective_vertex_preprocess_op,
+                                                              collective_vertex_postprocess_op,
+                                                              inner_mpi_processing)));
         #endif
     }
     else if(_graph.get_container_type() == CSR_GRAPH)
     {
-        CSRGraph *current_direction_graph = (CSRGraph *)_graph.get_outgoing_data();
-        FrontierGeneral *current_frontier = (FrontierGeneral *)_frontier.get_container_data();
+        CSRGraph *container_graph = (CSRGraph *)_graph.get_outgoing_data();
+        FrontierGeneral *container_frontier = (FrontierGeneral *)_frontier.get_container_data();
 
         #ifdef __USE_GPU__
-        //_abstraction_class->advance_worker(*current_direction_graph, edge_op);
+        _abstraction_class->advance_worker(*container_graph, *container_frontier, edge_op,
+                                           vertex_preprocess_op, vertex_postprocess_op,
+                                           collective_edge_op, collective_vertex_preprocess_op,
+                                           collective_vertex_postprocess_op,
+                                           inner_mpi_processing);
         #else
-        OMP_PARALLEL_CALL((_abstraction_class->advance_worker(*current_direction_graph, *current_frontier, edge_op,
-                                                              vertex_preprocess_op, vertex_postprocess_op)));
+        OMP_PARALLEL_CALL((_abstraction_class->advance_worker(*container_graph, *container_frontier, edge_op,
+                                                              vertex_preprocess_op, vertex_postprocess_op,
+                                                              collective_edge_op, collective_vertex_preprocess_op,
+                                                              collective_vertex_postprocess_op,
+                                                              inner_mpi_processing)));
         #endif
     }
     else
@@ -108,38 +129,59 @@ void GraphAbstractions::common_gather(VGL_Graph &_graph,
 
     if(_graph.get_container_type() == VECTOR_CSR_GRAPH)
     {
-        VectorCSRGraph *current_direction_graph = (VectorCSRGraph *)_graph.get_incoming_data();
-        FrontierVectorCSR *current_frontier = (FrontierVectorCSR *)_frontier.get_container_data();
+        VectorCSRGraph *container_graph = (VectorCSRGraph *)_graph.get_incoming_data();
+        FrontierVectorCSR *container_frontier = (FrontierVectorCSR *)_frontier.get_container_data();
 
         #ifdef __USE_GPU__
-        //_abstraction_class->advance_worker(*current_direction_graph, edge_op);
+        _abstraction_class->advance_worker(*container_graph, *container_frontier, edge_op,
+                                           vertex_preprocess_op, vertex_postprocess_op,
+                                           collective_edge_op, collective_vertex_preprocess_op,
+                                           collective_vertex_postprocess_op,
+                                           inner_mpi_processing);
         #else
-        OMP_PARALLEL_CALL((_abstraction_class->advance_worker(*current_direction_graph, *current_frontier, edge_op,
+        OMP_PARALLEL_CALL((_abstraction_class->advance_worker(*container_graph, *container_frontier, edge_op,
                                                               vertex_preprocess_op, vertex_postprocess_op,
                                                               collective_edge_op, collective_vertex_preprocess_op,
-                                                              collective_vertex_postprocess_op, 0,
+                                                              collective_vertex_postprocess_op,
                                                               inner_mpi_processing)));
         #endif
     }
     else if(_graph.get_container_type() == EDGES_LIST_GRAPH)
     {
-        EdgesListGraph *current_direction_graph = (EdgesListGraph *)_graph.get_incoming_data();
+        EdgesListGraph *container_graph = (EdgesListGraph *)_graph.get_incoming_data();
+        FrontierGeneral *container_frontier = (FrontierGeneral *)_frontier.get_container_data();
+
         #ifdef __USE_GPU__
-        _abstraction_class->advance_worker(*current_direction_graph, edge_op);
+        _abstraction_class->advance_worker(*container_graph, *container_frontier, edge_op,
+                                           vertex_preprocess_op, vertex_postprocess_op,
+                                           collective_edge_op, collective_vertex_preprocess_op,
+                                           collective_vertex_postprocess_op,
+                                           inner_mpi_processing);
         #else
-        OMP_PARALLEL_CALL(( _abstraction_class->advance_worker(*current_direction_graph, edge_op) ));
+        OMP_PARALLEL_CALL((_abstraction_class->advance_worker(*container_graph, *container_frontier, edge_op,
+                                                              vertex_preprocess_op, vertex_postprocess_op,
+                                                              collective_edge_op, collective_vertex_preprocess_op,
+                                                              collective_vertex_postprocess_op,
+                                                              inner_mpi_processing)));
         #endif
     }
     else if(_graph.get_container_type() == CSR_GRAPH)
     {
-        CSRGraph *current_direction_graph = (CSRGraph *)_graph.get_incoming_data();
-        FrontierGeneral *current_frontier = (FrontierGeneral *)_frontier.get_container_data();
+        CSRGraph *container_graph = (CSRGraph *)_graph.get_incoming_data();
+        FrontierGeneral *container_frontier = (FrontierGeneral *)_frontier.get_container_data();
 
         #ifdef __USE_GPU__
-        //_abstraction_class->advance_worker(*current_direction_graph, edge_op);
+        _abstraction_class->advance_worker(*container_graph, *container_frontier, edge_op,
+                                           vertex_preprocess_op, vertex_postprocess_op,
+                                           collective_edge_op, collective_vertex_preprocess_op,
+                                           collective_vertex_postprocess_op,
+                                           inner_mpi_processing);
         #else
-        OMP_PARALLEL_CALL((_abstraction_class->advance_worker(*current_direction_graph, *current_frontier,
-                                                              edge_op, vertex_preprocess_op, vertex_postprocess_op)));
+        OMP_PARALLEL_CALL((_abstraction_class->advance_worker(*container_graph, *container_frontier, edge_op,
+                                                              vertex_preprocess_op, vertex_postprocess_op,
+                                                              collective_edge_op, collective_vertex_preprocess_op,
+                                                              collective_vertex_postprocess_op,
+                                                              inner_mpi_processing)));
         #endif
     }
     else

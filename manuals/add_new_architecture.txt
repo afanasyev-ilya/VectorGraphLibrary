@@ -1,1 +1,4 @@
-friend GraphAbstractions_ARCH_NAME; into GraphAbstractions
+1. copy template folder in graph abastractions
+2. rename TEMPLATE into target arch
+3. include TODO
+4. implement all workers (otherwise errors will be thrown)

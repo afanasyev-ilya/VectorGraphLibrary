@@ -10,8 +10,7 @@ void GraphAbstractionsMulticore::vector_engine_per_vertex_kernel_dense(VectorCSR
                                                                  const int _last_vertex,
                                                                  EdgeOperation edge_op,
                                                                  VertexPreprocessOperation vertex_preprocess_op,
-                                                                 VertexPostprocessOperation vertex_postprocess_op,
-                                                                 const int _first_edge)
+                                                                 VertexPostprocessOperation vertex_postprocess_op)
 {
     #ifdef __PRINT_API_PERFORMANCE_STATS__
     Timer tm;
@@ -80,8 +79,7 @@ void GraphAbstractionsMulticore::vector_core_per_vertex_kernel_dense(VectorCSRGr
                                                                const int _last_vertex,
                                                                EdgeOperation edge_op,
                                                                VertexPreprocessOperation vertex_preprocess_op,
-                                                               VertexPostprocessOperation vertex_postprocess_op,
-                                                               const int _first_edge)
+                                                               VertexPostprocessOperation vertex_postprocess_op)
 {
     #ifdef __PRINT_API_PERFORMANCE_STATS__
     Timer tm;
@@ -142,8 +140,7 @@ void GraphAbstractionsMulticore::ve_collective_vertex_processing_kernel_dense(Ve
                                                                         const int _last_vertex,
                                                                         EdgeOperation edge_op,
                                                                         VertexPreprocessOperation vertex_preprocess_op,
-                                                                        VertexPostprocessOperation vertex_postprocess_op,
-                                                                        const int _first_edge)
+                                                                        VertexPostprocessOperation vertex_postprocess_op)
 {
     #ifdef __PRINT_API_PERFORMANCE_STATS__
     Timer tm;
@@ -198,7 +195,7 @@ void GraphAbstractionsMulticore::ve_collective_vertex_processing_kernel_dense(Ve
                 vertex_preprocess_op(src_id, reg_real_connections_count[i], i);
         }
 
-        for(int edge_pos = _first_edge; edge_pos < segment_connections_count; edge_pos++)
+        for(int edge_pos = 0; edge_pos < segment_connections_count; edge_pos++)
         {
             #pragma simd
             #pragma vector

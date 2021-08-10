@@ -186,4 +186,6 @@ public:
 #include "vgl_compute_api/multicore/graph_abstractions_multicore.h"
 #endif
 
+#include "vgl_compute_api/template/graph_abstractions_template.h"
+
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

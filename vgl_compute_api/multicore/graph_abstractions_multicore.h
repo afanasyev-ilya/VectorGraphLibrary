@@ -32,19 +32,33 @@ private:
                         CollectiveEdgeOperation &&collective_edge_op,
                         CollectiveVertexPreprocessOperation &&collective_vertex_preprocess_op,
                         CollectiveVertexPostprocessOperation &&collective_vertex_postprocess_op,
-                        int _first_edge,
                         bool _inner_mpi_processing);
 
-    template <typename EdgeOperation>
-    void advance_worker(EdgesListGraph &_graph, EdgeOperation &&edge_op);
+    template <typename EdgeOperation, typename VertexPreprocessOperation,
+            typename VertexPostprocessOperation, typename CollectiveEdgeOperation, typename CollectiveVertexPreprocessOperation,
+            typename CollectiveVertexPostprocessOperation>
+    void advance_worker(EdgesListGraph &_graph,
+                        FrontierGeneral &_frontier,
+                        EdgeOperation &&edge_op,
+                        VertexPreprocessOperation &&vertex_preprocess_op,
+                        VertexPostprocessOperation &&vertex_postprocess_op,
+                        CollectiveEdgeOperation &&collective_edge_op,
+                        CollectiveVertexPreprocessOperation &&collective_vertex_preprocess_op,
+                        CollectiveVertexPostprocessOperation &&collective_vertex_postprocess_op,
+                        bool _inner_mpi_processing);
 
     template <typename EdgeOperation, typename VertexPreprocessOperation,
-            typename VertexPostprocessOperation>
+            typename VertexPostprocessOperation, typename CollectiveEdgeOperation, typename CollectiveVertexPreprocessOperation,
+            typename CollectiveVertexPostprocessOperation>
     void advance_worker(CSRGraph &_graph,
                         FrontierGeneral &_frontier,
                         EdgeOperation &&edge_op,
                         VertexPreprocessOperation &&vertex_preprocess_op,
-                        VertexPostprocessOperation &&vertex_postprocess_op);
+                        VertexPostprocessOperation &&vertex_postprocess_op,
+                        CollectiveEdgeOperation &&collective_edge_op,
+                        CollectiveVertexPreprocessOperation &&collective_vertex_preprocess_op,
+                        CollectiveVertexPostprocessOperation &&collective_vertex_postprocess_op,
+                        bool _inner_mpi_processing);
 
     template <typename FilterCondition, typename GraphContainer>
     void generate_new_frontier_worker(GraphContainer &_graph,
@@ -64,8 +78,7 @@ private:
                                                            const int _last_vertex,
                                                            EdgeOperation edge_op,
                                                            VertexPreprocessOperation vertex_preprocess_op,
-                                                           VertexPostprocessOperation vertex_postprocess_op,
-                                                           const int _first_edge);
+                                                           VertexPostprocessOperation vertex_postprocess_op);
 
     // all-active advance inner implementation
     template <typename EdgeOperation, typename VertexPreprocessOperation,
@@ -75,8 +88,7 @@ private:
                                                          const int _last_vertex,
                                                          EdgeOperation edge_op,
                                                          VertexPreprocessOperation vertex_preprocess_op,
-                                                         VertexPostprocessOperation vertex_postprocess_op,
-                                                         const int _first_edge);
+                                                         VertexPostprocessOperation vertex_postprocess_op);
 
     // all-active advance inner implementation
     template <typename EdgeOperation, typename VertexPreprocessOperation,
@@ -86,8 +98,7 @@ private:
                                                                   const int _last_vertex,
                                                                   EdgeOperation edge_op,
                                                                   VertexPreprocessOperation vertex_preprocess_op,
-                                                                  VertexPostprocessOperation vertex_postprocess_op,
-                                                                  const int _first_edge);
+                                                                  VertexPostprocessOperation vertex_postprocess_op);
 
     // dense advance implementation
     template <typename EdgeOperation, typename VertexPreprocessOperation,
@@ -98,8 +109,7 @@ private:
                                                       const int _last_vertex,
                                                       EdgeOperation edge_op,
                                                       VertexPreprocessOperation vertex_preprocess_op,
-                                                      VertexPostprocessOperation vertex_postprocess_op,
-                                                      const int _first_edge);
+                                                      VertexPostprocessOperation vertex_postprocess_op);
 
     // dense advance implementation
     template <typename EdgeOperation, typename VertexPreprocessOperation,
@@ -110,8 +120,7 @@ private:
                                                     const int _last_vertex,
                                                     EdgeOperation edge_op,
                                                     VertexPreprocessOperation vertex_preprocess_op,
-                                                    VertexPostprocessOperation vertex_postprocess_op,
-                                                    const int _first_edge);
+                                                    VertexPostprocessOperation vertex_postprocess_op);
 
     // dense advance implementation
     template <typename EdgeOperation, typename VertexPreprocessOperation,
@@ -122,8 +131,7 @@ private:
                                                              const int _last_vertex,
                                                              EdgeOperation edge_op,
                                                              VertexPreprocessOperation vertex_preprocess_op,
-                                                             VertexPostprocessOperation vertex_postprocess_op,
-                                                             const int _first_edge);
+                                                             VertexPostprocessOperation vertex_postprocess_op);
 
     // sparse advance implementation
     template <typename EdgeOperation, typename VertexPreprocessOperation,
@@ -132,8 +140,7 @@ private:
                                                        FrontierVectorCSR &_frontier,
                                                        EdgeOperation edge_op,
                                                        VertexPreprocessOperation vertex_preprocess_op,
-                                                       VertexPostprocessOperation vertex_postprocess_op,
-                                                       const int _first_edge);
+                                                       VertexPostprocessOperation vertex_postprocess_op);
 
     // sparse advance implementation
     template <typename EdgeOperation, typename VertexPreprocessOperation,
@@ -142,8 +149,7 @@ private:
                                                      FrontierVectorCSR &_frontier,
                                                      EdgeOperation edge_op,
                                                      VertexPreprocessOperation vertex_preprocess_op,
-                                                     VertexPostprocessOperation vertex_postprocess_op,
-                                                     const int _first_edge);
+                                                     VertexPostprocessOperation vertex_postprocess_op);
 
     // sparse advance implementation
     template <typename EdgeOperation, typename VertexPreprocessOperation,
@@ -154,8 +160,7 @@ private:
                                                            const int _last_vertex,
                                                            EdgeOperation edge_op,
                                                            VertexPreprocessOperation vertex_preprocess_op,
-                                                           VertexPostprocessOperation vertex_postprocess_op,
-                                                           const int _first_edge);
+                                                           VertexPostprocessOperation vertex_postprocess_op);
 
     template <typename EdgeOperation, typename VertexPreprocessOperation,
             typename VertexPostprocessOperation>

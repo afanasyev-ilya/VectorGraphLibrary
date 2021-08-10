@@ -4,9 +4,18 @@
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-template <typename EdgeOperation>
+template <typename EdgeOperation, typename VertexPreprocessOperation,
+        typename VertexPostprocessOperation, typename CollectiveEdgeOperation, typename CollectiveVertexPreprocessOperation,
+        typename CollectiveVertexPostprocessOperation>
 void GraphAbstractionsMulticore::advance_worker(EdgesListGraph &_graph,
-                                                EdgeOperation &&edge_op)
+                                                FrontierGeneral &_frontier,
+                                                EdgeOperation &&edge_op,
+                                                VertexPreprocessOperation &&vertex_preprocess_op,
+                                                VertexPostprocessOperation &&vertex_postprocess_op,
+                                                CollectiveEdgeOperation &&collective_edge_op,
+                                                CollectiveVertexPreprocessOperation &&collective_vertex_preprocess_op,
+                                                CollectiveVertexPostprocessOperation &&collective_vertex_postprocess_op,
+                                                bool _inner_mpi_processing)
 {
     Timer tm;
     tm.start();
@@ -48,12 +57,17 @@ void GraphAbstractionsMulticore::advance_worker(EdgesListGraph &_graph,
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template <typename EdgeOperation, typename VertexPreprocessOperation,
-        typename VertexPostprocessOperation>
+        typename VertexPostprocessOperation, typename CollectiveEdgeOperation, typename CollectiveVertexPreprocessOperation,
+        typename CollectiveVertexPostprocessOperation>
 void GraphAbstractionsMulticore::advance_worker(CSRGraph &_graph,
                                                 FrontierGeneral &_frontier,
                                                 EdgeOperation &&edge_op,
                                                 VertexPreprocessOperation &&vertex_preprocess_op,
-                                                VertexPostprocessOperation &&vertex_postprocess_op)
+                                                VertexPostprocessOperation &&vertex_postprocess_op,
+                                                CollectiveEdgeOperation &&collective_edge_op,
+                                                CollectiveVertexPreprocessOperation &&collective_vertex_preprocess_op,
+                                                CollectiveVertexPostprocessOperation &&collective_vertex_postprocess_op,
+                                                bool _inner_mpi_processing)
 {
     Timer tm;
     tm.start();
@@ -164,7 +178,6 @@ void GraphAbstractionsMulticore::advance_worker(VectorCSRGraph &_graph,
                                                 CollectiveEdgeOperation &&collective_edge_op,
                                                 CollectiveVertexPreprocessOperation &&collective_vertex_preprocess_op,
                                                 CollectiveVertexPostprocessOperation &&collective_vertex_postprocess_op,
-                                                int _first_edge,
                                                 bool _inner_mpi_processing)
 {
     double wall_time = 0, ve_time = 0, vc_time = 0, collective_time = 0, t1 = 0, t2 = 0;
@@ -183,7 +196,7 @@ void GraphAbstractionsMulticore::advance_worker(VectorCSRGraph &_graph,
         if((vector_engine_threshold_end - vector_engine_threshold_start) > 0)
             vector_engine_per_vertex_kernel_all_active(_graph, vector_engine_threshold_start,
                                                        vector_engine_threshold_end, edge_op, vertex_preprocess_op,
-                                                       vertex_postprocess_op, _first_edge);
+                                                       vertex_postprocess_op);
         t2 = omp_get_wtime();
         ve_time += t2 - t1;
 
@@ -191,7 +204,7 @@ void GraphAbstractionsMulticore::advance_worker(VectorCSRGraph &_graph,
         if((vector_core_threshold_end - vector_core_threshold_start) > 0)
             vector_core_per_vertex_kernel_all_active(_graph, vector_core_threshold_start,
                                                      vector_core_threshold_end, edge_op, vertex_preprocess_op,
-                                                     vertex_postprocess_op, _first_edge);
+                                                     vertex_postprocess_op);
         t2 = omp_get_wtime();
         vc_time += t2 - t1;
 
@@ -199,7 +212,7 @@ void GraphAbstractionsMulticore::advance_worker(VectorCSRGraph &_graph,
         if((collective_threshold_end - collective_threshold_start) > 0)
             ve_collective_vertex_processing_kernel_all_active(_graph, collective_threshold_start, collective_threshold_end,
                                                               collective_edge_op, collective_vertex_preprocess_op,
-                                                              collective_vertex_postprocess_op, _first_edge);
+                                                              collective_vertex_postprocess_op);
         t2 = omp_get_wtime();
         collective_time += t2 - t1;
     }
@@ -211,13 +224,11 @@ void GraphAbstractionsMulticore::advance_worker(VectorCSRGraph &_graph,
             if (_frontier.get_sparsity_type() == DENSE_FRONTIER)
             {
                 vector_engine_per_vertex_kernel_dense(_graph, _frontier, vector_engine_threshold_start, vector_engine_threshold_end,
-                                                      edge_op, vertex_preprocess_op, vertex_postprocess_op,
-                                                      _first_edge);
+                                                      edge_op, vertex_preprocess_op, vertex_postprocess_op);
             }
             else if (_frontier.get_sparsity_type() == SPARSE_FRONTIER)
             {
-                vector_engine_per_vertex_kernel_sparse(_graph, _frontier, edge_op, vertex_preprocess_op, vertex_postprocess_op,
-                                                       _first_edge);
+                vector_engine_per_vertex_kernel_sparse(_graph, _frontier, edge_op, vertex_preprocess_op, vertex_postprocess_op);
             }
             t2 = omp_get_wtime();
             ve_time += t2 - t1;
@@ -229,11 +240,11 @@ void GraphAbstractionsMulticore::advance_worker(VectorCSRGraph &_graph,
             if(_frontier.get_sparsity_type() == DENSE_FRONTIER)
             {
                 vector_core_per_vertex_kernel_dense(_graph, _frontier, vector_core_threshold_start, vector_core_threshold_end, edge_op,
-                                                    vertex_preprocess_op, vertex_postprocess_op, _first_edge);
+                                                    vertex_preprocess_op, vertex_postprocess_op);
             }
             else if(_frontier.get_sparsity_type() == SPARSE_FRONTIER)
             {
-                vector_core_per_vertex_kernel_sparse(_graph, _frontier, edge_op, vertex_preprocess_op, vertex_postprocess_op, _first_edge);
+                vector_core_per_vertex_kernel_sparse(_graph, _frontier, edge_op, vertex_preprocess_op, vertex_postprocess_op);
             }
             t2 = omp_get_wtime();
             vc_time += t2 - t1;
@@ -246,14 +257,14 @@ void GraphAbstractionsMulticore::advance_worker(VectorCSRGraph &_graph,
             {
                 ve_collective_vertex_processing_kernel_dense(_graph, _frontier, collective_threshold_start, collective_threshold_end,
                                                              collective_edge_op, collective_vertex_preprocess_op,
-                                                             collective_vertex_postprocess_op, _first_edge);
+                                                             collective_vertex_postprocess_op);
             }
             else if(_frontier.get_sparsity_type() == SPARSE_FRONTIER)
             {
                 collective_vertex_processing_kernel_sparse(_graph, _frontier, collective_threshold_start,
                                                            collective_threshold_end, collective_edge_op,
                                                            collective_vertex_preprocess_op,
-                                                           collective_vertex_postprocess_op, _first_edge);
+                                                           collective_vertex_postprocess_op);
             }
             t2 = omp_get_wtime();
             collective_time += t2 - t1;
