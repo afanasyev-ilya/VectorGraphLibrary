@@ -6,7 +6,6 @@ GraphAbstractionsGPU::GraphAbstractionsGPU(VGL_Graph &_graph, TraversalDirection
 {
     processed_graph_ptr = &_graph;
     current_traversal_direction = _initial_traversal;
-    direction_shift = _graph.get_edges_count();
 
     cudaStreamCreate(&grid_processing_stream);
     cudaStreamCreate(&block_processing_stream);

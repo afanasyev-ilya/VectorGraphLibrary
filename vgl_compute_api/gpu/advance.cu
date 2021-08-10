@@ -2,6 +2,25 @@
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+template <class EdgeOperation>
+void __global__ edges_list_advance_kernel(int *_src_ids,
+                                          int *_dst_ids,
+                                          long long _edges_count,
+                                          EdgeOperation edge_op)
+{
+    const int idx = blockIdx.x * blockDim.x + threadIdx.x;
+    if(idx < _edges_count)
+    {
+        const int src_id = src_ids[idx];
+        const int dst_id = dst_ids[idx];
+        int vector_index = lane_id();
+        edge_op(src_id, dst_id, edge_pos, edge_pos, vector_index);
+    }
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+/*
 template <class EdgeOperation, class VertexPreprocessOperation, class VertexPostprocessOperation>
 void __global__ block_per_vertex_kernel(const long long *_vertex_pointers,
                                         const int *_adjacent_ids,
@@ -306,6 +325,27 @@ void GraphAbstractionsGPU::advance_worker(VectorCSRGraph &_graph,
     cudaDeviceSynchronize();
 
     tm.end();
+}
+*/
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+template <typename EdgeOperation>
+void GraphAbstractionsGPU::advance_worker(EdgesListGraph &_graph,
+                                          EdgeOperation &&edge_op)
+{
+    Timer tm;
+    tm.start();
+    LOAD_EDGES_LIST_GRAPH_DATA(_graph);
+
+    SAFE_KERNEL_CALL(( edges_list_advance_kernel<<< (edges_count - 1)/BLOCK_SIZE + 1, BLOCK_SIZE >>>(src_ids, dst_ids, edges_count, edge_op) ));
+
+    long long work = edges_count;
+    performance_stats.update_advance_stats(tm.get_time(), work*(INT_ELEMENTS_PER_EDGE + 1)*sizeof(int), work);
+
+    #ifdef __PRINT_API_PERFORMANCE_STATS__
+    tm.print_time_and_bandwidth_stats("Advance (edges list)", work, (INT_ELEMENTS_PER_EDGE + 1)*sizeof(int));
+    #endif
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

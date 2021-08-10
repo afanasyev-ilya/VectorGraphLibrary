@@ -34,13 +34,17 @@ private:
                         VertexPostprocessOperation vertex_postprocess_op,
                         bool _generate_frontier);
 
+    template <typename EdgeOperation>
+    void advance_worker(EdgesListGraph &_graph,
+                        EdgeOperation &&edge_op);
+
     template <typename ComputeOperation>
     void compute_container_call(VGL_Graph &_graph,
                                 VGL_Frontier &_frontier,
                                 ComputeOperation &&compute_op);
 
-    template <typename ComputeOperation>
-    void compute_worker(CSRGraph &_graph,
+    template <typename ComputeOperation, typename Graph_Container>
+    void compute_worker(Graph_Container &_graph,
                         FrontierGeneral &_frontier,
                         ComputeOperation &&compute_op);
 
@@ -103,9 +107,9 @@ public:
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-//#include "scatter.cu"
-//#include "gather.cu"
-//#include "advance.cu"
+#include "scatter.cu"
+#include "gather.cu"
+#include "advance.cu"
 #include "compute.cu"
 //#include "reduce.cu"
 //#include "generate_new_frontier.cu"
