@@ -11,7 +11,7 @@
 class UndirectedGraph : public BaseGraph
 {
 protected:
-
+    bool is_copy;
 public:
     UndirectedGraph() {};
     ~UndirectedGraph() {};

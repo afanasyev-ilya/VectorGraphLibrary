@@ -29,17 +29,6 @@ private:
                            ReduceOperation &&reduce_op,
                            _T &_result);
 
-    // generate new frontier implementation
-    template<typename FilterCondition, typename GraphContainer>
-    void generate_new_frontier_worker(GraphContainer &_graph,
-                                      FrontierGeneral &_frontier,
-                                      FilterCondition &&filter_cond);
-
-    template<typename FilterCondition, typename GraphContainer, typename FrontierContainer>
-    void generate_new_frontier_worker(GraphContainer &_graph,
-                                      FrontierContainer &_frontier,
-                                      FilterCondition &&filter_cond);
-
     // advance inner implementation
     template<typename EdgeOperation, typename VertexPreprocessOperation,
             typename VertexPostprocessOperation, typename CollectiveEdgeOperation, typename CollectiveVertexPreprocessOperation,
@@ -70,6 +59,17 @@ public:
     // attaches graph-processing API to the specific graph
     GraphAbstractionsGPU(VGL_Graph &_graph, TraversalDirection _initial_traversal = SCATTER);
     ~GraphAbstractionsGPU();
+
+    // generate new frontier implementation
+    template<typename FilterCondition, typename GraphContainer>
+    void generate_new_frontier_worker(GraphContainer &_graph, // must be public since it includes device lambda
+                                      FrontierGeneral &_frontier,
+                                      FilterCondition &&filter_cond);
+
+    template<typename FilterCondition, typename GraphContainer, typename FrontierContainer> // must be public since it includes device lambda
+    void generate_new_frontier_worker(GraphContainer &_graph,
+                                      FrontierContainer &_frontier,
+                                      FilterCondition &&filter_cond);
 
     // performs user-defined "edge_op" operation over all OUTGOING edges, neighbouring specified frontier
     template <typename EdgeOperation, typename VertexPreprocessOperation, typename VertexPostprocessOperation,

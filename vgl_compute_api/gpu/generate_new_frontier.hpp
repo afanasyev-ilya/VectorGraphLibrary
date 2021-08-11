@@ -85,15 +85,19 @@ void GraphAbstractionsGPU::generate_new_frontier_worker(GraphContainer &_graph,
     if (_frontier.get_size() == _graph.get_vertices_count())
     {
         _frontier.sparsity_type = ALL_ACTIVE_FRONTIER;
-        _frontier.neighbours_count = get_edges_count();
+        _frontier.neighbours_count = _graph.get_edges_count();
     }
     else
     {
         _frontier.sparsity_type = SPARSE_FRONTIER;
-        reduce_worker_sum(_graph, _frontier, reduce_op, _frontier.neighbours_count);
+        auto reduce_connections = [] __VGL_REDUCE_INT_ARGS__
+        {
+            return connections_count;
+        };
+        reduce_worker_sum(_graph, _frontier, reduce_connections, _frontier.neighbours_count);
+        //_frontier.neighbours_count = _graph.get_edges_count(); // TODO replace with correct
     }
 
-    _frontier.neighbours_count = 0; //TODO
     cudaDeviceSynchronize();
 
     tm.end();

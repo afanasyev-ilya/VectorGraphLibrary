@@ -92,6 +92,7 @@ private:
     void load_main_content_from_binary_file(FILE *_graph_file) final;
 public:
     VectorCSRGraph(int _vertices_count = 1, long long _edges_count = 1);
+    VectorCSRGraph(const VectorCSRGraph &_copy);
     ~VectorCSRGraph();
 
     /* get API */

@@ -53,8 +53,8 @@ template <typename _T>
 __inline__ __device__ _T block_reduce_sum(_T val)
 {
     static __shared__ _T shared[32]; // Shared mem for 32 partial sums
-    int lane =  threadIdx.x % 32;
-    int wid =  threadIdx.x / 32;
+    int lane =  lane_id();
+    int wid =  warp_id();
 
     val = warp_reduce_sum(val);     // Each warp performs partial reduction
 
@@ -75,7 +75,7 @@ __inline__ __device__ _T block_reduce_sum(_T val)
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template <typename _T, typename ReduceOperation, typename GraphContainer>
-__global__ void reduce_kernel_all_active(GraphContainer *_graph,
+__global__ void reduce_kernel_all_active(GraphContainer _graph,
                                          const int _size,
                                          ReduceOperation reduce_op,
                                          _T* _result)
@@ -85,7 +85,7 @@ __global__ void reduce_kernel_all_active(GraphContainer *_graph,
     _T val = 0;
     if(src_id < _size)
     {
-        int connections_count = _graph->get_connections_count(src_id);
+        int connections_count = _graph.get_connections_count(src_id);
         int vector_index = lane_id();
         val = reduce_op(src_id, connections_count, vector_index);
     }
@@ -98,7 +98,7 @@ __global__ void reduce_kernel_all_active(GraphContainer *_graph,
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template <typename _T, typename ReduceOperation, typename GraphContainer>
-__global__ void reduce_kernel_sparse(GraphContainer *_graph,
+__global__ void reduce_kernel_sparse(GraphContainer _graph,
                                      const int *_frontier_ids,
                                      const int _frontier_size,
                                      ReduceOperation reduce_op,
@@ -110,7 +110,7 @@ __global__ void reduce_kernel_sparse(GraphContainer *_graph,
     if(frontier_pos < _frontier_size)
     {
         int src_id = _frontier_ids[frontier_pos];
-        int connections_count = _graph->get_connections_count(src_id);
+        int connections_count = _graph.get_connections_count(src_id);
         int vector_index = lane_id();
         val = reduce_op(src_id, connections_count, vector_index);
     }
@@ -132,11 +132,11 @@ void GraphAbstractionsGPU::reduce_worker_sum(GraphContainer &_graph,
     MemoryAPI::allocate_array(&managed_reduced_result, 1);
     managed_reduced_result[0] = 0;
     MemoryAPI::move_array_to_device(managed_reduced_result, 1);
-    LOAD_VECTOR_CSR_GRAPH_DATA(_graph);
+    int vertices_count = _graph.get_vertices_count();
 
     if(_frontier.get_sparsity_type() == ALL_ACTIVE_FRONTIER)
     {
-        SAFE_KERNEL_CALL((reduce_kernel_all_active<<< (vertices_count - 1) / BLOCK_SIZE + 1, BLOCK_SIZE >>>(&_graph, vertices_count, reduce_op, managed_reduced_result)));
+        SAFE_KERNEL_CALL((reduce_kernel_all_active<<< (vertices_count - 1) / BLOCK_SIZE + 1, BLOCK_SIZE >>>(_graph, vertices_count, reduce_op, managed_reduced_result)));
     }
     else if(_frontier.get_sparsity_type() == DENSE_FRONTIER)
     {
@@ -144,8 +144,8 @@ void GraphAbstractionsGPU::reduce_worker_sum(GraphContainer &_graph,
     }
     else if(_frontier.get_sparsity_type() == SPARSE_FRONTIER)
     {
-        int frontier_size = _frontier.size();
-        SAFE_KERNEL_CALL((reduce_kernel_sparse<<< (frontier_size - 1) / BLOCK_SIZE + 1, BLOCK_SIZE >>>(&_graph, _frontier.ids, frontier_size, reduce_op, managed_reduced_result)));
+        int frontier_size = _frontier.get_size();
+        SAFE_KERNEL_CALL((reduce_kernel_sparse<<< (frontier_size - 1) / BLOCK_SIZE + 1, BLOCK_SIZE >>>(_graph, _frontier.ids, frontier_size, reduce_op, managed_reduced_result)));
     }
 
     cudaDeviceSynchronize();

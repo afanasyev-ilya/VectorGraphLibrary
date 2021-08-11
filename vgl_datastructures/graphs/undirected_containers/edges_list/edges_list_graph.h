@@ -27,19 +27,14 @@ private:
     void load_main_content_from_binary_file(FILE *_graph_file) final;
 public:
     EdgesListGraph(int _vertices_count = 1, long long _edges_count = 1);
-    EdgesListGraph(const EdgesListGraph &_copy_graph);
+    EdgesListGraph(const EdgesListGraph &_copy);
     ~EdgesListGraph();
 
     /* get API */
     inline int *get_src_ids() {return src_ids;};
     inline int *get_dst_ids() {return dst_ids;};
-    inline any_arch_func int get_connections_count(int _vertex_id) final { return connections_count[_vertex_id]; };
-    inline any_arch_func int get_edge_dst(int _src_id, int _edge_pos) final
-    {
-        #ifndef __USE_GPU__
-        throw "EdgesListGraph : get_edge_dst not implemented yet";
-        #endif
-    };
+    inline any_arch_func int get_connections_count(int _src_id) final { return connections_count[_src_id]; };
+    inline any_arch_func int get_edge_dst(int _src_id, int _edge_pos) final;
 
     inline size_t get_edges_array_index(int _v, int _edge_pos) final { throw "EdgesListGraph : get_edges_array_index not implemented yet"; };
     inline size_t get_edges_array_direction_shift_size() final { return this->edges_count; };
@@ -103,6 +98,7 @@ public:
 #include "preprocess_into_csr_based.hpp"
 #include "print.hpp"
 #include "import.hpp"
+#include "get_api.hpp"
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 

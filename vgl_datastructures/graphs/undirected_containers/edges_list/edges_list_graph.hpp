@@ -7,7 +7,26 @@ EdgesListGraph::EdgesListGraph(int _vertices_count, long long _edges_count)
     this->graph_type = EDGES_LIST_GRAPH;
     this->supported_direction = USE_BOTH;
 
+    is_copy = false;
+
     alloc(_vertices_count, _edges_count);
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+EdgesListGraph::EdgesListGraph(const EdgesListGraph &_copy)
+{
+    this->graph_type = _copy.graph_type;
+    this->supported_direction = _copy.supported_direction;
+
+    this->vertices_count = _copy.vertices_count;
+    this->edges_count = _copy.edges_count;
+
+    this->src_ids = _copy.src_ids;
+    this->dst_ids = _copy.dst_ids;
+    this->connections_count  = _copy.connections_count;
+
+    this->is_copy = true;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -33,9 +52,12 @@ void EdgesListGraph::alloc(int _vertices_count, long long _edges_count)
 
 void EdgesListGraph::free()
 {
-    MemoryAPI::free_array(src_ids);
-    MemoryAPI::free_array(dst_ids);
-    MemoryAPI::free_array(connections_count);
+    if(!is_copy)
+    {
+        MemoryAPI::free_array(src_ids);
+        MemoryAPI::free_array(dst_ids);
+        MemoryAPI::free_array(connections_count);
+    }
 
     src_ids = NULL;
     dst_ids = NULL;
@@ -82,6 +104,7 @@ void EdgesListGraph::save_main_content_to_binary_file(FILE *_graph_file)
     fwrite(reinterpret_cast<const void*>(&edges_count), sizeof(long long), 1, _graph_file);
     fwrite(reinterpret_cast<void*>(&this->graph_type), sizeof(GraphType), 1, _graph_file);
 
+    fwrite(reinterpret_cast<const void*>(connections_count), sizeof(int), this->vertices_count, _graph_file);
     fwrite(reinterpret_cast<const void*>(src_ids), sizeof(int), this->edges_count, _graph_file);
     fwrite(reinterpret_cast<const void*>(dst_ids), sizeof(int), this->edges_count, _graph_file);
 }
@@ -95,7 +118,8 @@ void EdgesListGraph::load_main_content_from_binary_file(FILE *_graph_file)
     fread(reinterpret_cast<void*>(&this->graph_type), sizeof(GraphType), 1, _graph_file);
 
     resize(this->vertices_count, this->edges_count);
-    
+
+    fread(reinterpret_cast<void*>(connections_count), sizeof(int), this->vertices_count, _graph_file);
     fread(reinterpret_cast<void*>(src_ids), sizeof(int), this->edges_count, _graph_file);
     fread(reinterpret_cast<void*>(dst_ids), sizeof(int), this->edges_count, _graph_file);
 }
@@ -186,22 +210,6 @@ void EdgesListGraph::operator = (const EdgesListGraph &_copy_graph)
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-EdgesListGraph::EdgesListGraph(const EdgesListGraph &_copy_graph)
-{
-    this->graph_type = _copy_graph.graph_type;
-    this->vertices_count = _copy_graph.vertices_count;
-    this->edges_count = _copy_graph.edges_count;
-    this->graph_on_device = _copy_graph.graph_on_device;
-
-    this->alloc(this->vertices_count, this->edges_count);
-
-    MemoryAPI::copy(this->src_ids, _copy_graph.src_ids, this->edges_count);
-    MemoryAPI::copy(this->dst_ids, _copy_graph.dst_ids, this->edges_count);
-    MemoryAPI::copy(this->connections_count, _copy_graph.connections_count, this->vertices_count);
-}
-
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
 int EdgesListGraph::select_random_nz_vertex()
 {
     long long edge = rand() % this->edges_count;
@@ -222,7 +230,7 @@ void EdgesListGraph::move_to_device()
 
     MemoryAPI::move_array_to_device(connections_count, this->vertices_count);
     MemoryAPI::move_array_to_device(src_ids, this->edges_count);
-    MemoryAPI::move_array_to_device(src_ids, this->edges_count);
+    MemoryAPI::move_array_to_device(dst_ids, this->edges_count);
 }
 #endif
 
@@ -240,7 +248,7 @@ void EdgesListGraph::move_to_host()
 
     MemoryAPI::move_array_to_host(connections_count, this->vertices_count);
     MemoryAPI::move_array_to_host(src_ids, this->edges_count);
-    MemoryAPI::move_array_to_host(src_ids, this->edges_count);
+    MemoryAPI::move_array_to_host(dst_ids, this->edges_count);
 }
 #endif
 

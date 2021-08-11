@@ -25,7 +25,7 @@ private:
     long long     *vertex_pointers;
     int           *adjacent_ids;
 
-    vgl_sort_indexes *edges_reorder_indexes; // allows to convert VectorCSRGraph edges (and weights) from sorted to original order
+    vgl_sort_indexes *edges_reorder_indexes; // allows to convert edges (and weights) from sorted to original order
 
     void alloc(int _vertices_count, long long _edges_count);
     void free();
@@ -44,6 +44,7 @@ private:
     void load_main_content_from_binary_file(FILE *_graph_file) final {};
 public:
     CSRGraph(int _vertices_count = 1, long long _edges_count = 1);
+    CSRGraph(const CSRGraph &_copy);
     ~CSRGraph();
 
     /* get API */

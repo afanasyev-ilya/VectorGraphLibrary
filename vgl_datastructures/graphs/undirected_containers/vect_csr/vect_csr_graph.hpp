@@ -8,6 +8,30 @@ VectorCSRGraph::VectorCSRGraph(int _vertices_count, long long _edges_count)
     this->supported_direction = USE_SCATTER_ONLY;
 
     alloc(_vertices_count, _edges_count);
+
+    is_copy = false;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+VectorCSRGraph::VectorCSRGraph(const VectorCSRGraph &_copy)
+{
+    this->graph_type = _copy.graph_type;
+    this->supported_direction = _copy.supported_direction;
+
+    this->vertices_count = _copy.vertices_count;
+    this->edges_count = _copy.edges_count;
+
+    this->vertex_pointers = _copy.vertex_pointers;
+    this->adjacent_ids = _copy.adjacent_ids;
+    this->edges_reorder_indexes = _copy.edges_reorder_indexes;
+
+    this->forward_conversion = _copy.forward_conversion;
+    this->backward_conversion = _copy.backward_conversion;
+
+    // TODO copy VE if required
+
+    this->is_copy = true;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
