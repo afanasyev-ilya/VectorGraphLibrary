@@ -44,6 +44,11 @@ public:
     inline TraversalDirection get_direction() { return container->get_direction(); };
     inline void set_direction(TraversalDirection _direction) { container->set_direction(_direction); }; // TODO REMOVE
     inline void reorder(TraversalDirection _direction) { container->reorder(_direction); };
+
+    #ifdef __USE_GPU__
+    void move_to_host() { container->move_to_host(); };
+    void move_to_device() { container->move_to_device(); };
+    #endif
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

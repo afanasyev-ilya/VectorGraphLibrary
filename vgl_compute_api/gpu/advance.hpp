@@ -34,7 +34,6 @@ void GraphAbstractionsGPU::advance_worker(GraphContainer &_graph,
                                           CollectiveVertexPostprocessOperation &&collective_vertex_postprocess_op,
                                           bool _inner_mpi_processing)
 {
-    cout << "template ADVANCE" << endl;
     throw "Error in GraphAbstractionsGPU::advance : not implemented yet";
 }
 
@@ -53,7 +52,6 @@ void GraphAbstractionsGPU::advance_worker(EdgesListGraph &_graph,
                                           CollectiveVertexPostprocessOperation &&collective_vertex_postprocess_op,
                                           bool _inner_mpi_processing)
 {
-    cout << "edges list ADVANCE" << endl;
     Timer tm;
     tm.start();
     LOAD_EDGES_LIST_GRAPH_DATA(_graph);

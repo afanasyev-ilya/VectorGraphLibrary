@@ -9,9 +9,6 @@
 class FrontierGeneral : public BaseFrontier
 {
 private:
-    // this is how General frontier is represented
-    int *work_buffer;
-
     void init();
 
     CSRVertexGroup large_degree;

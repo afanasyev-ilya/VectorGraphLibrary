@@ -22,18 +22,18 @@ struct is_not_active
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-template <typename Condition>
-void __global__ copy_frontier_ids_kernel(int *_frontier_ids,
+template<typename FilterCondition, typename GraphContainer>
+void __global__ copy_frontier_ids_kernel(GraphContainer *_graph,
+                                         int *_frontier_ids,
                                          int *_frontier_flags,
-                                         //long long *_vertex_pointers,
                                          const int _vertices_count,
-                                         Condition cond)
+                                         FilterCondition filter_cond)
 {
     register const int src_id = blockIdx.x * blockDim.x + threadIdx.x;
     if(src_id < _vertices_count)
     {
-        int connections_count = 0; //_vertex_pointers[src_id + 1] - _vertex_pointers[src_id];
-        if(cond(src_id, connections_count) == true)
+        int connections_count = _graph->get_connections_count(src_id);
+        if(filter_cond(src_id, connections_count) == true)
         {
             _frontier_ids[src_id] = src_id;
             _frontier_flags[src_id] = IN_FRONTIER_FLAG;
@@ -74,11 +74,14 @@ void GraphAbstractionsGPU::generate_new_frontier_worker(GraphContainer &_graph,
 
     // generate frontier flags
     SAFE_KERNEL_CALL((copy_frontier_ids_kernel<<<(vertices_count - 1) / BLOCK_SIZE +
-                                                 1, BLOCK_SIZE>>>(frontier_ids, frontier_flags,
-                                                 /*vertex_pointers, */vertices_count, filter_cond)));
+                                                 1, BLOCK_SIZE>>>(&_graph, frontier_ids, frontier_flags,
+                                                 vertices_count, filter_cond)));
 
     // generate frontier IDS
+    Timer tm2;
+    tm2.start();
     int *new_end = thrust::remove_if(thrust::device, frontier_ids, frontier_ids + vertices_count, is_not_active());
+    tm2.end();
 
     // calculate frontier size
     _frontier.size = new_end - _frontier.ids;
@@ -91,7 +94,7 @@ void GraphAbstractionsGPU::generate_new_frontier_worker(GraphContainer &_graph,
     tm.end();
     performance_stats.update_gnf_time(tm);
     #ifdef __PRINT_API_PERFORMANCE_STATS__
-    tm.print_bandwidth_stats("GNF", _frontier.get_size(), 4.0*sizeof(int));
+    tm.print_bandwidth_stats("GNF", vertices_count + _frontier.get_size(), 2.0*sizeof(int));
     #endif
 }
 

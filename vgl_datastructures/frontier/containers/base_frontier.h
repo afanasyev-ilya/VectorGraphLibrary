@@ -16,6 +16,7 @@ protected:
     // all frontiers have flags and ids - ?
     int *flags;
     int *ids;
+    int *work_buffer;
     FrontierSparsityType sparsity_type;
 public:
     BaseFrontier(VGL_Graph &_graph, TraversalDirection _direction)
@@ -47,6 +48,36 @@ public:
     TraversalDirection get_direction() { return direction; };
     void set_direction(TraversalDirection _direction) { direction = _direction; };
     void reorder(TraversalDirection _direction) { set_direction(_direction); };
+
+    #ifdef __USE_GPU__
+    void move_to_host();
+    void move_to_device();
+    #endif
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+#ifdef __USE_GPU__
+void BaseFrontier::move_to_host()
+{
+    int vertices_count = graph_ptr->get_vertices_count();
+    MemoryAPI::move_array_to_host(flags, vertices_count);
+    MemoryAPI::move_array_to_host(ids, vertices_count);
+    MemoryAPI::move_array_to_host(work_buffer, vertices_count);
+}
+#endif
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+#ifdef __USE_GPU__
+void BaseFrontier::move_to_device()
+{
+    int vertices_count = graph_ptr->get_vertices_count();
+    MemoryAPI::move_array_to_device(flags, vertices_count);
+    MemoryAPI::move_array_to_device(ids, vertices_count);
+    MemoryAPI::move_array_to_device(work_buffer, vertices_count);
+}
+#endif
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+

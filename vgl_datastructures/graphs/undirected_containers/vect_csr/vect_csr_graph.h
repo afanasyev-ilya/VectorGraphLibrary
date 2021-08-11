@@ -101,8 +101,8 @@ public:
     inline VectorExtension* get_ve_ptr() {return &last_vertices_ve;};
     int get_non_zero_degree_vertices_count();
 
-    inline int get_connections_count(int _vertex_id) final;
-    inline int get_edge_dst(int _src_id, int _edge_pos) final;
+    inline any_arch_func int get_connections_count(int _vertex_id) final;
+    inline any_arch_func int get_edge_dst(int _src_id, int _edge_pos) final;
 
     inline size_t get_edges_array_index(int _v, int _edge_pos) final { return vertex_pointers[_v] + _edge_pos; };
     inline size_t get_edges_array_direction_shift_size() final { return this->edges_count + last_vertices_ve.get_edges_count_in_ve(); };

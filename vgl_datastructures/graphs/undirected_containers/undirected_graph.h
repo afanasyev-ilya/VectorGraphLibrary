@@ -2,6 +2,12 @@
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+#ifdef __USE_GPU__
+#define any_arch_func __host__ __device__
+#else
+#define any_arch_func
+#endif
+
 class UndirectedGraph : public BaseGraph
 {
 protected:
@@ -12,8 +18,8 @@ public:
 
     /* get/set API */
 
-    virtual int get_connections_count(int _vertex_id) = 0;
-    virtual int get_edge_dst(int _src_id, int _edge_pos) = 0;
+    virtual any_arch_func int get_connections_count(int _vertex_id) = 0;
+    virtual any_arch_func int get_edge_dst(int _src_id, int _edge_pos) = 0;
 
     virtual size_t get_edges_array_index(int _v, int _edge_pos) = 0;
     virtual size_t get_edges_array_direction_shift_size() = 0;

@@ -60,7 +60,6 @@ void BFS::vgl_top_down(VGL_Graph &_graph,
         current_level++;
     }
     tm.end();
-    cout << "did iters " << current_level << endl;
 
     #ifdef __PRINT_SAMPLES_PERFORMANCE_STATS__
     performance_stats.print_algorithm_performance_stats("BFS (Top-down, NEC/multicore)", tm.get_time(), _graph.get_edges_count());

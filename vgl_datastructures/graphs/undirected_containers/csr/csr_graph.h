@@ -50,8 +50,8 @@ public:
     inline long long *get_vertex_pointers() {return vertex_pointers;};
     inline int       *get_adjacent_ids()    {return adjacent_ids;};
 
-    inline int get_connections_count(int _src_id) final {return vertex_pointers[_src_id+1] - vertex_pointers[_src_id];};
-    inline int get_edge_dst(int _src_id, int _edge_pos) final {return adjacent_ids[vertex_pointers[_src_id] + _edge_pos];};
+    inline any_arch_func int get_connections_count(int _src_id) final {return vertex_pointers[_src_id+1] - vertex_pointers[_src_id];};
+    inline any_arch_func int get_edge_dst(int _src_id, int _edge_pos) final {return adjacent_ids[vertex_pointers[_src_id] + _edge_pos];};
 
     inline size_t get_edges_array_index(int _v, int _edge_pos) final { return vertex_pointers[_v] + _edge_pos; };
     inline size_t get_edges_array_direction_shift_size() final { return this->edges_count; };

@@ -6,12 +6,13 @@ void BFS::vgl_top_down(VGL_Graph &_graph,
                        VerticesArray<_T> &_levels,
                        int _source_vertex)
 {
-    _graph.move_to_device();
-    _levels.move_to_device();
-
     VGL_GRAPH_ABSTRACTIONS graph_API(_graph);
     VGL_FRONTIER frontier(_graph);
     graph_API.change_traversal_direction(SCATTER, _levels, frontier);
+
+    _graph.move_to_device();
+    _levels.move_to_device();
+    frontier.move_to_device();
 
     _source_vertex = _graph.reorder(_source_vertex, ORIGINAL, SCATTER);
 
