@@ -75,18 +75,23 @@ void GraphAbstractionsGPU::generate_new_frontier_worker(GraphContainer &_graph,
     // generate frontier flags
     SAFE_KERNEL_CALL((copy_frontier_ids_kernel<<<(vertices_count - 1) / BLOCK_SIZE +
                                                  1, BLOCK_SIZE>>>(&_graph, frontier_ids, frontier_flags,
-                                                 vertices_count, filter_cond)));
+                                                 vertices_count, filter_cond))); // 2*|V|
 
     // generate frontier IDS
-    Timer tm2;
-    tm2.start();
-    int *new_end = thrust::remove_if(thrust::device, frontier_ids, frontier_ids + vertices_count, is_not_active());
-    tm2.end();
+    int *new_end = thrust::remove_if(thrust::device, frontier_ids, frontier_ids + vertices_count, is_not_active()); // 2*|V|
 
     // calculate frontier size
     _frontier.size = new_end - _frontier.ids;
     if (_frontier.get_size() == _graph.get_vertices_count())
+    {
         _frontier.sparsity_type = ALL_ACTIVE_FRONTIER;
+        _frontier.neighbours_count = get_edges_count();
+    }
+    else
+    {
+        _frontier.sparsity_type = SPARSE_FRONTIER;
+        reduce_worker_sum(_graph, _frontier, reduce_op, _frontier.neighbours_count);
+    }
 
     _frontier.neighbours_count = 0; //TODO
     cudaDeviceSynchronize();
@@ -94,7 +99,7 @@ void GraphAbstractionsGPU::generate_new_frontier_worker(GraphContainer &_graph,
     tm.end();
     performance_stats.update_gnf_time(tm);
     #ifdef __PRINT_API_PERFORMANCE_STATS__
-    tm.print_bandwidth_stats("GNF", vertices_count + _frontier.get_size(), 2.0*sizeof(int));
+    tm.print_bandwidth_stats("GNF", vertices_count, 4.0*sizeof(int));
     #endif
 }
 
