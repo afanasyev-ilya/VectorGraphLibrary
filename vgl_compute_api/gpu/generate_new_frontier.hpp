@@ -23,7 +23,7 @@ struct is_not_active
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template<typename FilterCondition, typename GraphContainer>
-void __global__ copy_frontier_ids_kernel(GraphContainer *_graph,
+void __global__ copy_frontier_ids_kernel(GraphContainer _graph,
                                          int *_frontier_ids,
                                          int *_frontier_flags,
                                          const int _vertices_count,
@@ -32,7 +32,7 @@ void __global__ copy_frontier_ids_kernel(GraphContainer *_graph,
     register const int src_id = blockIdx.x * blockDim.x + threadIdx.x;
     if(src_id < _vertices_count)
     {
-        int connections_count = _graph->get_connections_count(src_id);
+        int connections_count = _graph.get_connections_count(src_id);
         if(filter_cond(src_id, connections_count) == true)
         {
             _frontier_ids[src_id] = src_id;
@@ -69,12 +69,11 @@ void GraphAbstractionsGPU::generate_new_frontier_worker(GraphContainer &_graph,
     _frontier.sparsity_type = SPARSE_FRONTIER; // TODO
 
     int vertices_count = _graph.get_vertices_count();
-    int *frontier_ids = _frontier.get_ids();
-    int *frontier_flags = _frontier.get_flags();
+    LOAD_FRONTIER_DATA(_frontier);
 
     // generate frontier flags
     SAFE_KERNEL_CALL((copy_frontier_ids_kernel<<<(vertices_count - 1) / BLOCK_SIZE +
-                                                 1, BLOCK_SIZE>>>(&_graph, frontier_ids, frontier_flags,
+                                                 1, BLOCK_SIZE>>>(_graph, frontier_ids, frontier_flags,
                                                  vertices_count, filter_cond))); // 2*|V|
 
     // generate frontier IDS

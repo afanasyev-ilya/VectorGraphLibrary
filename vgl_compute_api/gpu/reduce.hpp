@@ -134,6 +134,8 @@ void GraphAbstractionsGPU::reduce_worker_sum(GraphContainer &_graph,
     MemoryAPI::move_array_to_device(managed_reduced_result, 1);
     int vertices_count = _graph.get_vertices_count();
 
+    LOAD_FRONTIER_DATA(_frontier);
+
     if(_frontier.get_sparsity_type() == ALL_ACTIVE_FRONTIER)
     {
         SAFE_KERNEL_CALL((reduce_kernel_all_active<<< (vertices_count - 1) / BLOCK_SIZE + 1, BLOCK_SIZE >>>(_graph, vertices_count, reduce_op, managed_reduced_result)));
@@ -144,8 +146,7 @@ void GraphAbstractionsGPU::reduce_worker_sum(GraphContainer &_graph,
     }
     else if(_frontier.get_sparsity_type() == SPARSE_FRONTIER)
     {
-        int frontier_size = _frontier.get_size();
-        SAFE_KERNEL_CALL((reduce_kernel_sparse<<< (frontier_size - 1) / BLOCK_SIZE + 1, BLOCK_SIZE >>>(_graph, _frontier.ids, frontier_size, reduce_op, managed_reduced_result)));
+        SAFE_KERNEL_CALL((reduce_kernel_sparse<<< (frontier_size - 1) / BLOCK_SIZE + 1, BLOCK_SIZE >>>(_graph, frontier_ids, frontier_size, reduce_op, managed_reduced_result)));
     }
 
     cudaDeviceSynchronize();

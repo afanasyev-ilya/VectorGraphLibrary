@@ -28,6 +28,7 @@ public:
     inline int get_size() { return size; };
     inline int *get_ids() { return ids; };
     inline int *get_flags() { return flags; };
+    inline int *get_work_buffer() { return work_buffer; };
     inline FrontierSparsityType get_sparsity_type() { return sparsity_type; };
     inline FrontierClassType get_class_type() { return class_type; };
     inline long long get_neighbours_count() { return neighbours_count; };
@@ -81,3 +82,11 @@ void BaseFrontier::move_to_device()
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+#define LOAD_FRONTIER_DATA(frontier)              \
+int frontier_size          = frontier.get_size(); \
+long long frontier_neighbours_count = frontier.get_neighbours_count(); \
+int *frontier_ids          = frontier.get_ids(); \
+int *frontier_flags        = frontier.get_flags();   \
+int *frontier_work_buffer  = frontier.get_work_buffer();  \
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

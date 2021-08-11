@@ -104,7 +104,7 @@ public:
 
 #define LOAD_EDGES_LIST_GRAPH_DATA(input_graph)           \
 int vertices_count    = input_graph.get_vertices_count(); \
-int edges_count       = input_graph.get_edges_count   (); \
+long long edges_count = input_graph.get_edges_count   (); \
 int *src_ids          = input_graph.get_src_ids       (); \
 int *dst_ids          = input_graph.get_dst_ids       (); \
 

@@ -43,6 +43,19 @@ private:
                         CollectiveVertexPostprocessOperation &&collective_vertex_postprocess_op,
                         bool _inner_mpi_processing);
 
+    template <typename EdgeOperation, typename VertexPreprocessOperation,
+            typename VertexPostprocessOperation, typename CollectiveEdgeOperation, typename CollectiveVertexPreprocessOperation,
+            typename CollectiveVertexPostprocessOperation>
+    void advance_worker(CSRGraph &_graph,
+                        FrontierGeneral &_frontier,
+                        EdgeOperation &&edge_op,
+                        VertexPreprocessOperation &&vertex_preprocess_op,
+                        VertexPostprocessOperation &&vertex_postprocess_op,
+                        CollectiveEdgeOperation &&collective_edge_op,
+                        CollectiveVertexPreprocessOperation &&collective_vertex_preprocess_op,
+                        CollectiveVertexPostprocessOperation &&collective_vertex_postprocess_op,
+                        bool _inner_mpi_processing);
+
     template<typename EdgeOperation, typename VertexPreprocessOperation,
             typename VertexPostprocessOperation, typename CollectiveEdgeOperation, typename CollectiveVertexPreprocessOperation,
             typename CollectiveVertexPostprocessOperation, typename GraphContainer, typename FrontierContainer>

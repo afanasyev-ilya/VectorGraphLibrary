@@ -26,9 +26,6 @@ public:
     FrontierGeneral(VGL_Graph &_graph, TraversalDirection _direction = SCATTER);
     ~ FrontierGeneral();
 
-    /* Get API */
-    int *get_work_buffer() {return work_buffer;};
-
     /* Print API */
     void print_stats();
     void print();

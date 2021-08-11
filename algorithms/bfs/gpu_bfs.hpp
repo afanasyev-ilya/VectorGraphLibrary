@@ -35,11 +35,11 @@ void BFS::vgl_top_down(VGL_Graph &_graph,
     int current_level = FIRST_LEVEL_VERTEX;
     while(frontier.size() > 0)
     {
-        auto edge_op = [_levels, current_level] __device__ (int src_id, int dst_id, int local_edge_pos,
-                long long int global_edge_pos, int vector_index)
+        auto edge_op = [_levels, current_level] __VGL_SCATTER_ARGS__
         {
+            _T src_level = _levels[src_id]; // this is required for edges list representaion
             _T dst_level = _levels[dst_id];
-            if(dst_level == UNVISITED_VERTEX)
+            if((src_level == current_level) && (dst_level == UNVISITED_VERTEX))
             {
                 _levels[dst_id] = current_level + 1;
             }
@@ -47,7 +47,7 @@ void BFS::vgl_top_down(VGL_Graph &_graph,
 
         graph_API.scatter(_graph, frontier, edge_op);
 
-        auto on_next_level = [_levels, current_level] __device__ __VGL_GNF_ARGS__
+        auto on_next_level = [_levels, current_level] __VGL_GNF_ARGS__
         {
             int result = NOT_IN_FRONTIER_FLAG;
             if(_levels[src_id] == (current_level + 1))
