@@ -94,7 +94,6 @@ void GraphAbstractionsGPU::generate_new_frontier_worker(GraphContainer &_graph,
             return connections_count;
         };
         reduce_worker_sum(_graph, _frontier, reduce_connections, _frontier.neighbours_count);
-        //cout << "_frontier.neighbours_count : " << _frontier.neighbours_count << endl;
     }
 
     #ifdef __USE_CSR_VERTEX_GROUPS__

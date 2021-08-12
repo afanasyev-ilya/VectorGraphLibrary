@@ -102,9 +102,9 @@ void GraphAbstractionsGPU::advance_worker(CSRGraph &_graph,
     }
     if(_frontier.degree_32_1024.size > 0)
     {
-        dim3 grid((_frontier.degree_32_1024.size - 1) / (BLOCK_SIZE/WARP_SIZE) + 1);
+        dim3 grid((_frontier.degree_32_1024.size - 1) / (BLOCK_SIZE/32) + 1);
         dim3 block(BLOCK_SIZE);
-        vg_csr_advance_warp_per_vertex_kernel<<<grid, block, 0, stream_2>>>(vertex_pointers, adjacent_ids,
+        virtual_warp_per_vertex_kernel<32><<<grid, block, 0, stream_2>>>(vertex_pointers, adjacent_ids,
                                                       _frontier.degree_32_1024.ids, _frontier.degree_32_1024.size,
                                                       process_shift, edge_op, vertex_preprocess_op,
                                                       vertex_postprocess_op);
