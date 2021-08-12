@@ -19,12 +19,7 @@ struct CSRVertexGroup
     {
         size = _new_size;
         MemoryAPI::free_array(ids);
-        MemoryAPI::allocate_array(&ids, size);
-    }
-
-    void print()
-    {
-        cout << "size: " << size << endl;
+        MemoryAPI::allocate_array(&ids, _new_size + 1);
     }
 
     ~CSRVertexGroup()

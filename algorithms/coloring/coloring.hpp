@@ -126,8 +126,8 @@ void Coloring::vgl_coloring(VGL_Graph &_graph, VerticesArray<_T> &_colors)
                 result = 1;
             return result;
         };
+
         int full_vertices = graph_API.reduce<int>(_graph, frontier, offset_change_required_op, REDUCE_SUM);
-        //cout << "FULL VERTICES: " << full_vertices << endl;
         if(full_vertices > 0)
         {
             start_range += 64;

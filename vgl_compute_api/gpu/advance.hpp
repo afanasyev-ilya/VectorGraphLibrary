@@ -22,80 +22,6 @@ void __global__ edges_list_advance_kernel(int *_src_ids,
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template <typename EdgeOperation, typename VertexPreprocessOperation,
-        typename VertexPostprocessOperation>
-void __global__ csr_sparse_advance_kernel(long long *_vertex_pointers,
-                                          int *_adjacent_ids,
-                                          int *_frontier_ids,
-                                          int _frontier_size,
-                                          long long _process_shift,
-                                          EdgeOperation edge_op,
-                                          VertexPreprocessOperation vertex_preprocess_op,
-                                          VertexPostprocessOperation vertex_postprocess_op)
-{
-    const register int front_pos = blockIdx.x * blockDim.x + threadIdx.x;
-    if(front_pos < _frontier_size)
-    {
-        const int src_id = _frontier_ids[front_pos];
-
-        const long long int start = _vertex_pointers[src_id];
-        const long long int end = _vertex_pointers[src_id + 1];
-        const int connections_count = end - start;
-
-        vertex_preprocess_op(src_id, connections_count, 0);
-
-        for (int local_edge_pos = 0; local_edge_pos < connections_count; local_edge_pos++)
-        {
-            const long long internal_edge_pos = start + local_edge_pos;
-            const int vector_index = lane_id();
-            const int dst_id = _adjacent_ids[internal_edge_pos];
-            const long long external_edge_pos = _process_shift + internal_edge_pos;
-
-            edge_op(src_id, dst_id, local_edge_pos, external_edge_pos, vector_index);
-        }
-
-        vertex_postprocess_op(src_id, connections_count, 0);
-    }
-}
-
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-template <typename EdgeOperation, typename VertexPreprocessOperation,
-        typename VertexPostprocessOperation>
-void __global__ csr_all_active_advance_kernel(long long *_vertex_pointers,
-                                              int *_adjacent_ids,
-                                              int _vertices_count,
-                                              long long _process_shift,
-                                              EdgeOperation edge_op,
-                                              VertexPreprocessOperation vertex_preprocess_op,
-                                              VertexPostprocessOperation vertex_postprocess_op)
-{
-    const register int src_id = blockIdx.x * blockDim.x + threadIdx.x;
-    if(src_id < _vertices_count)
-    {
-        const long long int start = _vertex_pointers[src_id];
-        const long long int end = _vertex_pointers[src_id + 1];
-        const int connections_count = end - start;
-
-        vertex_preprocess_op(src_id, connections_count, 0);
-
-        for (int local_edge_pos = 0; local_edge_pos < connections_count; local_edge_pos++)
-        {
-            const long long internal_edge_pos = start + local_edge_pos;
-            const int vector_index = lane_id();
-            const int dst_id = _adjacent_ids[internal_edge_pos];
-            const long long external_edge_pos = internal_edge_pos;
-
-            edge_op(src_id, dst_id, local_edge_pos, external_edge_pos, vector_index);
-        }
-
-        vertex_postprocess_op(src_id, connections_count, 0);
-    }
-}
-
-
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-template <typename EdgeOperation, typename VertexPreprocessOperation,
         typename VertexPostprocessOperation, typename CollectiveEdgeOperation, typename CollectiveVertexPreprocessOperation,
         typename CollectiveVertexPostprocessOperation, typename GraphContainer, typename FrontierContainer>
 void GraphAbstractionsGPU::advance_worker(GraphContainer &_graph,
@@ -164,20 +90,59 @@ void GraphAbstractionsGPU::advance_worker(CSRGraph &_graph,
 
     long long process_shift = compute_process_shift(current_traversal_direction, CSR_STORAGE);
 
+    #ifdef __USE_CSR_VERTEX_GROUPS__
+    if(_frontier.block_degree.size > 0)
+    {
+        dim3 grid(_frontier.block_degree.size);
+        dim3 block(BLOCK_SIZE);
+        SAFE_KERNEL_CALL((vg_csr_advance_block_per_vertex_kernel<<<grid, block>>>(vertex_pointers, adjacent_ids,
+                                                      _frontier.block_degree.ids, _frontier.block_degree.size,
+                                                      process_shift, edge_op, vertex_preprocess_op,
+                                                      vertex_postprocess_op)));
+    }
+    if(_frontier.warp_degree.size > 0)
+    {
+        dim3 grid((_frontier.warp_degree.size - 1) / WARP_SIZE + 1);
+        dim3 block(BLOCK_SIZE);
+        SAFE_KERNEL_CALL((vg_csr_advance_warp_per_vertex_kernel<<<grid, block>>>(vertex_pointers, adjacent_ids,
+                                                      _frontier.warp_degree.ids, _frontier.warp_degree.size,
+                                                      process_shift, edge_op, vertex_preprocess_op,
+                                                      vertex_postprocess_op)));
+    }
+    if(_frontier.vwarp_degree_16.size > 0)
+    {
+        dim3 grid((_frontier.vwarp_degree_16.size - 1) / 16 + 1);
+        dim3 block(BLOCK_SIZE);
+        SAFE_KERNEL_CALL((virtual_warp_per_vertex_kernel<16><<<grid, block>>>(vertex_pointers, adjacent_ids,
+                                                      _frontier.vwarp_degree_16.ids, _frontier.vwarp_degree_16.size,
+                                                      process_shift, edge_op, vertex_preprocess_op,
+                                                      vertex_postprocess_op)));
+    }
+    if(_frontier.vwarp_degree_0.size > 0)
+    {
+        dim3 grid((_frontier.vwarp_degree_0.size - 1) / 8 + 1);
+        dim3 block(BLOCK_SIZE);
+        SAFE_KERNEL_CALL((virtual_warp_per_vertex_kernel<8><<<grid, block>>>(vertex_pointers, adjacent_ids,
+                                                      _frontier.vwarp_degree_0.ids, _frontier.vwarp_degree_0.size,
+                                                      process_shift, edge_op, vertex_preprocess_op,
+                                                      vertex_postprocess_op)));
+    }
+    #else
     if(_frontier.get_sparsity_type() == ALL_ACTIVE_FRONTIER)
     {
         dim3 grid((vertices_count - 1) / BLOCK_SIZE + 1);
         csr_all_active_advance_kernel<<<grid, BLOCK_SIZE>>>(vertex_pointers, adjacent_ids, vertices_count,
-                                                            process_shift, edge_op, vertex_preprocess_op,
-                                                            vertex_postprocess_op);
+                process_shift, edge_op, vertex_preprocess_op,
+                vertex_postprocess_op);
     }
     else if(_frontier.get_sparsity_type() == SPARSE_FRONTIER)
     {
         dim3 grid((frontier_size - 1) / BLOCK_SIZE + 1);
         csr_sparse_advance_kernel<<<grid, BLOCK_SIZE>>>(vertex_pointers, adjacent_ids, frontier_ids, frontier_size,
-                                                        process_shift, edge_op, vertex_preprocess_op,
-                                                        vertex_postprocess_op);
+                process_shift, edge_op, vertex_preprocess_op,
+                vertex_postprocess_op);
     }
+    #endif
 
     tm.end();
 
