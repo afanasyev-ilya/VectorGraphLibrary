@@ -22,21 +22,26 @@ void FrontierGeneral::fill_vertex_group_data()
 {
     #ifndef __USE_GPU__
     create_vertices_group_array(large_degree, 256, 2147483647);
-    create_vertices_group_array(degree_256_to_128, 128, 256);
-    create_vertices_group_array(degree_128_to_64, 64, 128);
-    create_vertices_group_array(degree_64_to_32, 32, 64);
-    create_vertices_group_array(degree_32_to_16, 16, 32);
-    create_vertices_group_array(degree_16_to_8, 8, 16);
-    create_vertices_group_array(degree_8_to_0, 0, 8);
+    create_vertices_group_array(degree_128_256, 128, 256);
+    create_vertices_group_array(degree_64_128, 64, 128);
+    create_vertices_group_array(degree_32_64, 32, 64);
+    create_vertices_group_array(degree_16_32, 16, 32);
+    create_vertices_group_array(degree_8_16, 8, 16);
+    create_vertices_group_array(degree_0_8, 0, 8);
     #else
-    create_vertices_group_array(block_degree, 1024, 2147483647);
-    create_vertices_group_array(warp_degree, 32, 1024);
-    create_vertices_group_array(vwarp_degree_16, 16, 32);
-    create_vertices_group_array(vwarp_degree_0, 0, 16);
-    MemoryAPI::move_array_to_device(block_degree.ids, block_degree.size);
-    MemoryAPI::move_array_to_device(warp_degree.ids, warp_degree.size);
-    MemoryAPI::move_array_to_device(vwarp_degree_16.ids, vwarp_degree_16.size);
-    MemoryAPI::move_array_to_device(vwarp_degree_0.ids, vwarp_degree_0.size);
+    create_vertices_group_array(large_degree, 1024, 2147483647);
+    create_vertices_group_array(degree_32_1024, 32, 1024);
+    create_vertices_group_array(degree_16_32, 16, 32);
+    create_vertices_group_array(degree_8_16, 8, 16);
+    create_vertices_group_array(degree_4_8, 4, 8);
+    create_vertices_group_array(degree_0_4, 0, 4);
+
+    large_degree.move_to_device();
+    degree_32_1024.move_to_device();
+    degree_16_32.move_to_device();
+    degree_8_16.move_to_device();
+    degree_4_8.move_to_device();
+    degree_0_4.move_to_device();
     #endif
 }
 

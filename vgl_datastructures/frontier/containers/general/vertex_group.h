@@ -26,6 +26,22 @@ struct CSRVertexGroup
     {
         MemoryAPI::free_array(ids);
     }
+
+    #ifdef __USE_GPU__
+    void move_to_host()
+    {
+        if(size > 0)
+            MemoryAPI::move_array_to_host(ids, size);
+    }
+    #endif
+
+    #ifdef __USE_GPU__
+    void move_to_device()
+    {
+        if(size > 0)
+            MemoryAPI::move_array_to_device(ids, size);
+    }
+    #endif
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

@@ -12,6 +12,7 @@ GraphAbstractionsGPU::GraphAbstractionsGPU(VGL_Graph &_graph, TraversalDirection
     cudaStreamCreate(&stream_3);
     cudaStreamCreate(&stream_4);
     cudaStreamCreate(&stream_5);
+    cudaStreamCreate(&stream_6);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -23,6 +24,7 @@ GraphAbstractionsGPU::~GraphAbstractionsGPU()
     cudaStreamDestroy(stream_3);
     cudaStreamDestroy(stream_4);
     cudaStreamDestroy(stream_5);
+    cudaStreamDestroy(stream_6);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

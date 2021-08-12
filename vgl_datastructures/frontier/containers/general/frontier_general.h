@@ -13,17 +13,19 @@ private:
 
     #ifndef __USE_GPU__
     CSRVertexGroup large_degree;
-    CSRVertexGroup degree_256_to_128;
-    CSRVertexGroup degree_128_to_64;
-    CSRVertexGroup degree_64_to_32;
-    CSRVertexGroup degree_32_to_16;
-    CSRVertexGroup degree_16_to_8;
-    CSRVertexGroup degree_8_to_0;
+    CSRVertexGroup degree_128_256;
+    CSRVertexGroup degree_64_128;
+    CSRVertexGroup degree_32_64;
+    CSRVertexGroup degree_16_32;
+    CSRVertexGroup degree_8_16;
+    CSRVertexGroup degree_0_8;
     #else
-    CSRVertexGroup block_degree;
-    CSRVertexGroup warp_degree;
-    CSRVertexGroup vwarp_degree_16;
-    CSRVertexGroup vwarp_degree_0;
+    CSRVertexGroup large_degree;
+    CSRVertexGroup degree_32_1024;
+    CSRVertexGroup degree_16_32;
+    CSRVertexGroup degree_8_16;
+    CSRVertexGroup degree_4_8;
+    CSRVertexGroup degree_0_4;
     #endif
 
     void fill_vertex_group_data();

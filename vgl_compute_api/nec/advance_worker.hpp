@@ -79,17 +79,17 @@ void GraphAbstractionsNEC::advance_worker(CSRGraph &_graph,
     #ifdef __USE_CSR_VERTEX_GROUPS__
     vertex_group_advance_changed_vl(_frontier.large_degree, vertex_pointers, adjacent_ids, edge_op, vertex_preprocess_op,
                                     vertex_postprocess_op, process_shift);
-    vertex_group_advance_fixed_vl(_frontier.degree_256_to_128, vertex_pointers, adjacent_ids, edge_op, vertex_preprocess_op,
+    vertex_group_advance_fixed_vl(_frontier.degree_128_256, vertex_pointers, adjacent_ids, edge_op, vertex_preprocess_op,
                                   vertex_postprocess_op, process_shift);
-    vertex_group_advance_sparse(_frontier.degree_128_to_64, vertex_pointers, adjacent_ids, edge_op, vertex_preprocess_op,
+    vertex_group_advance_sparse(_frontier.degree_64_128, vertex_pointers, adjacent_ids, edge_op, vertex_preprocess_op,
                                 vertex_postprocess_op, process_shift);
-    vertex_group_advance_sparse(_frontier.degree_64_to_32, vertex_pointers, adjacent_ids, edge_op, vertex_preprocess_op,
+    vertex_group_advance_sparse(_frontier.degree_32_64, vertex_pointers, adjacent_ids, edge_op, vertex_preprocess_op,
                                 vertex_postprocess_op, process_shift);
-    vertex_group_advance_sparse(_frontier.degree_32_to_16, vertex_pointers, adjacent_ids, edge_op, vertex_preprocess_op,
+    vertex_group_advance_sparse(_frontier.degree_16_32, vertex_pointers, adjacent_ids, edge_op, vertex_preprocess_op,
                                 vertex_postprocess_op, process_shift);
-    vertex_group_advance_sparse(_frontier.degree_16_to_8, vertex_pointers, adjacent_ids, edge_op, vertex_preprocess_op,
+    vertex_group_advance_sparse(_frontier.degree_8_16, vertex_pointers, adjacent_ids, edge_op, vertex_preprocess_op,
                                 vertex_postprocess_op, process_shift);
-    vertex_group_advance_sparse(_frontier.degree_8_to_0, vertex_pointers, adjacent_ids, edge_op, vertex_preprocess_op,
+    vertex_group_advance_sparse(_frontier.degree_0_8, vertex_pointers, adjacent_ids, edge_op, vertex_preprocess_op,
                                 vertex_postprocess_op, process_shift);
     #else
     if(_frontier.get_sparsity_type() == ALL_ACTIVE_FRONTIER)

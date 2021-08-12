@@ -91,42 +91,63 @@ void GraphAbstractionsGPU::advance_worker(CSRGraph &_graph,
     long long process_shift = compute_process_shift(current_traversal_direction, CSR_STORAGE);
 
     #ifdef __USE_CSR_VERTEX_GROUPS__
-    if(_frontier.block_degree.size > 0)
+    if(_frontier.large_degree.size > 0)
     {
-        dim3 grid(_frontier.block_degree.size);
+        dim3 grid(_frontier.large_degree.size);
         dim3 block(BLOCK_SIZE);
-        SAFE_KERNEL_CALL((vg_csr_advance_block_per_vertex_kernel<<<grid, block>>>(vertex_pointers, adjacent_ids,
-                                                      _frontier.block_degree.ids, _frontier.block_degree.size,
+        vg_csr_advance_block_per_vertex_kernel<<<grid, block, 0, stream_1>>>(vertex_pointers, adjacent_ids,
+                                                      _frontier.large_degree.ids, _frontier.large_degree.size,
                                                       process_shift, edge_op, vertex_preprocess_op,
-                                                      vertex_postprocess_op)));
+                                                      vertex_postprocess_op);
     }
-    if(_frontier.warp_degree.size > 0)
+    if(_frontier.degree_32_1024.size > 0)
     {
-        dim3 grid((_frontier.warp_degree.size - 1) / WARP_SIZE + 1);
+        dim3 grid((_frontier.degree_32_1024.size - 1) / (BLOCK_SIZE/WARP_SIZE) + 1);
         dim3 block(BLOCK_SIZE);
-        SAFE_KERNEL_CALL((vg_csr_advance_warp_per_vertex_kernel<<<grid, block>>>(vertex_pointers, adjacent_ids,
-                                                      _frontier.warp_degree.ids, _frontier.warp_degree.size,
+        vg_csr_advance_warp_per_vertex_kernel<<<grid, block, 0, stream_2>>>(vertex_pointers, adjacent_ids,
+                                                      _frontier.degree_32_1024.ids, _frontier.degree_32_1024.size,
                                                       process_shift, edge_op, vertex_preprocess_op,
-                                                      vertex_postprocess_op)));
+                                                      vertex_postprocess_op);
     }
-    if(_frontier.vwarp_degree_16.size > 0)
+    if(_frontier.degree_16_32.size > 0)
     {
-        dim3 grid((_frontier.vwarp_degree_16.size - 1) / 16 + 1);
+        dim3 grid((_frontier.degree_16_32.size - 1) / (BLOCK_SIZE/16) + 1);
         dim3 block(BLOCK_SIZE);
-        SAFE_KERNEL_CALL((virtual_warp_per_vertex_kernel<16><<<grid, block>>>(vertex_pointers, adjacent_ids,
-                                                      _frontier.vwarp_degree_16.ids, _frontier.vwarp_degree_16.size,
+        virtual_warp_per_vertex_kernel<16><<<grid, block, 0, stream_3>>>(vertex_pointers, adjacent_ids,
+                                                      _frontier.degree_16_32.ids, _frontier.degree_16_32.size,
                                                       process_shift, edge_op, vertex_preprocess_op,
-                                                      vertex_postprocess_op)));
+                                                      vertex_postprocess_op);
     }
-    if(_frontier.vwarp_degree_0.size > 0)
+    if(_frontier.degree_8_16.size > 0)
     {
-        dim3 grid((_frontier.vwarp_degree_0.size - 1) / 8 + 1);
+        dim3 grid((_frontier.degree_8_16.size - 1) / (BLOCK_SIZE/8) + 1);
         dim3 block(BLOCK_SIZE);
-        SAFE_KERNEL_CALL((virtual_warp_per_vertex_kernel<8><<<grid, block>>>(vertex_pointers, adjacent_ids,
-                                                      _frontier.vwarp_degree_0.ids, _frontier.vwarp_degree_0.size,
+        virtual_warp_per_vertex_kernel<8><<<grid, block, 0, stream_4>>>(vertex_pointers, adjacent_ids,
+                                                      _frontier.degree_8_16.ids, _frontier.degree_8_16.size,
                                                       process_shift, edge_op, vertex_preprocess_op,
-                                                      vertex_postprocess_op)));
+                                                      vertex_postprocess_op);
     }
+    if(_frontier.degree_4_8.size > 0)
+    {
+        dim3 grid((_frontier.degree_4_8.size - 1) / (BLOCK_SIZE/4) + 1);
+        dim3 block(BLOCK_SIZE);
+        virtual_warp_per_vertex_kernel<4><<<grid, block, 0, stream_5>>>(vertex_pointers, adjacent_ids,
+                                                      _frontier.degree_4_8.ids, _frontier.degree_4_8.size,
+                                                      process_shift, edge_op, vertex_preprocess_op,
+                                                      vertex_postprocess_op);
+    }
+    if(_frontier.degree_0_4.size > 0)
+    {
+        dim3 grid((_frontier.degree_0_4.size - 1) / (BLOCK_SIZE) + 1);
+        dim3 block(BLOCK_SIZE);
+        virtual_warp_per_vertex_kernel<1><<<grid, block, 0, stream_6>>>(vertex_pointers, adjacent_ids,
+                                                      _frontier.degree_0_4.ids, _frontier.degree_0_4.size,
+                                                      process_shift, edge_op, vertex_preprocess_op,
+                                                      vertex_postprocess_op);
+    }
+    size_t work = _frontier.large_degree.neighbours + _frontier.degree_32_1024.neighbours +
+             _frontier.degree_16_32.neighbours + _frontier.degree_8_16.neighbours +
+             _frontier.degree_4_8.neighbours + _frontier.degree_0_4.neighbours;
     #else
     if(_frontier.get_sparsity_type() == ALL_ACTIVE_FRONTIER)
     {
@@ -142,11 +163,12 @@ void GraphAbstractionsGPU::advance_worker(CSRGraph &_graph,
                 process_shift, edge_op, vertex_preprocess_op,
                 vertex_postprocess_op);
     }
+    size_t work = frontier_neighbours_count;
     #endif
+    cudaDeviceSynchronize();
 
     tm.end();
 
-    long long work = frontier_neighbours_count;
     performance_stats.update_advance_stats(tm.get_time(), work*(INT_ELEMENTS_PER_EDGE)*sizeof(int), work);
 
     #ifdef __PRINT_API_PERFORMANCE_STATS__
