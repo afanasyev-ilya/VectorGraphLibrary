@@ -32,9 +32,57 @@ void GraphAbstractionsNEC::estimate_sorted_frontier_part_size(FrontierVectorCSR 
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-template <typename FilterCondition, typename GraphContainer>
-void GraphAbstractionsNEC::generate_new_frontier_worker(GraphContainer &_graph,
-                                                        FrontierGeneral &_frontier,
+template <typename FilterCondition>
+void GraphAbstractionsNEC::generate_new_frontier_worker(EdgesListGraph &_graph,
+                                                        FrontierEdgesList &_frontier,
+                                                        FilterCondition &&filter_cond)
+{
+    Timer tm_wall;
+    tm_wall.start();
+
+    _frontier.set_direction(current_traversal_direction);
+    int vertices_count = _graph.get_vertices_count();
+    int *frontier_flags = _frontier.flags;
+    int *frontier_ids = _frontier.ids;
+
+    int elements_count = 0;
+    long long neighbours_count = 0;
+
+    #pragma _NEC cncall
+    #pragma _NEC vovertake
+    #pragma _NEC novob
+    #pragma _NEC vector
+    #pragma _NEC ivdep
+    #pragma omp parallel for schedule(static) reduction(+: elements_count, neighbours_count)
+    for (int src_id = 0; src_id < vertices_count; src_id++)
+    {
+        int connections_count = 0;//_graph.get_connections_count(src_id);
+        int new_flag = filter_cond(src_id, connections_count);
+        frontier_flags[src_id] = new_flag;
+        elements_count += new_flag;
+        if(new_flag == IN_FRONTIER_FLAG)
+            neighbours_count += connections_count;
+    }
+
+    _frontier.size = elements_count;
+    _frontier.neighbours_count = neighbours_count;
+
+    tm_wall.end();
+    long long work = vertices_count;
+    performance_stats.update_gnf_time(tm_wall);
+    performance_stats.update_bytes_requested(work*2.0*sizeof(int));
+
+    #ifdef __PRINT_API_PERFORMANCE_STATS__
+    tm_wall.print_bandwidth_stats("GNF", vertices_count, 2.0*sizeof(int));
+    #endif
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+template <typename FilterCondition>
+void GraphAbstractionsNEC::generate_new_frontier_worker(CSRGraph &_graph,
+                                                        FrontierCSR &_frontier,
                                                         FilterCondition &&filter_cond)
 {
     Timer tm_wall;

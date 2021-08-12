@@ -4,7 +4,8 @@
 
 #include "containers/base_frontier.h"
 #include "containers/vect_csr/frontier_vect_csr.h"
-#include "containers/general/frontier_general.h"
+#include "containers/csr/frontier_csr.h"
+#include "containers/edges_list/frontier_edges_list.h"
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 

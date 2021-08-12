@@ -6,7 +6,7 @@
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-class FrontierGeneral : public BaseFrontier
+class FrontierCSR : public BaseFrontier
 {
 private:
     void init();
@@ -32,8 +32,8 @@ private:
     void create_vertices_group_array(CSRVertexGroup &_group_data, int _bottom, int _top);
 public:
     /* constructors and destructors */
-    FrontierGeneral(VGL_Graph &_graph, TraversalDirection _direction = SCATTER);
-    ~ FrontierGeneral();
+    FrontierCSR(VGL_Graph &_graph, TraversalDirection _direction = SCATTER);
+    ~ FrontierCSR();
 
     /* Print API */
     void print_stats();
@@ -52,7 +52,7 @@ public:
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#include "frontier_general.hpp"
+#include "frontier_csr.hpp"
 #include "modification.hpp"
 #include "print.hpp"
 

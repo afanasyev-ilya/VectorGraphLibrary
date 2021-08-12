@@ -2,7 +2,7 @@
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void FrontierGeneral::set_all_active()
+void FrontierCSR::set_all_active()
 {
     sparsity_type = ALL_ACTIVE_FRONTIER;
     this->size = graph_ptr->get_vertices_count();
@@ -18,7 +18,7 @@ void FrontierGeneral::set_all_active()
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void FrontierGeneral::fill_vertex_group_data()
+void FrontierCSR::fill_vertex_group_data()
 {
     #ifndef __USE_GPU__
     create_vertices_group_array(large_degree, 256, 2147483647);
@@ -47,7 +47,7 @@ void FrontierGeneral::fill_vertex_group_data()
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void FrontierGeneral::add_vertex(int _src_id)
+void FrontierCSR::add_vertex(int _src_id)
 {
     this->ids[this->size] = _src_id;
     this->flags[_src_id] = 1;
@@ -56,7 +56,7 @@ void FrontierGeneral::add_vertex(int _src_id)
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void FrontierGeneral::add_group_of_vertices(int *_vertex_ids, int _number_of_vertices)
+void FrontierCSR::add_group_of_vertices(int *_vertex_ids, int _number_of_vertices)
 {
     for(int i = 0; i < _number_of_vertices; i++)
         add_vertex(_vertex_ids[i]);
@@ -64,7 +64,7 @@ void FrontierGeneral::add_group_of_vertices(int *_vertex_ids, int _number_of_ver
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void FrontierGeneral::create_vertices_group_array(CSRVertexGroup &_group_data, int _bottom, int _top)
+void FrontierCSR::create_vertices_group_array(CSRVertexGroup &_group_data, int _bottom, int _top)
 {
     int local_group_size = 0;
     long long local_group_neighbours = 0;

@@ -35,14 +35,14 @@ void GraphAbstractions::common_reduce(VGL_Graph &_graph,
         else if(_graph.get_container_type() == EDGES_LIST_GRAPH)
         {
             EdgesListGraph *container_graph = (EdgesListGraph *)_graph.get_direction_data(current_traversal_direction);
-            FrontierGeneral *container_frontier = (FrontierGeneral *)_frontier.get_container_data();
+            FrontierEdgesList *container_frontier = (FrontierEdgesList *)_frontier.get_container_data();
 
             _abstraction_class->reduce_worker_sum(*container_graph, *container_frontier, reduce_op, _result);
         }
         else if(_graph.get_container_type() == CSR_GRAPH)
         {
             CSRGraph *container_graph = (CSRGraph *)_graph.get_direction_data(current_traversal_direction);
-            FrontierGeneral *container_frontier = (FrontierGeneral *)_frontier.get_container_data();
+            FrontierCSR *container_frontier = (FrontierCSR *)_frontier.get_container_data();
 
             _abstraction_class->reduce_worker_sum(*container_graph, *container_frontier, reduce_op, _result);
         }

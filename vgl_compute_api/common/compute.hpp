@@ -20,7 +20,7 @@ void GraphAbstractions::compute_container_call(VGL_Graph &_graph,
     else if(_graph.get_container_type() == EDGES_LIST_GRAPH)
     {
         EdgesListGraph *container_graph = (EdgesListGraph *)_graph.get_direction_data(current_traversal_direction);
-        FrontierGeneral *container_frontier = (FrontierGeneral *)_frontier.get_container_data();
+        FrontierEdgesList *container_frontier = (FrontierEdgesList *)_frontier.get_container_data();
 
         #ifdef __USE_GPU__
         _abstraction_class->compute_worker(*container_graph, *container_frontier, compute_op);
@@ -31,7 +31,7 @@ void GraphAbstractions::compute_container_call(VGL_Graph &_graph,
     else if(_graph.get_container_type() == CSR_GRAPH)
     {
         CSRGraph *container_graph = (CSRGraph *)_graph.get_direction_data(current_traversal_direction);
-        FrontierGeneral *container_frontier = (FrontierGeneral *)_frontier.get_container_data();
+        FrontierCSR *container_frontier = (FrontierCSR *)_frontier.get_container_data();
 
         #ifdef __USE_GPU__
         _abstraction_class->compute_worker(*container_graph, *container_frontier, compute_op);

@@ -130,7 +130,8 @@ enum REDUCE_TYPE
 enum FrontierClassType {
     BASE_FRONTIER = 0,
     VECTOR_CSR_FRONTIER = 1,
-    GENERAL_FRONTIER = 2
+    CSR_FRONTIER = 2,
+    EDGES_LIST_FRONTIER = 3
 };
 
 enum FrontierSparsityType {

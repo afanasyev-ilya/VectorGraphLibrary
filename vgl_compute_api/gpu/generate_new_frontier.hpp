@@ -48,9 +48,9 @@ void __global__ copy_frontier_ids_kernel(GraphContainer _graph,
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-template <typename FilterCondition, typename GraphContainer, typename FrontierContainer>
-void GraphAbstractionsGPU::generate_new_frontier_worker(GraphContainer &_graph,
-                                                        FrontierContainer &_frontier,
+template <typename FilterCondition>
+void GraphAbstractionsGPU::generate_new_frontier_worker(VectorCSRGraph &_graph,
+                                                        FrontierVectorCSR &_frontier,
                                                         FilterCondition &&filter_cond)
 {
     throw "Error in GraphAbstractionsGPU::generate_new_frontier_worker : not implemented yet";
@@ -58,9 +58,9 @@ void GraphAbstractionsGPU::generate_new_frontier_worker(GraphContainer &_graph,
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-template <typename FilterCondition, typename GraphContainer>
-void GraphAbstractionsGPU::generate_new_frontier_worker(GraphContainer &_graph,
-                                                        FrontierGeneral &_frontier,
+template <typename FilterCondition>
+void GraphAbstractionsGPU::generate_new_frontier_worker(CSRGraph &_graph,
+                                                        FrontierCSR &_frontier,
                                                         FilterCondition &&filter_cond)
 {
     Timer tm;
@@ -100,6 +100,36 @@ void GraphAbstractionsGPU::generate_new_frontier_worker(GraphContainer &_graph,
     _frontier.fill_vertex_group_data();
     #endif
 
+    cudaDeviceSynchronize();
+
+    tm.end();
+    performance_stats.update_gnf_time(tm);
+    #ifdef __PRINT_API_PERFORMANCE_STATS__
+    tm.print_bandwidth_stats("GNF", vertices_count, 4.0*sizeof(int));
+    #endif
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+template <typename FilterCondition>
+void GraphAbstractionsGPU::generate_new_frontier_worker(EdgesListGraph &_graph,
+                                                        FrontierEdgesList &_frontier,
+                                                        FilterCondition &&filter_cond)
+{
+    Timer tm;
+    tm.start();
+
+    int vertices_count = _graph.get_vertices_count();
+    LOAD_FRONTIER_DATA(_frontier);
+
+    _frontier.set_direction(current_traversal_direction);
+    _frontier.sparsity_type = ALL_ACTIVE_FRONTIER;
+
+    // generate frontier flags
+    SAFE_KERNEL_CALL((copy_frontier_ids_kernel<<<(vertices_count - 1) / BLOCK_SIZE +
+         1, BLOCK_SIZE>>>(_graph, frontier_ids, frontier_flags, vertices_count, filter_cond))); // 2*|V|
+
+    _frontier.size = thrust::count_if(thrust::device, frontier_ids, frontier_ids + vertices_count, is_active());
     cudaDeviceSynchronize();
 
     tm.end();

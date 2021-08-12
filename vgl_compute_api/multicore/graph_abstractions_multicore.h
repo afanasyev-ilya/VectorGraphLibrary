@@ -38,7 +38,7 @@ private:
             typename VertexPostprocessOperation, typename CollectiveEdgeOperation, typename CollectiveVertexPreprocessOperation,
             typename CollectiveVertexPostprocessOperation>
     void advance_worker(EdgesListGraph &_graph,
-                        FrontierGeneral &_frontier,
+                        FrontierEdgesList &_frontier,
                         EdgeOperation &&edge_op,
                         VertexPreprocessOperation &&vertex_preprocess_op,
                         VertexPostprocessOperation &&vertex_postprocess_op,
@@ -51,7 +51,7 @@ private:
             typename VertexPostprocessOperation, typename CollectiveEdgeOperation, typename CollectiveVertexPreprocessOperation,
             typename CollectiveVertexPostprocessOperation>
     void advance_worker(CSRGraph &_graph,
-                        FrontierGeneral &_frontier,
+                        FrontierCSR &_frontier,
                         EdgeOperation &&edge_op,
                         VertexPreprocessOperation &&vertex_preprocess_op,
                         VertexPostprocessOperation &&vertex_postprocess_op,
@@ -60,9 +60,14 @@ private:
                         CollectiveVertexPostprocessOperation &&collective_vertex_postprocess_op,
                         bool _inner_mpi_processing);
 
-    template <typename FilterCondition, typename GraphContainer>
-    void generate_new_frontier_worker(GraphContainer &_graph,
-                                      FrontierGeneral &_frontier,
+    template <typename FilterCondition>
+    void generate_new_frontier_worker(CSRGraph &_graph,
+                                      FrontierCSR &_frontier,
+                                      FilterCondition &&filter_cond);
+
+    template <typename FilterCondition>
+    void generate_new_frontier_worker(EdgesListGraph &_graph,
+                                      FrontierEdgesList &_frontier,
                                       FilterCondition &&filter_cond);
 
     template <typename FilterCondition>

@@ -2,36 +2,36 @@
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-FrontierVectorCSR::FrontierVectorCSR(VGL_Graph &_graph, TraversalDirection _direction) : BaseFrontier(_graph, _direction)
+FrontierCSR::FrontierCSR(VGL_Graph &_graph, TraversalDirection _direction) : BaseFrontier(_graph, _direction)
 {
     direction = _direction;
     graph_ptr = &_graph;
-    class_type = VECTOR_CSR_FRONTIER;
+    class_type = CSR_FRONTIER;
     init();
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void FrontierVectorCSR::init()
+void FrontierCSR::init()
 {
-    int max_size = graph_ptr->get_vertices_count();
-    MemoryAPI::allocate_array(&flags, max_size);
-    MemoryAPI::allocate_array(&ids, max_size);
-    MemoryAPI::allocate_array(&work_buffer, max_size + VECTOR_LENGTH * MAX_SX_AURORA_THREADS);
+    int vertices_count = graph_ptr->get_vertices_count();
+    MemoryAPI::allocate_array(&flags, vertices_count);
+    MemoryAPI::allocate_array(&ids, vertices_count);
+    MemoryAPI::allocate_array(&work_buffer, vertices_count + VECTOR_LENGTH * MAX_SX_AURORA_THREADS);
 
     // by default frontier is all active
     sparsity_type = ALL_ACTIVE_FRONTIER;
-    this->size = max_size;
+    this->size = vertices_count;
 
-    if(graph_ptr->get_container_type() != VECTOR_CSR_GRAPH)
+    if(graph_ptr->get_container_type() != CSR_GRAPH)
     {
-        throw "Error: incorrect graph container type in FrontierVectorCSR::init";
+        throw "Error: incorrect graph container type in FrontierCSR::init";
     }
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-FrontierVectorCSR::~FrontierVectorCSR()
+FrontierCSR::~FrontierCSR()
 {
     MemoryAPI::free_array(flags);
     MemoryAPI::free_array(ids);
