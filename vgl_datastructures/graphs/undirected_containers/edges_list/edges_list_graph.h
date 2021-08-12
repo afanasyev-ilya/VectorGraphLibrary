@@ -36,7 +36,7 @@ public:
     inline any_arch_func int get_connections_count(int _src_id) final { return connections_count[_src_id]; };
     inline any_arch_func int get_edge_dst(int _src_id, int _edge_pos) final;
 
-    inline size_t get_edges_array_index(int _v, int _edge_pos) final { throw "EdgesListGraph : get_edges_array_index not implemented yet"; };
+    inline size_t get_edges_array_index(int _src_id, int _edge_pos) final;
     inline size_t get_edges_array_direction_shift_size() final { return this->edges_count; };
 
     /* print API */

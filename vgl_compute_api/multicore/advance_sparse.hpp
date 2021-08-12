@@ -153,10 +153,6 @@ void GraphAbstractionsMulticore::collective_vertex_processing_kernel_sparse(Vect
     long long int reg_end[VECTOR_LENGTH];
     int reg_connections[VECTOR_LENGTH];
 
-    #pragma _NEC vreg(reg_start)
-    #pragma _NEC vreg(reg_end)
-    #pragma _NEC vreg(reg_connections)
-
     #pragma simd
     #pragma vector
     #pragma ivdep

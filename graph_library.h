@@ -49,8 +49,6 @@ using namespace std;
 
 // algorithm implementations
 #include "algorithms/bfs/bfs.h"
-
-#ifndef __USE_GPU__
 #include "algorithms/pr/pr.h"
 #include "algorithms/cc/cc.h"
 #include "algorithms/hits/hits.h"
@@ -59,7 +57,6 @@ using namespace std;
 #include "algorithms/rw/random_walk.h"
 #include "algorithms/sssp/shortest_paths.h"
 #include "algorithms/sswp/widest_paths.h"
-#endif
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 

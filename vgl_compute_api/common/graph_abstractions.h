@@ -2,17 +2,21 @@
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#ifndef __USE_GPU__
-auto EMPTY_EDGE_OP = [] __VGL_ADVANCE_ARGS__ {};
-auto EMPTY_VERTEX_OP = [] __VGL_ADVANCE_PREPROCESS_ARGS__ {};
+auto EMPTY_EDGE_OP = [] __VGL_ADVANCE_ARGS__ {
 
-auto ALL_ACTIVE_FRONTIER_CONDITION = [] (int src_id)->int
-{
+};
+
+auto EMPTY_VERTEX_OP = [] __VGL_ADVANCE_PREPROCESS_ARGS__ {
+
+};
+
+auto ALL_ACTIVE_FRONTIER_CONDITION = [] __VGL_GNF_ARGS__ {
     return IN_FRONTIER_FLAG;
 };
 
-auto EMPTY_COMPUTE_OP = [] __VGL_COMPUTE_ARGS__ {};
-#endif
+auto EMPTY_COMPUTE_OP = [] __VGL_COMPUTE_ARGS__ {
+
+};
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -162,6 +166,9 @@ public:
     void exchange_vertices_array(DataExchangePolicy _policy, _TGraph &_graph, VerticesArray<_T> &_data,
                                  VerticesArray<_T> &_old_data, MergeOp &&_merge_op);
     #endif
+
+    void enable_safe_stores() {};
+    void disable_safe_stores() {};
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

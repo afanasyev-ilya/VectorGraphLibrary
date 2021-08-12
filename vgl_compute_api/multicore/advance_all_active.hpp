@@ -151,8 +151,6 @@ void GraphAbstractionsMulticore::ve_collective_vertex_processing_kernel_all_acti
 
     long long reg_real_start[VECTOR_LENGTH];
     int reg_real_connections_count[VECTOR_LENGTH];
-    #pragma _NEC vreg(reg_real_connections_count)
-    #pragma _NEC vreg(reg_real_start)
 
     #pragma _NEC vector
     for(int i = 0; i < VECTOR_LENGTH; i++)

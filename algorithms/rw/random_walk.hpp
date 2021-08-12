@@ -2,6 +2,7 @@
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+#if defined(__USE_NEC_SX_AURORA__) || defined(__USE_MULTICORE__)
 template <typename _T>
 void RW::vgl_random_walk(VGL_Graph &_graph,
                          vector<int> &_walk_vertices,
@@ -34,7 +35,7 @@ void RW::vgl_random_walk(VGL_Graph &_graph,
     frontier.add_group_of_vertices(&_walk_vertices[0], _walk_vertices.size());
 
     _walk_results.set_all_constant(DEAD_END);
-    auto init_walks = [&_walk_results] __VGL_COMPUTE_ARGS__ {
+    auto init_walks = [_walk_results] __VGL_COMPUTE_ARGS__ {
         _walk_results[src_id] = src_id;
     };
     graph_API.compute(_graph, frontier, init_walks);
@@ -43,7 +44,7 @@ void RW::vgl_random_walk(VGL_Graph &_graph,
     {
         rng.generate_array_of_random_values(rand_array, _walk_vertices_num);
 
-        auto visit_next = [iteration, _walk_lengths, rand_array, &_walk_results, &_graph, &walk_positions] __VGL_COMPUTE_ARGS__ {
+        auto visit_next = [iteration, _walk_lengths, rand_array, _walk_results, &_graph, walk_positions] __VGL_COMPUTE_ARGS__ {
             int walk_id = src_id;
             int current_id = _walk_results[walk_id];
             int current_connections_count = _graph.get_outgoing_connections_count(current_id);
@@ -68,6 +69,7 @@ void RW::vgl_random_walk(VGL_Graph &_graph,
 
     MemoryAPI::free_array(rand_array);
 }
+#endif
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 

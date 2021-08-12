@@ -156,8 +156,6 @@ void GraphAbstractionsMulticore::ve_collective_vertex_processing_kernel_dense(Ve
 
     long long reg_real_start[VECTOR_LENGTH];
     int reg_real_connections_count[VECTOR_LENGTH];
-    #pragma _NEC vreg(reg_real_connections_count)
-    #pragma _NEC vreg(reg_real_start)
 
     #pragma simd
     #pragma vector
@@ -222,7 +220,7 @@ void GraphAbstractionsMulticore::ve_collective_vertex_processing_kernel_dense(Ve
             }
         }
 
-        #pragma _NEC vector
+        #pragma vector
         for(int i = 0; i < VECTOR_LENGTH; i++)
         {
             int src_id = segment_first_vertex + i;

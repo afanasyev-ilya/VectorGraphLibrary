@@ -67,8 +67,6 @@ add_executable(VectorGraphLibrary
         apps/cc/cc.cpp
         apps/utilites/create_vgl_graphs.cpp
         apps/graph_library.sh
-        apps/Makefile.gpu
-        apps/Makefile.nec
         apps/pr/pr.cpp
         apps/sssp/sssp.cpp
         vgl_runtime/helpers/cmd_parser/cmd_parser.h

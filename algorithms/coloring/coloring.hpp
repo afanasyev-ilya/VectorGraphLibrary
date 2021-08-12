@@ -119,7 +119,7 @@ void Coloring::vgl_coloring(VGL_Graph &_graph, VerticesArray<_T> &_colors)
         };
         graph_API.scatter(_graph, frontier, create_reordering_op);
 
-        auto offset_change_required_op = [available_colors]__VGL_REDUCE_ANY_ARGS__->int
+        auto offset_change_required_op = [available_colors] __VGL_REDUCE_INT_ARGS__
         {
             int result = 0;
             if(available_colors[src_id] == 0)

@@ -182,7 +182,7 @@ void GraphAbstractionsGPU::advance_worker(CSRGraph &_graph,
     tm.end();
 
     long long work = frontier_neighbours_count;
-    performance_stats.update_advance_stats(tm.get_time(), work*(INT_ELEMENTS_PER_EDGE + 1)*sizeof(int), work);
+    performance_stats.update_advance_stats(tm.get_time(), work*(INT_ELEMENTS_PER_EDGE)*sizeof(int), work);
 
     #ifdef __PRINT_API_PERFORMANCE_STATS__
     tm.print_time_and_bandwidth_stats("Advance (CSR)", work, (INT_ELEMENTS_PER_EDGE + 1)*sizeof(int));

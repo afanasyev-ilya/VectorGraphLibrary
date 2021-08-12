@@ -150,7 +150,7 @@ void GraphAbstractionsGPU::reduce_worker_sum(GraphContainer &_graph,
     }
 
     cudaDeviceSynchronize();
-    _T reduce_result = managed_reduced_result[0];
+    _result = managed_reduced_result[0];
 
     MemoryAPI::free_array(managed_reduced_result);
 }

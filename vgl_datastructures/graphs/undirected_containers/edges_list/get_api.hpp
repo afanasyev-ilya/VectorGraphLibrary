@@ -22,3 +22,25 @@ any_arch_func int EdgesListGraph::get_edge_dst(int _src_id, int _edge_pos)
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+any_arch_func size_t EdgesListGraph::get_edges_array_index(int _src_id, int _edge_pos)
+{
+    int cnt = 0;
+    for(long long i = 0; i < this->edges_count; i++)
+    {
+        int src_id = src_ids[i];
+        if(src_id == _src_id)
+        {
+            if(cnt == _edge_pos)
+                return i;
+            cnt++;
+        }
+    }
+    #ifndef __USE_GPU__
+    throw "EdgesListGraph : get_edges_array_index not implemented yet";
+    #endif
+    return 0;
+}
+
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
