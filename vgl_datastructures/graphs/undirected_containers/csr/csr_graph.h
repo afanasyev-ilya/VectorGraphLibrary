@@ -8,6 +8,7 @@
 #include <fstream>
 #include <stdio.h>
 #include <string.h>
+#include "vertex_group.h"
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -26,6 +27,26 @@ private:
     int           *adjacent_ids;
 
     vgl_sort_indexes *edges_reorder_indexes; // allows to convert edges (and weights) from sorted to original order
+
+    #ifdef __USE_CSR_VERTEX_GROUPS__
+    #ifndef __USE_GPU__
+    CSRVertexGroup large_degree;
+    CSRVertexGroup degree_128_256;
+    CSRVertexGroup degree_64_128;
+    CSRVertexGroup degree_32_64;
+    CSRVertexGroup degree_16_32;
+    CSRVertexGroup degree_8_16;
+    CSRVertexGroup degree_0_8;
+    #else
+    CSRVertexGroup large_degree;
+    CSRVertexGroup degree_32_1024;
+    CSRVertexGroup degree_16_32;
+    CSRVertexGroup degree_8_16;
+    CSRVertexGroup degree_4_8;
+    CSRVertexGroup degree_0_4;
+    #endif
+    void create_vertices_group_array(CSRVertexGroup &_group_data, int _bottom, int _top);
+    #endif
 
     void alloc(int _vertices_count, long long _edges_count);
     void free();

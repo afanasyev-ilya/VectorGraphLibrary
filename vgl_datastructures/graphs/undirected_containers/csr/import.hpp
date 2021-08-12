@@ -1,5 +1,39 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+#ifdef __USE_CSR_VERTEX_GROUPS__
+void CSRGraph::create_vertices_group_array(CSRVertexGroup &_group_data, int _bottom, int _top)
+{
+    int local_group_size = 0;
+    long long local_group_neighbours = 0;
+
+    for(int src_id = 0; src_id < vertices_count; src_id++)
+    {
+        int connections_count = get_connections_count(src_id);
+        if((connections_count >= _bottom) && (connections_count < _top))
+        {
+            local_group_neighbours += connections_count;
+            local_group_size++;
+        }
+    }
+
+    _group_data.resize(local_group_size);
+    _group_data.neighbours = local_group_neighbours;
+
+    int pos = 0;
+    for(int src_id = 0; src_id < vertices_count; src_id++)
+    {
+        int connections_count = get_connections_count(src_id);
+        if((connections_count >= _bottom) && (connections_count < _top))
+        {
+            _group_data.ids[pos] = src_id;
+            pos++;
+        }
+    }
+}
+#endif
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 void CSRGraph::construct_unsorted_csr(EdgesContainer &_edges_container)
 {
     int *work_buffer;
@@ -65,6 +99,25 @@ void CSRGraph::import(EdgesContainer &_edges_container)
 {
     resize(_edges_container.get_vertices_count(), _edges_container.get_edges_count());
     construct_unsorted_csr(_edges_container);
+
+    #ifdef __USE_CSR_VERTEX_GROUPS__
+    #ifndef __USE_GPU__
+    create_vertices_group_array(large_degree, 256, 2147483647);
+    create_vertices_group_array(degree_128_256, 128, 256);
+    create_vertices_group_array(degree_64_128, 64, 128);
+    create_vertices_group_array(degree_32_64, 32, 64);
+    create_vertices_group_array(degree_16_32, 16, 32);
+    create_vertices_group_array(degree_8_16, 8, 16);
+    create_vertices_group_array(degree_0_8, 0, 8);
+    #else
+    create_vertices_group_array(large_degree, 1024, 2147483647);
+    create_vertices_group_array(degree_32_1024, 32, 1024);
+    create_vertices_group_array(degree_16_32, 16, 32);
+    create_vertices_group_array(degree_8_16, 8, 16);
+    create_vertices_group_array(degree_4_8, 4, 8);
+    create_vertices_group_array(degree_0_4, 0, 4);
+    #endif
+    #endif
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

@@ -149,7 +149,7 @@ void GraphAbstractions::common_gather(VGL_Graph &_graph,
     else if(_graph.get_container_type() == EDGES_LIST_GRAPH)
     {
         EdgesListGraph *container_graph = (EdgesListGraph *)_graph.get_incoming_data();
-        FrontierCSR *container_frontier = (FrontierCSR *)_frontier.get_container_data();
+        FrontierEdgesList *container_frontier = (FrontierEdgesList *)_frontier.get_container_data();
 
         #ifdef __USE_GPU__
         _abstraction_class->advance_worker(*container_graph, *container_frontier, edge_op,
