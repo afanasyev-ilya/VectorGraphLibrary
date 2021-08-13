@@ -24,8 +24,17 @@ private:
     CSRVertexGroup degree_4_8;
     CSRVertexGroup degree_0_4;
     #endif
-    void copy_vertex_group_info_from_graph();
+    #endif
 
+    #ifdef __USE_CSR_VERTEX_GROUPS__
+    void copy_vertex_group_info_from_graph();
+    #endif
+
+    #ifdef __USE_CSR_VERTEX_GROUPS__
+    int get_size_of_vertex_groups();
+    #endif
+
+    #ifdef __USE_CSR_VERTEX_GROUPS__
     template <typename CopyCond>
     void copy_vertex_group_info_from_graph_cond(CopyCond _cond);
     #endif

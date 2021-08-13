@@ -61,6 +61,21 @@ void FrontierCSR::copy_vertex_group_info_from_graph_cond(CopyCond copy_cond)
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+#ifdef __USE_CSR_VERTEX_GROUPS__
+int FrontierCSR::get_size_of_vertex_groups()
+{
+    #ifndef __USE_GPU__
+    return large_degree.size + degree_128_256.size + degree_64_128.size + degree_32_64.size + degree_16_32.size +
+            degree_8_16.size + degree_0_8.size;
+    #else
+    return large_degree.size + degree_32_1024.size + degree_16_32.size + degree_8_16.size + degree_4_8.size +
+            degree_0_4.size;
+    #endif
+}
+#endif
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 void FrontierCSR::add_vertex(int _src_id)
 {
     this->ids[this->size] = _src_id;

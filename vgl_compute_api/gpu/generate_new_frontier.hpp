@@ -99,20 +99,21 @@ void GraphAbstractionsGPU::generate_new_frontier_worker(CSRGraph &_graph,
     Timer tm1;
     tm1.start();
     #ifdef __USE_CSR_VERTEX_GROUPS__
-    auto filter_vertex_group = [frontier_flags] (int _src_id)->int {
+    auto filter_vertex_group = [frontier_flags] __host__ __device__ (int _src_id)->bool {
         return frontier_flags[_src_id];
     };
     _frontier.copy_vertex_group_info_from_graph_cond(filter_vertex_group);
     #endif
     tm1.end();
     cout << "tm1: " << tm1.get_time_in_ms() << " ms" << endl;
+    cout << _frontier.size << " vs " << _frontier.get_size_of_vertex_groups() << endl;
 
     cudaDeviceSynchronize();
 
     tm.end();
     performance_stats.update_gnf_time(tm);
     #ifdef __PRINT_API_PERFORMANCE_STATS__
-    tm.print_bandwidth_stats("GNF", vertices_count, 4.0*sizeof(int));
+    tm.print_time_and_bandwidth_stats("GNF", vertices_count, 4.0*sizeof(int));
     #endif
 }
 

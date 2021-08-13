@@ -696,12 +696,11 @@ inline int copy_if_data(CopyCondition &&_cond,
                         const int _index_offset)
 {
     #ifdef __USE_NEC_SX_AURORA__
-    return omp_copy_if_data(_cond, _in_data, _out_data, _size, _buffer);
+    return omp_copy_if_data(_cond, _in_data, _out_data, _size, _buffer); // TODO vector version
     #elif __USE_MULTICORE__
     return omp_copy_if_data(_cond, _in_data, _out_data, _size, _buffer);
     #elif __USE_GPU__
-    return omp_copy_if_data(_cond, _in_data, _out_data, _size, _buffer);
-    //return thrust::copy_if(thrust::device, _in_data, _in_data + _size, _out_data, _cond());
+    return thrust::copy_if(thrust::device, _in_data, _in_data + _size, _out_data, _cond()) - _out_data;
     #else
     throw "Error in copy_if_indexes : unsupported architecture";
     #endif
