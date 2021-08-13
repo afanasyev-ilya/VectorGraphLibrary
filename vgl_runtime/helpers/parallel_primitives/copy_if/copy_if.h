@@ -1,5 +1,10 @@
 #pragma once
 
+#ifdef __USE_GPU__
+#include <thrust/copy.h>
+#include <thrust/execution_policy.h>
+#endif
+
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 enum COPY_IF_TYPE
@@ -597,6 +602,73 @@ inline int omp_copy_if_indexes(CopyCondition &&_cond,
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+template <typename CopyCondition, typename _T>
+inline int omp_copy_if_data(CopyCondition &&_cond,
+                            _T *_in_data,
+                            _T *_out_data,
+                            size_t _size,
+                            _T *_buffer)
+{
+    int omp_work_group_size = omp_get_max_threads();
+
+    const int max_threads = 400;
+    int sum_array[max_threads];
+    if(omp_work_group_size > max_threads)
+        throw " Error in omp_copy_if_indexes : max_threads = 400 is too small for this architecture, please increase";
+
+    #pragma omp parallel
+    {
+        const int ithread = omp_get_thread_num();
+        const int nthreads = omp_work_group_size;
+
+        int local_pos = 0;
+        int buffer_max_size = _size/nthreads;
+        int *local_buffer = &_buffer[ithread*buffer_max_size];
+
+        #pragma omp single
+        {
+            sum_array[0] = 0;
+        }
+
+        #pragma omp for schedule(static)
+        for (int i = 0; i < _size; i++)
+        {
+            int old_data = _in_data[i];
+            if(_cond(old_data))
+            {
+                local_buffer[local_pos] = old_data;
+                local_pos++;
+            }
+        }
+
+        int local_size = local_pos;
+        sum_array[ithread+1] = local_pos;
+
+        #pragma omp barrier
+        int offset = 0;
+        for(int i=0; i<(ithread+1); i++)
+        {
+            offset += sum_array[i];
+        }
+
+        _T *dst_ptr = &_out_data[offset];
+        for (int i = 0; i < local_size; i++)
+        {
+            dst_ptr[i] = local_buffer[i];
+        }
+    }
+
+    int output_size = 0;
+    for(int i = 0; i < (omp_work_group_size + 1); i++)
+    {
+        output_size += sum_array[i];
+    }
+    return output_size;
+}
+
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 template <typename CopyCondition>
 inline int copy_if_indexes(CopyCondition &&_cond,
                            int *_out_data,
@@ -608,6 +680,28 @@ inline int copy_if_indexes(CopyCondition &&_cond,
     return vector_copy_if_indexes(_cond, _out_data, _size, _buffer, _index_offset);
     #elif __USE_MULTICORE__
     return omp_copy_if_indexes(_cond, _out_data, _size, _buffer, _index_offset);
+    #else
+    throw "Error in copy_if_indexes : unsupported architecture";
+    #endif
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+template <typename CopyCondition, typename _T>
+inline int copy_if_data(CopyCondition &&_cond,
+                        _T *_in_data,
+                        _T *_out_data,
+                        size_t _size,
+                        _T *_buffer,
+                        const int _index_offset)
+{
+    #ifdef __USE_NEC_SX_AURORA__
+    return omp_copy_if_data(_cond, _in_data, _out_data, _size, _buffer);
+    #elif __USE_MULTICORE__
+    return omp_copy_if_data(_cond, _in_data, _out_data, _size, _buffer);
+    #elif __USE_GPU__
+    return omp_copy_if_data(_cond, _in_data, _out_data, _size, _buffer);
+    //return thrust::copy_if(thrust::device, _in_data, _in_data + _size, _out_data, _cond());
     #else
     throw "Error in copy_if_indexes : unsupported architecture";
     #endif

@@ -44,6 +44,11 @@ public:
     inline void add_group_of_vertices(int *_vertex_ids, int _number_of_vertices);
     void clear() {sparsity_type = SPARSE_FRONTIER; this->size = 0; neighbours_count = 0; };
 
+    /*#ifdef __USE_GPU__
+    void move_to_host();
+    void move_to_device();
+    #endif*/
+
     friend class GraphAbstractionsMulticore;
     friend class GraphAbstractionsNEC;
     friend class GraphAbstractionsGPU;

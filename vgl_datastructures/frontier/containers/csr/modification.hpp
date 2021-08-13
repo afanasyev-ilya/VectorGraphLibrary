@@ -49,12 +49,12 @@ void FrontierCSR::copy_vertex_group_info_from_graph_cond(CopyCond copy_cond)
 {
     CSRGraph *csr_graph = (CSRGraph *)graph_ptr->get_direction_data(direction);
     #ifdef __USE_GPU__
-    large_degree.copy_data_if(csr_graph->large_degree, copy_cond);
-    degree_32_1024.copy_data_if(csr_graph->degree_32_1024, copy_cond);
-    degree_16_32.copy_data_if(csr_graph->degree_16_32, copy_cond);
-    degree_8_16.copy_data_if(csr_graph->degree_8_16, copy_cond);
-    degree_4_8.copy_data_if(csr_graph->degree_4_8, copy_cond);
-    degree_0_4.copy_data_if(csr_graph->degree_0_4, copy_cond);
+    large_degree.copy_data_if(csr_graph->large_degree, copy_cond, work_buffer);
+    degree_32_1024.copy_data_if(csr_graph->degree_32_1024, copy_cond, work_buffer);
+    degree_16_32.copy_data_if(csr_graph->degree_16_32, copy_cond, work_buffer);
+    degree_8_16.copy_data_if(csr_graph->degree_8_16, copy_cond, work_buffer);
+    degree_4_8.copy_data_if(csr_graph->degree_4_8, copy_cond, work_buffer);
+    degree_0_4.copy_data_if(csr_graph->degree_0_4, copy_cond, work_buffer);
     #endif
 }
 #endif

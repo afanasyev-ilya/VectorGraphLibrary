@@ -23,11 +23,11 @@ struct is_not_active
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template<typename FilterCondition, typename GraphContainer>
-void __global__ copy_frontier_ids_kernel(GraphContainer _graph,
-                                         int *_frontier_ids,
-                                         int *_frontier_flags,
-                                         const int _vertices_count,
-                                         FilterCondition filter_cond)
+void __global__ set_frontier_flags(GraphContainer _graph,
+                                   int *_frontier_ids,
+                                   int *_frontier_flags,
+                                   const int _vertices_count,
+                                   FilterCondition filter_cond)
 {
     register const int src_id = blockIdx.x * blockDim.x + threadIdx.x;
     if(src_id < _vertices_count)
@@ -72,7 +72,7 @@ void GraphAbstractionsGPU::generate_new_frontier_worker(CSRGraph &_graph,
     LOAD_FRONTIER_DATA(_frontier);
 
     // generate frontier flags
-    SAFE_KERNEL_CALL((copy_frontier_ids_kernel<<<(vertices_count - 1) / BLOCK_SIZE +
+    SAFE_KERNEL_CALL((set_frontier_flags<<<(vertices_count - 1) / BLOCK_SIZE +
                                                  1, BLOCK_SIZE>>>(_graph, frontier_ids, frontier_flags,
                                                  vertices_count, filter_cond))); // 2*|V|
 
@@ -96,12 +96,16 @@ void GraphAbstractionsGPU::generate_new_frontier_worker(CSRGraph &_graph,
         reduce_worker_sum(_graph, _frontier, reduce_connections, _frontier.neighbours_count);
     }
 
+    Timer tm1;
+    tm1.start();
     #ifdef __USE_CSR_VERTEX_GROUPS__
     auto filter_vertex_group = [frontier_flags] (int _src_id)->int {
         return frontier_flags[_src_id];
     };
     _frontier.copy_vertex_group_info_from_graph_cond(filter_vertex_group);
     #endif
+    tm1.end();
+    cout << "tm1: " << tm1.get_time_in_ms() << " ms" << endl;
 
     cudaDeviceSynchronize();
 
@@ -129,7 +133,7 @@ void GraphAbstractionsGPU::generate_new_frontier_worker(EdgesListGraph &_graph,
     _frontier.sparsity_type = ALL_ACTIVE_FRONTIER;
 
     // generate frontier flags
-    SAFE_KERNEL_CALL((copy_frontier_ids_kernel<<<(vertices_count - 1) / BLOCK_SIZE +
+    SAFE_KERNEL_CALL((set_frontier_flags<<<(vertices_count - 1) / BLOCK_SIZE +
          1, BLOCK_SIZE>>>(_graph, frontier_ids, frontier_flags, vertices_count, filter_cond))); // 2*|V|
 
     _frontier.size = thrust::count_if(thrust::device, frontier_ids, frontier_ids + vertices_count, is_active());
