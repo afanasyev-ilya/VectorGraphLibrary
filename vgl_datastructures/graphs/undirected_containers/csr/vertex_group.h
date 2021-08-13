@@ -30,7 +30,7 @@ struct CSRVertexGroup
     template <typename CopyCond>
     void copy_data_if(CSRVertexGroup &_full_group, CopyCond copy_cond, int *_buffer)
     {
-        this->size = omp_copy_if_data(copy_cond, _full_group.ids, this->ids, _full_group.size, _buffer);
+        this->size = copy_if_data(copy_cond, _full_group.ids, this->ids, _full_group.size, _buffer);
     }
 
     void resize(int _new_size)
