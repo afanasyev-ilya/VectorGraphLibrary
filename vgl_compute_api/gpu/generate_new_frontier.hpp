@@ -96,18 +96,12 @@ void GraphAbstractionsGPU::generate_new_frontier_worker(CSRGraph &_graph,
         reduce_worker_sum(_graph, _frontier, reduce_connections, _frontier.neighbours_count);
     }
 
-    Timer tm1;
-    tm1.start();
     #ifdef __USE_CSR_VERTEX_GROUPS__
     auto filter_vertex_group = [frontier_flags] __host__ __device__ (int _src_id)->bool {
         return frontier_flags[_src_id];
     };
     _frontier.copy_vertex_group_info_from_graph_cond(filter_vertex_group);
     #endif
-    tm1.end();
-    cout << "tm1: " << tm1.get_time_in_ms() << " ms" << endl;
-    cout << _frontier.size << " vs " << _frontier.get_size_of_vertex_groups() << endl;
-
     cudaDeviceSynchronize();
 
     tm.end();

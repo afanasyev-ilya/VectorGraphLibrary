@@ -115,7 +115,7 @@ void GraphAbstractionsNEC::generate_new_frontier_worker(CSRGraph &_graph,
         return frontier_flags[src_id];
     };
     _frontier.neighbours_count = neighbours_count;
-    _frontier.size = copy_if_indexes(in_frontier, _frontier.ids, vertices_count, _frontier.work_buffer, 0);
+    _frontier.size = ParallelPrimitives::copy_if_indexes(in_frontier, _frontier.ids, vertices_count, _frontier.work_buffer, 0);
 
     tm_wall.end();
     long long work = vertices_count;
@@ -178,7 +178,7 @@ void GraphAbstractionsNEC::generate_new_frontier_worker(VectorCSRGraph &_graph,
         if(_frontier.vector_engine_part_size > 0)
         {
             copy_if_work = true;
-            copy_if_indexes(in_frontier, _frontier.ids, ve_threshold, _frontier.work_buffer, 0);
+            ParallelPrimitives::copy_if_indexes(in_frontier, _frontier.ids, ve_threshold, _frontier.work_buffer, 0);
         }
     }
     else
@@ -193,7 +193,7 @@ void GraphAbstractionsNEC::generate_new_frontier_worker(VectorCSRGraph &_graph,
         if(_frontier.vector_core_part_size > 0)
         {
             copy_if_work = true;
-            copy_if_indexes(in_frontier, &_frontier.ids[_frontier.vector_engine_part_size], vc_threshold - ve_threshold,
+            ParallelPrimitives::copy_if_indexes(in_frontier, &_frontier.ids[_frontier.vector_engine_part_size], vc_threshold - ve_threshold,
                             _frontier.work_buffer, ve_threshold);
         }
     }
@@ -209,7 +209,7 @@ void GraphAbstractionsNEC::generate_new_frontier_worker(VectorCSRGraph &_graph,
         if(_frontier.collective_part_size > 0)
         {
             copy_if_work = true;
-            copy_if_indexes(in_frontier, &_frontier.ids[_frontier.vector_core_part_size], vertices_count - vc_threshold,
+            ParallelPrimitives::copy_if_indexes(in_frontier, &_frontier.ids[_frontier.vector_core_part_size], vertices_count - vc_threshold,
                             _frontier.work_buffer, vc_threshold);
 
             //int copied_elements = vector_dense_copy_if(&_frontier.flags[segment_shift], &_frontier.ids[_frontier.vector_core_part_size + _frontier.vector_engine_part_size],

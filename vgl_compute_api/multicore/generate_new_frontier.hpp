@@ -87,7 +87,7 @@ void GraphAbstractionsMulticore::generate_new_frontier_worker(VectorCSRGraph &_g
         auto in_frontier = [frontier_flags] (int src_id) {
             return frontier_flags[src_id];
         };
-        copy_if_indexes(in_frontier, _frontier.ids, vertices_count, _frontier.work_buffer, 0);
+        ParallelPrimitives::copy_if_indexes(in_frontier, _frontier.ids, vertices_count, _frontier.work_buffer, 0);
     }
 
     tm_copy_if.end();
@@ -143,7 +143,7 @@ void GraphAbstractionsMulticore::generate_new_frontier_worker(CSRGraph &_graph,
         return frontier_flags[src_id];
     };
     _frontier.neighbours_count = neighbours_count;
-    _frontier.size = copy_if_indexes(in_frontier, frontier_ids, vertices_count, _frontier.work_buffer, 0);
+    _frontier.size = ParallelPrimitives::copy_if_indexes(in_frontier, frontier_ids, vertices_count, _frontier.work_buffer, 0);
 
     tm_wall.end();
     long long work = vertices_count;
