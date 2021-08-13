@@ -27,6 +27,10 @@ void FrontierCSR::init()
     {
         throw "Error: incorrect graph container type in FrontierCSR::init";
     }
+
+    #ifdef __USE_CSR_VERTEX_GROUPS__
+    copy_vertex_group_info_from_graph();
+    #endif
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

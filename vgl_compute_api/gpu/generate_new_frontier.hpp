@@ -97,7 +97,10 @@ void GraphAbstractionsGPU::generate_new_frontier_worker(CSRGraph &_graph,
     }
 
     #ifdef __USE_CSR_VERTEX_GROUPS__
-    _frontier.fill_vertex_group_data();
+    auto filter_vertex_group = [frontier_flags] (int _src_id)->int {
+        return frontier_flags[_src_id];
+    };
+    _frontier.copy_vertex_group_info_from_graph_cond(filter_vertex_group);
     #endif
 
     cudaDeviceSynchronize();

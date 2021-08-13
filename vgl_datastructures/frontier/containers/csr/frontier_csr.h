@@ -7,6 +7,7 @@ class FrontierCSR : public BaseFrontier
 private:
     void init();
 
+    #ifdef __USE_CSR_VERTEX_GROUPS__
     #ifndef __USE_GPU__
     CSRVertexGroup large_degree;
     CSRVertexGroup degree_128_256;
@@ -23,9 +24,11 @@ private:
     CSRVertexGroup degree_4_8;
     CSRVertexGroup degree_0_4;
     #endif
+    void copy_vertex_group_info_from_graph();
 
-    void fill_vertex_group_data();
-    void create_vertices_group_array(CSRVertexGroup &_group_data, int _bottom, int _top);
+    template <typename CopyCond>
+    void copy_vertex_group_info_from_graph_cond(CopyCond _cond);
+    #endif
 public:
     /* constructors and destructors */
     FrontierCSR(VGL_Graph &_graph, TraversalDirection _direction = SCATTER);

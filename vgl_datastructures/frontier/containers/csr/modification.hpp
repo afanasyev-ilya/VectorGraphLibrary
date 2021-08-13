@@ -9,7 +9,7 @@ void FrontierCSR::set_all_active()
     neighbours_count = graph_ptr->get_edges_count();
 
     #ifdef __USE_CSR_VERTEX_GROUPS__
-    fill_vertex_group_data();
+    copy_vertex_group_info_from_graph();
     #endif
 
     #pragma omp parallel // dummy for performance evaluation
@@ -18,32 +18,46 @@ void FrontierCSR::set_all_active()
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void FrontierCSR::fill_vertex_group_data()
+#ifdef __USE_CSR_VERTEX_GROUPS__
+void FrontierCSR::copy_vertex_group_info_from_graph()
 {
+    CSRGraph *csr_graph = (CSRGraph *)graph_ptr->get_direction_data(direction);
     #ifndef __USE_GPU__
-    create_vertices_group_array(large_degree, 256, 2147483647);
-    create_vertices_group_array(degree_128_256, 128, 256);
-    create_vertices_group_array(degree_64_128, 64, 128);
-    create_vertices_group_array(degree_32_64, 32, 64);
-    create_vertices_group_array(degree_16_32, 16, 32);
-    create_vertices_group_array(degree_8_16, 8, 16);
-    create_vertices_group_array(degree_0_8, 0, 8);
+    large_degree.copy(csr_graph->large_degree);
+    degree_128_256.copy(csr_graph->degree_128_256);
+    degree_64_128.copy(csr_graph->degree_64_128);
+    degree_32_64.copy(csr_graph->degree_32_64);
+    degree_16_32.copy(csr_graph->degree_16_32);
+    degree_8_16.copy(csr_graph->degree_8_16);
+    degree_0_8.copy(csr_graph->degree_0_8);
     #else
-    create_vertices_group_array(large_degree, 1024, 2147483647);
-    create_vertices_group_array(degree_32_1024, 32, 1024);
-    create_vertices_group_array(degree_16_32, 16, 32);
-    create_vertices_group_array(degree_8_16, 8, 16);
-    create_vertices_group_array(degree_4_8, 4, 8);
-    create_vertices_group_array(degree_0_4, 0, 4);
-
-    large_degree.move_to_device();
-    degree_32_1024.move_to_device();
-    degree_16_32.move_to_device();
-    degree_8_16.move_to_device();
-    degree_4_8.move_to_device();
-    degree_0_4.move_to_device();
+    large_degree.copy(csr_graph->large_degree);
+    degree_32_1024.copy(csr_graph->degree_32_1024);
+    degree_16_32.copy(csr_graph->degree_16_32);
+    degree_8_16.copy(csr_graph->degree_8_16);
+    degree_4_8.copy(csr_graph->degree_4_8);
+    degree_0_4.copy(csr_graph->degree_0_4);
     #endif
 }
+#endif
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+#ifdef __USE_CSR_VERTEX_GROUPS__
+template <typename CopyCond>
+void FrontierCSR::copy_vertex_group_info_from_graph_cond(CopyCond copy_cond)
+{
+    CSRGraph *csr_graph = (CSRGraph *)graph_ptr->get_direction_data(direction);
+    #ifdef __USE_GPU__
+    large_degree.copy_data_if(csr_graph->large_degree, copy_cond);
+    degree_32_1024.copy_data_if(csr_graph->degree_32_1024, copy_cond);
+    degree_16_32.copy_data_if(csr_graph->degree_16_32, copy_cond);
+    degree_8_16.copy_data_if(csr_graph->degree_8_16, copy_cond);
+    degree_4_8.copy_data_if(csr_graph->degree_4_8, copy_cond);
+    degree_0_4.copy_data_if(csr_graph->degree_0_4, copy_cond);
+    #endif
+}
+#endif
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -60,48 +74,6 @@ void FrontierCSR::add_group_of_vertices(int *_vertex_ids, int _number_of_vertice
 {
     for(int i = 0; i < _number_of_vertices; i++)
         add_vertex(_vertex_ids[i]);
-}
-
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-void FrontierCSR::create_vertices_group_array(CSRVertexGroup &_group_data, int _bottom, int _top)
-{
-    int local_group_size = 0;
-    long long local_group_neighbours = 0;
-
-    int frontier_size = size;
-
-    for(int i = 0; i < frontier_size; i++)
-    {
-        int src_id = i;
-        if(this->sparsity_type != ALL_ACTIVE_FRONTIER)
-            src_id = this->ids[i];
-
-        int connections_count = this->graph_ptr->get_connections_count(src_id, this->direction);
-        if((connections_count >= _bottom) && (connections_count < _top))
-        {
-            local_group_neighbours += connections_count;
-            local_group_size++;
-        }
-    }
-
-    _group_data.resize(local_group_size);
-    _group_data.neighbours = local_group_neighbours;
-
-    int pos = 0;
-    for(int i = 0; i < frontier_size; i++)
-    {
-        int src_id = i;
-        if(this->sparsity_type != ALL_ACTIVE_FRONTIER)
-            src_id = this->ids[i];
-
-        int connections_count = this->graph_ptr->get_connections_count(src_id, this->direction);
-        if((connections_count >= _bottom) && (connections_count < _top))
-        {
-            _group_data.ids[pos] = src_id;
-            pos++;
-        }
-    }
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
