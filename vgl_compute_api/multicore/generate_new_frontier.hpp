@@ -140,13 +140,17 @@ void GraphAbstractionsMulticore::generate_new_frontier_worker(CSRGraph &_graph,
     }
 
     #ifdef __USE_CSR_VERTEX_GROUPS__
-    auto filter_vertex_group = [frontier_flags] __host__ __device__ (int _src_id)->bool {
+    auto filter_vertex_group = [frontier_flags] (int _src_id)->int {
         return frontier_flags[_src_id];
     };
     _frontier.copy_vertex_group_info_from_graph_cond(filter_vertex_group);
 
-    // TODO similar to GPU
-
+    int copy_pos = 0;
+    for(int i = 0; i < CSR_VERTEX_GROUPS_NUM; i++)
+    {
+        memcpy(frontier_ids + copy_pos, _frontier.vertex_groups[i].ids, _frontier.vertex_groups[i].size * sizeof(int));
+        copy_pos += _frontier.vertex_groups[i].size;
+    }
     _frontier.size = _frontier.get_size_of_vertex_groups();
     #else
     auto in_frontier = [frontier_flags] (int src_id) {
@@ -160,10 +164,6 @@ void GraphAbstractionsMulticore::generate_new_frontier_worker(CSRGraph &_graph,
     long long work = vertices_count;
     performance_stats.update_gnf_time(tm_wall);
     performance_stats.update_bytes_requested(work*4.0*sizeof(int));
-
-    #ifdef __USE_CSR_VERTEX_GROUPS__
-    _frontier.fill_vertex_group_data();
-    #endif
 
     #ifdef __PRINT_API_PERFORMANCE_STATS__
     tm_wall.print_bandwidth_stats("GNF", vertices_count, 4.0*sizeof(int));
