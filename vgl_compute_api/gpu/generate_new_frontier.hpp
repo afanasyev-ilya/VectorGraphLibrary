@@ -82,13 +82,6 @@ void GraphAbstractionsGPU::generate_new_frontier_worker(CSRGraph &_graph,
     };
     _frontier.copy_vertex_group_info_from_graph_cond(filter_vertex_group);
 
-    CSRVertexGroup large_degree;
-    CSRVertexGroup degree_32_1024;
-    CSRVertexGroup degree_16_32;
-    CSRVertexGroup degree_8_16;
-    CSRVertexGroup degree_4_8;
-    CSRVertexGroup degree_0_4;
-
     int copy_pos = 0;
     cudaMemcpy(frontier_ids + copy_pos, _frontier.large_degree.ids, _frontier.large_degree.size, cudaMemcpyDeviceToDevice);
     copy_pos += _frontier.large_degree.size;
@@ -104,14 +97,12 @@ void GraphAbstractionsGPU::generate_new_frontier_worker(CSRGraph &_graph,
     copy_pos += _frontier.degree_0_4.size;
 
     _frontier.size = _frontier.get_size_of_vertex_groups();
-    _frontier.neighbours_count = _frontier.get_neighbours_of_vertex_groups();
-    _frontier.sparsity_type = SPARSE_FRONTIER;
     #else
     // generate frontier IDS
     int *new_end = thrust::remove_if(thrust::device, frontier_ids, frontier_ids + vertices_count, is_not_active()); // 2*|V|
-
-    // calculate frontier size
     _frontier.size = new_end - _frontier.ids;
+    #endif
+
     if (_frontier.get_size() == _graph.get_vertices_count())
     {
         _frontier.sparsity_type = ALL_ACTIVE_FRONTIER;
@@ -120,13 +111,12 @@ void GraphAbstractionsGPU::generate_new_frontier_worker(CSRGraph &_graph,
     else
     {
         _frontier.sparsity_type = SPARSE_FRONTIER;
-        auto reduce_connections = [] __VGL_REDUCE_INT_ARGS__
-                {
-                        return connections_count;
-                };
+        auto reduce_connections = [] __VGL_REDUCE_INT_ARGS__ {
+                return connections_count;
+        };
         reduce_worker_sum(_graph, _frontier, reduce_connections, _frontier.neighbours_count);
     }
-    #endif
+
     cudaDeviceSynchronize();
 
     tm.end();

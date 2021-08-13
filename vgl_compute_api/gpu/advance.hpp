@@ -167,6 +167,8 @@ void GraphAbstractionsGPU::advance_worker(CSRGraph &_graph,
     #endif
     cudaDeviceSynchronize();
 
+    cout << "work check: " << frontier_neighbours_count << " / " << _graph.get_edges_count() << endl;
+
     tm.end();
 
     performance_stats.update_advance_stats(tm.get_time(), work*(INT_ELEMENTS_PER_EDGE)*sizeof(int), work);

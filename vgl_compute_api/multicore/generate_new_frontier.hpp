@@ -139,11 +139,34 @@ void GraphAbstractionsMulticore::generate_new_frontier_worker(CSRGraph &_graph,
             neighbours_count += connections_count;
     }
 
+    #ifdef __USE_CSR_VERTEX_GROUPS__
+    auto filter_vertex_group = [frontier_flags] __host__ __device__ (int _src_id)->bool {
+        return frontier_flags[_src_id];
+    };
+    _frontier.copy_vertex_group_info_from_graph_cond(filter_vertex_group);
+
+    int copy_pos = 0;
+    MemoryAPI::copy(frontier_ids + copy_pos, _frontier.large_degree.ids, _frontier.large_degree.size);
+    copy_pos += _frontier.large_degree.size;
+    MemoryAPI::copy(frontier_ids + copy_pos, _frontier.degree_32_1024.ids, _frontier.degree_32_1024.size);
+    copy_pos += _frontier.degree_32_1024.size;
+    MemoryAPI::copy(frontier_ids + copy_pos, _frontier.degree_16_32.ids, _frontier.degree_16_32.size);
+    copy_pos += _frontier.degree_16_32.size;
+    MemoryAPI::copy(frontier_ids + copy_pos, _frontier.degree_8_16.ids, _frontier.degree_8_16.size);
+    copy_pos += _frontier.degree_8_16.size;
+    MemoryAPI::copy(frontier_ids + copy_pos, _frontier.degree_4_8.ids, _frontier.degree_4_8.size);
+    copy_pos += _frontier.degree_4_8.size;
+    MemoryAPI::copy(frontier_ids + copy_pos, _frontier.degree_0_4.ids, _frontier.degree_0_4.size);
+    copy_pos += _frontier.degree_0_4.size;
+
+    _frontier.size = _frontier.get_size_of_vertex_groups();
+    #else
     auto in_frontier = [frontier_flags] (int src_id) {
         return frontier_flags[src_id];
     };
     _frontier.neighbours_count = neighbours_count;
     _frontier.size = ParallelPrimitives::copy_if_indexes(in_frontier, frontier_ids, vertices_count, _frontier.work_buffer, 0);
+    #endif
 
     tm_wall.end();
     long long work = vertices_count;
