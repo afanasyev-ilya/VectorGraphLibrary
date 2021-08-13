@@ -76,6 +76,37 @@ void GraphAbstractionsGPU::generate_new_frontier_worker(CSRGraph &_graph,
                                                  1, BLOCK_SIZE>>>(_graph, frontier_ids, frontier_flags,
                                                  vertices_count, filter_cond))); // 2*|V|
 
+    #ifdef __USE_CSR_VERTEX_GROUPS__
+    auto filter_vertex_group = [frontier_flags] __host__ __device__ (int _src_id)->bool {
+        return frontier_flags[_src_id];
+    };
+    _frontier.copy_vertex_group_info_from_graph_cond(filter_vertex_group);
+
+    CSRVertexGroup large_degree;
+    CSRVertexGroup degree_32_1024;
+    CSRVertexGroup degree_16_32;
+    CSRVertexGroup degree_8_16;
+    CSRVertexGroup degree_4_8;
+    CSRVertexGroup degree_0_4;
+
+    int copy_pos = 0;
+    cudaMemcpy(frontier_ids + copy_pos, _frontier.large_degree.ids, _frontier.large_degree.size, cudaMemcpyDeviceToDevice);
+    copy_pos += _frontier.large_degree.size;
+    cudaMemcpy(frontier_ids + copy_pos, _frontier.degree_32_1024.ids, _frontier.degree_32_1024.size, cudaMemcpyDeviceToDevice);
+    copy_pos += _frontier.degree_32_1024.size;
+    cudaMemcpy(frontier_ids + copy_pos, _frontier.degree_16_32.ids, _frontier.degree_16_32.size, cudaMemcpyDeviceToDevice);
+    copy_pos += _frontier.degree_16_32.size;
+    cudaMemcpy(frontier_ids + copy_pos, _frontier.degree_8_16.ids, _frontier.degree_8_16.size, cudaMemcpyDeviceToDevice);
+    copy_pos += _frontier.degree_8_16.size;
+    cudaMemcpy(frontier_ids + copy_pos, _frontier.degree_4_8.ids, _frontier.degree_4_8.size, cudaMemcpyDeviceToDevice);
+    copy_pos += _frontier.degree_4_8.size;
+    cudaMemcpy(frontier_ids + copy_pos, _frontier.degree_0_4.ids, _frontier.degree_0_4.size, cudaMemcpyDeviceToDevice);
+    copy_pos += _frontier.degree_0_4.size;
+
+    _frontier.size = _frontier.get_size_of_vertex_groups();
+    _frontier.neighbours_count = _frontier.get_neighbours_of_vertex_groups();
+    _frontier.sparsity_type = SPARSE_FRONTIER;
+    #else
     // generate frontier IDS
     int *new_end = thrust::remove_if(thrust::device, frontier_ids, frontier_ids + vertices_count, is_not_active()); // 2*|V|
 
@@ -90,17 +121,11 @@ void GraphAbstractionsGPU::generate_new_frontier_worker(CSRGraph &_graph,
     {
         _frontier.sparsity_type = SPARSE_FRONTIER;
         auto reduce_connections = [] __VGL_REDUCE_INT_ARGS__
-        {
-            return connections_count;
-        };
+                {
+                        return connections_count;
+                };
         reduce_worker_sum(_graph, _frontier, reduce_connections, _frontier.neighbours_count);
     }
-
-    #ifdef __USE_CSR_VERTEX_GROUPS__
-    auto filter_vertex_group = [frontier_flags] __host__ __device__ (int _src_id)->bool {
-        return frontier_flags[_src_id];
-    };
-    _frontier.copy_vertex_group_info_from_graph_cond(filter_vertex_group);
     #endif
     cudaDeviceSynchronize();
 

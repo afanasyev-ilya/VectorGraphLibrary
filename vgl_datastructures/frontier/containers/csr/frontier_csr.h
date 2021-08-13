@@ -32,6 +32,7 @@ private:
 
     #ifdef __USE_CSR_VERTEX_GROUPS__
     int get_size_of_vertex_groups();
+    size_t get_neighbours_of_vertex_groups();
     #endif
 
     #ifdef __USE_CSR_VERTEX_GROUPS__
