@@ -6,6 +6,9 @@ void CSRGraph::create_vertices_group_array(CSRVertexGroup &_group_data, int _bot
     int local_group_size = 0;
     long long local_group_neighbours = 0;
 
+    _group_data.min_connections = _bottom;
+    _group_data.max_connections = _top;
+
     for(int src_id = 0; src_id < vertices_count; src_id++)
     {
         int connections_count = get_connections_count(src_id);
@@ -101,21 +104,20 @@ void CSRGraph::import(EdgesContainer &_edges_container)
     construct_unsorted_csr(_edges_container);
 
     #ifdef __USE_CSR_VERTEX_GROUPS__
-    #ifndef __USE_GPU__
-    create_vertices_group_array(large_degree, 256, 2147483647);
-    create_vertices_group_array(degree_128_256, 128, 256);
-    create_vertices_group_array(degree_64_128, 64, 128);
-    create_vertices_group_array(degree_32_64, 32, 64);
-    create_vertices_group_array(degree_16_32, 16, 32);
-    create_vertices_group_array(degree_8_16, 8, 16);
-    create_vertices_group_array(degree_0_8, 0, 8);
+    #ifdef __USE_GPU__
+    create_vertices_group_array(vertex_groups[0], 1024, 2147483647);
+    create_vertices_group_array(vertex_groups[1], 32, 1024);
+    create_vertices_group_array(vertex_groups[2], 16, 32);
+    create_vertices_group_array(vertex_groups[3], 8, 16);
+    create_vertices_group_array(vertex_groups[4], 4, 8);
+    create_vertices_group_array(vertex_groups[5], 0, 4);
     #else
-    create_vertices_group_array(large_degree, 1024, 2147483647);
-    create_vertices_group_array(degree_32_1024, 32, 1024);
-    create_vertices_group_array(degree_16_32, 16, 32);
-    create_vertices_group_array(degree_8_16, 8, 16);
-    create_vertices_group_array(degree_4_8, 4, 8);
-    create_vertices_group_array(degree_0_4, 0, 4);
+    create_vertices_group_array(vertex_groups[0], 256, 2147483647);
+    create_vertices_group_array(vertex_groups[1], 128, 256);
+    create_vertices_group_array(vertex_groups[2], 64, 128);
+    create_vertices_group_array(vertex_groups[3], 32, 64);
+    create_vertices_group_array(vertex_groups[4], 16, 32);
+    create_vertices_group_array(vertex_groups[5], 0, 16);
     #endif
     #endif
 }

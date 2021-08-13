@@ -9,6 +9,8 @@ struct CSRVertexGroup
     int max_size;
     long long neighbours;
 
+    int min_connections, max_connections;
+
     CSRVertexGroup()
     {
         max_size = 1;
@@ -23,11 +25,27 @@ struct CSRVertexGroup
         this->max_size = _other_group.size;
         this->neighbours = _other_group.size;
         this->resize(this->max_size);
+        this->min_connections = _other_group.min_connections;
+        this->max_connections = _other_group.max_connections;
         #ifndef __USE_GPU__
         MemoryAPI::copy(this->ids, _other_group.ids, this->size);
         #else
         cudaMemcpy(this->ids, _other_group.ids, this->size * sizeof(int), cudaMemcpyDeviceToDevice);
         #endif
+    }
+
+    bool id_in_range(int _src_id, int _connections_count)
+    {
+        if((_connections_count >= min_connections) && (_connections_count < max_connections))
+            return true;
+        else
+            return false;
+    }
+
+    void add_vertex(int _src_id)
+    {
+        ids[size] = _src_id;
+        size++;
     }
 
     template <typename CopyCond>

@@ -29,22 +29,7 @@ private:
     vgl_sort_indexes *edges_reorder_indexes; // allows to convert edges (and weights) from sorted to original order
 
     #ifdef __USE_CSR_VERTEX_GROUPS__
-    #ifndef __USE_GPU__
-    CSRVertexGroup large_degree;
-    CSRVertexGroup degree_128_256;
-    CSRVertexGroup degree_64_128;
-    CSRVertexGroup degree_32_64;
-    CSRVertexGroup degree_16_32;
-    CSRVertexGroup degree_8_16;
-    CSRVertexGroup degree_0_8;
-    #else
-    CSRVertexGroup large_degree;
-    CSRVertexGroup degree_32_1024;
-    CSRVertexGroup degree_16_32;
-    CSRVertexGroup degree_8_16;
-    CSRVertexGroup degree_4_8;
-    CSRVertexGroup degree_0_4;
-    #endif
+    CSRVertexGroup vertex_groups[CSR_VERTEX_GROUPS_NUM];
     void create_vertices_group_array(CSRVertexGroup &_group_data, int _bottom, int _top);
     #endif
 

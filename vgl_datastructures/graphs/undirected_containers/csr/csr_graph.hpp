@@ -149,12 +149,8 @@ void CSRGraph::move_to_device()
     MemoryAPI::move_array_to_device(edges_reorder_indexes, this->edges_count);
 
     #ifdef __USE_CSR_VERTEX_GROUPS__
-    large_degree.move_to_device();
-    degree_32_1024.move_to_device();
-    degree_16_32.move_to_device();
-    degree_8_16.move_to_device();
-    degree_4_8.move_to_device();
-    degree_0_4.move_to_device();
+    for(int i = 0; i < CSR_VERTEX_GROUPS_NUM; i++)
+        vertex_groups[i].move_to_device();
     #endif
 }
 #endif
@@ -176,12 +172,8 @@ void CSRGraph::move_to_host()
     MemoryAPI::move_array_to_host(edges_reorder_indexes, this->edges_count);
 
     #ifdef __USE_CSR_VERTEX_GROUPS__
-    large_degree.move_to_host();
-    degree_32_1024.move_to_host();
-    degree_16_32.move_to_host();
-    degree_8_16.move_to_host();
-    degree_4_8.move_to_host();
-    degree_0_4.move_to_host();
+    for(int i = 0; i < CSR_VERTEX_GROUPS_NUM; i++)
+        vertex_groups[i].move_to_host();
     #endif
 }
 #endif

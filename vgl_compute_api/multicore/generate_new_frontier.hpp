@@ -145,19 +145,7 @@ void GraphAbstractionsMulticore::generate_new_frontier_worker(CSRGraph &_graph,
     };
     _frontier.copy_vertex_group_info_from_graph_cond(filter_vertex_group);
 
-    int copy_pos = 0;
-    MemoryAPI::copy(frontier_ids + copy_pos, _frontier.large_degree.ids, _frontier.large_degree.size);
-    copy_pos += _frontier.large_degree.size;
-    MemoryAPI::copy(frontier_ids + copy_pos, _frontier.degree_32_1024.ids, _frontier.degree_32_1024.size);
-    copy_pos += _frontier.degree_32_1024.size;
-    MemoryAPI::copy(frontier_ids + copy_pos, _frontier.degree_16_32.ids, _frontier.degree_16_32.size);
-    copy_pos += _frontier.degree_16_32.size;
-    MemoryAPI::copy(frontier_ids + copy_pos, _frontier.degree_8_16.ids, _frontier.degree_8_16.size);
-    copy_pos += _frontier.degree_8_16.size;
-    MemoryAPI::copy(frontier_ids + copy_pos, _frontier.degree_4_8.ids, _frontier.degree_4_8.size);
-    copy_pos += _frontier.degree_4_8.size;
-    MemoryAPI::copy(frontier_ids + copy_pos, _frontier.degree_0_4.ids, _frontier.degree_0_4.size);
-    copy_pos += _frontier.degree_0_4.size;
+    // TODO similar to GPU
 
     _frontier.size = _frontier.get_size_of_vertex_groups();
     #else
