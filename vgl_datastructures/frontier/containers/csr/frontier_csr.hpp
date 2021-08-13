@@ -44,7 +44,7 @@ FrontierCSR::~FrontierCSR()
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-/*#ifdef __USE_GPU__
+#ifdef __USE_GPU__
 void FrontierCSR::move_to_host()
 {
     int vertices_count = graph_ptr->get_vertices_count();
@@ -61,11 +61,11 @@ void FrontierCSR::move_to_host()
     degree_0_4.move_to_host();
     #endif
 }
-#endif*/
+#endif
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-/*#ifdef __USE_GPU__
+#ifdef __USE_GPU__
 void FrontierCSR::move_to_device()
 {
     int vertices_count = graph_ptr->get_vertices_count();
@@ -82,6 +82,6 @@ void FrontierCSR::move_to_device()
     degree_0_4.move_to_device();
     #endif
 }
-#endif*/
+#endif
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

@@ -12,8 +12,6 @@ protected:
     long long edges_count;
     long long total_array_size;
 
-    bool is_copy;
-
     _T *outgoing_edges;
     _T *incoming_edges;
 public:

@@ -33,10 +33,7 @@ EdgesArray_VectorCSR<_T>::EdgesArray_VectorCSR(VGL_Graph &_graph)
 template <typename _T>
 EdgesArray_VectorCSR<_T>::~EdgesArray_VectorCSR()
 {
-    if(!this->is_copy)
-    {
-        MemoryAPI::free_array(this->edges_data);
-    }
+    MemoryAPI::free_array(this->edges_data);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

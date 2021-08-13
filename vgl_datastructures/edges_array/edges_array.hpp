@@ -25,6 +25,18 @@ EdgesArray<_T>::EdgesArray(VGL_Graph &_graph)
     MemoryAPI::allocate_array(&edges_data, container->get_total_array_size());
 
     container->attach_pointer(edges_data);
+    is_copy = false;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+template <typename _T>
+EdgesArray<_T>::EdgesArray(const EdgesArray<_T> &_copy_obj)
+{
+    this->object_type = _copy_obj.object_type;
+    this->container = _copy_obj.container;
+    this->edges_data = _copy_obj.edges_data;
+    this->is_copy = true;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -32,8 +44,11 @@ EdgesArray<_T>::EdgesArray(VGL_Graph &_graph)
 template <typename _T>
 EdgesArray<_T>::~EdgesArray()
 {
-    delete container;
-    MemoryAPI::free_array(edges_data);
+    if(!this->is_copy)
+    {
+        delete container;
+        MemoryAPI::free_array(edges_data);
+    }
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

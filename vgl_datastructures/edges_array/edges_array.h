@@ -15,9 +15,11 @@ private:
     _T *edges_data;
 
     BaseEdgesArray<_T> *container;
+    bool is_copy;
 public:
     /* constructors and destructors */
     EdgesArray(VGL_Graph &_graph);
+    EdgesArray(const EdgesArray<_T> &_copy_obj);
     ~EdgesArray();
 
     // the following getters and setters are implemented here, since calling virtual functions of edges_array_representation

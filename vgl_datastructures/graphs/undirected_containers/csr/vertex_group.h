@@ -23,7 +23,8 @@ struct CSRVertexGroup
         this->max_size = _other_group.size;
         this->neighbours = _other_group.size;
         this->resize(this->max_size);
-        MemoryAPI::copy(this->ids, _other_group.ids, this->size );
+        //MemoryAPI::copy(this->ids, _other_group.ids, this->size );
+        cudaMemcpy(this->ids, _other_group.ids, this->size * sizeof(int), cudaMemcpyDeviceToDevice); // TODO
     }
 
     template <typename CopyCond>
