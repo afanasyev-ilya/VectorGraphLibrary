@@ -58,6 +58,19 @@ private:
                         CollectiveVertexPostprocessOperation &&collective_vertex_postprocess_op,
                         bool _inner_mpi_processing);
 
+    template <typename EdgeOperation, typename VertexPreprocessOperation,
+            typename VertexPostprocessOperation, typename CollectiveEdgeOperation, typename CollectiveVertexPreprocessOperation,
+            typename CollectiveVertexPostprocessOperation>
+    void advance_worker(VectorCSRGraph &_graph,
+                        FrontierVectorCSR &_frontier,
+                        EdgeOperation &&edge_op,
+                        VertexPreprocessOperation &&vertex_preprocess_op,
+                        VertexPostprocessOperation &&vertex_postprocess_op,
+                        CollectiveEdgeOperation &&collective_edge_op,
+                        CollectiveVertexPreprocessOperation &&collective_vertex_preprocess_op,
+                        CollectiveVertexPostprocessOperation &&collective_vertex_postprocess_op,
+                        bool _inner_mpi_processing);
+
     template<typename EdgeOperation, typename VertexPreprocessOperation,
             typename VertexPostprocessOperation, typename CollectiveEdgeOperation, typename CollectiveVertexPreprocessOperation,
             typename CollectiveVertexPostprocessOperation, typename GraphContainer, typename FrontierContainer>
@@ -160,6 +173,7 @@ public:
 #include "advance.hpp"
 #include "generate_new_frontier.hpp"
 #include "reduce.hpp"
+#include "advance_vect_csr.hpp"
 #ifdef __USE_MPI__
 #include "mpi_exchange.hpp"
 #endif

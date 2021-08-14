@@ -33,6 +33,10 @@ public:
     inline long long get_vector_core_part_neighbours_count(){return vector_core_part_neighbours_count;};
     inline long long get_collective_part_neighbours_count(){return collective_part_neighbours_count;};
 
+    inline FrontierSparsityType get_vector_engine_part_sparsity_type() { return vector_engine_part_type; };
+    inline FrontierSparsityType get_vector_core_part_sparsity_type() { return vector_core_part_type; };
+    inline FrontierSparsityType get_collective_part_sparsity_type() { return collective_part_type; };
+
     /* Print API */
     void print_stats();
     void print();

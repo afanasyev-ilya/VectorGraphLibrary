@@ -12,6 +12,10 @@ void FrontierVectorCSR::set_all_active()
     vector_core_part_neighbours_count = 0; // TODO
     collective_part_neighbours_count = graph_ptr->get_edges_count(); // TODO
 
+    vector_engine_part_type = ALL_ACTIVE_FRONTIER;
+    vector_core_part_type = ALL_ACTIVE_FRONTIER;
+    collective_part_type = ALL_ACTIVE_FRONTIER;
+
     VectorCSRGraph *vect_csr_graph = (VectorCSRGraph *)graph_ptr->get_direction_data(direction);
 
     vector_engine_part_size = vect_csr_graph->get_vector_engine_threshold_vertex();
