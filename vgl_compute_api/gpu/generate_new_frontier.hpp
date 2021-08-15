@@ -48,6 +48,28 @@ void __global__ set_frontier_flags(GraphContainer _graph,
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+template<typename FilterCondition, typename GraphContainer>
+void __global__ set_frontier_flags(GraphContainer _graph,
+                                   int *_work_buffer,
+                                   int *_frontier_ids,
+                                   const int _size)
+{
+    register const int idx + 1 = blockIdx.x * blockDim.x + threadIdx.x;
+    if(idx < _size)
+    {
+        _frontier_ids[idx] = _work_buffer[idx];
+        int prev_id = _work_buffer[idx - 1];
+        int src_id = _work_buffer[idx];
+
+        int current_connections_count = _graph.get_connections_count(src_id);
+        int prev_connections_count = _graph.get_connections_count(prev_id);
+        if(current_connections_count &&)
+
+    }
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 template <typename FilterCondition>
 void GraphAbstractionsGPU::generate_new_frontier_worker(VectorCSRGraph &_graph,
                                                         FrontierVectorCSR &_frontier,
@@ -63,10 +85,10 @@ void GraphAbstractionsGPU::generate_new_frontier_worker(VectorCSRGraph &_graph,
     // generate frontier flags
     dim3 grid((vertices_count - 1) / BLOCK_SIZE + 1);
     dim3 block(BLOCK_SIZE);
-    SAFE_KERNEL_CALL((set_frontier_flags<<<grid, block>>>(_graph, frontier_ids, frontier_flags,
-            vertices_count, filter_cond)));
+    SAFE_KERNEL_CALL((set_vect_csr_frontier_flags<<<grid, block>>>(_graph, frontier_ids, frontier_flags,
+            frontier_work_buffer, vertices_count, filter_cond)));
 
-    auto filter_vertex_group = [frontier_flags] __host__ __device__ (int _src_id)->bool {
+    auto copy_if_cond = [frontier_ids] __host__ __device__ (int _src_id)->bool {
         return frontier_flags[_src_id];
     };
 
@@ -76,6 +98,10 @@ void GraphAbstractionsGPU::generate_new_frontier_worker(VectorCSRGraph &_graph,
     _frontier.collective_part_type = SPARSE_FRONTIER;
 
     // TODO using 1 copy of
+    int copied_elements = ParallelPrimitives::copy_if_data(copy_if_cond, frontier_ids, frontier_work_buffer, vertices_count, NULL);
+    _frontier.size = copied_elements;
+
+
 
     cudaDeviceSynchronize();
 
