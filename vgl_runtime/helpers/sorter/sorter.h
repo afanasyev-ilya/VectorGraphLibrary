@@ -90,11 +90,7 @@ private:
 public:
     static void sort(int *_data, vgl_sort_indexes *_indexes, long long _size, SortOrder _sort_order)
     {
-        Timer tm;
-        tm.start();
         inner_sort(_data, _indexes, _size, _sort_order);
-        tm.end();
-        tm.print_time_stats("SORTING");
     };
 };
 

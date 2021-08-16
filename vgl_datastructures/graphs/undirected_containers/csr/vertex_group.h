@@ -65,6 +65,14 @@ struct CSRVertexGroup
             MemoryAPI::allocate_array(&ids, _new_size);
     }
 
+    void print_ids()
+    {
+        cout << "vertex group info: ";
+        for(int i = 0; i < size; i++)
+            cout << ids[i] << " ";
+        cout << endl;
+    }
+
     ~CSRVertexGroup()
     {
         MemoryAPI::free_array(ids);

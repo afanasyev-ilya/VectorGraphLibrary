@@ -200,7 +200,7 @@ inline int ParallelPrimitives::omp_copy_if_data(CopyCondition &&_cond,
         const int nthreads = omp_work_group_size;
 
         int local_pos = 0;
-        int buffer_max_size = _size/nthreads;
+        int buffer_max_size = (_size - 1)/nthreads + 1;
         int *local_buffer = &_buffer[ithread*buffer_max_size];
 
         #pragma omp single
