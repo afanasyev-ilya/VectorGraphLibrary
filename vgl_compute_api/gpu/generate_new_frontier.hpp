@@ -48,23 +48,36 @@ void __global__ set_frontier_flags(GraphContainer _graph,
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-template<typename FilterCondition, typename GraphContainer>
-void __global__ set_frontier_flags(GraphContainer _graph,
-                                   int *_work_buffer,
-                                   int *_frontier_ids,
-                                   const int _size)
+template<typename GraphContainer>
+void __global__ split_frontier(GraphContainer _graph,
+                               int *_work_buffer,
+                               int *_frontier_ids,
+                               const int _size,
+                               int *_vector_engine_threshold,
+                               int *_vector_core_threshold)
 {
-    register const int idx + 1 = blockIdx.x * blockDim.x + threadIdx.x;
+    register const int idx = blockIdx.x * blockDim.x + threadIdx.x;
     if(idx < _size)
     {
         _frontier_ids[idx] = _work_buffer[idx];
-        int prev_id = _work_buffer[idx - 1];
-        int src_id = _work_buffer[idx];
+        int current_id = _work_buffer[idx];
+        int next_id = _work_buffer[idx + 1];
 
-        int current_connections_count = _graph.get_connections_count(src_id);
-        int prev_connections_count = _graph.get_connections_count(prev_id);
-        if(current_connections_count &&)
+        int current_size = _graph.get_connections_count(current_size);
+        int next_size = 0;
+        if(idx < (_size - 1))
+        {
+            next_size = _graph.get_connections_count(next_id);
+        }
 
+        if((current_size > VECTOR_ENGINE_THRESHOLD_VALUE) && (next_size <= VECTOR_ENGINE_THRESHOLD_VALUE))
+        {
+            *_vector_engine_threshold = idx + 1;
+        }
+        if((current_size > VECTOR_CORE_THRESHOLD_VALUE) && (next_size <= VECTOR_CORE_THRESHOLD_VALUE))
+        {
+            *_vector_core_threshold = idx + 1;
+        }
     }
 }
 
@@ -79,17 +92,27 @@ void GraphAbstractionsGPU::generate_new_frontier_worker(VectorCSRGraph &_graph,
     tm.start();
     _frontier.set_direction(current_traversal_direction);
 
+    int *ve_threshold;
+    int *vc_threshold;
+    MemoryAPI::allocate_array(&ve_threshold, 1);
+    MemoryAPI::allocate_array(&vc_threshold, 1);
+    ve_threshold[0] = 0;
+    vc_threshold[0] = 0;
+
     int vertices_count = _graph.get_vertices_count();
     LOAD_FRONTIER_DATA(_frontier);
 
     // generate frontier flags
     dim3 grid((vertices_count - 1) / BLOCK_SIZE + 1);
     dim3 block(BLOCK_SIZE);
-    SAFE_KERNEL_CALL((set_vect_csr_frontier_flags<<<grid, block>>>(_graph, frontier_ids, frontier_flags,
-            frontier_work_buffer, vertices_count, filter_cond)));
+    SAFE_KERNEL_CALL((set_frontier_flags<<<grid, block>>>(_graph, frontier_ids, frontier_flags,
+            vertices_count, filter_cond)));
 
-    auto copy_if_cond = [frontier_ids] __host__ __device__ (int _src_id)->bool {
-        return frontier_flags[_src_id];
+    auto copy_if_cond = [frontier_flags, frontier_ids] __host__ __device__ (int _src_id)->bool {
+        if(_src_id >= 0)
+            return true;
+        else
+            return false;
     };
 
     _frontier.sparsity_type = SPARSE_FRONTIER;
@@ -97,13 +120,35 @@ void GraphAbstractionsGPU::generate_new_frontier_worker(VectorCSRGraph &_graph,
     _frontier.vector_core_part_type = SPARSE_FRONTIER;
     _frontier.collective_part_type = SPARSE_FRONTIER;
 
-    // TODO using 1 copy of
-    int copied_elements = ParallelPrimitives::copy_if_data(copy_if_cond, frontier_ids, frontier_work_buffer, vertices_count, NULL);
+    int copied_elements = ParallelPrimitives::copy_if_data(copy_if_cond, frontier_ids, frontier_work_buffer, vertices_count, frontier_work_buffer);
     _frontier.size = copied_elements;
 
+    dim3 split_grid((copied_elements - 1) / BLOCK_SIZE + 1);
+    SAFE_KERNEL_CALL((split_frontier<<<split_grid, block>>>(_graph, frontier_work_buffer, frontier_ids, copied_elements,
+                        ve_threshold, vc_threshold)));
+    _frontier.vector_engine_part_size = ve_threshold[0];
+    _frontier.vector_core_part_size = vc_threshold[0] - ve_threshold[0];
+    _frontier.collective_part_size = copied_elements - ve_threshold[0] - vc_threshold[0];
+
+    if (_frontier.size == _graph.get_vertices_count())
+    {
+        _frontier.sparsity_type = ALL_ACTIVE_FRONTIER;
+        _frontier.neighbours_count = _graph.get_edges_count();
+    }
+    else
+    {
+        _frontier.sparsity_type = SPARSE_FRONTIER;
+        auto reduce_connections = [] __VGL_REDUCE_INT_ARGS__ {
+                return connections_count;
+        };
+        reduce_worker_sum(_graph, _frontier, reduce_connections, _frontier.neighbours_count);
+    }
 
 
     cudaDeviceSynchronize();
+
+    MemoryAPI::free_array(ve_threshold);
+    MemoryAPI::free_array(vc_threshold);
 
     tm.end();
     performance_stats.update_gnf_time(tm);

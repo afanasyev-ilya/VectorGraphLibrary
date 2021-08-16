@@ -20,20 +20,27 @@ void GraphAbstractionsGPU::advance_worker(VectorCSRGraph &_graph,
 
     long long process_shift = compute_process_shift(current_traversal_direction, CSR_STORAGE);
 
+    cout << "frontier_size: " << frontier_size << endl;
+    cout << "frontier detailed sizes: " << _frontier.get_vector_engine_part_size() << " " <<
+     _frontier.get_vector_core_part_size() << " " << _frontier.get_collective_part_size() << endl;
+
     dim3 block(BLOCK_SIZE);
     if(_frontier.get_vector_engine_part_size() > 0)
     {
         int frontier_part_size = _frontier.get_vector_engine_part_size();
+        int shift = 0;
         dim3 grid(frontier_part_size);
         cout << _frontier.get_vector_engine_part_size() << endl;
         if(_frontier.get_vector_engine_part_sparsity_type() == ALL_ACTIVE_FRONTIER)
         {
+            cout << "all-act " << shift <<  endl;
             SAFE_KERNEL_CALL((vg_csr_advance_block_per_vertex_kernel<<<grid, block, 0, stream_1>>>(vertex_pointers, adjacent_ids,
                     frontier_ids, frontier_part_size, process_shift, edge_op, vertex_preprocess_op,
                     vertex_postprocess_op, false)));
         }
         else if (_frontier.get_vector_engine_part_sparsity_type() == SPARSE_FRONTIER)
         {
+            cout << "sparse " << shift <<  endl;
             SAFE_KERNEL_CALL((vg_csr_advance_block_per_vertex_kernel<<<grid, block, 0, stream_1>>>(vertex_pointers, adjacent_ids,
                     frontier_ids, frontier_part_size, process_shift, edge_op, vertex_preprocess_op, vertex_postprocess_op, true)));
         }
@@ -45,15 +52,17 @@ void GraphAbstractionsGPU::advance_worker(VectorCSRGraph &_graph,
         dim3 grid((frontier_part_size - 1) / (BLOCK_SIZE/WARP_SIZE) + 1);
         if (_frontier.get_vector_core_part_sparsity_type() == ALL_ACTIVE_FRONTIER)
         {
-            SAFE_KERNEL_CALL((virtual_warp_per_vertex_kernel<WARP_SIZE><<<grid, block, 0, stream_2>>>(vertex_pointers, adjacent_ids,
-                    frontier_ids + shift, frontier_part_size, process_shift, edge_op, vertex_preprocess_op,
-                    vertex_postprocess_op, true)));
-        }
-        else if (_frontier.get_vector_core_part_sparsity_type() == SPARSE_FRONTIER)
-        {
+            cout << "all-act " << shift << endl;
             SAFE_KERNEL_CALL((virtual_warp_per_vertex_kernel<WARP_SIZE><<<grid, block, 0, stream_2>>>(vertex_pointers, adjacent_ids,
                     frontier_ids + shift, frontier_part_size, process_shift, edge_op, vertex_preprocess_op,
                     vertex_postprocess_op, false)));
+        }
+        else if (_frontier.get_vector_core_part_sparsity_type() == SPARSE_FRONTIER)
+        {
+            cout << "sparse " << shift <<  endl;
+            SAFE_KERNEL_CALL((virtual_warp_per_vertex_kernel<WARP_SIZE><<<grid, block, 0, stream_2>>>(vertex_pointers, adjacent_ids,
+                    frontier_ids + shift, frontier_part_size, process_shift, edge_op, vertex_preprocess_op,
+                    vertex_postprocess_op, true)));
         }
     }
     if(_frontier.get_collective_part_size() > 0)
@@ -63,14 +72,16 @@ void GraphAbstractionsGPU::advance_worker(VectorCSRGraph &_graph,
         dim3 grid((frontier_part_size - 1) / (BLOCK_SIZE) + 1);
         if (_frontier.get_collective_part_sparsity_type() == ALL_ACTIVE_FRONTIER)
         {
-            SAFE_KERNEL_CALL((virtual_warp_per_vertex_kernel<1><<<grid, block, 0, stream_2>>>(vertex_pointers, adjacent_ids,
-                    frontier_ids + shift, frontier_part_size, process_shift, edge_op, vertex_preprocess_op,
-                    vertex_postprocess_op, true)));
+            cout << "all-act " << shift << " " << frontier_part_size << endl;
+            SAFE_KERNEL_CALL((virtual_warp_per_vertex_kernel<1><<<grid, block, 0, stream_3>>>(vertex_pointers, adjacent_ids,
+                    frontier_ids, frontier_part_size, process_shift, edge_op, vertex_preprocess_op,
+                    vertex_postprocess_op, false)));
         }
         else if (_frontier.get_collective_part_sparsity_type() == SPARSE_FRONTIER)
         {
-            SAFE_KERNEL_CALL((virtual_warp_per_vertex_kernel<1><<<grid, block, 0, stream_2>>>(vertex_pointers, adjacent_ids,
-                    frontier_ids + shift, frontier_part_size, process_shift, edge_op, vertex_preprocess_op,
+            cout << "sparse " << shift << " " << frontier_part_size << endl;
+            SAFE_KERNEL_CALL((virtual_warp_per_vertex_kernel<1><<<grid, block, 0, stream_3>>>(vertex_pointers, adjacent_ids,
+                    frontier_ids, frontier_part_size, process_shift, edge_op, vertex_preprocess_op,
                     vertex_postprocess_op, true)));
         }
     }

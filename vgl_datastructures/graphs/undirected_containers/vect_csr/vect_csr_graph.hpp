@@ -61,13 +61,16 @@ void VectorCSRGraph::alloc(int _vertices_count, long long _edges_count)
 
 void VectorCSRGraph::free()
 {
-    MemoryAPI::free_array(vertex_pointers);
-    MemoryAPI::free_array(adjacent_ids);
+    if(!is_copy)
+    {
+        MemoryAPI::free_array(vertex_pointers);
+        MemoryAPI::free_array(adjacent_ids);
 
-    MemoryAPI::free_array(forward_conversion);
-    MemoryAPI::free_array(backward_conversion);
+        MemoryAPI::free_array(forward_conversion);
+        MemoryAPI::free_array(backward_conversion);
 
-    MemoryAPI::free_array(edges_reorder_indexes);
+        MemoryAPI::free_array(edges_reorder_indexes);
+    }
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
