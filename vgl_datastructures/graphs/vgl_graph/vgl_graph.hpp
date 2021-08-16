@@ -139,9 +139,11 @@ bool VGL_Graph::load_from_binary_file(string _file_name)
 
     delete outgoing_data;
     delete incoming_data;
+    MemoryAPI::free_array(vertices_reorder_buffer);
 
     create_containers(new_container_type);
 
+    MemoryAPI::allocate_array(&vertices_reorder_buffer, this->vertices_count);
     outgoing_data->load_main_content_from_binary_file(graph_file);
     incoming_data->load_main_content_from_binary_file(graph_file);
 
