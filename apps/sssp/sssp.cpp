@@ -46,17 +46,17 @@ int main(int argc, char **argv)
             ShortestPaths::vgl_dijkstra(graph, weights, distances, source_vertex,
                                         parser.get_algorithm_frontier_type(),
                                         parser.get_traversal_direction());
+
+            if(parser.get_check_flag())
+            {
+                VerticesArray<float> check_distances(graph, SCATTER);
+                source_vertex = graph.reorder(source_vertex, Parser::convert_traversal_type(parser.get_traversal_direction()), SCATTER);
+                ShortestPaths::seq_dijkstra(graph, weights, check_distances, source_vertex);
+
+                verify_results(distances, check_distances);
+            }
         }
         VGL_RUNTIME::stop_measuring_stats(graph.get_edges_count(), parser);
-
-        if(parser.get_check_flag())
-        {
-            VerticesArray<float> check_distances(graph, SCATTER);
-            source_vertex = graph.reorder(source_vertex, Parser::convert_traversal_type(parser.get_traversal_direction()), SCATTER);
-            ShortestPaths::seq_dijkstra(graph, weights, check_distances, source_vertex);
-
-            verify_results(distances, check_distances);
-        }
 
         VGL_RUNTIME::finalize_library();
     }

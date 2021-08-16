@@ -17,7 +17,7 @@ void FrontierCSR::init()
     int vertices_count = graph_ptr->get_vertices_count();
     MemoryAPI::allocate_array(&flags, vertices_count);
     MemoryAPI::allocate_array(&ids, vertices_count);
-    MemoryAPI::allocate_array(&work_buffer, vertices_count + VECTOR_LENGTH * MAX_SX_AURORA_THREADS);
+    MemoryAPI::allocate_array(&work_buffer, vertices_count + VECTOR_LENGTH * omp_get_max_threads());
 
     // by default frontier is all active
     sparsity_type = ALL_ACTIVE_FRONTIER;

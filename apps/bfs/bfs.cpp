@@ -37,15 +37,15 @@ int main(int argc, char **argv)
         {
             source_vertex = graph.select_random_nz_vertex(SCATTER);
             BFS::vgl_top_down(graph, levels, source_vertex);
+
+            if(parser.get_check_flag())
+            {
+                VerticesArray<int> check_levels(graph, SCATTER);
+                BFS::seq_top_down(graph, check_levels, source_vertex);
+                verify_results(levels, check_levels, 0);
+            }
         }
         VGL_RUNTIME::stop_measuring_stats(graph.get_edges_count(), parser);
-
-        if(parser.get_check_flag())
-        {
-            VerticesArray<int> check_levels(graph, SCATTER);
-            BFS::seq_top_down(graph, check_levels, source_vertex);
-            verify_results(levels, check_levels, 0);
-        }
 
         VGL_RUNTIME::finalize_library();
     }

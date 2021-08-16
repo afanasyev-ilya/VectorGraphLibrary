@@ -30,24 +30,24 @@ correctness_pattern = "error count:"
 
 GRAPHS_DIR = "./bin/input_graphs/"
 SOURCE_GRAPH_DIR = "./bin/source_graphs/"
-synthetic_min_scale = 18
-synthetic_medium_scale = 24
-synthetic_large_scale = 26
-synthetic_edge_factor = 32
-
-
-class BenchmarkMode(Enum):
-    long = 1,
-    medium = 2
-    short = 3
-
-
-mode = BenchmarkMode.medium
 
 
 # how to add new graph with new category
 # 1. add link (http://konect.cc/networks/amazon/ for example) to both dicts
 # 2.
+
+
+konect_graphs_data_fast = {"soc_pokec": {"link": "soc-pokec-relationships"},
+                      "soc_livejournal": {"link": "soc-LiveJournal1"},
+                      #
+                      "web_dbpedia": {"link": "dbpedia-link"},
+                      "web_trackers": {"link": "trackers-trackers", "unarch_graph_name": "trackers"},
+                      #
+                      "road_california": {"link": "roadNet-CA"},
+                      "road_colorado": {"link": "dimacs9-COL"},
+                      #
+                      "rating_yahoo_song": {"link": "yahoo-song"},
+                      "rating_amazon_ratings": {"link": "amazon-ratings"}}
 
 
 konect_graphs_data = {"soc_pokec": {"link": "soc-pokec-relationships"},

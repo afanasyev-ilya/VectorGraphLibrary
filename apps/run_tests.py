@@ -15,7 +15,7 @@ def run_compile(options, arch):
 
 
 def run_prepare(options, arch):
-    create_graphs_if_required(get_list_of_all_graphs(), arch)
+    create_graphs_if_required(get_list_of_all_graphs(), arch, options.format)
 
 
 def run_benchmarks(options, arch, benchmarking_results):
@@ -26,7 +26,7 @@ def run_benchmarks(options, arch, benchmarking_results):
 
     for app_name in list_of_apps:
         if is_valid(app_name, arch, options):
-            benchmark_app(app_name, arch, benchmarking_results)
+            benchmark_app(app_name, arch, benchmarking_results, options.format)
         else:
             print("Error! Can not benchmark " + app_name + ", several errors occurred.")
 
@@ -39,7 +39,7 @@ def run_verify(options, arch, benchmarking_results):
 
     for app_name in list_of_apps:
         if is_valid(app_name, arch, options):
-            verify_app(app_name, arch, benchmarking_results)
+            verify_app(app_name, arch, benchmarking_results, options.format)
         else:
             print("Error! Can not compile " + app_name + ", several errors occurred.")
 
@@ -53,9 +53,9 @@ if __name__ == "__main__":
     parser.add_option('-r', '--arch',
                       action="store", dest="arch",
                       help="specify evaluated architecture: sx/aurora, mc/multicore, cu/gpu", default="sx")
-    parser.add_option('-f', '--force',
-                      action="store", dest="force",
-                      help="specify parameters for running a specific application", default="")
+    parser.add_option('-f', '--format',
+                      action="store", dest="format",
+                      help="specify graph storage format used", default="vcsr")
     parser.add_option('-s', '--sockets',
                       action="store", dest="sockets",
                       help="set number of sockets used", default=1)

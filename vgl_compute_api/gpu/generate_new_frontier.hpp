@@ -63,7 +63,7 @@ void __global__ split_frontier(GraphContainer _graph,
         int current_id = _work_buffer[idx];
         int next_id = _work_buffer[idx + 1];
 
-        int current_size = _graph.get_connections_count(current_size);
+        int current_size = _graph.get_connections_count(current_id);
         int next_size = 0;
         if(idx < (_size - 1))
         {
@@ -73,10 +73,12 @@ void __global__ split_frontier(GraphContainer _graph,
         if((current_size > VECTOR_ENGINE_THRESHOLD_VALUE) && (next_size <= VECTOR_ENGINE_THRESHOLD_VALUE))
         {
             *_vector_engine_threshold = idx + 1;
+            printf("ve = %d %d \n", idx + 1, VECTOR_ENGINE_THRESHOLD_VALUE);
         }
         if((current_size > VECTOR_CORE_THRESHOLD_VALUE) && (next_size <= VECTOR_CORE_THRESHOLD_VALUE))
         {
             *_vector_core_threshold = idx + 1;
+            printf("vc = %d %d \n", idx + 1, VECTOR_CORE_THRESHOLD_VALUE);
         }
     }
 }
@@ -115,6 +117,12 @@ void GraphAbstractionsGPU::generate_new_frontier_worker(VectorCSRGraph &_graph,
             return false;
     };
 
+    for(int i = 0; i < vertices_count; i++)
+    {
+        cout << frontier_ids[i] << " ";
+    }
+    cout << endl;
+
     _frontier.sparsity_type = SPARSE_FRONTIER;
     _frontier.vector_engine_part_type = SPARSE_FRONTIER;
     _frontier.vector_core_part_type = SPARSE_FRONTIER;
@@ -130,6 +138,8 @@ void GraphAbstractionsGPU::generate_new_frontier_worker(VectorCSRGraph &_graph,
     _frontier.vector_core_part_size = vc_threshold[0] - ve_threshold[0];
     _frontier.collective_part_size = copied_elements - ve_threshold[0] - vc_threshold[0];
 
+    cout << "!!!! " << ve_threshold[0] << " " << vc_threshold[0] << " " <<  _frontier.size << endl;
+
     if (_frontier.size == _graph.get_vertices_count())
     {
         _frontier.sparsity_type = ALL_ACTIVE_FRONTIER;
@@ -144,6 +154,11 @@ void GraphAbstractionsGPU::generate_new_frontier_worker(VectorCSRGraph &_graph,
         reduce_worker_sum(_graph, _frontier, reduce_connections, _frontier.neighbours_count);
     }
 
+    for(int i = 0; i < _frontier.size; i++)
+    {
+        cout << frontier_ids[i] << " ";
+    }
+    cout << endl;
 
     cudaDeviceSynchronize();
 

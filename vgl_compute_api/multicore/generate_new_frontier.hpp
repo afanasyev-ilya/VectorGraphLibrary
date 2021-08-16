@@ -148,10 +148,13 @@ void GraphAbstractionsMulticore::generate_new_frontier_worker(CSRGraph &_graph,
     int copy_pos = 0;
     for(int i = 0; i < CSR_VERTEX_GROUPS_NUM; i++)
     {
-        memcpy(frontier_ids + copy_pos, _frontier.vertex_groups[i].ids, _frontier.vertex_groups[i].size * sizeof(int));
-        copy_pos += _frontier.vertex_groups[i].size;
+        if(_frontier.vertex_groups[i].size > 0)
+        {
+            memcpy(frontier_ids + copy_pos, _frontier.vertex_groups[i].ids, _frontier.vertex_groups[i].size * sizeof(int));
+            copy_pos += _frontier.vertex_groups[i].size;
+        }
     }
-    _frontier.size = _frontier.get_size_of_vertex_groups();
+    _frontier.size = copy_pos;
     #else
     auto in_frontier = [frontier_flags] (int src_id) {
         return frontier_flags[src_id];

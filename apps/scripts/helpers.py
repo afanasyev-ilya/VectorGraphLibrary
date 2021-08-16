@@ -25,10 +25,10 @@ def get_binary_suffix(arch):
     return suffix_table[arch]
 
 
-def get_makefile_suffix(arch):
-    suffix_table = {"sx": "nec", "aurora": "nec",
-                    "mc": "gcc", "multicore": "gcc", "cpu": "gcc",
-                    "cu": "cu", "gpu": "cu"}
+def get_compiler(arch):
+    suffix_table = {"sx": "nc++", "aurora": "nc++",
+                    "mc": "g++", "multicore": "g++", "cpu": "g++",
+                    "cu": "nvcc", "gpu": "nvcc"}
     if arch not in suffix_table:
         error_val = 'Incorrect architecture ' + arch + "!"
         raise ValueError(error_val)
@@ -52,7 +52,7 @@ def binary_exists(app_name, arch):
 
 
 def make_binary(app_name, arch):
-    cmd = "make -f Makefile." + get_makefile_suffix(arch) + " " + app_name
+    cmd = "make " + app_name + " CXX=" + get_compiler(arch)
     print(cmd)
     subprocess.call(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
 
