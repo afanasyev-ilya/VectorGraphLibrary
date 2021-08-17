@@ -20,7 +20,7 @@ def recv_msg(sock):
     return sock.recv(msglen)
 
 
-def submit(send_dict):
+def submit_to_socket(send_dict):
     client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     success = True
 
@@ -34,7 +34,7 @@ def submit(send_dict):
     response = client_socket.recv(4096)
     response_str = response.decode()
     print("response: " + response_str)
-    if "Connection reset by peer" in response_str:
+    if "accepted" != response_str:
         success = False
 
     client_socket.close()

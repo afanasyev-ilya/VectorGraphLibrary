@@ -30,6 +30,7 @@ private:
 
     #ifdef __USE_CSR_VERTEX_GROUPS__
     CSRVertexGroup vertex_groups[CSR_VERTEX_GROUPS_NUM];
+    void create_vertex_groups();
     void create_vertices_group_array(CSRVertexGroup &_group_data, int _bottom, int _top);
     #endif
 
@@ -46,8 +47,8 @@ private:
     void copy_edges_indexes(vgl_sort_indexes *_sort_indexes);
 
     /* file load/store API */
-    void save_main_content_to_binary_file(FILE *_graph_file) final {};
-    void load_main_content_from_binary_file(FILE *_graph_file) final {};
+    void save_main_content_to_binary_file(FILE *_graph_file) final;
+    void load_main_content_from_binary_file(FILE *_graph_file) final;
 public:
     CSRGraph(int _vertices_count = 1, long long _edges_count = 1);
     CSRGraph(const CSRGraph &_copy);
@@ -68,10 +69,6 @@ public:
     void print_size();
     void print_stats() {};
     size_t get_size();
-
-    /* file load/store API */
-    bool save_to_binary_file(string _file_name);
-    bool load_from_binary_file(string _file_name);
 
     // resize graph
     void resize(int _vertices_count, long long _edges_count);

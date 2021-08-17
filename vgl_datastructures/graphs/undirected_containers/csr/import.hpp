@@ -98,12 +98,9 @@ void CSRGraph::copy_edges_indexes(vgl_sort_indexes *_sort_indexes)
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void CSRGraph::import(EdgesContainer &_edges_container)
+#ifdef __USE_CSR_VERTEX_GROUPS__
+void CSRGraph::create_vertex_groups()
 {
-    resize(_edges_container.get_vertices_count(), _edges_container.get_edges_count());
-    construct_unsorted_csr(_edges_container);
-
-    #ifdef __USE_CSR_VERTEX_GROUPS__
     #ifdef __USE_GPU__
     create_vertices_group_array(vertex_groups[0], 1024, 2147483647);
     create_vertices_group_array(vertex_groups[1], 32, 1024);
@@ -119,6 +116,18 @@ void CSRGraph::import(EdgesContainer &_edges_container)
     create_vertices_group_array(vertex_groups[4], 16, 32);
     create_vertices_group_array(vertex_groups[5], 0, 16);
     #endif
+}
+#endif
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+void CSRGraph::import(EdgesContainer &_edges_container)
+{
+    resize(_edges_container.get_vertices_count(), _edges_container.get_edges_count());
+    construct_unsorted_csr(_edges_container);
+
+    #ifdef __USE_CSR_VERTEX_GROUPS__
+    CSRGraph::create_vertex_groups();
     #endif
 }
 

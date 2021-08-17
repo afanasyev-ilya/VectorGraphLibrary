@@ -1,7 +1,7 @@
 import xlsxwriter
 from .create_graphs_api import *
 from random import randrange
-from .submit_results import submit
+from .submit_results import submit_to_socket
 import pickle
 
 
@@ -111,12 +111,12 @@ class BenchmarkingResults:
 
     def submit(self, arch):
         send_dict = {"arch_name": arch, "performance_data": self.performance_data, "correctness_data": self.correctness_data}
-        submit(send_dict)
+        submit_to_socket(send_dict)
 
-    def offline_submit(self, arch):
+    def offline_submit(self, arch, run_name):
         send_dict = {"arch_name": arch, "performance_data": self.performance_data, "correctness_data": self.correctness_data}
         # send_dict
-        a_file = open("vgl_rating_data.pkl", "wb")
+        a_file = open(run_name + "_vgl_rating_data.pkl", "wb")
         pickle.dump(send_dict, a_file)
         a_file.close()
 

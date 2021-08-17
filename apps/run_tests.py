@@ -65,9 +65,10 @@ def run(options):
     if options.submit is not None:
         if benchmarking_results.submit(options.submit):
             print("Results sent to server!")
+            benchmarking_results.offline_submit(options.arch, options.submit)
         else:
             print("Can not send results, saving to file...")
-            benchmarking_results.offline_submit(options.submit)
+            benchmarking_results.offline_submit(options.arch, options.submit)
 
     benchmarking_results.finalize()
 
