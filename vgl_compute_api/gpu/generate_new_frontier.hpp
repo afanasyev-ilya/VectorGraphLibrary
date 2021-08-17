@@ -105,12 +105,12 @@ void GraphAbstractionsGPU::generate_new_frontier_worker(VectorCSRGraph &_graph,
     LOAD_FRONTIER_DATA(_frontier);
 
     // generate frontier flags
-    /*dim3 grid((vertices_count - 1) / BLOCK_SIZE + 1);
+    dim3 grid((vertices_count - 1) / BLOCK_SIZE + 1);
     dim3 block(BLOCK_SIZE);
     SAFE_KERNEL_CALL((set_frontier_flags<<<grid, block>>>(_graph, frontier_ids, frontier_flags,
             vertices_count, filter_cond)));
 
-    /*auto copy_if_cond = [frontier_flags, frontier_ids] __host__ __device__ (int _src_id)->bool {
+    auto copy_if_cond = [frontier_flags, frontier_ids] __host__ __device__ (int _src_id)->bool {
         if(_src_id >= 0)
             return true;
         else
@@ -145,37 +145,6 @@ void GraphAbstractionsGPU::generate_new_frontier_worker(VectorCSRGraph &_graph,
         };
         reduce_worker_sum(_graph, _frontier, reduce_connections, _frontier.neighbours_count);
     }
-
-    for(int i = 0; i < _frontier.size; i++)
-        cout << frontier_ids[i] << " ";
-    cout << endl;*/
-
-    // generate frontier flags
-    SAFE_KERNEL_CALL((set_frontier_flags<<<(vertices_count - 1) / BLOCK_SIZE +
-                                           1, BLOCK_SIZE>>>(_graph, frontier_ids, frontier_flags,
-            vertices_count, filter_cond))); // 2*|V|
-
-    // generate frontier IDS
-    int *new_end = thrust::remove_if(thrust::device, frontier_ids, frontier_ids + vertices_count, is_not_active()); // 2*|V|
-    _frontier.size = new_end - _frontier.ids;
-
-    if (_frontier.size == _graph.get_vertices_count())
-    {
-        _frontier.sparsity_type = ALL_ACTIVE_FRONTIER;
-        _frontier.neighbours_count = _graph.get_edges_count();
-    }
-    else
-    {
-        _frontier.sparsity_type = SPARSE_FRONTIER;
-        auto reduce_connections = [] __VGL_REDUCE_INT_ARGS__ {
-                return connections_count;
-        };
-        reduce_worker_sum(_graph, _frontier, reduce_connections, _frontier.neighbours_count);
-    }
-
-    /*for(int i = 0; i < _frontier.size; i++)
-        cout << frontier_ids[i] << " ";
-    cout << endl;*/
 
     cudaDeviceSynchronize();
 

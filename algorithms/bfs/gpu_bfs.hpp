@@ -33,7 +33,6 @@ void BFS::vgl_top_down(VGL_Graph &_graph,
     int current_level = FIRST_LEVEL_VERTEX;
     while(frontier.size() > 0)
     {
-        _levels.print();
         auto edge_op = [_levels, current_level] __VGL_SCATTER_ARGS__
         {
             _T src_level = _levels[src_id]; // this is required for edges list representaion
