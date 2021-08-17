@@ -22,6 +22,7 @@ def recv_msg(sock):
 
 def submit(send_dict):
     client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    success = True
 
     client_socket.connect((HOST, PORT))
     send_data = pickle.dumps(send_dict)
@@ -31,6 +32,10 @@ def submit(send_dict):
 
     #response = recv_msg(client_socket)
     response = client_socket.recv(4096)
-    print("response: " + response.decode())
+    response_str = response.decode()
+    print("response: " + response_str)
+    if "Connection reset by peer" in response_str:
+        success = False
 
     client_socket.close()
+    return success

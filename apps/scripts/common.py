@@ -40,8 +40,8 @@ SOURCE_GRAPH_DIR = "./bin/source_graphs/"
 konect_graphs_data_fast = {"soc_pokec": {"link": "soc-pokec-relationships"},
                       "soc_livejournal": {"link": "soc-LiveJournal1"},
                       #
-                      "web_dbpedia": {"link": "dbpedia-link"},
-                      "web_trackers": {"link": "trackers-trackers", "unarch_graph_name": "trackers"},
+                      "web_wikipedia_link_en": {"link": "wikipedia_link_en"},
+                      "web_baidu": {"link": "zhishi-baidu-internallink"},
                       #
                       "road_california": {"link": "roadNet-CA"},
                       "road_colorado": {"link": "dimacs9-COL"},

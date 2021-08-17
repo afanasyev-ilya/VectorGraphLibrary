@@ -44,7 +44,35 @@ def run_verify(options, arch, benchmarking_results):
             print("Error! Can not compile " + app_name + ", several errors occurred.")
 
 
-if __name__ == "__main__":
+def run(options):
+    create_dir("./bin/")
+    arch = options.arch
+
+    benchmarking_results = BenchmarkingResults()
+
+    if options.compile:
+        run_compile(options, arch)
+
+    if options.prepare:
+        run_prepare(options, arch)
+
+    if options.benchmark:
+        run_benchmarks(options, arch, benchmarking_results)
+
+    if options.verify:
+        run_verify(options, arch, benchmarking_results)
+
+    if options.submit is not None:
+        if benchmarking_results.submit(options.submit):
+            print("Results sent to server!")
+        else:
+            print("Can not send results, saving to file...")
+            benchmarking_results.offline_submit(options.submit)
+
+    benchmarking_results.finalize()
+
+
+def main():
     # parse arguments
     parser = optparse.OptionParser()
     parser.add_option('-a', '--apps',
@@ -71,43 +99,16 @@ if __name__ == "__main__":
     parser.add_option('-b', '--benchmark',
                       action="store_true", dest="benchmark",
                       help="run all benchmarking tests", default=False)
-    parser.add_option('-d', '--download-only',
-                      action="store_true", dest="download_only",
-                      help="download SNAP graphs and quit", default=False)
     parser.add_option('-z', '--submit',
                       action="store", dest="submit",
                       help="submits performance data to VGL rating with specified arch name", default=None)
-    parser.add_option('-o', '--offline-submit',
-                      action="store_true", dest="offline_submit",
-                      help="export results into json file instead of submitting", default=False)
 
     options, args = parser.parse_args()
 
-    create_dir("./bin/")
-    arch = options.arch
+    run(options)
 
-    benchmarking_results = BenchmarkingResults()
 
-    if options.download_only:
-        download_all_real_world_graphs()
-        exit(0)
+if __name__ == "__main__":
+    main()
 
-    if options.compile:
-        run_compile(options, arch)
 
-    if options.prepare:
-        run_prepare(options, arch)
-
-    if options.benchmark:
-        run_benchmarks(options, arch, benchmarking_results)
-
-    if options.verify:
-        run_verify(options, arch, benchmarking_results)
-
-    if options.submit is not None:
-        if not options.offline_submit:
-            benchmarking_results.submit(options.submit)
-        else:
-            benchmarking_results.offline_submit(options.submit)
-
-    benchmarking_results.finalize()

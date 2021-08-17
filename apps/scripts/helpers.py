@@ -15,7 +15,7 @@ def get_binary_path(app_name, arch):
 
 
 def get_binary_suffix(arch):
-    suffix_table = {"sx": "_sx", "aurora": "_sx",
+    suffix_table = {"sx": "_sx", "aurora": "_sx", "nec": "_sx",
                     "mc": "_mc", "multicore": "_mc", "cpu": "_mc",
                     "cu": "_cu", "gpu": "_cu",
                     "": ""}
@@ -26,7 +26,7 @@ def get_binary_suffix(arch):
 
 
 def get_compiler(arch):
-    suffix_table = {"sx": "nc++", "aurora": "nc++",
+    suffix_table = {"sx": "nc++", "aurora": "nc++", "nec": "nc++",
                     "mc": "g++", "multicore": "g++", "cpu": "g++",
                     "cu": "nvcc", "gpu": "nvcc"}
     if arch not in suffix_table:
@@ -101,6 +101,19 @@ def get_sockets_count():  # returns number of sockets of target architecture
     except:
         sockets = 1 # SX-Aurora
         return sockets
+
+
+def get_target_proc_model():  # returns number of sockets of target architecture
+    try:
+        output = subprocess.check_output(["lscpu"])
+        model = "Unknown"
+        for item in output.decode().split("\n"):
+            if "Model name" in item:
+                model_line = item.strip()
+                model = int(model_line.split(":")[1])
+        return model
+    except:
+        return "Unknown"
 
 
 def get_threads_count():

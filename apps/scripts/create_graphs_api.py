@@ -39,11 +39,11 @@ def get_list_of_all_graphs():
 
 
 def get_list_of_verification_graphs():
-    synthetic_graph = "syn_rmat_20_32"
+    synthetic_graph_rmat = "syn_rmat_20_32"
+    synthetic_graph_ru = "syn_ru_20_32"
     social_graph = "soc_pokec"
     web_graph = "web_baidu"
-    road_graph = "road_california"
-    return [synthetic_graph, social_graph, web_graph, road_graph]
+    return [synthetic_graph_rmat, synthetic_graph_ru, social_graph, web_graph]
 
 
 def download_all_real_world_graphs():
@@ -53,21 +53,19 @@ def download_all_real_world_graphs():
 
 
 def download_graph(graph_name):
-    if not path.exists(SOURCE_GRAPH_DIR + "/" + konect_graphs_data[graph_name]["link"]):
-        print("Trying to download " + SOURCE_GRAPH_DIR + konect_graphs_data[graph_name]["link"] + " using " +
-              "http://konect.cc/files/download.tsv." + konect_graphs_data[graph_name]["link"] + ".tar.bz2")
-
-        # new konect usage
+    file_name = SOURCE_GRAPH_DIR + "download.tsv." + konect_graphs_data[graph_name]["link"] + ".tar.bz2"
+    if not path.exists(file_name):
         link = "http://konect.cc/files/download.tsv." + konect_graphs_data[graph_name]["link"] + ".tar.bz2"
+        print("Trying to download " + file_name + " using " + link)
         cmd = ["wget", link, "-q", "--no-check-certificate", "--directory", SOURCE_GRAPH_DIR]
         print(' '.join(cmd))
         subprocess.call(cmd, shell=False, stdout=subprocess.PIPE)
-
-    file_name = SOURCE_GRAPH_DIR + "download.tsv." + konect_graphs_data[graph_name]["link"] + ".tar.bz2"
-    if path.exists(file_name):
-        print(file_name + " downloaded!")
+        if path.exists(file_name):
+            print(file_name + " downloaded!")
+        else:
+            print("Error! Can not download file " + file_name)
     else:
-        print("Error! Can not download file " + file_name)
+        print("File " + SOURCE_GRAPH_DIR + "/" + konect_graphs_data[graph_name]["link"] + ".tar.bz2" + " exists!")
 
 
 def get_path_to_graph(short_name, graph_format, undir = False):
