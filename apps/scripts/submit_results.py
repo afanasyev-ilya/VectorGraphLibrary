@@ -24,13 +24,19 @@ def submit_to_socket(send_dict):
     client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     success = True
 
-    client_socket.connect((HOST, PORT))
+    try:
+        client_socket.connect((HOST, PORT))
+    except:
+        print("Can not connect to server...")
+        return False
+
     send_data = pickle.dumps(send_dict)
 
     #send_msg(client_socket, send_string)
     client_socket.sendall(send_data)
 
     #response = recv_msg(client_socket)
+
     response = client_socket.recv(4096)
     response_str = response.decode()
     print("response: " + response_str)

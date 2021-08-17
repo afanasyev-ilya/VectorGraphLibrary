@@ -109,12 +109,12 @@ class BenchmarkingResults:
         self.worksheet.write(self.line_pos, get_list_of_verification_graphs().index(graph_name) + 1, value)
         self.correctness_data.append({"graph_name": graph_name, "app_name": app_name, "correctness_val": value})
 
-    def submit(self, arch):
-        send_dict = {"arch_name": arch, "performance_data": self.performance_data, "correctness_data": self.correctness_data}
+    def submit(self, run_name):
+        send_dict = {"arch_name": run_name, "performance_data": self.performance_data, "correctness_data": self.correctness_data}
         submit_to_socket(send_dict)
 
-    def offline_submit(self, arch, run_name):
-        send_dict = {"arch_name": arch, "performance_data": self.performance_data, "correctness_data": self.correctness_data}
+    def offline_submit(self, run_name):
+        send_dict = {"arch_name": run_name, "performance_data": self.performance_data, "correctness_data": self.correctness_data}
         # send_dict
         a_file = open(run_name + "_vgl_rating_data.pkl", "wb")
         pickle.dump(send_dict, a_file)

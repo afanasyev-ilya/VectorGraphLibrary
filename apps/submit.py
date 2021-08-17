@@ -38,7 +38,7 @@ def main():
         print("Doing offline submit...")
         a_file = open(options.file_name, "rb")
         perf_stats = pickle.load(a_file)
-        submit(perf_stats)
+        submit_to_socket(perf_stats)
         a_file.close()
 
 

@@ -41,9 +41,9 @@ void VectorCSRGraph::reorder_to_sorted(char *_data, char *_buffer, size_t _elem_
 {
     #if defined(__USE_GPU__)
     if(_elem_size == sizeof(float))
-        cuda_reorder_gather_inplace((float*)_data, (float*)_buffer, backward_conversion, this->vertices_count);
+        cuda_reorder_scatter_inplace((float*)_data, (float*)_buffer, forward_conversion, this->vertices_count);
     else if(_elem_size == sizeof(double))
-        cuda_reorder_gather_inplace((double*)_data, (double*)_buffer, backward_conversion, this->vertices_count);
+        cuda_reorder_scatter_inplace((double*)_data, (double*)_buffer, forward_conversion, this->vertices_count);
     else
         throw "Error: incorrect element size in VectorCSRGraph::reorder_to_sorted";
     #else

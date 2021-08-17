@@ -253,13 +253,15 @@ inline int ParallelPrimitives::copy_if_indexes(CopyCondition &&_cond,
                                                int *_buffer,
                                                const int _index_offset)
 {
+    int num_elements = 0;
     #ifdef __USE_NEC_SX_AURORA__
-    return vector_copy_if_indexes(_cond, _out_data, _size, _buffer, _index_offset);
+    num_elements = vector_copy_if_indexes(_cond, _out_data, _size, _buffer, _index_offset);
     #elif __USE_MULTICORE__
-    return omp_copy_if_indexes(_cond, _out_data, _size, _buffer, _index_offset);
+    num_elements = omp_copy_if_indexes(_cond, _out_data, _size, _buffer, _index_offset);
     #else
     throw "Error in copy_if_indexes : unsupported architecture";
     #endif
+    return num_elements;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

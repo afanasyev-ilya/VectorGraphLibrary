@@ -42,7 +42,7 @@ int main(int argc, char **argv)
             {
                 VerticesArray<int> check_levels(graph, SCATTER);
                 BFS::seq_top_down(graph, check_levels, source_vertex);
-                verify_results(levels, check_levels, 0);
+                verify_results(levels, check_levels, graph.get_vertices_count());
             }
         }
         VGL_RUNTIME::stop_measuring_stats(graph.get_edges_count(), parser);

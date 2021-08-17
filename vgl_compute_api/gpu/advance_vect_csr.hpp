@@ -19,10 +19,10 @@ void GraphAbstractionsGPU::advance_worker(VectorCSRGraph &_graph,
     LOAD_FRONTIER_DATA(_frontier);
 
     long long process_shift = compute_process_shift(current_traversal_direction, CSR_STORAGE);
-
+/*
     cout << "frontier_size: " << frontier_size << endl;
     cout << "frontier detailed sizes: " << _frontier.get_vector_engine_part_size() << " " <<
-     _frontier.get_vector_core_part_size() << " " << _frontier.get_collective_part_size() << endl;
+    _frontier.get_vector_core_part_size() << " " << _frontier.get_collective_part_size() << endl;
 
     dim3 block(BLOCK_SIZE);
     if(_frontier.get_vector_engine_part_size() > 0)
@@ -84,7 +84,11 @@ void GraphAbstractionsGPU::advance_worker(VectorCSRGraph &_graph,
                     frontier_ids, frontier_part_size, process_shift, edge_op, vertex_preprocess_op,
                     vertex_postprocess_op, true)));
         }
-    }
+    }*/
+    dim3 grid((frontier_size - 1) / BLOCK_SIZE + 1);
+    csr_sparse_advance_kernel<<<grid, BLOCK_SIZE>>>(vertex_pointers, adjacent_ids, frontier_ids, frontier_size,
+            process_shift, edge_op, vertex_preprocess_op,
+            vertex_postprocess_op);
 
     cudaDeviceSynchronize();
 

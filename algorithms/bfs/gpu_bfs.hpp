@@ -14,8 +14,6 @@ void BFS::vgl_top_down(VGL_Graph &_graph,
     _levels.move_to_device();
     frontier.move_to_device();
 
-    _source_vertex = _graph.reorder(_source_vertex, ORIGINAL, SCATTER);
-
     auto init_levels = [_levels, _source_vertex] __VGL_COMPUTE_ARGS__
     {
         if(src_id == _source_vertex)
@@ -35,6 +33,7 @@ void BFS::vgl_top_down(VGL_Graph &_graph,
     int current_level = FIRST_LEVEL_VERTEX;
     while(frontier.size() > 0)
     {
+        _levels.print();
         auto edge_op = [_levels, current_level] __VGL_SCATTER_ARGS__
         {
             _T src_level = _levels[src_id]; // this is required for edges list representaion
