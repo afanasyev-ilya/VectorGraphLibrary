@@ -69,6 +69,7 @@ def run(options):
             options.format = current_format
             benchmark_and_verify(options, arch, benchmarking_results)
     else:
+        benchmark_and_verify(options, arch, benchmarking_results)
         if options.submit is not None:
             run_name = options.submit
             if benchmarking_results.submit(run_name):
