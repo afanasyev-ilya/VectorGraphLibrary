@@ -2,7 +2,7 @@ import os
 import optparse
 from scripts.benchmarking_api import *
 from scripts.verification_api import *
-from scripts.export_results import BenchmarkingResults
+from scripts.export_to_xls import BenchmarkingResults
 
 
 def run_compile(options, arch):

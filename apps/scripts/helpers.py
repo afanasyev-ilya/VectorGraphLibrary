@@ -2,7 +2,7 @@ from pathlib import Path
 import subprocess
 import os
 import shutil
-from .common import *
+from .settings import *
 import urllib.request
 
 

@@ -1,7 +1,7 @@
 from .helpers import *
 from .create_graphs_api import *
-from .common import *
-from .export_results import *
+from .settings import *
+from .export_to_xls import *
 
 
 def check_app_correctness(output):
@@ -32,7 +32,6 @@ def verify_app(app_name, arch, benchmarking_results, graph_format):
 
             correctness_lines = check_app_correctness(output)
             print(correctness_lines)
-
             benchmarking_results.add_correctness_value_to_xls_table(str(correctness_lines), current_graph, app_name)
 
-        benchmarking_results.add_performance_separator_to_xls_table()
+        benchmarking_results.add_correctness_separator_to_xls_table()

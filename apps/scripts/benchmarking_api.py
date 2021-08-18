@@ -1,9 +1,9 @@
 from .helpers import *
 from .create_graphs_api import *
-from .export_results import *
-from .common import *
+from .export_to_xls import *
+from .settings import *
 import re
-from .export_results import *
+from .export_to_xls import *
 
 
 def find_perf_line(output):

@@ -1,5 +1,5 @@
 from .helpers import *
-from .common import *
+from .settings import *
 import os.path
 from os import path
 

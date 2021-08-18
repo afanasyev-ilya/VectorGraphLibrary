@@ -15,7 +15,8 @@ benchmark_args = {"bfs": [ ["-top-down"]],
                   "scc": [ [] ],
                   "coloring": [ [] ]}
 
-available_formats = ["csr", "vcsr"]
+
+available_formats = ["csr", "vcsr", "el"]
 
 
 def requires_undir_graphs(app_name):
