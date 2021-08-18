@@ -42,8 +42,8 @@ class BenchmarkingResults:
         self.current_format = None # these can be later used for xls output
         self.current_app_name = None # these can be later used for xls output
 
-    def add_performance_header_to_xls_table(self):
-        self.worksheet = self.workbook.add_worksheet("Performance data")
+    def add_performance_header_to_xls_table(self, graph_format):
+        self.worksheet = self.workbook.add_worksheet("Performance data " + graph_format)
         self.line_pos = 0
         self.current_format = self.workbook.add_format({})
         self.current_app_name = ""
@@ -84,8 +84,8 @@ class BenchmarkingResults:
     def add_performance_separator_to_xls_table(self):
         self.line_pos += lines_in_test() + 1
 
-    def add_correctness_header_to_xls_table(self):
-        self.worksheet = self.workbook.add_worksheet("Correctness data")
+    def add_correctness_header_to_xls_table(self, graph_format):
+        self.worksheet = self.workbook.add_worksheet("Correctness data " + graph_format)
         self.line_pos = 0
         self.current_format = self.workbook.add_format({})
         self.current_app_name = ""

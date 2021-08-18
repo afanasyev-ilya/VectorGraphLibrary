@@ -73,12 +73,10 @@ void __global__ split_frontier(GraphContainer _graph,
         if((current_size > VECTOR_ENGINE_THRESHOLD_VALUE) && (next_size <= VECTOR_ENGINE_THRESHOLD_VALUE))
         {
             *_vector_engine_threshold = idx + 1;
-            printf("ve = %d %d \n", idx + 1, VECTOR_ENGINE_THRESHOLD_VALUE);
         }
         if((current_size > VECTOR_CORE_THRESHOLD_VALUE) && (next_size <= VECTOR_CORE_THRESHOLD_VALUE))
         {
             *_vector_core_threshold = idx + 1;
-            printf("vc = %d %d \n", idx + 1, VECTOR_CORE_THRESHOLD_VALUE);
         }
     }
 }

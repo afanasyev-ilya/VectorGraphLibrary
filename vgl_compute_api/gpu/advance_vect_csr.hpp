@@ -1,5 +1,55 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+template <typename EdgeOperation, typename VertexPreprocessOperation, typename VertexPostprocessOperation>
+void __global__ vector_extension_advance_kernel(const long long *_vertex_pointers,
+                                                const long long *_ve_vector_group_ptrs,
+                                                const int *_ve_vector_group_sizes,
+                                                const int *_ve_adjacent_ids,
+                                                int _ve_starting_vertex,
+                                                size_t _vertices_count,
+                                                long long _process_shift,
+                                                EdgeOperation edge_op,
+                                                VertexPreprocessOperation vertex_preprocess_op,
+                                                VertexPostprocessOperation vertex_postprocess_op)
+{
+    const int warp_id = threadIdx.x / WARP_SIZE;
+    const int position_in_warp = threadIdx.x % WARP_SIZE;
+
+    int idx = blockIdx.x * (blockDim.x / WARP_SIZE) + warp_id;
+    int src_id = _ve_starting_vertex + src_id;
+
+    if(src_id < _vertices_count)
+    {
+        int cur_vector_segment = idx / WARP_SIZE;
+        int segment_first_vertex = cur_vector_segment * WARP_SIZE + _ve_starting_vertex;
+
+        long long segment_edges_start = _ve_vector_group_ptrs[cur_vector_segment];
+        int segment_connections_count = _ve_vector_group_sizes[cur_vector_segment];
+
+        int connections_count = _vertex_pointers[src_id + 1] - _vertex_pointers[src_id];
+
+        vertex_preprocess_op(src_id, connections_count, position_in_warp);
+
+        for(int edge_pos = 0; edge_pos < segment_connections_count; edge_pos++)
+        {
+            const int vector_index = position_in_warp;
+            const long long internal_edge_pos = segment_edges_start + edge_pos * WARP_SIZE + position_in_warp;
+            const int local_edge_pos = edge_pos;
+            const long long external_edge_pos = _process_shift + internal_edge_pos;
+
+            if(edge_pos < connections_count)
+            {
+                const int dst_id = _ve_adjacent_ids[internal_edge_pos];
+                edge_op(src_id, dst_id, local_edge_pos, external_edge_pos, vector_index);
+            }
+        }
+
+        vertex_preprocess_op(src_id, connections_count, position_in_warp);
+    }
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 template <typename EdgeOperation, typename VertexPreprocessOperation,
         typename VertexPostprocessOperation, typename CollectiveEdgeOperation, typename CollectiveVertexPreprocessOperation,
         typename CollectiveVertexPostprocessOperation>
@@ -63,9 +113,13 @@ void GraphAbstractionsGPU::advance_worker(VectorCSRGraph &_graph,
         dim3 grid((frontier_part_size - 1) / (BLOCK_SIZE) + 1);
         if (_frontier.get_collective_part_sparsity_type() == ALL_ACTIVE_FRONTIER)
         {
-            SAFE_KERNEL_CALL((virtual_warp_per_vertex_kernel<1><<<grid, block, 0, stream_3>>>(vertex_pointers, adjacent_ids,
+            /*SAFE_KERNEL_CALL((virtual_warp_per_vertex_kernel<1><<<grid, block, 0, stream_3>>>(vertex_pointers, adjacent_ids,
                     frontier_ids, frontier_part_size, process_shift, edge_op, vertex_preprocess_op,
-                    vertex_postprocess_op, false)));
+                    vertex_postprocess_op, false)));*/
+            SAFE_KERNEL_CALL((vector_extension_advance_kernel<<<grid, block, 0, stream_3>>>(vertex_pointers,
+                    ve_vector_group_ptrs, ve_vector_group_sizes, ve_adjacent_ids,
+                    ve_starting_vertex, vertices_count, process_shift, edge_op, vertex_preprocess_op,
+                    vertex_postprocess_op)));
         }
         else if (_frontier.get_collective_part_sparsity_type() == SPARSE_FRONTIER)
         {

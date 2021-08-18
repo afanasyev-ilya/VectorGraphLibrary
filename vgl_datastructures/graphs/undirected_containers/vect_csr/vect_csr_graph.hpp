@@ -198,6 +198,8 @@ void VectorCSRGraph::move_to_device()
     MemoryAPI::move_array_to_device(backward_conversion, this->vertices_count);
 
     MemoryAPI::move_array_to_device(edges_reorder_indexes, this->edges_count);
+
+    last_vertices_ve.move_to_device();
 }
 #endif
 
@@ -220,6 +222,8 @@ void VectorCSRGraph::move_to_host()
     MemoryAPI::move_array_to_host(backward_conversion, this->vertices_count);
 
     MemoryAPI::move_array_to_host(edges_reorder_indexes, this->edges_count);
+
+    last_vertices_ve.move_to_host();
 }
 #endif
 

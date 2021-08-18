@@ -185,3 +185,27 @@ size_t VectorExtension::get_size()
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+#ifdef __USE_GPU__
+void VectorExtension::move_to_device()
+{
+    MemoryAPI::move_array_to_device(vector_group_ptrs, vector_segments_count);
+    MemoryAPI::move_array_to_device(vector_group_sizes, vector_segments_count);
+
+    MemoryAPI::move_array_to_device(adjacent_ids, edges_count_in_ve);
+}
+#endif
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+#ifdef __USE_GPU__
+void VectorExtension::move_to_host()
+{
+    MemoryAPI::move_array_to_host(vector_group_ptrs, vector_segments_count);
+    MemoryAPI::move_array_to_host(vector_group_sizes, vector_segments_count);
+
+    MemoryAPI::move_array_to_host(adjacent_ids, edges_count_in_ve);
+}
+#endif
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+

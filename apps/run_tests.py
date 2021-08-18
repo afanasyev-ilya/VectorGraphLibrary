@@ -22,7 +22,7 @@ def run_benchmarks(options, arch, benchmarking_results):
     list_of_apps = prepare_list_of_apps(options.apps)
 
     set_omp_environments(options)
-    benchmarking_results.add_performance_header_to_xls_table()
+    benchmarking_results.add_performance_header_to_xls_table(options.format)
 
     for app_name in list_of_apps:
         if is_valid(app_name, arch, options):
@@ -35,13 +35,21 @@ def run_verify(options, arch, benchmarking_results):
     list_of_apps = prepare_list_of_apps(options.apps)
 
     set_omp_environments(options)
-    benchmarking_results.add_correctness_header_to_xls_table()
+    benchmarking_results.add_correctness_header_to_xls_table(options.format)
 
     for app_name in list_of_apps:
         if is_valid(app_name, arch, options):
             verify_app(app_name, arch, benchmarking_results, options.format)
         else:
             print("Error! Can not compile " + app_name + ", several errors occurred.")
+
+
+def benchmark_and_verify(options, arch, benchmarking_results):
+    if options.benchmark:
+        run_benchmarks(options, arch, benchmarking_results)
+
+    if options.verify and options.format != "el":
+        run_verify(options, arch, benchmarking_results)
 
 
 def run(options):
@@ -56,20 +64,19 @@ def run(options):
     if options.prepare:
         run_prepare(options, arch)
 
-    if options.benchmark:
-        run_benchmarks(options, arch, benchmarking_results)
-
-    if options.verify:
-        run_verify(options, arch, benchmarking_results)
-
-    if options.submit is not None:
-        run_name = options.submit
-        if benchmarking_results.submit(run_name):
-            print("Results sent to server!")
-            benchmarking_results.offline_submit(run_name)
-        else:
-            print("Can not send results, saving to file...")
-            benchmarking_results.offline_submit(run_name)
+    if options.format == "all":
+        for current_format in available_formats:
+            options.format = current_format
+            benchmark_and_verify(options, arch, benchmarking_results)
+    else:
+        if options.submit is not None:
+            run_name = options.submit
+            if benchmarking_results.submit(run_name):
+                print("Results sent to server!")
+                benchmarking_results.offline_submit(run_name)
+            else:
+                print("Can not send results, saving to file...")
+                benchmarking_results.offline_submit(run_name)
 
     benchmarking_results.finalize()
 
@@ -85,7 +92,7 @@ def main():
                       help="specify evaluated architecture: sx/aurora, mc/multicore, cu/gpu", default="sx")
     parser.add_option('-f', '--format',
                       action="store", dest="format",
-                      help="specify graph storage format used", default="vcsr")
+                      help="specify graph storage format used (all can be specified to test all available formats)", default="vcsr")
     parser.add_option('-s', '--sockets',
                       action="store", dest="sockets",
                       help="set number of sockets used", default=1)
