@@ -91,6 +91,8 @@ void GraphAbstractionsGPU::generate_new_frontier_worker(VectorCSRGraph &_graph,
     Timer tm;
     tm.start();
     _frontier.set_direction(current_traversal_direction);
+    int vertices_count = _graph.get_vertices_count();
+    LOAD_FRONTIER_DATA(_frontier);
 
     int *ve_threshold;
     int *vc_threshold;
@@ -98,9 +100,6 @@ void GraphAbstractionsGPU::generate_new_frontier_worker(VectorCSRGraph &_graph,
     MemoryAPI::allocate_array(&vc_threshold, 1);
     ve_threshold[0] = 0;
     vc_threshold[0] = 0;
-
-    int vertices_count = _graph.get_vertices_count();
-    LOAD_FRONTIER_DATA(_frontier);
 
     // generate frontier flags
     dim3 grid((vertices_count - 1) / BLOCK_SIZE + 1);
@@ -128,7 +127,7 @@ void GraphAbstractionsGPU::generate_new_frontier_worker(VectorCSRGraph &_graph,
                         ve_threshold, vc_threshold)));
     _frontier.vector_engine_part_size = ve_threshold[0];
     _frontier.vector_core_part_size = vc_threshold[0] - ve_threshold[0];
-    _frontier.collective_part_size = copied_elements - ve_threshold[0] - vc_threshold[0];
+    _frontier.collective_part_size = copied_elements - vc_threshold[0];
 
     if (_frontier.size == _graph.get_vertices_count())
     {

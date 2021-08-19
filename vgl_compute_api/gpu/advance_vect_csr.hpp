@@ -113,9 +113,6 @@ void GraphAbstractionsGPU::advance_worker(VectorCSRGraph &_graph,
         dim3 grid((frontier_part_size - 1) / (BLOCK_SIZE) + 1);
         if (_frontier.get_collective_part_sparsity_type() == ALL_ACTIVE_FRONTIER)
         {
-            /*SAFE_KERNEL_CALL((virtual_warp_per_vertex_kernel<1><<<grid, block, 0, stream_3>>>(vertex_pointers, adjacent_ids,
-                    frontier_ids, frontier_part_size, process_shift, edge_op, vertex_preprocess_op,
-                    vertex_postprocess_op, false)));*/
             SAFE_KERNEL_CALL((vector_extension_advance_kernel<<<grid, block, 0, stream_3>>>(vertex_pointers,
                     ve_vector_group_ptrs, ve_vector_group_sizes, ve_adjacent_ids,
                     ve_starting_vertex, vertices_count, process_shift, edge_op, vertex_preprocess_op,
@@ -124,14 +121,12 @@ void GraphAbstractionsGPU::advance_worker(VectorCSRGraph &_graph,
         else if (_frontier.get_collective_part_sparsity_type() == SPARSE_FRONTIER)
         {
             SAFE_KERNEL_CALL((virtual_warp_per_vertex_kernel<1><<<grid, block, 0, stream_3>>>(vertex_pointers, adjacent_ids,
-                    frontier_ids, frontier_part_size, process_shift, edge_op, vertex_preprocess_op,
+                    frontier_ids + shift, frontier_part_size, process_shift, edge_op, vertex_preprocess_op,
                     vertex_postprocess_op, true)));
         }
     }
-
-    cudaDeviceSynchronize();
-
     size_t work = frontier_neighbours_count;
+    cudaDeviceSynchronize();
 
     tm.end();
 

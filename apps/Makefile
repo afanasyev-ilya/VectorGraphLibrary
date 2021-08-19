@@ -16,7 +16,7 @@ endif
 
 ifeq ($(COMPILER),icpc)
 	Include_Path = -I ../
-	Flags = -D __USE_MULTICORE__ $(MPI_Flags) -O3 -fopenmp -std=c++17 #-xCOMMON-AVX512
+	Flags = -D __USE_MULTICORE__ $(MPI_Flags) -O1 -fopenmp -std=c++17 #-xCOMMON-AVX512
 	Libraries = -O3 -fopenmp
 	ArchSuffix=_mc
 endif

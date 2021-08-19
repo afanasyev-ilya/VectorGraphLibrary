@@ -91,7 +91,6 @@ def listen_to_users(port_name):
         conn, addr = server_sock.accept()
         print('Connected by', addr)
         while True:
-
             try:
                 recv_data = conn.recv(4024*4)
                 if not recv_data:
