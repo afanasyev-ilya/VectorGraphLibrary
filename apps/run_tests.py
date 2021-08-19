@@ -52,7 +52,7 @@ def benchmark_and_verify(options, arch, benchmarking_results):
         run_verify(options, arch, benchmarking_results)
 
 
-def run(options):
+def run(options, run_info):
     create_dir("./bin/")
     arch = options.arch
 
@@ -70,14 +70,13 @@ def run(options):
             benchmark_and_verify(options, arch, benchmarking_results)
     else:
         benchmark_and_verify(options, arch, benchmarking_results)
-        if options.submit is not None:
-            run_name = options.submit
-            if benchmarking_results.submit(run_name):
+        if run_info != {}:
+            run_info["format"] = options.format
+            if benchmarking_results.submit(run_info):
                 print("Results sent to server!")
-                benchmarking_results.offline_submit(run_name)
             else:
                 print("Can not send results, saving to file...")
-                benchmarking_results.offline_submit(run_name)
+                benchmarking_results.offline_submit(run_info)
 
     benchmarking_results.finalize()
 
@@ -109,13 +108,10 @@ def main():
     parser.add_option('-b', '--benchmark',
                       action="store_true", dest="benchmark",
                       help="run all benchmarking tests", default=False)
-    parser.add_option('-z', '--submit',
-                      action="store", dest="submit",
-                      help="submits performance data to VGL rating with specified arch name", default=None)
 
     options, args = parser.parse_args()
 
-    run(options)
+    run(options, {})
 
 
 if __name__ == "__main__":

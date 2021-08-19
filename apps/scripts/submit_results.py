@@ -37,10 +37,15 @@ def submit_to_socket(send_dict):
 
     #response = recv_msg(client_socket)
 
-    response = client_socket.recv(4096)
-    response_str = response.decode()
+    try:
+        response = client_socket.recv(4096)
+        response_str = response.decode()
+    except:
+        print("Can not receive data from server...")
+        return False
+
     print("response: " + response_str)
-    if "accepted" != response_str:
+    if "Accepted" not in response_str:
         success = False
 
     client_socket.close()

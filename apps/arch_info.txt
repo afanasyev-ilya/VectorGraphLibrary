@@ -1,0 +1,1 @@
+{"architecture": "Intel Xeon", "model": "Gold 6140", "author": "Ilya Afanasyev"}

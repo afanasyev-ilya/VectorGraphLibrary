@@ -34,12 +34,49 @@ def get_graph_coef(graph_name, slider_values):
 
 
 def get_app_coef(app_name, slider_values):
+    '''
+    if("bfs" not in slider_values):
+        slider_values["bfs"] = 0.5
+
+    if("synthetic" not in slider_values):
+        slider_values["synthetic"] = 0.5
+
+    if("pr" not in slider_values):
+        slider_values["pr"] = 0.5
+
+    if("tiny_vertex_scale" not in slider_values):
+        slider_values["tiny_vertex_scale"] = 0.5
+
+    if("Online social network" not in slider_values):
+        slider_values["Online social network"] = 0.5
+
+    if("small_vertex_scale" not in slider_values):
+        slider_values["small_vertex_scale"] = 0.5
+
+    if("Hyperlink network" not in slider_values):
+        slider_values["Hyperlink network"] = 0.5
+
+    if("sssp" not in slider_values):
+        slider_values["sssp"] = 0.5
+
+    if("medium_vertex_scale" not in slider_values):
+        slider_values["medium_vertex_scale"] = 0.5
+
+    if("Infrastructure network" not in slider_values):
+        slider_values["Infrastructure network"] = 0.5
+
+    if("large_vertex_scale" not in slider_values):
+        slider_values["large_vertex_scale"] = 0.5
+
+    if("hits" not in slider_values):
+        slider_values["hits"] = 0.5
+    '''
+
     if slider_values == {}:
-        return 1.0
+        return 0.5
     else:
         k = float(slider_values[app_name])/100.0
         return k
-
 
 def get_coefficient(graph, app, slider_values):
     return get_graph_coef(graph, slider_values) * get_app_coef(app, slider_values)

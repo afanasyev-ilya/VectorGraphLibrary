@@ -2,6 +2,24 @@ import pickle
 from scripts.submit_results import *
 import optparse
 from run_tests import run
+import ast
+
+
+def parse_dict(file_name):
+    file = open(file_name, "r")
+
+    contents = file.read()
+    dictionary = ast.literal_eval(contents)
+
+    file.close()
+
+    if "architecture" not in dictionary:
+        raise ValueError('architecture is not specified in target dictionary.')
+    if "model" not in dictionary:
+        raise ValueError('model is not specified in target dictionary.')
+    if "author" not in dictionary:
+        raise ValueError('author is not specified in target dictionary.')
+    return dictionary
 
 
 def main():
@@ -19,10 +37,12 @@ def main():
                       action="store", dest="file_name",
                       help="specify file name for offline submit, other options are ignored this way", default=None)
     parser.add_option('-n', '--name',
-                      action="store", dest="run_name",
-                      help="name of run in rating", default="test")
+                      action="store", dest="sub_name",
+                      help="specify name of file with submission info", default="test")
 
     options, args = parser.parse_args()
+
+    arch_info_dict = parse_dict(options.sub_name)
 
     if options.file_name is None:
         print("Doing online submit...")
@@ -32,8 +52,7 @@ def main():
         options.compile = True
         options.prepare = False
         options.sockets = options.proc_num
-        options.submit = options.run_name
-        run(options)
+        run(options, arch_info_dict)
     else:
         print("Doing offline submit...")
         a_file = open(options.file_name, "rb")

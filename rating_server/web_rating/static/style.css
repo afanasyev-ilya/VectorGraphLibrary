@@ -1,0 +1,121 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300&display=swap');
+
+.slider {
+  margin: 0;
+  padding: 0;
+  /* font-family: "Poppins", sans-serif; */
+  /*position: center;*/
+}
+
+.rangeValue { /* текст (число) */
+  /* position: relative; */
+  display: block;
+  text-align: center; 
+  font-size: 1em; /* размер текста */
+  color: #999; /* цвет текста */
+  font-weight: 400;
+}
+.range { /* шкала */
+  width: 100px; /* параметры шкалы */
+  height: 15px;
+  -webkit-appearance: none;
+  background: #111; /*цвет шкалы*/
+  outline: none;
+  border-radius: 15px; /* закругление рамки */
+  overflow: hidden;
+  box-shadow: inset 0 0 5px rgba(0, 0, 0, 1);
+}
+.range::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 15px; /* параметры круга ползунка */
+  height: 15px;
+  border-radius: 50%; /* радиус границы круга ползунка */
+  background: #00fd0a; /*цвет круга ползунка*/
+  cursor: pointer; /* при наведении на ползунок появляется указатель вместо курсора*/
+  border: 4px solid #333; /* граница круга ползунка */
+  box-shadow: -407px 0 0 400px #00fd0a; /* след за ползунком */
+}
+/*
+#SubmitButton {
+    background-color: #343a40; 
+    color: #fff;
+    position:  relative;
+    height: 50px;
+    width: 200px;
+    border-radius: 5%;
+    left: 50%;
+    border:  none;
+    transform:  translate(-50%, -100px);
+} */
+
+#SubmitButton {
+  display: inline-block;
+  padding: 12px 17px;
+  font-size: 16px;
+  cursor: pointer;
+  text-align: center;
+  text-decoration: none;
+  outline: none;
+  color: #fff;
+  background-color: #343a40;
+  border: none;
+  border-radius: 15px;
+  box-shadow: 0 3px #00fd0a;
+  /*
+  position: relative;
+  left: -150px;
+  top: 0px;
+  */
+}
+
+#SubmitButton:hover {background-color: #343a40}
+
+#SubmitButton:active {
+  background-color: #343a40;
+  box-shadow: 0 5px red;
+  transform: translateY(4px);
+  /*
+  position: relative;
+  left: -150px;
+  top: 0px;
+  */
+}
+
+#ExtraButton {
+  display: inline-block;
+  padding: 12px 17px;
+  font-size: 16px;
+  cursor: pointer;
+  text-align: center;
+  text-decoration: none;
+  outline: none;
+  color: #fff;
+  background-color: #343a40;
+  border: none;
+  border-radius: 15px;
+  box-shadow: 0 3px #00fd0a;
+  /*
+  position: relative;
+  left: 550px;
+  top: -54px;
+  */
+}
+
+#ExtraButton:hover {
+  background-color: #343a40;
+}
+
+#ExtraButton:active {
+  background-color: #343a40;
+  box-shadow: 0 5px red;
+  transform: translateY(4px);
+  /*
+  position: relative;
+  left: 550px;
+  top: -54px;
+  */
+}
+
+#ExtraTable {
+    display: none;
+}
