@@ -27,11 +27,12 @@ int main(int argc, char **argv)
 
         VerticesArray<int> components(graph, SCATTER);
 
+        // heat run
+        ConnectedComponents::vgl_shiloach_vishkin(graph, components);
+
+        // real run
         VGL_RUNTIME::start_measuring_stats();
-        if(parser.get_algorithm_cc() == SHILOACH_VISHKIN_ALGORITHM)
-            ConnectedComponents::vgl_shiloach_vishkin(graph, components);
-        else if(parser.get_algorithm_cc() == BFS_BASED_ALGORITHM)
-            ConnectedComponents::vgl_bfs_based(graph, components);
+        ConnectedComponents::vgl_shiloach_vishkin(graph, components);
         VGL_RUNTIME::stop_measuring_stats(graph.get_edges_count(), parser);
 
         if(parser.get_check_flag())

@@ -13,6 +13,11 @@
 #define vgl_sort_indexes long long
 #endif
 
+#ifdef __USE_GPU__
+#include <thrust/sort.h>
+#include <thrust/execution_policy.h>
+#endif
+
 #include <algorithm>
 #include <functional>
 
@@ -27,7 +32,7 @@ class Sorter
 {
 private:
     #ifdef __USE_ASL__
-    static void inner_sort(int *_data, vgl_sort_indexes *_indexes, long long _size, SortOrder _sort_order)
+    static void asl_inner_sort(int *_data, vgl_sort_indexes *_indexes, long long _size, SortOrder _sort_order)
     {
         asl_sort_t hnd;
 
@@ -47,8 +52,7 @@ private:
     };
     #endif
 
-    #ifndef __USE_ASL__
-    static void inner_sort(int *_data, vgl_sort_indexes *_indexes, long long _size, SortOrder _sort_order)
+    static void std_inner_sort(int *_data, vgl_sort_indexes *_indexes, long long _size, SortOrder _sort_order)
     {
         if(_indexes != NULL)
         {
@@ -86,11 +90,36 @@ private:
                 stable_sort(_data, _data + _size, greater<int>());
         }
     };
+
+    #ifdef __USE_GPU__
+    static void thrust_inner_sort(int *_data, vgl_sort_indexes *_indexes, long long _size, SortOrder _sort_order)
+    {
+        thrust::stable_sort_by_key(thrust::host, _data, _data + _size, _indexes);
+    };
     #endif
 public:
     static void sort(int *_data, vgl_sort_indexes *_indexes, long long _size, SortOrder _sort_order)
     {
-        inner_sort(_data, _indexes, _size, _sort_order);
+        #ifdef __USE_NEC_SX_AURORA__
+        #ifdef __USE_ASL__
+        asl_inner_sort(_data, _indexes, _size, _sort_order);
+        #else
+        std_inner_sort(_data, _indexes, _size, _sort_order);
+        #endif
+        #endif
+
+        #ifdef __USE_GPU__
+        /*Timer tm;
+        tm.start();
+        thrust_inner_sort(_data, _indexes, _size, _sort_order);
+        tm.end();
+        cout << "thrust_sort_time: " << tm.get_time_in_ms() << " ms" << endl;*/
+        std_inner_sort(_data, _indexes, _size, _sort_order);
+        #endif
+
+        #ifdef __USE_MULTICORE__
+        std_inner_sort(_data, _indexes, _size, _sort_order);
+        #endif
     };
 };
 

@@ -78,14 +78,14 @@ void GraphAbstractionsGPU::advance_worker(VectorCSRGraph &_graph,
         dim3 grid(frontier_part_size);
         if(_frontier.get_vector_engine_part_sparsity_type() == ALL_ACTIVE_FRONTIER)
         {
-            SAFE_KERNEL_CALL((vg_csr_advance_block_per_vertex_kernel<<<grid, block, 0, stream_1>>>(vertex_pointers, adjacent_ids,
+            vg_csr_advance_block_per_vertex_kernel<<<grid, block, 0, stream_1>>>(vertex_pointers, adjacent_ids,
                     frontier_ids, frontier_part_size, process_shift, edge_op, vertex_preprocess_op,
-                    vertex_postprocess_op, false)));
+                    vertex_postprocess_op, false);
         }
         else if (_frontier.get_vector_engine_part_sparsity_type() == SPARSE_FRONTIER)
         {
-            SAFE_KERNEL_CALL((vg_csr_advance_block_per_vertex_kernel<<<grid, block, 0, stream_1>>>(vertex_pointers, adjacent_ids,
-                    frontier_ids, frontier_part_size, process_shift, edge_op, vertex_preprocess_op, vertex_postprocess_op, true)));
+            vg_csr_advance_block_per_vertex_kernel<<<grid, block, 0, stream_1>>>(vertex_pointers, adjacent_ids,
+                    frontier_ids, frontier_part_size, process_shift, edge_op, vertex_preprocess_op, vertex_postprocess_op, true);
         }
     }
     if(_frontier.get_vector_core_part_size() > 0)
@@ -95,15 +95,15 @@ void GraphAbstractionsGPU::advance_worker(VectorCSRGraph &_graph,
         dim3 grid((frontier_part_size - 1) / (BLOCK_SIZE/WARP_SIZE) + 1);
         if (_frontier.get_vector_core_part_sparsity_type() == ALL_ACTIVE_FRONTIER)
         {
-            SAFE_KERNEL_CALL((virtual_warp_per_vertex_kernel<WARP_SIZE><<<grid, block, 0, stream_2>>>(vertex_pointers, adjacent_ids,
+            virtual_warp_per_vertex_kernel<WARP_SIZE><<<grid, block, 0, stream_2>>>(vertex_pointers, adjacent_ids,
                     frontier_ids + shift, frontier_part_size, process_shift, edge_op, vertex_preprocess_op,
-                    vertex_postprocess_op, false)));
+                    vertex_postprocess_op, false);
         }
         else if (_frontier.get_vector_core_part_sparsity_type() == SPARSE_FRONTIER)
         {
-            SAFE_KERNEL_CALL((virtual_warp_per_vertex_kernel<WARP_SIZE><<<grid, block, 0, stream_2>>>(vertex_pointers, adjacent_ids,
+            virtual_warp_per_vertex_kernel<WARP_SIZE><<<grid, block, 0, stream_2>>>(vertex_pointers, adjacent_ids,
                     frontier_ids + shift, frontier_part_size, process_shift, edge_op, vertex_preprocess_op,
-                    vertex_postprocess_op, true)));
+                    vertex_postprocess_op, true);
         }
     }
     if(_frontier.get_collective_part_size() > 0)
@@ -113,16 +113,16 @@ void GraphAbstractionsGPU::advance_worker(VectorCSRGraph &_graph,
         dim3 grid((frontier_part_size - 1) / (BLOCK_SIZE) + 1);
         if (_frontier.get_collective_part_sparsity_type() == ALL_ACTIVE_FRONTIER)
         {
-            SAFE_KERNEL_CALL((vector_extension_advance_kernel<<<grid, block, 0, stream_3>>>(vertex_pointers,
+            vector_extension_advance_kernel<<<grid, block, 0, stream_3>>>(vertex_pointers,
                     ve_vector_group_ptrs, ve_vector_group_sizes, ve_adjacent_ids,
                     ve_starting_vertex, vertices_count, process_shift, edge_op, vertex_preprocess_op,
-                    vertex_postprocess_op)));
+                    vertex_postprocess_op);
         }
         else if (_frontier.get_collective_part_sparsity_type() == SPARSE_FRONTIER)
         {
-            SAFE_KERNEL_CALL((virtual_warp_per_vertex_kernel<1><<<grid, block, 0, stream_3>>>(vertex_pointers, adjacent_ids,
+            virtual_warp_per_vertex_kernel<1><<<grid, block, 0, stream_3>>>(vertex_pointers, adjacent_ids,
                     frontier_ids + shift, frontier_part_size, process_shift, edge_op, vertex_preprocess_op,
-                    vertex_postprocess_op, true)));
+                    vertex_postprocess_op, true);
         }
     }
     size_t work = frontier_neighbours_count;

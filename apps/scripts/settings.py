@@ -5,6 +5,9 @@ GENERATE_UNDIRECTED_GRAPHS = False
 UNDIRECTED_PREFIX = "undir_"
 
 
+fast_mode = True
+
+
 benchmark_args = {"bfs": [ ["-top-down"]],
                   "sssp": [ ["-push", "-all-active"] ],
                   "pr": [ ["-pull"] ],
@@ -16,7 +19,7 @@ benchmark_args = {"bfs": [ ["-top-down"]],
                   "coloring": [ [] ]}
 
 
-available_formats = ["csr", "vcsr", "el"]
+available_formats = ["csr", "vcsr"]
 
 
 def requires_undir_graphs(app_name):

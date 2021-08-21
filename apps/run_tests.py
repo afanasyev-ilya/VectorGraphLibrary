@@ -1,5 +1,6 @@
 import os
 import optparse
+import scripts.settings
 from scripts.benchmarking_api import *
 from scripts.verification_api import *
 from scripts.export_to_xls import BenchmarkingResults
@@ -56,7 +57,7 @@ def run(options, run_info):
     create_dir("./bin/")
     arch = options.arch
 
-    benchmarking_results = BenchmarkingResults()
+    benchmarking_results = BenchmarkingResults(options.name)
 
     if options.compile:
         run_compile(options, arch)
@@ -76,7 +77,7 @@ def run(options, run_info):
                 print("Results sent to server!")
             else:
                 print("Can not send results, saving to file...")
-                benchmarking_results.offline_submit(run_info)
+                benchmarking_results.offline_submit(run_info, options.name)
 
     benchmarking_results.finalize()
 
@@ -108,8 +109,17 @@ def main():
     parser.add_option('-b', '--benchmark',
                       action="store_true", dest="benchmark",
                       help="run all benchmarking tests", default=False)
+    parser.add_option('-n', '--name',
+                      action="store", dest="name",
+                      help="specify name prefix of output files", default="unknown")
+    parser.add_option('-m', '--mode',
+                      action="store", dest="mode",
+                      help="specify testing mode: fast (small graphs only) or long (all graphs used)", default="fast")
 
     options, args = parser.parse_args()
+
+    if options.mode == "long":
+        scripts.settings.fast_mode = False
 
     run(options, {})
 

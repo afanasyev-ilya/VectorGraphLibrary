@@ -4,10 +4,16 @@
 
 #ifdef __USE_GPU__
 template <typename _T>
-void CC::gpu_shiloach_vishkin(VGL_Graph &_graph, VerticesArray<_T> &_components)
+void CC::vgl_shiloach_vishkin(VGL_Graph &_graph, VerticesArray<_T> &_components)
 {
-    GraphAbstractionsGPU graph_API(_graph);
-    VGL_Frontier frontier(_graph);
+    VGL_GRAPH_ABSTRACTIONS graph_API(_graph);
+    VGL_FRONTIER frontier(_graph);
+    frontier.set_all_active();
+
+    _graph.move_to_device();
+    _components.move_to_device();
+    frontier.move_to_device();
+
     graph_API.change_traversal_direction(SCATTER, _components, frontier);
 
     frontier.set_all_active();
@@ -29,8 +35,7 @@ void CC::gpu_shiloach_vishkin(VGL_Graph &_graph, VerticesArray<_T> &_components)
     {
         hook_changes[0] = 0;
 
-        auto edge_op = [_components, hook_changes] __device__(int src_id, int dst_id, int local_edge_pos,
-                long long int global_edge_pos, int vector_index)
+        auto edge_op = [_components, hook_changes] __VGL_SCATTER_ARGS__
         {
             int src_val = _components[src_id];
             int dst_val = _components[dst_id];
@@ -40,12 +45,6 @@ void CC::gpu_shiloach_vishkin(VGL_Graph &_graph, VerticesArray<_T> &_components)
                 _components[dst_id] = src_val;
                 hook_changes[0] = 1;
             }
-
-            /*if(src_val > dst_val)
-            {
-                _components[src_id] = dst_val;
-                hook_changes[0] = 1;
-            }*/
         };
 
         graph_API.scatter(_graph, frontier, edge_op);

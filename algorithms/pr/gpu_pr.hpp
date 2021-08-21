@@ -4,7 +4,7 @@
 
 #ifdef __USE_GPU__
 template <typename _T>
-void PR::gpu_page_rank(VGL_Graph &_graph,
+void PR::vgl_page_rank(VGL_Graph &_graph,
                        VerticesArray<_T> &_page_ranks,
                        _T _convergence_factor,
                        int _max_iterations,
@@ -12,9 +12,13 @@ void PR::gpu_page_rank(VGL_Graph &_graph,
 {
     int vertices_count = _graph.get_vertices_count();
     long long edges_count = _graph.get_edges_count();
-    GraphAbstractionsGPU graph_API(_graph);
-    VGL_Frontier frontier(_graph);
+    VGL_GRAPH_ABSTRACTIONS graph_API(_graph);
+    VGL_FRONTIER frontier(_graph);
     frontier.set_all_active();
+
+    _graph.move_to_device();
+    _page_ranks.move_to_device();
+    frontier.move_to_device();
 
     TraversalDirection reversed_direction = GATHER;
     TraversalDirection primary_direction = SCATTER;
@@ -56,8 +60,7 @@ void PR::gpu_page_rank(VGL_Graph &_graph,
 
     if(reversed_direction == GATHER)
     {
-        auto calculate_number_of_loops = [number_of_loops] __device__ (int src_id, int dst_id, int local_edge_pos, long long int global_edge_pos,
-                    int vector_index)
+        auto calculate_number_of_loops = [number_of_loops] __VGL_GATHER_ARGS__
         {
             if(src_id == dst_id)
             {
@@ -68,8 +71,7 @@ void PR::gpu_page_rank(VGL_Graph &_graph,
     }
     else if(reversed_direction == SCATTER)
     {
-        auto calculate_number_of_loops = [number_of_loops] __device__ (int src_id, int dst_id, int local_edge_pos, long long int global_edge_pos,
-                    int vector_index)
+        auto calculate_number_of_loops = [number_of_loops] __VGL_SCATTER_ARGS__
         {
             if(src_id == dst_id)
             {
@@ -108,7 +110,7 @@ void PR::gpu_page_rank(VGL_Graph &_graph,
         };
         graph_API.compute(_graph, frontier, save_old_ranks);
 
-        auto reduce_dangling_input = [incoming_degrees_without_loops, old_page_ranks, vertices_count] __VGL_COMPUTE_ARGS__->float
+        auto reduce_dangling_input = [incoming_degrees_without_loops, old_page_ranks, vertices_count] __VGL_REDUCE_FLT_ARGS__
         {
             float result = 0.0;
             if(incoming_degrees_without_loops[src_id] == 0)
@@ -121,8 +123,7 @@ void PR::gpu_page_rank(VGL_Graph &_graph,
 
         if(primary_direction == SCATTER)
         {
-            auto edge_op = [_page_ranks, old_page_ranks, reversed_degrees, incoming_degrees_without_loops] __device__ (int src_id, int dst_id, int local_edge_pos,
-                    long long int global_edge_pos, int vector_index)
+            auto edge_op = [_page_ranks, old_page_ranks, reversed_degrees, incoming_degrees_without_loops] __VGL_SCATTER_ARGS__
             {
                 float src_rank = old_page_ranks[src_id];
                 float reversed_src_links_num = reversed_degrees[src_id];
@@ -134,8 +135,7 @@ void PR::gpu_page_rank(VGL_Graph &_graph,
         }
         else if(primary_direction == GATHER)
         {
-            auto edge_op = [_page_ranks, old_page_ranks, reversed_degrees, incoming_degrees_without_loops] __device__ (int src_id, int dst_id, int local_edge_pos,
-                    long long int global_edge_pos, int vector_index)
+            auto edge_op = [_page_ranks, old_page_ranks, reversed_degrees, incoming_degrees_without_loops] __VGL_GATHER_ARGS__
             {
                 float dst_rank = old_page_ranks[dst_id];
                 float reversed_dst_links_num = reversed_degrees[dst_id];
@@ -152,7 +152,7 @@ void PR::gpu_page_rank(VGL_Graph &_graph,
         };
         graph_API.compute(_graph, frontier, save_ranks);
 
-        auto reduce_ranks_sum = [_page_ranks] __VGL_COMPUTE_ARGS__->float
+        auto reduce_ranks_sum = [_page_ranks] __VGL_REDUCE_FLT_ARGS__
         {
             return _page_ranks[src_id];
         };
@@ -160,7 +160,6 @@ void PR::gpu_page_rank(VGL_Graph &_graph,
         cout << "ranks sum: " << ranks_sum << endl;
     }
     tm.end();
-
 
     #ifdef __PRINT_SAMPLES_PERFORMANCE_STATS__
     performance_stats.print_algorithm_performance_stats("PR (Page Rank, GPU)", tm.get_time(), _graph.get_edges_count());

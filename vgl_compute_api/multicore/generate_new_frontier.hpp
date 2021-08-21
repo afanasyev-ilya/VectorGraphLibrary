@@ -131,7 +131,7 @@ void GraphAbstractionsMulticore::generate_new_frontier_worker(CSRGraph &_graph,
     #pragma omp parallel for schedule(static) reduction(+: elements_count, neighbours_count)
     for (int src_id = 0; src_id < vertices_count; src_id++)
     {
-        int connections_count = 0;//_graph.get_connections_count(src_id);
+        int connections_count = _graph.get_connections_count(src_id);
         int new_flag = filter_cond(src_id, connections_count);
         frontier_flags[src_id] = new_flag;
         elements_count += new_flag;

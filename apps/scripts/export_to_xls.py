@@ -32,11 +32,11 @@ def get_row_pos(graph_name):
 
 
 class BenchmarkingResults:
-    def __init__(self):
+    def __init__(self, name):
         self.performance_data = []
         self.correctness_data = []
 
-        self.workbook = xlsxwriter.Workbook("benchmarking_results.xlsx")
+        self.workbook = xlsxwriter.Workbook(name + "_benchmarking_results.xlsx")
         self.worksheet = None # these can be later used for xls output
         self.line_pos = None # these can be later used for xls output
         self.current_format = None # these can be later used for xls output
@@ -113,10 +113,10 @@ class BenchmarkingResults:
         send_dict = {"run_info": run_info, "performance_data": self.performance_data, "correctness_data": self.correctness_data}
         submit_to_socket(send_dict)
 
-    def offline_submit(self, run_info):
+    def offline_submit(self, run_info, name):
         send_dict = {"run_info": run_info, "performance_data": self.performance_data, "correctness_data": self.correctness_data}
         # send_dict
-        a_file = open("vgl_rating_data.pkl", "wb")
+        a_file = open(name + "_vgl_rating_data.pkl", "wb")
         pickle.dump(send_dict, a_file)
         a_file.close()
 

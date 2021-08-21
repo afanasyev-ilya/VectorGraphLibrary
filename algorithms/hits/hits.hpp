@@ -9,6 +9,13 @@ void HITS::vgl_hits(VGL_Graph &_graph, VerticesArray<_T> &_auth, VerticesArray<_
     VGL_FRONTIER frontier(_graph);
     int vertices_count = _graph.get_vertices_count();
 
+    #ifdef __USE_GPU__
+    _graph.move_to_device();
+    _hub.move_to_device();
+    _auth.move_to_device();
+    frontier.move_to_device();
+    #endif
+
     graph_API.change_traversal_direction(GATHER, _hub, _auth, frontier);
 
     frontier.set_all_active();
@@ -30,8 +37,13 @@ void HITS::vgl_hits(VGL_Graph &_graph, VerticesArray<_T> &_auth, VerticesArray<_
             _auth[src_id] = 0.0;
         };
 
+        #ifdef __USE_GPU__
+        auto EMPTY_VERTEX_OP = [] __VGL_ADVANCE_PREPROCESS_ARGS__ { };
+        #endif
+
         auto update_auth_op = [_auth, _hub, vertices_count] __VGL_ADVANCE_ARGS__ {
-            _auth[src_id] += _hub[dst_id];
+            //_auth[src_id] += _hub[dst_id];
+            VGL_SRC_ID_ADD(_auth[src_id], _hub[dst_id]);
         };
         graph_API.gather(_graph, frontier, update_auth_op, update_auth_op_preprocess, EMPTY_VERTEX_OP,
                          update_auth_op, update_auth_op_preprocess, EMPTY_VERTEX_OP);
@@ -57,7 +69,8 @@ void HITS::vgl_hits(VGL_Graph &_graph, VerticesArray<_T> &_auth, VerticesArray<_
         };
 
         auto update_hub_op = [_hub, _auth] __VGL_ADVANCE_ARGS__ {
-            _hub[src_id] += _auth[dst_id];
+            //_hub[src_id] += _auth[dst_id];
+            VGL_SRC_ID_ADD(_hub[src_id], _auth[dst_id]);
         };
         graph_API.scatter(_graph, frontier, update_hub_op, update_hub_op_preprocess, EMPTY_VERTEX_OP,
                           update_hub_op, update_hub_op_preprocess, EMPTY_VERTEX_OP);

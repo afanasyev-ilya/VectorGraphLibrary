@@ -4,9 +4,6 @@ import os.path
 from os import path
 
 
-fast_mode = True
-
-
 # synthetic graphs
 def get_list_of_rmat_graphs():
     graphs = ["syn_rmat_18_32", "syn_rmat_20_32", "syn_rmat_22_32", "syn_rmat_23_32", "syn_rmat_25_32"]

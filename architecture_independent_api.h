@@ -40,3 +40,9 @@
 #endif
 
 #define VGL_FRONTIER VGL_Frontier
+
+#ifdef __USE_GPU__
+#define VGL_SRC_ID_ADD(a, b) (atomicAdd(&(a), (b)))
+#else
+#define VGL_SRC_ID_ADD(a, b) ((a) += (b))
+#endif
