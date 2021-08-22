@@ -79,9 +79,9 @@ void GraphAbstractionsNEC::advance_worker(CSRGraph &_graph,
     #ifdef __USE_CSR_VERTEX_GROUPS__
     vertex_group_advance_changed_vl(_frontier.vertex_groups[0], vertex_pointers, adjacent_ids, edge_op, vertex_preprocess_op,
                                     vertex_postprocess_op, process_shift);
-    vertex_group_advance_changed_vl(_frontier.vertex_groups[1], vertex_pointers, adjacent_ids, edge_op, vertex_preprocess_op,
+    vertex_group_advance_fixed_vl(_frontier.vertex_groups[1], vertex_pointers, adjacent_ids, edge_op, vertex_preprocess_op,
                                   vertex_postprocess_op, process_shift);
-    vertex_group_advance_changed_vl(_frontier.vertex_groups[2], vertex_pointers, adjacent_ids, edge_op, vertex_preprocess_op,
+    vertex_group_advance_fixed_vl(_frontier.vertex_groups[2], vertex_pointers, adjacent_ids, edge_op, vertex_preprocess_op,
                                   vertex_postprocess_op, process_shift);
     vertex_group_advance_sparse(_frontier.vertex_groups[3], vertex_pointers, adjacent_ids, edge_op, vertex_preprocess_op,
                                 vertex_postprocess_op, process_shift);

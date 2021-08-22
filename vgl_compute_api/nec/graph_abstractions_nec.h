@@ -200,6 +200,16 @@ private:
                                             VertexPostprocessOperation vertex_postprocess_op,
                                             long long _process_shift);
 
+    template <typename EdgeOperation, typename VertexPreprocessOperation,
+            typename VertexPostprocessOperation>
+    inline void vertex_group_advance_sparse_single_core(CSRVertexGroup &_group_data,
+                                            long long *_vertex_pointers,
+                                            int *_adjacent_ids,
+                                            EdgeOperation edge_op,
+                                            VertexPreprocessOperation vertex_preprocess_op,
+                                            VertexPostprocessOperation vertex_postprocess_op,
+                                            long long _process_shift);
+
     template <typename FilterCondition>
     void estimate_sorted_frontier_part_size(FrontierVectorCSR &_frontier,
                                             long long *_vertex_pointers,

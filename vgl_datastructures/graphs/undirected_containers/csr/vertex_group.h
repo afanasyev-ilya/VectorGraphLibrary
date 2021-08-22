@@ -23,7 +23,7 @@ struct CSRVertexGroup
     {
         this->size = _other_group.size;
         this->max_size = _other_group.size;
-        this->neighbours = _other_group.size;
+        this->neighbours = _other_group.neighbours;
         this->resize(this->max_size);
         this->min_connections = _other_group.min_connections;
         this->max_connections = _other_group.max_connections;
