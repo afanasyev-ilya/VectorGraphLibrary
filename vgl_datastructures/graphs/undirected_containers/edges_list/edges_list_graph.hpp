@@ -4,7 +4,7 @@
 
 EdgesListGraph::EdgesListGraph(int _vertices_count, long long _edges_count)
 {
-    this->graph_type = EDGES_LIST_GRAPH;
+    this->get_format = EDGES_LIST_GRAPH;
     this->supported_direction = USE_BOTH;
 
     is_copy = false;
@@ -16,7 +16,7 @@ EdgesListGraph::EdgesListGraph(int _vertices_count, long long _edges_count)
 
 EdgesListGraph::EdgesListGraph(const EdgesListGraph &_copy)
 {
-    this->graph_type = _copy.graph_type;
+    this->get_format = _copy.get_format;
     this->supported_direction = _copy.supported_direction;
 
     this->vertices_count = _copy.vertices_count;
@@ -102,7 +102,7 @@ void EdgesListGraph::save_main_content_to_binary_file(FILE *_graph_file)
     long long edges_count = this->edges_count;
     fwrite(reinterpret_cast<const void*>(&vertices_count), sizeof(int), 1, _graph_file);
     fwrite(reinterpret_cast<const void*>(&edges_count), sizeof(long long), 1, _graph_file);
-    fwrite(reinterpret_cast<void*>(&this->graph_type), sizeof(GraphFormatType), 1, _graph_file);
+    fwrite(reinterpret_cast<void*>(&this->get_format), sizeof(GraphFormatType), 1, _graph_file);
 
     fwrite(reinterpret_cast<const void*>(connections_count), sizeof(int), this->vertices_count, _graph_file);
     fwrite(reinterpret_cast<const void*>(src_ids), sizeof(int), this->edges_count, _graph_file);
@@ -115,7 +115,7 @@ void EdgesListGraph::load_main_content_from_binary_file(FILE *_graph_file)
 {
     fread(reinterpret_cast<void*>(&this->vertices_count), sizeof(int), 1, _graph_file);
     fread(reinterpret_cast<void*>(&this->edges_count), sizeof(long long), 1, _graph_file);
-    fread(reinterpret_cast<void*>(&this->graph_type), sizeof(GraphFormatType), 1, _graph_file);
+    fread(reinterpret_cast<void*>(&this->get_format), sizeof(GraphFormatType), 1, _graph_file);
 
     resize(this->vertices_count, this->edges_count);
 
@@ -196,7 +196,7 @@ void EdgesListGraph::renumber_vertices(int *_conversion_array, int *_work_buffer
 
 void EdgesListGraph::operator = (const EdgesListGraph &_copy_graph)
 {
-    this->graph_type = _copy_graph.graph_type;
+    this->get_format = _copy_graph.get_format;
     this->vertices_count = _copy_graph.vertices_count;
     this->edges_count = _copy_graph.edges_count;
     this->graph_on_device = _copy_graph.graph_on_device;

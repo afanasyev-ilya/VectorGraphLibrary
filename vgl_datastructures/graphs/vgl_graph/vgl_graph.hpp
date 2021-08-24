@@ -2,7 +2,7 @@
 
 VGL_Graph::VGL_Graph(GraphFormatType _container_type)
 {
-    graph_type = VGL_GRAPH;
+    get_format = VGL_GRAPH;
 
     create_containers(_container_type);
 
