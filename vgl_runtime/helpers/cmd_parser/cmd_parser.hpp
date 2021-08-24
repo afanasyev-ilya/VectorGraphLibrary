@@ -41,6 +41,12 @@ void Parser::parse_args(int _argc, char **_argv)
             compute_mode = LOAD_GRAPH_FROM_FILE;
         }
 
+        if ((option.compare("-import") == 0))
+        {
+            graph_file_name = _argv[++i];
+            compute_mode = IMPORT_EDGES_CONTAINER;
+        }
+
         if (option.compare("-convert") == 0)
         {
             convert_name = _argv[++i];
@@ -85,6 +91,8 @@ void Parser::parse_args(int _argc, char **_argv)
                 graph_storage_format = VECTOR_CSR_GRAPH;
             else if(tmp_type == "csr")
                 graph_storage_format = CSR_GRAPH;
+            else if(tmp_type == "el_container")
+                graph_storage_format = EDGES_CONTAINER;
             else
                 throw "Error in Parser::parse_args : unknown graph_storage_format";
         }

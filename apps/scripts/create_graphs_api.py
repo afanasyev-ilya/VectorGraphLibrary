@@ -6,16 +6,27 @@ from os import path
 
 # synthetic graphs
 def get_list_of_rmat_graphs():
-    graphs = ["syn_rmat_18_32", "syn_rmat_20_32", "syn_rmat_22_32", "syn_rmat_23_32", "syn_rmat_25_32"]
-    if fast_mode:
+    if run_speed_mode == 0:
         graphs = ["syn_rmat_18_32", "syn_rmat_20_32"]
+    elif run_speed_mode == 1:
+        graphs = ["syn_rmat_18_32", "syn_rmat_20_32", "syn_rmat_22_32", "syn_rmat_23_32"]
+    elif run_speed_mode == 2:
+        graphs = ["syn_rmat_18_32", "syn_rmat_20_32", "syn_rmat_21_32", "syn_rmat_22_32", "syn_rmat_23_32",
+                  "syn_rmat_24_32", "syn_rmat_25_32"]
+    else:
+        raise ValueError("Incorrect run_speed_mode")
     return graphs
 
 
 def get_list_of_uniform_random_graphs():
-    graphs = ["syn_ru_18_32", "syn_ru_20_32", "syn_ru_22_32", "syn_ru_23_32"]
-    if fast_mode:
+    if run_speed_mode == 0:
         graphs = ["syn_ru_18_32", "syn_ru_20_32"]
+    elif run_speed_mode == 1:
+        graphs = ["syn_ru_18_32", "syn_ru_20_32", "syn_ru_22_32", "syn_ru_23_32"]
+    elif run_speed_mode == 2:
+        graphs = ["syn_ru_18_32", "syn_ru_20_32", "syn_ru_22_32", "syn_ru_23_32", "syn_ru_25_32"]
+    else:
+        raise ValueError("Incorrect run_speed_mode")
     return graphs
 
 
@@ -25,9 +36,12 @@ def get_list_of_synthetic_graphs():
 
 
 def get_list_of_real_world_graphs():
-    graphs = list(konect_graphs_data.keys())
-    if fast_mode:
+    if run_speed_mode == 0 or run_speed_mode == 1:
         graphs = list(konect_graphs_data_fast.keys())
+    elif run_speed_mode == 2:
+        graphs = list(konect_graphs_data.keys())
+    else:
+        raise ValueError("Incorrect run_speed_mode")
     return graphs
 
 

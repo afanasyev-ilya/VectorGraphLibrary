@@ -47,7 +47,7 @@ void VGL_RUNTIME::prepare_graph(VGL_Graph &_graph, Parser &_parser, DirectionTyp
         tm.start();
         _graph.import(edges_container);
         tm.end();
-        tm.print_time_stats("import graph");
+        tm.print_time_stats("graph import");
     }
     else if(_parser.get_compute_mode() == LOAD_GRAPH_FROM_FILE)
     {
@@ -56,7 +56,23 @@ void VGL_RUNTIME::prepare_graph(VGL_Graph &_graph, Parser &_parser, DirectionTyp
         if(!_graph.load_from_binary_file(_parser.get_graph_file_name()))
             throw "Error: graph file not found";
         tm.end();
-        tm.print_time_stats("Graph load");
+        tm.print_time_stats("graph load");
+
+    }
+    else if(_parser.get_compute_mode() == IMPORT_EDGES_CONTAINER)
+    {
+        Timer tm;
+        tm.start();
+        EdgesContainer edges_container;
+        if(!edges_container.load_from_binary_file(_parser.get_graph_file_name()))
+            throw "Error: edges container file not found";
+        tm.end();
+        tm.print_time_stats("edges container load");
+
+        tm.start();
+        _graph.import(edges_container);
+        tm.end();
+        tm.print_time_stats("graph import");
     }
 
     #ifdef __USE_MPI__

@@ -118,9 +118,6 @@ def main():
 
     options, args = parser.parse_args()
 
-    if options.mode == "long":
-        scripts.settings.fast_mode = False
-
     run(options, {})
 
 

@@ -51,7 +51,8 @@ enum GraphType
     VGL_GRAPH = 0,
     VECTOR_CSR_GRAPH = 1,
     EDGES_LIST_GRAPH = 2,
-    CSR_GRAPH = 3
+    CSR_GRAPH = 3,
+    EDGES_CONTAINER = 4
 };
 
 string get_graph_type_name(GraphType _type)
@@ -64,6 +65,8 @@ string get_graph_type_name(GraphType _type)
         return "EDGES_LIST_GRAPH";
     else if(_type == CSR_GRAPH)
         return "CSR_GRAPH";
+    else if(_type == EDGES_CONTAINER)
+        return "EDGES_CONTAINER";
     else
         return "UNKNOWN";
 }
@@ -78,6 +81,8 @@ string get_graph_extension(GraphType _type)
         return ".el";
     else if(_type == CSR_GRAPH)
         return ".csr";
+    else if(_type == EDGES_CONTAINER)
+        return ".el_container";
     else
         return ".unknown";
 }

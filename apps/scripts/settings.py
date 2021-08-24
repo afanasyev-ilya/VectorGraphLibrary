@@ -5,7 +5,7 @@ GENERATE_UNDIRECTED_GRAPHS = False
 UNDIRECTED_PREFIX = "undir_"
 
 
-fast_mode = True
+run_speed_mode = 1 # 0 - very fast, 1 - medium, 2 - full, 3 - one large graph per category
 
 
 benchmark_args = {"bfs": [ ["-top-down"]],
@@ -19,7 +19,7 @@ benchmark_args = {"bfs": [ ["-top-down"]],
                   "coloring": [ [] ]}
 
 
-available_formats = ["csr", "vcsr"]
+available_formats = ["csr", "vcsr", "el"]
 
 
 def requires_undir_graphs(app_name):

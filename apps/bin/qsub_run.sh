@@ -14,4 +14,4 @@ source /opt/nec/ve/nlc/2.3.0/bin/nlcvars.sh
 
 # Example of your work.
 #./sssp_sx -s 20 -e 32 -format vcsr -check -it 3 -push -all-active
-./sssp_sx -s 21 -e 32 -format csr -check -it 4 -push -all-active
+./sssp_sx -s 22 -e 32 -format csr -check -it 4 -push -all-active

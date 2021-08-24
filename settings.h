@@ -6,7 +6,11 @@
 //#define __SORT_ADJACENT_EDGES__
 
 #ifdef __USE_CSR_VERTEX_GROUPS__
+#ifdef __USE_GPU__
 #define CSR_VERTEX_GROUPS_NUM 6
+#else
+#define CSR_VERTEX_GROUPS_NUM 6
+#endif
 #endif
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -122,7 +126,7 @@
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#define __PRINT_API_PERFORMANCE_STATS__ // prints inner api detailed performance stats, causes significant delays when active
+//#define __PRINT_API_PERFORMANCE_STATS__ // prints inner api detailed performance stats, causes significant delays when active
 #define __PRINT_SAMPLES_PERFORMANCE_STATS__ // prints samples stats (iterations, bandwidths, components stats)
 //#define __SAVE_PERFORMANCE_STATS_TO_FILE__ // saves performance stats to files (useful for multiple batch launches)
 

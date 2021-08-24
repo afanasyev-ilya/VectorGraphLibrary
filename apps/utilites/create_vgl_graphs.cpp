@@ -36,19 +36,32 @@ int main(int argc, char ** argv)
             tm.print_time_stats("Generate");
         }
 
-        // import to required format
-        Timer tm;
-        VGL_Graph out_graph(VGL_RUNTIME::select_graph_format(parser));
-        out_graph.import(edges_container);
-        tm.end();
-        tm.print_time_stats("Import");
+        if(parser.get_graph_type())
+        {
+            Timer tm;
+            tm.start();
+            string full_name = add_extension(parser.get_graph_file_name(), VGL_RUNTIME::select_graph_format(parser));
+            edges_container.save_to_binary_file(full_name);
+            tm.end();
+            tm.print_time_stats("Saving edges container");
+        }
+        else
+        {
+            // import to required format
+            Timer tm;
+            tm.start();
+            VGL_Graph out_graph(VGL_RUNTIME::select_graph_format(parser));
+            out_graph.import(edges_container);
+            tm.end();
+            tm.print_time_stats("Import");
 
-        // save graph
-        tm.start();
-        string full_name = add_extension(parser.get_graph_file_name(), VGL_RUNTIME::select_graph_format(parser));
-        out_graph.save_to_binary_file(full_name);
-        tm.end();
-        tm.print_time_stats("Save");
+            // save graph
+            tm.start();
+            string full_name = add_extension(parser.get_graph_file_name(), VGL_RUNTIME::select_graph_format(parser));
+            out_graph.save_to_binary_file(full_name);
+            tm.end();
+            tm.print_time_stats("Saving graph file");
+        }
 
         cout << get_separators_bottom_string() << endl;
     }

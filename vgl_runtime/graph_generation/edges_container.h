@@ -55,6 +55,49 @@ public:
         MemoryAPI::free_array(dst_ids);
     }
 
+    bool save_to_binary_file(string _file_name)
+    {
+        FILE *graph_file = fopen(_file_name.c_str(), "wb");
+        if(graph_file == NULL)
+            return false;
+
+        GraphType graph_type = EDGES_CONTAINER;
+
+        fwrite(reinterpret_cast<const void*>(&vertices_count), sizeof(int), 1, graph_file);
+        fwrite(reinterpret_cast<const void*>(&edges_count), sizeof(long long), 1, graph_file);
+        fwrite(reinterpret_cast<void*>(&graph_type), sizeof(GraphType), 1, graph_file);
+
+        fwrite(reinterpret_cast<const void*>(src_ids), sizeof(int), edges_count, graph_file);
+        fwrite(reinterpret_cast<const void*>(dst_ids), sizeof(int), edges_count, graph_file);
+
+        fclose(graph_file);
+        return true;
+    }
+
+    bool load_from_binary_file(string _file_name)
+    {
+        FILE *graph_file = fopen(_file_name.c_str(), "rb");
+        if(graph_file == NULL)
+            return false;
+
+        GraphType graph_type = EDGES_CONTAINER;
+
+        fread(reinterpret_cast<void*>(&vertices_count), sizeof(int), 1, graph_file);
+        fread(reinterpret_cast<void*>(&edges_count), sizeof(long long), 1, graph_file);
+        fread(reinterpret_cast<void*>(&graph_type), sizeof(GraphType), 1, graph_file);
+
+        if(graph_type != EDGES_CONTAINER)
+            throw "Error in EdgesContainer::load_from_binary_file : incorrect type of graph in file";
+
+        resize(vertices_count, edges_count);
+
+        fread(reinterpret_cast<void*>(src_ids), sizeof(int), edges_count, graph_file);
+        fread(reinterpret_cast<void*>(dst_ids), sizeof(int), edges_count, graph_file);
+
+        fclose(graph_file);
+        return true;
+    }
+
     void preprocess_into_csr_based(int *_work_buffer, vgl_sort_indexes *_sort_buffer)
     {
         bool work_buffer_was_allocated = false;
