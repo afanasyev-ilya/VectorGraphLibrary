@@ -41,7 +41,7 @@ public:
 
     static void prepare_graph(VGL_Graph &_graph, Parser &_parser, DirectionType _direction = DIRECTED_GRAPH);
 
-    static GraphType select_graph_format(Parser &_parser);
+    static GraphFormatType select_graph_format(Parser &_parser);
 
     static void finalize_library();
 

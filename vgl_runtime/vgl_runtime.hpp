@@ -32,9 +32,9 @@ void VGL_RUNTIME::prepare_graph(VGL_Graph &_graph, Parser &_parser, DirectionTyp
         tm.start();
         EdgesContainer edges_container;
         int v = pow(2.0, _parser.get_scale());
-        if(_parser.get_graph_type() == RMAT)
+        if(_parser.get_synthetic_graph_type() == RMAT)
             GraphGenerationAPI::R_MAT(edges_container, v, v * _parser.get_avg_degree(), 57, 19, 19, 5, _direction);
-        else if(_parser.get_graph_type() == RANDOM_UNIFORM)
+        else if(_parser.get_synthetic_graph_type() == RANDOM_UNIFORM)
             GraphGenerationAPI::random_uniform(edges_container, v, v * _parser.get_avg_degree(), _direction);
         tm.end();
         tm.print_time_stats("graph generation");
@@ -82,7 +82,7 @@ void VGL_RUNTIME::prepare_graph(VGL_Graph &_graph, Parser &_parser, DirectionTyp
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-GraphType VGL_RUNTIME::select_graph_format(Parser &_parser)
+GraphFormatType VGL_RUNTIME::select_graph_format(Parser &_parser)
 {
     return _parser.get_graph_storage_format();
 }

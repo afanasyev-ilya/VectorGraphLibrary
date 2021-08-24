@@ -5,7 +5,7 @@
 class BaseGraph
 {
 protected:
-    GraphType graph_type;
+    GraphFormatType graph_type;
     
     int vertices_count;
     long long edges_count;
@@ -25,7 +25,7 @@ public:
     /* get API */
     inline int get_vertices_count() {return vertices_count;};
     inline long long get_edges_count() {return edges_count;};
-    inline GraphType get_type() {return graph_type;};
+    inline GraphFormatType get_type() {return graph_type;};
 
     /* print API */
     virtual void print() = 0;

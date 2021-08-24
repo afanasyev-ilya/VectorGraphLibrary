@@ -102,7 +102,7 @@ void EdgesListGraph::save_main_content_to_binary_file(FILE *_graph_file)
     long long edges_count = this->edges_count;
     fwrite(reinterpret_cast<const void*>(&vertices_count), sizeof(int), 1, _graph_file);
     fwrite(reinterpret_cast<const void*>(&edges_count), sizeof(long long), 1, _graph_file);
-    fwrite(reinterpret_cast<void*>(&this->graph_type), sizeof(GraphType), 1, _graph_file);
+    fwrite(reinterpret_cast<void*>(&this->graph_type), sizeof(GraphFormatType), 1, _graph_file);
 
     fwrite(reinterpret_cast<const void*>(connections_count), sizeof(int), this->vertices_count, _graph_file);
     fwrite(reinterpret_cast<const void*>(src_ids), sizeof(int), this->edges_count, _graph_file);
@@ -115,7 +115,7 @@ void EdgesListGraph::load_main_content_from_binary_file(FILE *_graph_file)
 {
     fread(reinterpret_cast<void*>(&this->vertices_count), sizeof(int), 1, _graph_file);
     fread(reinterpret_cast<void*>(&this->edges_count), sizeof(long long), 1, _graph_file);
-    fread(reinterpret_cast<void*>(&this->graph_type), sizeof(GraphType), 1, _graph_file);
+    fread(reinterpret_cast<void*>(&this->graph_type), sizeof(GraphFormatType), 1, _graph_file);
 
     resize(this->vertices_count, this->edges_count);
 

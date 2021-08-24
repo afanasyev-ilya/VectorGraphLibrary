@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-VGL_Graph::VGL_Graph(GraphType _container_type)
+VGL_Graph::VGL_Graph(GraphFormatType _container_type)
 {
     graph_type = VGL_GRAPH;
 
@@ -20,7 +20,7 @@ VGL_Graph::~VGL_Graph()
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void VGL_Graph::create_containers(GraphType _container_type)
+void VGL_Graph::create_containers(GraphFormatType _container_type)
 {
     if(_container_type == VECTOR_CSR_GRAPH)
     {
@@ -105,11 +105,11 @@ bool VGL_Graph::save_to_binary_file(string _file_name)
 
     int vertices_count = this->vertices_count;
     long long edges_count = this->edges_count;
-    GraphType container_type = get_container_type();
+    GraphFormatType container_type = get_container_type();
 
     fwrite(reinterpret_cast<const char*>(&vertices_count), sizeof(int), 1, graph_file);
     fwrite(reinterpret_cast<const char*>(&edges_count), sizeof(long long), 1, graph_file);
-    fwrite(reinterpret_cast<const char*>(&container_type), sizeof(GraphType), 1, graph_file);
+    fwrite(reinterpret_cast<const char*>(&container_type), sizeof(GraphFormatType), 1, graph_file);
 
     outgoing_data->save_main_content_to_binary_file(graph_file);
     incoming_data->save_main_content_to_binary_file(graph_file);
@@ -126,15 +126,15 @@ bool VGL_Graph::load_from_binary_file(string _file_name)
     if(graph_file == NULL)
         return false;
 
-    GraphType new_container_type = VGL_GRAPH;
+    GraphFormatType new_container_type = VGL_GRAPH;
     fread(reinterpret_cast<char*>(&this->vertices_count), sizeof(int), 1, graph_file);
     fread(reinterpret_cast<char*>(&this->edges_count), sizeof(long long), 1, graph_file);
-    fread(reinterpret_cast<char*>(&new_container_type), sizeof(GraphType), 1, graph_file);
+    fread(reinterpret_cast<char*>(&new_container_type), sizeof(GraphFormatType), 1, graph_file);
 
     if(new_container_type != get_container_type())
     {
-        cout << "Warning! changing container type from " << get_graph_type_name(get_container_type()) << " to "
-                << get_graph_type_name(new_container_type) << endl;
+        cout << "Warning! changing container type from " << get_graph_format_name(get_container_type()) << " to "
+                << get_graph_format_name(new_container_type) << endl;
     }
 
     delete outgoing_data;

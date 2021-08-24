@@ -24,9 +24,9 @@ int main(int argc, char ** argv)
             tm.start();
 
             int v = pow(2.0, parser.get_scale());
-            if(parser.get_graph_type() == RMAT)
+            if(parser.get_synthetic_graph_type() == RMAT)
                 GraphGenerationAPI::R_MAT(edges_container, v, v * parser.get_avg_degree(), 57, 19, 19, 5, DIRECTED_GRAPH);
-            else if(parser.get_graph_type() == RANDOM_UNIFORM)
+            else if(parser.get_synthetic_graph_type() == RANDOM_UNIFORM)
                 GraphGenerationAPI::random_uniform(edges_container, v, v * parser.get_avg_degree(), DIRECTED_GRAPH);
 
             // if required
@@ -36,7 +36,7 @@ int main(int argc, char ** argv)
             tm.print_time_stats("Generate");
         }
 
-        if(parser.get_graph_type())
+        if(parser.get_graph_storage_format() == EDGES_CONTAINER)
         {
             Timer tm;
             tm.start();

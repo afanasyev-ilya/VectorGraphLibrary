@@ -6,7 +6,7 @@ Parser::Parser()
 {
     scale = 10;
     avg_degree = 5;
-    graph_type = RMAT;
+    synthetic_graph_type = RMAT;
     compute_mode = GENERATE_NEW_GRAPH;
     algorithm_frontier_type = ALL_ACTIVE;
     traversal_direction = PUSH_TRAVERSAL;
@@ -65,21 +65,21 @@ void Parser::parse_args(int _argc, char **_argv)
 
         if ((option.compare("-random_uniform") == 0) || (option.compare("-ru") == 0))
         {
-            graph_type = RANDOM_UNIFORM;
+            synthetic_graph_type = RANDOM_UNIFORM;
         }
 
         if ((option.compare("-rmat") == 0) || (option.compare("-RMAT") == 0))
         {
-            graph_type = RMAT;
+            synthetic_graph_type = RMAT;
         }
 
         if ((option.compare("-type") == 0))
         {
             string tmp_type = _argv[++i];
             if((tmp_type == "rmat") || (tmp_type == "RMAT"))
-                graph_type = RMAT;
+                synthetic_graph_type = RMAT;
             if((tmp_type == "random_uniform") || (tmp_type == "ru"))
-                graph_type = RANDOM_UNIFORM;
+                synthetic_graph_type = RANDOM_UNIFORM;
         }
 
         if ((option.compare("-format") == 0))

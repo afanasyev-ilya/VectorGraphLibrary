@@ -46,7 +46,7 @@ class GraphAnalytics;
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-enum GraphType
+enum GraphFormatType
 {
     VGL_GRAPH = 0,
     VECTOR_CSR_GRAPH = 1,
@@ -55,7 +55,7 @@ enum GraphType
     EDGES_CONTAINER = 4
 };
 
-string get_graph_type_name(GraphType _type)
+string get_graph_format_name(GraphFormatType _type)
 {
     if(_type == VGL_GRAPH)
         return "VGL_GRAPH";
@@ -71,7 +71,7 @@ string get_graph_type_name(GraphType _type)
         return "UNKNOWN";
 }
 
-string get_graph_extension(GraphType _type)
+string get_graph_extension(GraphFormatType _type)
 {
     if(_type == VGL_GRAPH)
         return ".vgl";
