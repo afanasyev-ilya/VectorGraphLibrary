@@ -1,8 +1,6 @@
 from flask import Flask
-from flask import render_template, request, session
+from flask import render_template, request
 from .lib import normalized_rating
-import pprint
-
 
 app = Flask(__name__)
 
@@ -14,9 +12,9 @@ def home():
 
     slider_values = request.args
 
-    print("\n-----------------------------------------------------------------\n")
-    print(slider_values)
-    print("\n-----------------------------------------------------------------\n")
+#    print("\n-----------------------------------------------------------------\n")
+#    print(slider_values)
+#    print("\n-----------------------------------------------------------------\n")
 
     rating_data = normalized_rating.get_list_rating(slider_values)
     print("\n-----------------------------------------------------------------\n")
@@ -24,6 +22,6 @@ def home():
     print("\n-----------------------------------------------------------------\n")
     
     full_perf_table = normalized_rating.get_perf_table()
-    pprint.pprint(full_perf_table)
+    #pprint.pprint(full_perf_table)
     return render_template('normalized_rating.html', rating_data=rating_data, slider_vals=slider_values,
                            full_perf_table=full_perf_table)

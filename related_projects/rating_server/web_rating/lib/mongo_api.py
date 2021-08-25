@@ -1,5 +1,5 @@
 import pymongo
-
+from bson import ObjectId
 
 def connect_to_mongo():
     try:
@@ -76,6 +76,14 @@ def find_one(graphs_criteria):
         print(err)
         return None
 
+def remove_one(name):
+    try:
+        connect = pymongo.MongoClient('mongodb://localhost:27017/')
+        db = connect.vgl_rankings_db
+        collection = db.performance_data
+        collection.remove({'arch_name': name});
+    except pymongo.errors.ServerSelectionTimeoutError as err:
+        print(err)
 
 def update_many(search_criteria, new_data):
     try:

@@ -95,7 +95,8 @@ def verify_graph_existence(graph_file_name):
         return False
 
 
-def create_real_world_graph(graph_name, arch, graph_format):
+def create_real_world_graph(graph_name, arch):
+    graph_format = "el_container"
     output_graph_file_name = get_path_to_graph(graph_name, graph_format)
     if not file_exists(output_graph_file_name):
         download_graph(graph_name)
@@ -127,7 +128,8 @@ def create_real_world_graph(graph_name, arch, graph_format):
                 print("Graph " + output_graph_file_name + " has been created\n")
 
 
-def create_synthetic_graph(graph_name, arch, graph_format):
+def create_synthetic_graph(graph_name, arch):
+    graph_format = "el_container"
     dat = graph_name.split("_")
     type = dat[1]
     scale = dat[2]
@@ -154,14 +156,14 @@ def create_synthetic_graph(graph_name, arch, graph_format):
                 print("Graph " + output_graph_file_name + " has been created\n")
 
 
-def create_graph(graph_name, arch, graph_format):
+def create_graph(graph_name, arch):
     if graph_name in get_list_of_synthetic_graphs():
-        create_synthetic_graph(graph_name, arch, graph_format)
+        create_synthetic_graph(graph_name, arch)
     elif graph_name in get_list_of_real_world_graphs():
-        create_real_world_graph(graph_name, arch, graph_format)
+        create_real_world_graph(graph_name, arch)
 
 
-def create_graphs_if_required(list_of_graphs, arch, graph_format):
+def create_graphs_if_required(list_of_graphs, arch):
     create_dir(GRAPHS_DIR)
     create_dir(SOURCE_GRAPH_DIR)
 
@@ -169,5 +171,5 @@ def create_graphs_if_required(list_of_graphs, arch, graph_format):
         make_binary("create_vgl_graphs", arch)
 
     for current_graph in list_of_graphs:
-        create_graph(current_graph, arch, graph_format)
+        create_graph(current_graph, arch)
 

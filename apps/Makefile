@@ -143,7 +143,6 @@ csr_test.o: misc/csr_test.cpp
 	$(CXX) $(Flags) $(Include_Path)  -c misc/csr_test.cpp -o object_files/csr_test.o
 
 create_folders:
-	source /opt/nec/ve/nlc/2.2.0/bin/nlcvars.sh i64
 	-mkdir -p ./bin
 	-cp graph_library.sh ./bin
 	-mkdir -p ./object_files

@@ -1,1 +1,1 @@
-{"architecture": "Intel Xeon", "model": "Gold 6140", "author": "Ilya Afanasyev"}
+{"architecture": "Kunpeng", "model": "920", "author": "Elijah", "extra info": "cores: 64\nCPU MHz: 2600"}

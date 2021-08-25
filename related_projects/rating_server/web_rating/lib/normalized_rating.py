@@ -89,17 +89,20 @@ def compute_weighted_normalized_rating(graph_filter_criteria, apps_filter_criter
 
     rating_values = {}
     for arch in unique_architectures:
-        rating_values[arch] = 0.0
+        rating_values[arch] = {"val": 0.0, "arch_dict": {}}
+
 
     for app in unique_apps:
         for graph in unique_graphs:
-            perf_data = mongo_api.find({"graph_name": graph, "app_name": app}, {"arch_name": 1, "perf_val": 1}) # 1 means present
+            perf_data = mongo_api.find({"graph_name": graph, "app_name": app}, {"arch_name": 1, "perf_val": 1, "arch_dict": 1}) # 1 means present
             max_perf = get_max_perf(perf_data)
             normalized_data = normalize(perf_data, max_perf)
 
             k = get_coefficient(graph, app, slider_values)
             for data in normalized_data:
-                rating_values[data["arch_name"]] += k * data["perf_val"]
+                
+                val = rating_values[data["arch_name"]]["val"] + k * data["perf_val"]
+                rating_values[data["arch_name"]] = {"val": val, "arch_dict": data["arch_dict"]}
 
     return rating_values
 
@@ -121,12 +124,12 @@ def get_perf_table():
 def get_list_rating(slider_values):
     rating_list = []
     rating = compute_weighted_normalized_rating({}, {}, slider_values)
-    data_sorted = {k: v for k, v in sorted(rating.items(), key=lambda x: x[1])}
+#    data_sorted = {k: v for k, v in sorted(rating.items(), key=lambda x: x[1])}
     pos = 1
-    for k in sorted(rating, key=rating.get, reverse=True):
-        rating_val = float(rating[k])
+    for arch_info in rating:#sorted(rating, key=rating.get, reverse=True):
+        rating_val = float(rating[arch_info]["val"])
         rating_val = round(rating_val, 2)
-        rating_list.append({"pos": pos, "arch": str(k), "rating": str(rating_val)})
+        rating_list.append({"pos": pos, "arch": arch_info, "rating": str(rating_val), "arch_dict": rating[arch_info]["arch_dict"]})
         pos += 1
     return rating_list
 

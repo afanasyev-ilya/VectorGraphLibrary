@@ -37,12 +37,12 @@ def main():
                       action="store", dest="file_name",
                       help="specify file name for offline submit, other options are ignored this way", default=None)
     parser.add_option('-n', '--name',
-                      action="store", dest="sub_name",
+                      action="store", dest="name",
                       help="specify name of file with submission info", default="test")
 
     options, args = parser.parse_args()
 
-    arch_info_dict = parse_dict(options.sub_name)
+    arch_info_dict = parse_dict(options.name)
 
     if options.file_name is None:
         print("Doing online submit...")

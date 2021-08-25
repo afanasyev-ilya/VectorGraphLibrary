@@ -194,10 +194,9 @@
                     </div>
                 </section>
                 </body>
-                <table id="ButtonTable">
+                <table id="ButtonTable1">
                     <tr>
                         <td> <input id="SubmitButton" type="submit" value="Update Rating"> </td>
-                        <td> <button id="ExtraButton" type="button" value="Additional info" onclick="HideTable('ExtraTable')"> Additional info </button> </td>
                     </tr>
                 </table>
             </form>
@@ -217,7 +216,9 @@
                                       <thead>
                                         <tr>
                                           <th>№</th>
-                                          <th>Architecture</th>
+                                          {% for arch_info in rating_data[0].arch_dict.keys() %}
+                                          <th>{{arch_info}}</th>
+                                          {% endfor %}
                                           <th>Rating</th>
                                         </tr>
                                       </thead>
@@ -225,11 +226,20 @@
                                         {% for result in rating_data %}
                                         <tr>
                                             <td>{{result.pos}}</td>
-                                            <td>{{result.arch}}</td>
+                                            {% for info in result.arch_dict.values()%}
+                                            <td>{{info}}</td>
+                                            {% endfor %}
                                             <td>{{result.rating}}</td>
                                         </tr>
                                         {% endfor %}
                                       </tbody>
+                                    </table>
+                                    <table id="ButtonTable2">
+                                        <tbody>
+                                            <tr>
+                                                <td> <button id="ExtraButton" type="button" value="Additional info" onclick="HideTable('ExtraTable')"> Additional info </button> </td>
+                                            </tr>
+                                        </tbody>
                                     </table>
                                 </div>
                             </div>
@@ -243,7 +253,6 @@
         </tr>
     </table>
 </body>
-
 <body>
     <section class="ftco-section">
         <div id="ExtraTable" class="container">
@@ -280,5 +289,6 @@
         </div>
     </section>
 </body>
+
 
 

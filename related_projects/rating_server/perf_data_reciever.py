@@ -20,10 +20,10 @@ def arch_is_already_in_db(arch_name):
     return False
 
 
-def insert_data_into_db(received_data, arch):
+def insert_data_into_db(received_data, arch, arch_dict):
     for i in range(len(received_data)):
         print("inserting new")
-        received_data[i] = add_meta_data(received_data[i], arch)
+        received_data[i] = add_meta_data(received_data[i], arch, arch_dict)
 
     for received_document in received_data:
         print(received_document)
@@ -31,9 +31,9 @@ def insert_data_into_db(received_data, arch):
     mongo_api.insert_many(received_data)
 
 
-def update_data_in_db(received_data, arch):
+def update_data_in_db(received_data, arch, arch_dict):
     for new_val in received_data:
-        search_pattern = {"graph_name": new_val["graph_name"], "arch_name": arch, "app_name": new_val["app_name"]}
+        search_pattern = {"graph_name": new_val["graph_name"], "arch_name": arch, "app_name": new_val["app_name"]}#, "arch_dict": arch_dict}
         old_val = mongo_api.find(search_pattern)
 
         if len(old_val) > 0:
@@ -42,20 +42,23 @@ def update_data_in_db(received_data, arch):
             old_perf = old_val[0]["perf_val"]
             mongo_api.update_perf(search_pattern, max(new_perf, old_perf))
         else:
-            new_val = add_meta_data(new_val, arch)
+            new_val = add_meta_data(new_val, arch, arch_dict)
             mongo_api.insert_many([new_val])
 
 
 def process_results(benchmarking_data):
+    #print("arch_name = json.dumps( ", benchmarking_data["run_info"], " )")
+    #print("--------------------------------------------------------------------\n")
     arch_name = json.dumps(benchmarking_data["run_info"])
+    arch_dict = benchmarking_data["run_info"]
     performance_data = benchmarking_data["performance_data"]
     correctness_data = benchmarking_data["correctness_data"]
     correctness = verify_correctness(correctness_data) # TODO
 
     if arch_is_already_in_db(arch_name):
-        update_data_in_db(performance_data, arch_name)
+        update_data_in_db(performance_data, arch_name, arch_dict)
     else:
-        insert_data_into_db(performance_data, arch_name)
+        insert_data_into_db(performance_data, arch_name, arch_dict)
 
     return correctness
 
@@ -86,30 +89,33 @@ def listen_to_users(port_name):
     #dump_db_data()
     #remove_collection()
 
-    while True:
+    NoErrors = True
+
+    while NoErrors:
         server_sock.listen(1)
         conn, addr = server_sock.accept()
         print('Connected by', addr)
-        while True:
+        while NoErrors:
             try:
                 recv_data = conn.recv(4024*4)
                 if not recv_data:
-                    raise ConnectionError
+                    response = "Not Accepted. Connection Error."
+                    NoErrors = False
+                    break;
                 else:
                     benchmarking_data = pickle.loads(recv_data)
                     if process_results(benchmarking_data):
                         response = "Accepted"
                     else:
-                        raise LoadError
+                        response = "Not Accepted. Load Error."
+                        NoErrors = False
+                        break;
 
                 conn.sendall(response.encode())
-
             except socket.error:
                 response = "Not Accepted. Socket Error."
-            except ConnectionError:
-                response = "Not Accepted. Connection Error."
-            except LoadError:
-                response = "Not Accepted. Load Error."
+                NoErrors = False;
+                break;
 
         conn.close()
 

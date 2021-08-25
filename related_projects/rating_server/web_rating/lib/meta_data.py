@@ -109,9 +109,10 @@ def get_meta_data(graph_name):
         return compute_synthetic_metadata(graph_name)
 
 
-def add_meta_data(received_document, arch):
+def add_meta_data(received_document, arch, arch_dict):
     document_with_metadata = {}
     document_with_metadata.update(received_document)
     document_with_metadata.update(get_meta_data(received_document["graph_name"]))
     document_with_metadata["arch_name"] = arch
+    document_with_metadata["arch_dict"] = arch_dict
     return document_with_metadata

@@ -16,7 +16,7 @@ def run_compile(options, arch):
 
 
 def run_prepare(options, arch):
-    create_graphs_if_required(get_list_of_all_graphs(), arch, options.format)
+    create_graphs_if_required(get_list_of_all_graphs(), arch)
 
 
 def run_benchmarks(options, arch, benchmarking_results):

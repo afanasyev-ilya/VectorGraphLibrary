@@ -472,8 +472,16 @@ pre {
     max-width: 100%;
 }
 
-#ButtonTable td {
-   padding:  0px 100px;
+#ButtonTable1 {
+    margin-left: auto;
+    margin-right: auto;
+}
+
+
+#ButtonTable2  {
+    height:  70px;
+    margin-left: auto;
+    margin-right: auto;
 }
 
 /*#Results td {
@@ -8231,9 +8239,10 @@ h1, h2, h3, h4, h5,
     color: #fff; /* цвет текста в заголовках таблицы */
     border-bottom: 4px solid #2b3035; }
   .table tbody tr {
+    height: 100%;
     margin-bottom: 10px; }
   .table tbody th, .table tbody td {
-    border: none; 
+    border: none;
     padding: 10px 30px;
     border-bottom: 3px solid #2b3035;
     font-size: 14px; } /* размер простого текста */
