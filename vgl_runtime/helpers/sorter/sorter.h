@@ -34,6 +34,7 @@ private:
     #ifdef __USE_ASL__
     static void asl_inner_sort(int *_data, vgl_sort_indexes *_indexes, long long _size, SortOrder _sort_order)
     {
+        cout << "SORT CHECK: " << sizeof(vgl_sort_indexes) << endl;
         asl_sort_t hnd;
 
         if(_sort_order == SORT_ASCENDING)
@@ -46,7 +47,7 @@ private:
         }
 
         // do sorting
-        ASL_CALL(asl_sort_execute_i32(hnd, _size, _data, ASL_NULL, _data, _indexes));
+        ASL_CALL(asl_sort_execute_i32(hnd, _size, (asl_int32_t*)_data, ASL_NULL, (asl_int32_t*)_data, _indexes));
 
         ASL_CALL(asl_sort_destroy(hnd));
     };

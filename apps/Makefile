@@ -33,8 +33,8 @@ endif
 
 ifeq ($(COMPILER),nc++)
 	Include_Path = -I /opt/nec/ve/nlc/2.0.0/include/ -I ../
-	Flags = -D __USE_NEC_SX_AURORA__ $(MPI_Flags) -O3 -fopenmp -proginf -mparallel -mretain-list-vector -report-all #-mno-vector #-ftrace
-	Libraries = -fopenmp -ftrace -lasl_openmp # -report-all -ftrace
+	Flags = -D __USE_NEC_SX_AURORA__ $(MPI_Flags) -O3 -fopenmp -mparallel -mretain-list-vector -DASL_LIB_INT64 # -proginf -report-all -mno-vector #-ftrace
+	Libraries = -fopenmp -ftrace -lasl_openmp_i64 # -report-all -ftrace
 	ArchSuffix=_sx
 endif
 
@@ -143,6 +143,7 @@ csr_test.o: misc/csr_test.cpp
 	$(CXX) $(Flags) $(Include_Path)  -c misc/csr_test.cpp -o object_files/csr_test.o
 
 create_folders:
+	source /opt/nec/ve/nlc/2.2.0/bin/nlcvars.sh i64
 	-mkdir -p ./bin
 	-cp graph_library.sh ./bin
 	-mkdir -p ./object_files
