@@ -62,6 +62,9 @@ def run(options, run_info):
     if options.compile:
         run_compile(options, arch)
 
+    if options.download:
+        download_all_real_world_graphs()
+
     if options.prepare:
         run_prepare(options, arch)
 
@@ -115,6 +118,9 @@ def main():
     parser.add_option('-m', '--mode',
                       action="store", dest="mode",
                       help="specify testing mode: fast (small graphs only) or long (all graphs used)", default="fast")
+    parser.add_option('-d', '--download',
+                      action="store_true", dest="download",
+                      help="download all real-world graphs from internet collections", default=False)
 
     options, args = parser.parse_args()
 

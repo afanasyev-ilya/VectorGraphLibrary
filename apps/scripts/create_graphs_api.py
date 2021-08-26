@@ -24,7 +24,7 @@ def get_list_of_uniform_random_graphs():
     elif run_speed_mode == 1:
         graphs = ["syn_ru_18_32", "syn_ru_20_32", "syn_ru_22_32", "syn_ru_23_32"]
     elif run_speed_mode == 2:
-        graphs = ["syn_ru_18_32", "syn_ru_20_32", "syn_ru_22_32", "syn_ru_23_32", "syn_ru_25_32"]
+        graphs = ["syn_ru_18_32", "syn_ru_20_32", "syn_ru_21_32", "syn_ru_22_32", "syn_ru_23_32", "syn_ru_24_32", "syn_ru_25_32"]
     else:
         raise ValueError("Incorrect run_speed_mode")
     return graphs

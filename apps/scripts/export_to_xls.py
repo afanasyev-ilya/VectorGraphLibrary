@@ -111,7 +111,7 @@ class BenchmarkingResults:
 
     def submit(self, run_info):
         send_dict = {"run_info": run_info, "performance_data": self.performance_data, "correctness_data": self.correctness_data}
-        submit_to_socket(send_dict)
+        return submit_to_socket(send_dict)
 
     def offline_submit(self, run_info, name):
         send_dict = {"run_info": run_info, "performance_data": self.performance_data, "correctness_data": self.correctness_data}

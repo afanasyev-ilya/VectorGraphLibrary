@@ -51,7 +51,11 @@ def main():
         options.benchmark = True
         options.compile = True
         options.prepare = False
+        options.download = False
         options.sockets = options.proc_num
+        file_name = arch_info_dict["architecture"] + "_" + arch_info_dict["model"]
+        file_name = file_name.replace(" ", "_")
+        options.name = file_name
         run(options, arch_info_dict)
     else:
         print("Doing offline submit...")

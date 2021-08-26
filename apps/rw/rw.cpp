@@ -3,8 +3,6 @@
 #define COMPUTE_INT_ELEMENTS 10.0 // or 8?
 #define FRONTIER_TYPE_CHANGE_THRESHOLD 1.0
 
-//#define __PRINT_API_PERFORMANCE_STATS__
-
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #include "graph_library.h"

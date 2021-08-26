@@ -5,7 +5,7 @@ GENERATE_UNDIRECTED_GRAPHS = False
 UNDIRECTED_PREFIX = "undir_"
 
 
-run_speed_mode = 1 # 0 - very fast, 1 - medium, 2 - full, 3 - one large graph per category
+run_speed_mode = 2 # 0 - very fast, 1 - medium, 2 - full, 3 - one large graph per category
 
 
 benchmark_args = {"bfs": [ ["-top-down"]],
