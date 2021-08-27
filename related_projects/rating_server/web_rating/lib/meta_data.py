@@ -2,7 +2,7 @@ from urllib.request import urlopen
 from bs4 import BeautifulSoup
 
 
-konect_graphs_data = {"soc_pokec": {"link": "soc-pokec-relationships"},
+all_konect_graphs_data = {"soc_pokec": {"link": "soc-pokec-relationships"},
                       "soc_livejournal": {"link": "soc-LiveJournal1"},
                       "soc_orkut": {"link": "orkut-links"},
                       "soc_catster_dogster": {"link": "petster-carnivore"},
@@ -103,8 +103,8 @@ def compute_synthetic_metadata(graph_name):
 
 
 def get_meta_data(graph_name):
-    if graph_name in konect_graphs_data:
-        return load_konect_metadata(konect_graphs_data[graph_name]["link"])
+    if graph_name in all_konect_graphs_data:
+        return load_konect_metadata(all_konect_graphs_data[graph_name]["link"])
     else:
         return compute_synthetic_metadata(graph_name)
 

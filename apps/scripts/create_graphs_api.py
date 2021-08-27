@@ -4,45 +4,19 @@ import os.path
 from os import path
 
 
-# synthetic graphs
-def get_list_of_rmat_graphs():
-    if run_speed_mode == 0:
-        graphs = ["syn_rmat_18_32", "syn_rmat_20_32"]
-    elif run_speed_mode == 1:
-        graphs = ["syn_rmat_18_32", "syn_rmat_20_32", "syn_rmat_22_32", "syn_rmat_23_32"]
-    elif run_speed_mode == 2:
-        graphs = ["syn_rmat_18_32", "syn_rmat_20_32", "syn_rmat_21_32", "syn_rmat_22_32", "syn_rmat_23_32",
-                  "syn_rmat_24_32", "syn_rmat_25_32"]
-    else:
-        raise ValueError("Incorrect run_speed_mode")
-    return graphs
-
-
-def get_list_of_uniform_random_graphs():
-    if run_speed_mode == 0:
-        graphs = ["syn_ru_18_32", "syn_ru_20_32"]
-    elif run_speed_mode == 1:
-        graphs = ["syn_ru_18_32", "syn_ru_20_32", "syn_ru_22_32", "syn_ru_23_32"]
-    elif run_speed_mode == 2:
-        graphs = ["syn_ru_18_32", "syn_ru_20_32", "syn_ru_21_32", "syn_ru_22_32", "syn_ru_23_32", "syn_ru_24_32", "syn_ru_25_32"]
-    else:
-        raise ValueError("Incorrect run_speed_mode")
-    return graphs
-
-
-# all graphs
+# synthetic
 def get_list_of_synthetic_graphs():
-    return get_list_of_rmat_graphs() + get_list_of_uniform_random_graphs()
+    if run_speed_mode == "one_large":
+        return syn_one_large_mode
+    else:
+        raise ValueError("Unsupported run_speed_mode")
 
 
 def get_list_of_real_world_graphs():
-    if run_speed_mode == 0 or run_speed_mode == 1:
-        graphs = list(konect_graphs_data_fast.keys())
-    elif run_speed_mode == 2:
-        graphs = list(konect_graphs_data.keys())
+    if run_speed_mode == "one_large":
+        return konect_one_large_mode
     else:
-        raise ValueError("Incorrect run_speed_mode")
-    return graphs
+        raise ValueError("Unsupported run_speed_mode")
 
 
 def get_list_of_all_graphs():
@@ -64,9 +38,9 @@ def download_all_real_world_graphs():
 
 
 def download_graph(graph_name):
-    file_name = SOURCE_GRAPH_DIR + "download.tsv." + konect_graphs_data[graph_name]["link"] + ".tar.bz2"
+    file_name = SOURCE_GRAPH_DIR + "download.tsv." + all_konect_graphs_data[graph_name]["link"] + ".tar.bz2"
     if not path.exists(file_name):
-        link = "http://konect.cc/files/download.tsv." + konect_graphs_data[graph_name]["link"] + ".tar.bz2"
+        link = "http://konect.cc/files/download.tsv." + all_konect_graphs_data[graph_name]["link"] + ".tar.bz2"
         print("Trying to download " + file_name + " using " + link)
         cmd = ["wget", link, "-q", "--no-check-certificate", "--directory", SOURCE_GRAPH_DIR]
         print(' '.join(cmd))
@@ -76,7 +50,7 @@ def download_graph(graph_name):
         else:
             print("Error! Can not download file " + file_name)
     else:
-        print("File " + SOURCE_GRAPH_DIR + "/" + konect_graphs_data[graph_name]["link"] + ".tar.bz2" + " exists!")
+        print("File " + SOURCE_GRAPH_DIR + "/" + all_konect_graphs_data[graph_name]["link"] + ".tar.bz2" + " exists!")
 
 
 def get_path_to_graph(short_name, graph_format, undir = False):
@@ -101,14 +75,14 @@ def create_real_world_graph(graph_name, arch):
     if not file_exists(output_graph_file_name):
         download_graph(graph_name)
 
-        tar_name = SOURCE_GRAPH_DIR + "download.tsv." + konect_graphs_data[graph_name]["link"] + ".tar.bz2"
+        tar_name = SOURCE_GRAPH_DIR + "download.tsv." + all_konect_graphs_data[graph_name]["link"] + ".tar.bz2"
         cmd = ["tar", "-xjf", tar_name, '-C', "./bin/source_graphs"]
         subprocess.call(cmd, shell=False, stdout=subprocess.PIPE)
 
-        if "unarch_graph_name" in konect_graphs_data[graph_name]:
-            source_name = "./bin/source_graphs/" + konect_graphs_data[graph_name]["link"] + "/out." + konect_graphs_data[graph_name]["unarch_graph_name"]
+        if "unarch_graph_name" in all_konect_graphs_data[graph_name]:
+            source_name = "./bin/source_graphs/" + all_konect_graphs_data[graph_name]["link"] + "/out." + all_konect_graphs_data[graph_name]["unarch_graph_name"]
         else:
-            source_name = "./bin/source_graphs/" + konect_graphs_data[graph_name]["link"] + "/out." + konect_graphs_data[graph_name]["link"]
+            source_name = "./bin/source_graphs/" + all_konect_graphs_data[graph_name]["link"] + "/out." + all_konect_graphs_data[graph_name]["link"]
 
         cmd = [get_binary_path("create_vgl_graphs", arch), "-convert", source_name, "-directed",
                "-file", output_graph_file_name.replace("."+graph_format, ""), "-format", graph_format]

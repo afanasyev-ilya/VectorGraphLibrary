@@ -60,14 +60,27 @@ def run(options, run_info):
     benchmarking_results = BenchmarkingResults(options.name)
 
     if options.compile:
+        start = time.time()
         run_compile(options, arch)
+        end = time.time()
+        if print_timings:
+            print("compile WALL TIME: " + str(end-start) + " seconds")
 
     if options.download:
+        start = time.time()
         download_all_real_world_graphs()
+        end = time.time()
+        if print_timings:
+            print("download WALL TIME: " + str(end-start) + " seconds")
 
     if options.prepare:
+        start = time.time()
         run_prepare(options, arch)
+        end = time.time()
+        if print_timings:
+            print("graph generation WALL TIME: " + str(end-start) + " seconds")
 
+    start = time.time()
     if options.format == "all":
         for current_format in available_formats:
             options.format = current_format
@@ -81,6 +94,9 @@ def run(options, run_info):
             else:
                 print("Can not send results, saving to file...")
                 benchmarking_results.offline_submit(run_info, options.name)
+    end = time.time()
+    if print_timings:
+        print("benchmarking WALL TIME: " + str(end-start) + " seconds")
 
     benchmarking_results.finalize()
 

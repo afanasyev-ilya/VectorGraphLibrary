@@ -2,6 +2,7 @@ from .helpers import *
 from .create_graphs_api import *
 from .settings import *
 from .export_to_xls import *
+import time
 
 
 def check_app_correctness(output):
@@ -24,6 +25,7 @@ def verify_app(app_name, arch, benchmarking_results, graph_format):
         benchmarking_results.add_correctness_test_name_to_xls_table(app_name, current_args + common_args)
 
         for current_graph in list_of_graphs:
+            start = time.time()
             cmd = [get_binary_path(app_name, arch), "-import",
                    get_path_to_graph(current_graph, "el_container", requires_undir_graphs(app_name))] + current_args + common_args
             print(' '.join(cmd))
@@ -33,5 +35,8 @@ def verify_app(app_name, arch, benchmarking_results, graph_format):
             correctness_lines = check_app_correctness(output)
             print(correctness_lines)
             benchmarking_results.add_correctness_value_to_xls_table(str(correctness_lines), current_graph, app_name)
+            end = time.time()
+            if print_timings:
+                print("TIME: " + str(end-start) + " seconds")
 
         benchmarking_results.add_correctness_separator_to_xls_table()

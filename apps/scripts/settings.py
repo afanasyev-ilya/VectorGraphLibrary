@@ -5,7 +5,14 @@ GENERATE_UNDIRECTED_GRAPHS = False
 UNDIRECTED_PREFIX = "undir_"
 
 
-run_speed_mode = 2 # 0 - very fast, 1 - medium, 2 - full, 3 - one large graph per category
+run_speed_mode = "one_large"
+# "fast" - very fast mode (only small graphs),
+# "medium" - medium (small-sized and medium-sized graphs)
+# "full" - full (test on all available graphs)
+# "one_large" - one large graph per category,
+# "rating" - rating mode
+
+print_timings = True
 
 
 benchmark_args = {"bfs": [ ["-top-down"]],
@@ -56,7 +63,7 @@ konect_graphs_data_fast = {"soc_pokec": {"link": "soc-pokec-relationships"},
                       "rating_amazon_ratings": {"link": "amazon-ratings"}}
 
 
-konect_graphs_data = {"soc_pokec": {"link": "soc-pokec-relationships"},
+all_konect_graphs_data = {"soc_pokec": {"link": "soc-pokec-relationships"},
                       "soc_livejournal": {"link": "soc-LiveJournal1"},
                       "soc_orkut": {"link": "orkut-links"},
                       "soc_catster_dogster": {"link": "petster-carnivore"},
@@ -83,14 +90,13 @@ apps_and_graphs_ingore = {"sssp": [],
                           "bfs": []}
 
 
-#snap_links = {"web_berk_stan": "web-BerkStan.txt.gz",
-#              "soc_lj":  "soc-LiveJournal1.txt.gz",
-#              "soc_pokec": "soc-pokec-relationships.txt.gz",
-#              "wiki_talk": "wiki-topcats.txt.gz",
-#              "soc_orkut": "com-orkut.ungraph.txt.gz",
-#              "wiki_topcats": "wiki-topcats.txt.gz",
-#              "roads_ca": "roadNet-CA.txt.gz",
-#              "cit_patents": "cit-Patents.txt.gz",
-#              "soc_stackoverflow": "sx-stackoverflow.txt.gz",
-#              "skitter": "as-skitter.txt.gz"}
+konect_fast_mode = {}
+konect_medium_mode = {}
+konect_full_mode = {}
+konect_rating_mode = {}
+
+
+konect_one_large_mode = ["web_wikipedia_link_en", "road_western_us", "soc_orkut", "rating_yahoo_song"]
+syn_one_large_mode = ["syn_rmat_24_32", "syn_ru_24_32"]
+
 
