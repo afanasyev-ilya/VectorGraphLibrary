@@ -26,7 +26,7 @@ void remove_extension(string &_full_string)
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-string add_extension(string _short_name, GraphFormatType _type)
+string add_extension(string _short_name, GraphStorageFormat _type)
 {
     string extension = get_graph_extension(_type);
 

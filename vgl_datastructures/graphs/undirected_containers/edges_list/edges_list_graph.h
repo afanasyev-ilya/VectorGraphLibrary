@@ -26,7 +26,7 @@ private:
     void save_main_content_to_binary_file(FILE *_graph_file) final;
     void load_main_content_from_binary_file(FILE *_graph_file) final;
 public:
-    EdgesListGraph(int _vertices_count = 1, long long _edges_count = 1);
+    EdgesListGraph(int _vertices_count = 1, long long _edges_count = 1, GraphStorageOptimizations _optimizations = OPT_NONE);
     EdgesListGraph(const EdgesListGraph &_copy);
     ~EdgesListGraph();
 

@@ -1,4 +1,4 @@
-1. add if to VGL_Graph::VGL_Graph(GraphFormatType _container_type)
+1. add if to VGL_Graph::VGL_Graph(GraphStorageFormat _container_type)
 2. add if to VGL_Frontier::VGL_Frontier
 3. update calls in abstractions in each architecture class:
 - gather

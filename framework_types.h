@@ -46,7 +46,7 @@ class GraphAnalytics;
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-enum GraphFormatType
+enum GraphStorageFormat
 {
     VGL_GRAPH = 0,
     VECTOR_CSR_GRAPH = 1,
@@ -55,7 +55,21 @@ enum GraphFormatType
     EDGES_CONTAINER = 4
 };
 
-string get_graph_format_name(GraphFormatType _type)
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+enum GraphStorageOptimizations
+{
+    OPT_NONE = 0,
+    EL_2D_SEGMENTED = 1,
+    EL_CSR_BASED = 2,
+    EL_RANDOM_SHUFFLED = 3,
+    CSR_VERTEX_GROUPS_GRAPH = 4,
+    CSR_VERTEX_GROUPS_CELL_S_GRAPH = 5
+};
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+string get_graph_format_name(GraphStorageFormat _type)
 {
     if(_type == VGL_GRAPH)
         return "VGL_GRAPH";
@@ -71,7 +85,7 @@ string get_graph_format_name(GraphFormatType _type)
         return "UNKNOWN";
 }
 
-string get_graph_extension(GraphFormatType _type)
+string get_graph_extension(GraphStorageFormat _type)
 {
     if(_type == VGL_GRAPH)
         return ".vgl";

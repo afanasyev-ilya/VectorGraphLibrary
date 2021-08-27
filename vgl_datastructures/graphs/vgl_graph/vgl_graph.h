@@ -10,7 +10,7 @@ private:
     UndirectedGraph *outgoing_data;
     UndirectedGraph *incoming_data;
 
-    void create_containers(GraphFormatType _container_type);
+    void create_containers(GraphStorageFormat _container_type, GraphStorageOptimizations _optimizations);
 
     long long *vertices_reorder_buffer;
 
@@ -25,12 +25,12 @@ private:
     template <typename _T>
     void reorder_to_gather(VerticesArray<_T> &_data);
 public:
-    VGL_Graph(GraphFormatType _container_type);
+    VGL_Graph(GraphStorageFormat _container_type, GraphStorageOptimizations _optimizations = OPT_NONE);
     ~VGL_Graph();
     void import(EdgesContainer &_edges_container);
 
     /* get/set API */
-    GraphFormatType get_container_type() { return outgoing_data->get_type(); };
+    GraphStorageFormat get_container_type() { return outgoing_data->get_type(); };
     UndirectedGraph *get_direction_data(TraversalDirection _direction);
     UndirectedGraph *get_outgoing_data() { return outgoing_data; };
     UndirectedGraph *get_incoming_data() { return incoming_data; };

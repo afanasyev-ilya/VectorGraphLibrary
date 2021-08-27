@@ -1,10 +1,10 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-VGL_Graph::VGL_Graph(GraphFormatType _container_type)
+VGL_Graph::VGL_Graph(GraphStorageFormat _container_type, GraphStorageOptimizations _optimizations)
 {
     get_format = VGL_GRAPH;
 
-    create_containers(_container_type);
+    create_containers(_container_type, _optimizations);
 
     MemoryAPI::allocate_array(&vertices_reorder_buffer, 1);
 }
@@ -20,7 +20,7 @@ VGL_Graph::~VGL_Graph()
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void VGL_Graph::create_containers(GraphFormatType _container_type)
+void VGL_Graph::create_containers(GraphStorageFormat _container_type, GraphStorageOptimizations _optimizations)
 {
     if(_container_type == VECTOR_CSR_GRAPH)
     {
@@ -29,8 +29,8 @@ void VGL_Graph::create_containers(GraphFormatType _container_type)
     }
     else if(_container_type == EDGES_LIST_GRAPH)
     {
-        outgoing_data = new EdgesListGraph();
-        incoming_data = new EdgesListGraph();
+        outgoing_data = new EdgesListGraph(_optimizations);
+        incoming_data = new EdgesListGraph(_optimizations);
     }
     else if(_container_type == CSR_GRAPH)
     {
@@ -105,11 +105,11 @@ bool VGL_Graph::save_to_binary_file(string _file_name)
 
     int vertices_count = this->vertices_count;
     long long edges_count = this->edges_count;
-    GraphFormatType container_type = get_container_type();
+    GraphStorageFormat container_type = get_container_type();
 
     fwrite(reinterpret_cast<const char*>(&vertices_count), sizeof(int), 1, graph_file);
     fwrite(reinterpret_cast<const char*>(&edges_count), sizeof(long long), 1, graph_file);
-    fwrite(reinterpret_cast<const char*>(&container_type), sizeof(GraphFormatType), 1, graph_file);
+    fwrite(reinterpret_cast<const char*>(&container_type), sizeof(GraphStorageFormat), 1, graph_file);
 
     outgoing_data->save_main_content_to_binary_file(graph_file);
     incoming_data->save_main_content_to_binary_file(graph_file);
@@ -126,10 +126,10 @@ bool VGL_Graph::load_from_binary_file(string _file_name)
     if(graph_file == NULL)
         return false;
 
-    GraphFormatType new_container_type = VGL_GRAPH;
+    GraphStorageFormat new_container_type = VGL_GRAPH;
     fread(reinterpret_cast<char*>(&this->vertices_count), sizeof(int), 1, graph_file);
     fread(reinterpret_cast<char*>(&this->edges_count), sizeof(long long), 1, graph_file);
-    fread(reinterpret_cast<char*>(&new_container_type), sizeof(GraphFormatType), 1, graph_file);
+    fread(reinterpret_cast<char*>(&new_container_type), sizeof(GraphStorageFormat), 1, graph_file);
 
     if(new_container_type != get_container_type())
     {
@@ -141,7 +141,7 @@ bool VGL_Graph::load_from_binary_file(string _file_name)
     delete incoming_data;
     MemoryAPI::free_array(vertices_reorder_buffer);
 
-    create_containers(new_container_type);
+    create_containers(new_container_type, OPT_NONE);
 
     MemoryAPI::allocate_array(&vertices_reorder_buffer, this->vertices_count);
     outgoing_data->load_main_content_from_binary_file(graph_file);

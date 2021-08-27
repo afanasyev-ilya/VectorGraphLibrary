@@ -77,7 +77,7 @@ void CSRGraph::save_main_content_to_binary_file(FILE *_graph_file)
 
     fwrite(reinterpret_cast<const char*>(&vertices_count), sizeof(int), 1, _graph_file);
     fwrite(reinterpret_cast<const char*>(&edges_count), sizeof(long long), 1, _graph_file);
-    fwrite(reinterpret_cast<const char*>(&(this->get_format)), sizeof(GraphFormatType), 1, _graph_file);
+    fwrite(reinterpret_cast<const char*>(&(this->get_format)), sizeof(GraphStorageFormat), 1, _graph_file);
 
     fwrite(reinterpret_cast<const char*>(vertex_pointers), sizeof(long long), vertices_count + 1, _graph_file);
     fwrite(reinterpret_cast<const char*>(adjacent_ids), sizeof(int), edges_count, _graph_file);
@@ -90,7 +90,7 @@ void CSRGraph::load_main_content_from_binary_file(FILE *_graph_file)
 {
     fread(reinterpret_cast<char*>(&this->vertices_count), sizeof(int), 1, _graph_file);
     fread(reinterpret_cast<char*>(&this->edges_count), sizeof(long long), 1, _graph_file);
-    fread(reinterpret_cast<char*>(&(this->get_format)), sizeof(GraphFormatType), 1, _graph_file);
+    fread(reinterpret_cast<char*>(&(this->get_format)), sizeof(GraphStorageFormat), 1, _graph_file);
     if(this->get_format != CSR_GRAPH)
     {
         throw "Error in CSRGraph::load_from_binary_file : graph type in file is not equal to CSR_GRAPH";

@@ -28,6 +28,18 @@ Parser::Parser()
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+bool starts_with(string _full, string _pattern)
+{
+    size_t found = _full.find(_pattern);
+    if(found == 0)
+    {
+        return true;
+    }
+    return false;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 void Parser::parse_args(int _argc, char **_argv)
 {
     // get params from cmd line
@@ -85,8 +97,26 @@ void Parser::parse_args(int _argc, char **_argv)
         if ((option.compare("-format") == 0))
         {
             string tmp_type = _argv[++i];
-            if((tmp_type == "el") || (tmp_type == "edges_list"))
+            if(starts_with(tmp_type, "el"))
+            {
                 graph_storage_format = EDGES_LIST_GRAPH;
+                if(tmp_type == "el")
+                {
+                    graph_storage_optimizations = OPT_NONE;
+                }
+                if(tmp_type == "el_2D_seg")
+                {
+                    graph_storage_optimizations = EL_2D_SEGMENTED;
+                }
+                else if(tmp_type == "el_csr_based")
+                {
+                    graph_storage_optimizations = EL_CSR_BASED;
+                }
+                else
+                {
+                    throw "Error in Parser::parse_args : unknown edges list graph storage format";
+                }
+            }
             else if((tmp_type == "vcsr") || (tmp_type == "vect_csr"))
                 graph_storage_format = VECTOR_CSR_GRAPH;
             else if(tmp_type == "csr")

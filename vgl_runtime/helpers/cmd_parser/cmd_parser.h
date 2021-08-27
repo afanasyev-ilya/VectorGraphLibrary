@@ -12,7 +12,8 @@ private:
     ComputeMode compute_mode;
     AlgorithmFrontierType algorithm_frontier_type;
     AlgorithmTraversalType traversal_direction;
-    GraphFormatType graph_storage_format;
+    GraphStorageFormat graph_storage_format;
+    GraphStorageOptimizations graph_storage_optimizations;
     
     int scale;
     int avg_degree;
@@ -44,7 +45,8 @@ public:
     bool get_check_flag() { return check_flag; };
     int get_number_of_rounds() { return number_of_rounds; };
     int get_device_num() { return device_num; };
-    GraphFormatType get_graph_storage_format() {return graph_storage_format;};
+    GraphStorageFormat get_graph_storage_format() {return graph_storage_format;};
+    GraphStorageOptimizations get_graph_storage_optimizations() {return graph_storage_optimizations;};
 
     bool get_convert() {return convert;};
     string get_convert_name() {return convert_name;};

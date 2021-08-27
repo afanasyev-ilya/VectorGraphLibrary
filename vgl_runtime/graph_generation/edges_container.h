@@ -61,11 +61,11 @@ public:
         if(graph_file == NULL)
             return false;
 
-        GraphFormatType graph_type = EDGES_CONTAINER;
+        GraphStorageFormat graph_type = EDGES_CONTAINER;
 
         fwrite(reinterpret_cast<const void*>(&vertices_count), sizeof(int), 1, graph_file);
         fwrite(reinterpret_cast<const void*>(&edges_count), sizeof(long long), 1, graph_file);
-        fwrite(reinterpret_cast<void*>(&graph_type), sizeof(GraphFormatType), 1, graph_file);
+        fwrite(reinterpret_cast<void*>(&graph_type), sizeof(GraphStorageFormat), 1, graph_file);
 
         fwrite(reinterpret_cast<const void*>(src_ids), sizeof(int), edges_count, graph_file);
         fwrite(reinterpret_cast<const void*>(dst_ids), sizeof(int), edges_count, graph_file);
@@ -80,11 +80,11 @@ public:
         if(graph_file == NULL)
             return false;
 
-        GraphFormatType graph_type = EDGES_CONTAINER;
+        GraphStorageFormat graph_type = EDGES_CONTAINER;
 
         fread(reinterpret_cast<void*>(&vertices_count), sizeof(int), 1, graph_file);
         fread(reinterpret_cast<void*>(&edges_count), sizeof(long long), 1, graph_file);
-        fread(reinterpret_cast<void*>(&graph_type), sizeof(GraphFormatType), 1, graph_file);
+        fread(reinterpret_cast<void*>(&graph_type), sizeof(GraphStorageFormat), 1, graph_file);
 
         if(graph_type != EDGES_CONTAINER)
             throw "Error in EdgesContainer::load_from_binary_file : incorrect type of graph in file";

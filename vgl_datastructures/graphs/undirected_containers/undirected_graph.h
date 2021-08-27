@@ -12,6 +12,7 @@ class UndirectedGraph : public BaseGraph
 {
 protected:
     bool is_copy;
+    GraphStorageOptimizations optimizations_used;
 public:
     UndirectedGraph() {};
     ~UndirectedGraph() {};

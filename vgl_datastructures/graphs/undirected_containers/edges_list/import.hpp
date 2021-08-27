@@ -121,7 +121,10 @@ void EdgesListGraph::import(EdgesContainer &_edges_container)
     MemoryAPI::copy(this->src_ids, _edges_container.get_src_ids(), _edges_container.get_edges_count());
     MemoryAPI::copy(this->dst_ids, _edges_container.get_dst_ids(), _edges_container.get_edges_count());
 
-    //preprocess_into_segmented();
+    if(this->optimizations_used == EL_2D_SEGMENTED)
+        preprocess_into_segmented();
+    else if(this->optimizations_used == EL_CSR_BASED)
+        preprocess_into_csr_based();
 
     MemoryAPI::set(connections_count, 0, this->vertices_count);
     #pragma omp parallel for
