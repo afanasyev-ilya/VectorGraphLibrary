@@ -2,14 +2,24 @@
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-class FrontierCSR : public BaseFrontier
+class FrontierCSR_VG : public BaseFrontier
 {
 private:
     void init();
+
+    CSRVertexGroup vertex_groups[CSR_VERTEX_GROUPS_NUM];
+    void copy_vertex_group_info_from_graph();
+
+    int get_size_of_vertex_groups();
+    size_t get_neighbours_of_vertex_groups();
+    void print_vertex_group_sizes();
+
+    template <typename CopyCond>
+    void copy_vertex_group_info_from_graph_cond(CopyCond _cond);
 public:
     /* constructors and destructors */
-    FrontierCSR(VGL_Graph &_graph, TraversalDirection _direction = SCATTER);
-    ~ FrontierCSR();
+    FrontierCSR_VG(VGL_Graph &_graph, TraversalDirection _direction = SCATTER);
+    ~ FrontierCSR_VG();
 
     /* Print API */
     void print_stats();
@@ -33,7 +43,7 @@ public:
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#include "frontier_csr.hpp"
+#include "frontier_csr_vg.hpp"
 #include "modification.hpp"
 #include "print.hpp"
 

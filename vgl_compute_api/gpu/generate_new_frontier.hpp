@@ -175,7 +175,53 @@ void GraphAbstractionsGPU::generate_new_frontier_worker(CSRGraph &_graph,
                                                  1, BLOCK_SIZE>>>(_graph, frontier_ids, frontier_flags,
                                                  vertices_count, filter_cond))); // 2*|V|
 
-    #ifdef __USE_CSR_VERTEX_GROUPS__
+    // generate frontier IDS
+    int *new_end = thrust::remove_if(thrust::device, frontier_ids, frontier_ids + vertices_count, is_not_active()); // 2*|V|
+    _frontier.size = new_end - _frontier.ids;
+
+    if (_frontier.size == _graph.get_vertices_count())
+    {
+        _frontier.sparsity_type = ALL_ACTIVE_FRONTIER;
+        _frontier.neighbours_count = _graph.get_edges_count();
+    }
+    else
+    {
+        _frontier.sparsity_type = SPARSE_FRONTIER;
+        auto reduce_connections = [] __VGL_REDUCE_INT_ARGS__ {
+            return connections_count;
+        };
+        reduce_worker_sum(_graph, _frontier, reduce_connections, _frontier.neighbours_count);
+    }
+
+    cudaDeviceSynchronize();
+
+    tm.end();
+    performance_stats.update_gnf_time(tm);
+    #ifdef __PRINT_API_PERFORMANCE_STATS__
+    tm.print_time_and_bandwidth_stats("GNF", vertices_count, 4.0*sizeof(int));
+    #endif
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+template <typename FilterCondition>
+void GraphAbstractionsGPU::generate_new_frontier_worker(CSR_VG_Graph &_graph,
+                                                        FrontierCSR_VG &_frontier,
+                                                        FilterCondition &&filter_cond)
+{
+    Timer tm;
+    tm.start();
+    _frontier.set_direction(current_traversal_direction);
+    _frontier.sparsity_type = SPARSE_FRONTIER; // TODO
+
+    int vertices_count = _graph.get_vertices_count();
+    LOAD_FRONTIER_DATA(_frontier);
+
+    // generate frontier flags
+    SAFE_KERNEL_CALL((set_frontier_flags<<<(vertices_count - 1) / BLOCK_SIZE +
+                                           1, BLOCK_SIZE>>>(_graph, frontier_ids, frontier_flags,
+            vertices_count, filter_cond))); // 2*|V|
+
     auto filter_vertex_group = [frontier_flags] __host__ __device__ (int _src_id)->bool {
         return frontier_flags[_src_id];
     };
@@ -189,11 +235,6 @@ void GraphAbstractionsGPU::generate_new_frontier_worker(CSRGraph &_graph,
         copy_pos += _frontier.vertex_groups[i].size;
     }
     _frontier.size = _frontier.get_size_of_vertex_groups();
-    #else
-    // generate frontier IDS
-    int *new_end = thrust::remove_if(thrust::device, frontier_ids, frontier_ids + vertices_count, is_not_active()); // 2*|V|
-    _frontier.size = new_end - _frontier.ids;
-    #endif
 
     if (_frontier.size == _graph.get_vertices_count())
     {
@@ -204,7 +245,7 @@ void GraphAbstractionsGPU::generate_new_frontier_worker(CSRGraph &_graph,
     {
         _frontier.sparsity_type = SPARSE_FRONTIER;
         auto reduce_connections = [] __VGL_REDUCE_INT_ARGS__ {
-            return connections_count;
+                return connections_count;
         };
         reduce_worker_sum(_graph, _frontier, reduce_connections, _frontier.neighbours_count);
     }

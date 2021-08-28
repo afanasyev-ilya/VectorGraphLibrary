@@ -86,6 +86,25 @@ void GraphAbstractions::common_scatter(VGL_Graph &_graph,
                                                               inner_mpi_processing)));
         #endif
     }
+    else if(_graph.get_container_type() == CSR_VG_GRAPH)
+    {
+        CSR_VG_Graph *container_graph = (CSR_VG_Graph *)_graph.get_outgoing_data();
+        FrontierCSR_VG *container_frontier = (FrontierCSR_VG *)_frontier.get_container_data();
+
+        #ifdef __USE_GPU__
+        _abstraction_class->advance_worker(*container_graph, *container_frontier, edge_op,
+                                           vertex_preprocess_op, vertex_postprocess_op,
+                                           collective_edge_op, collective_vertex_preprocess_op,
+                                           collective_vertex_postprocess_op,
+                                           inner_mpi_processing);
+        #else
+        OMP_PARALLEL_CALL((_abstraction_class->advance_worker(*container_graph, *container_frontier, edge_op,
+                                                              vertex_preprocess_op, vertex_postprocess_op,
+                                                              collective_edge_op, collective_vertex_preprocess_op,
+                                                              collective_vertex_postprocess_op,
+                                                              inner_mpi_processing)));
+        #endif
+    }
     else
     {
         throw "Error in GraphAbstractions::scatter unsupported graph type";
@@ -169,6 +188,25 @@ void GraphAbstractions::common_gather(VGL_Graph &_graph,
     {
         CSRGraph *container_graph = (CSRGraph *)_graph.get_incoming_data();
         FrontierCSR *container_frontier = (FrontierCSR *)_frontier.get_container_data();
+
+        #ifdef __USE_GPU__
+        _abstraction_class->advance_worker(*container_graph, *container_frontier, edge_op,
+                                           vertex_preprocess_op, vertex_postprocess_op,
+                                           collective_edge_op, collective_vertex_preprocess_op,
+                                           collective_vertex_postprocess_op,
+                                           inner_mpi_processing);
+        #else
+        OMP_PARALLEL_CALL((_abstraction_class->advance_worker(*container_graph, *container_frontier, edge_op,
+                                                              vertex_preprocess_op, vertex_postprocess_op,
+                                                              collective_edge_op, collective_vertex_preprocess_op,
+                                                              collective_vertex_postprocess_op,
+                                                              inner_mpi_processing)));
+        #endif
+    }
+    else if(_graph.get_container_type() == CSR_VG_GRAPH)
+    {
+        CSR_VG_Graph *container_graph = (CSR_VG_Graph *)_graph.get_outgoing_data();
+        FrontierCSR_VG *container_frontier = (FrontierCSR_VG *)_frontier.get_container_data();
 
         #ifdef __USE_GPU__
         _abstraction_class->advance_worker(*container_graph, *container_frontier, edge_op,

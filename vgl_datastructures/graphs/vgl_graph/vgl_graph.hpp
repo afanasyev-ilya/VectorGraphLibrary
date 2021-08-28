@@ -2,7 +2,7 @@
 
 VGL_Graph::VGL_Graph(GraphStorageFormat _container_type, GraphStorageOptimizations _optimizations)
 {
-    get_format = VGL_GRAPH;
+    graph_format = VGL_GRAPH;
 
     create_containers(_container_type, _optimizations);
 
@@ -36,6 +36,11 @@ void VGL_Graph::create_containers(GraphStorageFormat _container_type, GraphStora
     {
         outgoing_data = new CSRGraph();
         incoming_data = new CSRGraph();
+    }
+    else if(_container_type == CSR_VG_GRAPH)
+    {
+        outgoing_data = new CSR_VG_Graph();
+        incoming_data = new CSR_VG_Graph();
     }
     else
     {

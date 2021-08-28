@@ -139,7 +139,54 @@ void GraphAbstractionsMulticore::generate_new_frontier_worker(CSRGraph &_graph,
             neighbours_count += connections_count;
     }
 
-    #ifdef __USE_CSR_VERTEX_GROUPS__
+    auto in_frontier = [frontier_flags] (int src_id) {
+        return frontier_flags[src_id];
+    };
+    _frontier.neighbours_count = neighbours_count;
+    _frontier.size = ParallelPrimitives::copy_if_indexes(in_frontier, frontier_ids, vertices_count, _frontier.work_buffer, 0);
+
+    tm_wall.end();
+    long long work = vertices_count;
+    performance_stats.update_gnf_time(tm_wall);
+    performance_stats.update_bytes_requested(work*4.0*sizeof(int));
+
+    #ifdef __PRINT_API_PERFORMANCE_STATS__
+    tm_wall.print_bandwidth_stats("GNF", vertices_count, 4.0*sizeof(int));
+    #endif
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+template <typename FilterCondition>
+void GraphAbstractionsMulticore::generate_new_frontier_worker(CSR_VG_Graph &_graph,
+                                                              FrontierCSR_VG &_frontier,
+                                                              FilterCondition &&filter_cond)
+{
+    Timer tm_wall;
+    tm_wall.start();
+
+    _frontier.set_direction(current_traversal_direction);
+    int vertices_count = _graph.get_vertices_count();
+    int *frontier_flags = _frontier.flags;
+    int *frontier_ids = _frontier.ids;
+
+    int elements_count = 0;
+    long long neighbours_count = 0;
+
+    #pragma simd
+    #pragma vector
+    #pragma ivdep
+    #pragma omp parallel for schedule(static) reduction(+: elements_count, neighbours_count)
+    for (int src_id = 0; src_id < vertices_count; src_id++)
+    {
+        int connections_count = _graph.get_connections_count(src_id);
+        int new_flag = filter_cond(src_id, connections_count);
+        frontier_flags[src_id] = new_flag;
+        elements_count += new_flag;
+        if(new_flag == IN_FRONTIER_FLAG)
+            neighbours_count += connections_count;
+    }
+
     auto filter_vertex_group = [frontier_flags] (int _src_id)->int {
         return frontier_flags[_src_id];
     };
@@ -155,13 +202,6 @@ void GraphAbstractionsMulticore::generate_new_frontier_worker(CSRGraph &_graph,
         }
     }
     _frontier.size = copy_pos;
-    #else
-    auto in_frontier = [frontier_flags] (int src_id) {
-        return frontier_flags[src_id];
-    };
-    _frontier.neighbours_count = neighbours_count;
-    _frontier.size = ParallelPrimitives::copy_if_indexes(in_frontier, frontier_ids, vertices_count, _frontier.work_buffer, 0);
-    #endif
 
     tm_wall.end();
     long long work = vertices_count;

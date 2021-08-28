@@ -28,6 +28,7 @@
 #include "vgl_datastructures/graphs/undirected_containers/edges_list/edges_list_graph.h"
 #include "vgl_datastructures/graphs/undirected_containers/vect_csr/vect_csr_graph.h"
 #include "vgl_datastructures/graphs/undirected_containers/csr/csr_graph.h"
+#include "vgl_datastructures/graphs/undirected_containers/csr_vg/csr_vg_graph.h"
 #include "vgl_datastructures/graphs/vgl_graph/vgl_graph.h"
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////

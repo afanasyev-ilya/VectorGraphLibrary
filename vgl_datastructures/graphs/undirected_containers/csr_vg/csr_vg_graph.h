@@ -8,6 +8,7 @@
 #include <fstream>
 #include <stdio.h>
 #include <string.h>
+#include "vertex_group.h"
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -19,13 +20,17 @@ class EdgesArray;
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-class CSRGraph: public UndirectedGraph
+class CSR_VG_Graph: public UndirectedGraph
 {
 private:
     long long     *vertex_pointers;
     int           *adjacent_ids;
 
     vgl_sort_indexes *edges_reorder_indexes; // allows to convert edges (and weights) from sorted to original order
+
+    CSRVertexGroup vertex_groups[CSR_VERTEX_GROUPS_NUM];
+    void create_vertex_groups();
+    void create_vertices_group_array(CSRVertexGroup &_group_data, int _bottom, int _top);
 
     void alloc(int _vertices_count, long long _edges_count);
     void free();
@@ -43,9 +48,9 @@ private:
     void save_main_content_to_binary_file(FILE *_graph_file) final;
     void load_main_content_from_binary_file(FILE *_graph_file) final;
 public:
-    CSRGraph(int _vertices_count = 1, long long _edges_count = 1);
-    CSRGraph(const CSRGraph &_copy);
-    ~CSRGraph();
+    CSR_VG_Graph(int _vertices_count = 1, long long _edges_count = 1);
+    CSR_VG_Graph(const CSR_VG_Graph &_copy);
+    ~CSR_VG_Graph();
 
     /* get API */
     inline long long *get_vertex_pointers() {return vertex_pointers;};
@@ -67,7 +72,7 @@ public:
     void resize(int _vertices_count, long long _edges_count);
 
     /* import and preprocess API */
-    // creates VectorCSRGraph format from EdgesListGraph
+    // creates VectorCSR_VG_Graph format from EdgesListGraph
     void import(EdgesContainer &_edges_container);
 
     void reorder_edges_gather(char *_src, char *_dst, size_t _elem_size) final;
@@ -83,7 +88,7 @@ public:
     #endif
 
     friend class GraphAbstractions;
-    friend class FrontierCSR;
+    friend class FrontierCSR_VG;
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -97,7 +102,7 @@ int          *adjacent_ids    = input_graph.get_adjacent_ids    ();\
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#include "csr_graph.hpp"
+#include "csr_vg_graph.hpp"
 #include "import.hpp"
 #include "print.hpp"
 #include "reorder.hpp"

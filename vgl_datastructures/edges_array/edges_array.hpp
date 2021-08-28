@@ -17,6 +17,10 @@ EdgesArray<_T>::EdgesArray(VGL_Graph &_graph)
     {
         container = new EdgesArray_CSR<_T>(_graph);
     }
+    else if(_graph.get_container_type() == CSR_VG_GRAPH)
+    {
+        container = new EdgesArray_CSR<_T>(_graph);
+    }
     else
     {
         throw "Error in EdgesArray::EdgesArray : unsupported graph type";

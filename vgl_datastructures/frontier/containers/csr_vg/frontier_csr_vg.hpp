@@ -2,17 +2,17 @@
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-FrontierCSR::FrontierCSR(VGL_Graph &_graph, TraversalDirection _direction) : BaseFrontier(_graph, _direction)
+FrontierCSR_VG::FrontierCSR_VG(VGL_Graph &_graph, TraversalDirection _direction) : BaseFrontier(_graph, _direction)
 {
     direction = _direction;
     graph_ptr = &_graph;
-    class_type = CSR_FRONTIER;
+    class_type = CSR_VG_FRONTIER;
     init();
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void FrontierCSR::init()
+void FrontierCSR_VG::init()
 {
     int vertices_count = graph_ptr->get_vertices_count();
     MemoryAPI::allocate_array(&flags, vertices_count);
@@ -23,15 +23,17 @@ void FrontierCSR::init()
     sparsity_type = ALL_ACTIVE_FRONTIER;
     this->size = vertices_count;
 
-    if(graph_ptr->get_container_type() != CSR_GRAPH)
+    if(graph_ptr->get_container_type() != CSR_VG_GRAPH)
     {
-        throw "Error: incorrect graph container type in FrontierCSR::init";
+        throw "Error: incorrect graph container type in FrontierCSR_VG::init";
     }
+
+    copy_vertex_group_info_from_graph();
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-FrontierCSR::~FrontierCSR()
+FrontierCSR_VG::~FrontierCSR_VG()
 {
     MemoryAPI::free_array(flags);
     MemoryAPI::free_array(ids);
@@ -41,24 +43,30 @@ FrontierCSR::~FrontierCSR()
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #ifdef __USE_GPU__
-void FrontierCSR::move_to_host()
+void FrontierCSR_VG::move_to_host()
 {
     int vertices_count = graph_ptr->get_vertices_count();
     MemoryAPI::move_array_to_host(flags, vertices_count);
     MemoryAPI::move_array_to_host(ids, vertices_count);
     MemoryAPI::move_array_to_host(work_buffer, vertices_count);
+
+    for(int i = 0; i < CSR_VERTEX_GROUPS_NUM; i++)
+        vertex_groups[i].move_to_host();
 }
 #endif
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #ifdef __USE_GPU__
-void FrontierCSR::move_to_device()
+void FrontierCSR_VG::move_to_device()
 {
     int vertices_count = graph_ptr->get_vertices_count();
     MemoryAPI::move_array_to_device(flags, vertices_count);
     MemoryAPI::move_array_to_device(ids, vertices_count);
     MemoryAPI::move_array_to_device(work_buffer, vertices_count);
+
+    for(int i = 0; i < CSR_VERTEX_GROUPS_NUM; i++)
+        vertex_groups[i].move_to_device();
 }
 #endif
 

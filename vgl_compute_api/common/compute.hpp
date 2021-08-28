@@ -39,6 +39,17 @@ void GraphAbstractions::compute_container_call(VGL_Graph &_graph,
         OMP_PARALLEL_CALL((_abstraction_class->compute_worker(*container_graph, *container_frontier, compute_op)));
         #endif
     }
+    else if(_graph.get_container_type() == CSR_VG_GRAPH)
+    {
+        CSR_VG_Graph *container_graph = (CSR_VG_Graph *)_graph.get_direction_data(current_traversal_direction);
+        FrontierCSR_VG *container_frontier = (FrontierCSR_VG *)_frontier.get_container_data();
+
+        #ifdef __USE_GPU__
+        _abstraction_class->compute_worker(*container_graph, *container_frontier, compute_op);
+        #else
+        OMP_PARALLEL_CALL((_abstraction_class->compute_worker(*container_graph, *container_frontier, compute_op)));
+        #endif
+    }
     else
     {
         throw "Error in GraphAbstractions::compute : unsupported container type";

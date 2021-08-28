@@ -75,20 +75,6 @@ void GraphAbstractionsMulticore::advance_worker(CSRGraph &_graph,
 
     long long process_shift = compute_process_shift(current_traversal_direction, CSR_STORAGE);
 
-    #ifdef __USE_CSR_VERTEX_GROUPS__ // can't used fixed VL here since VL < 256
-    vertex_group_advance_changed_vl(_frontier.vertex_groups[0], vertex_pointers, adjacent_ids, edge_op, vertex_preprocess_op,
-                                    vertex_postprocess_op, process_shift);
-    vertex_group_advance_changed_vl(_frontier.vertex_groups[1], vertex_pointers, adjacent_ids, edge_op, vertex_preprocess_op,
-                                  vertex_postprocess_op, process_shift);
-    vertex_group_advance_changed_vl(_frontier.vertex_groups[2], vertex_pointers, adjacent_ids, edge_op, vertex_preprocess_op,
-                                  vertex_postprocess_op, process_shift);
-    vertex_group_advance_sparse(_frontier.vertex_groups[3], vertex_pointers, adjacent_ids, edge_op, vertex_preprocess_op,
-                                vertex_postprocess_op, process_shift);
-    vertex_group_advance_sparse(_frontier.vertex_groups[4], vertex_pointers, adjacent_ids, edge_op, vertex_preprocess_op,
-                                vertex_postprocess_op, process_shift);
-    vertex_group_advance_sparse(_frontier.vertex_groups[5], vertex_pointers, adjacent_ids, edge_op, vertex_preprocess_op,
-                                vertex_postprocess_op, process_shift);
-    #else
     if(_frontier.get_sparsity_type() == ALL_ACTIVE_FRONTIER)
     {
         #pragma omp for schedule(guided, 1024)
@@ -149,7 +135,53 @@ void GraphAbstractionsMulticore::advance_worker(CSRGraph &_graph,
             vertex_postprocess_op(src_id, connections_count, 0);
         }
     }
+
+    tm.end();
+    long long work = _frontier.get_neighbours_count();
+    #pragma omp master
+    {
+        performance_stats.update_advance_stats(tm.get_time(), work*INT_ELEMENTS_PER_EDGE*sizeof(int), work);
+    }
+
+    #ifdef __PRINT_API_PERFORMANCE_STATS__
+    tm.print_time_and_bandwidth_stats("Advance (CSR)", work, INT_ELEMENTS_PER_EDGE*sizeof(int));
     #endif
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+template <typename EdgeOperation, typename VertexPreprocessOperation,
+        typename VertexPostprocessOperation, typename CollectiveEdgeOperation, typename CollectiveVertexPreprocessOperation,
+        typename CollectiveVertexPostprocessOperation>
+void GraphAbstractionsMulticore::advance_worker(CSR_VG_Graph &_graph,
+                                                FrontierCSR_VG &_frontier,
+                                                EdgeOperation &&edge_op,
+                                                VertexPreprocessOperation &&vertex_preprocess_op,
+                                                VertexPostprocessOperation &&vertex_postprocess_op,
+                                                CollectiveEdgeOperation &&collective_edge_op,
+                                                CollectiveVertexPreprocessOperation &&collective_vertex_preprocess_op,
+                                                CollectiveVertexPostprocessOperation &&collective_vertex_postprocess_op,
+                                                bool _inner_mpi_processing)
+{
+    Timer tm;
+    tm.start();
+    LOAD_CSR_GRAPH_DATA(_graph);
+
+    long long process_shift = compute_process_shift(current_traversal_direction, CSR_STORAGE);
+
+    // can't used fixed VL here since VL < 256
+    vertex_group_advance_changed_vl(_frontier.vertex_groups[0], vertex_pointers, adjacent_ids, edge_op, vertex_preprocess_op,
+                                    vertex_postprocess_op, process_shift);
+    vertex_group_advance_changed_vl(_frontier.vertex_groups[1], vertex_pointers, adjacent_ids, edge_op, vertex_preprocess_op,
+                                  vertex_postprocess_op, process_shift);
+    vertex_group_advance_changed_vl(_frontier.vertex_groups[2], vertex_pointers, adjacent_ids, edge_op, vertex_preprocess_op,
+                                  vertex_postprocess_op, process_shift);
+    vertex_group_advance_sparse(_frontier.vertex_groups[3], vertex_pointers, adjacent_ids, edge_op, vertex_preprocess_op,
+                                vertex_postprocess_op, process_shift);
+    vertex_group_advance_sparse(_frontier.vertex_groups[4], vertex_pointers, adjacent_ids, edge_op, vertex_preprocess_op,
+                                vertex_postprocess_op, process_shift);
+    vertex_group_advance_sparse(_frontier.vertex_groups[5], vertex_pointers, adjacent_ids, edge_op, vertex_preprocess_op,
+                                vertex_postprocess_op, process_shift);
 
     tm.end();
     long long work = _frontier.get_neighbours_count();

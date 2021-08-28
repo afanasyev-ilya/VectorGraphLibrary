@@ -186,7 +186,56 @@ void GraphAbstractionsGPU::advance_worker(CSRGraph &_graph,
 
     long long process_shift = compute_process_shift(current_traversal_direction, CSR_STORAGE);
 
-    #ifdef __USE_CSR_VERTEX_GROUPS__
+    if(_frontier.get_sparsity_type() == ALL_ACTIVE_FRONTIER)
+    {
+        dim3 grid((vertices_count - 1) / BLOCK_SIZE + 1);
+        csr_all_active_advance_kernel<<<grid, BLOCK_SIZE>>>(vertex_pointers, adjacent_ids, vertices_count,
+                process_shift, edge_op, vertex_preprocess_op,
+                vertex_postprocess_op);
+    }
+    else if(_frontier.get_sparsity_type() == SPARSE_FRONTIER)
+    {
+        dim3 grid((frontier_size - 1) / BLOCK_SIZE + 1);
+        csr_sparse_advance_kernel<<<grid, BLOCK_SIZE>>>(vertex_pointers, adjacent_ids, frontier_ids, frontier_size,
+                process_shift, edge_op, vertex_preprocess_op,
+                vertex_postprocess_op);
+    }
+
+    cudaDeviceSynchronize();
+
+    size_t work = frontier_neighbours_count;
+
+    tm.end();
+
+    performance_stats.update_advance_stats(tm.get_time(), work*(INT_ELEMENTS_PER_EDGE)*sizeof(int), work);
+
+    #ifdef __PRINT_API_PERFORMANCE_STATS__
+    tm.print_time_and_bandwidth_stats("Advance (CSR)", work, (INT_ELEMENTS_PER_EDGE + 1)*sizeof(int));
+    #endif
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+template <typename EdgeOperation, typename VertexPreprocessOperation,
+        typename VertexPostprocessOperation, typename CollectiveEdgeOperation, typename CollectiveVertexPreprocessOperation,
+        typename CollectiveVertexPostprocessOperation>
+void GraphAbstractionsGPU::advance_worker(CSR_VG_Graph &_graph,
+                                          FrontierCSR_VG &_frontier,
+                                          EdgeOperation &&edge_op,
+                                          VertexPreprocessOperation &&vertex_preprocess_op,
+                                          VertexPostprocessOperation &&vertex_postprocess_op,
+                                          CollectiveEdgeOperation &&collective_edge_op,
+                                          CollectiveVertexPreprocessOperation &&collective_vertex_preprocess_op,
+                                          CollectiveVertexPostprocessOperation &&collective_vertex_postprocess_op,
+                                          bool _inner_mpi_processing)
+{
+    Timer tm;
+    tm.start();
+    LOAD_CSR_GRAPH_DATA(_graph);
+    LOAD_FRONTIER_DATA(_frontier);
+
+    long long process_shift = compute_process_shift(current_traversal_direction, CSR_STORAGE);
+
     if(_frontier.vertex_groups[0].size > 0)
     {
         dim3 grid(_frontier.vertex_groups[0].size);
@@ -241,23 +290,7 @@ void GraphAbstractionsGPU::advance_worker(CSRGraph &_graph,
                                                       process_shift, edge_op, vertex_preprocess_op,
                                                       vertex_postprocess_op, true);
     }
-    #else
-    if(_frontier.get_sparsity_type() == ALL_ACTIVE_FRONTIER)
-    {
-        dim3 grid((vertices_count - 1) / BLOCK_SIZE + 1);
-        csr_all_active_advance_kernel<<<grid, BLOCK_SIZE>>>(vertex_pointers, adjacent_ids, vertices_count,
-                process_shift, edge_op, vertex_preprocess_op,
-                vertex_postprocess_op);
-    }
-    else if(_frontier.get_sparsity_type() == SPARSE_FRONTIER)
-    {
-        dim3 grid((frontier_size - 1) / BLOCK_SIZE + 1);
-        csr_sparse_advance_kernel<<<grid, BLOCK_SIZE>>>(vertex_pointers, adjacent_ids, frontier_ids, frontier_size,
-                process_shift, edge_op, vertex_preprocess_op,
-                vertex_postprocess_op);
-    }
 
-    #endif
     cudaDeviceSynchronize();
 
     size_t work = frontier_neighbours_count;

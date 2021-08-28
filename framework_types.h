@@ -52,7 +52,8 @@ enum GraphStorageFormat
     VECTOR_CSR_GRAPH = 1,
     EDGES_LIST_GRAPH = 2,
     CSR_GRAPH = 3,
-    EDGES_CONTAINER = 4
+    EDGES_CONTAINER = 4,
+    CSR_VG_GRAPH = 5
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -62,9 +63,7 @@ enum GraphStorageOptimizations
     OPT_NONE = 0,
     EL_2D_SEGMENTED = 1,
     EL_CSR_BASED = 2,
-    EL_RANDOM_SHUFFLED = 3,
-    CSR_VERTEX_GROUPS_GRAPH = 4,
-    CSR_VERTEX_GROUPS_CELL_S_GRAPH = 5
+    EL_RANDOM_SHUFFLED = 3
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -150,7 +149,8 @@ enum FrontierClassType {
     BASE_FRONTIER = 0,
     VECTOR_CSR_FRONTIER = 1,
     CSR_FRONTIER = 2,
-    EDGES_LIST_FRONTIER = 3
+    EDGES_LIST_FRONTIER = 3,
+    CSR_VG_FRONTIER = 2,
 };
 
 enum FrontierSparsityType {

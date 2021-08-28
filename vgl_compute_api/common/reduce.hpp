@@ -46,6 +46,13 @@ void GraphAbstractions::common_reduce(VGL_Graph &_graph,
 
             _abstraction_class->reduce_worker_sum(*container_graph, *container_frontier, reduce_op, _result);
         }
+        else if(_graph.get_container_type() == CSR_VG_GRAPH)
+        {
+            CSR_VG_Graph *container_graph = (CSR_VG_Graph *)_graph.get_direction_data(current_traversal_direction);
+            FrontierCSR_VG *container_frontier = (FrontierCSR_VG *)_frontier.get_container_data();
+
+            _abstraction_class->reduce_worker_sum(*container_graph, *container_frontier, reduce_op, _result);
+        }
         else
         {
             throw "Error in GraphAbstractions::compute : unsupported container type";

@@ -118,11 +118,21 @@ void Parser::parse_args(int _argc, char **_argv)
                 }
             }
             else if((tmp_type == "vcsr") || (tmp_type == "vect_csr"))
+            {
                 graph_storage_format = VECTOR_CSR_GRAPH;
+            }
             else if(tmp_type == "csr")
+            {
                 graph_storage_format = CSR_GRAPH;
+            }
+            else if(tmp_type == "csr_vg")
+            {
+                graph_storage_format = CSR_VG_GRAPH;
+            }
             else if(tmp_type == "el_container")
+            {
                 graph_storage_format = EDGES_CONTAINER;
+            }
             else
                 throw "Error in Parser::parse_args : unknown graph_storage_format";
         }

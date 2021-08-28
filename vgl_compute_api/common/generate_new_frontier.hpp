@@ -29,6 +29,13 @@ void GraphAbstractions::common_generate_new_frontier(VGL_Graph &_graph,
 
         _abstraction_class->generate_new_frontier_worker(*container_graph, *container_frontier, filter_cond);
     }
+    else if(_graph.get_container_type() == CSR_VG_GRAPH)
+    {
+        CSR_VG_Graph *container_graph = (CSR_VG_Graph *)_graph.get_direction_data(current_traversal_direction);
+        FrontierCSR_VG *container_frontier = (FrontierCSR_VG *)_frontier.get_container_data();
+
+        _abstraction_class->generate_new_frontier_worker(*container_graph, *container_frontier, filter_cond);
+    }
     else
     {
         throw "Error: unsupported graph and frontier type in GraphAbstractions::generate_new_frontier";

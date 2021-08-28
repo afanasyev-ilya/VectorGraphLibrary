@@ -1,8 +1,8 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-CSRGraph::CSRGraph(int _vertices_count, long long _edges_count)
+CSR_VG_Graph::CSR_VG_Graph(int _vertices_count, long long _edges_count)
 {
-    this->graph_format = CSR_GRAPH;
+    this->graph_format = CSR_VG_GRAPH;
     this->supported_direction = USE_SCATTER_ONLY;
 
     alloc(_vertices_count, _edges_count);
@@ -12,7 +12,7 @@ CSRGraph::CSRGraph(int _vertices_count, long long _edges_count)
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-CSRGraph::CSRGraph(const CSRGraph &_copy)
+CSR_VG_Graph::CSR_VG_Graph(const CSR_VG_Graph &_copy)
 {
     this->graph_format = _copy.graph_format;
     this->supported_direction = _copy.supported_direction;
@@ -29,14 +29,14 @@ CSRGraph::CSRGraph(const CSRGraph &_copy)
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-CSRGraph::~CSRGraph()
+CSR_VG_Graph::~CSR_VG_Graph()
 {
     free();
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void CSRGraph::alloc(int _vertices_count, long long _edges_count)
+void CSR_VG_Graph::alloc(int _vertices_count, long long _edges_count)
 {
     this->vertices_count = _vertices_count;
     this->edges_count = _edges_count;
@@ -49,7 +49,7 @@ void CSRGraph::alloc(int _vertices_count, long long _edges_count)
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void CSRGraph::free()
+void CSR_VG_Graph::free()
 {
     if(!is_copy)
     {
@@ -62,7 +62,7 @@ void CSRGraph::free()
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void CSRGraph::resize(int _vertices_count, long long _edges_count)
+void CSR_VG_Graph::resize(int _vertices_count, long long _edges_count)
 {
     this->free();
     this->alloc(_vertices_count, _edges_count);
@@ -70,7 +70,7 @@ void CSRGraph::resize(int _vertices_count, long long _edges_count)
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void CSRGraph::save_main_content_to_binary_file(FILE *_graph_file)
+void CSR_VG_Graph::save_main_content_to_binary_file(FILE *_graph_file)
 {
     int vertices_count = this->vertices_count;
     long long edges_count = this->edges_count;
@@ -86,14 +86,14 @@ void CSRGraph::save_main_content_to_binary_file(FILE *_graph_file)
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void CSRGraph::load_main_content_from_binary_file(FILE *_graph_file)
+void CSR_VG_Graph::load_main_content_from_binary_file(FILE *_graph_file)
 {
     fread(reinterpret_cast<char*>(&this->vertices_count), sizeof(int), 1, _graph_file);
     fread(reinterpret_cast<char*>(&this->edges_count), sizeof(long long), 1, _graph_file);
     fread(reinterpret_cast<char*>(&(this->graph_format)), sizeof(GraphStorageFormat), 1, _graph_file);
     if(this->graph_format != CSR_GRAPH)
     {
-        throw "Error in CSRGraph::load_from_binary_file : graph type in file is not equal to CSR_GRAPH";
+        throw "Error in CSR_VG_Graph::load_from_binary_file : graph type in file is not equal to CSR_GRAPH";
     }
 
     resize(this->vertices_count, this->edges_count);
@@ -101,11 +101,13 @@ void CSRGraph::load_main_content_from_binary_file(FILE *_graph_file)
     fread(reinterpret_cast<char*>(vertex_pointers), sizeof(long long), vertices_count + 1, _graph_file);
     fread(reinterpret_cast<char*>(adjacent_ids), sizeof(int), edges_count, _graph_file);
     fread(reinterpret_cast<char*>(edges_reorder_indexes), sizeof(vgl_sort_indexes), edges_count, _graph_file);
+
+    CSR_VG_Graph::create_vertex_groups();
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-int CSRGraph::select_random_nz_vertex()
+int CSR_VG_Graph::select_random_nz_vertex()
 {
     int attempt_num = 0;
     while(attempt_num < ATTEMPTS_THRESHOLD)
@@ -115,14 +117,14 @@ int CSRGraph::select_random_nz_vertex()
             return vertex_id;
         attempt_num++;
     }
-    throw "Error in VectorCSRGraph::select_random_vertex: can not select non-zero degree vertex in ATTEMPTS_THRESHOLD attempts";
+    throw "Error in VectorCSR_VG_Graph::select_random_vertex: can not select non-zero degree vertex in ATTEMPTS_THRESHOLD attempts";
     return -1;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #ifdef __USE_GPU__
-void CSRGraph::move_to_device()
+void CSR_VG_Graph::move_to_device()
 {
     if(this->graph_on_device)
     {
@@ -134,13 +136,16 @@ void CSRGraph::move_to_device()
     MemoryAPI::move_array_to_device(vertex_pointers, this->vertices_count + 1);
     MemoryAPI::move_array_to_device(adjacent_ids, this->edges_count);
     MemoryAPI::move_array_to_device(edges_reorder_indexes, this->edges_count);
+
+    for(int i = 0; i < CSR_VERTEX_GROUPS_NUM; i++)
+        vertex_groups[i].move_to_device();
 }
 #endif
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #ifdef __USE_GPU__
-void CSRGraph::move_to_host()
+void CSR_VG_Graph::move_to_host()
 {
     if(!this->graph_on_device)
     {
@@ -152,6 +157,9 @@ void CSRGraph::move_to_host()
     MemoryAPI::move_array_to_host(vertex_pointers, this->vertices_count + 1);
     MemoryAPI::move_array_to_host(adjacent_ids, this->edges_count);
     MemoryAPI::move_array_to_host(edges_reorder_indexes, this->edges_count);
+
+    for(int i = 0; i < CSR_VERTEX_GROUPS_NUM; i++)
+        vertex_groups[i].move_to_host();
 }
 #endif
 
