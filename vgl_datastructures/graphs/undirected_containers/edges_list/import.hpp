@@ -122,9 +122,19 @@ void EdgesListGraph::import(EdgesContainer &_edges_container)
     MemoryAPI::copy(this->dst_ids, _edges_container.get_dst_ids(), _edges_container.get_edges_count());
 
     if(this->optimizations_used == EL_2D_SEGMENTED)
+    {
         preprocess_into_segmented();
+        cout << "EdgesList graph: using segmented mode" << endl;
+    }
     else if(this->optimizations_used == EL_CSR_BASED)
+    {
         preprocess_into_csr_based();
+        cout << "EdgesList graph: using CSR based mode" << endl;
+    }
+    else
+    {
+        cout << "EdgesList graph: using casual mode (OPT_NONE)" << endl;
+    }
 
     MemoryAPI::set(connections_count, 0, this->vertices_count);
     #pragma omp parallel for

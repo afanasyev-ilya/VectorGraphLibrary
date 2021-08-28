@@ -2,7 +2,7 @@
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-EdgesListGraph::EdgesListGraph(int _vertices_count, long long _edges_count, GraphStorageOptimizations _optimizations)
+EdgesListGraph::EdgesListGraph(GraphStorageOptimizations _optimizations, int _vertices_count, long long _edges_count)
 {
     this->get_format = EDGES_LIST_GRAPH;
     this->supported_direction = USE_BOTH;
