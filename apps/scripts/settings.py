@@ -5,7 +5,7 @@ GENERATE_UNDIRECTED_GRAPHS = False
 UNDIRECTED_PREFIX = "undir_"
 
 
-run_speed_mode = "one_large"
+run_speed_mode = "one_medium"
 # "fast" - very fast mode (only small graphs),
 # "medium" - medium (small-sized and medium-sized graphs)
 # "full" - full (test on all available graphs)
@@ -26,7 +26,7 @@ benchmark_args = {"bfs": [ ["-top-down"]],
                   "coloring": [ [] ]}
 
 
-available_formats = ["csr", "vcsr", "el"]
+available_formats = ["csr", "csr_vg", "vcsr", "el", "el_csr_based", "el_2D_seg"]
 
 
 def requires_undir_graphs(app_name):
@@ -50,19 +50,6 @@ SOURCE_GRAPH_DIR = "./bin/source_graphs/"
 # 2.
 
 
-konect_graphs_data_fast = {"soc_pokec": {"link": "soc-pokec-relationships"},
-                      "soc_livejournal": {"link": "soc-LiveJournal1"},
-                      #
-                      "web_wikipedia_link_en": {"link": "wikipedia_link_en"},
-                      "web_baidu": {"link": "zhishi-baidu-internallink"},
-                      #
-                      "road_california": {"link": "roadNet-CA"},
-                      "road_colorado": {"link": "dimacs9-COL"},
-                      #
-                      "rating_yahoo_song": {"link": "yahoo-song"},
-                      "rating_amazon_ratings": {"link": "amazon-ratings"}}
-
-
 all_konect_graphs_data = {"soc_pokec": {"link": "soc-pokec-relationships"},
                       "soc_livejournal": {"link": "soc-LiveJournal1"},
                       "soc_orkut": {"link": "orkut-links"},
@@ -75,6 +62,7 @@ all_konect_graphs_data = {"soc_pokec": {"link": "soc-pokec-relationships"},
                       "web_zhishi": {"link": "zhishi-all"},
                       "web_dbpedia": {"link": "dbpedia-link"},
                       "web_trackers": {"link": "trackers-trackers", "unarch_graph_name": "trackers"},
+                      "web_wiki_ru": {"link": "wikipedia_link_ru"},
                       #
                       "road_full_us": {"link": "dimacs9-USA"},
                       "road_central_us": {"link": "dimacs9-CTR"},
@@ -96,7 +84,7 @@ konect_full_mode = {}
 konect_rating_mode = {}
 
 
-konect_one_large_mode = ["web_wikipedia_link_en", "road_western_us", "soc_orkut", "rating_yahoo_song"]
-syn_one_large_mode = ["syn_rmat_24_32", "syn_ru_24_32"]
+konect_one_medium_mode = ["web_wiki_ru", "road_western_us", "soc_orkut", "rating_yahoo_song"]
+syn_one_medium_mode = ["syn_rmat_23_32", "syn_ru_23_32"]
 
 

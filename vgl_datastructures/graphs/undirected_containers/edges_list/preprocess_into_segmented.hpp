@@ -60,7 +60,7 @@ _T* merge_arrays(_T *_first, int _first_size, _T *_second, int _second_size)
 {
     int new_size = _first_size + _second_size;
     _T *new_data;
-    MemoryAPI::allocate_array(&new_data, new_size);
+    MemoryAPI::allocate_host_array(&new_data, new_size);
 
     for(int i = 0; i < _first_size; i++)
     {
@@ -101,8 +101,8 @@ struct VectorSegment
         for(int i = 0; i < VECTOR_LENGTH; i++)
         {
             current_ptrs[i] = 0;
-            MemoryAPI::allocate_array(&(src_ids[i]), _new_sizes[i]);
-            MemoryAPI::allocate_array(&(dst_ids[i]), _new_sizes[i]);
+            MemoryAPI::allocate_host_array(&(src_ids[i]), _new_sizes[i]);
+            MemoryAPI::allocate_host_array(&(dst_ids[i]), _new_sizes[i]);
         }
     }
 
@@ -113,8 +113,8 @@ struct VectorSegment
 
     void free()
     {
-        MemoryAPI::free_array(merged_src_ids);
-        MemoryAPI::free_array(merged_dst_ids);
+        MemoryAPI::free_host_array(merged_src_ids);
+        MemoryAPI::free_host_array(merged_dst_ids);
         merged_src_ids = NULL;
         merged_dst_ids = NULL;
     }
@@ -138,8 +138,8 @@ struct VectorSegment
             new_size += current_ptrs[i];
         }
 
-        MemoryAPI::allocate_array(&merged_src_ids, new_size);
-        MemoryAPI::allocate_array(&merged_dst_ids, new_size);
+        MemoryAPI::allocate_host_array(&merged_src_ids, new_size);
+        MemoryAPI::allocate_host_array(&merged_dst_ids, new_size);
 
         int shift = 0;
         #pragma _NEC novector
@@ -159,8 +159,8 @@ struct VectorSegment
 
         for(int i = 0; i < VECTOR_LENGTH; i++)
         {
-            MemoryAPI::free_array(src_ids[i]);
-            MemoryAPI::free_array(dst_ids[i]);
+            MemoryAPI::free_host_array(src_ids[i]);
+            MemoryAPI::free_host_array(dst_ids[i]);
         }
     }
 
@@ -208,14 +208,14 @@ struct VectorData
     VectorData(int _segments_count)
     {
         segments_count = _segments_count;
-        MemoryAPI::allocate_array(&segments, _segments_count*_segments_count);
-        MemoryAPI::allocate_array(&counts, segments_count*segments_count*VECTOR_LENGTH);
+        MemoryAPI::allocate_host_array(&segments, _segments_count*_segments_count);
+        MemoryAPI::allocate_host_array(&counts, segments_count*segments_count*VECTOR_LENGTH);
     }
 
     ~VectorData()
     {
-        MemoryAPI::free_array(segments);
-        MemoryAPI::free_array(counts);
+        MemoryAPI::free_host_array(segments);
+        MemoryAPI::free_host_array(counts);
     }
 
     inline void reset_counts()

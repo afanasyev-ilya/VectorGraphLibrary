@@ -6,15 +6,15 @@ from os import path
 
 # synthetic
 def get_list_of_synthetic_graphs():
-    if run_speed_mode == "one_large":
-        return syn_one_large_mode
+    if run_speed_mode == "one_medium":
+        return syn_one_medium_mode
     else:
         raise ValueError("Unsupported run_speed_mode")
 
 
 def get_list_of_real_world_graphs():
-    if run_speed_mode == "one_large":
-        return konect_one_large_mode
+    if run_speed_mode == "one_medium":
+        return konect_one_medium_mode
     else:
         raise ValueError("Unsupported run_speed_mode")
 
@@ -24,11 +24,20 @@ def get_list_of_all_graphs():
 
 
 def get_list_of_verification_graphs():
-    synthetic_graph_rmat = "syn_rmat_20_32"
-    synthetic_graph_ru = "syn_ru_20_32"
-    social_graph = "soc_pokec"
-    web_graph = "web_baidu"
-    return [synthetic_graph_rmat, synthetic_graph_ru, social_graph, web_graph]
+    verification_list = []
+    i = 0
+    for graph in get_list_of_synthetic_graphs():
+        if i >= 2:
+            break
+        verification_list.append(graph)
+        i += 1
+    i = 0
+    for graph in get_list_of_real_world_graphs():
+        if i >= 2:
+            break
+        verification_list.append(graph)
+        i += 1
+    return verification_list
 
 
 def download_all_real_world_graphs():
@@ -90,6 +99,8 @@ def create_real_world_graph(graph_name, arch):
         subprocess.Popen(cmd, shell=False, stdout=subprocess.PIPE).wait()
         if verify_graph_existence(output_graph_file_name):
             print("Graph " + output_graph_file_name + " has been created\n")
+    else:
+        print("Warning! Graph " + output_graph_file_name + " already exists!")
 
     if GENERATE_UNDIRECTED_GRAPHS:
         output_graph_file_name = get_path_to_graph(graph_name, graph_format, True)
@@ -100,6 +111,8 @@ def create_real_world_graph(graph_name, arch):
             subprocess.Popen(cmd, shell=False, stdout=subprocess.PIPE).wait()
             if verify_graph_existence(output_graph_file_name):
                 print("Graph " + output_graph_file_name + " has been created\n")
+        else:
+            print("Warning! Graph " + output_graph_file_name + " already exists!")
 
 
 def create_synthetic_graph(graph_name, arch):
@@ -117,6 +130,8 @@ def create_synthetic_graph(graph_name, arch):
         subprocess.Popen(cmd, shell=False, stdout=subprocess.PIPE).wait()
         if verify_graph_existence(output_graph_file_name):
             print("Graph " + output_graph_file_name + " has been created\n")
+    else:
+        print("Warning! Graph " + output_graph_file_name + " already exists!")
 
     if GENERATE_UNDIRECTED_GRAPHS:
         output_graph_file_name = get_path_to_graph(graph_name, graph_format, True)
@@ -128,6 +143,8 @@ def create_synthetic_graph(graph_name, arch):
             subprocess.Popen(cmd, shell=False, stdout=subprocess.PIPE).wait()
             if verify_graph_existence(output_graph_file_name):
                 print("Graph " + output_graph_file_name + " has been created\n")
+        else:
+            print("Warning! Graph " + output_graph_file_name + " already exists!")
 
 
 def create_graph(graph_name, arch):

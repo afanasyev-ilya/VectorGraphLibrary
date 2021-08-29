@@ -16,6 +16,7 @@ Parser::Parser()
     algorithm_bfs = TOP_DOWN_BFS_ALGORITHM;
     algorithm_cc = SHILOACH_VISHKIN_ALGORITHM;
     graph_storage_format = VECTOR_CSR_GRAPH;
+    graph_storage_optimizations = OPT_NONE;
 
     device_num = 0;
 
@@ -97,14 +98,18 @@ void Parser::parse_args(int _argc, char **_argv)
         if ((option.compare("-format") == 0))
         {
             string tmp_type = _argv[++i];
-            if(starts_with(tmp_type, "el"))
+            if(tmp_type == "el_container")
+            {
+                graph_storage_format = EDGES_CONTAINER;
+            }
+            else if(starts_with(tmp_type, "el"))
             {
                 graph_storage_format = EDGES_LIST_GRAPH;
                 if(tmp_type == "el")
                 {
                     graph_storage_optimizations = OPT_NONE;
                 }
-                if(tmp_type == "el_2D_seg")
+                else if(tmp_type == "el_2D_seg")
                 {
                     graph_storage_optimizations = EL_2D_SEGMENTED;
                 }
@@ -129,12 +134,10 @@ void Parser::parse_args(int _argc, char **_argv)
             {
                 graph_storage_format = CSR_VG_GRAPH;
             }
-            else if(tmp_type == "el_container")
-            {
-                graph_storage_format = EDGES_CONTAINER;
-            }
             else
+            {
                 throw "Error in Parser::parse_args : unknown graph_storage_format";
+            }
         }
 
         if ((option.compare("-edges") == 0) || (option.compare("-e") == 0))

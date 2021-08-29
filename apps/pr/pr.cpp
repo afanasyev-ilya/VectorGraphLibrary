@@ -22,7 +22,7 @@ int main(int argc, char **argv)
         parser.parse_args(argc, argv);
 
         // prepare graph
-        VGL_Graph graph(VGL_RUNTIME::select_graph_format(parser));
+        VGL_Graph graph(VGL_RUNTIME::select_graph_format(parser), VGL_RUNTIME::select_graph_optimizations(parser));
         VGL_RUNTIME::prepare_graph(graph, parser);
 
         VerticesArray<float> page_ranks(graph);

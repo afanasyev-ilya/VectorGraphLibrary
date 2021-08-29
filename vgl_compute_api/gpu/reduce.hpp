@@ -128,7 +128,6 @@ void GraphAbstractionsGPU::reduce_worker_sum(GraphContainer &_graph,
                                              ReduceOperation &&reduce_op,
                                              _T &_result)
 {
-    cout << "in reduce" << endl;
     _T *managed_reduced_result;
     MemoryAPI::allocate_array(&managed_reduced_result, 1);
     managed_reduced_result[0] = 0;
@@ -139,7 +138,6 @@ void GraphAbstractionsGPU::reduce_worker_sum(GraphContainer &_graph,
 
     if(_frontier.get_sparsity_type() == ALL_ACTIVE_FRONTIER)
     {
-        cout << "all act" << endl;
         SAFE_KERNEL_CALL((reduce_kernel_all_active<<< (vertices_count - 1) / BLOCK_SIZE + 1, BLOCK_SIZE >>>(_graph, vertices_count, reduce_op, managed_reduced_result)));
     }
     else if(_frontier.get_sparsity_type() == DENSE_FRONTIER)
@@ -148,7 +146,6 @@ void GraphAbstractionsGPU::reduce_worker_sum(GraphContainer &_graph,
     }
     else if(_frontier.get_sparsity_type() == SPARSE_FRONTIER)
     {
-        cout << "sparse" << endl;
         SAFE_KERNEL_CALL((reduce_kernel_sparse<<< (frontier_size - 1) / BLOCK_SIZE + 1, BLOCK_SIZE >>>(_graph, frontier_ids, frontier_size, reduce_op, managed_reduced_result)));
     }
 
@@ -156,7 +153,6 @@ void GraphAbstractionsGPU::reduce_worker_sum(GraphContainer &_graph,
     _result = managed_reduced_result[0];
 
     MemoryAPI::free_array(managed_reduced_result);
-    cout << "after reduce" << endl;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

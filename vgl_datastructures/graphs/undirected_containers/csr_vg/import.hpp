@@ -21,14 +21,14 @@ void CSR_VG_Graph::create_vertices_group_array(CSRVertexGroup &_group_data, int 
     _group_data.resize(local_group_size);
     _group_data.neighbours = local_group_neighbours;
 
-    int pos = 0;
+    int vertex_pos = 0;
     for(int src_id = 0; src_id < vertices_count; src_id++)
     {
         int connections_count = get_connections_count(src_id);
         if((connections_count >= _bottom) && (connections_count < _top))
         {
-            _group_data.ids[pos] = src_id;
-            pos++;
+            _group_data.ids[vertex_pos] = src_id;
+            vertex_pos++;
         }
     }
 }

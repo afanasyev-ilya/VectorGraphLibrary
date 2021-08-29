@@ -49,7 +49,7 @@ def benchmark_and_verify(options, arch, benchmarking_results):
     if options.benchmark:
         run_benchmarks(options, arch, benchmarking_results)
 
-    if options.verify and options.format != "el":
+    if options.verify and "el" not in options.format:
         run_verify(options, arch, benchmarking_results)
 
 
