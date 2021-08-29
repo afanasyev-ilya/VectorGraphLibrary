@@ -30,10 +30,10 @@ def extract_perf_val(perf_lines):
     return 0.0
 
 
-def benchmark_app(app_name, arch, benchmarking_results, graph_format):
-    list_of_graphs = get_list_of_all_graphs()
+def benchmark_app(app_name, arch, benchmarking_results, graph_format, run_speed_mode):
+    list_of_graphs = get_list_of_all_graphs(run_speed_mode)
 
-    create_graphs_if_required(list_of_graphs, arch)
+    create_graphs_if_required(list_of_graphs, arch, run_speed_mode)
     common_args = ["-it", str(common_iterations), "-format", graph_format]
 
     for current_args in benchmark_args[app_name]:

@@ -27,7 +27,7 @@ def run_benchmarks(options, arch, benchmarking_results):
 
     for app_name in list_of_apps:
         if is_valid(app_name, arch, options):
-            benchmark_app(app_name, arch, benchmarking_results, options.format)
+            benchmark_app(app_name, arch, benchmarking_results, options.format, options.mode)
         else:
             print("Error! Can not benchmark " + app_name + ", several errors occurred.")
 
@@ -40,7 +40,7 @@ def run_verify(options, arch, benchmarking_results):
 
     for app_name in list_of_apps:
         if is_valid(app_name, arch, options):
-            verify_app(app_name, arch, benchmarking_results, options.format)
+            verify_app(app_name, arch, benchmarking_results, options.format, options.mode)
         else:
             print("Error! Can not compile " + app_name + ", several errors occurred.")
 
@@ -68,7 +68,7 @@ def run(options, run_info):
 
     if options.download:
         start = time.time()
-        download_all_real_world_graphs()
+        download_all_real_world_graphs(run_speed_mode)
         end = time.time()
         if print_timings:
             print("download WALL TIME: " + str(end-start) + " seconds")

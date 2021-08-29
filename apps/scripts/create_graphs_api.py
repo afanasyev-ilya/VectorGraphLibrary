@@ -5,7 +5,7 @@ from os import path
 
 
 # synthetic
-def get_list_of_synthetic_graphs():
+def get_list_of_synthetic_graphs(run_speed_mode):
     if run_speed_mode == "tiny_only":
         return syn_tiny_only
     elif run_speed_mode == "small_only":
@@ -20,7 +20,7 @@ def get_list_of_synthetic_graphs():
         raise ValueError("Unsupported run_speed_mode")
 
 
-def get_list_of_real_world_graphs():
+def get_list_of_real_world_graphs(run_speed_mode):
     if run_speed_mode == "tiny_only":
         return konect_tiny_only
     elif run_speed_mode == "small_only":
@@ -35,31 +35,25 @@ def get_list_of_real_world_graphs():
         raise ValueError("Unsupported run_speed_mode")
 
 
-def get_list_of_all_graphs():
-    return get_list_of_synthetic_graphs() + get_list_of_real_world_graphs()
+def get_list_of_all_graphs(run_speed_mode):
+    return get_list_of_synthetic_graphs(run_speed_mode) + get_list_of_real_world_graphs(run_speed_mode)
 
 
-def get_list_of_verification_graphs():
+def get_list_of_verification_graphs(run_speed_mode):
     verification_list = []
     i = 0
-    for graph in get_list_of_synthetic_graphs():
+    for graph in get_list_of_synthetic_graphs(run_speed_mode):
         if i >= 2:
             break
         verification_list.append(graph)
         i += 1
     i = 0
-    for graph in get_list_of_real_world_graphs():
+    for graph in get_list_of_real_world_graphs(run_speed_mode):
         if i >= 2:
             break
         verification_list.append(graph)
         i += 1
     return verification_list
-
-
-def download_all_real_world_graphs():
-    real_world_graphs = get_list_of_real_world_graphs()
-    for graph_name in real_world_graphs:
-        download_graph(graph_name)
 
 
 def download_graph(graph_name):
@@ -163,14 +157,14 @@ def create_synthetic_graph(graph_name, arch):
             print("Warning! Graph " + output_graph_file_name + " already exists!")
 
 
-def create_graph(graph_name, arch):
-    if graph_name in get_list_of_synthetic_graphs():
+def create_graph(graph_name, arch, run_speed_mode):
+    if graph_name in get_list_of_synthetic_graphs(run_speed_mode):
         create_synthetic_graph(graph_name, arch)
-    elif graph_name in get_list_of_real_world_graphs():
+    elif graph_name in get_list_of_real_world_graphs(run_speed_mode):
         create_real_world_graph(graph_name, arch)
 
 
-def create_graphs_if_required(list_of_graphs, arch):
+def create_graphs_if_required(list_of_graphs, arch, run_speed_mode):
     create_dir(GRAPHS_DIR)
     create_dir(SOURCE_GRAPH_DIR)
 
@@ -178,5 +172,5 @@ def create_graphs_if_required(list_of_graphs, arch):
         make_binary("create_vgl_graphs", arch)
 
     for current_graph in list_of_graphs:
-        create_graph(current_graph, arch)
+        create_graph(current_graph, arch, run_speed_mode)
 

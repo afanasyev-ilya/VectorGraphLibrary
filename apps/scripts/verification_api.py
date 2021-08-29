@@ -15,10 +15,10 @@ def check_app_correctness(output):
     return matched_lines
 
 
-def verify_app(app_name, arch, benchmarking_results, graph_format):
-    list_of_graphs = get_list_of_verification_graphs()
+def verify_app(app_name, arch, benchmarking_results, graph_format, run_speed_mode):
+    list_of_graphs = get_list_of_verification_graphs(run_speed_mode)
 
-    create_graphs_if_required(list_of_graphs, arch)
+    create_graphs_if_required(list_of_graphs, arch, run_speed_mode)
     common_args = ["-check", "-it", "1", "-format", graph_format]
 
     for current_args in benchmark_args[app_name]:

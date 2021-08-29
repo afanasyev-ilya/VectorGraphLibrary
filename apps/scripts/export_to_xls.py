@@ -12,23 +12,23 @@ colors = ["#CCFFFF", "#CCFFCC", "#FFFF99", "#FF99FF", "#66CCFF", "#FF9966"]
 
 
 def lines_in_test():
-    return int(max(len(get_list_of_synthetic_graphs()), len(get_list_of_real_world_graphs())))
+    return int(max(len(get_list_of_synthetic_graphs(run_speed_mode)), len(get_list_of_real_world_graphs(run_speed_mode))))
 
 
 def get_column_pos(graph_name):
-    if graph_name in get_list_of_synthetic_graphs():
+    if graph_name in get_list_of_synthetic_graphs(run_speed_mode):
         return 2
-    elif graph_name in get_list_of_real_world_graphs():
+    elif graph_name in get_list_of_real_world_graphs(run_speed_mode):
         return 4
     else:
         raise ValueError("Incorrect graph name")
 
 
 def get_row_pos(graph_name):
-    if graph_name in get_list_of_synthetic_graphs():
-        return get_list_of_synthetic_graphs().index(graph_name)
-    elif graph_name in get_list_of_real_world_graphs():
-        return get_list_of_real_world_graphs().index(graph_name)
+    if graph_name in get_list_of_synthetic_graphs(run_speed_mode):
+        return get_list_of_synthetic_graphs(run_speed_mode).index(graph_name)
+    elif graph_name in get_list_of_real_world_graphs(run_speed_mode):
+        return get_list_of_real_world_graphs(run_speed_mode).index(graph_name)
 
 
 class BenchmarkingResults:
@@ -91,10 +91,10 @@ class BenchmarkingResults:
         self.current_app_name = ""
 
         # add column names
-        for graph_name in get_list_of_verification_graphs():
-            self.worksheet.write(self.line_pos, get_list_of_verification_graphs().index(graph_name) + 1, graph_name)
+        for graph_name in get_list_of_verification_graphs(run_speed_mode):
+            self.worksheet.write(self.line_pos, get_list_of_verification_graphs(run_speed_mode).index(graph_name) + 1, graph_name)
 
-        self.worksheet.set_column(self.line_pos, len(get_list_of_verification_graphs()) + 1, 30)
+        self.worksheet.set_column(self.line_pos, len(get_list_of_verification_graphs(run_speed_mode)) + 1, 30)
 
         self.line_pos = 1
 
@@ -106,7 +106,7 @@ class BenchmarkingResults:
         self.line_pos += 1
 
     def add_correctness_value_to_xls_table(self, value, graph_name, app_name):
-        self.worksheet.write(self.line_pos, get_list_of_verification_graphs().index(graph_name) + 1, value)
+        self.worksheet.write(self.line_pos, get_list_of_verification_graphs(run_speed_mode).index(graph_name) + 1, value)
         self.correctness_data.append({"graph_name": graph_name, "app_name": app_name, "correctness_val": value})
 
     def submit(self, run_info):
