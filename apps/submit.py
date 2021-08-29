@@ -3,6 +3,7 @@ from scripts.submit_results import *
 import optparse
 from run_tests import run
 import ast
+from scripts.helpers import get_arch
 
 
 def parse_dict(file_name):
@@ -26,7 +27,7 @@ def main():
     parser = optparse.OptionParser()
     parser.add_option('-a', '--arch',
                       action="store", dest="arch",
-                      help="specify evaluated architecture: sx/aurora, mc/multicore, cu/gpu", default="mc")
+                      help="specify evaluated architecture: sx/aurora, mc/multicore, cu/gpu", default=get_arch())
     parser.add_option('-f', '--format',
                       action="store", dest="format",
                       help="specify graph storage format used", default="vcsr")
@@ -38,7 +39,7 @@ def main():
                       help="specify file name for offline submit, other options are ignored this way", default=None)
     parser.add_option('-n', '--name',
                       action="store", dest="name",
-                      help="specify name of file with submission info", default="test")
+                      help="specify name of file with submission info", default="arch_info.txt")
 
     options, args = parser.parse_args()
 

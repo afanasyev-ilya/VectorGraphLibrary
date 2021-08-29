@@ -109,7 +109,7 @@ def main():
                       help="specify an application to test (or all for testing all available applications)", default="all")
     parser.add_option('-r', '--arch',
                       action="store", dest="arch",
-                      help="specify evaluated architecture: sx/aurora, mc/multicore, cu/gpu", default="sx")
+                      help="specify evaluated architecture: sx/aurora, mc/multicore, cu/gpu", default=get_arch())
     parser.add_option('-f', '--format',
                       action="store", dest="format",
                       help="specify graph storage format used (all can be specified to test all available formats)", default="vcsr")
