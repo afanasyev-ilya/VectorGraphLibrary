@@ -16,7 +16,7 @@ def run_compile(options, arch):
 
 
 def run_prepare(options, arch):
-    create_graphs_if_required(get_list_of_all_graphs(), arch)
+    create_graphs_if_required(get_list_of_all_graphs(options.mode), arch)
 
 
 def run_benchmarks(options, arch, benchmarking_results):
@@ -57,7 +57,7 @@ def run(options, run_info):
     create_dir("./bin/")
     arch = options.arch
 
-    benchmarking_results = BenchmarkingResults(options.name)
+    benchmarking_results = BenchmarkingResults(options.name, options.mode)
 
     if options.compile:
         start = time.time()
@@ -68,7 +68,7 @@ def run(options, run_info):
 
     if options.download:
         start = time.time()
-        download_all_real_world_graphs(run_speed_mode)
+        download_all_real_world_graphs(options.mode)
         end = time.time()
         if print_timings:
             print("download WALL TIME: " + str(end-start) + " seconds")
@@ -133,7 +133,8 @@ def main():
                       help="specify name prefix of output files", default="unknown")
     parser.add_option('-m', '--mode',
                       action="store", dest="mode",
-                      help="specify testing mode: tiny-only, small-only, medium-only", default="tiny_only")
+                      help="specify testing mode: tiny-only, small-only, medium-only, large-only, "
+                           "rating-full, rating-fast, tiny-and-small", default="tiny_only")
     parser.add_option('-d', '--download',
                       action="store_true", dest="download",
                       help="download all real-world graphs from internet collections", default=False)

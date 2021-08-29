@@ -6,30 +6,42 @@ from os import path
 
 # synthetic
 def get_list_of_synthetic_graphs(run_speed_mode):
-    if run_speed_mode == "tiny_only":
+    if run_speed_mode == "tiny-only":
         return syn_tiny_only
-    elif run_speed_mode == "small_only":
+    elif run_speed_mode == "small-only":
         return syn_small_only
-    elif run_speed_mode == "medium_only":
+    elif run_speed_mode == "medium-only":
         return syn_medium_only
-    elif run_speed_mode == "large_only":
+    elif run_speed_mode == "large-only":
         return syn_large_only
-    elif run_speed_mode == "one_medium":
+    elif run_speed_mode == "rating-fast":
+        return syn_rating_fast
+    elif run_speed_mode == "rating-full":
+        return syn_rating_full
+    elif run_speed_mode == "one-medium":
         return syn_one_medium_graph_mode
+    elif run_speed_mode == "tiny-and-small":
+        return syn_tiny_and_small
     else:
         raise ValueError("Unsupported run_speed_mode")
 
 
 def get_list_of_real_world_graphs(run_speed_mode):
-    if run_speed_mode == "tiny_only":
+    if run_speed_mode == "tiny-only":
         return konect_tiny_only
-    elif run_speed_mode == "small_only":
+    elif run_speed_mode == "small-only":
         return konect_small_only
-    elif run_speed_mode == "medium_only":
+    elif run_speed_mode == "medium-only":
         return konect_medium_only
-    elif run_speed_mode == "large_only":
+    elif run_speed_mode == "large-only":
         return konect_large_only
-    elif run_speed_mode == "one_medium":
+    elif run_speed_mode == "rating-fast":
+        return konect_rating_fast
+    elif run_speed_mode == "rating-full":
+        return konect_rating_full
+    elif run_speed_mode == "tiny-and-small":
+        return konect_tiny_and_small
+    elif run_speed_mode == "one-medium":
         return konect_one_medium_graph_mode
     else:
         raise ValueError("Unsupported run_speed_mode")
@@ -54,6 +66,12 @@ def get_list_of_verification_graphs(run_speed_mode):
         verification_list.append(graph)
         i += 1
     return verification_list
+
+
+def download_all_real_world_graphs(run_speed_mode):
+    real_world_graphs = get_list_of_real_world_graphs(run_speed_mode)
+    for graph_name in real_world_graphs:
+        download_graph(graph_name)
 
 
 def download_graph(graph_name):

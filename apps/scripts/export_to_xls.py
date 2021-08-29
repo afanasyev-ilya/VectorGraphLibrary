@@ -11,30 +11,11 @@ data_column_size = 15
 colors = ["#CCFFFF", "#CCFFCC", "#FFFF99", "#FF99FF", "#66CCFF", "#FF9966"]
 
 
-def lines_in_test():
-    return int(max(len(get_list_of_synthetic_graphs(run_speed_mode)), len(get_list_of_real_world_graphs(run_speed_mode))))
-
-
-def get_column_pos(graph_name):
-    if graph_name in get_list_of_synthetic_graphs(run_speed_mode):
-        return 2
-    elif graph_name in get_list_of_real_world_graphs(run_speed_mode):
-        return 4
-    else:
-        raise ValueError("Incorrect graph name")
-
-
-def get_row_pos(graph_name):
-    if graph_name in get_list_of_synthetic_graphs(run_speed_mode):
-        return get_list_of_synthetic_graphs(run_speed_mode).index(graph_name)
-    elif graph_name in get_list_of_real_world_graphs(run_speed_mode):
-        return get_list_of_real_world_graphs(run_speed_mode).index(graph_name)
-
-
 class BenchmarkingResults:
-    def __init__(self, name):
+    def __init__(self, name, run_speed_mode):
         self.performance_data = []
         self.correctness_data = []
+        self.run_speed_mode = run_speed_mode
 
         self.workbook = xlsxwriter.Workbook(name + "_benchmarking_results.xlsx")
         self.worksheet = None # these can be later used for xls output
@@ -70,19 +51,19 @@ class BenchmarkingResults:
                                                         'valign': 'vcenter',
                                                         'fg_color': color})
 
-        self.worksheet.merge_range(self.line_pos, 0, self.line_pos + lines_in_test() - 1, 0,
+        self.worksheet.merge_range(self.line_pos, 0, self.line_pos + self.lines_in_test() - 1, 0,
                                    test_name, self.current_format)
 
     def add_performance_value_to_xls_table(self, perf_value, graph_name, app_name):
-        row = int(get_row_pos(graph_name))
-        col = int(get_column_pos(graph_name))
+        row = int(self.get_row_pos(graph_name))
+        col = int(self.get_column_pos(graph_name))
 
         self.worksheet.write(self.line_pos + row, col - 1, graph_name, self.current_format)
         self.worksheet.write(self.line_pos + row, col, perf_value, self.current_format)
         self.performance_data.append({"graph_name": graph_name, "app_name": app_name, "perf_val": perf_value})
 
     def add_performance_separator_to_xls_table(self):
-        self.line_pos += lines_in_test() + 1
+        self.line_pos += self.lines_in_test() + 1
 
     def add_correctness_header_to_xls_table(self, graph_format):
         self.worksheet = self.workbook.add_worksheet("Correctness data " + graph_format)
@@ -91,10 +72,10 @@ class BenchmarkingResults:
         self.current_app_name = ""
 
         # add column names
-        for graph_name in get_list_of_verification_graphs(run_speed_mode):
-            self.worksheet.write(self.line_pos, get_list_of_verification_graphs(run_speed_mode).index(graph_name) + 1, graph_name)
+        for graph_name in get_list_of_verification_graphs(self.run_speed_mode):
+            self.worksheet.write(self.line_pos, get_list_of_verification_graphs(self.run_speed_mode).index(graph_name) + 1, graph_name)
 
-        self.worksheet.set_column(self.line_pos, len(get_list_of_verification_graphs(run_speed_mode)) + 1, 30)
+        self.worksheet.set_column(self.line_pos, len(get_list_of_verification_graphs(self.run_speed_mode)) + 1, 30)
 
         self.line_pos = 1
 
@@ -106,7 +87,7 @@ class BenchmarkingResults:
         self.line_pos += 1
 
     def add_correctness_value_to_xls_table(self, value, graph_name, app_name):
-        self.worksheet.write(self.line_pos, get_list_of_verification_graphs(run_speed_mode).index(graph_name) + 1, value)
+        self.worksheet.write(self.line_pos, get_list_of_verification_graphs(self.run_speed_mode).index(graph_name) + 1, value)
         self.correctness_data.append({"graph_name": graph_name, "app_name": app_name, "correctness_val": value})
 
     def submit(self, run_info):
@@ -122,3 +103,20 @@ class BenchmarkingResults:
 
     def finalize(self):
         self.workbook.close()
+
+    def lines_in_test(self):
+        return int(max(len(get_list_of_synthetic_graphs(self.run_speed_mode)), len(get_list_of_real_world_graphs(self.run_speed_mode))))
+
+    def get_column_pos(self, graph_name):
+        if graph_name in get_list_of_synthetic_graphs(self.run_speed_mode):
+            return 2
+        elif graph_name in get_list_of_real_world_graphs(self.run_speed_mode):
+            return 4
+        else:
+            raise ValueError("Incorrect graph name")
+
+    def get_row_pos(self, graph_name):
+        if graph_name in get_list_of_synthetic_graphs(self.run_speed_mode):
+            return get_list_of_synthetic_graphs(self.run_speed_mode).index(graph_name)
+        elif graph_name in get_list_of_real_world_graphs(self.run_speed_mode):
+            return get_list_of_real_world_graphs(self.run_speed_mode).index(graph_name)

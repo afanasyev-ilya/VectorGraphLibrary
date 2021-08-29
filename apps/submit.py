@@ -52,6 +52,7 @@ def main():
         options.compile = True
         options.prepare = False
         options.download = False
+        options.mode = "rating-fast"
         options.sockets = options.proc_num
         file_name = arch_info_dict["architecture"] + "_" + arch_info_dict["model"]
         file_name = file_name.replace(" ", "_")
