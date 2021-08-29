@@ -6,15 +6,31 @@ from os import path
 
 # synthetic
 def get_list_of_synthetic_graphs():
-    if run_speed_mode == "one_medium":
-        return syn_one_medium_mode
+    if run_speed_mode == "tiny_only":
+        return syn_tiny_only
+    elif run_speed_mode == "small_only":
+        return syn_small_only
+    elif run_speed_mode == "medium_only":
+        return syn_medium_only
+    elif run_speed_mode == "large_only":
+        return syn_large_only
+    elif run_speed_mode == "one_medium":
+        return syn_one_medium_graph_mode
     else:
         raise ValueError("Unsupported run_speed_mode")
 
 
 def get_list_of_real_world_graphs():
-    if run_speed_mode == "one_medium":
-        return konect_one_medium_mode
+    if run_speed_mode == "tiny_only":
+        return konect_tiny_only
+    elif run_speed_mode == "small_only":
+        return konect_small_only
+    elif run_speed_mode == "medium_only":
+        return konect_medium_only
+    elif run_speed_mode == "large_only":
+        return konect_large_only
+    elif run_speed_mode == "one_medium":
+        return konect_one_medium_graph_mode
     else:
         raise ValueError("Unsupported run_speed_mode")
 

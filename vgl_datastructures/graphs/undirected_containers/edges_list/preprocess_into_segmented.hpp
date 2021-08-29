@@ -307,6 +307,7 @@ struct VectorData
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+#ifdef __USE_NEC_SX_AURORA__
 void EdgesListGraph::preprocess_into_segmented()
 {
     int segment_size_in_bytes = LLC_CACHE_SIZE/4;
@@ -454,5 +455,109 @@ void EdgesListGraph::preprocess_into_segmented()
         delete vector_data[core];
     }
 }
+#endif
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+#ifdef __USE_GPU__
+void EdgesListGraph::preprocess_into_segmented()
+{
+    int segment_size_in_bytes = LLC_CACHE_SIZE/4;
+    long long edges_count = this->edges_count;
+    int segment_size = segment_size_in_bytes/sizeof(int);
+    int segments_count = (this->vertices_count - 1) / segment_size + 1;
+    cout << "segments count: " << segments_count << endl;
+
+    double t3 = omp_get_wtime();
+    vector<vector<int>> segmented_src_ids(segments_count*segments_count);
+    vector<vector<int>> segmented_dst_ids(segments_count*segments_count);
+
+    for(long long edge_pos = 0; edge_pos < edges_count; edge_pos++)
+    {
+        int src_id = src_ids[edge_pos];
+        int dst_id = dst_ids[edge_pos];
+
+        int src_segment = get_segment_num(src_id, segment_size);
+        int dst_segment = get_segment_num(dst_id, segment_size);
+
+        int seg = get_linear_segment_index(src_segment, dst_segment, segments_count);
+
+        segmented_src_ids[seg].push_back(src_id);
+        segmented_dst_ids[seg].push_back(dst_id);
+    }
+
+    long long copy_pos = 0;
+    for(int seg = 0; seg < segments_count*segments_count; seg++)
+    {
+        MemoryAPI::copy(src_ids + copy_pos, &segmented_src_ids[seg][0], segmented_src_ids[seg].size());
+        MemoryAPI::copy(dst_ids + copy_pos, &segmented_dst_ids[seg][0], segmented_dst_ids[seg].size());
+        copy_pos += segmented_src_ids[seg].size();
+    }
+}
+#endif
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+#ifdef __USE_MULTICORE__
+void EdgesListGraph::preprocess_into_segmented()
+{
+    int segment_size_in_bytes = LLC_CACHE_SIZE/2;
+    long long edges_count = this->edges_count;
+    int segment_size = segment_size_in_bytes/sizeof(int);
+    int segments_count = (this->vertices_count - 1) / segment_size + 1;
+    cout << "segments count: " << segments_count << endl;
+
+    int *src_ids = this->src_ids;
+    int *dst_ids = this->dst_ids;
+    long long *indexes = new long long[edges_count];
+    int *work_buffer = new int[edges_count];
+    for(long long i = 0; i < edges_count; i++)
+        indexes[i] = i;
+    stable_sort(indexes, indexes + edges_count,
+                [src_ids, dst_ids, segment_size](long long _i1, long long _i2) {
+                    int src_segment1 = get_segment_num(src_ids[_i1], segment_size);
+                    int src_segment2 = get_segment_num(src_ids[_i2], segment_size);
+                    if(src_segment1 != src_segment2)
+                        return src_segment1 < src_segment2;
+                    else
+                    {
+                        int dst_segment1 = get_segment_num(dst_ids[_i1], segment_size);
+                        int dst_segment2 = get_segment_num(dst_ids[_i2], segment_size);
+                        return dst_segment1 < dst_segment2;
+                    }
+                });
+
+    #pragma _NEC ivdep
+    #pragma omp parallel for
+    for(long long i = 0; i < edges_count; i++)
+    {
+        work_buffer[i] = src_ids[indexes[i]];
+    }
+
+    #pragma _NEC ivdep
+    #pragma omp parallel for
+    for(long long i = 0; i < edges_count; i++)
+    {
+        src_ids[i] = work_buffer[i];
+    }
+
+    #pragma _NEC ivdep
+    #pragma omp parallel for
+    for(long long i = 0; i < edges_count; i++)
+    {
+        work_buffer[i] = dst_ids[indexes[i]];
+    }
+
+    #pragma _NEC ivdep
+    #pragma omp parallel for
+    for(long long i = 0; i < edges_count; i++)
+    {
+        dst_ids[i] = work_buffer[i];
+    }
+
+    delete[] indexes;
+    delete[] work_buffer;
+}
+#endif
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

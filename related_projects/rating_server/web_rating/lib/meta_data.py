@@ -2,28 +2,40 @@ from urllib.request import urlopen
 from bs4 import BeautifulSoup
 
 
-all_konect_graphs_data = {"soc_pokec": {"link": "soc-pokec-relationships"},
-                      "soc_livejournal": {"link": "soc-LiveJournal1"},
-                      "soc_orkut": {"link": "orkut-links"},
-                      "soc_catster_dogster": {"link": "petster-carnivore"},
-                      "soc_libimseti": {"link": "libimseti"}, # 157 degree
-                      "soc_youtube_friendship": {"link": "youtube-u-growth"}, # low friends - 5
-                      #
-                      "web_wikipedia_link_en": {"link": "wikipedia_link_en"},
-                      "web_baidu": {"link": "zhishi-baidu-internallink"},
-                      "web_zhishi": {"link": "zhishi-all"},
-                      "web_dbpedia": {"link": "dbpedia-link"},
-                      "web_trackers": {"link": "trackers-trackers", "unarch_graph_name": "trackers"},
-                      #
-                      "road_full_us": {"link": "dimacs9-USA"},
-                      "road_central_us": {"link": "dimacs9-CTR"},
-                      "road_california": {"link": "roadNet-CA"},
-                      "road_eastern_us": {"link": "dimacs9-E"},
-                      "road_western_us": {"link": "dimacs9-W"},
-                      "road_colorado": {"link": "dimacs9-COL"},
-                      #
-                      "rating_yahoo_song": {"link": "yahoo-song"},
-                      "rating_amazon_ratings": {"link": "amazon-ratings"}}
+all_konect_graphs_data = {
+    'soc_catster': {'link': 'petster-friendships-cat'},
+    'soc_libimseti': {'link': 'libimseti'},
+    'soc_dogster': {'link': 'petster-friendships-dog'},
+    'soc_catster_dogster': {'link': 'petster-carnivore'},
+    'soc_youtube_friendships': {'link': 'com-youtube'},
+    'soc_pokec': {'link': 'soc-pokec-relationships'},
+    'soc_orkut': {'link': 'orkut-links'},
+    'soc_livejournal': {'link': 'soc-LiveJournal1'},
+    'soc_livejournal_links': {'link': 'livejournal-links'},
+    'soc_twitter_www': {'link': 'twitter'},
+    'soc_friendster': {'link': 'friendster'},
+
+    'web_stanford': {'link': 'web-Stanford'},
+    'web_baidu_internal': {'link': 'zhishi-baidu-internallink'},
+    'web_wikipedia_links_fr': {'link': 'wikipedia_link_fr'},
+    'web_wikipedia_links_ru': {'link': 'wikipedia_link_ru'},
+    'web_zhishi': {'link': 'zhishi-all'},
+    'web_wikipedia_links_en': {'link': 'wikipedia_link_en'},
+    'web_dbpedia_links': {'link': 'dbpedia-link'},
+    'web_uk_domain_2002': {'link': 'dimacs10-uk-2002'},
+    'web_web_trackers': {'link': 'trackers-trackers'},
+
+    'road_colorado': {'link': 'dimacs9-COL'},
+    'road_texas': {'link': 'roadNet-TX'},
+    'road_california': {'link': 'roadNet-CA'},
+    'road_eastern_usa': {'link': 'dimacs9-E'},
+    'road_western_usa': {'link': 'dimacs9-W'},
+    'road_central_usa': {'link': 'dimacs9-CTR'},
+    'road_full_usa': {'link': 'dimacs9-USA'},
+
+    'rating_yahoo_songs': {'link': 'yahoo-song'},
+    'rating_amazon_ratings': {'link': 'amazon-ratings'},
+}
 
 
 def find_info_on_page(text, pattern):
