@@ -24,21 +24,25 @@ void VGL_Graph::create_containers(GraphStorageFormat _container_type, GraphStora
 {
     if(_container_type == VECTOR_CSR_GRAPH)
     {
+        cout << "Using VECTOR_CSR_GRAPH graph storage format "  << _optimizations << " optimizations" << endl;
         outgoing_data = new VectorCSRGraph();
         incoming_data = new VectorCSRGraph();
     }
     else if(_container_type == EDGES_LIST_GRAPH)
     {
+        cout << "Using EDGES_LIST_GRAPH graph storage format with " << _optimizations << " optimizations" << endl;
         outgoing_data = new EdgesListGraph(_optimizations);
         incoming_data = new EdgesListGraph(_optimizations);
     }
     else if(_container_type == CSR_GRAPH)
     {
+        cout << "Using CSR_GRAPH graph storage format with " << _optimizations << " optimizations" << endl;
         outgoing_data = new CSRGraph();
         incoming_data = new CSRGraph();
     }
     else if(_container_type == CSR_VG_GRAPH)
     {
+        cout << "Using CSR_VG_GRAPH graph storage format with " << _optimizations << " optimizations" << endl;
         outgoing_data = new CSR_VG_Graph();
         incoming_data = new CSR_VG_Graph();
     }

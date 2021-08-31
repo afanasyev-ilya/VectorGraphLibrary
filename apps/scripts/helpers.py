@@ -107,16 +107,20 @@ def get_arch():
     try:
         output = subprocess.check_output(["nvidia-smi"])
     except FileNotFoundError as e:  # as e syntax added in ~python2.5
-        output = subprocess.check_output(["lscpu"])
-        for item in output.decode().split("\n"):
-            if "Architecture" in item:
-                arch_line = item.strip()
-                if "ve" in arch_line:
-                    print("Target architectures is supposed to be NEC SX-Aurora TSUBASA...")
-                    return "sx"
-                else:
-                    print("Target architectures is supposed to be multicore CPU...")
-                    return "mc"
+        try:
+            output = subprocess.check_output(["lscpu"])
+            for item in output.decode().split("\n"):
+                if "Architecture" in item:
+                    arch_line = item.strip()
+                    if "ve" in arch_line:
+                        print("Target architectures is supposed to be NEC SX-Aurora TSUBASA...")
+                        return "sx"
+                    else:
+                        print("Target architectures is supposed to be multicore CPU...")
+                        return "mc"
+        except:
+            print("Target architectures is supposed to be NEC SX-Aurora TSUBASA...")
+            return "sx"
     print("Target architectures is supposed to be GPU...")
     return "cu"
 

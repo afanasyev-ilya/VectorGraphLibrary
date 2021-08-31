@@ -56,7 +56,6 @@ void SSSP::gpu_dijkstra_all_active_push(VGL_Graph &_graph,
 
     tm.end();
 
-
     #ifdef __PRINT_SAMPLES_PERFORMANCE_STATS__
     performance_stats.print_algorithm_performance_stats("SSSP (Dijkstra, all-active, push, GPU)", tm.get_time(), _graph.get_edges_count());
     #endif

@@ -16,7 +16,7 @@ def run_compile(options, arch):
 
 
 def run_prepare(options, arch):
-    create_graphs_if_required(get_list_of_all_graphs(options.mode), arch)
+    create_graphs_if_required(get_list_of_all_graphs(options.mode), arch, options.mode)
 
 
 def run_benchmarks(options, arch, benchmarking_results):
@@ -91,6 +91,7 @@ def run(options, run_info):
             run_info["format"] = options.format
             if benchmarking_results.submit(run_info):
                 print("Results sent to server!")
+                benchmarking_results.offline_submit(run_info, options.name)
             else:
                 print("Can not send results, saving to file...")
                 benchmarking_results.offline_submit(run_info, options.name)
@@ -134,7 +135,7 @@ def main():
     parser.add_option('-m', '--mode',
                       action="store", dest="mode",
                       help="specify testing mode: tiny-only, small-only, medium-only, large-only, "
-                           "rating-full, rating-fast, tiny-and-small", default="tiny_only")
+                           "rating-full, rating-fast, tiny-and-small", default="tiny-only")
     parser.add_option('-d', '--download',
                       action="store_true", dest="download",
                       help="download all real-world graphs from internet collections", default=False)
