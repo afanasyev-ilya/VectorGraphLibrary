@@ -246,6 +246,23 @@ inline int ParallelPrimitives::omp_copy_if_data(CopyCondition &&_cond,
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+#include <iostream>
+#include <algorithm>
+#include <vector>
+#include <iterator>
+
+template<typename T>
+bool compare(std::vector<T>& v1, std::vector<T>& v2)
+{
+    std::sort(v1.begin(), v1.end());
+    std::sort(v2.begin(), v2.end());
+    if(v1 != v2) {
+
+    }
+
+    return v1 == v2;
+}
+
 template <typename CopyCondition>
 inline int ParallelPrimitives::copy_if_indexes(CopyCondition &&_cond,
                                                int *_out_data,
@@ -255,7 +272,18 @@ inline int ParallelPrimitives::copy_if_indexes(CopyCondition &&_cond,
 {
     int num_elements = 0;
     #ifdef __USE_NEC_SX_AURORA__
+    num_elements = omp_copy_if_indexes(_cond, _out_data, _size, _buffer, _index_offset);
+    vector<int> omp;
+    for(int i = 0; i < num_elements; i++)
+        omp.push_back(_out_data[i]);
+
     num_elements = vector_copy_if_indexes(_cond, _out_data, _size, _buffer, _index_offset);
+    vector<int> nec;
+    for(int i = 0; i < num_elements; i++)
+        nec.push_back(_out_data[i]);
+
+    cout << compare(nec, omp) << " !!" << endl;
+
     #elif __USE_MULTICORE__
     num_elements = omp_copy_if_indexes(_cond, _out_data, _size, _buffer, _index_offset);
     #else

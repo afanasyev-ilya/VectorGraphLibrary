@@ -19,8 +19,8 @@ class EdgesArray;
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#include "vg/vertex_group.h"
-#include "cell_c_vg/vertex_group.h"
+#include "vg/vg.h"
+#include "cell_c_vg/cell_c_vg.h"
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -33,6 +33,8 @@ private:
     vgl_sort_indexes *edges_reorder_indexes; // allows to convert edges (and weights) from sorted to original order
 
     CSRVertexGroup vertex_groups[CSR_VERTEX_GROUPS_NUM];
+    CSRVertexGroupCellC cell_c_vertex_group;
+
     void create_vertex_groups();
 
     void alloc(int _vertices_count, long long _edges_count);
@@ -105,8 +107,8 @@ int          *adjacent_ids    = input_graph.get_adjacent_ids    ();\
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#include "vg/vertex_group.hpp"
-#include "cell_c_vg/vertex_group.hpp"
+#include "vg/vg.hpp"
+#include "cell_c_vg/cell_c_vg.hpp"
 #include "csr_vg_graph.hpp"
 #include "import.hpp"
 #include "print.hpp"

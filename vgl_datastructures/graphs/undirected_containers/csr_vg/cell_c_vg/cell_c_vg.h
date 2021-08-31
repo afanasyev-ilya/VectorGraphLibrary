@@ -13,6 +13,9 @@ struct CSRVertexGroupCellC
     int max_size;
     long long neighbours;
 
+    int *cell_c_adjacent_ids;
+    long long cell_c_size;
+
     int min_connections, max_connections;
 
     CSRVertexGroupCellC();
