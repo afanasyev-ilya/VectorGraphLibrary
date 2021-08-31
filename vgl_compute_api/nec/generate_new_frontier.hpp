@@ -175,6 +175,7 @@ void GraphAbstractionsNEC::generate_new_frontier_worker(CSR_VG_Graph &_graph,
             copy_pos += _frontier.vertex_groups[i].size;
         }
     }
+    _frontier.size = copy_pos;
 
     tm_wall.end();
     long long work = vertices_count;

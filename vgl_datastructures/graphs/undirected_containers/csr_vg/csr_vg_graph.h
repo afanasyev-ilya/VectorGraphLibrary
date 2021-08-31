@@ -8,7 +8,6 @@
 #include <fstream>
 #include <stdio.h>
 #include <string.h>
-#include "vertex_group.h"
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -17,6 +16,11 @@ class VerticesArray;
 
 template <typename _T>
 class EdgesArray;
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+#include "vg/vertex_group.h"
+#include "cell_c_vg/vertex_group.h"
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -30,7 +34,6 @@ private:
 
     CSRVertexGroup vertex_groups[CSR_VERTEX_GROUPS_NUM];
     void create_vertex_groups();
-    void create_vertices_group_array(CSRVertexGroup &_group_data, int _bottom, int _top);
 
     void alloc(int _vertices_count, long long _edges_count);
     void free();
@@ -102,6 +105,8 @@ int          *adjacent_ids    = input_graph.get_adjacent_ids    ();\
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+#include "vg/vertex_group.hpp"
+#include "cell_c_vg/vertex_group.hpp"
 #include "csr_vg_graph.hpp"
 #include "import.hpp"
 #include "print.hpp"

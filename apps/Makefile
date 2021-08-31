@@ -33,7 +33,7 @@ endif
 
 ifeq ($(COMPILER),nc++)
 	Include_Path = -I /opt/nec/ve/nlc/2.0.0/include/ -I ../
-	Flags = -D __USE_NEC_SX_AURORA__ $(MPI_Flags) -O3 -fopenmp -mparallel -mretain-list-vector -DASL_LIB_INT64 # -proginf -report-all -mno-vector #-ftrace
+	Flags = -D __USE_NEC_SX_AURORA__ $(MPI_Flags) -O3 -fopenmp -mparallel -mretain-list-vector -DASL_LIB_INT64 -report-file=vector_info.txt# -proginf -report-all -mno-vector #-ftrace
 	Libraries = -fopenmp -ftrace -lasl_openmp_i64 # -report-all -ftrace
 	ArchSuffix=_sx
 endif

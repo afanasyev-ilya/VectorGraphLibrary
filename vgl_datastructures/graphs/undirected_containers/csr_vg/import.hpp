@@ -1,40 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void CSR_VG_Graph::create_vertices_group_array(CSRVertexGroup &_group_data, int _bottom, int _top)
-{
-    int local_group_size = 0;
-    long long local_group_neighbours = 0;
-
-    _group_data.min_connections = _bottom;
-    _group_data.max_connections = _top;
-
-    for(int src_id = 0; src_id < vertices_count; src_id++)
-    {
-        int connections_count = get_connections_count(src_id);
-        if((connections_count >= _bottom) && (connections_count < _top))
-        {
-            local_group_neighbours += connections_count;
-            local_group_size++;
-        }
-    }
-
-    _group_data.resize(local_group_size);
-    _group_data.neighbours = local_group_neighbours;
-
-    int vertex_pos = 0;
-    for(int src_id = 0; src_id < vertices_count; src_id++)
-    {
-        int connections_count = get_connections_count(src_id);
-        if((connections_count >= _bottom) && (connections_count < _top))
-        {
-            _group_data.ids[vertex_pos] = src_id;
-            vertex_pos++;
-        }
-    }
-}
-
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
 void CSR_VG_Graph::construct_unsorted_csr(EdgesContainer &_edges_container)
 {
     int *work_buffer;
@@ -99,19 +64,19 @@ void CSR_VG_Graph::copy_edges_indexes(vgl_sort_indexes *_sort_indexes)
 void CSR_VG_Graph::create_vertex_groups()
 {
     #ifdef __USE_GPU__
-    create_vertices_group_array(vertex_groups[0], 1024, 2147483647);
-    create_vertices_group_array(vertex_groups[1], 32, 1024);
-    create_vertices_group_array(vertex_groups[2], 16, 32);
-    create_vertices_group_array(vertex_groups[3], 8, 16);
-    create_vertices_group_array(vertex_groups[4], 4, 8);
-    create_vertices_group_array(vertex_groups[5], 0, 4);
+    vertex_groups[0].import(this, 1024, 2147483647);
+    vertex_groups[1].import(this, 32, 1024);
+    vertex_groups[2].import(this, 16, 32);
+    vertex_groups[3].import(this, 8, 16);
+    vertex_groups[4].import(this, 4, 8);
+    vertex_groups[5].import(this, 0, 4);
     #else
-    create_vertices_group_array(vertex_groups[0], 256, 2147483647);
-    create_vertices_group_array(vertex_groups[1], 128, 256);
-    create_vertices_group_array(vertex_groups[2], 64, 128);
-    create_vertices_group_array(vertex_groups[3], 32, 64);
-    create_vertices_group_array(vertex_groups[4], 16, 32);
-    create_vertices_group_array(vertex_groups[5], 0, 16);
+    vertex_groups[0].import(this, 256, 2147483647);
+    vertex_groups[1].import(this, 128, 256);
+    vertex_groups[2].import(this, 64, 128);
+    vertex_groups[3].import(this, 32, 64);
+    vertex_groups[4].import(this, 16, 32);
+    vertex_groups[5].import(this, 0, 16);
     #endif
 }
 
