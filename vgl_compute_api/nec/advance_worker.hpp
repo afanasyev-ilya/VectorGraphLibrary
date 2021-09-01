@@ -187,6 +187,10 @@ void GraphAbstractionsNEC::advance_worker(CSR_VG_Graph &_graph,
     vertex_group_advance_sparse(_frontier.vertex_groups[5], vertex_pointers, adjacent_ids, edge_op, vertex_preprocess_op,
                                 vertex_postprocess_op, process_shift);
 
+    /*vertex_group_cell_c(_graph.cell_c_vertex_groups[0], vertex_pointers, edge_op, vertex_preprocess_op,
+                        vertex_postprocess_op, process_shift);
+    vertex_group_cell_c(_graph.cell_c_vertex_groups[1], vertex_pointers, edge_op, vertex_preprocess_op,
+                        vertex_postprocess_op, process_shift);*/
     tm.end();
 
     long long work = _frontier.get_neighbours_count();

@@ -173,9 +173,10 @@ void CSRVertexGroupCellC::import(CSR_VG_Graph *_graph, int _bottom, int _top)
     {
         for(int i = 0; i < size; i++)
         {
+            int src_id = ids[i];
             int connections_count = _graph->get_connections_count(src_id);
             if(edge_pos < connections_count)
-                cell_c_adjacent_ids[i + edge_pos * size] = graph->get_edge_dst_id(src_id, edge_pos);
+                cell_c_adjacent_ids[i + edge_pos * size] = _graph->get_edge_dst(src_id, edge_pos);
             else
                 cell_c_adjacent_ids[i + edge_pos * size] = -1;
         }

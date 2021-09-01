@@ -228,6 +228,15 @@ private:
                                             VertexPostprocessOperation vertex_postprocess_op,
                                             long long _process_shift);
 
+    template<typename EdgeOperation, typename VertexPreprocessOperation,
+            typename VertexPostprocessOperation>
+    void vertex_group_cell_c(CSRVertexGroupCellC &_group_data,
+                             long long *_vertex_pointers,
+                             EdgeOperation edge_op,
+                             VertexPreprocessOperation vertex_preprocess_op,
+                             VertexPostprocessOperation vertex_postprocess_op,
+                             long long _process_shift);
+
     template <typename FilterCondition>
     void estimate_sorted_frontier_part_size(FrontierVectorCSR &_frontier,
                                             long long *_vertex_pointers,
