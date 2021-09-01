@@ -79,7 +79,7 @@ void CSR_VG_Graph::create_vertex_groups()
     vertex_groups[5].import(this, 0, 16);
     #endif
 
-    cell_c_vertex_groups[0].import(this, 64, 128);
+    cell_c_vertex_groups[0].import(this, 0, 8);
     cell_c_vertex_groups[1].import(this, 32, 64);
 }
 

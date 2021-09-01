@@ -246,6 +246,34 @@ inline int ParallelPrimitives::omp_copy_if_data(CopyCondition &&_cond,
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+#include <iostream>     // std::cout
+#include <algorithm>    // std::set_difference, std::sort
+#include <vector>       // std::vector
+
+bool compare(vector<int> &v1, vector<int> &v2, vector<int> &v)
+{
+    v.resize(v1.size());                    // 0  0  0  0  0  0  0  0  0  0
+    std::vector<int>::iterator it;
+
+    std::sort (v1.begin(),v1.end());     //  5 10 15 20 25
+    std::sort (v2.begin(),v2.end());   // 10 20 30 40 50
+
+    if(v1 != v2)
+    {
+        cout << "Error! vectors are different" << endl;
+        it=std::set_difference (v1.begin(), v1.end(), v2.begin(), v2.end(), v.begin());
+        //  5 15 25  0  0  0  0  0  0  0
+        v.resize(it-v.begin());                      //  5 15 25
+
+        std::cout << "The difference has " << (v.size()) << " elements:\n";
+        for (it=v.begin(); it!=v.end(); ++it)
+            std::cout << ' ' << *it;
+        std::cout << '\n';
+        return false;
+    }
+    return true;
+}
+
 template <typename CopyCondition>
 inline int ParallelPrimitives::copy_if_indexes(CopyCondition &&_cond,
                                                int *_out_data,
@@ -255,7 +283,33 @@ inline int ParallelPrimitives::copy_if_indexes(CopyCondition &&_cond,
 {
     int num_elements = 0;
     #ifdef __USE_NEC_SX_AURORA__
+    vector<int> v1, v2;
+    int omp_num_elements = omp_copy_if_indexes(_cond, _out_data, _size, _buffer, _index_offset);
+    for(int i = 0; i < omp_num_elements; i++)
+    {
+        v1.push_back(_out_data[i]);
+    }
+
     num_elements = vector_copy_if_indexes(_cond, _out_data, _size, _buffer, _index_offset);
+    for(int i = 0; i < num_elements; i++)
+    {
+        v2.push_back(_out_data[i]);
+    }
+    vector<int>diff;
+    if(!compare(v1, v2, diff))
+    {
+        cout << "num check: " << omp_num_elements << " vs " << num_elements << endl;
+        for(auto dif_elem: diff)
+        {
+            bool in = false;
+            for(int i = 0; i < num_elements; i++)
+            {
+                if(_out_data[i] == dif_elem)
+                    in = true;
+            }
+            cout << "diff elem " << dif_elem << " " << in << endl;
+        }
+    }
     #elif __USE_MULTICORE__
     num_elements = omp_copy_if_indexes(_cond, _out_data, _size, _buffer, _index_offset);
     #else

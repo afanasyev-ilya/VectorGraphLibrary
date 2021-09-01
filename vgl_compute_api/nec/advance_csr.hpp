@@ -242,7 +242,6 @@ void GraphAbstractionsNEC::vertex_group_cell_c(CSRVertexGroupCellC &_group_data,
                                                long long _process_shift)
 {
     double t1 = omp_get_wtime();
-
     int frontier_size = _group_data.size;
 
     for(int edge_pos = 0; edge_pos < _group_data.max_connections; edge_pos++)
@@ -277,7 +276,6 @@ void GraphAbstractionsNEC::vertex_group_cell_c(CSRVertexGroupCellC &_group_data,
             }
         }
     }
-
     double t2 = omp_get_wtime();
     #pragma omp single
     {
