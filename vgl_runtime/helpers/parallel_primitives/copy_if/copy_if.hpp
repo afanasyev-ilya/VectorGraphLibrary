@@ -86,6 +86,14 @@ inline int ParallelPrimitives::vector_copy_if_indexes(CopyCondition &&_cond,
 
         int tid_shift = shifts_array[tid];
         int *private_ptr = &(_out_data[tid_shift]);
+        #pragma omp single
+        {
+            for(int i = 0; i < _threads_count; i++)
+            {
+                cout << shifts_array[i] << " ";
+            }
+            cout << endl;
+        };
 
         int local_pos = 0;
         #pragma _NEC novector
@@ -254,9 +262,9 @@ bool compare(vector<int> &v1, vector<int> &v2, vector<int> &v)
 {
     v.resize(v1.size());                    // 0  0  0  0  0  0  0  0  0  0
     std::vector<int>::iterator it;
+    std::sort (v2.begin(),v2.end());   // 10 20 30 40 50
 
     std::sort (v1.begin(),v1.end());     //  5 10 15 20 25
-    std::sort (v2.begin(),v2.end());   // 10 20 30 40 50
 
     if(v1 != v2)
     {
@@ -298,17 +306,20 @@ inline int ParallelPrimitives::copy_if_indexes(CopyCondition &&_cond,
     vector<int>diff;
     if(!compare(v1, v2, diff))
     {
-        cout << "num check: " << omp_num_elements << " vs " << num_elements << endl;
-        for(auto dif_elem: diff)
-        {
-            bool in = false;
-            for(int i = 0; i < num_elements; i++)
+        vector<int> dub_list;
+        for(int i = 1; i < v2.size();i++)
+            if(v2[i] == v2[i - 1])
             {
-                if(_out_data[i] == dif_elem)
-                    in = true;
+                 dub_list.push_back(v2[i]);
+                 cout << "dublicate in v2! "<< v2[i] << endl;
             }
-            cout << "diff elem " << dif_elem << " " << in << endl;
+        for(auto dub: dub_list)
+        {
+            for(int i = 0; i < num_elements; i++)
+                if(_out_data[i] == dub)
+                    cout << "dub " << dub << " at pos " << i << " / " << num_elements << " vs size " << _size << endl;
         }
+
     }
     #elif __USE_MULTICORE__
     num_elements = omp_copy_if_indexes(_cond, _out_data, _size, _buffer, _index_offset);
