@@ -10,6 +10,7 @@ private:
                                              int *_out_data,
                                              size_t _size,
                                              int *_buffer,
+                                             const int _buffer_size,
                                              const int _index_offset);
 
     template <typename CopyCondition>
@@ -17,6 +18,7 @@ private:
                                           int *_out_data,
                                           size_t _size,
                                           int *_buffer,
+                                          const int _buffer_size,
                                           const int _index_offset);
 
     template <typename CopyCondition, typename _T>
@@ -24,13 +26,15 @@ private:
                                        _T *_in_data,
                                        _T *_out_data,
                                        size_t _size,
-                                       _T *_buffer);
+                                       _T *_buffer,
+                                       const int _buffer_size);
 public:
     template <typename CopyCondition>
     static inline int copy_if_indexes(CopyCondition &&_cond,
                                       int *_out_data,
                                       size_t _size,
                                       int *_buffer,
+                                      const int _buffer_size,
                                       const int _index_offset);
 
     template <typename CopyCondition, typename _T>
@@ -38,13 +42,14 @@ public:
                                    _T *_in_data,
                                    _T *_out_data,
                                    size_t _size,
-                                   _T *_buffer);
+                                   _T *_buffer,
+                                   const int _buffer_size);
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #include "count_if/count_if.h"
-#include "copy_if/copy_if.h"
+#include "copy_if/copy_if.hpp"
 #include "reorder/openmp_reorder.h"
 #include "omp_parallel_call.h"
 

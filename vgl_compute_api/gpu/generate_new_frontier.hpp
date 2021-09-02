@@ -119,7 +119,8 @@ void GraphAbstractionsGPU::generate_new_frontier_worker(VectorCSRGraph &_graph,
     _frontier.vector_core_part_type = SPARSE_FRONTIER;
     _frontier.collective_part_type = SPARSE_FRONTIER;
 
-    int copied_elements = ParallelPrimitives::copy_if_data(copy_if_cond, frontier_ids, frontier_work_buffer, vertices_count, frontier_work_buffer);
+    int copied_elements = ParallelPrimitives::copy_if_data(copy_if_cond, frontier_ids, frontier_work_buffer,
+                                                           vertices_count, frontier_work_buffer, vertices_count);
     _frontier.size = copied_elements;
 
     dim3 split_grid((copied_elements - 1) / BLOCK_SIZE + 1);

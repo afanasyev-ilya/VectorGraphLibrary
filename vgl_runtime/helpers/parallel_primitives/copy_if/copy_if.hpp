@@ -2,15 +2,23 @@
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+#ifdef __USE_GPU__
+#include <thrust/copy.h>
+#include <thrust/execution_policy.h>
+#endif
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 template <typename CopyCondition>
 inline int ParallelPrimitives::vector_copy_if_indexes(CopyCondition &&_cond,
                                                       int *_out_data,
                                                       size_t _size,
                                                       int *_buffer,
+                                                      const int _buffer_size,
                                                       const int _index_offset)
 {
     int _threads_count = MAX_SX_AURORA_THREADS;
-    int elements_per_thread = (_size - 1)/_threads_count + 1;
+    int elements_per_thread = (_buffer_size - 1)/_threads_count + VECTOR_LENGTH;
     int elements_per_vector = (elements_per_thread - 1)/VECTOR_LENGTH + 1;
     int shifts_array[MAX_SX_AURORA_THREADS];
 
@@ -63,6 +71,7 @@ inline int ParallelPrimitives::vector_copy_if_indexes(CopyCondition &&_cond,
         }
 
         shifts_array[tid] = save_values_per_thread;
+        int loc_s = shifts_array[tid];
         #pragma omp barrier
 
         #pragma omp master
@@ -86,14 +95,8 @@ inline int ParallelPrimitives::vector_copy_if_indexes(CopyCondition &&_cond,
 
         int tid_shift = shifts_array[tid];
         int *private_ptr = &(_out_data[tid_shift]);
-        #pragma omp single
-        {
-            for(int i = 0; i < _threads_count; i++)
-            {
-                cout << shifts_array[i] << " ";
-            }
-            cout << endl;
-        };
+
+        int loc_st = shifts_array[tid];
 
         int local_pos = 0;
         #pragma _NEC novector
@@ -126,6 +129,7 @@ inline int ParallelPrimitives::omp_copy_if_indexes(CopyCondition &&_cond,
                                                    int *_out_data,
                                                    size_t _size,
                                                    int *_buffer,
+                                                   const int _buffer_size,
                                                    const int _index_offset)
 {
     int omp_work_group_size = omp_get_max_threads();
@@ -141,7 +145,7 @@ inline int ParallelPrimitives::omp_copy_if_indexes(CopyCondition &&_cond,
         const int nthreads = omp_work_group_size;
 
         int local_pos = 0;
-        int buffer_max_size = (_size - 1)/nthreads + 1;
+        int buffer_max_size = (_buffer_size - 1)/nthreads + 1;
         int *local_buffer = &_buffer[ithread*buffer_max_size];
 
         #pragma omp single
@@ -193,7 +197,8 @@ inline int ParallelPrimitives::omp_copy_if_data(CopyCondition &&_cond,
                                                 _T *_in_data,
                                                 _T *_out_data,
                                                 size_t _size,
-                                                _T *_buffer)
+                                                _T *_buffer,
+                                                const int _buffer_size)
 {
     int omp_work_group_size = omp_get_max_threads();
 
@@ -208,7 +213,7 @@ inline int ParallelPrimitives::omp_copy_if_data(CopyCondition &&_cond,
         const int nthreads = omp_work_group_size;
 
         int local_pos = 0;
-        int buffer_max_size = (_size - 1)/nthreads + 1;
+        int buffer_max_size = (_buffer_size - 1)/nthreads + 1;
         int *local_buffer = &_buffer[ithread*buffer_max_size];
 
         #pragma omp single
@@ -254,75 +259,19 @@ inline int ParallelPrimitives::omp_copy_if_data(CopyCondition &&_cond,
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#include <iostream>     // std::cout
-#include <algorithm>    // std::set_difference, std::sort
-#include <vector>       // std::vector
-
-bool compare(vector<int> &v1, vector<int> &v2, vector<int> &v)
-{
-    v.resize(v1.size());                    // 0  0  0  0  0  0  0  0  0  0
-    std::vector<int>::iterator it;
-    std::sort (v2.begin(),v2.end());   // 10 20 30 40 50
-
-    std::sort (v1.begin(),v1.end());     //  5 10 15 20 25
-
-    if(v1 != v2)
-    {
-        cout << "Error! vectors are different" << endl;
-        it=std::set_difference (v1.begin(), v1.end(), v2.begin(), v2.end(), v.begin());
-        //  5 15 25  0  0  0  0  0  0  0
-        v.resize(it-v.begin());                      //  5 15 25
-
-        std::cout << "The difference has " << (v.size()) << " elements:\n";
-        for (it=v.begin(); it!=v.end(); ++it)
-            std::cout << ' ' << *it;
-        std::cout << '\n';
-        return false;
-    }
-    return true;
-}
-
 template <typename CopyCondition>
 inline int ParallelPrimitives::copy_if_indexes(CopyCondition &&_cond,
                                                int *_out_data,
                                                size_t _size,
                                                int *_buffer,
+                                               const int _buffer_size,
                                                const int _index_offset)
 {
     int num_elements = 0;
     #ifdef __USE_NEC_SX_AURORA__
-    vector<int> v1, v2;
-    int omp_num_elements = omp_copy_if_indexes(_cond, _out_data, _size, _buffer, _index_offset);
-    for(int i = 0; i < omp_num_elements; i++)
-    {
-        v1.push_back(_out_data[i]);
-    }
-
-    num_elements = vector_copy_if_indexes(_cond, _out_data, _size, _buffer, _index_offset);
-    for(int i = 0; i < num_elements; i++)
-    {
-        v2.push_back(_out_data[i]);
-    }
-    vector<int>diff;
-    if(!compare(v1, v2, diff))
-    {
-        vector<int> dub_list;
-        for(int i = 1; i < v2.size();i++)
-            if(v2[i] == v2[i - 1])
-            {
-                 dub_list.push_back(v2[i]);
-                 cout << "dublicate in v2! "<< v2[i] << endl;
-            }
-        for(auto dub: dub_list)
-        {
-            for(int i = 0; i < num_elements; i++)
-                if(_out_data[i] == dub)
-                    cout << "dub " << dub << " at pos " << i << " / " << num_elements << " vs size " << _size << endl;
-        }
-
-    }
+    num_elements = vector_copy_if_indexes(_cond, _out_data, _size, _buffer, _buffer_size, _index_offset);
     #elif __USE_MULTICORE__
-    num_elements = omp_copy_if_indexes(_cond, _out_data, _size, _buffer, _index_offset);
+    num_elements = omp_copy_if_indexes(_cond, _out_data, _size, _buffer, _buffer_size, _index_offset);
     #else
     throw "Error in copy_if_indexes : unsupported architecture";
     #endif
@@ -336,13 +285,14 @@ inline int ParallelPrimitives::copy_if_data(CopyCondition &&_cond,
                                             _T *_in_data,
                                             _T *_out_data,
                                             size_t _size,
-                                            _T *_buffer)
+                                            _T *_buffer,
+                                            const int _buffer_size)
 {
     int num_elements = 0;
     #ifdef __USE_NEC_SX_AURORA__
-    num_elements = omp_copy_if_data(_cond, _in_data, _out_data, _size, _buffer); // TODO vector version
+    num_elements = omp_copy_if_data(_cond, _in_data, _out_data, _size, _buffer, _buffer_size); // TODO vector version
     #elif __USE_MULTICORE__
-    num_elements = omp_copy_if_data(_cond, _in_data, _out_data, _size, _buffer);
+    num_elements = omp_copy_if_data(_cond, _in_data, _out_data, _size, _buffer, _buffer_size);
     #elif __USE_GPU__
     num_elements = thrust::copy_if(thrust::device, _in_data, _in_data + _size, _out_data, _cond) - _out_data;
     #else

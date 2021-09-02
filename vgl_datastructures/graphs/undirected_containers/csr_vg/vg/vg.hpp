@@ -50,7 +50,8 @@ void CSRVertexGroup::add_vertex(int _src_id)
 template<typename CopyCond>
 void CSRVertexGroup::copy_data_if(CSRVertexGroup & _full_group, CopyCond copy_cond,int *_buffer)
 {
-    this->size = ParallelPrimitives::copy_if_data(copy_cond, _full_group.ids, this->ids, _full_group.size, _buffer);
+    this->size = ParallelPrimitives::copy_if_data(copy_cond, _full_group.ids, this->ids, _full_group.size,
+                                                  _buffer, _full_group.size);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
