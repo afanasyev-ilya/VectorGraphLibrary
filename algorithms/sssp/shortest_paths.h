@@ -21,26 +21,26 @@ public:
     // worker functions
     #if defined(__USE_NEC_SX_AURORA__) || defined(__USE_MULTICORE__)
     template <typename _T>
-    static void vgl_dijkstra_all_active_push(VGL_Graph &_graph,
-                                             EdgesArray<_T> &_weights,
-                                             VerticesArray<_T> &_distances,
-                                             int _source_vertex);
+    static double vgl_dijkstra_all_active_push(VGL_Graph &_graph,
+                                               EdgesArray<_T> &_weights,
+                                               VerticesArray<_T> &_distances,
+                                               int _source_vertex);
     #endif
 
     #if defined(__USE_NEC_SX_AURORA__) || defined(__USE_MULTICORE__)
     template <typename _T>
-    static void vgl_dijkstra_all_active_pull(VGL_Graph &_graph,
-                                             EdgesArray<_T> &_weights,
-                                             VerticesArray<_T> &_distances,
-                                             int _source_vertex);
+    static double vgl_dijkstra_all_active_pull(VGL_Graph &_graph,
+                                               EdgesArray<_T> &_weights,
+                                               VerticesArray<_T> &_distances,
+                                               int _source_vertex);
     #endif
 
     #if defined(__USE_NEC_SX_AURORA__) || defined(__USE_MULTICORE__)
     template <typename _T>
-    static void vgl_dijkstra_partial_active(VGL_Graph &_graph,
-                                            EdgesArray<_T> &_weights,
-                                            VerticesArray<_T> &_distances,
-                                            int _source_vertex);
+    static double vgl_dijkstra_partial_active(VGL_Graph &_graph,
+                                              EdgesArray<_T> &_weights,
+                                              VerticesArray<_T> &_distances,
+                                              int _source_vertex);
     #endif
 
     #ifdef __USE_GPU__

@@ -50,7 +50,7 @@ def main():
         options.apps = 'bfs,sssp,pr,hits'
         options.verify = True
         options.benchmark = True
-        options.compile = True
+        options.compile = False  # must be false for NEC benchmarking
         options.prepare = False
         options.download = False
         options.mode = "rating-fast"
