@@ -1,3 +1,9 @@
 #!/bin/bash
 
-./generate_learning_data.out -s 14 -e 32 -type rmat
+python3 ./prepare_all_data.py
+
+for i in {0..5}; do
+   cd $i
+   ls -1 | wc -l
+   cd ..
+done

@@ -2,7 +2,7 @@
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#define N 16
+#define N 256
 #define OTHER_PARAMS 3
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -37,14 +37,14 @@ double* convert_graph_to_nn_input(EdgesContainer &_el_container)
         }
     }
 
-    for(int x = 0; x < N; x++)
+    /*for(int x = 0; x < N; x++)
     {
         for(int y = 0; y < N; y++)
         {
             cout << normalized_sparsity_data[x * N + y] << " ";
         }
         cout << endl;
-    }
+    }*/
 
     double *nn_input;
     MemoryAPI::allocate_array(&nn_input, N*N + OTHER_PARAMS);
@@ -68,7 +68,7 @@ double* convert_graph_to_nn_input(EdgesContainer &_el_container)
 void save_nn_input_to_file(double *_nn_input, int _label, string _graph_name)
 {
     ofstream nn_file;
-    nn_file.open(_graph_name + ".txt");
+    nn_file.open("./" + std::to_string(_label) + "/" + _graph_name + ".txt");
 
     int wall_nn_input_size = N * N + OTHER_PARAMS;
     for(int i = 0; i < wall_nn_input_size; i++)

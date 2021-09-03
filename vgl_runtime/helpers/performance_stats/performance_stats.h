@@ -96,6 +96,7 @@ public:
     void print_avg_perf(long long _edges_count, int _k = 1);
 
     void print_algorithm_performance_stats(string _name, double _time, long long _edges_count);
+    double get_algorithm_performance(double _time, long long _edges_count);
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

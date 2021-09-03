@@ -10,6 +10,10 @@
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+#define N_RUNS 20
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 double measure_perf(VGL_Graph &_graph, Parser &_parser)
 {
     double avg_perf = 0;
@@ -19,18 +23,14 @@ double measure_perf(VGL_Graph &_graph, Parser &_parser)
     weights.set_all_random(MAX_WEIGHT);
 
     // start algorithm
-    VGL_RUNTIME::start_measuring_stats();
-    for(int i = 0; i < 20; i++)
+    for(int i = 0; i < N_RUNS; i++)
     {
         int source_vertex = _graph.select_random_nz_vertex(Parser::convert_traversal_type(_parser.get_traversal_direction()));
-        ShortestPaths::vgl_dijkstra(_graph, weights, distances, source_vertex,
-                                    _parser.get_algorithm_frontier_type(),
-                                    _parser.get_traversal_direction());
+        double perf = ShortestPaths::vgl_dijkstra(_graph, weights, distances, source_vertex,
+                                                  _parser.get_algorithm_frontier_type(),
+                                                  _parser.get_traversal_direction());
+        avg_perf += perf/N_RUNS;
     }
-    VGL_RUNTIME::stop_measuring_stats(_graph.get_edges_count(), _parser);
-
-    avg_perf = performance_stats.get_avg_perf(_graph.get_edges_count());
-    cout << "avg perf: " << avg_perf << endl;
     return avg_perf;
 }
 
@@ -71,12 +71,12 @@ int main(int argc, char **argv)
         const int num_formats = 6;
 
         ForOpt run_data[num_formats] = {
-                ForOpt(VECTOR_CSR_GRAPH, OPT_NONE),
-                ForOpt(CSR_GRAPH, OPT_NONE),
-                ForOpt(CSR_VG_GRAPH, OPT_NONE),
-                ForOpt(EDGES_LIST_GRAPH, OPT_NONE),
-                ForOpt(EDGES_LIST_GRAPH, EL_2D_SEGMENTED),
-                ForOpt(EDGES_LIST_GRAPH, EL_CSR_BASED)};
+                ForOpt(VECTOR_CSR_GRAPH, OPT_NONE),//0
+                ForOpt(CSR_GRAPH, OPT_NONE),//1
+                ForOpt(CSR_VG_GRAPH, OPT_NONE),//2
+                ForOpt(EDGES_LIST_GRAPH, OPT_NONE),//3
+                ForOpt(EDGES_LIST_GRAPH, EL_2D_SEGMENTED),//4
+                ForOpt(EDGES_LIST_GRAPH, EL_CSR_BASED)};//5
 
         make_data_folders(num_formats);
 
@@ -117,7 +117,7 @@ int main(int argc, char **argv)
             }
         }
 
-        cout << "BEST PERF " << best_perf << " ON: " << run_data[best_run].format << " " <<
+        cout << "BEST PERF " << best_perf << " ON: " << best_run << " | " << run_data[best_run].format << " " <<
             run_data[best_run].optimization << endl;
 
         double* nn_input = convert_graph_to_nn_input(graph_container);

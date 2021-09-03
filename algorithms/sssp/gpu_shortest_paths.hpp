@@ -4,10 +4,10 @@
 
 #ifdef __USE_GPU__
 template <typename _T>
-void SSSP::gpu_dijkstra_all_active_push(VGL_Graph &_graph,
-                                        EdgesArray<_T> &_weights,
-                                        VerticesArray<_T> &_distances,
-                                        int _source_vertex)
+double SSSP::gpu_dijkstra_all_active_push(VGL_Graph &_graph,
+                                          EdgesArray<_T> &_weights,
+                                          VerticesArray<_T> &_distances,
+                                          int _source_vertex)
 {
     GraphAbstractionsGPU graph_API(_graph, SCATTER);
     VGL_Frontier frontier(_graph, SCATTER);
@@ -58,6 +58,8 @@ void SSSP::gpu_dijkstra_all_active_push(VGL_Graph &_graph,
     #ifdef __PRINT_SAMPLES_PERFORMANCE_STATS__
     performance_stats.print_algorithm_performance_stats("SSSP (Dijkstra, all-active, push, GPU)", tm.get_time(), _graph.get_edges_count());
     #endif
+
+    return performance_stats.get_algorithm_performance(tm.get_time(), _graph.get_edges_count());
 }
 #endif
 
@@ -65,10 +67,10 @@ void SSSP::gpu_dijkstra_all_active_push(VGL_Graph &_graph,
 
 #ifdef __USE_GPU__
 template <typename _T>
-void SSSP::gpu_dijkstra_all_active_pull(VGL_Graph &_graph,
-                                        EdgesArray<_T> &_weights,
-                                        VerticesArray<_T> &_distances,
-                                        int _source_vertex)
+double SSSP::gpu_dijkstra_all_active_pull(VGL_Graph &_graph,
+                                          EdgesArray<_T> &_weights,
+                                          VerticesArray<_T> &_distances,
+                                          int _source_vertex)
 {
     GraphAbstractionsGPU graph_API(_graph, GATHER);
     VGL_Frontier frontier(_graph, GATHER);
@@ -116,10 +118,11 @@ void SSSP::gpu_dijkstra_all_active_pull(VGL_Graph &_graph,
 
     tm.end();
 
-
     #ifdef __PRINT_SAMPLES_PERFORMANCE_STATS__
     performance_stats.print_algorithm_performance_stats("SSSP (Dijkstra, all-active, pull, GPU)", tm.get_time(), _graph.get_edges_count());
     #endif
+
+    return performance_stats.get_algorithm_performance(tm.get_time(), _graph.get_edges_count());
 }
 #endif
 
@@ -127,10 +130,10 @@ void SSSP::gpu_dijkstra_all_active_pull(VGL_Graph &_graph,
 
 #ifdef __USE_GPU__
 template <typename _T>
-void SSSP::gpu_dijkstra_partial_active(VGL_Graph &_graph,
-                                       EdgesArray<_T> &_weights,
-                                       VerticesArray<_T> &_distances,
-                                       int _source_vertex)
+double SSSP::gpu_dijkstra_partial_active(VGL_Graph &_graph,
+                                         EdgesArray<_T> &_weights,
+                                         VerticesArray<_T> &_distances,
+                                         int _source_vertex)
 {
     GraphAbstractionsGPU graph_API(_graph, SCATTER);
     VGL_Frontier frontier(_graph, SCATTER);
@@ -185,10 +188,11 @@ void SSSP::gpu_dijkstra_partial_active(VGL_Graph &_graph,
 
     tm.end();
 
-
     #ifdef __PRINT_SAMPLES_PERFORMANCE_STATS__
     performance_stats.print_algorithm_performance_stats("SSSP (Dijkstra, partial-active, GPU)", tm.get_time(), _graph.get_edges_count());
     #endif
+
+    return performance_stats.get_algorithm_performance(tm.get_time(), _graph.get_edges_count());
 }
 #endif
 
@@ -196,12 +200,12 @@ void SSSP::gpu_dijkstra_partial_active(VGL_Graph &_graph,
 
 #ifdef __USE_GPU__
 template <typename _T>
-void SSSP::vgl_dijkstra(VGL_Graph &_graph,
-                        EdgesArray<_T> &_weights,
-                        VerticesArray<_T> &_distances,
-                        int _source_vertex,
-                        AlgorithmFrontierType _frontier_type,
-                        AlgorithmTraversalType _traversal_direction)
+double SSSP::vgl_dijkstra(VGL_Graph &_graph,
+                          EdgesArray<_T> &_weights,
+                          VerticesArray<_T> &_distances,
+                          int _source_vertex,
+                          AlgorithmFrontierType _frontier_type,
+                          AlgorithmTraversalType _traversal_direction)
 {
     _graph.move_to_device();
     _weights.move_to_device();
@@ -209,17 +213,17 @@ void SSSP::vgl_dijkstra(VGL_Graph &_graph,
 
     if(_frontier_type == PARTIAL_ACTIVE)
     {
-        gpu_dijkstra_partial_active(_graph, _weights, _distances, _source_vertex);
+        return gpu_dijkstra_partial_active(_graph, _weights, _distances, _source_vertex);
     }
     else if(_frontier_type == ALL_ACTIVE)
     {
         if(_traversal_direction == PUSH_TRAVERSAL)
         {
-            gpu_dijkstra_all_active_push(_graph, _weights, _distances, _source_vertex);
+            return gpu_dijkstra_all_active_push(_graph, _weights, _distances, _source_vertex);
         }
         else if(_traversal_direction == PULL_TRAVERSAL)
         {
-            gpu_dijkstra_all_active_pull(_graph, _weights, _distances, _source_vertex);
+            return gpu_dijkstra_all_active_pull(_graph, _weights, _distances, _source_vertex);
         }
     }
 }
