@@ -55,13 +55,13 @@ def get_list_of_verification_graphs(run_speed_mode):
     verification_list = []
     i = 0
     for graph in get_list_of_synthetic_graphs(run_speed_mode):
-        if i >= 2:
+        if i >= 3:
             break
         verification_list.append(graph)
         i += 1
     i = 0
     for graph in get_list_of_real_world_graphs(run_speed_mode):
-        if i >= 2:
+        if i >= 5:
             break
         verification_list.append(graph)
         i += 1

@@ -17,7 +17,7 @@ void SSSP::gpu_dijkstra_all_active_push(VGL_Graph &_graph,
     tm.start();
 
     _T inf_val = std::numeric_limits<_T>::max() - MAX_WEIGHT;
-    auto init_op = [_distances, _source_vertex, inf_val] __device__  __VGL_COMPUTE_ARGS__ {
+    auto init_op = [_distances, _source_vertex, inf_val] __VGL_COMPUTE_ARGS__ {
         if(src_id == _source_vertex)
             _distances[_source_vertex] = 0;
         else
@@ -33,11 +33,10 @@ void SSSP::gpu_dijkstra_all_active_push(VGL_Graph &_graph,
     {
         changes[0] = 0;
 
-        auto edge_op = [_weights, _distances, changes] __device__(int src_id, int dst_id, int local_edge_pos,
-                long long int global_edge_pos, int vector_index){
+        auto edge_op = [_weights, _distances, changes] __VGL_SCATTER_ARGS__{
             _T weight = _weights[global_edge_pos];
-            _T src_weight = __ldg(&_distances[src_id]);
-            _T dst_weight = __ldg(&_distances[dst_id]);
+            _T src_weight = _distances[src_id];
+            _T dst_weight = _distances[dst_id];
 
             if(dst_weight > src_weight + weight)
             {
@@ -79,7 +78,7 @@ void SSSP::gpu_dijkstra_all_active_pull(VGL_Graph &_graph,
     tm.start();
 
     _T inf_val = std::numeric_limits<_T>::max() - MAX_WEIGHT;
-    auto init_op = [_distances, _source_vertex, inf_val] __device__  __VGL_COMPUTE_ARGS__ {
+    auto init_op = [_distances, _source_vertex, inf_val] __VGL_COMPUTE_ARGS__ {
         if(src_id == _source_vertex)
             _distances[_source_vertex] = 0;
         else
@@ -95,8 +94,7 @@ void SSSP::gpu_dijkstra_all_active_pull(VGL_Graph &_graph,
     {
         changes[0] = 0;
 
-        auto edge_op = [_weights, _distances, changes] __device__(int src_id, int dst_id, int local_edge_pos,
-                long long int global_edge_pos, int vector_index){
+        auto edge_op = [_weights, _distances, changes] __VGL_GATHER_ARGS__ {
             _T weight = _weights[global_edge_pos];
             _T src_weight = __ldg(&_distances[src_id]);
             _T dst_weight = __ldg(&_distances[dst_id]);
@@ -143,7 +141,7 @@ void SSSP::gpu_dijkstra_partial_active(VGL_Graph &_graph,
     tm.start();
 
     _T inf_val = std::numeric_limits<_T>::max() - MAX_WEIGHT;
-    auto init_op = [_distances, _source_vertex, inf_val] __device__  __VGL_COMPUTE_ARGS__ {
+    auto init_op = [_distances, _source_vertex, inf_val] __VGL_COMPUTE_ARGS__ {
         if(src_id == _source_vertex)
             _distances[_source_vertex] = 0;
         else
@@ -152,8 +150,7 @@ void SSSP::gpu_dijkstra_partial_active(VGL_Graph &_graph,
     frontier.set_all_active();
     graph_API.compute(_graph, frontier, init_op);
 
-    auto edge_op = [_weights, _distances, was_updated] __device__(int src_id, int dst_id, int local_edge_pos,
-            long long int global_edge_pos, int vector_index) {
+    auto edge_op = [_weights, _distances, was_updated] __VGL_SCATTER_ARGS__ {
         _T weight = _weights[global_edge_pos];
         _T src_weight = __ldg(&_distances[src_id]);
         _T dst_weight = __ldg(&_distances[dst_id]);
@@ -166,7 +163,7 @@ void SSSP::gpu_dijkstra_partial_active(VGL_Graph &_graph,
         }
     };
 
-    auto frontier_condition = [was_updated] __device__ __VGL_GNF_ARGS__
+    auto frontier_condition = [was_updated] __VGL_GNF_ARGS__
     {
         if(was_updated[src_id] > 0)
             return IN_FRONTIER_FLAG;

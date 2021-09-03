@@ -155,7 +155,7 @@ void CSRVertexGroupCellC::import(CSR_VG_Graph *_graph, int _bottom, int _top)
         }
     }
 
-    /*long long new_size = 0;
+    long long new_size = 0;
     for(int pos = 0; pos < size - 256; pos += 256)
     {
         int max = 0;
@@ -168,7 +168,8 @@ void CSRVertexGroupCellC::import(CSR_VG_Graph *_graph, int _bottom, int _top)
         }
         new_size += max * 256;
     }
-    cout << "neighbours vg: " << ((double)new_size)/neighbours << " , " << ((double)size*(_top))/neighbours << endl;*/
+    cout << "neighbours vg: " << ((double)new_size)/neighbours << " , " << ((double)size*(_top))/neighbours << endl;
+
     for(int edge_pos = 0; edge_pos < max_connections; edge_pos++)
     {
         for(int i = 0; i < size; i++)

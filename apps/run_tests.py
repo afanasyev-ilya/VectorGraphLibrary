@@ -85,6 +85,12 @@ def run(options, run_info):
         for current_format in available_formats:
             options.format = current_format
             benchmark_and_verify(options, arch, benchmarking_results)
+    elif "," in options.format:
+        format_string = options.format
+        format_list = format_string.split(",")
+        for current_format in format_list:
+            options.format = current_format
+            benchmark_and_verify(options, arch, benchmarking_results)
     else:
         benchmark_and_verify(options, arch, benchmarking_results)
         if run_info != {}:

@@ -39,6 +39,7 @@ int main(int argc, char **argv)
         weights.set_all_random(MAX_WEIGHT);
 
         // start algorithm
+        VGL_RUNTIME::start_measuring_stats();
         for(int i = 0; i < parser.get_number_of_rounds(); i++)
         {
             source_vertex = graph.select_random_nz_vertex(Parser::convert_traversal_type(parser.get_traversal_direction()));

@@ -57,7 +57,6 @@ void VGL_RUNTIME::prepare_graph(VGL_Graph &_graph, Parser &_parser, DirectionTyp
             throw "Error: graph file not found";
         tm.end();
         tm.print_time_stats("graph load");
-
     }
     else if(_parser.get_compute_mode() == IMPORT_EDGES_CONTAINER)
     {
