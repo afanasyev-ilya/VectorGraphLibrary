@@ -37,7 +37,7 @@ def requires_undir_graphs(app_name):
 
 
 common_iterations = 10
-perf_pattern = "MAX_PERF"
+perf_pattern = "AVG_PERF"
 correctness_pattern = "error count:"
 
 GRAPHS_DIR = "./bin/input_graphs/"

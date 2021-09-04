@@ -94,6 +94,62 @@ bool verify_results(VerticesArray<_T> &_first,
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template <typename _T>
+bool verify_ranking_results(VerticesArray<_T> &_first,
+                            VerticesArray<_T> &_second)
+{
+    // remember current directions for both arrays
+    TraversalDirection prev_first_direction = _first.get_direction();
+    TraversalDirection prev_second_direction = _second.get_direction();
+
+    // check if sizes are the same
+    if(_first.size() != _second.size())
+    {
+        cout << "Results are NOT equal, incorrect sizes";
+        return false;
+    }
+
+    // make both results stored in original order
+    _first.reorder(ORIGINAL);
+    _second.reorder(ORIGINAL);
+
+    double difference = 0;
+
+    // calculate error count
+    int error_count = 0;
+    int vertices_count = _first.size();
+    for(int i = 0; i < vertices_count; i++)
+    {
+        difference += fabs(_first[i] - _second[i]);
+    }
+    difference /= vertices_count;
+
+    cout << "difference: " << difference << endl;
+    if(difference < 0.0001)
+        error_count = 0;
+    else
+        error_count = _first.size();
+
+    cout << "error count: " << error_count << endl;
+
+    // restore order if required
+    _first.reorder(prev_first_direction);
+    _second.reorder(prev_second_direction);
+
+    if(error_count == 0)
+        cout << "Results are equal" << endl;
+    else
+        cout << "Results are NOT equal, error_count = " << error_count << endl;
+    cout << endl;
+
+    if(error_count == 0)
+        return true;
+    else
+        return false;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+template <typename _T>
 bool verify_results(_T *_first,
                     _T *_second,
                     long long int _size,

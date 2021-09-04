@@ -3,7 +3,7 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template <typename _T>
-void HITS::vgl_hits(VGL_Graph &_graph, VerticesArray<_T> &_auth, VerticesArray<_T> &_hub, int _num_steps)
+double HITS::vgl_hits(VGL_Graph &_graph, VerticesArray<_T> &_auth, VerticesArray<_T> &_hub, int _num_steps)
 {
     VGL_GRAPH_ABSTRACTIONS graph_API(_graph);
     VGL_FRONTIER frontier(_graph);
@@ -95,12 +95,14 @@ void HITS::vgl_hits(VGL_Graph &_graph, VerticesArray<_T> &_auth, VerticesArray<_
     #ifdef __PRINT_SAMPLES_PERFORMANCE_STATS__
     performance_stats.print_algorithm_performance_stats("VGL HITS", tm.get_time(), _graph.get_edges_count());
     #endif
+
+    return _num_steps*performance_stats.get_algorithm_performance(tm.get_time(), _graph.get_edges_count());
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template <typename _T>
-void HITS::seq_hits(VGL_Graph &_graph, VerticesArray<_T> &_auth, VerticesArray<_T> &_hub, int _num_steps)
+double HITS::seq_hits(VGL_Graph &_graph, VerticesArray<_T> &_auth, VerticesArray<_T> &_hub, int _num_steps)
 {
     Timer tm;
     tm.start();
@@ -167,6 +169,8 @@ void HITS::seq_hits(VGL_Graph &_graph, VerticesArray<_T> &_auth, VerticesArray<_
     #ifdef __PRINT_SAMPLES_PERFORMANCE_STATS__
     performance_stats.print_algorithm_performance_stats("SEQ HITS", tm.get_time(), _graph.get_edges_count());
     #endif
+
+    return _num_steps*performance_stats.get_algorithm_performance(tm.get_time(), _graph.get_edges_count());
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

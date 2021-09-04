@@ -15,7 +15,13 @@ Parser::Parser()
     number_of_rounds = 1;
     algorithm_bfs = TOP_DOWN_BFS_ALGORITHM;
     algorithm_cc = SHILOACH_VISHKIN_ALGORITHM;
+
+    #ifdef __USE_GPU__
+    graph_storage_format = CSR_VG_GRAPH;
+    #else
     graph_storage_format = VECTOR_CSR_GRAPH;
+    #endif
+
     graph_storage_optimizations = OPT_NONE;
 
     device_num = 0;

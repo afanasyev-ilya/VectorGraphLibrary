@@ -50,6 +50,8 @@ public:
     static void start_measuring_stats();
 
     static void stop_measuring_stats(long long _edges_count, Parser &_parser);
+
+    static void report_performance(double _performance_value);
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////

@@ -28,12 +28,12 @@ class BFS
 public:
     #ifdef __USE_GPU__
     template <typename _T>
-    static void vgl_top_down(VGL_Graph &_graph, VerticesArray<_T> &_levels, int _source_vertex);
+    static double vgl_top_down(VGL_Graph &_graph, VerticesArray<_T> &_levels, int _source_vertex);
     #endif
 
     #if defined(__USE_NEC_SX_AURORA__) || defined(__USE_MULTICORE__)
     template <typename _T>
-    static void vgl_top_down(VGL_Graph &_graph, VerticesArray<_T> &_levels, int _source_vertex);
+    static double vgl_top_down(VGL_Graph &_graph, VerticesArray<_T> &_levels, int _source_vertex);
     #endif
 
     /*#if defined(__USE_NEC_SX_AURORA__)
@@ -43,7 +43,7 @@ public:
     #endif*/
 
     template <typename _T>
-    static void seq_top_down(VGL_Graph &_graph, VerticesArray<_T> &_levels, int _source_vertex);
+    static double seq_top_down(VGL_Graph &_graph, VerticesArray<_T> &_levels, int _source_vertex);
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

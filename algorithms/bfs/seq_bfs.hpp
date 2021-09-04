@@ -10,9 +10,9 @@ using namespace std;
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template <typename _T>
-void BFS::seq_top_down(VGL_Graph &_graph,
-                       VerticesArray<_T> &_levels,
-                       int _source_vertex)
+double BFS::seq_top_down(VGL_Graph &_graph,
+                         VerticesArray<_T> &_levels,
+                         int _source_vertex)
 {
     Timer tm;
     tm.start();
@@ -50,6 +50,8 @@ void BFS::seq_top_down(VGL_Graph &_graph,
     #ifdef __PRINT_SAMPLES_PERFORMANCE_STATS__
     performance_stats.print_algorithm_performance_stats("BFS (Top-Down, Sequential)", tm.get_time(), _graph.get_edges_count());
     #endif
+
+    return performance_stats.get_algorithm_performance(tm.get_time(), _graph.get_edges_count());
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

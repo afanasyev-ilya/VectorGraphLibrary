@@ -117,7 +117,14 @@ void VGL_RUNTIME::stop_measuring_stats(long long _edges_count, Parser &_parser)
 {
     performance_stats.update_timer_stats();
     performance_stats.print_timers_stats();
-    performance_stats.print_perf(_edges_count, _parser.get_number_of_rounds());
+    //performance_stats.print_perf(_edges_count, _parser.get_number_of_rounds());
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+void VGL_RUNTIME::report_performance(double _performance_value)
+{
+    cout << "AVG_PERF: " << _performance_value << " MTEPS" << endl;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////

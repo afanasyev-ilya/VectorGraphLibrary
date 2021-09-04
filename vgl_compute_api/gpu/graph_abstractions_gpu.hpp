@@ -13,6 +13,8 @@ GraphAbstractionsGPU::GraphAbstractionsGPU(VGL_Graph &_graph, TraversalDirection
     cudaStreamCreate(&stream_4);
     cudaStreamCreate(&stream_5);
     cudaStreamCreate(&stream_6);
+
+    MemoryAPI::allocate_array(&reduce_buffer, _graph.get_vertices_count());
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -25,6 +27,7 @@ GraphAbstractionsGPU::~GraphAbstractionsGPU()
     cudaStreamDestroy(stream_4);
     cudaStreamDestroy(stream_5);
     cudaStreamDestroy(stream_6);
+    MemoryAPI::free_array(reduce_buffer);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

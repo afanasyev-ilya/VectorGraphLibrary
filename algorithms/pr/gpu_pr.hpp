@@ -4,11 +4,11 @@
 
 #ifdef __USE_GPU__
 template <typename _T>
-void PR::vgl_page_rank(VGL_Graph &_graph,
-                       VerticesArray<_T> &_page_ranks,
-                       _T _convergence_factor,
-                       int _max_iterations,
-                       AlgorithmTraversalType _traversal_direction)
+double PR::vgl_page_rank(VGL_Graph &_graph,
+                         VerticesArray<_T> &_page_ranks,
+                         _T _convergence_factor,
+                         int _max_iterations,
+                         AlgorithmTraversalType _traversal_direction)
 {
     int vertices_count = _graph.get_vertices_count();
     long long edges_count = _graph.get_edges_count();
@@ -39,6 +39,12 @@ void PR::vgl_page_rank(VGL_Graph &_graph,
     VerticesArray<int> incoming_degrees_without_loops(_graph, reversed_direction);
     VerticesArray<_T> reversed_degrees(_graph, reversed_direction);
     VerticesArray<_T> old_page_ranks(_graph, primary_direction);
+
+    number_of_loops.move_to_device();
+    incoming_degrees.move_to_device();
+    incoming_degrees_without_loops.move_to_device();
+    reversed_degrees.move_to_device();
+    old_page_ranks.move_to_device();
 
     graph_API.change_traversal_direction(reversed_direction, frontier, incoming_degrees, number_of_loops, incoming_degrees_without_loops, reversed_degrees);
 
@@ -164,6 +170,8 @@ void PR::vgl_page_rank(VGL_Graph &_graph,
     #ifdef __PRINT_SAMPLES_PERFORMANCE_STATS__
     performance_stats.print_algorithm_performance_stats("PR (Page Rank, GPU)", tm.get_time(), _graph.get_edges_count());
     #endif
+
+    return _max_iterations*performance_stats.get_algorithm_performance(tm.get_time(), _graph.get_edges_count());
 }
 #endif
 

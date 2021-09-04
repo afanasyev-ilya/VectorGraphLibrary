@@ -122,13 +122,55 @@ __global__ void reduce_kernel_sparse(GraphContainer _graph,
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+template <typename _T, typename ReduceOperation, typename GraphContainer>
+void __global__ prepare_reduce_data_kernel(GraphContainer _graph,
+                                           const int *_frontier_ids,
+                                           const int _frontier_size,
+                                           ReduceOperation reduce_op,
+                                           _T *_out_data,
+                                           bool _sparse_mode)
+{
+    const int frontier_pos = blockIdx.x * blockDim.x + threadIdx.x;
+
+    if(frontier_pos < _frontier_size)
+    {
+        int src_id = frontier_pos;
+        if(_sparse_mode)
+            src_id = _frontier_ids[frontier_pos];
+        int connections_count = _graph.get_connections_count(src_id);
+        int vector_index = lane_id();
+        _out_data[src_id] = reduce_op(src_id, connections_count, vector_index);
+    }
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 template <typename _T, typename ReduceOperation, typename GraphContainer, typename FrontierContainer>
 void GraphAbstractionsGPU::reduce_worker_sum(GraphContainer &_graph,
                                              FrontierContainer &_frontier,
                                              ReduceOperation &&reduce_op,
                                              _T &_result)
 {
-    _T *managed_reduced_result;
+    _T *tmp_reduce = (_T*)reduce_buffer;
+    int vertices_count = _graph.get_vertices_count();
+    LOAD_FRONTIER_DATA(_frontier);
+
+    if(_frontier.get_sparsity_type() == ALL_ACTIVE_FRONTIER)
+    {
+        SAFE_KERNEL_CALL((prepare_reduce_data_kernel <<< (vertices_count - 1) / BLOCK_SIZE + 1, BLOCK_SIZE >>>(_graph, frontier_ids, vertices_count, reduce_op, tmp_reduce, false)));
+        _result = thrust::reduce(thrust::device, tmp_reduce, tmp_reduce + frontier_size);
+    }
+    else if(_frontier.get_sparsity_type() == DENSE_FRONTIER)
+    {
+        throw "Error: dense frontier in reduce is not supported";
+    }
+    else if(_frontier.get_sparsity_type() == SPARSE_FRONTIER)
+    {
+        SAFE_KERNEL_CALL((prepare_reduce_data_kernel <<< (frontier_size - 1) / BLOCK_SIZE + 1, BLOCK_SIZE >>>(_graph, frontier_ids, frontier_size, reduce_op, tmp_reduce, true)));
+        _result = thrust::reduce(thrust::device, tmp_reduce, tmp_reduce + frontier_size);
+    }
+
+    /*_T *managed_reduced_result;
     MemoryAPI::allocate_array(&managed_reduced_result, 1);
     managed_reduced_result[0] = 0;
     MemoryAPI::move_array_to_device(managed_reduced_result, 1);
@@ -152,7 +194,10 @@ void GraphAbstractionsGPU::reduce_worker_sum(GraphContainer &_graph,
     cudaDeviceSynchronize();
     _result = managed_reduced_result[0];
 
-    MemoryAPI::free_array(managed_reduced_result);
+    MemoryAPI::free_array(managed_reduced_result);*/
+
+    int data[6] = {1, 0, 2, 2, 1, 3};
+    int result = thrust::reduce(thrust::host, data, data + 6, 1);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

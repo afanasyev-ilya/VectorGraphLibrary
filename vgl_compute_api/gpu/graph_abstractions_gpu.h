@@ -13,6 +13,7 @@ class GraphAbstractionsGPU : public GraphAbstractions
 {
 private:
     cudaStream_t stream_1, stream_2, stream_3, stream_4, stream_5, stream_6;
+    double *reduce_buffer;
 
     // current the number of vertices, neighbouring a frontier (for Advance perf)
     long long count_frontier_neighbours(VGL_Graph &_graph, VGL_Frontier &_frontier);

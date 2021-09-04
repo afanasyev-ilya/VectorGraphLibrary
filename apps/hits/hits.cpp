@@ -37,7 +37,7 @@ int main(int argc, char **argv)
         #endif
 
         VGL_RUNTIME::start_measuring_stats();
-        HITS::vgl_hits(graph, auth, hub, parser.get_number_of_rounds());
+        VGL_RUNTIME::report_performance(HITS::vgl_hits(graph, auth, hub, parser.get_number_of_rounds()));
         VGL_RUNTIME::stop_measuring_stats(graph.get_edges_count(), parser);
 
         if(parser.get_check_flag())
@@ -46,8 +46,8 @@ int main(int argc, char **argv)
             VerticesArray<base_type> check_hub(graph);
             HITS::seq_hits(graph, check_auth, check_hub, parser.get_number_of_rounds());
 
-            verify_results(auth, check_auth, 0);
-            verify_results(hub, check_hub, 0);
+            verify_ranking_results(auth, check_auth);
+            verify_ranking_results(hub, check_hub);
         }
 
         VGL_RUNTIME::finalize_library();

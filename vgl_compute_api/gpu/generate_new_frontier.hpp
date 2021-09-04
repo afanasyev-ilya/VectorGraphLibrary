@@ -139,7 +139,7 @@ void GraphAbstractionsGPU::generate_new_frontier_worker(VectorCSRGraph &_graph,
     {
         _frontier.sparsity_type = SPARSE_FRONTIER;
         auto reduce_connections = [] __VGL_REDUCE_INT_ARGS__ {
-                return connections_count;
+            return connections_count;
         };
         reduce_worker_sum(_graph, _frontier, reduce_connections, _frontier.neighbours_count);
     }

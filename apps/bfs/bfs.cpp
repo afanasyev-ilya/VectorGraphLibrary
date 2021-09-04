@@ -32,10 +32,11 @@ int main(int argc, char **argv)
 
         // start algorithm
         VGL_RUNTIME::start_measuring_stats();
+        double avg_perf = 0;
         for(int i = 0; i < parser.get_number_of_rounds(); i++)
         {
             source_vertex = graph.select_random_nz_vertex(SCATTER);
-            BFS::vgl_top_down(graph, levels, source_vertex);
+            avg_perf += BFS::vgl_top_down(graph, levels, source_vertex)/parser.get_number_of_rounds();
 
             if(parser.get_check_flag())
             {
@@ -45,6 +46,7 @@ int main(int argc, char **argv)
             }
         }
         VGL_RUNTIME::stop_measuring_stats(graph.get_edges_count(), parser);
+        VGL_RUNTIME::report_performance(avg_perf);
 
         VGL_RUNTIME::finalize_library();
     }
