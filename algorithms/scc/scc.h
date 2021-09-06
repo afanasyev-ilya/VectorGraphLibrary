@@ -85,15 +85,15 @@ private:
 public:
     #if defined(__USE_NEC_SX_AURORA__) || defined(__USE_MULTICORE__)
     template <typename _T>
-    static void vgl_forward_backward(VGL_Graph &_graph, VerticesArray<_T> &_components);
+    static double vgl_forward_backward(VGL_Graph &_graph, VerticesArray<_T> &_components);
     #endif
 
     #ifdef __USE_GPU__
     template <typename _T>
-    static void gpu_forward_backward(VGL_Graph &_graph, VerticesArray<_T> &_components);
+    static double gpu_forward_backward(VGL_Graph &_graph, VerticesArray<_T> &_components);
     #endif
 
-    static void seq_tarjan(VGL_Graph &_graph, VerticesArray<int> &_components);
+    static double seq_tarjan(VGL_Graph &_graph, VerticesArray<int> &_components);
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

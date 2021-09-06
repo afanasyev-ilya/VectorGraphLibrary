@@ -29,7 +29,7 @@ int main(int argc, char **argv)
 
         VerticesArray<int> components(graph, SCATTER);
         VGL_RUNTIME::start_measuring_stats();
-        SCC::vgl_forward_backward(graph, components);
+        VGL_RUNTIME::report_performance(SCC::vgl_forward_backward(graph, components));
         VGL_RUNTIME::stop_measuring_stats(graph.get_edges_count(), parser);
 
         if(parser.get_check_flag())

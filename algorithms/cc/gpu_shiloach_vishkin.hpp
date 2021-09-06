@@ -4,7 +4,7 @@
 
 #ifdef __USE_GPU__
 template <typename _T>
-void CC::vgl_shiloach_vishkin(VGL_Graph &_graph, VerticesArray<_T> &_components)
+double CC::vgl_shiloach_vishkin(VGL_Graph &_graph, VerticesArray<_T> &_components)
 {
     VGL_GRAPH_ABSTRACTIONS graph_API(_graph);
     VGL_FRONTIER frontier(_graph);
@@ -71,11 +71,12 @@ void CC::vgl_shiloach_vishkin(VGL_Graph &_graph, VerticesArray<_T> &_components)
     } while(hook_changes[0] > 0);
     tm.end();
 
-
     #ifdef __PRINT_SAMPLES_PERFORMANCE_STATS__
     performance_stats.print_algorithm_performance_stats("CC (Shiloach-Vishkin, GPU)", tm.get_time(), _graph.get_edges_count());
     print_component_sizes(_components);
     #endif
+
+    return performance_stats.get_algorithm_performance(tm.get_time(), _graph.get_edges_count());
 }
 #endif
 

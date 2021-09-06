@@ -3,10 +3,10 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template <typename _T>
-void SSWP::seq_dijkstra(VGL_Graph &_graph,
-                        EdgesArray<_T> &_edges_capacities,
-                        VerticesArray<_T> &_widths,
-                        int _source_vertex)
+double SSWP::seq_dijkstra(VGL_Graph &_graph,
+                          EdgesArray<_T> &_edges_capacities,
+                          VerticesArray<_T> &_widths,
+                          int _source_vertex)
 {
     int vertices_count = _graph.get_vertices_count();
 
@@ -59,10 +59,11 @@ void SSWP::seq_dijkstra(VGL_Graph &_graph,
     }
     tm.end();
 
-
     #ifdef __PRINT_SAMPLES_PERFORMANCE_STATS__
     performance_stats.print_algorithm_performance_stats("SSWP (SEQ)", tm.get_time(), _graph.get_edges_count());
     #endif
+
+    return performance_stats.get_algorithm_performance(tm.get_time(), _graph.get_edges_count());
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

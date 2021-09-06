@@ -19,7 +19,7 @@ double* convert_graph_to_nn_input(EdgesContainer &_el_container)
     MemoryAPI::allocate_array(&sparsity_data, N*N);
     MemoryAPI::allocate_array(&normalized_sparsity_data, N*N);
 
-    int seg_size = vertices_count / N;
+    int seg_size = (vertices_count - 1) / N + 1;
 
     for(long long idx = 0; idx < edges_count; idx++)
     {

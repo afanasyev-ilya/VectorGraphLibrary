@@ -1,0 +1,27 @@
+Connected by ('10.15.120.1', 47452)
+Traceback (most recent call last):
+  File "./perf_data_reciever.py", line 133, in <module>
+    listen_to_users(1026)
+  File "./perf_data_reciever.py", line 104, in listen_to_users
+    if process_results(benchmarking_data):
+  File "./perf_data_reciever.py", line 49, in process_results
+    arch_name = benchmarking_data["arch_name"]
+KeyError: 'arch_name'
+Traceback (most recent call last):
+  File "./perf_data_reciever.py", line 123, in <module>
+    listen_to_users(1026)
+  File "./perf_data_reciever.py", line 87, in listen_to_users
+    server_sock.bind((host, port))
+OSError: [Errno 98] Address already in use
+Traceback (most recent call last):
+  File "./perf_data_reciever.py", line 123, in <module>
+    listen_to_users(1026)
+  File "./perf_data_reciever.py", line 87, in listen_to_users
+    server_sock.bind((host, port))
+OSError: [Errno 98] Address already in use
+Traceback (most recent call last):
+  File "./perf_data_reciever.py", line 123, in <module>
+    listen_to_users(1026)
+  File "./perf_data_reciever.py", line 95, in listen_to_users
+    time.sleep(1)
+NameError: name 'time' is not defined

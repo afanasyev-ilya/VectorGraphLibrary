@@ -52,7 +52,7 @@ install:
                         git clone https://www.github.com/moderngpu/moderngpu ../external_libraries/moderngpu;\
                 fi
 
-all: sssp sssp_sharded sswp bfs scc pr cc rw hits apsp coloring print_graph_info create_vgl_graphs
+all: sssp sswp bfs scc pr cc rw hits coloring print_graph_info create_vgl_graphs
 
 sssp: create_folders sssp.o
 	$(CXX) object_files/sssp.o $(Library_Path) $(Libraries) -o ./bin/sssp$(ArchSuffix)$(BinSuffix)

@@ -4,7 +4,7 @@
 
 #if defined(__USE_NEC_SX_AURORA__) || defined(__USE_MULTICORE__)
 template <typename _T>
-void CC::vgl_shiloach_vishkin(VGL_Graph &_graph, VerticesArray<_T> &_components)
+double CC::vgl_shiloach_vishkin(VGL_Graph &_graph, VerticesArray<_T> &_components)
 {
     VGL_GRAPH_ABSTRACTIONS graph_API(_graph);
     VGL_FRONTIER frontier(_graph);
@@ -83,6 +83,8 @@ void CC::vgl_shiloach_vishkin(VGL_Graph &_graph, VerticesArray<_T> &_components)
     performance_stats.print_algorithm_performance_stats("CC (Shiloach-Vishkin, NEC)", tm.get_time(), _graph.get_edges_count());
     print_component_sizes(_components);
     #endif
+
+    return performance_stats.get_algorithm_performance(tm.get_time(), _graph.get_edges_count());
 }
 #endif
 

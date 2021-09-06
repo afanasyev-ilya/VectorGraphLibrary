@@ -110,7 +110,7 @@ void SCC::seq_tarjan_kernel(VGL_Graph &_graph,
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void SCC::seq_tarjan(VGL_Graph &_graph, VerticesArray<int> &_components)
+double SCC::seq_tarjan(VGL_Graph &_graph, VerticesArray<int> &_components)
 {
     // allocate memory for Tarjan's algorithm computations
     Timer tm;
@@ -141,6 +141,8 @@ void SCC::seq_tarjan(VGL_Graph &_graph, VerticesArray<int> &_components)
     #ifdef __PRINT_SAMPLES_PERFORMANCE_STATS__
     performance_stats.print_algorithm_performance_stats("SCC (Sequential Tarjan)", tm.get_time(), _graph.get_edges_count());
     #endif
+
+    return performance_stats.get_algorithm_performance(tm.get_time(), _graph.get_edges_count());
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

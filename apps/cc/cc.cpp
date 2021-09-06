@@ -32,7 +32,7 @@ int main(int argc, char **argv)
 
         // real run
         VGL_RUNTIME::start_measuring_stats();
-        ConnectedComponents::vgl_shiloach_vishkin(graph, components);
+        VGL_RUNTIME::report_performance(ConnectedComponents::vgl_shiloach_vishkin(graph, components));
         VGL_RUNTIME::stop_measuring_stats(graph.get_edges_count(), parser);
 
         if(parser.get_check_flag())

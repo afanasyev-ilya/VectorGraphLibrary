@@ -32,13 +32,15 @@ int main(int argc, char **argv)
         weights.set_all_random(MAX_WEIGHT);
 
         // start algorithm
+        double avg_perf = 0;
         VGL_RUNTIME::start_measuring_stats();
         for(int i = 0; i < parser.get_number_of_rounds(); i++)
         {
             source_vertex = graph.select_random_nz_vertex(Parser::convert_traversal_type(parser.get_traversal_direction()));
-            SSWP::vgl_dijkstra(graph, weights, distances, source_vertex);
+            avg_perf += SSWP::vgl_dijkstra(graph, weights, distances, source_vertex) / parser.get_number_of_rounds();
         }
         VGL_RUNTIME::stop_measuring_stats(graph.get_edges_count(), parser);
+        VGL_RUNTIME::report_performance(avg_perf);
 
         if(parser.get_check_flag())
         {

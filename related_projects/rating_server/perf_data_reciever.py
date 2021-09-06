@@ -4,6 +4,7 @@ import struct
 from web_rating.lib import mongo_api
 from web_rating.lib.meta_data import add_meta_data
 import json
+import time
 
 
 def verify_correctness(correctness_data):
@@ -92,32 +93,32 @@ def listen_to_users(port_name):
     NoErrors = True
 
     while NoErrors:
+        time.sleep(1)
         server_sock.listen(1)
         conn, addr = server_sock.accept()
         print('Connected by', addr)
         while NoErrors:
+            time.sleep(1)
             try:
                 recv_data = conn.recv(4024*4)
-                if not recv_data:
-                    response = "Not Accepted. Connection Error."
-                    NoErrors = False
-                    break;
-                else:
+                if recv_data:
                     benchmarking_data = pickle.loads(recv_data)
                     if process_results(benchmarking_data):
                         response = "Accepted"
                     else:
                         response = "Not Accepted. Load Error."
                         NoErrors = False
-                        break;
-
-                conn.sendall(response.encode())
+                    
+                    conn.sendall(response.encode())
+                    break
             except socket.error:
                 response = "Not Accepted. Socket Error."
                 NoErrors = False;
                 break;
 
         conn.close()
+
+
 
 
 listen_to_users(1026)

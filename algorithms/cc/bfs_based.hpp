@@ -38,7 +38,7 @@ int CC::select_pivot(VGL_Graph &_graph,
 
 #if defined(__USE_NEC_SX_AURORA__) || defined(__USE_MULTICORE__)
 template <typename _T>
-void CC::vgl_bfs_based(VGL_Graph &_graph, VerticesArray<_T> &_components)
+double CC::vgl_bfs_based(VGL_Graph &_graph, VerticesArray<_T> &_components)
 {
     VGL_GRAPH_ABSTRACTIONS graph_API(_graph, SCATTER);
     VGL_FRONTIER frontier(_graph, SCATTER);
@@ -119,6 +119,8 @@ void CC::vgl_bfs_based(VGL_Graph &_graph, VerticesArray<_T> &_components)
     #ifdef __PRINT_SAMPLES_PERFORMANCE_STATS__
     performance_stats.print_algorithm_performance_stats("CC (BFS-based, NEC)", tm.get_time(), _graph.get_edges_count());
     #endif
+
+    return performance_stats.get_algorithm_performance(tm.get_time(), _graph.get_edges_count());
 }
 #endif
 

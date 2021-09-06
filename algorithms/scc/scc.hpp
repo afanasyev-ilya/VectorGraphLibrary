@@ -303,7 +303,7 @@ void SCC::FB_step(VGL_Graph &_graph,
 
 #if defined(__USE_NEC_SX_AURORA__) || defined(__USE_MULTICORE__)
 template <typename _T>
-void SCC::vgl_forward_backward(VGL_Graph &_graph, VerticesArray<_T> &_components)
+double SCC::vgl_forward_backward(VGL_Graph &_graph, VerticesArray<_T> &_components)
 {
     VGL_GRAPH_ABSTRACTIONS graph_API(_graph, SCATTER);
     VGL_FRONTIER frontier(_graph, SCATTER);
@@ -330,6 +330,8 @@ void SCC::vgl_forward_backward(VGL_Graph &_graph, VerticesArray<_T> &_components
     performance_stats.print_algorithm_performance_stats("SCC (Forward-Backward)", trim_tm.get_time() + bfs_tm.get_time(), _graph.get_edges_count());
     print_component_sizes(_components);
     #endif
+
+    return performance_stats.get_algorithm_performance(trim_tm.get_time() + bfs_tm.get_time(), _graph.get_edges_count());
 }
 #endif
 

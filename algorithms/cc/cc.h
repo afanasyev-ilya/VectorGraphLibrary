@@ -25,21 +25,21 @@ private:
 public:
     #if defined(__USE_NEC_SX_AURORA__) || defined(__USE_MULTICORE__)
     template <typename _T>
-    static void vgl_shiloach_vishkin(VGL_Graph &_graph, VerticesArray<_T> &_components);
+    static double vgl_shiloach_vishkin(VGL_Graph &_graph, VerticesArray<_T> &_components);
     #endif
 
     #if defined(__USE_NEC_SX_AURORA__) || defined(__USE_MULTICORE__)
     template <typename _T>
-    static void vgl_bfs_based(VGL_Graph &_graph, VerticesArray<_T> &_components);
+    static double vgl_bfs_based(VGL_Graph &_graph, VerticesArray<_T> &_components);
     #endif
 
     #ifdef __USE_GPU__
     template <typename _T>
-    static void vgl_shiloach_vishkin(VGL_Graph &_graph, VerticesArray<_T> &_components);
+    static double vgl_shiloach_vishkin(VGL_Graph &_graph, VerticesArray<_T> &_components);
     #endif
 
     template <typename _T>
-    static void seq_bfs_based(VGL_Graph &_graph, VerticesArray<_T> &_components);
+    static double seq_bfs_based(VGL_Graph &_graph, VerticesArray<_T> &_components);
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

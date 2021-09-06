@@ -54,8 +54,11 @@ def process_graph(graph_name, graph_data):
 
         print(sub_path)
         source_name = "./obj/" + sub_path + "/out." + sub_path
+        final_name = graph_name.replace(" ", "_")
+        final_name = final_name.replace("(", "_")
+        final_name = final_name.replace(")", "_")
         cmd = ["./../../apps/bin/create_vgl_graphs_mc", "-convert", source_name, "-directed",
-               "-file", "./source_graphs/" + graph_name.replace(" ", "_"), "-format", "el_container"]
+               "-file", "./source_graphs/" + final_name, "-format", "el_container"]
         print(' '.join(cmd))
         subprocess.Popen(cmd, shell=False, stdout=subprocess.PIPE).wait()
 

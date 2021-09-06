@@ -3,7 +3,7 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template <typename _T>
-void CC::seq_bfs_based(VGL_Graph &_graph, VerticesArray<_T> &_components)
+double CC::seq_bfs_based(VGL_Graph &_graph, VerticesArray<_T> &_components)
 {
     Timer tm;
     tm.start();
@@ -48,11 +48,12 @@ void CC::seq_bfs_based(VGL_Graph &_graph, VerticesArray<_T> &_components)
     }
     tm.end();
 
-
     #ifdef __PRINT_SAMPLES_PERFORMANCE_STATS__
     performance_stats.print_algorithm_performance_stats("CC (BFS-based, Sequential)", tm.get_time(), _graph.get_edges_count());
     print_component_sizes(_components);
     #endif
+
+    return performance_stats.get_algorithm_performance(tm.get_time(), _graph.get_edges_count());
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

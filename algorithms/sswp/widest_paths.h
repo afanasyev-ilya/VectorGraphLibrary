@@ -20,12 +20,12 @@ class WidestPaths
 public:
     // architecture-independent API example. same function for NEC, multicore, GPU
     template <typename _T>
-    static void vgl_dijkstra(VGL_Graph &_graph, EdgesArray<_T> &_edges_capacities,
-                             VerticesArray<_T> &_widths, int _source_vertex);
+    static double vgl_dijkstra(VGL_Graph &_graph, EdgesArray<_T> &_edges_capacities,
+                               VerticesArray<_T> &_widths, int _source_vertex);
 
     template <typename _T>
-    static void seq_dijkstra(VGL_Graph &_graph, EdgesArray<_T> &_edges_capacities,
-                             VerticesArray<_T> &_widths, int _source_vertex);
+    static double seq_dijkstra(VGL_Graph &_graph, EdgesArray<_T> &_edges_capacities,
+                               VerticesArray<_T> &_widths, int _source_vertex);
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

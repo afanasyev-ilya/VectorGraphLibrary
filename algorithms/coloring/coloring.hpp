@@ -64,7 +64,7 @@ inline int smallest_bit_pos(size_t _input)
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template <typename _T>
-void Coloring::vgl_coloring(VGL_Graph &_graph, VerticesArray<_T> &_colors)
+double Coloring::vgl_coloring(VGL_Graph &_graph, VerticesArray<_T> &_colors)
 {
     VerticesArray<size_t> available_colors(_graph);
     VerticesArray<int> need_recolor(_graph);
@@ -150,6 +150,8 @@ void Coloring::vgl_coloring(VGL_Graph &_graph, VerticesArray<_T> &_colors)
     cout << "Iterations: " << iterations << endl;
     performance_stats.print_algorithm_performance_stats("Coloring (NEC/multicore)", tm.get_time(), _graph.get_edges_count());
     #endif
+
+    return performance_stats.get_algorithm_performance(tm.get_time(), _graph.get_edges_count());
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

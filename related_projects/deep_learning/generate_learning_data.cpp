@@ -101,6 +101,16 @@ int main(int argc, char **argv)
             graph_container.random_shuffle_edges();
             out_file_name += type + "_syn_" + std::to_string(parser.get_scale()) + "_" + std::to_string(parser.get_avg_degree());
         }
+        else if(parser.get_compute_mode() == IMPORT_EDGES_CONTAINER)
+        {
+            EdgesContainer edges_container;
+            if(!edges_container.load_from_binary_file(parser.get_graph_file_name()))
+                throw "Error: edges container file not found";
+
+            string prefix = "./source_graphs/";
+            string source_name = parser.get_graph_file_name();
+            out_file_name += "rw_" + source_name.substr(prefix.length());
+        }
 
         double best_perf = 0;
         int best_run = 0;
@@ -119,6 +129,7 @@ int main(int argc, char **argv)
 
         cout << "BEST PERF " << best_perf << " ON: " << best_run << " | " << run_data[best_run].format << " " <<
             run_data[best_run].optimization << endl;
+        cout << "saving to " << out_file_name << endl;
 
         double* nn_input = convert_graph_to_nn_input(graph_container);
         save_nn_input_to_file(nn_input, best_run, out_file_name);
