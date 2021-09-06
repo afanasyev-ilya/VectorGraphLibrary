@@ -91,7 +91,6 @@ def compute_weighted_normalized_rating(graph_filter_criteria, apps_filter_criter
     for arch in unique_architectures:
         rating_values[arch] = {"val": 0.0, "arch_dict": {}}
 
-
     for app in unique_apps:
         for graph in unique_graphs:
             perf_data = mongo_api.find({"graph_name": graph, "app_name": app}, {"arch_name": 1, "perf_val": 1, "arch_dict": 1}) # 1 means present

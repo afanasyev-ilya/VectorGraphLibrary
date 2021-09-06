@@ -21,8 +21,8 @@ def prepare_real_world_learning_data():
 def prepare_synthetic_learning_data():
     graph_types = ["rmat", "ru"]
     for graph_type in graph_types:
-        for scale in range(15, 22):
-            for edge_factor in range(5, 32):
+        for scale in range(15, 23):
+            for edge_factor in range(5, 64, 10):
                 cmd = ["./generate_learning_data.out", "-s", str(scale), "-e", str(edge_factor), "-directed",
                        "-type", graph_type]
                 print(' '.join(cmd))
@@ -31,7 +31,7 @@ def prepare_synthetic_learning_data():
 
 
 if __name__ == "__main__":
-    #prepare_synthetic_learning_data()
+    prepare_synthetic_learning_data()
     prepare_real_world_learning_data()
 
 

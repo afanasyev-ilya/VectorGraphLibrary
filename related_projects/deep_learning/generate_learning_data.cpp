@@ -103,8 +103,7 @@ int main(int argc, char **argv)
         }
         else if(parser.get_compute_mode() == IMPORT_EDGES_CONTAINER)
         {
-            EdgesContainer edges_container;
-            if(!edges_container.load_from_binary_file(parser.get_graph_file_name()))
+            if(!graph_container.load_from_binary_file(parser.get_graph_file_name()))
                 throw "Error: edges container file not found";
 
             string prefix = "./source_graphs/";

@@ -132,8 +132,8 @@ int VectorCSRGraph::select_random_nz_vertex()
             return vertex_id;
         attempt_num++;
     }
-    throw "Error in VectorCSRGraph::select_random_vertex: can not select non-zero degree vertex in ATTEMPTS_THRESHOLD attempts";
-    return -1;
+    cout << "Error in VectorCSRGraph::select_random_vertex: can not select non-zero degree vertex in ATTEMPTS_THRESHOLD attempts" << endl;
+    return rand() % this->vertices_count;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

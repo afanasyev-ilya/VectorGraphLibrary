@@ -7,6 +7,10 @@
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+#include <limits>
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 double* convert_graph_to_nn_input(EdgesContainer &_el_container)
 {
     int vertices_count = _el_container.get_vertices_count();
@@ -21,14 +25,28 @@ double* convert_graph_to_nn_input(EdgesContainer &_el_container)
 
     int seg_size = (vertices_count - 1) / N + 1;
 
+    #pragma omp parallel for
+    for(int x = 0; x < N; x++)
+    {
+        for(int y = 0; y < N; y++)
+        {
+            sparsity_data[x * N + y] = 0;
+        }
+    }
+
+    #pragma omp parallel for
     for(long long idx = 0; idx < edges_count; idx++)
     {
         int src_id = src_ids[idx];
         int dst_id = dst_ids[idx];
         int src_seg = src_id / seg_size;
         int dst_seg = dst_id / seg_size;
+
+        #pragma omp atomic
         sparsity_data[src_seg * N + dst_seg]++;
     }
+
+    #pragma omp parallel for
     for(int x = 0; x < N; x++)
     {
         for(int y = 0; y < N; y++)
@@ -41,7 +59,8 @@ double* convert_graph_to_nn_input(EdgesContainer &_el_container)
     {
         for(int y = 0; y < N; y++)
         {
-            cout << normalized_sparsity_data[x * N + y] << " ";
+            cout.precision(std::numeric_limits<double>::max_digits10);
+            cout << std::fixed << (double)normalized_sparsity_data[x * N + y] << " ";
         }
         cout << endl;
     }*/

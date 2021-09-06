@@ -313,6 +313,7 @@ double SSSP::vgl_dijkstra(VGL_Graph &_graph,
     {
         return vgl_dijkstra_partial_active(_graph, _weights, _distances, _source_vertex);
     }
+    return 0;
 }
 #endif
 

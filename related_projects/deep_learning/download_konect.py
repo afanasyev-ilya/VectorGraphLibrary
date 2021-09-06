@@ -12,7 +12,7 @@ def load_obj(name):
 
 
 def condition(graph):
-    if pow(2, 14) < graph["size"] < pow(2, 21):
+    if pow(2, 15) < graph["size"] < pow(2, 24):
         return True
     return False
 
@@ -25,25 +25,27 @@ def remove_suffix(text, prefix):
     return text[text.endswith(prefix) and len(prefix):]
 
 
-def process_graph(graph_name, graph_data):
+def process_graph(graph_name, graph_data, download, prepare):
     if "http" in graph_data["tsv_link"]:
         print(graph_data)
         suffix = graph_data["tsv_link"].split('/')[-1]
         print(suffix)
 
         file_name = "./obj/" + suffix
-        if not path.exists(file_name):
-            link = graph_data["tsv_link"]
-            print("Trying to download " + link)
-            cmd = ["wget", link, "-q", "--no-check-certificate", "--directory", "./obj"]
-            print(' '.join(cmd))
-            subprocess.call(cmd, shell=False, stdout=subprocess.PIPE)
-            if path.exists(file_name):
-                print(file_name + " downloaded!")
+
+        if download:
+            if not path.exists(file_name):
+                link = graph_data["tsv_link"]
+                print("Trying to download " + link)
+                cmd = ["wget", link, "-q", "--no-check-certificate", "--directory", "./obj"]
+                print(' '.join(cmd))
+                subprocess.call(cmd, shell=False, stdout=subprocess.PIPE)
+                if path.exists(file_name):
+                    print(file_name + " downloaded!")
+                else:
+                    print("Error! Can not download file " + file_name)
             else:
-                print("Error! Can not download file " + file_name)
-        else:
-            print("File " + "./obj/" + suffix + " exists!")
+                print("File " + "./obj/" + suffix + " exists!")
 
         tar_name = "./obj/" + suffix
         cmd = ["tar", "-xjf", tar_name, '-C', "./obj/"]
@@ -57,13 +59,15 @@ def process_graph(graph_name, graph_data):
         final_name = graph_name.replace(" ", "_")
         final_name = final_name.replace("(", "_")
         final_name = final_name.replace(")", "_")
-        cmd = ["./../../apps/bin/create_vgl_graphs_mc", "-convert", source_name, "-directed",
-               "-file", "./source_graphs/" + final_name, "-format", "el_container"]
-        print(' '.join(cmd))
-        subprocess.Popen(cmd, shell=False, stdout=subprocess.PIPE).wait()
+
+        if prepare:
+            cmd = ["./../../apps/bin/create_vgl_graphs_mc", "-convert", source_name, "-directed",
+                   "-file", "./source_graphs/" + final_name, "-format", "el_container"]
+            print(' '.join(cmd))
+            subprocess.Popen(cmd, shell=False, stdout=subprocess.PIPE).wait()
 
 
-def download_learning_data():
+def download_learning_data(download=True, prepare=True):
     graphs = {}
     unsorted_dict = load_obj("graphs")
     for key in unsorted_dict.keys():
@@ -71,11 +75,11 @@ def download_learning_data():
         graph_data = unsorted_dict[key]
         if condition(graph_data):
             print(graph_name + " satisfies condition")
-            process_graph(graph_name, graph_data)
+            process_graph(graph_name, graph_data, download, prepare)
 
 
 if __name__ == "__main__":
-    download_learning_data()
+    download_learning_data(download=True, prepare=False)
 
 
 
