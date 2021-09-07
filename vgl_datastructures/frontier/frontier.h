@@ -14,12 +14,11 @@ class VGL_Frontier
 {
 protected:
     ObjectType object_type;
-    TraversalDirection direction;
     VGL_Graph *graph_ptr;
 
     BaseFrontier *container;
 
-    void alloc_container();
+    void alloc_container(TraversalDirection _direction);
 public:
     /* constructors and destructors */
     VGL_Frontier(VGL_Graph &_graph, TraversalDirection _direction = ORIGINAL);
@@ -48,7 +47,7 @@ public:
     inline void set_all_active() { container->set_all_active(); };
 
     // frontier direction API
-    inline TraversalDirection get_direction() { return container->get_direction(); };
+    inline TraversalDirection get_direction() const { return container->get_direction(); };
     inline void set_direction(TraversalDirection _direction) { container->set_direction(_direction); }; // TODO REMOVE
     inline void reorder(TraversalDirection _direction) { container->reorder(_direction); };
 

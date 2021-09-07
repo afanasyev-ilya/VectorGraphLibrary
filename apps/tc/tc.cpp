@@ -54,8 +54,15 @@ int main(int argc, char **argv)
 
         // start algorithm
         VGL_RUNTIME::start_measuring_stats();
-        VGL_RUNTIME::report_performance(TC::vgl_bfs_based(graph, vertex_pairs, answer));
+        VGL_RUNTIME::report_performance(TC::vgl_purdom(graph, vertex_pairs, answer));
         VGL_RUNTIME::stop_measuring_stats(graph.get_edges_count(), parser);
+
+        if(parser.get_check_flag())
+        {
+            vector<bool> check_answer(vertex_pairs.size());
+            VGL_RUNTIME::report_performance(TC::vgl_bfs_based(graph, vertex_pairs, check_answer));
+            verify_results(&(answer.front()), &(check_answer.front()), vertex_pairs.size());
+        }
 
         VGL_RUNTIME::finalize_library();
     }

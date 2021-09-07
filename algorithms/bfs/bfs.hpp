@@ -25,7 +25,7 @@ double BFS::fast_vgl_top_down(VGL_Graph &_graph,
     int current_level = FIRST_LEVEL_VERTEX;
     while(_frontier.size() > 0)
     {
-        auto edge_op = [_levels, &current_level] __VGL_SCATTER_ARGS__
+        auto edge_op = [_levels, current_level] __VGL_SCATTER_ARGS__
         {
             int src_level = _levels[src_id];
             int dst_level = _levels[dst_id];

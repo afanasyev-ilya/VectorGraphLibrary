@@ -3,6 +3,17 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template <typename _T, typename ReduceOperation, typename GraphContainer, typename FrontierContainer>
+void GraphAbstractionsMulticore::reduce_worker_max(GraphContainer &_graph,
+                                                   FrontierContainer &_frontier,
+                                                   ReduceOperation &&reduce_op,
+                                                   _T &_result)
+{
+    throw "Error in GraphAbstractionsMulticore::reduce_worker_max : not implemented yet";
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+template <typename _T, typename ReduceOperation, typename GraphContainer, typename FrontierContainer>
 void GraphAbstractionsMulticore::reduce_worker_sum(GraphContainer &_graph,
                                                    FrontierContainer &_frontier,
                                                    ReduceOperation &&reduce_op,

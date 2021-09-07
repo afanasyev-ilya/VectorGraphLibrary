@@ -146,6 +146,17 @@ void __global__ prepare_reduce_data_kernel(GraphContainer _graph,
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template <typename _T, typename ReduceOperation, typename GraphContainer, typename FrontierContainer>
+void GraphAbstractionsGPU::reduce_worker_max(GraphContainer &_graph,
+                                             FrontierContainer &_frontier,
+                                             ReduceOperation &&reduce_op,
+                                             _T &_result)
+{
+    throw "Error in GraphAbstractionsGPU::reduce_worker_max : not implemented yet";
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+template <typename _T, typename ReduceOperation, typename GraphContainer, typename FrontierContainer>
 void GraphAbstractionsGPU::reduce_worker_sum(GraphContainer &_graph,
                                              FrontierContainer &_frontier,
                                              ReduceOperation &&reduce_op,
