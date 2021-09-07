@@ -52,7 +52,7 @@ install:
                         git clone https://www.github.com/moderngpu/moderngpu ../external_libraries/moderngpu;\
                 fi
 
-all: sssp sswp bfs scc pr cc rw hits coloring create_vgl_graphs
+all: sssp sswp bfs scc pr cc rw hits coloring tc create_vgl_graphs
 
 sssp: create_folders sssp.o
 	$(CXX) object_files/sssp.o $(Library_Path) $(Libraries) -o ./bin/sssp$(ArchSuffix)$(BinSuffix)
@@ -86,6 +86,9 @@ apsp: create_folders apsp.o
 
 coloring: create_folders coloring.o
 	$(CXX) object_files/coloring.o $(Library_Path) $(Libraries) -o ./bin/coloring$(ArchSuffix)$(BinSuffix)
+
+tc: create_folders tc.o
+	$(CXX) object_files/tc.o $(Library_Path) $(Libraries) -o ./bin/tc$(ArchSuffix)$(BinSuffix)
 
 print_graph_info: create_folders print_graph_info.o
 	$(CXX) object_files/print_graph_info.o $(Library_Path) $(Libraries) -o ./bin/print_graph_info$(ArchSuffix)$(BinSuffix)
@@ -132,6 +135,9 @@ apsp.o: apsp/apsp.cpp
 
 coloring.o: coloring/coloring.cpp
 	$(CXX) $(Flags) $(Include_Path)  -c coloring/coloring.cpp -o object_files/coloring.o
+
+tc.o: tc/tc.cpp
+	$(CXX) $(Flags) $(Include_Path)  -c tc/tc.cpp -o object_files/tc.o
 
 print_graph_info.o: utilites/print_graph_info.cpp
 	$(CXX) $(Flags) $(Include_Path)  -c utilites/print_graph_info.cpp -o object_files/print_graph_info.o

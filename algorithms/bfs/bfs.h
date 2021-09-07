@@ -23,8 +23,19 @@ struct BFS_GraphVE
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+class TransitiveClosure;
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 class BFS
 {
+private:
+    template <typename _T>
+    static double fast_vgl_top_down(VGL_Graph &_graph,
+                                    VerticesArray<_T> &_levels,
+                                    int _source_vertex,
+                                    VGL_GRAPH_ABSTRACTIONS &_graph_API,
+                                    VGL_FRONTIER &_frontier);
 public:
     #ifdef __USE_GPU__
     template <typename _T>
@@ -36,14 +47,10 @@ public:
     static double vgl_top_down(VGL_Graph &_graph, VerticesArray<_T> &_levels, int _source_vertex);
     #endif
 
-    /*#if defined(__USE_NEC_SX_AURORA__)
-    template <typename _T>
-    static void hardwired_do_bfs(VGL_Graph &_graph, VerticesArray<_T> &_levels, int _source_vertex, BFS_GraphVE &_vector_extension,
-                                 int *_buffer1, int *_buffer2);
-    #endif*/
-
     template <typename _T>
     static double seq_top_down(VGL_Graph &_graph, VerticesArray<_T> &_levels, int _source_vertex);
+
+    friend class TransitiveClosure;
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

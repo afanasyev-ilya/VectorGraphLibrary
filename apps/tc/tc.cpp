@@ -10,6 +10,27 @@
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+void generate_vertex_pairs(VGL_Graph &_graph, vector<pair<int,int>> &_vertex_pairs, int _desired_num_pairs)
+{
+    int vertices_count = _graph.get_vertices_count();
+    for(int i = 0; i < _desired_num_pairs; i++)
+    {
+        _vertex_pairs.push_back(std::make_pair(rand() % vertices_count, rand() % vertices_count));
+    }
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+void print_vertex_pairs(vector<pair<int,int>> &_vertex_pairs)
+{
+    for(auto pair : _vertex_pairs)
+    {
+        cout << "(" << pair.first << ", " << pair.second << ")" << endl;
+    }
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 int main(int argc, char **argv)
 {
     try
@@ -24,10 +45,16 @@ int main(int argc, char **argv)
         // prepare graph
         VGL_Graph graph(VGL_RUNTIME::select_graph_format(parser), VGL_RUNTIME::select_graph_optimizations(parser));
         VGL_RUNTIME::prepare_graph(graph, parser);
-        
+
+        // prepare vertex pairs
+        int desired_num_pairs = parser.get_number_of_rounds();
+        vector<pair<int,int>> vertex_pairs;
+        generate_vertex_pairs(graph, vertex_pairs, desired_num_pairs);
+        vector<bool> answer(vertex_pairs.size());
+
         // start algorithm
         VGL_RUNTIME::start_measuring_stats();
-
+        VGL_RUNTIME::report_performance(TC::vgl_bfs_based(graph, vertex_pairs, answer));
         VGL_RUNTIME::stop_measuring_stats(graph.get_edges_count(), parser);
 
         VGL_RUNTIME::finalize_library();

@@ -57,6 +57,7 @@ using namespace std;
 #include "algorithms/rw/random_walk.h"
 #include "algorithms/sssp/shortest_paths.h"
 #include "algorithms/sswp/widest_paths.h"
+#include "algorithms/tc/tc.h"
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 

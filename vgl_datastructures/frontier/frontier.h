@@ -14,11 +14,16 @@ class VGL_Frontier
 {
 protected:
     ObjectType object_type;
+    TraversalDirection direction;
+    VGL_Graph *graph_ptr;
 
     BaseFrontier *container;
+
+    void alloc_container();
 public:
     /* constructors and destructors */
     VGL_Frontier(VGL_Graph &_graph, TraversalDirection _direction = ORIGINAL);
+    VGL_Frontier(const VGL_Frontier &_copy_obj);
     ~VGL_Frontier();
 
     // get API

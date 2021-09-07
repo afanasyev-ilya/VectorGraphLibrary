@@ -78,6 +78,7 @@ def get_app_coef(app_name, slider_values):
         k = float(slider_values[app_name])/100.0
         return k
 
+
 def get_coefficient(graph, app, slider_values):
     return get_graph_coef(graph, slider_values) * get_app_coef(app, slider_values)
 
