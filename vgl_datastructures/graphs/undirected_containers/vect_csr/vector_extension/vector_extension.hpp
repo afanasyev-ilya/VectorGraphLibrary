@@ -143,6 +143,42 @@ void VectorExtension::copy_array_from_csr_to_ve(_T *_dst_ve_array, _T *_src_csr_
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+template <typename _T, typename MergeOperation>
+void VectorExtension::merge_csr_and_ve_data(_T *_dst_ve_array, _T *_src_csr_array, MergeOperation &&merge_op)
+{
+    #pragma omp parallel for
+    for(int cur_vector_segment = 0; cur_vector_segment < vector_segments_count; cur_vector_segment++)
+    {
+        int vec_start = cur_vector_segment * VECTOR_LENGTH + first_vertex;
+        long long edge_ptr = vector_group_ptrs[cur_vector_segment];
+        int cur_max_connections_count = vector_group_sizes[cur_vector_segment];
+
+        #pragma _NEC novector
+        for(int edge_pos = 0; edge_pos < cur_max_connections_count; edge_pos++)
+        {
+            #pragma _NEC ivdep
+            #pragma _NEC vector
+            for(int i = 0; i < VECTOR_LENGTH; i++)
+            {
+                int src_id = vec_start + i;
+                int connections_count = csr_adjacent_ptrs_ptr[src_id + 1] - csr_adjacent_ptrs_ptr[src_id];
+                long long csr_edge_pos = csr_adjacent_ptrs_ptr[src_id] + edge_pos;
+                long long ve_edge_pos = edge_ptr + edge_pos*VECTOR_LENGTH + i;
+
+                if((src_id < last_vertex) && (edge_pos < connections_count))
+                {
+                    _T val1 = _dst_ve_array[ve_edge_pos];
+                    _T val2 = _src_csr_array[csr_edge_pos];
+                    _dst_ve_array[ve_edge_pos] = merge_op(val1, val2);
+                    _src_csr_array[csr_edge_pos] = merge_op(val1, val2);
+                }
+            }
+        }
+    }
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 inline long long VectorExtension::get_ve_edge_id(int _src_id, int _dst_id)
 {
     int cur_vector_segment = (_src_id - first_vertex)/VECTOR_LENGTH;

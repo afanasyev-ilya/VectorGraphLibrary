@@ -26,6 +26,9 @@ public:
     void print() final;
 
     void attach_pointer(_T *_outer_data) final;
+
+    template <typename MergeOperation>
+    void finalize_advance(MergeOperation &&merge_operation);
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

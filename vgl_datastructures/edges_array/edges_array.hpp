@@ -76,3 +76,18 @@ void EdgesArray<_T>::move_to_host()
 #endif
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+template <typename _T>
+template <typename MergeOperation>
+void EdgesArray<_T>::finalize_advance(MergeOperation &&merge_operation)
+{
+    if(container->get_base_graph_ptr()->get_container_type() == VECTOR_CSR_GRAPH)
+    {
+        EdgesArray_VectorCSR<_T> *vcsr_container = (EdgesArray_VectorCSR<_T> *) container;
+        vcsr_container->finalize_advance(merge_operation);
+    }
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+

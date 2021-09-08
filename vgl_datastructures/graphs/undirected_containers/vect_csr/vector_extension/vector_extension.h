@@ -48,6 +48,9 @@ public:
     template <typename _T>
     void copy_array_from_csr_to_ve(_T *_dst_ve_array, _T *_src_csr_array);
 
+    template <typename _T, typename MergeOperation>
+    void merge_csr_and_ve_data(_T *_dst_ve_array, _T *_src_csr_array, MergeOperation &&merge_op);
+
     /* GPU specific (copy) API */
     #ifdef __USE_GPU__
     void move_to_device();

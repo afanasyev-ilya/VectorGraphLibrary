@@ -25,6 +25,7 @@ public:
     // the following getters and setters are implemented here, since calling virtual functions of edges_array_representation
     // is too slow for graph processing (reduces bandwidth on NEC and CPUs)
     // luckily, all _global_idx indexes are calculated inside VGL advance abstraction
+    // shifts (direction, vector engine) must be calculated correctly to use these setters
 
     /* get/set API */
     #ifdef __USE_GPU__
@@ -36,6 +37,9 @@ public:
     inline void set(long long _global_idx, _T _val) const {edges_data[_global_idx] = _val;};
     inline _T& operator[] (long long _global_idx) const { return edges_data[_global_idx]; };
     #endif
+
+    template <typename MergeOperation>
+    void finalize_advance(MergeOperation &&merge_operation);
 
     inline _T *get_ptr() const { return edges_data; };
 

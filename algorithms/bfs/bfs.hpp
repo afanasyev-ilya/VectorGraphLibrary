@@ -3,7 +3,7 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template <typename _T>
-double BFS::fast_vgl_top_down(VGL_Graph &_graph,
+void BFS::fast_vgl_top_down(VGL_Graph &_graph,
                               VerticesArray<_T> &_levels,
                               int _source_vertex,
                               VGL_GRAPH_ABSTRACTIONS &_graph_API,

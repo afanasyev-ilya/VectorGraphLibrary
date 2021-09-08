@@ -50,7 +50,7 @@ int main(int argc, char **argv)
         int desired_num_pairs = parser.get_number_of_rounds();
         vector<pair<int,int>> vertex_pairs;
         generate_vertex_pairs(graph, vertex_pairs, desired_num_pairs);
-        vector<bool> answer(vertex_pairs.size());
+        vector<int> answer(vertex_pairs.size());
 
         // start algorithm
         VGL_RUNTIME::start_measuring_stats();
@@ -59,9 +59,9 @@ int main(int argc, char **argv)
 
         if(parser.get_check_flag())
         {
-            vector<bool> check_answer(vertex_pairs.size());
+            vector<int> check_answer(vertex_pairs.size());
             VGL_RUNTIME::report_performance(TC::vgl_bfs_based(graph, vertex_pairs, check_answer));
-            verify_results(&(answer.front()), &(check_answer.front()), vertex_pairs.size());
+            verify_results(&answer[0], &check_answer[0], vertex_pairs.size());
         }
 
         VGL_RUNTIME::finalize_library();

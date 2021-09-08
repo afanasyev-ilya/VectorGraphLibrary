@@ -118,3 +118,20 @@ void EdgesArray_VectorCSR<_T>::attach_pointer(_T *_outer_data)
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+template <typename _T>
+template <typename MergeOperation>
+void EdgesArray_VectorCSR<_T>::finalize_advance(MergeOperation &&merge_operation)
+{
+    VectorCSRGraph *outgoing_container = (VectorCSRGraph *)this->graph_ptr->get_outgoing_data();
+    VectorCSRGraph *incoming_container = (VectorCSRGraph *)this->graph_ptr->get_incoming_data();
+
+    outgoing_container->get_ve_ptr()->merge_csr_and_ve_data(this->outgoing_edges_ve, this->outgoing_edges, merge_operation);
+    if(this->graph_ptr->get_number_of_directions() == BOTH_DIRECTIONS)
+    {
+        incoming_container->get_ve_ptr()->merge_csr_and_ve_data(this->incoming_edges_ve, this->incoming_edges, merge_operation);
+    }
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
