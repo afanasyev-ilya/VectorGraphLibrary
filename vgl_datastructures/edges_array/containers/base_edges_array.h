@@ -30,6 +30,8 @@ public:
     virtual void print() = 0;
 
     virtual void attach_pointer(_T *_outer_data) = 0;
+
+    VGL_Graph *get_base_graph_ptr() { return graph_ptr; };
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

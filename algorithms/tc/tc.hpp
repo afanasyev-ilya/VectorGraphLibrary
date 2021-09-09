@@ -2,10 +2,9 @@
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-
-double TransitiveClosure::vgl_purdom(VGL_Graph &_graph,
-                                     vector<pair<int,int>> &_vertex_pairs,
-                                     vector<int> &_answer)
+double TransitiveClosure::vgl_purdoms(VGL_Graph &_graph,
+                                      vector<pair<int,int>> &_vertex_pairs,
+                                      vector<int> &_answer)
 {
     Timer tm;
     tm.start();
@@ -76,8 +75,8 @@ double TransitiveClosure::vgl_purdom(VGL_Graph &_graph,
             return val2;
         return 0;
     };
-    //new_src_ids.finalize_advance(merge_edges_array_data); // TODO
-    //new_dst_ids.finalize_advance(merge_edges_array_data);
+    new_src_ids.finalize_advance(merge_edges_array_data);
+    new_dst_ids.finalize_advance(merge_edges_array_data);
 
     int *edges_buffer;
     int *edge_indexes;

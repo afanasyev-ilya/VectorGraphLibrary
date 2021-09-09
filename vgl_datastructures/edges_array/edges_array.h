@@ -51,6 +51,9 @@ public:
     void move_to_device();
     void move_to_host();
     #endif
+
+    template <typename MergeOperation>
+    void finalize_advance(MergeOperation &&merge_operation);
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

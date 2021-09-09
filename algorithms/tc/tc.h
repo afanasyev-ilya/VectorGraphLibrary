@@ -19,7 +19,7 @@ class TransitiveClosure
 {
 public:
     // architecture-independent API example. same function for NEC, multicore, GPU
-    static double vgl_purdom(VGL_Graph &_graph, vector<pair<int,int>> &_vertex_pairs, vector<int> &_answer);
+    static double vgl_purdoms(VGL_Graph &_graph, vector<pair<int,int>> &_vertex_pairs, vector<int> &_answer);
 
     static double vgl_bfs_based(VGL_Graph &_graph, vector<pair<int,int>> &_vertex_pairs, vector<int> &_answer);
 };

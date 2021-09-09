@@ -61,7 +61,7 @@ int main(int argc, char **argv)
         {
             vector<int> check_answer(vertex_pairs.size());
             VGL_RUNTIME::report_performance(TC::vgl_bfs_based(graph, vertex_pairs, check_answer));
-            verify_results(&levels[0], &check_levels[0], 0);
+            verify_results(&answer[0], &check_answer[0], 0);
         }
 
         VGL_RUNTIME::finalize_library();
