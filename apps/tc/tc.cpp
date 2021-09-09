@@ -50,12 +50,19 @@ int main(int argc, char **argv)
         int desired_num_pairs = parser.get_number_of_rounds();
         vector<pair<int,int>> vertex_pairs;
         generate_vertex_pairs(graph, vertex_pairs, desired_num_pairs);
-        vector<bool> answer(vertex_pairs.size());
+        vector<int> answer(vertex_pairs.size());
 
         // start algorithm
         VGL_RUNTIME::start_measuring_stats();
-        VGL_RUNTIME::report_performance(TC::vgl_bfs_based(graph, vertex_pairs, answer));
+        VGL_RUNTIME::report_performance(TC::vgl_purdoms(graph, vertex_pairs, answer));
         VGL_RUNTIME::stop_measuring_stats(graph.get_edges_count(), parser);
+
+        if(parser.get_check_flag())
+        {
+            vector<int> check_answer(vertex_pairs.size());
+            VGL_RUNTIME::report_performance(TC::vgl_bfs_based(graph, vertex_pairs, check_answer));
+            verify_results(&levels[0], &check_levels[0], 0);
+        }
 
         VGL_RUNTIME::finalize_library();
     }
