@@ -18,7 +18,15 @@ private:
 
     // reduce inner implementation
     template <typename _T, typename ReduceOperation, typename GraphContainer, typename FrontierContainer>
+    void reduce_worker(GraphContainer &_graph, FrontierContainer &_frontier, ReduceOperation &&reduce_op,
+                       REDUCE_TYPE _reduce_type, _T &_result);
+
+    template <typename _T, typename ReduceOperation, typename GraphContainer, typename FrontierContainer>
     void reduce_worker_sum(GraphContainer &_graph, FrontierContainer &_frontier, ReduceOperation &&reduce_op,
+                           _T &_result);
+
+    template <typename _T, typename ReduceOperation, typename GraphContainer, typename FrontierContainer>
+    void reduce_worker_max(GraphContainer &_graph, FrontierContainer &_frontier, ReduceOperation &&reduce_op,
                            _T &_result);
 
     template <typename EdgeOperation, typename VertexPreprocessOperation,
@@ -194,16 +202,6 @@ private:
                                                 VertexPreprocessOperation vertex_preprocess_op,
                                                 VertexPostprocessOperation vertex_postprocess_op,
                                                 long long _process_shift);
-
-    template <typename EdgeOperation, typename VertexPreprocessOperation,
-            typename VertexPostprocessOperation>
-    inline void vertex_group_advance_fixed_vl(CSRVertexGroup &_group_data,
-                                              long long *_vertex_pointers,
-                                              int *_adjacent_ids,
-                                              EdgeOperation edge_op,
-                                              VertexPreprocessOperation vertex_preprocess_op,
-                                              VertexPostprocessOperation vertex_postprocess_op,
-                                              long long _process_shift);
 
     template <typename EdgeOperation, typename VertexPreprocessOperation,
             typename VertexPostprocessOperation>

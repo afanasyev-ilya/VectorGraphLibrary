@@ -39,6 +39,8 @@ def run_verify(options, arch, benchmarking_results):
     benchmarking_results.add_correctness_header_to_xls_table(options.format)
 
     for app_name in list_of_apps:
+        if "el" in options.format or app_name == "sswp": # check takes too long to be done
+            continue
         if is_valid(app_name, arch, options):
             verify_app(app_name, arch, benchmarking_results, options.format, options.mode)
         else:
@@ -49,7 +51,7 @@ def benchmark_and_verify(options, arch, benchmarking_results):
     if options.benchmark:
         run_benchmarks(options, arch, benchmarking_results)
 
-    if options.verify and "el" not in options.format:
+    if options.verify:
         run_verify(options, arch, benchmarking_results)
 
 

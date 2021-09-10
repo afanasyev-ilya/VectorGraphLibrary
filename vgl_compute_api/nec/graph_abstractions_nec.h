@@ -20,7 +20,15 @@ private:
 
     // reduce inner implementation
     template <typename _T, typename ReduceOperation, typename GraphContainer, typename FrontierContainer>
+    void reduce_worker(GraphContainer &_graph, FrontierContainer &_frontier, ReduceOperation &&reduce_op,
+                       REDUCE_TYPE _reduce_type, _T &_result);
+
+    template <typename _T, typename ReduceOperation, typename GraphContainer, typename FrontierContainer>
     void reduce_worker_sum(GraphContainer &_graph, FrontierContainer &_frontier, ReduceOperation &&reduce_op,
+                           _T &_result);
+
+    template <typename _T, typename ReduceOperation, typename GraphContainer, typename FrontierContainer>
+    void reduce_worker_max(GraphContainer &_graph, FrontierContainer &_frontier, ReduceOperation &&reduce_op,
                            _T &_result);
 
     // gnf inner implementation

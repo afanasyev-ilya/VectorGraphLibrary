@@ -23,44 +23,37 @@ void GraphAbstractions::common_reduce(VGL_Graph &_graph,
 
     _result = 0;
 
-    if(_reduce_type == REDUCE_SUM)
+    if(_graph.get_container_type() == VECTOR_CSR_GRAPH)
     {
-        if(_graph.get_container_type() == VECTOR_CSR_GRAPH)
-        {
-            VectorCSRGraph *container_graph = (VectorCSRGraph *)_graph.get_direction_data(current_traversal_direction);
-            FrontierVectorCSR *container_frontier = (FrontierVectorCSR *)_frontier.get_container_data();
+        VectorCSRGraph *container_graph = (VectorCSRGraph *)_graph.get_direction_data(current_traversal_direction);
+        FrontierVectorCSR *container_frontier = (FrontierVectorCSR *)_frontier.get_container_data();
 
-            _abstraction_class->reduce_worker_sum(*container_graph, *container_frontier, reduce_op, _result);
-        }
-        else if(_graph.get_container_type() == EDGES_LIST_GRAPH)
-        {
-            EdgesListGraph *container_graph = (EdgesListGraph *)_graph.get_direction_data(current_traversal_direction);
-            FrontierEdgesList *container_frontier = (FrontierEdgesList *)_frontier.get_container_data();
+        _abstraction_class->reduce_worker(*container_graph, *container_frontier, reduce_op, _reduce_type, _result);
+    }
+    else if(_graph.get_container_type() == EDGES_LIST_GRAPH)
+    {
+        EdgesListGraph *container_graph = (EdgesListGraph *)_graph.get_direction_data(current_traversal_direction);
+        FrontierEdgesList *container_frontier = (FrontierEdgesList *)_frontier.get_container_data();
 
-            _abstraction_class->reduce_worker_sum(*container_graph, *container_frontier, reduce_op, _result);
-        }
-        else if(_graph.get_container_type() == CSR_GRAPH)
-        {
-            CSRGraph *container_graph = (CSRGraph *)_graph.get_direction_data(current_traversal_direction);
-            FrontierCSR *container_frontier = (FrontierCSR *)_frontier.get_container_data();
+        _abstraction_class->reduce_worker(*container_graph, *container_frontier, reduce_op, _reduce_type, _result);
+    }
+    else if(_graph.get_container_type() == CSR_GRAPH)
+    {
+        CSRGraph *container_graph = (CSRGraph *)_graph.get_direction_data(current_traversal_direction);
+        FrontierCSR *container_frontier = (FrontierCSR *)_frontier.get_container_data();
 
-            _abstraction_class->reduce_worker_sum(*container_graph, *container_frontier, reduce_op, _result);
-        }
-        else if(_graph.get_container_type() == CSR_VG_GRAPH)
-        {
-            CSR_VG_Graph *container_graph = (CSR_VG_Graph *)_graph.get_direction_data(current_traversal_direction);
-            FrontierCSR_VG *container_frontier = (FrontierCSR_VG *)_frontier.get_container_data();
+        _abstraction_class->reduce_worker(*container_graph, *container_frontier, reduce_op, _reduce_type, _result);
+    }
+    else if(_graph.get_container_type() == CSR_VG_GRAPH)
+    {
+        CSR_VG_Graph *container_graph = (CSR_VG_Graph *)_graph.get_direction_data(current_traversal_direction);
+        FrontierCSR_VG *container_frontier = (FrontierCSR_VG *)_frontier.get_container_data();
 
-            _abstraction_class->reduce_worker_sum(*container_graph, *container_frontier, reduce_op, _result);
-        }
-        else
-        {
-            throw "Error in GraphAbstractions::compute : unsupported container type";
-        }
+        _abstraction_class->reduce_worker(*container_graph, *container_frontier, reduce_op, _reduce_type, _result);
     }
     else
     {
-        throw "Error in GraphAbstractions::reduce: non-sum reduce are currently unsupported";
+        throw "Error in GraphAbstractions::compute : unsupported container type";
     }
 
     tm.end();

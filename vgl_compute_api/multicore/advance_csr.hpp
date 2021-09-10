@@ -52,62 +52,6 @@ void GraphAbstractionsMulticore::vertex_group_advance_changed_vl(CSRVertexGroup 
 
 template <typename EdgeOperation, typename VertexPreprocessOperation,
         typename VertexPostprocessOperation>
-void GraphAbstractionsMulticore::vertex_group_advance_fixed_vl(CSRVertexGroup &_group_data,
-                                                               long long *_vertex_pointers,
-                                                               int *_adjacent_ids,
-                                                               EdgeOperation edge_op,
-                                                               VertexPreprocessOperation vertex_preprocess_op,
-                                                               VertexPostprocessOperation vertex_postprocess_op,
-                                                               long long _process_shift)
-{
-    #ifdef __PRINT_API_PERFORMANCE_STATS__
-    Timer tm;
-    tm.start();
-    #endif
-
-    #pragma omp for schedule(static, 8)
-    for(int idx = 0; idx < _group_data.size; idx++)
-    {
-        int src_id = _group_data.ids[idx];
-        long long first = _vertex_pointers[src_id];
-        long long last = _vertex_pointers[src_id + 1];
-        int connections_count = last - first;
-
-        vertex_preprocess_op(src_id, connections_count, 0);
-
-        #pragma simd
-        #pragma vector
-        #pragma ivdep
-        #pragma unroll(VECTOR_LENGTH)
-        for(int i = 0; i < VECTOR_LENGTH; i++)
-        {
-            long long edge_pos = first + i;
-            if(edge_pos < last)
-            {
-                int local_edge_pos = i;
-                const long long internal_edge_pos = edge_pos;
-                const int vector_index = i;
-                const long long external_edge_pos = _process_shift + internal_edge_pos;
-
-                const int dst_id = _adjacent_ids[internal_edge_pos];
-                edge_op(src_id, dst_id, local_edge_pos, external_edge_pos, vector_index);
-            }
-        }
-
-        vertex_postprocess_op(src_id, connections_count, 0);
-    }
-
-    #ifdef __PRINT_API_PERFORMANCE_STATS__
-    double t2 = omp_get_wtime();
-    tm.end();
-    tm.print_time_and_bandwidth_stats("Advance fixed vl", _group_data.neighbours, INT_ELEMENTS_PER_EDGE*sizeof(int));
-    #endif
-}
-
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-template <typename EdgeOperation, typename VertexPreprocessOperation,
-        typename VertexPostprocessOperation>
 void GraphAbstractionsMulticore::vertex_group_advance_sparse(CSRVertexGroup &_group_data,
                                                              long long *_vertex_pointers,
                                                              int *_adjacent_ids,

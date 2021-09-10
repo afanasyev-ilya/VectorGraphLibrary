@@ -5,6 +5,7 @@ from .settings import *
 import re
 from .export_to_xls import *
 import time
+from threading import Timer
 
 
 def find_perf_line(output):
@@ -47,10 +48,21 @@ def benchmark_app(app_name, arch, benchmarking_results, graph_format, run_speed_
 
             cmd = [get_binary_path(app_name, arch), "-import", get_path_to_graph(current_graph, "el_container", requires_undir_graphs(app_name))] + current_args + common_args
             print(' '.join(cmd))
-            proc = subprocess.Popen(cmd, shell=False, stdout=subprocess.PIPE)
-            output = proc.stdout.read().decode("utf-8")
+            proc = subprocess.Popen(cmd, shell=False, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            timer = Timer(TIMEOUT_SIZE, proc.kill)
+            try:
+                timer.start()
+                stdout, stderr = proc.communicate()
+            finally:
+                timer.cancel()
+
+            output = stdout.decode("utf-8")
 
             perf_value = extract_perf_val(find_perf_line(output))
+
+            if perf_value == 0.0:
+                perf_value = "TIMED OUT"
+
             benchmarking_results.add_performance_value_to_xls_table(perf_value, current_graph, app_name)
             end = time.time()
             if print_timings:

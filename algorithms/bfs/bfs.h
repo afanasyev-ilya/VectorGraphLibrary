@@ -31,11 +31,11 @@ class BFS
 {
 private:
     template <typename _T>
-    static double fast_vgl_top_down(VGL_Graph &_graph,
-                                    VerticesArray<_T> &_levels,
-                                    int _source_vertex,
-                                    VGL_GRAPH_ABSTRACTIONS &_graph_API,
-                                    VGL_FRONTIER &_frontier);
+    static void fast_vgl_top_down(VGL_Graph &_graph,
+                                  VerticesArray<_T> &_levels,
+                                  int _source_vertex,
+                                  VGL_GRAPH_ABSTRACTIONS &_graph_API,
+                                  VGL_FRONTIER &_frontier);
 public:
     #ifdef __USE_GPU__
     template <typename _T>

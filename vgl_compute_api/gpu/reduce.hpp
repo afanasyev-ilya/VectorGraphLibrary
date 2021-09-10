@@ -2,6 +2,10 @@
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+#include <thrust/extrema.h>
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 #if __CUDA_ARCH__ >= 700
 #define FULL_MASK 0xffffffff
 #endif
@@ -146,10 +150,11 @@ void __global__ prepare_reduce_data_kernel(GraphContainer _graph,
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template <typename _T, typename ReduceOperation, typename GraphContainer, typename FrontierContainer>
-void GraphAbstractionsGPU::reduce_worker_sum(GraphContainer &_graph,
-                                             FrontierContainer &_frontier,
-                                             ReduceOperation &&reduce_op,
-                                             _T &_result)
+void GraphAbstractionsGPU::reduce_worker(GraphContainer &_graph,
+                                         FrontierContainer &_frontier,
+                                         ReduceOperation &&reduce_op,
+                                         REDUCE_TYPE _reduce_type,
+                                         _T &_result);
 {
     _T *tmp_reduce = (_T*)reduce_buffer;
     int vertices_count = _graph.get_vertices_count();
@@ -167,7 +172,13 @@ void GraphAbstractionsGPU::reduce_worker_sum(GraphContainer &_graph,
     else if(_frontier.get_sparsity_type() == SPARSE_FRONTIER)
     {
         SAFE_KERNEL_CALL((prepare_reduce_data_kernel <<< (frontier_size - 1) / BLOCK_SIZE + 1, BLOCK_SIZE >>>(_graph, frontier_ids, frontier_size, reduce_op, tmp_reduce, true)));
-        _result = thrust::reduce(thrust::device, tmp_reduce, tmp_reduce + frontier_size);
+        if(_reduce_type == REDUCE_SUM)
+            _result = thrust::reduce(thrust::device, tmp_reduce, tmp_reduce + frontier_size);
+        else if(_reduce_type == REDUCE_MAX)
+            _result = thrust::max_element(thrust::device, tmp_reduce, tmp_reduce + frontier_size);
+        else
+            throw "Error in GraphAbstractionsNEC::reduce_worker: unsupported reduce type";
+
     }
 
     /*_T *managed_reduced_result;
@@ -195,9 +206,17 @@ void GraphAbstractionsGPU::reduce_worker_sum(GraphContainer &_graph,
     _result = managed_reduced_result[0];
 
     MemoryAPI::free_array(managed_reduced_result);*/
+}
 
-    int data[6] = {1, 0, 2, 2, 1, 3};
-    int result = thrust::reduce(thrust::host, data, data + 6, 1);
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+template <typename _T, typename ReduceOperation, typename GraphContainer, typename FrontierContainer>
+void GraphAbstractionsGPU::reduce_worker_max(GraphContainer &_graph,
+                                             FrontierContainer &_frontier,
+                                             ReduceOperation &&reduce_op,
+                                             _T &_result)
+{
+    throw "Error in GraphAbstractionsGPU::reduce_worker_max : not implemented yet";
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
