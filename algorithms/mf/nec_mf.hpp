@@ -3,7 +3,6 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #ifdef __USE_NEC_SX_AURORA__
-
 bool MF::nec_bfs(VectorCSRGraph &_graph,
                  int _source,
                  int _sink,
@@ -80,7 +79,6 @@ void construct_path(int _source, int _sink, int *_parents, int *_path, int &_pat
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #ifdef __USE_NEC_SX_AURORA__
-
 _TEdgeWeight MF::nec_ford_fulkerson(VectorCSRGraph &_graph,
                                     int _source, int _sink)
 {

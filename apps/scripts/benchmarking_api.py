@@ -37,6 +37,8 @@ def benchmark_app(app_name, arch, benchmarking_results, graph_format, run_speed_
     create_graphs_if_required(list_of_graphs, arch, run_speed_mode)
     common_args = ["-it", str(common_iterations), "-format", graph_format]
 
+    algorithms_tested = 0
+
     for current_args in benchmark_args[app_name]:
         benchmarking_results.add_performance_test_name_to_xls_table(app_name, current_args + common_args)
 
@@ -69,3 +71,7 @@ def benchmark_app(app_name, arch, benchmarking_results, graph_format, run_speed_
                 print("TIME: " + str(end-start) + " seconds\n")
 
         benchmarking_results.add_performance_separator_to_xls_table()
+
+        algorithms_tested += 1
+
+    return algorithms_tested

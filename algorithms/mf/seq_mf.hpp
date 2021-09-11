@@ -90,7 +90,6 @@ void MF::add_flow(VectorCSRGraph &_graph, int _src_id, int _dst_id, _TEdgeWeight
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-
 void MF::subtract_flow(VectorCSRGraph &_graph, int _src_id, int _dst_id, _TEdgeWeight update_val)
 {
     LOAD_VECTOR_CSR_GRAPH_DATA(_graph);

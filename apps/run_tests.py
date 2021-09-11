@@ -25,11 +25,13 @@ def run_benchmarks(options, arch, benchmarking_results):
     set_omp_environments(options)
     benchmarking_results.add_performance_header_to_xls_table(options.format)
 
+    algorithms_tested = 0
     for app_name in list_of_apps:
         if is_valid(app_name, arch, options):
-            benchmark_app(app_name, arch, benchmarking_results, options.format, options.mode)
+            algorithms_tested += benchmark_app(app_name, arch, benchmarking_results, options.format, options.mode)
         else:
             print("Error! Can not benchmark " + app_name + ", several errors occurred.")
+    print("\n\nEVALUATED PERFORMANCE OF " + str(algorithms_tested) + " GRAPH ALGORITHMS\n\n")
 
 
 def run_verify(options, arch, benchmarking_results):
