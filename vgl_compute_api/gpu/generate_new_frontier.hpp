@@ -141,7 +141,7 @@ void GraphAbstractionsGPU::generate_new_frontier_worker(VectorCSRGraph &_graph,
         auto reduce_connections = [] __VGL_REDUCE_INT_ARGS__ {
             return connections_count;
         };
-        reduce_worker_sum(_graph, _frontier, reduce_connections, _frontier.neighbours_count);
+        reduce_worker(_graph, _frontier, reduce_connections, REDUCE_SUM, _frontier.neighbours_count);
     }
 
     cudaDeviceSynchronize();
@@ -191,7 +191,7 @@ void GraphAbstractionsGPU::generate_new_frontier_worker(CSRGraph &_graph,
         auto reduce_connections = [] __VGL_REDUCE_INT_ARGS__ {
             return connections_count;
         };
-        reduce_worker_sum(_graph, _frontier, reduce_connections, _frontier.neighbours_count);
+        reduce_worker(_graph, _frontier, reduce_connections, REDUCE_SUM, _frontier.neighbours_count);
     }
 
     cudaDeviceSynchronize();
@@ -248,7 +248,7 @@ void GraphAbstractionsGPU::generate_new_frontier_worker(CSR_VG_Graph &_graph,
         auto reduce_connections = [] __VGL_REDUCE_INT_ARGS__ {
                 return connections_count;
         };
-        reduce_worker_sum(_graph, _frontier, reduce_connections, _frontier.neighbours_count);
+        reduce_worker(_graph, _frontier, reduce_connections, REDUCE_SUM, _frontier.neighbours_count);
     }
 
     cudaDeviceSynchronize();

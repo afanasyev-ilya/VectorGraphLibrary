@@ -9,14 +9,12 @@ protected:
     
     int vertices_count;
     long long edges_count;
-    
-    bool graph_on_device;
 
     SupportedDirection supported_direction;
     bool can_use_gather();
     bool can_use_scatter();
 public:
-    BaseGraph() {this->graph_on_device = false;};
+    BaseGraph() {};
     ~BaseGraph() {};
 
     /* import functions */

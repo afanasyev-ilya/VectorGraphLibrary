@@ -154,7 +154,7 @@ void GraphAbstractionsGPU::reduce_worker(GraphContainer &_graph,
                                          FrontierContainer &_frontier,
                                          ReduceOperation &&reduce_op,
                                          REDUCE_TYPE _reduce_type,
-                                         _T &_result);
+                                         _T &_result)
 {
     _T *tmp_reduce = (_T*)reduce_buffer;
     int vertices_count = _graph.get_vertices_count();
@@ -175,7 +175,7 @@ void GraphAbstractionsGPU::reduce_worker(GraphContainer &_graph,
         if(_reduce_type == REDUCE_SUM)
             _result = thrust::reduce(thrust::device, tmp_reduce, tmp_reduce + frontier_size);
         else if(_reduce_type == REDUCE_MAX)
-            _result = thrust::max_element(thrust::device, tmp_reduce, tmp_reduce + frontier_size);
+            _result = 0;// thrust::max_element(thrust::device, tmp_reduce, tmp_reduce + frontier_size);
         else
             throw "Error in GraphAbstractionsNEC::reduce_worker: unsupported reduce type";
 
@@ -206,17 +206,6 @@ void GraphAbstractionsGPU::reduce_worker(GraphContainer &_graph,
     _result = managed_reduced_result[0];
 
     MemoryAPI::free_array(managed_reduced_result);*/
-}
-
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-template <typename _T, typename ReduceOperation, typename GraphContainer, typename FrontierContainer>
-void GraphAbstractionsGPU::reduce_worker_max(GraphContainer &_graph,
-                                             FrontierContainer &_frontier,
-                                             ReduceOperation &&reduce_op,
-                                             _T &_result)
-{
-    throw "Error in GraphAbstractionsGPU::reduce_worker_max : not implemented yet";
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

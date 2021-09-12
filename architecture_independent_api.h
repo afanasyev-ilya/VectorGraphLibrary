@@ -22,6 +22,7 @@
 #define __VGL_ADVANCE_PREPROCESS_ARGS__ __device__ (int src_id, int connections_count, int vector_index)
 #define __VGL_ADVANCE_POSTPROCESS_ARGS__ __device__ (int src_id, int connections_count, int vector_index)
 #define __VGL_GNF_ARGS__ __device__ (int src_id, int connections_count)->int
+#define __VGL_REDUCE_ANY_ARGS__ __device__ (int src_id, int connections_count, int vector_index)
 #define __VGL_REDUCE_INT_ARGS__ __device__ (int src_id, int connections_count, int vector_index)->int
 #define __VGL_REDUCE_FLT_ARGS__ __device__ (int src_id, int connections_count, int vector_index)->float
 #define __VGL_REDUCE_DBL_ARGS__ __device__ (int src_id, int connections_count, int vector_index)->double

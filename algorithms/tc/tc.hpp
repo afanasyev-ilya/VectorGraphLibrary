@@ -97,7 +97,7 @@ double TransitiveClosure::vgl_purdoms(VGL_Graph &_graph,
 
     MemoryAPI::free_array(edges_buffer);
 
-    auto max_component_num = [components]__VGL_REDUCE_ANY_ARGS__->int
+    auto max_component_num = [components] __VGL_REDUCE_INT_ARGS__
     {
         return components[src_id];
     };

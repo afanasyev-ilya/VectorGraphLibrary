@@ -90,7 +90,7 @@ public:
 
     #ifdef __USE_GPU__
     template <typename _T>
-    static double gpu_forward_backward(VGL_Graph &_graph, VerticesArray<_T> &_components);
+    static double vgl_forward_backward(VGL_Graph &_graph, VerticesArray<_T> &_components) {};
     #endif
 
     static double seq_tarjan(VGL_Graph &_graph, VerticesArray<int> &_components);

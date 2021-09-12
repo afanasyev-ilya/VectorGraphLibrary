@@ -29,34 +29,24 @@ class TransitiveClosure;
 
 class BFS
 {
-private:
+public:
     template <typename _T>
     static void fast_vgl_top_down(VGL_Graph &_graph,
                                   VerticesArray<_T> &_levels,
                                   int _source_vertex,
                                   VGL_GRAPH_ABSTRACTIONS &_graph_API,
                                   VGL_FRONTIER &_frontier);
-public:
-    #ifdef __USE_GPU__
-    template <typename _T>
-    static double vgl_top_down(VGL_Graph &_graph, VerticesArray<_T> &_levels, int _source_vertex);
-    #endif
 
-    #if defined(__USE_NEC_SX_AURORA__) || defined(__USE_MULTICORE__)
     template <typename _T>
     static double vgl_top_down(VGL_Graph &_graph, VerticesArray<_T> &_levels, int _source_vertex);
-    #endif
 
     template <typename _T>
     static double seq_top_down(VGL_Graph &_graph, VerticesArray<_T> &_levels, int _source_vertex);
-
-    friend class TransitiveClosure;
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #include "seq_bfs.hpp"
-#include "gpu_bfs.hpp"
 #include "bfs.hpp"
 #include "change_state/change_state.hpp"
 #if defined(__USE_NEC_SX_AURORA__)

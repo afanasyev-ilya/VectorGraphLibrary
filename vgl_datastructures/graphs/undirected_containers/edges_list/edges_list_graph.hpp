@@ -200,7 +200,6 @@ void EdgesListGraph::operator = (const EdgesListGraph &_copy_graph)
     this->graph_format = _copy_graph.graph_format;
     this->vertices_count = _copy_graph.vertices_count;
     this->edges_count = _copy_graph.edges_count;
-    this->graph_on_device = _copy_graph.graph_on_device;
 
     this->resize(this->vertices_count, this->edges_count);
 
@@ -222,13 +221,6 @@ int EdgesListGraph::select_random_nz_vertex()
 #ifdef __USE_GPU__
 void EdgesListGraph::move_to_device()
 {
-    if(this->graph_on_device)
-    {
-        return;
-    }
-
-    this->graph_on_device = true;
-
     MemoryAPI::move_array_to_device(connections_count, this->vertices_count);
     MemoryAPI::move_array_to_device(src_ids, this->edges_count);
     MemoryAPI::move_array_to_device(dst_ids, this->edges_count);
@@ -240,13 +232,6 @@ void EdgesListGraph::move_to_device()
 #ifdef __USE_GPU__
 void EdgesListGraph::move_to_host()
 {
-    if(!this->graph_on_device)
-    {
-        return;
-    }
-
-    this->graph_on_device = false;
-
     MemoryAPI::move_array_to_host(connections_count, this->vertices_count);
     MemoryAPI::move_array_to_host(src_ids, this->edges_count);
     MemoryAPI::move_array_to_host(dst_ids, this->edges_count);

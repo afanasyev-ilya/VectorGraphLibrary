@@ -24,7 +24,7 @@ benchmark_args = {"bfs": [ ["-top-down"]],
                   "hits": [ [] ],
                   "scc": [ [] ],
                   "coloring": [ [] ],
-                  "tc": [ ["-it", "1000"] ]}
+                  "tc": [ ["-it", "500"] ]}
 
 
 available_formats = ["csr", "csr_vg", "vcsr", "el", "el_csr_based", "el_2D_seg"]

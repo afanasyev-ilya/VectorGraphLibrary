@@ -25,7 +25,7 @@ void BFS::fast_vgl_top_down(VGL_Graph &_graph,
     int current_level = FIRST_LEVEL_VERTEX;
     while(_frontier.size() > 0)
     {
-        auto edge_op = [_levels, &current_level] __VGL_SCATTER_ARGS__
+        auto edge_op = [_levels, current_level] __VGL_SCATTER_ARGS__
         {
             int src_level = _levels[src_id];
             int dst_level = _levels[dst_id];
@@ -52,7 +52,6 @@ void BFS::fast_vgl_top_down(VGL_Graph &_graph,
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#if defined(__USE_NEC_SX_AURORA__) || defined(__USE_MULTICORE__)
 template <typename _T>
 double BFS::vgl_top_down(VGL_Graph &_graph,
                          VerticesArray<_T> &_levels,
@@ -63,8 +62,16 @@ double BFS::vgl_top_down(VGL_Graph &_graph,
 
     graph_API.change_traversal_direction(SCATTER, _levels, frontier);
 
+    #ifdef __USE_NEC_SX_AURORA__
     #pragma omp parallel
     {};
+    #endif
+
+    #ifdef __USE_GPU__
+    _graph.move_to_device();
+    _levels.move_to_device();
+    frontier.move_to_device();
+    #endif
 
     Timer tm;
     tm.start();
@@ -72,12 +79,11 @@ double BFS::vgl_top_down(VGL_Graph &_graph,
     tm.end();
 
     #ifdef __PRINT_SAMPLES_PERFORMANCE_STATS__
-    performance_stats.print_algorithm_performance_stats("BFS (Top-down, NEC/multicore)", tm.get_time(), _graph.get_edges_count());
+    performance_stats.print_algorithm_performance_stats("BFS Top-down", tm.get_time(), _graph.get_edges_count());
     #endif
 
     return performance_stats.get_algorithm_performance(tm.get_time(), _graph.get_edges_count());
 }
-#endif
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
