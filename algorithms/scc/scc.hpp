@@ -2,7 +2,6 @@
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#if defined(__USE_NEC_SX_AURORA__) || defined(__USE_MULTICORE__)
 template <typename _T>
 void SCC::trim_step(VGL_Graph &_graph,
                     VGL_GRAPH_ABSTRACTIONS &_graph_API,
@@ -18,7 +17,7 @@ void SCC::trim_step(VGL_Graph &_graph,
     // set everythig as active
     _graph_API.change_traversal_direction(SCATTER, _frontier, _trees, _active);
 
-    auto init = [&_trees, &_active] __VGL_COMPUTE_ARGS__
+    auto init = [_trees, _active] __VGL_COMPUTE_ARGS__
     {
         _trees[src_id] = INIT_TREE;
         _active[src_id] = IS_ACTIVE;
@@ -47,22 +46,27 @@ void SCC::trim_step(VGL_Graph &_graph,
 
         // init out-degrees
         _frontier.set_all_active();
-        auto init_out_degrees = [&_out_degrees] __VGL_COMPUTE_ARGS__
+        auto init_out_degrees = [_out_degrees] __VGL_COMPUTE_ARGS__
         {
             _out_degrees[src_id] = connections_count;
         };
         _graph_API.compute(_graph, _frontier, init_out_degrees);
 
         // if adjacnet is not active, decrese the degree
-        auto update_out = [&_active, &_out_degrees] __VGL_SCATTER_ARGS__
+        auto update_out = [_active, _out_degrees] __VGL_SCATTER_ARGS__
         {
             if(_active[dst_id] == IS_NOT_ACTIVE)
-                _out_degrees[src_id]--;
+                VGL_DEC(_out_degrees[src_id]); // _out_degrees[src_id] --
         };
+
+        #ifdef __USE_NEC_SX_AURORA__
         _graph_API.enable_safe_stores();
         _graph_API.scatter(_graph, out_frontier, EMPTY_EDGE_OP, EMPTY_VERTEX_OP, EMPTY_VERTEX_OP,
                            update_out, EMPTY_VERTEX_OP, EMPTY_VERTEX_OP);
         _graph_API.disable_safe_stores();
+        #else
+        _graph_API.scatter(_graph, out_frontier, update_out);
+        #endif
 
         /* process in-degrees */
         // work only with low-degree vertices
@@ -79,28 +83,32 @@ void SCC::trim_step(VGL_Graph &_graph,
 
         // init out-degrees
         _frontier.set_all_active();
-        auto init_in_degrees = [&_in_degrees] __VGL_COMPUTE_ARGS__
+        auto init_in_degrees = [_in_degrees] __VGL_COMPUTE_ARGS__
         {
             _in_degrees[src_id] = connections_count;
         };
         _graph_API.compute(_graph, _frontier, init_in_degrees);
 
         // if adjacnet is not active, decrese the degree
-        auto update_in = [&_active, &_in_degrees] __VGL_GATHER_ARGS__
+        auto update_in = [_active, _in_degrees] __VGL_GATHER_ARGS__
         {
             if(_active[dst_id] == IS_NOT_ACTIVE)
-                _in_degrees[src_id] = _in_degrees[src_id] - 1;
+                VGL_DEC(_in_degrees[src_id]);
         };
+        #ifdef __USE_NEC_SX_AURORA__
         _graph_API.enable_safe_stores();
         _graph_API.gather(_graph, in_frontier, EMPTY_EDGE_OP, EMPTY_VERTEX_OP, EMPTY_VERTEX_OP,
                           update_in, EMPTY_VERTEX_OP, EMPTY_VERTEX_OP);
         _graph_API.disable_safe_stores();
+        #else
+        _graph_API.gather(_graph, in_frontier, update_in);
+        #endif
 
         _graph_API.change_traversal_direction(SCATTER, _frontier, _in_degrees, _out_degrees, _trees, _active);
 
         int vertices_count = _graph.get_vertices_count();
-        NEC_REGISTER_INT(changes, 0);
-        auto remove_trivial_and_init = [&_active, &_in_degrees, &_out_degrees, &_trees, &reg_changes, vertices_count] __VGL_COMPUTE_ARGS__
+        VEC_REGISTER_INT(changes, 0);
+        auto remove_trivial_and_init = [_active, _in_degrees, _out_degrees, _trees, reg_changes, vertices_count] __VGL_COMPUTE_ARGS__
         {
             if((_active[src_id] == IS_ACTIVE) && ((_in_degrees[src_id] <= 0) || (_out_degrees[src_id] <= 0)))
             {
@@ -112,16 +120,15 @@ void SCC::trim_step(VGL_Graph &_graph,
         _frontier.set_all_active();
         _graph_API.compute(_graph, _frontier, remove_trivial_and_init);
         changes = register_sum_reduce(reg_changes);
+        register_free(reg_changes);
         trim_steps++;
     } while(changes);
 
     cout << "Did " << trim_steps << " trim steps" << endl;
 }
-#endif
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#if defined(__USE_NEC_SX_AURORA__) || defined(__USE_MULTICORE__)
 template <typename _T>
 void SCC::bfs_reach(VGL_Graph &_graph,
                     VGL_GRAPH_ABSTRACTIONS  &_graph_API,
@@ -132,7 +139,7 @@ void SCC::bfs_reach(VGL_Graph &_graph,
 {
     _graph_API.change_traversal_direction(_traversal_direction, _bfs_result, _frontier, _bfs_result);
 
-    auto init_levels = [&_bfs_result, _source_vertex] __VGL_COMPUTE_ARGS__
+    auto init_levels = [_bfs_result, _source_vertex] __VGL_COMPUTE_ARGS__
     {
         if(src_id == _source_vertex)
             _bfs_result[_source_vertex] = FIRST_LEVEL_VERTEX;
@@ -148,7 +155,7 @@ void SCC::bfs_reach(VGL_Graph &_graph,
     int current_level = FIRST_LEVEL_VERTEX;
     while(_frontier.size() > 0)
     {
-        auto edge_op = [&_bfs_result, current_level] __VGL_ADVANCE_ARGS__
+        auto edge_op = [_bfs_result, current_level] __VGL_ADVANCE_ARGS__
         {
             int dst_level = _bfs_result[dst_id];
             if(dst_level == UNVISITED_VERTEX)
@@ -162,7 +169,7 @@ void SCC::bfs_reach(VGL_Graph &_graph,
         else if(_traversal_direction == GATHER)
             _graph_API.gather(_graph, _frontier, edge_op);
 
-        auto on_next_level = [&_bfs_result, current_level] __VGL_GNF_ARGS__
+        auto on_next_level = [_bfs_result, current_level] __VGL_GNF_ARGS__
         {
             int result = NOT_IN_FRONTIER_FLAG;
             if(_bfs_result[src_id] == (current_level + 1))
@@ -178,11 +185,9 @@ void SCC::bfs_reach(VGL_Graph &_graph,
     if(_traversal_direction == GATHER) // change direction back to SCATTER if required
         _graph_API.change_traversal_direction(_traversal_direction);
 }
-#endif
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#if defined(__USE_NEC_SX_AURORA__) || defined(__USE_MULTICORE__)
 template <typename _T>
 int SCC::select_pivot(VGL_Graph &_graph,
                       VGL_GRAPH_ABSTRACTIONS  &_graph_API,
@@ -192,18 +197,17 @@ int SCC::select_pivot(VGL_Graph &_graph,
 {
     _graph_API.change_traversal_direction(SCATTER, _frontier, _trees);
 
-    NEC_REGISTER_INT(pivots, _graph.get_vertices_count() + 1);
+    VEC_REGISTER_INT(pivots, _graph.get_vertices_count() + 1);
 
-    auto select_pivot = [&_trees, _tree_num, &reg_pivots] __VGL_COMPUTE_ARGS__
+    auto can_be_pivot = [_trees, _tree_num, reg_pivots] __VGL_COMPUTE_ARGS__
     {
         if(_trees[src_id] == _tree_num)
             reg_pivots[vector_index] = src_id;
     };
     _frontier.set_all_active();
-    _graph_API.compute(_graph, _frontier, select_pivot);
+    _graph_API.compute(_graph, _frontier, can_be_pivot);
 
     int pivot = _graph.get_vertices_count() + 1;
-    #pragma _NEC vector
     for(int i = 0; i < VECTOR_LENGTH; i++)
     {
         if(reg_pivots[i] < pivot)
@@ -213,13 +217,13 @@ int SCC::select_pivot(VGL_Graph &_graph,
     if(pivot > _graph.get_vertices_count())
         pivot = ERROR_IN_PIVOT;
 
+    register_free(reg_pivots);
+
     return pivot;
 }
-#endif
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#if defined(__USE_NEC_SX_AURORA__) || defined(__USE_MULTICORE__)
 template <typename _T>
 void SCC::process_result(VGL_Graph &_graph,
                          VGL_GRAPH_ABSTRACTIONS  &_graph_API,
@@ -232,7 +236,7 @@ void SCC::process_result(VGL_Graph &_graph,
 {
     _graph_API.change_traversal_direction(SCATTER, _frontier, _forward_result, _backward_result, _trees, _active);
 
-    auto locate_scc = [&_forward_result, &_backward_result, &_trees, &_active, _last_tree] __VGL_COMPUTE_ARGS__
+    auto locate_scc = [_forward_result, _backward_result, _trees, _active, _last_tree] __VGL_COMPUTE_ARGS__
     {
         _T fwd_res = _forward_result[src_id];
         _T bwd_res = _backward_result[src_id];
@@ -260,11 +264,9 @@ void SCC::process_result(VGL_Graph &_graph,
     _frontier.set_all_active();
     _graph_API.compute(_graph, _frontier, locate_scc);
 }
-#endif
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#if defined(__USE_NEC_SX_AURORA__) || defined(__USE_MULTICORE__)
 template <typename _T>
 void SCC::FB_step(VGL_Graph &_graph,
                   VGL_GRAPH_ABSTRACTIONS &_graph_API,
@@ -297,11 +299,9 @@ void SCC::FB_step(VGL_Graph &_graph,
     FB_step(_graph, _graph_API, _frontier, _trees, _forward_result, _backward_result, _active, current_tree + 2, _last_tree);
     FB_step(_graph, _graph_API, _frontier, _trees, _forward_result, _backward_result, _active, current_tree + 3, _last_tree);
 }
-#endif
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#if defined(__USE_NEC_SX_AURORA__) || defined(__USE_MULTICORE__)
 template <typename _T>
 double SCC::vgl_forward_backward(VGL_Graph &_graph, VerticesArray<_T> &_components)
 {
@@ -333,7 +333,6 @@ double SCC::vgl_forward_backward(VGL_Graph &_graph, VerticesArray<_T> &_componen
 
     return performance_stats.get_algorithm_performance(trim_tm.get_time() + bfs_tm.get_time(), _graph.get_edges_count());
 }
-#endif
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 

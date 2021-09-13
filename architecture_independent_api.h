@@ -47,3 +47,15 @@
 #else
 #define VGL_SRC_ID_ADD(a, b) ((a) += (b))
 #endif
+
+#ifdef __USE_GPU__
+#define VGL_INC(a) (atomicAdd(&(a), 1))
+#else
+#define VGL_INC(a) ((a) += 1)
+#endif
+
+#ifdef __USE_GPU__
+#define VGL_DEC(a) (atomicSub(&(a), 1))
+#else
+#define VGL_DEC(a) ((a) += 1)
+#endif

@@ -9,7 +9,7 @@ int CC::select_pivot(VGL_Graph &_graph,
                      VGL_FRONTIER &_frontier,
                      VerticesArray<_T> &_components)
 {
-    NEC_REGISTER_INT(pivots, _graph.get_vertices_count() + 1);
+    VEC_REGISTER_INT(pivots, _graph.get_vertices_count() + 1);
 
     auto select_pivot = [&_components, &reg_pivots] __VGL_COMPUTE_ARGS__
     {

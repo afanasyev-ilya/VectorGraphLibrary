@@ -1,21 +1,24 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #define VEC_REGISTER_INT(name, value)\
-int reg_##name[VECTOR_LENGTH];\
+int* reg_##name;\
+MemoryAPI::allocate_array(&reg_##name, VECTOR_LENGTH); \
 for(int i = 0; i < VECTOR_LENGTH; i++)\
 {\
     reg_##name[i] = value;\
 }
 
 #define VEC_REGISTER_FLT(name, value)\
-float reg_##name[VECTOR_LENGTH];\
+float* reg_##name;\
+MemoryAPI::allocate_array(&reg_##name, VECTOR_LENGTH); \
 for(int i = 0; i < VECTOR_LENGTH; i++)\
 {\
     reg_##name[i] = value;\
 }
 
 #define VEC_REGISTER_DBL(name, value)\
-double reg_##name[VECTOR_LENGTH];\
+double* reg_##name;\
+MemoryAPI::allocate_array(&reg_##name, VECTOR_LENGTH); \
 for(int i = 0; i < VECTOR_LENGTH; i++)\
 {\
     reg_##name[i] = value;\
@@ -24,10 +27,9 @@ for(int i = 0; i < VECTOR_LENGTH; i++)\
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template <typename _T>
-_T register_sum_reduce(_T reg_name[VECTOR_LENGTH])
+_T register_sum_reduce(_T *reg_name)
 {
     _T sum = 0;
-    #pragma _NEC vector
     for(int i = 0; i < VECTOR_LENGTH; i++)
         sum += reg_name[i];
     return sum;
@@ -36,10 +38,9 @@ _T register_sum_reduce(_T reg_name[VECTOR_LENGTH])
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template <typename _T>
-_T register_max_reduce(_T reg_name[VECTOR_LENGTH])
+_T register_max_reduce(_T *reg_name)
 {
     _T max = std::numeric_limits<_T>::min();
-    #pragma _NEC vector
     for(int i = 0; i < VECTOR_LENGTH; i++)
         if(reg_name[i] > max)
             max = reg_name[i];
@@ -49,10 +50,9 @@ _T register_max_reduce(_T reg_name[VECTOR_LENGTH])
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template <typename _T>
-_T register_min_reduce(_T reg_name[VECTOR_LENGTH])
+_T register_min_reduce(_T *reg_name)
 {
     _T min = std::numeric_limits<_T>::max();
-    #pragma _NEC vector
     for(int i = 0; i < VECTOR_LENGTH; i++)
         if(reg_name[i] < min)
             min = reg_name[i];
@@ -62,9 +62,9 @@ _T register_min_reduce(_T reg_name[VECTOR_LENGTH])
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template <typename _T>
-void register_free(_T reg_name[VECTOR_LENGTH])
+void register_free(_T *reg_name)
 {
-
+    MemoryAPI::free_array(reg_name);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

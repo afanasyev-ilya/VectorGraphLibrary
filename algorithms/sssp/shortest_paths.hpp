@@ -206,7 +206,7 @@ double SSSP::vgl_dijkstra_all_active_pull(VGL_Graph &_graph,
 
         #pragma omp parallel shared(changes)
         {
-            NEC_REGISTER_FLT(distances, 0);
+            VEC_REGISTER_FLT(distances, 0);
 
             auto edge_op_pull = [&_distances, &_weights, &reg_distances] __VGL_GATHER_ARGS__
             {

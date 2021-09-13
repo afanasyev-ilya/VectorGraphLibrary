@@ -30,7 +30,7 @@ double CC::vgl_shiloach_vishkin(VGL_Graph &_graph, VerticesArray<_T> &_component
         #pragma omp parallel
         {
             hook_changes = 0;
-            NEC_REGISTER_INT(hook_changes, 0);
+            VEC_REGISTER_INT(hook_changes, 0);
 
             int *components_ptr = _components.get_ptr();
 
@@ -56,7 +56,7 @@ double CC::vgl_shiloach_vishkin(VGL_Graph &_graph, VerticesArray<_T> &_component
         while(jump_changes)
         {
             jump_changes = 0;
-            NEC_REGISTER_INT(jump_changes, 0);
+            VEC_REGISTER_INT(jump_changes, 0);
 
             auto jump_op = [_components, &reg_jump_changes]__VGL_COMPUTE_ARGS__
             {

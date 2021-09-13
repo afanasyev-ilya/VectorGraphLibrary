@@ -77,7 +77,6 @@ void GraphAbstractions::generate_new_frontier(VGL_Graph &_graph,
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-
 void GraphAbstractions::change_traversal_direction(TraversalDirection _new_direction)
 {
     current_traversal_direction = _new_direction;
