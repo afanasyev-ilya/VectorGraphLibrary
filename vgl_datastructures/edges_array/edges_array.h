@@ -10,17 +10,23 @@ template <typename _T>
 class EdgesArray
 {
 private:
+    VGL_Graph *graph_ptr;
+
     ObjectType object_type; // EDGES_ARRAY
 
     _T *edges_data;
 
     BaseEdgesArray<_T> *container;
     bool is_copy;
+
+    void init_container();
+    void copy_container(BaseEdgesArray<_T> *_other_container);
 public:
     /* constructors and destructors */
     EdgesArray(VGL_Graph &_graph);
     EdgesArray(const EdgesArray<_T> &_copy_obj);
     ~EdgesArray();
+    EdgesArray<_T> & operator=(const EdgesArray<_T> &_other);
 
     // the following getters and setters are implemented here, since calling virtual functions of edges_array_representation
     // is too slow for graph processing (reduces bandwidth on NEC and CPUs)

@@ -5,31 +5,67 @@
 template <typename _T>
 EdgesArray<_T>::EdgesArray(VGL_Graph &_graph)
 {
-    if(_graph.get_container_type() == VECTOR_CSR_GRAPH)
-    {
-        container = new EdgesArray_VectorCSR<_T>(_graph);
-    }
-    else if(_graph.get_container_type() == EDGES_LIST_GRAPH)
-    {
-        container = new EdgesArray_EL<_T>(_graph);
-    }
-    else if(_graph.get_container_type() == CSR_GRAPH)
-    {
-        container = new EdgesArray_CSR<_T>(_graph);
-    }
-    else if(_graph.get_container_type() == CSR_VG_GRAPH)
-    {
-        container = new EdgesArray_CSR<_T>(_graph);
-    }
-    else
-    {
-        throw "Error in EdgesArray::EdgesArray : unsupported graph type";
-    }
+    graph_ptr = &_graph;
+    init_container();
 
     MemoryAPI::allocate_array(&edges_data, container->get_total_array_size());
 
     container->attach_pointer(edges_data);
     is_copy = false;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+template <typename _T>
+void EdgesArray<_T>::init_container()
+{
+    if(graph_ptr->get_container_type() == VECTOR_CSR_GRAPH)
+    {
+        container = new EdgesArray_VectorCSR<_T>(*graph_ptr);
+    }
+    else if(graph_ptr->get_container_type() == EDGES_LIST_GRAPH)
+    {
+        container = new EdgesArray_EL<_T>(*graph_ptr);
+    }
+    else if(graph_ptr->get_container_type() == CSR_GRAPH)
+    {
+        container = new EdgesArray_CSR<_T>(*graph_ptr);
+    }
+    else if(graph_ptr->get_container_type() == CSR_VG_GRAPH)
+    {
+        container = new EdgesArray_CSR<_T>(*graph_ptr);
+    }
+    else
+    {
+        throw "Error in EdgesArray::init container: unsupported graph type";
+    }
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+template <typename _T>
+void EdgesArray<_T>::copy_container(BaseEdgesArray<_T> *_other_container)
+{
+    if(graph_ptr->get_container_type() == VECTOR_CSR_GRAPH)
+    {
+
+    }
+    else if(graph_ptr->get_container_type() == EDGES_LIST_GRAPH)
+    {
+
+    }
+    else if(graph_ptr->get_container_type() == CSR_GRAPH)
+    {
+
+    }
+    else if(graph_ptr->get_container_type() == CSR_VG_GRAPH)
+    {
+
+    }
+    else
+    {
+        throw "Error in EdgesArray::copy container: unsupported graph type";
+    }
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -41,6 +77,16 @@ EdgesArray<_T>::EdgesArray(const EdgesArray<_T> &_copy_obj)
     this->container = _copy_obj.container;
     this->edges_data = _copy_obj.edges_data;
     this->is_copy = true;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+template <typename _T>
+EdgesArray<_T> & EdgesArray<_T>::operator=(const EdgesArray<_T> & _other)
+{
+    throw "Error in EdgesArray<_T> & EdgesArray<_T>::operator= : not implemented yet";
+
+    return *this;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

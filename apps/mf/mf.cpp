@@ -25,21 +25,36 @@ int main(int argc, char **argv)
         VGL_Graph graph(VGL_RUNTIME::select_graph_format(parser), VGL_RUNTIME::select_graph_optimizations(parser));
         VGL_RUNTIME::prepare_graph(graph, parser);
 
-        // start algorithm
+        // init flows
+        EdgesArray<int> flows(graph);
+        EdgesArray<int> copy_flows(graph);
+
         // start algorithm
         VGL_RUNTIME::start_measuring_stats();
         double avg_perf = 0;
         for(int i = 0; i < parser.get_number_of_rounds(); i++)
         {
+            // clear flows before each iteration
+            flows.set_all_constant(MAX_WEIGHT);
+
             int max_flow_val = 0;
             int source = graph.select_random_nz_vertex(Parser::convert_traversal_type(parser.get_traversal_direction()));
             int sink = graph.select_random_nz_vertex(Parser::convert_traversal_type(parser.get_traversal_direction()));
 
-            avg_perf += MF::seq_ford_fulkerson(graph, source, sink, max_flow_val) / parser.get_number_of_rounds();
+            avg_perf += MF::vgl_ford_fulkerson(graph, flows, source, sink, max_flow_val) / parser.get_number_of_rounds();
+            cout << "Result: " << max_flow_val << endl;
 
             if(parser.get_check_flag())
             {
-                cout << "Resulting max flow: " << max_flow_val << endl;
+                flows.set_all_constant(MAX_WEIGHT);
+
+                int check_flow = 0;
+                MF::seq_ford_fulkerson(graph, copy_flows, source, sink, check_flow);
+                cout << max_flow_val << " vs " << check_flow << endl;
+                if(max_flow_val == check_flow)
+                    cout << "Results are equal" << endl;
+                else
+                    cout << "Results are NOT equal, error_count = " << graph.get_vertices_count() << endl;
             }
         }
         VGL_RUNTIME::stop_measuring_stats(graph.get_edges_count(), parser);

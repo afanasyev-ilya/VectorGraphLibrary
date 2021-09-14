@@ -2,11 +2,13 @@
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+template <typename _T>
 bool MF::mf_bfs(VGL_Graph &_graph,
+                EdgesArray<_T> &_weights,
                 int _source,
                 int _sink,
-                int *_parents,
-                int *_levels,
+                VerticesArray<int> &_parents,
+                VerticesArray<int> &_levels,
                 VGL_GRAPH_ABSTRACTIONS &_graph_API,
                 VGL_FRONTIER &_frontier)
 {
@@ -23,15 +25,15 @@ bool MF::mf_bfs(VGL_Graph &_graph,
     _graph_API.compute(_graph, _frontier, init);
 
     _frontier.clear();
-    _frontier.add_vertex(_graph, _source);
+    _frontier.add_vertex(_source);
 
     int current_level = FIRST_LEVEL_VERTEX;
     while(_frontier.size() > 0)
     {
-        auto edge_op = [_levels, _parents, current_level, adjacent_weights] __VGL_ADVANCE_ARGS__
+        auto edge_op = [_levels, _parents, current_level, _weights] __VGL_ADVANCE_ARGS__
         {
             int dst_level = _levels[dst_id];
-            _TEdgeWeight weight = adjacent_weights[global_edge_pos];
+            _T weight = _weights[global_edge_pos];
             if((dst_level == UNVISITED_VERTEX) && (weight > 0))
             {
                 _levels[dst_id] = current_level + 1;
@@ -39,15 +41,16 @@ bool MF::mf_bfs(VGL_Graph &_graph,
             }
         };
 
-        auto on_next_level = [_levels, current_level] __VGL_GNF_ARGS__
-        {
+        _graph_API.scatter(_graph, _frontier, edge_op);
+
+        auto on_next_level = [_levels, current_level] __VGL_GNF_ARGS__ {
             int result = NOT_IN_FRONTIER_FLAG;
             if(_levels[src_id] == (current_level + 1))
                 result = IN_FRONTIER_FLAG;
             return result;
         };
 
-        _graph_API.advance(_graph, _frontier, _frontier, edge_op, on_next_level);
+        _graph_API.generate_new_frontier(_graph, _frontier, on_next_level);
 
         current_level++;
     }
@@ -61,24 +64,9 @@ bool MF::mf_bfs(VGL_Graph &_graph,
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template <typename _T>
-void MF::construct_path(int _source, int _sink, int *_parents, int *_path, int &_path_length)
+double MF::vgl_ford_fulkerson(VGL_Graph &_graph, EdgesArray<_T> &_flows, int _source, int _sink, _T &_max_flow)
 {
-    int path_pos = 0;
-    for (int v = _sink; v != _source; v = _parents[v])
-    {
-        int u = _parents[v];
-        _path[path_pos] = v;
-        path_pos++;
-    }
-    _path_length = path_pos;
-}
-
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-template <typename _T>
-_T MF::vgl_ford_fulkerson(VGL_Graph &_graph, int _source, int _sink)
-{
-    VGL_GRAPH_ABSTRACTIONS graph_API;
+    VGL_GRAPH_ABSTRACTIONS graph_API(_graph);
     VGL_FRONTIER frontier(_graph);
 
     int vertices_count = _graph.get_vertices_count();
@@ -86,77 +74,55 @@ _T MF::vgl_ford_fulkerson(VGL_Graph &_graph, int _source, int _sink)
 
     VerticesArray<int> parents(_graph);
     VerticesArray<int> levels(_graph);
-    VerticesArray<int> path(_graph);
 
-    EdgesArray<int> flows(_graph);
+    graph_API.change_traversal_direction(SCATTER, frontier);
 
-    #pragma omp parallel for
-    for(int i = 0; i < edges_count; i++)
-    {
-        flows[i] = MAX_WEIGHT;
-    }
+    Timer tm;
+    tm.start();
 
-    int max_flow = 0;
-    double bfs_time = 0, reminder_time = 0;
-    double avg_path_length = 0;
-
+    int avg_path_length = 0;
     int iterations_count = 0;
-    while(true)
+    while(mf_bfs(_graph, _flows, _source, _sink, parents, levels, graph_API, frontier))
     {
-        double t1 = omp_get_wtime();
-        bool sink_reached = nec_bfs(_graph, _source, _sink, parents, levels, graph_API, frontier);
-        double t2 = omp_get_wtime();
-        bfs_time += t2 - t1;
-
-        if(!sink_reached)
-            break;
-
-        t1 = omp_get_wtime();
-        // construct path
+        // Find minimum residual capacity of the edges along the
+        // path filled by BFS. Or we can say find the maximum flow
+        // through the path found.
+        _T path_flow = std::numeric_limits<_T>::max();
         int path_length = 0;
-        construct_path(_source, _sink, parents, path, path_length);
+        for (int v = _sink; v != _source; v = parents[v])
+        {
+            int u = parents[v];
+            _T current_weight = get_flow(_graph, _flows, u, v);
+            path_flow = min(path_flow, current_weight);
+            path_length++;
+        }
         avg_path_length += path_length;
 
-        // calculate current flow
-        int path_flow = std::numeric_limits<std::int32_t>::max();
-        for (int i = 0; i < path_length; i++)
+        /// update residual capacities of the edges and reverse edges
+        // along the path
+        for (int v = _sink; v != _source; v = parents[v])
         {
-            int v = path[i];
             int u = parents[v];
-            int current_flow = _graph.get_edge_data(flows, u, v);
-            path_flow = min(path_flow, current_flow);
+            subtract_flow(_graph, _flows, u, v, path_flow);
+            add_flow(_graph, _flows, v, u, path_flow);
         }
 
-        // update weights
-        for (int i = 0; i < path_length; i++)
-        {
-            int v = path[i];
-            int u = parents[v];
-            _graph.get_edge_data(flows, u, v) -= path_flow;
-            //_graph.get_edge_data(flows, v, u) += path_flow;
-        }
-        max_flow += path_flow;
+        // Add path flow to overall flow
+        _max_flow += path_flow;
         iterations_count++;
-
-        t2 = omp_get_wtime();
-        reminder_time += t2 - t1;
     }
-
     avg_path_length /= iterations_count;
 
+    tm.end();
+
     cout << "iterations done: " << iterations_count << endl;
-    cout << "bfs time: " << bfs_time*1000.0 << " ms" << endl;
-    cout << "reminder time: " << reminder_time*1000.0 << " ms" << endl;
-    cout << "average bfs perf: " << edges_count / ((bfs_time/iterations_count)*1e6) << " MTEPS" << endl;
     cout << "average path length: " << avg_path_length << endl;
-    cout << "wall perf: " << edges_count / ((bfs_time + reminder_time)*1e6) << " MTEPS" << endl;
 
     #ifdef __PRINT_SAMPLES_PERFORMANCE_STATS__
-    performance_stats.print_algorithm_performance_stats("MF Ford-Fulkerson", bfs_time + reminder_time, edges_count, iterations_count);
+    performance_stats.print_algorithm_performance_stats("MF (Ford-Fulkerson)", tm.get_time(), _graph.get_edges_count());
     #endif
 
-    // Return the overall flow
-    return max_flow;
+    return performance_stats.get_algorithm_performance(tm.get_time(), _graph.get_edges_count());
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

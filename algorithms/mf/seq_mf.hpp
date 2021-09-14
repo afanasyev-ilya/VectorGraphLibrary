@@ -90,14 +90,16 @@ void MF::subtract_flow(VGL_Graph &_graph, EdgesArray<_T> &_weights, int _src_id,
         int dst_id = _graph.get_outgoing_edge_dst(_src_id, edge_pos);
 
         if (_dst_id == dst_id)
+        {
             _weights[_graph.get_outgoing_edges_array_index(_src_id, edge_pos)] -= update_val;
+        }
     }
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template <typename _T>
-double MF::seq_ford_fulkerson(VGL_Graph &_graph, int _source, int _sink, _T _max_flow)
+double MF::seq_ford_fulkerson(VGL_Graph &_graph, EdgesArray<_T> &_flows, int _source, int _sink, _T &_max_flow)
 {
     Timer tm;
     tm.start();
@@ -108,14 +110,11 @@ double MF::seq_ford_fulkerson(VGL_Graph &_graph, int _source, int _sink, _T _max
     int *parents;
     MemoryAPI::allocate_array(&parents, vertices_count);
 
-    EdgesArray<_T> flows(_graph);
-    flows.set_all_constant(MAX_WEIGHT);
-
     _max_flow = 0;  // There is no flow initially
 
     // Augment the flow while tere is path from source to sink
     int it = 0;
-    while (seq_bfs(_graph, flows, _source, _sink, parents))
+    while (seq_bfs(_graph, _flows, _source, _sink, parents))
     {
         // Find minimum residual capacity of the edges along the
         // path filled by BFS. Or we can say find the maximum flow
@@ -125,19 +124,18 @@ double MF::seq_ford_fulkerson(VGL_Graph &_graph, int _source, int _sink, _T _max
         for (int v = _sink; v != _source; v = parents[v])
         {
             int u = parents[v];
-            _T current_weight = get_flow(_graph, flows, u, v);
+            _T current_weight = get_flow(_graph, _flows, u, v);
             path_flow = min(path_flow, current_weight);
             path_length++;
         }
-        cout << "path_length: " << path_length << endl;
 
         /// update residual capacities of the edges and reverse edges
         // along the path
         for (int v = _sink; v != _source; v = parents[v])
         {
             int u = parents[v];
-            subtract_flow(_graph, flows, u, v, path_flow);
-            add_flow(_graph, flows, v, u, path_flow);
+            subtract_flow(_graph, _flows, u, v, path_flow);
+            add_flow(_graph, _flows, v, u, path_flow);
         }
 
         // Add path flow to overall flow
@@ -153,7 +151,6 @@ double MF::seq_ford_fulkerson(VGL_Graph &_graph, int _source, int _sink, _T _max
     #endif
 
     return performance_stats.get_algorithm_performance(tm.get_time(), _graph.get_edges_count());
-
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
