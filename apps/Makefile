@@ -52,7 +52,7 @@ install:
                         git clone https://www.github.com/moderngpu/moderngpu ../external_libraries/moderngpu;\
                 fi
 
-all: sssp sswp bfs scc pr cc rw hits coloring tc create_vgl_graphs
+all: sssp sswp bfs scc pr cc rw hits coloring tc mf create_vgl_graphs
 
 sssp: create_folders sssp.o
 	$(CXX) object_files/sssp.o $(Library_Path) $(Libraries) -o ./bin/sssp$(ArchSuffix)$(BinSuffix)
@@ -89,6 +89,9 @@ coloring: create_folders coloring.o
 
 tc: create_folders tc.o
 	$(CXX) object_files/tc.o $(Library_Path) $(Libraries) -o ./bin/tc$(ArchSuffix)$(BinSuffix)
+
+mf: create_folders mf.o
+	$(CXX) object_files/mf.o $(Library_Path) $(Libraries) -o ./bin/mf$(ArchSuffix)$(BinSuffix)
 
 print_graph_info: create_folders print_graph_info.o
 	$(CXX) object_files/print_graph_info.o $(Library_Path) $(Libraries) -o ./bin/print_graph_info$(ArchSuffix)$(BinSuffix)
@@ -138,6 +141,9 @@ coloring.o: coloring/coloring.cpp
 
 tc.o: tc/tc.cpp
 	$(CXX) $(Flags) $(Include_Path)  -c tc/tc.cpp -o object_files/tc.o
+
+mf.o: mf/mf.cpp
+	$(CXX) $(Flags) $(Include_Path)  -c mf/mf.cpp -o object_files/mf.o
 
 print_graph_info.o: utilites/print_graph_info.cpp
 	$(CXX) $(Flags) $(Include_Path)  -c utilites/print_graph_info.cpp -o object_files/print_graph_info.o

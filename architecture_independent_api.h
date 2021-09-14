@@ -12,6 +12,7 @@
 #define __VGL_REDUCE_INT_ARGS__ (int src_id, int connections_count, int vector_index)->int
 #define __VGL_REDUCE_FLT_ARGS__ (int src_id, int connections_count, int vector_index)->float
 #define __VGL_REDUCE_DBL_ARGS__ (int src_id, int connections_count, int vector_index)->double
+#define __VGL_COPY_IF_INDEXES_ARGS__ (int idx)
 #endif
 
 #ifdef __USE_GPU__
@@ -26,6 +27,7 @@
 #define __VGL_REDUCE_INT_ARGS__ __device__ (int src_id, int connections_count, int vector_index)->int
 #define __VGL_REDUCE_FLT_ARGS__ __device__ (int src_id, int connections_count, int vector_index)->float
 #define __VGL_REDUCE_DBL_ARGS__ __device__ (int src_id, int connections_count, int vector_index)->double
+#define __VGL_COPY_IF_INDEXES_ARGS__ __device__ (int idx)
 #endif
 
 #ifdef __USE_NEC_SX_AURORA__

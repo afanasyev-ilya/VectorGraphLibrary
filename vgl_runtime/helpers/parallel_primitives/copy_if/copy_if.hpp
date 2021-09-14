@@ -259,6 +259,20 @@ inline int ParallelPrimitives::omp_copy_if_data(CopyCondition &&_cond,
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+#ifdef __USE_GPU__
+template <typename _T>
+void __global__ init_indexes(_T *_data, int _size)
+{
+    const int idx = blockIdx.x * blockDim.x + threadIdx.x;
+    if(idx < _size)
+    {
+        _data[idx] = idx;
+    }
+}
+#endif
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 template <typename CopyCondition>
 inline int ParallelPrimitives::copy_if_indexes(CopyCondition &&_cond,
                                                int *_out_data,
@@ -273,7 +287,15 @@ inline int ParallelPrimitives::copy_if_indexes(CopyCondition &&_cond,
     #elif __USE_MULTICORE__
     num_elements = omp_copy_if_indexes(_cond, _out_data, _size, _buffer, _buffer_size, _index_offset);
     #else
-    throw "Error in copy_if_indexes : unsupported architecture";
+    /*int *indexes;
+    MemoryAPI::allocate_array(&indexes, _size);
+    for(int i = 0; i < _size; i++)
+    {
+        indexes[i] = i;
+    }
+    num_elements = thrust::copy_if(thrust::device, indexes, indexes + _size, _out_data, _cond) - _out_data;
+    MemoryAPI::free_array(indexes);*/
+    num_elements = omp_copy_if_indexes(_cond, _out_data, _size, _buffer, _buffer_size, _index_offset);
     #endif
     return num_elements;
 }

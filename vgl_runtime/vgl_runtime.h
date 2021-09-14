@@ -8,8 +8,8 @@
 #endif
 
 #include "helpers/timer/timer.h"
-#include "helpers/parallel_primitives/primitives.h"
 #include "helpers/memory_API/memory_API.h"
+#include "helpers/parallel_primitives/primitives.h"
 #include "helpers/performance_stats/performance_stats.h"
 #include "helpers/library_data/library_data.h"
 #include "helpers/random_generator/random_generator.h"

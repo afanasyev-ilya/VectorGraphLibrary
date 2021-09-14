@@ -2,11 +2,12 @@
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-
-bool MF::seq_bfs(VectorCSRGraph &_graph, int _source, int _sink, int *_parents)
+template <typename _T>
+bool MF::seq_bfs(VGL_Graph &_graph, EdgesArray<_T> &_weights, int _source, int _sink, int *_parents)
 {
     // Create a visited array and mark all vertices as not visited
-    LOAD_VECTOR_CSR_GRAPH_DATA(_graph);
+    int vertices_count = _graph.get_vertices_count();
+    long long edges_count = _graph.get_edges_count();
 
     bool *visited = new bool[vertices_count];
     memset(visited, 0, sizeof(bool)*vertices_count);
@@ -24,14 +25,12 @@ bool MF::seq_bfs(VectorCSRGraph &_graph, int _source, int _sink, int *_parents)
         int src_id = q.front();
         q.pop();
 
-        const long long edge_start = vertex_pointers[src_id];
-        const int connections_count = vertex_pointers[src_id + 1] - vertex_pointers[src_id];
+        const int connections_count = _graph.get_outgoing_connections_count(src_id);
 
         for(int edge_pos = 0; edge_pos < connections_count; edge_pos++)
         {
-            long long int global_edge_pos = edge_start + edge_pos;
-            int dst_id = adjacent_ids[global_edge_pos];
-            _TEdgeWeight weight = adjacent_weights[global_edge_pos];
+            int dst_id = _graph.get_outgoing_edge_dst(src_id, edge_pos);
+            _T weight = _weights[_graph.get_outgoing_edges_array_index(src_id, edge_pos)];
 
             if (visited[dst_id] == false && weight > 0)
             {
@@ -42,122 +41,119 @@ bool MF::seq_bfs(VectorCSRGraph &_graph, int _source, int _sink, int *_parents)
         }
     }
 
-    // If we reached sink in BFS starting from source, then return
-    // true, else false
+    // If we reached sink in BFS starting from source, then return true, else false
     return (visited[_sink] == true);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-
-_TEdgeWeight MF::get_flow(VectorCSRGraph &_graph, int _src_id, int _dst_id)
+template <typename _T>
+_T MF::get_flow(VGL_Graph &_graph, EdgesArray<_T> &_weights, int _src_id, int _dst_id)
 {
-    LOAD_VECTOR_CSR_GRAPH_DATA(_graph);
-
-    const long long edge_start = vertex_pointers[_src_id];
-    const int connections_count = vertex_pointers[_src_id + 1] - vertex_pointers[_src_id];
+    const int connections_count = _graph.get_outgoing_connections_count(_src_id);
 
     for (int edge_pos = 0; edge_pos < connections_count; edge_pos++)
     {
-        long long int global_edge_pos = edge_start + edge_pos;
-        int dst_id = adjacent_ids[global_edge_pos];
+        int dst_id = _graph.get_outgoing_edge_dst(_src_id, edge_pos);
 
         if (_dst_id == dst_id)
-            return adjacent_weights[global_edge_pos];
+            return _weights[_graph.get_outgoing_edges_array_index(_src_id, edge_pos)];
     }
     return 0;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-
-void MF::add_flow(VectorCSRGraph &_graph, int _src_id, int _dst_id, _TEdgeWeight update_val)
+template <typename _T>
+void MF::add_flow(VGL_Graph &_graph, EdgesArray<_T> &_weights, int _src_id, int _dst_id, _T update_val)
 {
-    LOAD_VECTOR_CSR_GRAPH_DATA(_graph);
-
-    const long long edge_start = vertex_pointers[_src_id];
-    const int connections_count = vertex_pointers[_src_id + 1] - vertex_pointers[_src_id];
+    const int connections_count = _graph.get_outgoing_connections_count(_src_id);
 
     for (int edge_pos = 0; edge_pos < connections_count; edge_pos++)
     {
-        long long int global_edge_pos = edge_start + edge_pos;
-        int dst_id = adjacent_ids[global_edge_pos];
+        int dst_id = _graph.get_outgoing_edge_dst(_src_id, edge_pos);
 
         if (_dst_id == dst_id)
-            adjacent_weights[global_edge_pos] += update_val;
+            _weights[_graph.get_outgoing_edges_array_index(_src_id, edge_pos)] += update_val;
     }
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void MF::subtract_flow(VectorCSRGraph &_graph, int _src_id, int _dst_id, _TEdgeWeight update_val)
+template <typename _T>
+void MF::subtract_flow(VGL_Graph &_graph, EdgesArray<_T> &_weights, int _src_id, int _dst_id, _T update_val)
 {
-    LOAD_VECTOR_CSR_GRAPH_DATA(_graph);
-
-    const long long edge_start = vertex_pointers[_src_id];
-    const int connections_count = vertex_pointers[_src_id + 1] - vertex_pointers[_src_id];
+    const int connections_count = _graph.get_outgoing_connections_count(_src_id);
 
     for (int edge_pos = 0; edge_pos < connections_count; edge_pos++)
     {
-        long long int global_edge_pos = edge_start + edge_pos;
-        int dst_id = adjacent_ids[global_edge_pos];
+        int dst_id = _graph.get_outgoing_edge_dst(_src_id, edge_pos);
 
         if (_dst_id == dst_id)
-            adjacent_weights[global_edge_pos] -= update_val;
+            _weights[_graph.get_outgoing_edges_array_index(_src_id, edge_pos)] -= update_val;
     }
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-
-_TEdgeWeight MF::seq_ford_fulkerson(VectorCSRGraph &_graph,
-                                    int _source, int _sink)
+template <typename _T>
+double MF::seq_ford_fulkerson(VGL_Graph &_graph, int _source, int _sink, _T _max_flow)
 {
-    LOAD_VECTOR_CSR_GRAPH_DATA(_graph);
+    Timer tm;
+    tm.start();
+
+    int vertices_count = _graph.get_vertices_count();
+    long long edges_count = _graph.get_edges_count();
 
     int *parents;
     MemoryAPI::allocate_array(&parents, vertices_count);
 
-    for(int i = 0; i < edges_count; i++)
-    {
-        adjacent_weights[i] = 10;
-    }
+    EdgesArray<_T> flows(_graph);
+    flows.set_all_constant(MAX_WEIGHT);
 
-    int max_flow = 0;  // There is no flow initially
+    _max_flow = 0;  // There is no flow initially
 
     // Augment the flow while tere is path from source to sink
     int it = 0;
-    while (seq_bfs(_graph, _source, _sink, parents))
+    while (seq_bfs(_graph, flows, _source, _sink, parents))
     {
         // Find minimum residual capacity of the edges along the
         // path filled by BFS. Or we can say find the maximum flow
         // through the path found.
-        int path_flow = std::numeric_limits<std::int32_t>::max();
+        _T path_flow = std::numeric_limits<_T>::max();
         int path_length = 0;
         for (int v = _sink; v != _source; v = parents[v])
         {
             int u = parents[v];
-            int current_weight = get_flow(_graph, u, v);
+            _T current_weight = get_flow(_graph, flows, u, v);
             path_flow = min(path_flow, current_weight);
+            path_length++;
         }
+        cout << "path_length: " << path_length << endl;
 
         /// update residual capacities of the edges and reverse edges
         // along the path
         for (int v = _sink; v != _source; v = parents[v])
         {
             int u = parents[v];
-            subtract_flow(_graph, u, v, path_flow);
-            add_flow(_graph, v, u, path_flow);
+            subtract_flow(_graph, flows, u, v, path_flow);
+            add_flow(_graph, flows, v, u, path_flow);
         }
 
         // Add path flow to overall flow
-        max_flow += path_flow;
+        _max_flow += path_flow;
     }
 
     MemoryAPI::free_array(parents);
 
-    // Return the overall flow
-    return max_flow;
+    tm.end();
+
+    #ifdef __PRINT_SAMPLES_PERFORMANCE_STATS__
+    performance_stats.print_algorithm_performance_stats("MF (Sequential Ford-Fulkerson)", tm.get_time(), _graph.get_edges_count());
+    #endif
+
+    return performance_stats.get_algorithm_performance(tm.get_time(), _graph.get_edges_count());
+
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

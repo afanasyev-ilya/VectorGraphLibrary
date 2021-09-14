@@ -83,7 +83,7 @@ double TransitiveClosure::vgl_purdoms(VGL_Graph &_graph,
     MemoryAPI::allocate_array(&edges_buffer, edges_count);
     MemoryAPI::allocate_array(&edge_indexes, edges_count);
 
-    auto edge_connects_different_components = [new_src_ids, new_dst_ids] (int idx)
+    auto edge_connects_different_components = [new_src_ids, new_dst_ids] __VGL_COPY_IF_INDEXES_ARGS__
     {
         if((new_src_ids[idx] != -1) && (new_dst_ids[idx] != -1) && (new_src_ids[idx]!= new_dst_ids[idx]))
         {
