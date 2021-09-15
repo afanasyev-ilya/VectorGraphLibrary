@@ -108,7 +108,7 @@ void SCC::trim_step(VGL_Graph &_graph,
 
         int vertices_count = _graph.get_vertices_count();
         VEC_REGISTER_INT(changes, 0);
-        auto remove_trivial_and_init = [_active, _in_degrees, _out_degrees, _trees, reg_changes, vertices_count] __VGL_COMPUTE_ARGS__
+        auto remove_trivial_and_init = [_active, _in_degrees, _out_degrees, _trees, VGL_LAMBDA_CAP(reg_changes), vertices_count] __VGL_COMPUTE_ARGS__
         {
             if((_active[src_id] == IS_ACTIVE) && ((_in_degrees[src_id] <= 0) || (_out_degrees[src_id] <= 0)))
             {
@@ -199,7 +199,7 @@ int SCC::select_pivot(VGL_Graph &_graph,
 
     VEC_REGISTER_INT(pivots, _graph.get_vertices_count() + 1);
 
-    auto can_be_pivot = [_trees, _tree_num, reg_pivots] __VGL_COMPUTE_ARGS__
+    auto can_be_pivot = [_trees, _tree_num, VGL_LAMBDA_CAP(reg_pivots)] __VGL_COMPUTE_ARGS__
     {
         if(_trees[src_id] == _tree_num)
             reg_pivots[vector_index] = src_id;

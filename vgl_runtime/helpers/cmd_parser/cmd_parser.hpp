@@ -14,7 +14,8 @@ Parser::Parser()
     graph_file_name = "test.graph";
     number_of_rounds = 1;
     algorithm_bfs = TOP_DOWN_BFS_ALGORITHM;
-    algorithm_cc = SHILOACH_VISHKIN_ALGORITHM;
+    algorithm_cc = CC_SHILOACH_VISHKIN_ALGORITHM;
+    algorithm_tc = TC_PURDOMS_ALGORITHM;
 
     #ifdef __USE_GPU__
     graph_storage_format = CSR_VG_GRAPH;
@@ -201,11 +202,16 @@ void Parser::parse_args(int _argc, char **_argv)
 
         if ((option.compare("-shiloach-vishkin") == 0) || (option.compare("-sv") == 0))
         {
-            algorithm_cc = SHILOACH_VISHKIN_ALGORITHM;
+            algorithm_cc = CC_SHILOACH_VISHKIN_ALGORITHM;
         }
         else if ((option.compare("-bfs-based") == 0) || (option.compare("-bfs_based") == 0))
         {
-            algorithm_cc = BFS_BASED_ALGORITHM;
+            algorithm_cc = CC_BFS_BASED_ALGORITHM;
+            algorithm_tc = TC_BFS_BASED_ALGORITHM;
+        }
+        else if((option.compare("-purdoms") == 0) || (option.compare("-purdom") == 0))
+        {
+            algorithm_tc = TC_PURDOMS_ALGORITHM;
         }
 
         if ((option.compare("-store-walk-paths") == 0))

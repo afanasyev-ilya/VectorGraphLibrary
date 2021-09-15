@@ -27,6 +27,7 @@ private:
 
     AlgorithmBFS algorithm_bfs;
     AlgorithmCC algorithm_cc;
+    AlgorithmTC algorithm_tc;
 
     int store_walk_paths;
     int walk_vertices_percent;
@@ -61,6 +62,7 @@ public:
 
     AlgorithmBFS get_algorithm_bfs() {return algorithm_bfs;};
     AlgorithmCC get_algorithm_cc() {return algorithm_cc;};
+    AlgorithmTC get_algorithm_tc() {return algorithm_tc;};
     
     void parse_args(int _argc, char **_argv);
 

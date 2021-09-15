@@ -106,7 +106,9 @@ def get_sockets_count():  # returns number of sockets of target architecture
 def get_arch():
     try:
         output = subprocess.check_output(["nvidia-smi"])
-    except FileNotFoundError as e:  # as e syntax added in ~python2.5
+        print("Target architectures is supposed to be GPU...")
+        return "cu"
+    except:
         try:
             output = subprocess.check_output(["lscpu"])
             for item in output.decode().split("\n"):
@@ -121,8 +123,8 @@ def get_arch():
         except:
             print("Target architectures is supposed to be NEC SX-Aurora TSUBASA...")
             return "sx"
-    print("Target architectures is supposed to be GPU...")
-    return "cu"
+    print("Target architectures is supposed to be multicore CPU...")
+    return "mc"
 
 
 def get_target_proc_model():  # returns number of sockets of target architecture

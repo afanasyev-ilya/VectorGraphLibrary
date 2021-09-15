@@ -31,7 +31,7 @@ def verify_app(app_name, arch, benchmarking_results, graph_format, run_speed_mod
                    get_path_to_graph(current_graph, "el_container", requires_undir_graphs(app_name))] + current_args + common_args
             print(' '.join(cmd))
             proc = subprocess.Popen(cmd, shell=False, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-            timer = Timer(TIMEOUT_SIZE, proc.kill)
+            timer = Timer(TIMEOUT_LENGTH, proc.kill)
             try:
                 timer.start()
                 stdout, stderr = proc.communicate()

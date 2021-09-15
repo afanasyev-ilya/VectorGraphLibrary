@@ -27,7 +27,6 @@ int main(int argc, char **argv)
 
         // init flows
         EdgesArray<int> flows(graph);
-        EdgesArray<int> copy_flows(graph);
 
         // start algorithm
         VGL_RUNTIME::start_measuring_stats();
@@ -49,12 +48,19 @@ int main(int argc, char **argv)
                 flows.set_all_constant(MAX_WEIGHT);
 
                 int check_flow = 0;
-                MF::seq_ford_fulkerson(graph, copy_flows, source, sink, check_flow);
+                MF::seq_ford_fulkerson(graph, flows, source, sink, check_flow);
                 cout << max_flow_val << " vs " << check_flow << endl;
                 if(max_flow_val == check_flow)
                     cout << "Results are equal" << endl;
                 else
                     cout << "Results are NOT equal, error_count = " << graph.get_vertices_count() << endl;
+
+                if(graph.get_vertices_count() < 32)
+                {
+                    EdgesArray<int> original_weights(graph);
+                    original_weights.set_all_constant(MAX_WEIGHT);
+                    save_flows_to_graphviz_file(graph, original_weights, flows, source, sink, "mf_vis.txt");
+                }
             }
         }
         VGL_RUNTIME::stop_measuring_stats(graph.get_edges_count(), parser);

@@ -61,3 +61,10 @@
 #else
 #define VGL_DEC(a) ((a) += 1)
 #endif
+
+#ifdef __USE_GPU__
+#define VGL_LAMBDA_CAP(a) a
+#else
+#define VGL_LAMBDA_CAP(a) &a
+#endif
+

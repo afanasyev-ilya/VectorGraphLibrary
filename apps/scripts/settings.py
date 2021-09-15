@@ -4,7 +4,7 @@ from enum import Enum
 GENERATE_UNDIRECTED_GRAPHS = False
 UNDIRECTED_PREFIX = "undir_"
 
-TIMEOUT_SIZE = 100
+TIMEOUT_LENGTH = 15
 
 # "fast" - very fast mode (only small graphs),
 # "medium" - medium (small-sized and medium-sized graphs)
@@ -18,13 +18,14 @@ print_timings = True
 benchmark_args = {"bfs": [ ["-top-down"]],
                   "sssp": [ ["-push", "-all-active"], ["-pull", "-all-active"] ],
                   "pr": [ ["-pull"] ],
-                  "cc": [ ["-cv"] ],
+                  "cc": [ ["-cv"], ["-bfs-based"] ],
                   "sswp": [ ["-push"] ],
                   "rw": [ ["-it", "100", "-wv", "20"] ],
                   "hits": [ [] ],
                   "scc": [ [] ],
                   "coloring": [ [] ],
-                  "tc": [ ["-it", "500"] ]}
+                  "tc": [ ["-bfs-based", "-it", "500"], ["-purdoms", "-it", "500"] ],
+                  "mf": [ [] ]}
 
 
 available_formats = ["csr", "csr_vg", "vcsr", "el", "el_csr_based", "el_2D_seg"]
