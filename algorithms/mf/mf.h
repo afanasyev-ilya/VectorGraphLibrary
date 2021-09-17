@@ -9,7 +9,7 @@
 
 class MaxFlow
 {
-private:
+public:
     template <typename _T>
     static inline _T get_flow(VGL_Graph &_graph, EdgesArray<_T> &_weights, int _src_id, int _dst_id);
     template <typename _T>
@@ -29,7 +29,7 @@ private:
 
     template <typename _T>
     static bool seq_bfs(VGL_Graph &_graph, EdgesArray<_T> &_weights, int _source, int _sink, int *_parents);
-public:
+
     template <typename _T>
     static double vgl_ford_fulkerson(VGL_Graph &_graph, EdgesArray<_T> &_flows, int _source, int _sink, _T &_max_flow);
 
