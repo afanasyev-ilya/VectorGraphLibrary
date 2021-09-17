@@ -31,6 +31,10 @@ private:
     void reduce_worker_max(GraphContainer &_graph, FrontierContainer &_frontier, ReduceOperation &&reduce_op,
                            _T &_result);
 
+    template <typename _T, typename ReduceOperation, typename GraphContainer, typename FrontierContainer>
+    void reduce_worker_min(GraphContainer &_graph, FrontierContainer &_frontier, ReduceOperation &&reduce_op,
+                           _T &_result);
+
     // gnf inner implementation
     template <typename FilterCondition>
     void generate_new_frontier_worker(CSRGraph &_graph,

@@ -16,7 +16,7 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #ifdef __USE_NEC_SX_AURORA__
-//#warning "NEC SX-Aurora TSUBASA API is used!"
+#warning "NEC SX-Aurora TSUBASA API is used!"
 #pragma message("NEC SX-Aurora TSUBASA API is used!")
 #endif
 
