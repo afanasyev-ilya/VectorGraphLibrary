@@ -28,10 +28,11 @@ def run_benchmarks(options, arch, benchmarking_results):
     algorithms_tested = 0
     for app_name in list_of_apps:
         if is_valid(app_name, arch, options):
-            algorithms_tested += benchmark_app(app_name, arch, benchmarking_results, options.format, options.mode)
+            algorithms_tested += benchmark_app(app_name, arch, benchmarking_results, options.format, options.mode,
+                                               options.timeout)
         else:
             print("Error! Can not benchmark " + app_name + ", several errors occurred.")
-    print("\n\nEVALUATED PERFORMANCE OF " + str(algorithms_tested) + " GRAPH ALGORITHMS\n\n")
+    return algorithms_tested
 
 
 def run_verify(options, arch, benchmarking_results):
@@ -39,23 +40,30 @@ def run_verify(options, arch, benchmarking_results):
 
     set_omp_environments(options)
     benchmarking_results.add_correctness_header_to_xls_table(options.format)
+    algorithms_verified = 0
 
     for app_name in list_of_apps:
         if "el" in options.format or app_name == "sswp": # check takes too long to be done
             continue
         if is_valid(app_name, arch, options):
-            verify_app(app_name, arch, benchmarking_results, options.format, options.mode)
+            algorithms_verified += verify_app(app_name, arch, benchmarking_results, options.format, options.mode,
+                                              options.timeout)
         else:
             print("Error! Can not compile " + app_name + ", several errors occurred.")
+    return algorithms_verified
 
 
 def benchmark_and_verify(options, arch, benchmarking_results):
+    benchmarked_num = 0
+    verified_num = 0
     if options.benchmark:
-        run_benchmarks(options, arch, benchmarking_results)
+        benchmarked_num = run_benchmarks(options, arch, benchmarking_results)
 
     if options.verify:
-        run_verify(options, arch, benchmarking_results)
+        verified_num = run_verify(options, arch, benchmarking_results)
 
+    print("\n\nEVALUATED PERFORMANCE OF " + str(benchmarked_num) + " GRAPH ALGORITHMS\n")
+    print("VERIFIED " + str(verified_num) + " GRAPH ALGORITHMS\n\n")
 
 def run(options, run_info):
     create_dir("./bin/")
@@ -121,7 +129,7 @@ def main():
     parser.add_option('-r', '--arch',
                       action="store", dest="arch",
                       help="specify evaluated architecture: sx/aurora, mc/multicore, cu/gpu", default=get_arch())
-    parser.add_option('-f', '--format',
+    parser.add_option('-f', '--formats',
                       action="store", dest="format",
                       help="specify graph storage format used (all can be specified to test all available formats)", default="vcsr")
     parser.add_option('-s', '--sockets',
@@ -149,6 +157,10 @@ def main():
     parser.add_option('-d', '--download',
                       action="store_true", dest="download",
                       help="download all real-world graphs from internet collections", default=False)
+    parser.add_option('-t', '--timeout',
+                      action="store", dest="timeout",
+                      help="execution time (in seconds), after which tested app is automatically aborted. "
+                           "Default is 1 hour", default=3600)
 
     options, args = parser.parse_args()
 

@@ -31,7 +31,7 @@ def extract_perf_val(perf_lines):
     return 0.0
 
 
-def benchmark_app(app_name, arch, benchmarking_results, graph_format, run_speed_mode):
+def benchmark_app(app_name, arch, benchmarking_results, graph_format, run_speed_mode, timeout_length):
     list_of_graphs = get_list_of_all_graphs(run_speed_mode)
 
     create_graphs_if_required(list_of_graphs, arch, run_speed_mode)
@@ -51,7 +51,7 @@ def benchmark_app(app_name, arch, benchmarking_results, graph_format, run_speed_
             cmd = [get_binary_path(app_name, arch), "-import", get_path_to_graph(current_graph, "el_container", requires_undir_graphs(app_name))] + current_args + common_args
             print(' '.join(cmd))
             proc = subprocess.Popen(cmd, shell=False, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-            timer = Timer(TIMEOUT_LENGTH, proc.kill)
+            timer = Timer(int(timeout_length), proc.kill)
             try:
                 timer.start()
                 stdout, stderr = proc.communicate()
@@ -71,7 +71,6 @@ def benchmark_app(app_name, arch, benchmarking_results, graph_format, run_speed_
                 print("TIME: " + str(end-start) + " seconds\n")
 
         benchmarking_results.add_performance_separator_to_xls_table()
-
         algorithms_tested += 1
 
     return algorithms_tested

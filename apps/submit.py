@@ -55,6 +55,7 @@ def main():
         options.download = False
         options.mode = "rating-fast"
         options.sockets = options.proc_num
+        options.timeout = 360
         file_name = arch_info_dict["architecture"] + "_" + arch_info_dict["model"]
         file_name = file_name.replace(" ", "_")
         options.name = file_name

@@ -4,8 +4,6 @@ from enum import Enum
 GENERATE_UNDIRECTED_GRAPHS = False
 UNDIRECTED_PREFIX = "undir_"
 
-TIMEOUT_LENGTH = 15
-
 # "fast" - very fast mode (only small graphs),
 # "medium" - medium (small-sized and medium-sized graphs)
 # "full" - full (test on all available graphs)

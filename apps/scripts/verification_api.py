@@ -16,11 +16,13 @@ def check_app_correctness(output):
     return matched_lines
 
 
-def verify_app(app_name, arch, benchmarking_results, graph_format, run_speed_mode):
+def verify_app(app_name, arch, benchmarking_results, graph_format, run_speed_mode, timeout_length):
     list_of_graphs = get_list_of_verification_graphs(run_speed_mode)
 
     create_graphs_if_required(list_of_graphs, arch, run_speed_mode)
     common_args = ["-check", "-it", "1", "-format", graph_format]
+
+    algorithms_verified = 0
 
     for current_args in benchmark_args[app_name]:
         benchmarking_results.add_correctness_test_name_to_xls_table(app_name, current_args + common_args)
@@ -31,7 +33,7 @@ def verify_app(app_name, arch, benchmarking_results, graph_format, run_speed_mod
                    get_path_to_graph(current_graph, "el_container", requires_undir_graphs(app_name))] + current_args + common_args
             print(' '.join(cmd))
             proc = subprocess.Popen(cmd, shell=False, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-            timer = Timer(TIMEOUT_LENGTH, proc.kill)
+            timer = Timer(int(timeout_length), proc.kill)
             try:
                 timer.start()
                 stdout, stderr = proc.communicate()
@@ -51,3 +53,6 @@ def verify_app(app_name, arch, benchmarking_results, graph_format, run_speed_mod
                 print("TIME: " + str(end-start) + " seconds")
 
         benchmarking_results.add_correctness_separator_to_xls_table()
+        algorithms_verified += 1
+
+    return algorithms_verified
