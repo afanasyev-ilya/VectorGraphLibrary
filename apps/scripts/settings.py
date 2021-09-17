@@ -108,14 +108,11 @@ syn_large_only = ["syn_rmat_25_32", "syn_ru_25_32"]
 
 #####################
 
-konect_tiny_and_small = ['soc_libimseti', 'web_stanford', 'road_colorado', 'soc_catster_dogster',
-                         'soc_youtube_friendships', 'road_texas', 'rating_yahoo_songs', 'soc_pokec',
-                         'road_california', 'web_baidu_internal',
-                         'soc_orkut', 'web_wikipedia_links_fr', 'web_wikipedia_links_ru', 'rating_amazon_ratings',
-                         'road_eastern_usa', 'soc_livejournal', 'soc_livejournal_links', 'road_western_usa',
-                         'web_zhishi']
-syn_tiny_and_small = ["syn_rmat_18_32", "syn_ru_18_32", "syn_rmat_20_32", "syn_ru_20_32",
-                      "syn_rmat_22_32", "syn_ru_22_32"]
+konect_tiny_small = konect_tiny_only + konect_small_only
+syn_tiny_small = syn_tiny_only + syn_small_only
+
+konect_tiny_small_medium = konect_tiny_only + konect_small_only + konect_medium_only
+syn_tiny_small_medium = syn_tiny_only + syn_small_only + syn_medium_only
 
 #####################
 

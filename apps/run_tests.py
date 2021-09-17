@@ -153,7 +153,7 @@ def main():
     parser.add_option('-m', '--mode',
                       action="store", dest="mode",
                       help="specify testing mode: tiny-only, small-only, medium-only, large-only, "
-                           "rating-full, rating-fast, tiny-and-small", default="tiny-only")
+                           "rating-full, rating-fast, tiny-small, tiny-small-medium", default="tiny-only")
     parser.add_option('-d', '--download',
                       action="store_true", dest="download",
                       help="download all real-world graphs from internet collections", default=False)

@@ -18,10 +18,10 @@ def get_list_of_synthetic_graphs(run_speed_mode):
         return syn_rating_fast
     elif run_speed_mode == "rating-full":
         return syn_rating_full
-    elif run_speed_mode == "one-medium":
-        return syn_one_medium_graph_mode
-    elif run_speed_mode == "tiny-and-small":
-        return syn_tiny_and_small
+    elif run_speed_mode == "tiny-small":
+        return syn_tiny_small
+    elif run_speed_mode == "tiny-small-medium":
+        return syn_tiny_small_medium
     else:
         raise ValueError("Unsupported run_speed_mode")
 
@@ -39,10 +39,10 @@ def get_list_of_real_world_graphs(run_speed_mode):
         return konect_rating_fast
     elif run_speed_mode == "rating-full":
         return konect_rating_full
-    elif run_speed_mode == "tiny-and-small":
-        return konect_tiny_and_small
-    elif run_speed_mode == "one-medium":
-        return konect_one_medium_graph_mode
+    elif run_speed_mode == "tiny-small":
+        return konect_tiny_small
+    elif run_speed_mode == "tiny-small-medium":
+        return konect_tiny_small_medium
     else:
         raise ValueError("Unsupported run_speed_mode")
 
