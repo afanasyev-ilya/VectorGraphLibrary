@@ -137,7 +137,7 @@ void Parser::parse_args(int _argc, char **_argv)
             {
                 graph_storage_format = CSR_GRAPH;
             }
-            else if(tmp_type == "csr_vg")
+            else if(tmp_type == "csr_vg" || tmp_type == "vg_csr")
             {
                 graph_storage_format = CSR_VG_GRAPH;
             }

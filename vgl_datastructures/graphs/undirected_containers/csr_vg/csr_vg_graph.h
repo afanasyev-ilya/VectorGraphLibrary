@@ -33,7 +33,6 @@ private:
     vgl_sort_indexes *edges_reorder_indexes; // allows to convert edges (and weights) from sorted to original order
 
     CSRVertexGroup vertex_groups[CSR_VERTEX_GROUPS_NUM];
-    CSRVertexGroupCellC cell_c_vertex_groups[CELL_C_VERTEX_GROUPS_NUM];
 
     void create_vertex_groups();
 
@@ -56,6 +55,8 @@ public:
     CSR_VG_Graph(int _vertices_count = 1, long long _edges_count = 1);
     CSR_VG_Graph(const CSR_VG_Graph &_copy);
     ~CSR_VG_Graph();
+
+    CSRVertexGroupCellC cell_c_vertex_groups[CELL_C_VERTEX_GROUPS_NUM];
 
     /* get API */
     inline long long *get_vertex_pointers() {return vertex_pointers;};

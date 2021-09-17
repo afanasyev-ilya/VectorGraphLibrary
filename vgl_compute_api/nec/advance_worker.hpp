@@ -174,6 +174,13 @@ void GraphAbstractionsNEC::advance_worker(CSR_VG_Graph &_graph,
 
     long long process_shift = compute_process_shift(current_traversal_direction, CSR_STORAGE);
 
+    vertex_group_cell_c(_graph.cell_c_vertex_groups[0], vertex_pointers, edge_op, vertex_preprocess_op,
+                                vertex_postprocess_op, process_shift);
+    vertex_group_cell_c(_graph.cell_c_vertex_groups[1], vertex_pointers, edge_op, vertex_preprocess_op,
+                                vertex_postprocess_op, process_shift);
+    vertex_group_cell_c(_graph.cell_c_vertex_groups[2], vertex_pointers, edge_op, vertex_preprocess_op,
+                        vertex_postprocess_op, process_shift);
+
     vertex_group_advance_changed_vl(_frontier.vertex_groups[0], vertex_pointers, adjacent_ids, edge_op, vertex_preprocess_op,
                                     vertex_postprocess_op, process_shift);
     vertex_group_advance_fixed_vl(_frontier.vertex_groups[1], vertex_pointers, adjacent_ids, edge_op, vertex_preprocess_op,

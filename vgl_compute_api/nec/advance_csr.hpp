@@ -246,7 +246,7 @@ void GraphAbstractionsNEC::vertex_group_cell_c(CSRVertexGroupCellC &_group_data,
 
     for(int edge_pos = 0; edge_pos < _group_data.max_connections; edge_pos++)
     {
-        #pragma omp for
+        #pragma omp for schedule(static, 4)
         for(int vec_st = 0; vec_st < frontier_size; vec_st += VECTOR_LENGTH)
         {
             #pragma _NEC cncall
@@ -279,7 +279,7 @@ void GraphAbstractionsNEC::vertex_group_cell_c(CSRVertexGroupCellC &_group_data,
     double t2 = omp_get_wtime();
     #pragma omp single
     {
-        cout << _group_data.cell_c_size * INT_ELEMENTS_PER_EDGE*sizeof(int) / ((t2 - t1)*1e9) << " GB/s band on CELL-C" << endl;
+        cout << _group_data.max_connections*frontier_size * INT_ELEMENTS_PER_EDGE*sizeof(int) / ((t2 - t1)*1e9) << " GB/s band on CELL-C" << endl;
     }
 }
 
