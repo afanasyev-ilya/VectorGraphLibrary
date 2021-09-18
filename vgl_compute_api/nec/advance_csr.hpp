@@ -244,7 +244,84 @@ void GraphAbstractionsNEC::vertex_group_cell_c(CSRVertexGroupCellC &_group_data,
     double t1 = omp_get_wtime();
     int frontier_size = _group_data.size;
 
-    for(int edge_pos = 0; edge_pos < _group_data.max_connections; edge_pos++)
+    long long reg_real_start[VECTOR_LENGTH];
+    int reg_real_connections_count[VECTOR_LENGTH];
+    #pragma _NEC vreg(reg_real_connections_count)
+    #pragma _NEC vreg(reg_real_start)
+
+    #pragma _NEC vector
+    for(int i = 0; i < VECTOR_LENGTH; i++)
+    {
+        reg_real_connections_count[i] = 0;
+        reg_real_start[i] = 0;
+    }
+
+    int first_segment = 0;
+    int last_segment = _group_data.vector_segments_count;
+
+    #pragma omp for schedule(static, 8)
+    for(int cur_vector_segment = first_segment; cur_vector_segment < last_segment; cur_vector_segment++)
+    {
+        int segment_first_vertex = cur_vector_segment * VECTOR_LENGTH;
+
+        long long segment_edges_start = _group_data.vector_group_ptrs[cur_vector_segment];
+        int segment_connections_count = _group_data.vector_group_sizes[cur_vector_segment];
+
+        #pragma _NEC vector
+        for(int i = 0; i < VECTOR_LENGTH; i++)
+        {
+            int pos = segment_first_vertex + i;
+            int src_id = _group_data.ids[pos];
+            reg_real_start[i] = _vertex_pointers[src_id];
+
+            if(segment_connections_count > 0)
+                reg_real_connections_count[i] = _vertex_pointers[src_id + 1] - reg_real_start[i];
+            else
+                reg_real_connections_count[i] = 0;
+
+            if(pos < _group_data.size)
+                vertex_preprocess_op(src_id, reg_real_connections_count[i], i);
+        }
+
+        for(int edge_pos = 0; edge_pos < segment_connections_count; edge_pos++)
+        {
+            #pragma _NEC cncall
+            #pragma _NEC ivdep
+            #pragma _NEC vovertake
+            #pragma _NEC novob
+            #pragma _NEC vector
+            #pragma _NEC gather_reorder
+            for (int i = 0; i < VECTOR_LENGTH; i++)
+            {
+                int pos = segment_first_vertex + i;
+                const int src_id = _group_data.ids[pos];
+
+                const int vector_index = i;
+                const long long internal_edge_pos = segment_edges_start + edge_pos * VECTOR_LENGTH + i;
+                const int local_edge_pos = edge_pos;
+                const long long external_edge_pos = internal_edge_pos;
+
+                if((pos < _group_data.size) && (edge_pos < reg_real_connections_count[i]))
+                {
+                    const int dst_id = _group_data.adjacent_ids[internal_edge_pos];
+                    edge_op(src_id, dst_id, local_edge_pos, external_edge_pos, vector_index);
+                }
+            }
+        }
+
+        #pragma _NEC vector
+        for(int i = 0; i < VECTOR_LENGTH; i++)
+        {
+            int pos = segment_first_vertex + i;
+            int src_id = _group_data.ids[pos];
+
+            if(pos < _group_data.size)
+                vertex_postprocess_op(src_id, reg_real_connections_count[i], i);
+        }
+    }
+
+
+    /*for(int edge_pos = 0; edge_pos < _group_data.max_connections; edge_pos++)
     {
         #pragma omp for schedule(static, 4)
         for(int vec_st = 0; vec_st < frontier_size; vec_st += VECTOR_LENGTH)
@@ -275,7 +352,7 @@ void GraphAbstractionsNEC::vertex_group_cell_c(CSRVertexGroupCellC &_group_data,
                 }
             }
         }
-    }
+    }*/
     double t2 = omp_get_wtime();
     #pragma omp single
     {
