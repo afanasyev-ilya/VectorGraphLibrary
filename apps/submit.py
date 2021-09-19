@@ -53,7 +53,7 @@ def main():
         options.compile = False  # must be false for NEC benchmarking
         options.prepare = False
         options.download = False
-        options.mode = "rating-fast"
+        options.mode = "rating-medium"
         options.sockets = options.proc_num
         options.timeout = 360
         file_name = arch_info_dict["architecture"] + "_" + arch_info_dict["model"]

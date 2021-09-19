@@ -16,6 +16,8 @@ def get_list_of_synthetic_graphs(run_speed_mode):
         return syn_large_only
     elif run_speed_mode == "rating-fast":
         return syn_rating_fast
+    elif run_speed_mode == "rating-medium":
+        return syn_rating_medium
     elif run_speed_mode == "rating-full":
         return syn_rating_full
     elif run_speed_mode == "tiny-small":
@@ -37,6 +39,8 @@ def get_list_of_real_world_graphs(run_speed_mode):
         return konect_large_only
     elif run_speed_mode == "rating-fast":
         return konect_rating_fast
+    elif run_speed_mode == "rating-medium":
+        return konect_rating_medium
     elif run_speed_mode == "rating-full":
         return konect_rating_full
     elif run_speed_mode == "tiny-small":
