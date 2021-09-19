@@ -144,6 +144,14 @@ void GraphAbstractionsMulticore::generate_new_frontier_worker(CSRGraph &_graph,
     };
     _frontier.neighbours_count = neighbours_count;
     _frontier.size = ParallelPrimitives::copy_if_indexes(in_frontier, frontier_ids, vertices_count, _frontier.work_buffer, vertices_count, 0);
+    if(_frontier.size == vertices_count)
+    {
+        _frontier.sparsity_type = ALL_ACTIVE_FRONTIER;
+    }
+    else
+    {
+        _frontier.sparsity_type = SPARSE_FRONTIER;
+    }
 
     tm_wall.end();
     long long work = vertices_count;
@@ -202,6 +210,14 @@ void GraphAbstractionsMulticore::generate_new_frontier_worker(CSR_VG_Graph &_gra
         }
     }
     _frontier.size = copy_pos;
+    if(_frontier.size == vertices_count)
+    {
+        _frontier.sparsity_type = ALL_ACTIVE_FRONTIER;
+    }
+    else
+    {
+        _frontier.sparsity_type = SPARSE_FRONTIER;
+    }
 
     tm_wall.end();
     long long work = vertices_count;
@@ -247,6 +263,7 @@ void GraphAbstractionsMulticore::generate_new_frontier_worker(EdgesListGraph &_g
 
     _frontier.size = elements_count;
     _frontier.neighbours_count = neighbours_count;
+    _frontier.sparsity_type = ALL_ACTIVE_FRONTIER;
 
     tm_wall.end();
     long long work = vertices_count;
