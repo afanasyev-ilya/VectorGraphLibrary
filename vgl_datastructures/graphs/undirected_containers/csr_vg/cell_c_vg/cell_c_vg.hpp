@@ -34,7 +34,8 @@ CSRVertexGroupCellC::~CSRVertexGroupCellC()
     MemoryAPI::free_array(vertex_ids);
     MemoryAPI::free_array(vector_group_ptrs);
     MemoryAPI::free_array(vector_group_sizes);
-    MemoryAPI::free_array(adjacent_ids);
+    MemoryAPI::free_array(vector_group_adjacent_ids);
+    MemoryAPI::free_array(old_edge_indexes);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -71,7 +72,8 @@ void CSRVertexGroupCellC::import(CSR_VG_Graph *_graph, int _bottom, int _top)
         MemoryAPI::allocate_array(&vertex_ids, 1);
         MemoryAPI::allocate_array(&vector_group_ptrs, 1);
         MemoryAPI::allocate_array(&vector_group_sizes, 1);
-        MemoryAPI::allocate_array(&adjacent_ids, 1);
+        MemoryAPI::allocate_array(&vector_group_adjacent_ids, 1);
+        MemoryAPI::allocate_array(&old_edge_indexes, 1);
     }
     else
     {
@@ -109,7 +111,10 @@ void CSRVertexGroupCellC::import(CSR_VG_Graph *_graph, int _bottom, int _top)
         }
         MemoryAPI::allocate_array(&vector_group_ptrs, vector_segments_count);
         MemoryAPI::allocate_array(&vector_group_sizes, vector_segments_count);
-        MemoryAPI::allocate_array(&adjacent_ids, edges_count_in_ve + VECTOR_LENGTH);
+        MemoryAPI::allocate_array(&vector_group_adjacent_ids, edges_count_in_ve + VECTOR_LENGTH);
+        MemoryAPI::allocate_array(&old_edge_indexes, edges_count_in_ve + VECTOR_LENGTH);
+
+        cout << "edges alloc size: " << edges_count_in_ve + VECTOR_LENGTH << endl;
 
         long long current_edge = 0;
         for(int cur_vector_segment = 0; cur_vector_segment < vector_segments_count; cur_vector_segment++)
@@ -144,12 +149,13 @@ void CSRVertexGroupCellC::import(CSR_VG_Graph *_graph, int _bottom, int _top)
                         int connections_count = _graph->get_connections_count(src_id);
                         if((pos < size) && (edge_pos < connections_count))
                         {
-                            adjacent_ids[current_edge + i] = _graph->get_edge_dst(src_id, edge_pos);
+                            vector_group_adjacent_ids[current_edge + i] = _graph->get_edge_dst(src_id, edge_pos);
                         }
                         else
                         {
-                            adjacent_ids[current_edge + i] = src_id;
+                            vector_group_adjacent_ids[current_edge + i] = src_id;
                         }
+                        old_edge_indexes[current_edge + i] = _graph->get_edges_array_index(src_id, edge_pos);
                     }
                 }
                 current_edge += VECTOR_LENGTH;

@@ -177,7 +177,6 @@ void GraphAbstractionsNEC::advance_worker(CSR_VG_Graph &_graph,
 
     vertex_group_advance_changed_vl(_frontier.vertex_groups[0], vertex_pointers, adjacent_ids, edge_op, vertex_preprocess_op,
                                     vertex_postprocess_op, process_shift);
-
     if(_frontier.sparsity_type == ALL_ACTIVE_FRONTIER)
     {
         for(int i = 0; i < CSR_VERTEX_GROUPS_NUM; i++)

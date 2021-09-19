@@ -11,14 +11,14 @@ struct CSRVertexGroupCellC
     int *vertex_ids;
     int size;
 
-    // ve repr start
     int vector_segments_count;
     long long edges_count_in_ve;
 
     long long *vector_group_ptrs;
     int *vector_group_sizes;
-    int *adjacent_ids;
-    // ve repr end
+    int *vector_group_adjacent_ids;
+
+    long long *old_edge_indexes;
 
     int min_connections, max_connections;
 

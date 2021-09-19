@@ -256,11 +256,8 @@ void GraphAbstractionsNEC::vertex_group_cell_c(CSRVertexGroupCellC &_group_data,
         reg_real_start[i] = 0;
     }
 
-    int first_segment = 0;
-    int last_segment = _group_data.vector_segments_count;
-
     #pragma omp for schedule(static, 8)
-    for(int cur_vector_segment = first_segment; cur_vector_segment < last_segment; cur_vector_segment++)
+    for(int cur_vector_segment = 0; cur_vector_segment < _group_data.vector_segments_count; cur_vector_segment++)
     {
         int segment_first_vertex = cur_vector_segment * VECTOR_LENGTH;
 
@@ -303,13 +300,13 @@ void GraphAbstractionsNEC::vertex_group_cell_c(CSRVertexGroupCellC &_group_data,
                 }
 
                 const int vector_index = i;
-                const long long internal_edge_pos = edge_pos;//segment_edges_start + edge_pos * VECTOR_LENGTH + i;
+                const long long internal_edge_pos = segment_edges_start + edge_pos * VECTOR_LENGTH + i;
                 const int local_edge_pos = edge_pos;
-                const long long external_edge_pos = internal_edge_pos;
+                const long long external_edge_pos = internal_edge_pos; // will be loaded from array
 
                 if((pos < _group_data.size) && (edge_pos < reg_real_connections_count[i]))
                 {
-                    const int dst_id = _group_data.adjacent_ids[internal_edge_pos];
+                    const int dst_id = _group_data.vector_group_adjacent_ids[internal_edge_pos];
                     edge_op(src_id, dst_id, local_edge_pos, external_edge_pos, vector_index);
                 }
             }
