@@ -31,7 +31,10 @@ void CSRVertexGroupCellC::print_ids()
 
 CSRVertexGroupCellC::~CSRVertexGroupCellC()
 {
-
+    /*MemoryAPI::free_array(ids);
+    MemoryAPI::free_array(vector_group_ptrs);
+    MemoryAPI::free_array(vector_group_sizes);
+    MemoryAPI::free_array(adjacent_ids);*/
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

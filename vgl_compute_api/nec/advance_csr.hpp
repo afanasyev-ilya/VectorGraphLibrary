@@ -271,16 +271,18 @@ void GraphAbstractionsNEC::vertex_group_cell_c(CSRVertexGroupCellC &_group_data,
         for(int i = 0; i < VECTOR_LENGTH; i++)
         {
             int pos = segment_first_vertex + i;
-            int src_id = _group_data.ids[pos];
-            reg_real_start[i] = _vertex_pointers[src_id];
-
-            if(segment_connections_count > 0)
-                reg_real_connections_count[i] = _vertex_pointers[src_id + 1] - reg_real_start[i];
-            else
-                reg_real_connections_count[i] = 0;
-
             if(pos < _group_data.size)
+            {
+                int src_id = _group_data.ids[pos];
+                reg_real_start[i] = _vertex_pointers[src_id];
+
+                if(segment_connections_count > 0)
+                    reg_real_connections_count[i] = _vertex_pointers[src_id + 1] - reg_real_start[i];
+                else
+                    reg_real_connections_count[i] = 0;
+
                 vertex_preprocess_op(src_id, reg_real_connections_count[i], i);
+            }
         }
 
         for(int edge_pos = 0; edge_pos < segment_connections_count; edge_pos++)
@@ -294,10 +296,14 @@ void GraphAbstractionsNEC::vertex_group_cell_c(CSRVertexGroupCellC &_group_data,
             for (int i = 0; i < VECTOR_LENGTH; i++)
             {
                 int pos = segment_first_vertex + i;
-                const int src_id = _group_data.ids[pos];
+                int src_id = 0;
+                if(pos < _group_data.size)
+                {
+                    src_id = _group_data.ids[pos];
+                }
 
                 const int vector_index = i;
-                const long long internal_edge_pos = segment_edges_start + edge_pos * VECTOR_LENGTH + i;
+                const long long internal_edge_pos = edge_pos;//segment_edges_start + edge_pos * VECTOR_LENGTH + i;
                 const int local_edge_pos = edge_pos;
                 const long long external_edge_pos = internal_edge_pos;
 
@@ -313,10 +319,11 @@ void GraphAbstractionsNEC::vertex_group_cell_c(CSRVertexGroupCellC &_group_data,
         for(int i = 0; i < VECTOR_LENGTH; i++)
         {
             int pos = segment_first_vertex + i;
-            int src_id = _group_data.ids[pos];
-
             if(pos < _group_data.size)
+            {
+                int src_id = _group_data.ids[pos];
                 vertex_postprocess_op(src_id, reg_real_connections_count[i], i);
+            }
         }
     }
 
@@ -356,7 +363,7 @@ void GraphAbstractionsNEC::vertex_group_cell_c(CSRVertexGroupCellC &_group_data,
     double t2 = omp_get_wtime();
     #pragma omp single
     {
-        cout << _group_data.max_connections*frontier_size * INT_ELEMENTS_PER_EDGE*sizeof(int) / ((t2 - t1)*1e9) << " GB/s band on CELL-C" << endl;
+        cout << _group_data.edges_count_in_ve * INT_ELEMENTS_PER_EDGE*sizeof(int) / ((t2 - t1)*1e9) << " GB/s band on CELL-C" << endl;
     }
 }
 

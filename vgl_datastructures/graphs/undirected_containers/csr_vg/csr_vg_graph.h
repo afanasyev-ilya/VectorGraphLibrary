@@ -52,11 +52,11 @@ private:
     void save_main_content_to_binary_file(FILE *_graph_file) final;
     void load_main_content_from_binary_file(FILE *_graph_file) final;
 public:
+    CSRVertexGroupCellC cell_c_vertex_groups[CSR_VERTEX_GROUPS_NUM];
+
     CSR_VG_Graph(int _vertices_count = 1, long long _edges_count = 1);
     CSR_VG_Graph(const CSR_VG_Graph &_copy);
     ~CSR_VG_Graph();
-
-    CSRVertexGroupCellC cell_c_vertex_groups[CELL_C_VERTEX_GROUPS_NUM];
 
     /* get API */
     inline long long *get_vertex_pointers() {return vertex_pointers;};
