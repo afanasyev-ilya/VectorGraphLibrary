@@ -23,7 +23,7 @@ void CSRVertexGroupCellC::print_ids()
 {
     cout << "vertex group info: ";
     for (int i = 0; i < size; i++)
-        cout << ids[i] << " ";
+        cout << vertex_ids[i] << " ";
     cout << endl;
 }
 
@@ -31,10 +31,10 @@ void CSRVertexGroupCellC::print_ids()
 
 CSRVertexGroupCellC::~CSRVertexGroupCellC()
 {
-    /*MemoryAPI::free_array(ids);
+    MemoryAPI::free_array(vertex_ids);
     MemoryAPI::free_array(vector_group_ptrs);
     MemoryAPI::free_array(vector_group_sizes);
-    MemoryAPI::free_array(adjacent_ids);*/
+    MemoryAPI::free_array(adjacent_ids);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -60,78 +60,100 @@ void CSRVertexGroupCellC::import(CSR_VG_Graph *_graph, int _bottom, int _top)
         }
     }
 
-    MemoryAPI::allocate_array(&this->ids, local_group_size);
-
-    // generate list of vertex group ids
-    int vertex_pos = 0;
-    for(int src_id = 0; src_id < vertices_count; src_id++)
-    {
-        int connections_count = _graph->get_connections_count(src_id);
-        if((connections_count >= _bottom) && (connections_count < _top))
-        {
-            this->ids[vertex_pos] = src_id;
-            vertex_pos++;
-        }
-    }
     size = local_group_size;
-
+    cout << "size: " << size << endl;
     vector_segments_count = (size - 1) / VECTOR_LENGTH + 1;
 
-    edges_count_in_ve = 0;
-    for(int cur_vector_segment = 0; cur_vector_segment < vector_segments_count; cur_vector_segment++)
+    if(size == 0)
     {
-        int vec_start = cur_vector_segment * VECTOR_LENGTH;
-        int cur_max_connections_count = 0;
-        for(int i = 0; i < VECTOR_LENGTH; i++)
-        {
-            int pos = vec_start + i;
-            int src_id = this->ids[i];
-            int connections_count = _graph->get_connections_count(src_id);
-            if(cur_max_connections_count < connections_count)
-                cur_max_connections_count = connections_count;
-        }
-        edges_count_in_ve += cur_max_connections_count * VECTOR_LENGTH;
+        vector_segments_count = 0;
+        edges_count_in_ve = 0;
+        MemoryAPI::allocate_array(&vertex_ids, 1);
+        MemoryAPI::allocate_array(&vector_group_ptrs, 1);
+        MemoryAPI::allocate_array(&vector_group_sizes, 1);
+        MemoryAPI::allocate_array(&adjacent_ids, 1);
     }
-    MemoryAPI::allocate_array(&vector_group_ptrs, vector_segments_count);
-    MemoryAPI::allocate_array(&vector_group_sizes, vector_segments_count);
-    MemoryAPI::allocate_array(&adjacent_ids, edges_count_in_ve + VECTOR_LENGTH);
-
-    long long current_edge = 0;
-    for(int cur_vector_segment = 0; cur_vector_segment < vector_segments_count; cur_vector_segment++)
+    else
     {
-        int vec_start = cur_vector_segment * VECTOR_LENGTH;
-        int cur_max_connections_count = 0;
-        for(int i = 0; i < VECTOR_LENGTH; i++)
+        MemoryAPI::allocate_array(&this->vertex_ids, size);
+
+        // generate list of vertex group ids
+        int vertex_pos = 0;
+        for(int src_id = 0; src_id < vertices_count; src_id++)
         {
-            int pos = vec_start + i;
-            int src_id = this->ids[i];
             int connections_count = _graph->get_connections_count(src_id);
-            if(cur_max_connections_count < connections_count)
-                cur_max_connections_count = connections_count;
+            if((connections_count >= _bottom) && (connections_count < _top))
+            {
+                this->vertex_ids[vertex_pos] = src_id;
+                vertex_pos++;
+            }
         }
 
-        vector_group_ptrs[cur_vector_segment] = current_edge;
-        vector_group_sizes[cur_vector_segment] = cur_max_connections_count;
-
-        for(int edge_pos = 0; edge_pos < cur_max_connections_count; edge_pos++)
+        edges_count_in_ve = 0;
+        for(int cur_vector_segment = 0; cur_vector_segment < vector_segments_count; cur_vector_segment++)
         {
-            #pragma _NEC ivdep
-            #pragma _NEC vector
+            int vec_start = cur_vector_segment * VECTOR_LENGTH;
+            int cur_max_connections_count = 0;
             for(int i = 0; i < VECTOR_LENGTH; i++)
             {
                 int pos = vec_start + i;
-                int src_id = this->ids[i];
-                int connections_count = _graph->get_connections_count(src_id);
-                if((pos < size) && (edge_pos < connections_count))
+                if(pos < size)
                 {
-                    adjacent_ids[current_edge + i] = _graph->get_edge_dst(src_id, edge_pos);
-                }
-                else
-                {
-                    adjacent_ids[current_edge + i] = src_id;
+                    int src_id = this->vertex_ids[i];
+                    int connections_count = _graph->get_connections_count(src_id);
+                    if(cur_max_connections_count < connections_count)
+                        cur_max_connections_count = connections_count;
                 }
             }
-            current_edge += VECTOR_LENGTH;
+            edges_count_in_ve += cur_max_connections_count * VECTOR_LENGTH;
+        }
+        MemoryAPI::allocate_array(&vector_group_ptrs, vector_segments_count);
+        MemoryAPI::allocate_array(&vector_group_sizes, vector_segments_count);
+        MemoryAPI::allocate_array(&adjacent_ids, edges_count_in_ve + VECTOR_LENGTH);
+
+        long long current_edge = 0;
+        for(int cur_vector_segment = 0; cur_vector_segment < vector_segments_count; cur_vector_segment++)
+        {
+            int vec_start = cur_vector_segment * VECTOR_LENGTH;
+            int cur_max_connections_count = 0;
+            for(int i = 0; i < VECTOR_LENGTH; i++)
+            {
+                int pos = vec_start + i;
+                if(pos < size)
+                {
+                    int src_id = this->vertex_ids[i];
+                    int connections_count = _graph->get_connections_count(src_id);
+                    if(cur_max_connections_count < connections_count)
+                        cur_max_connections_count = connections_count;
+                }
+            }
+
+            vector_group_ptrs[cur_vector_segment] = current_edge;
+            vector_group_sizes[cur_vector_segment] = cur_max_connections_count;
+
+            for(int edge_pos = 0; edge_pos < cur_max_connections_count; edge_pos++)
+            {
+                #pragma _NEC ivdep
+                #pragma _NEC vector
+                for(int i = 0; i < VECTOR_LENGTH; i++)
+                {
+                    int pos = vec_start + i;
+                    if(pos < size)
+                    {
+                        int src_id = this->vertex_ids[i];
+                        int connections_count = _graph->get_connections_count(src_id);
+                        if((pos < size) && (edge_pos < connections_count))
+                        {
+                            adjacent_ids[current_edge + i] = _graph->get_edge_dst(src_id, edge_pos);
+                        }
+                        else
+                        {
+                            adjacent_ids[current_edge + i] = src_id;
+                        }
+                    }
+                }
+                current_edge += VECTOR_LENGTH;
+            }
         }
     }
 }

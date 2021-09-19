@@ -8,7 +8,7 @@ class CSR_VG_Graph;
 
 struct CSRVertexGroupCellC
 {
-    int *ids;
+    int *vertex_ids;
     int size;
 
     // ve repr start

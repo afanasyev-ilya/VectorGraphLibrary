@@ -273,7 +273,7 @@ void GraphAbstractionsNEC::vertex_group_cell_c(CSRVertexGroupCellC &_group_data,
             int pos = segment_first_vertex + i;
             if(pos < _group_data.size)
             {
-                int src_id = _group_data.ids[pos];
+                int src_id = _group_data.vertex_ids[pos];
                 reg_real_start[i] = _vertex_pointers[src_id];
 
                 if(segment_connections_count > 0)
@@ -299,7 +299,7 @@ void GraphAbstractionsNEC::vertex_group_cell_c(CSRVertexGroupCellC &_group_data,
                 int src_id = 0;
                 if(pos < _group_data.size)
                 {
-                    src_id = _group_data.ids[pos];
+                    src_id = _group_data.vertex_ids[pos];
                 }
 
                 const int vector_index = i;
@@ -321,45 +321,12 @@ void GraphAbstractionsNEC::vertex_group_cell_c(CSRVertexGroupCellC &_group_data,
             int pos = segment_first_vertex + i;
             if(pos < _group_data.size)
             {
-                int src_id = _group_data.ids[pos];
+                int src_id = _group_data.vertex_ids[pos];
                 vertex_postprocess_op(src_id, reg_real_connections_count[i], i);
             }
         }
     }
 
-
-    /*for(int edge_pos = 0; edge_pos < _group_data.max_connections; edge_pos++)
-    {
-        #pragma omp for schedule(static, 4)
-        for(int vec_st = 0; vec_st < frontier_size; vec_st += VECTOR_LENGTH)
-        {
-            #pragma _NEC cncall
-            #pragma _NEC ivdep
-            #pragma _NEC vovertake
-            #pragma _NEC novob
-            #pragma _NEC vob
-            #pragma _NEC vector
-            #pragma _NEC gather_reorder
-            for(int i = 0; i < VECTOR_LENGTH; i++)
-            {
-                int frontier_pos = vec_st + i;
-                if(frontier_pos < frontier_size)
-                {
-                    const long long int internal_edge_pos = edge_pos * frontier_size + frontier_pos;
-
-                    int src_id = _group_data.ids[frontier_pos];
-                    int dst_id = _group_data.cell_c_adjacent_ids[internal_edge_pos];
-                    if(dst_id >= 0)
-                    {
-                        const int vector_index = i;
-                        const int local_edge_pos = edge_pos;
-                        const long long external_edge_pos = _process_shift + internal_edge_pos;
-                        edge_op(src_id, dst_id, local_edge_pos, external_edge_pos, vector_index);
-                    }
-                }
-            }
-        }
-    }*/
     double t2 = omp_get_wtime();
     #pragma omp single
     {

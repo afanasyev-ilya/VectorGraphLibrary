@@ -79,19 +79,12 @@ void CSR_VG_Graph::create_vertex_groups()
     vertex_groups[5].import(this, 0, 16);
     #endif
 
-    cout << "import started" << endl;
     cell_c_vertex_groups[0].import(this, 128, 256);
-    cout << "1" << endl;
     cell_c_vertex_groups[1].import(this, 64, 128);
-    cout << "2" << endl;
     cell_c_vertex_groups[2].import(this, 32, 64);
-    cout << "3" << endl;
     cell_c_vertex_groups[3].import(this, 16, 32);
-    cout << "4" << endl;
     cell_c_vertex_groups[4].import(this, 8, 16);
-    cout << "5" << endl;
     cell_c_vertex_groups[5].import(this, 0, 8);
-    cout << "import done" << endl;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
