@@ -80,14 +80,15 @@ all_konect_graphs_data = {
     'road_central_usa': {'link': 'dimacs9-CTR'},
     'road_full_usa': {'link': 'dimacs9-USA'},
 
-    'rating_yahoo_songs': {'link': 'yahoo-song'},
+    'rating_epinions': {'link': 'epinions-rating'},
     'rating_amazon_ratings': {'link': 'amazon-ratings'},
+    'rating_yahoo_songs': {'link': 'yahoo-song'}
 }
 
 #####################
 
 konect_tiny_only = ['soc_libimseti', 'web_stanford', 'road_colorado', 'soc_catster_dogster', 'soc_youtube_friendships',
-                    'road_texas', 'rating_yahoo_songs', 'soc_pokec', 'road_california', 'web_baidu_internal']
+                    'road_texas', 'soc_pokec', 'road_california', 'web_baidu_internal', 'rating_epinions']
 syn_tiny_only = ["syn_rmat_18_32", "syn_ru_18_32", "syn_rmat_20_32", "syn_ru_20_32"]
 
 #####################
@@ -98,7 +99,8 @@ syn_small_only = ["syn_rmat_22_32", "syn_ru_22_32"]
 
 #####################
 
-konect_medium_only = ['web_wikipedia_links_en', 'road_central_usa', 'web_dbpedia_links', 'web_uk_domain_2002']
+konect_medium_only = ['web_wikipedia_links_en', 'road_central_usa', 'web_dbpedia_links', 'web_uk_domain_2002',
+                      'rating_yahoo_songs']
 syn_medium_only = ["syn_rmat_24_32", "syn_ru_24_32"]
 
 #####################
@@ -116,31 +118,28 @@ syn_tiny_small_medium = syn_tiny_only + syn_small_only + syn_medium_only
 
 #####################
 
-konect_rating_fast = [
-    'web_stanford', 'soc_youtube_friendships', 'road_texas', #tiny
-    'rating_amazon_ratings', 'soc_livejournal_links', 'road_western_usa', 'web_zhishi' #small
-]
-syn_rating_fast = ["syn_rmat_18_32", "syn_rmat_22_32", "syn_ru_18_32", "syn_ru_22_32"]
+konect_rating_tiny = ['web_stanford', 'soc_youtube_friendships', 'road_texas', 'rating_epinions']
+konect_rating_small = ['soc_livejournal_links', 'road_western_usa', 'web_zhishi', 'rating_amazon_ratings']
+konect_rating_medium = ['road_central_usa', 'web_uk_domain_2002', 'rating_yahoo_songs']
+konect_rating_large = ['soc_twitter_www', 'road_full_usa', 'web_web_trackers']
+
+syn_rating_tiny = ["syn_rmat_18_32", "syn_ru_18_32"]
+syn_rating_small = ["syn_rmat_22_32", "syn_ru_22_32"]
+syn_rating_medium = ["syn_rmat_24_32", "syn_ru_24_32"]
+syn_rating_large = ["syn_rmat_25_32", "syn_ru_25_32"]
+
+konect_rating_fast = konect_rating_tiny + konect_rating_small
+syn_rating_fast = syn_rating_tiny + syn_rating_small
 
 #####################
 
-konect_rating_medium = [
-    'web_stanford', 'soc_youtube_friendships', 'road_texas', #tiny
-    'rating_amazon_ratings', 'soc_livejournal_links', 'road_western_usa', 'web_zhishi', #small
-    'road_central_usa', 'web_uk_domain_2002' # medium
-]
-syn_rating_medium = ["syn_rmat_18_32", "syn_rmat_22_32", "syn_ru_18_32", "syn_ru_22_32", "syn_rmat_24_32", "syn_rmat_25_32"]
+konect_rating_avg = konect_rating_tiny + konect_rating_small + konect_rating_medium + konect_rating_large
+syn_rating_avg = syn_rating_tiny + syn_rating_small + syn_rating_medium + syn_rating_large
 
 #####################
 
-konect_rating_full = [
-    'web_stanford', 'soc_youtube_friendships', 'road_texas', #tiny
-    'soc_livejournal_links', 'road_western_usa', 'web_zhishi', #small
-    'road_central_usa', 'web_uk_domain_2002' #medium
-    'soc_twitter_www', 'road_full_usa', 'web_web_trackers',
-]
-syn_rating_full = ["syn_rmat_18_32", "syn_rmat_22_32", "syn_rmat_24_32", "syn_rmat_25_32",
-                   "syn_ru_18_32", "syn_ru_22_32", "syn_ru_24_32", "syn_ru_25_32"]
+konect_rating_full = konect_rating_tiny + konect_rating_small + konect_rating_medium + konect_rating_large
+syn_rating_full = syn_rating_tiny + syn_rating_small + syn_rating_medium + syn_rating_large
 
 #####################
 
