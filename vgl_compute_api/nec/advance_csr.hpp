@@ -240,12 +240,12 @@ void GraphAbstractionsNEC::vertex_group_advance_sparse(CSRVertexGroup &_group_da
 
 template <typename EdgeOperation, typename VertexPreprocessOperation,
         typename VertexPostprocessOperation>
-void GraphAbstractionsNEC::vertex_group_cell_c(CSRVertexGroupCellC &_group_data,
-                                               long long *_vertex_pointers,
-                                               EdgeOperation edge_op,
-                                               VertexPreprocessOperation vertex_preprocess_op,
-                                               VertexPostprocessOperation vertex_postprocess_op,
-                                               long long _process_shift)
+void GraphAbstractionsNEC::vertex_group_cell_c_advance(CSRVertexGroupCellC &_group_data,
+                                                       long long *_vertex_pointers,
+                                                       EdgeOperation edge_op,
+                                                       VertexPreprocessOperation vertex_preprocess_op,
+                                                       VertexPostprocessOperation vertex_postprocess_op,
+                                                       long long _process_shift)
 {
     #ifdef __PRINT_API_PERFORMANCE_STATS__
     Timer tm;

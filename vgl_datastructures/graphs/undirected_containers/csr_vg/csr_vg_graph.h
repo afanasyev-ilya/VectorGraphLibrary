@@ -34,6 +34,11 @@ private:
 
     CSRVertexGroup vertex_groups[CSR_VERTEX_GROUPS_NUM];
 
+    #ifdef __USE_NEC_SX_AURORA__
+    int cell_c_vertex_groups_num;
+    CSRVertexGroupCellC cell_c_vertex_groups[CSR_VERTEX_GROUPS_NUM];
+    #endif
+
     void create_vertex_groups();
 
     void alloc(int _vertices_count, long long _edges_count);
@@ -52,8 +57,6 @@ private:
     void save_main_content_to_binary_file(FILE *_graph_file) final;
     void load_main_content_from_binary_file(FILE *_graph_file) final;
 public:
-    CSRVertexGroupCellC cell_c_vertex_groups[CSR_VERTEX_GROUPS_NUM];
-
     CSR_VG_Graph(int _vertices_count = 1, long long _edges_count = 1);
     CSR_VG_Graph(const CSR_VG_Graph &_copy);
     ~CSR_VG_Graph();
@@ -67,6 +70,11 @@ public:
 
     inline size_t get_edges_array_index(int _v, int _edge_pos) final { return vertex_pointers[_v] + _edge_pos; };
     inline size_t get_edges_array_direction_shift_size() final { return this->edges_count; };
+
+    #ifdef __USE_NEC_SX_AURORA__
+    inline int get_cell_c_vertex_groups_num() {return cell_c_vertex_groups_num;};
+    inline CSRVertexGroupCellC& get_cell_c_vertex_group(int _group_num) {return cell_c_vertex_groups[_group_num];};
+    #endif
 
     /* print API */
     void print();

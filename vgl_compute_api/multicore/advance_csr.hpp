@@ -15,10 +15,12 @@ void GraphAbstractionsMulticore::vertex_group_advance_changed_vl(CSRVertexGroup 
     tm.start();
     #endif
 
+    LOAD_CSR_VERTEX_GROUP_DATA(_group_data);
+
     #pragma omp for schedule(static, 8)
-    for(int idx = 0; idx < _group_data.size; idx++)
+    for(int idx = 0; idx < size; idx++)
     {
-        int src_id = _group_data.ids[idx];
+        int src_id = ids[idx];
         long long first = _vertex_pointers[src_id];
         long long last = _vertex_pointers[src_id + 1];
         int connections_count = last - first;
@@ -44,7 +46,7 @@ void GraphAbstractionsMulticore::vertex_group_advance_changed_vl(CSRVertexGroup 
 
     #ifdef __PRINT_API_PERFORMANCE_STATS__
     tm.end();
-    tm.print_time_and_bandwidth_stats("Advance changed vl", _group_data.neighbours, INT_ELEMENTS_PER_EDGE*sizeof(int));
+    tm.print_time_and_bandwidth_stats("Advance changed vl", neighbours, INT_ELEMENTS_PER_EDGE*sizeof(int));
     #endif
 }
 
@@ -64,6 +66,8 @@ void GraphAbstractionsMulticore::vertex_group_advance_sparse(CSRVertexGroup &_gr
     Timer tm;
     tm.start();
     #endif
+
+    LOAD_CSR_VERTEX_GROUP_DATA(_group_data);
 
     int src_id_reg[VECTOR_LENGTH];
     long long first_reg[VECTOR_LENGTH];
@@ -88,7 +92,7 @@ void GraphAbstractionsMulticore::vertex_group_advance_sparse(CSRVertexGroup &_gr
     }
 
     #pragma omp for schedule(static, 8)
-    for(int idx = 0; idx < _group_data.size; idx += VECTOR_LENGTH)
+    for(int idx = 0; idx < size; idx += VECTOR_LENGTH)
     {
         #pragma simd
         #pragma vector
@@ -96,9 +100,9 @@ void GraphAbstractionsMulticore::vertex_group_advance_sparse(CSRVertexGroup &_gr
         #pragma unroll(VECTOR_LENGTH)
         for(int i = 0; i < VECTOR_LENGTH; i++)
         {
-            if((idx + i) < _group_data.size)
+            if((idx + i) < size)
             {
-                int src_id = _group_data.ids[idx + i];
+                int src_id = ids[idx + i];
                 src_id_reg[i] = src_id;
                 first_reg[i] = _vertex_pointers[src_id];
                 last_reg[i] = _vertex_pointers[src_id + 1];
@@ -115,7 +119,7 @@ void GraphAbstractionsMulticore::vertex_group_advance_sparse(CSRVertexGroup &_gr
         for(int i = 0; i < VECTOR_LENGTH; i++)
         {
             int conn = connections_reg[i];
-            if (((idx + i) < _group_data.size) && (max_conn < conn))
+            if (((idx + i) < size) && (max_conn < conn))
                 max_conn = conn;
         }
 
@@ -128,9 +132,9 @@ void GraphAbstractionsMulticore::vertex_group_advance_sparse(CSRVertexGroup &_gr
             for(int i = 0; i < VECTOR_LENGTH; i++)
             {
                 long long edge_pos = first_reg[i] + pos;
-                if(((idx + i) < _group_data.size) && (edge_pos < last_reg[i]))
+                if(((idx + i) < size) && (edge_pos < last_reg[i]))
                 {
-                    const int src_id = _group_data.ids[idx + i];
+                    const int src_id = ids[idx + i];
 
                     const int vector_index = i;
                     const long long int internal_edge_pos = edge_pos;
@@ -146,9 +150,9 @@ void GraphAbstractionsMulticore::vertex_group_advance_sparse(CSRVertexGroup &_gr
         #pragma _NEC vector
         for(int i = 0; i < VECTOR_LENGTH; i++)
         {
-            if((idx + i) < _group_data.size)
+            if((idx + i) < size)
             {
-                int src_id = _group_data.ids[idx + i];
+                int src_id = ids[idx + i];
                 vertex_postprocess_op(src_id, connections_reg[i], i);
             }
         }
@@ -156,7 +160,7 @@ void GraphAbstractionsMulticore::vertex_group_advance_sparse(CSRVertexGroup &_gr
 
     #ifdef __PRINT_API_PERFORMANCE_STATS__
     tm.end();
-    tm.print_time_and_bandwidth_stats("Advance sparse vl", _group_data.neighbours, INT_ELEMENTS_PER_EDGE*sizeof(int));
+    tm.print_time_and_bandwidth_stats("Advance sparse vl", neighbours, INT_ELEMENTS_PER_EDGE*sizeof(int));
     #endif
 }
 

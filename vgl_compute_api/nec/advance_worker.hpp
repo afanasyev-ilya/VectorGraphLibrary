@@ -178,10 +178,10 @@ void GraphAbstractionsNEC::advance_worker(CSR_VG_Graph &_graph,
                                     vertex_postprocess_op, process_shift);
     if(_frontier.sparsity_type == ALL_ACTIVE_FRONTIER)
     {
-        for(int i = 0; i < CSR_VERTEX_GROUPS_NUM; i++)
+        for(int i = 0; i < _graph.get_cell_c_vertex_groups_num(); i++)
         {
-            vertex_group_cell_c(_graph.cell_c_vertex_groups[i], vertex_pointers, collective_edge_op,
-                                collective_vertex_preprocess_op, collective_vertex_postprocess_op, process_shift);
+            vertex_group_cell_c_advance(_graph.get_cell_c_vertex_group(i), vertex_pointers, collective_edge_op,
+                                        collective_vertex_preprocess_op, collective_vertex_postprocess_op, process_shift);
         }
     }
     else
