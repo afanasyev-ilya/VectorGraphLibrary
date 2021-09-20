@@ -140,6 +140,7 @@ void GraphAbstractionsMulticore::vertex_group_advance_sparse(CSRVertexGroup &_gr
                     const long long int internal_edge_pos = edge_pos;
                     const int local_edge_pos = pos;
                     const long long external_edge_pos = _process_shift + internal_edge_pos;
+
                     const int dst_id = _adjacent_ids[internal_edge_pos];
                     edge_op(src_id, dst_id, local_edge_pos, external_edge_pos, vector_index);
                 }

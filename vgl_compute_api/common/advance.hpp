@@ -205,7 +205,7 @@ void GraphAbstractions::common_gather(VGL_Graph &_graph,
     }
     else if(_graph.get_container_type() == CSR_VG_GRAPH)
     {
-        CSR_VG_Graph *container_graph = (CSR_VG_Graph *)_graph.get_outgoing_data();
+        CSR_VG_Graph *container_graph = (CSR_VG_Graph *)_graph.get_incoming_data();
         FrontierCSR_VG *container_frontier = (FrontierCSR_VG *)_frontier.get_container_data();
 
         #ifdef __USE_GPU__
