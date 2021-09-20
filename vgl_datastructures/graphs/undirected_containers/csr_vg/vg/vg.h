@@ -31,7 +31,7 @@ struct CSRVertexGroup
 
     void resize(int _new_size);
 
-    void print_ids();
+    void print();
 
     #ifdef __USE_GPU__
     void move_to_host();

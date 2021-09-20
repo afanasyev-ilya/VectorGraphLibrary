@@ -69,7 +69,7 @@ void CSRVertexGroup::resize(int _new_size)
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void CSRVertexGroup::print_ids()
+void CSRVertexGroup::print()
 {
     cout << "vertex group info: ";
     for (int i = 0; i < size; i++)

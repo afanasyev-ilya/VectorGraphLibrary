@@ -241,8 +241,25 @@ void GraphAbstractionsNEC::vertex_group_cell_c(CSRVertexGroupCellC &_group_data,
                                                VertexPostprocessOperation vertex_postprocess_op,
                                                long long _process_shift)
 {
-    double t1 = omp_get_wtime();
-    int frontier_size = _group_data.size;
+    #ifdef __PRINT_API_PERFORMANCE_STATS__
+    Timer tm;
+    tm.start();
+    #endif
+
+    int *vertex_ids = _group_data.get_vertex_ids();
+    int size = _group_data.get_size();
+
+    int vector_segments_count = _group_data.get_vector_segments_count();
+    long long edges_count_in_ve = _group_data.get_edges_count_in_ve();
+
+    long long *vector_group_ptrs = _group_data.get_vector_group_ptrs();
+    int *vector_group_sizes = _group_data.get_vector_group_sizes();
+    int *vector_group_adjacent_ids = _group_data.get_vector_group_adjacent_ids();
+
+    long long *old_edge_indexes = _group_data.get_old_edge_indexes();
+
+    int min_connections = _group_data.get_min_connections();
+    int max_connections = _group_data.get_max_connections();
 
     long long reg_real_start[VECTOR_LENGTH];
     int reg_real_connections_count[VECTOR_LENGTH];
@@ -257,20 +274,20 @@ void GraphAbstractionsNEC::vertex_group_cell_c(CSRVertexGroupCellC &_group_data,
     }
 
     #pragma omp for schedule(static, 8)
-    for(int cur_vector_segment = 0; cur_vector_segment < _group_data.vector_segments_count; cur_vector_segment++)
+    for(int cur_vector_segment = 0; cur_vector_segment < vector_segments_count; cur_vector_segment++)
     {
         int segment_first_vertex = cur_vector_segment * VECTOR_LENGTH;
 
-        long long segment_edges_start = _group_data.vector_group_ptrs[cur_vector_segment];
-        int segment_connections_count = _group_data.vector_group_sizes[cur_vector_segment];
+        long long segment_edges_start = vector_group_ptrs[cur_vector_segment];
+        int segment_connections_count = vector_group_sizes[cur_vector_segment];
 
         #pragma _NEC vector
         for(int i = 0; i < VECTOR_LENGTH; i++)
         {
             int pos = segment_first_vertex + i;
-            if(pos < _group_data.size)
+            if(pos < size)
             {
-                int src_id = _group_data.vertex_ids[pos];
+                int src_id = vertex_ids[pos];
                 reg_real_start[i] = _vertex_pointers[src_id];
 
                 if(segment_connections_count > 0)
@@ -294,18 +311,18 @@ void GraphAbstractionsNEC::vertex_group_cell_c(CSRVertexGroupCellC &_group_data,
             {
                 int pos = segment_first_vertex + i;
                 int src_id = 0;
-                if(pos < _group_data.size)
+                if(pos < size)
                 {
-                    src_id = _group_data.vertex_ids[pos];
+                    src_id = vertex_ids[pos];
                 }
 
-                if((pos < _group_data.size) && (edge_pos < reg_real_connections_count[i]))
+                if((pos < size) && (edge_pos < reg_real_connections_count[i]))
                 {
                     const int vector_index = i;
                     const long long internal_edge_pos = segment_edges_start + edge_pos * VECTOR_LENGTH + i;
                     const int local_edge_pos = edge_pos;
-                    const int dst_id = _group_data.vector_group_adjacent_ids[internal_edge_pos];
-                    const long long external_edge_pos = _group_data.old_edge_indexes[internal_edge_pos];
+                    const int dst_id = vector_group_adjacent_ids[internal_edge_pos];
+                    const long long external_edge_pos = old_edge_indexes[internal_edge_pos];
                     edge_op(src_id, dst_id, local_edge_pos, external_edge_pos, vector_index);
                 }
             }
@@ -315,19 +332,20 @@ void GraphAbstractionsNEC::vertex_group_cell_c(CSRVertexGroupCellC &_group_data,
         for(int i = 0; i < VECTOR_LENGTH; i++)
         {
             int pos = segment_first_vertex + i;
-            if(pos < _group_data.size)
+            if(pos < size)
             {
-                int src_id = _group_data.vertex_ids[pos];
+                int src_id = vertex_ids[pos];
                 vertex_postprocess_op(src_id, reg_real_connections_count[i], i);
             }
         }
     }
 
-    double t2 = omp_get_wtime();
-    #pragma omp single
-    {
-        cout << _group_data.edges_count_in_ve * INT_ELEMENTS_PER_EDGE*sizeof(int) / ((t2 - t1)*1e9) << " GB/s band on CELL-C" << endl;
-    }
+    #ifdef __PRINT_API_PERFORMANCE_STATS__
+    tm.end();
+    long long work = edges_count_in_ve;
+    string advance_name = "CELL-C (" + to_string(min_connections) + " - " + to_string(max_connections) + ")";
+    tm.print_time_and_bandwidth_stats(advance_name, work, INT_ELEMENTS_PER_EDGE*sizeof(int));
+    #endif
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

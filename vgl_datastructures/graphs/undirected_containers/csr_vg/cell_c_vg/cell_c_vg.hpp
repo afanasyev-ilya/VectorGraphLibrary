@@ -19,7 +19,7 @@ bool CSRVertexGroupCellC::id_in_range(int _src_id, int _connections_count)
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void CSRVertexGroupCellC::print_ids()
+void CSRVertexGroupCellC::print()
 {
     cout << "vertex group info: ";
     for (int i = 0; i < size; i++)
