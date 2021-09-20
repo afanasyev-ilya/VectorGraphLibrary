@@ -70,7 +70,7 @@ all_konect_graphs_data = {
     'web_wikipedia_links_en': {'link': 'wikipedia_link_en'},
     'web_dbpedia_links': {'link': 'dbpedia-link'},
     'web_uk_domain_2002': {'link': 'dimacs10-uk-2002'},
-    'web_web_trackers': {'link': 'trackers-trackers'},
+    'web_web_trackers': {'link': 'trackers-trackers', 'unarch_graph_name': 'trackers'},
 
     'road_colorado': {'link': 'dimacs9-COL'},
     'road_texas': {'link': 'roadNet-TX'},
