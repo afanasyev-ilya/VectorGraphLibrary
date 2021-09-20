@@ -62,7 +62,6 @@ void CSRVertexGroupCellC::import(CSR_VG_Graph *_graph, int _bottom, int _top)
     }
 
     size = local_group_size;
-    cout << "size: " << size << endl;
     vector_segments_count = (size - 1) / VECTOR_LENGTH + 1;
 
     if(size == 0)
@@ -98,10 +97,10 @@ void CSRVertexGroupCellC::import(CSR_VG_Graph *_graph, int _bottom, int _top)
             int cur_max_connections_count = 0;
             for(int i = 0; i < VECTOR_LENGTH; i++)
             {
-                int pos = vec_start + i;
-                if(pos < size)
+                int vertex_pos = vec_start + i;
+                if(vertex_pos < size)
                 {
-                    int src_id = this->vertex_ids[i];
+                    int src_id = this->vertex_ids[vertex_pos];
                     int connections_count = _graph->get_connections_count(src_id);
                     if(cur_max_connections_count < connections_count)
                         cur_max_connections_count = connections_count;
@@ -114,8 +113,6 @@ void CSRVertexGroupCellC::import(CSR_VG_Graph *_graph, int _bottom, int _top)
         MemoryAPI::allocate_array(&vector_group_adjacent_ids, edges_count_in_ve + VECTOR_LENGTH);
         MemoryAPI::allocate_array(&old_edge_indexes, edges_count_in_ve + VECTOR_LENGTH);
 
-        cout << "edges alloc size: " << edges_count_in_ve + VECTOR_LENGTH << endl;
-
         long long current_edge = 0;
         for(int cur_vector_segment = 0; cur_vector_segment < vector_segments_count; cur_vector_segment++)
         {
@@ -123,10 +120,10 @@ void CSRVertexGroupCellC::import(CSR_VG_Graph *_graph, int _bottom, int _top)
             int cur_max_connections_count = 0;
             for(int i = 0; i < VECTOR_LENGTH; i++)
             {
-                int pos = vec_start + i;
-                if(pos < size)
+                int vertex_pos = vec_start + i;
+                if(vertex_pos < size)
                 {
-                    int src_id = this->vertex_ids[i];
+                    int src_id = this->vertex_ids[vertex_pos];
                     int connections_count = _graph->get_connections_count(src_id);
                     if(cur_max_connections_count < connections_count)
                         cur_max_connections_count = connections_count;
@@ -142,20 +139,21 @@ void CSRVertexGroupCellC::import(CSR_VG_Graph *_graph, int _bottom, int _top)
                 #pragma _NEC vector
                 for(int i = 0; i < VECTOR_LENGTH; i++)
                 {
-                    int pos = vec_start + i;
-                    if(pos < size)
+                    int vertex_pos = vec_start + i;
+                    if(vertex_pos < size)
                     {
-                        int src_id = this->vertex_ids[i];
+                        int src_id = this->vertex_ids[vertex_pos];
                         int connections_count = _graph->get_connections_count(src_id);
-                        if((pos < size) && (edge_pos < connections_count))
+                        if((vertex_pos < size) && (edge_pos < connections_count))
                         {
                             vector_group_adjacent_ids[current_edge + i] = _graph->get_edge_dst(src_id, edge_pos);
+                            old_edge_indexes[current_edge + i] = _graph->get_edges_array_index(src_id, edge_pos);
                         }
                         else
                         {
-                            vector_group_adjacent_ids[current_edge + i] = src_id;
+                            vector_group_adjacent_ids[current_edge + i] = -1;
+                            old_edge_indexes[current_edge + i] = -1;
                         }
-                        old_edge_indexes[current_edge + i] = _graph->get_edges_array_index(src_id, edge_pos);
                     }
                 }
                 current_edge += VECTOR_LENGTH;

@@ -299,14 +299,13 @@ void GraphAbstractionsNEC::vertex_group_cell_c(CSRVertexGroupCellC &_group_data,
                     src_id = _group_data.vertex_ids[pos];
                 }
 
-                const int vector_index = i;
-                const long long internal_edge_pos = segment_edges_start + edge_pos * VECTOR_LENGTH + i;
-                const int local_edge_pos = edge_pos;
-                const long long external_edge_pos = _group_data.old_edge_indexes[internal_edge_pos];//internal_edge_pos; // will be loaded from array
-
                 if((pos < _group_data.size) && (edge_pos < reg_real_connections_count[i]))
                 {
+                    const int vector_index = i;
+                    const long long internal_edge_pos = segment_edges_start + edge_pos * VECTOR_LENGTH + i;
+                    const int local_edge_pos = edge_pos;
                     const int dst_id = _group_data.vector_group_adjacent_ids[internal_edge_pos];
+                    const long long external_edge_pos = _group_data.old_edge_indexes[internal_edge_pos];
                     edge_op(src_id, dst_id, local_edge_pos, external_edge_pos, vector_index);
                 }
             }
