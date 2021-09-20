@@ -54,3 +54,21 @@ public:
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+#define LOAD_CSR_VERTEX_GROUP_CELL_C_DATA(vertex_group)  \
+int *vertex_ids = _group_data.get_vertex_ids(); \
+int size = _group_data.get_size(); \
+\
+int vector_segments_count = _group_data.get_vector_segments_count(); \
+long long edges_count_in_ve = _group_data.get_edges_count_in_ve();\
+\
+long long *vector_group_ptrs = _group_data.get_vector_group_ptrs(); \
+int *vector_group_sizes = _group_data.get_vector_group_sizes();\
+int *vector_group_adjacent_ids = _group_data.get_vector_group_adjacent_ids();\
+\
+long long *old_edge_indexes = _group_data.get_old_edge_indexes();\
+\
+int min_connections = _group_data.get_min_connections();\
+int max_connections = _group_data.get_max_connections();\
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

@@ -39,7 +39,7 @@ int FrontierCSR_VG::get_size_of_vertex_groups()
 {
     int sum = 0;
     for(int i = 0; i < CSR_VERTEX_GROUPS_NUM; i++)
-        sum += vertex_groups[i].size;
+        sum += vertex_groups[i].get_size();
     return sum;
 }
 
@@ -49,7 +49,7 @@ size_t FrontierCSR_VG::get_neighbours_of_vertex_groups()
 {
     size_t sum = 0;
     for(int i = 0; i < CSR_VERTEX_GROUPS_NUM; i++)
-        sum += vertex_groups[i].neighbours;
+        sum += vertex_groups[i].get_neighbours();
     return sum;
 }
 
@@ -81,7 +81,7 @@ void FrontierCSR_VG::clear()
     neighbours_count = 0;
 
     for(int i = 0; i < CSR_VERTEX_GROUPS_NUM; i++)
-        vertex_groups[i].size = 0;
+        vertex_groups[i].clear();
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

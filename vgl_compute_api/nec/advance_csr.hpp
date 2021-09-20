@@ -15,11 +15,13 @@ void GraphAbstractionsNEC::vertex_group_advance_changed_vl(CSRVertexGroup &_grou
     tm.start();
     #endif
 
+    LOAD_CSR_VERTEX_GROUP_DATA(_group_data);
+
     #pragma _NEC novector
     #pragma omp for schedule(static, 8)
-    for(int idx = 0; idx < _group_data.size; idx++)
+    for(int idx = 0; idx < size; idx++)
     {
-        int src_id = _group_data.ids[idx];
+        int src_id = ids[idx];
         long long start = _vertex_pointers[src_id];
         long long end = _vertex_pointers[src_id + 1];
         int connections_count = end - start;
@@ -56,8 +58,8 @@ void GraphAbstractionsNEC::vertex_group_advance_changed_vl(CSRVertexGroup &_grou
 
     #ifdef __PRINT_API_PERFORMANCE_STATS__
     tm.end();
-    //cout << "work size: " << _group_data.neighbours << endl;
-    tm.print_time_and_bandwidth_stats("Advance vg changed vl", _group_data.neighbours, INT_ELEMENTS_PER_EDGE*sizeof(int));
+    //cout << "work size: " << neighbours << endl;
+    tm.print_time_and_bandwidth_stats("Advance vg changed vl", neighbours, INT_ELEMENTS_PER_EDGE*sizeof(int));
     #endif
 }
 
@@ -78,10 +80,12 @@ void GraphAbstractionsNEC::vertex_group_advance_fixed_vl(CSRVertexGroup &_group_
     tm.start();
     #endif
 
+    LOAD_CSR_VERTEX_GROUP_DATA(_group_data);
+
     #pragma omp for schedule(static, 8)
-    for(int idx = 0; idx < _group_data.size; idx++)
+    for(int idx = 0; idx < size; idx++)
     {
-        int src_id = _group_data.ids[idx];
+        int src_id = ids[idx];
         long long first = _vertex_pointers[src_id];
         long long last = _vertex_pointers[src_id + 1];
         int connections_count = last - first;
@@ -114,8 +118,8 @@ void GraphAbstractionsNEC::vertex_group_advance_fixed_vl(CSRVertexGroup &_group_
 
     #ifdef __PRINT_API_PERFORMANCE_STATS__
     tm.end();
-    //cout << "work size: " << _group_data.neighbours << endl;
-    tm.print_time_and_bandwidth_stats("Advance vg fixed vl", _group_data.neighbours, INT_ELEMENTS_PER_EDGE*sizeof(int));
+    //cout << "work size: " << neighbours << endl;
+    tm.print_time_and_bandwidth_stats("Advance vg fixed vl", neighbours, INT_ELEMENTS_PER_EDGE*sizeof(int));
     #endif
 }
 
@@ -135,6 +139,8 @@ void GraphAbstractionsNEC::vertex_group_advance_sparse(CSRVertexGroup &_group_da
     Timer tm;
     tm.start();
     #endif
+
+    LOAD_CSR_VERTEX_GROUP_DATA(_group_data);
 
     int src_id_reg[VECTOR_LENGTH];
     long long first_reg[VECTOR_LENGTH];
@@ -159,15 +165,15 @@ void GraphAbstractionsNEC::vertex_group_advance_sparse(CSRVertexGroup &_group_da
     }
 
     #pragma omp for schedule(static, 8)
-    for(int idx = 0; idx < _group_data.size; idx += VECTOR_LENGTH)
+    for(int idx = 0; idx < size; idx += VECTOR_LENGTH)
     {
         #pragma _NEC ivdep
         #pragma _NEC vector
         for(int i = 0; i < VECTOR_LENGTH; i++)
         {
-            if((idx + i) < _group_data.size)
+            if((idx + i) < size)
             {
-                int src_id = _group_data.ids[idx + i];
+                int src_id = ids[idx + i];
                 src_id_reg[i] = src_id;
                 first_reg[i] = _vertex_pointers[src_id];
                 last_reg[i] = _vertex_pointers[src_id + 1];
@@ -181,7 +187,7 @@ void GraphAbstractionsNEC::vertex_group_advance_sparse(CSRVertexGroup &_group_da
         for(int i = 0; i < VECTOR_LENGTH; i++)
         {
             int conn = connections_reg[i];
-            if (((idx + i) < _group_data.size) && (max_conn < conn))
+            if (((idx + i) < size) && (max_conn < conn))
                 max_conn = conn;
         }
 
@@ -197,9 +203,9 @@ void GraphAbstractionsNEC::vertex_group_advance_sparse(CSRVertexGroup &_group_da
             for(int i = 0; i < VECTOR_LENGTH; i++)
             {
                 long long edge_pos = first_reg[i] + pos;
-                if(((idx + i) < _group_data.size) && (edge_pos < last_reg[i]))
+                if(((idx + i) < size) && (edge_pos < last_reg[i]))
                 {
-                    const int src_id = _group_data.ids[idx + i];
+                    const int src_id = ids[idx + i];
 
                     const int vector_index = i;
                     const long long int internal_edge_pos = edge_pos;
@@ -215,9 +221,9 @@ void GraphAbstractionsNEC::vertex_group_advance_sparse(CSRVertexGroup &_group_da
         #pragma _NEC vector
         for(int i = 0; i < VECTOR_LENGTH; i++)
         {
-            if((idx + i) < _group_data.size)
+            if((idx + i) < size)
             {
-                int src_id = _group_data.ids[idx + i];
+                int src_id = ids[idx + i];
                 vertex_postprocess_op(src_id, connections_reg[i], i);
             }
         }
@@ -225,8 +231,8 @@ void GraphAbstractionsNEC::vertex_group_advance_sparse(CSRVertexGroup &_group_da
 
     #ifdef __PRINT_API_PERFORMANCE_STATS__
     tm.end();
-    //cout << "work size: " << _group_data.neighbours << endl;
-    tm.print_time_and_bandwidth_stats("Advance vg sparse", _group_data.neighbours, INT_ELEMENTS_PER_EDGE*sizeof(int));
+    //cout << "work size: " << neighbours << endl;
+    tm.print_time_and_bandwidth_stats("Advance vg sparse", neighbours, INT_ELEMENTS_PER_EDGE*sizeof(int));
     #endif
 }
 
@@ -246,20 +252,7 @@ void GraphAbstractionsNEC::vertex_group_cell_c(CSRVertexGroupCellC &_group_data,
     tm.start();
     #endif
 
-    int *vertex_ids = _group_data.get_vertex_ids();
-    int size = _group_data.get_size();
-
-    int vector_segments_count = _group_data.get_vector_segments_count();
-    long long edges_count_in_ve = _group_data.get_edges_count_in_ve();
-
-    long long *vector_group_ptrs = _group_data.get_vector_group_ptrs();
-    int *vector_group_sizes = _group_data.get_vector_group_sizes();
-    int *vector_group_adjacent_ids = _group_data.get_vector_group_adjacent_ids();
-
-    long long *old_edge_indexes = _group_data.get_old_edge_indexes();
-
-    int min_connections = _group_data.get_min_connections();
-    int max_connections = _group_data.get_max_connections();
+    LOAD_CSR_VERTEX_GROUP_CELL_C_DATA(_group_data);
 
     long long reg_real_start[VECTOR_LENGTH];
     int reg_real_connections_count[VECTOR_LENGTH];
@@ -322,7 +315,7 @@ void GraphAbstractionsNEC::vertex_group_cell_c(CSRVertexGroupCellC &_group_data,
                     const long long internal_edge_pos = segment_edges_start + edge_pos * VECTOR_LENGTH + i;
                     const int local_edge_pos = edge_pos;
                     const int dst_id = vector_group_adjacent_ids[internal_edge_pos];
-                    const long long external_edge_pos = old_edge_indexes[internal_edge_pos];
+                    const long long external_edge_pos = _process_shift + old_edge_indexes[internal_edge_pos];
                     edge_op(src_id, dst_id, local_edge_pos, external_edge_pos, vector_index);
                 }
             }

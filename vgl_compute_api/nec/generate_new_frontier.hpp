@@ -178,10 +178,10 @@ void GraphAbstractionsNEC::generate_new_frontier_worker(CSR_VG_Graph &_graph,
     int copy_pos = 0;
     for(int i = 0; i < CSR_VERTEX_GROUPS_NUM; i++)
     {
-        if(_frontier.vertex_groups[i].size > 0)
+        if(_frontier.vertex_groups[i].get_size() > 0)
         {
-            memcpy(frontier_ids + copy_pos, _frontier.vertex_groups[i].ids, _frontier.vertex_groups[i].size * sizeof(int));
-            copy_pos += _frontier.vertex_groups[i].size;
+            memcpy(frontier_ids + copy_pos, _frontier.vertex_groups[i].get_ids(), _frontier.vertex_groups[i].get_size() * sizeof(int));
+            copy_pos += _frontier.vertex_groups[i].get_size();
         }
     }
     _frontier.size = copy_pos;
