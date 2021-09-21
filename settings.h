@@ -5,7 +5,7 @@
 //#define __USE_CSR_VERTEX_GROUPS__
 //#define __SORT_ADJACENT_EDGES__
 
-#define CELL_C_VERTEX_GROUPS_NUM 2
+#define CELL_C_VERTEX_GROUPS_NUM 3
 
 #ifdef __USE_GPU__
 #define CSR_VERTEX_GROUPS_NUM 6

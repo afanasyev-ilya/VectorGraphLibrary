@@ -8,6 +8,10 @@ CSR_VG_Graph::CSR_VG_Graph(int _vertices_count, long long _edges_count)
     alloc(_vertices_count, _edges_count);
 
     is_copy = false;
+
+    #ifdef __USE_NEC_SX_AURORA__
+    cell_c_vertex_groups_num = 0;
+    #endif
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

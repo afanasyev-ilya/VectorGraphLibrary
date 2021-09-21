@@ -231,9 +231,9 @@ void GraphAbstractionsGPU::generate_new_frontier_worker(CSR_VG_Graph &_graph,
     int copy_pos = 0;
     for(int i = 0; i < CSR_VERTEX_GROUPS_NUM; i++)
     {
-        cudaMemcpy(frontier_ids + copy_pos, _frontier.vertex_groups[i].ids, _frontier.vertex_groups[i].size * sizeof(int),
-                   cudaMemcpyDeviceToDevice);
-        copy_pos += _frontier.vertex_groups[i].size;
+        cudaMemcpy(frontier_ids + copy_pos, _frontier.vertex_groups[i].get_ids(),
+                   _frontier.vertex_groups[i].get_size() * sizeof(int), cudaMemcpyDeviceToDevice);
+        copy_pos += _frontier.vertex_groups[i].get_size();
     }
     _frontier.size = _frontier.get_size_of_vertex_groups();
 

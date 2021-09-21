@@ -236,57 +236,57 @@ void GraphAbstractionsGPU::advance_worker(CSR_VG_Graph &_graph,
 
     long long process_shift = compute_process_shift(current_traversal_direction, CSR_STORAGE);
 
-    if(_frontier.vertex_groups[0].size > 0)
+    if(_frontier.vertex_groups[0].get_size() > 0)
     {
-        dim3 grid(_frontier.vertex_groups[0].size);
+        dim3 grid(_frontier.vertex_groups[0].get_size());
         dim3 block(BLOCK_SIZE);
         vg_csr_advance_block_per_vertex_kernel<<<grid, block, 0, stream_1>>>(vertex_pointers, adjacent_ids,
-                                                      _frontier.vertex_groups[0].ids, _frontier.vertex_groups[0].size,
+                                                      _frontier.vertex_groups[0].get_ids(), _frontier.vertex_groups[0].get_size(),
                                                       process_shift, edge_op, vertex_preprocess_op,
                                                       vertex_postprocess_op, true);
     }
-    if(_frontier.vertex_groups[1].size > 0)
+    if(_frontier.vertex_groups[1].get_size() > 0)
     {
-        dim3 grid((_frontier.vertex_groups[1].size - 1) / (BLOCK_SIZE/32) + 1);
+        dim3 grid((_frontier.vertex_groups[1].get_size() - 1) / (BLOCK_SIZE/32) + 1);
         dim3 block(BLOCK_SIZE);
         virtual_warp_per_vertex_kernel<32><<<grid, block, 0, stream_2>>>(vertex_pointers, adjacent_ids,
-                                                      _frontier.vertex_groups[1].ids, _frontier.vertex_groups[1].size,
+                                                      _frontier.vertex_groups[1].get_ids(), _frontier.vertex_groups[1].get_size(),
                                                       process_shift, edge_op, vertex_preprocess_op,
                                                       vertex_postprocess_op, true);
     }
-    if(_frontier.vertex_groups[2].size > 0)
+    if(_frontier.vertex_groups[2].get_size() > 0)
     {
-        dim3 grid((_frontier.vertex_groups[2].size - 1) / (BLOCK_SIZE/16) + 1);
+        dim3 grid((_frontier.vertex_groups[2].get_size() - 1) / (BLOCK_SIZE/16) + 1);
         dim3 block(BLOCK_SIZE);
         virtual_warp_per_vertex_kernel<16><<<grid, block, 0, stream_3>>>(vertex_pointers, adjacent_ids,
-                                                      _frontier.vertex_groups[2].ids, _frontier.vertex_groups[2].size,
+                                                      _frontier.vertex_groups[2].get_ids(), _frontier.vertex_groups[2].get_size(),
                                                       process_shift, edge_op, vertex_preprocess_op,
                                                       vertex_postprocess_op, true);
     }
-    if(_frontier.vertex_groups[3].size > 0)
+    if(_frontier.vertex_groups[3].get_size() > 0)
     {
-        dim3 grid((_frontier.vertex_groups[3].size - 1) / (BLOCK_SIZE/8) + 1);
+        dim3 grid((_frontier.vertex_groups[3].get_size() - 1) / (BLOCK_SIZE/8) + 1);
         dim3 block(BLOCK_SIZE);
         virtual_warp_per_vertex_kernel<8><<<grid, block, 0, stream_4>>>(vertex_pointers, adjacent_ids,
-                                                      _frontier.vertex_groups[3].ids, _frontier.vertex_groups[3].size,
+                                                      _frontier.vertex_groups[3].get_ids(), _frontier.vertex_groups[3].get_size(),
                                                       process_shift, edge_op, vertex_preprocess_op,
                                                       vertex_postprocess_op, true);
     }
-    if(_frontier.vertex_groups[4].size > 0)
+    if(_frontier.vertex_groups[4].get_size() > 0)
     {
-        dim3 grid((_frontier.vertex_groups[4].size - 1) / (BLOCK_SIZE/4) + 1);
+        dim3 grid((_frontier.vertex_groups[4].get_size() - 1) / (BLOCK_SIZE/4) + 1);
         dim3 block(BLOCK_SIZE);
         virtual_warp_per_vertex_kernel<4><<<grid, block, 0, stream_5>>>(vertex_pointers, adjacent_ids,
-                                                      _frontier.vertex_groups[4].ids, _frontier.vertex_groups[4].size,
+                                                      _frontier.vertex_groups[4].get_ids(), _frontier.vertex_groups[4].get_size(),
                                                       process_shift, edge_op, vertex_preprocess_op,
                                                       vertex_postprocess_op, true);
     }
-    if(_frontier.vertex_groups[5].size > 0)
+    if(_frontier.vertex_groups[5].get_size() > 0)
     {
-        dim3 grid((_frontier.vertex_groups[5].size - 1) / (BLOCK_SIZE) + 1);
+        dim3 grid((_frontier.vertex_groups[5].get_size() - 1) / (BLOCK_SIZE) + 1);
         dim3 block(BLOCK_SIZE);
         virtual_warp_per_vertex_kernel<1><<<grid, block, 0, stream_6>>>(vertex_pointers, adjacent_ids,
-                                                      _frontier.vertex_groups[5].ids, _frontier.vertex_groups[5].size,
+                                                      _frontier.vertex_groups[5].get_ids(), _frontier.vertex_groups[5].get_size(),
                                                       process_shift, edge_op, vertex_preprocess_op,
                                                       vertex_postprocess_op, true);
     }

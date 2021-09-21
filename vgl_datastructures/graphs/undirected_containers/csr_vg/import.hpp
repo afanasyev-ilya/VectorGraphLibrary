@@ -79,8 +79,15 @@ void CSR_VG_Graph::create_vertex_groups()
     vertex_groups[5].import(this, 0, 16);
     #endif
 
-    cell_c_vertex_groups[0].import(this, 0, 8);
-    cell_c_vertex_groups[1].import(this, 32, 64);
+    #ifdef __USE_NEC_SX_AURORA__
+    cell_c_vertex_groups_num = 6;
+    cell_c_vertex_groups[0].import(this, 128, 256);
+    cell_c_vertex_groups[1].import(this, 64, 128);
+    cell_c_vertex_groups[2].import(this, 32, 64);
+    cell_c_vertex_groups[3].import(this, 16, 32);
+    cell_c_vertex_groups[4].import(this, 8, 16);
+    cell_c_vertex_groups[5].import(this, 0, 8);
+    #endif
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

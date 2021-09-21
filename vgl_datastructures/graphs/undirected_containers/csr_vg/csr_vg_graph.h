@@ -33,7 +33,11 @@ private:
     vgl_sort_indexes *edges_reorder_indexes; // allows to convert edges (and weights) from sorted to original order
 
     CSRVertexGroup vertex_groups[CSR_VERTEX_GROUPS_NUM];
-    CSRVertexGroupCellC cell_c_vertex_groups[CELL_C_VERTEX_GROUPS_NUM];
+
+    #ifdef __USE_NEC_SX_AURORA__
+    int cell_c_vertex_groups_num;
+    CSRVertexGroupCellC cell_c_vertex_groups[CSR_VERTEX_GROUPS_NUM];
+    #endif
 
     void create_vertex_groups();
 
@@ -66,6 +70,11 @@ public:
 
     inline size_t get_edges_array_index(int _v, int _edge_pos) final { return vertex_pointers[_v] + _edge_pos; };
     inline size_t get_edges_array_direction_shift_size() final { return this->edges_count; };
+
+    #ifdef __USE_NEC_SX_AURORA__
+    inline int get_cell_c_vertex_groups_num() {return cell_c_vertex_groups_num;};
+    inline CSRVertexGroupCellC& get_cell_c_vertex_group(int _group_num) {return cell_c_vertex_groups[_group_num];};
+    #endif
 
     /* print API */
     void print();

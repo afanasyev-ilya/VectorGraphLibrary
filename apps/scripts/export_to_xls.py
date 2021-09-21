@@ -90,12 +90,19 @@ class BenchmarkingResults:
         self.worksheet.write(self.line_pos, get_list_of_verification_graphs(self.run_speed_mode).index(graph_name) + 1, value)
         self.correctness_data.append({"graph_name": graph_name, "app_name": app_name, "correctness_val": value})
 
+    def remove_timed_out(self):
+        cleared_list = []
+        for item in self.performance_data:
+            if item["perf_val"] != "TIMED OUT":
+                cleared_list.append(item)
+        return cleared_list
+
     def submit(self, run_info):
-        send_dict = {"run_info": run_info, "performance_data": self.performance_data, "correctness_data": self.correctness_data}
+        send_dict = {"run_info": run_info, "performance_data": self.remove_timed_out(self.performance_data), "correctness_data": self.correctness_data}
         return submit_to_socket(send_dict)
 
     def offline_submit(self, run_info, name):
-        send_dict = {"run_info": run_info, "performance_data": self.performance_data, "correctness_data": self.correctness_data}
+        send_dict = {"run_info": run_info, "performance_data": self.remove_timed_out(self.performance_data), "correctness_data": self.correctness_data}
         # send_dict
         a_file = open(name + "_vgl_rating_data.pkl", "wb")
         pickle.dump(send_dict, a_file)

@@ -39,7 +39,7 @@ void FrontierCSR_VG::print_stats()
 void FrontierCSR_VG::print_vertex_group_sizes()
 {
     for(int i = 0; i < CSR_VERTEX_GROUPS_NUM; i++)
-        cout << "group " << i << " has size : " << vertex_groups[i].size << endl;
+        cout << "group " << i << " has size : " << vertex_groups[i].get_size() << endl;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

@@ -176,16 +176,28 @@ void GraphAbstractionsNEC::advance_worker(CSR_VG_Graph &_graph,
 
     vertex_group_advance_changed_vl(_frontier.vertex_groups[0], vertex_pointers, adjacent_ids, edge_op, vertex_preprocess_op,
                                     vertex_postprocess_op, process_shift);
-    vertex_group_advance_fixed_vl(_frontier.vertex_groups[1], vertex_pointers, adjacent_ids, edge_op, vertex_preprocess_op,
-                                  vertex_postprocess_op, process_shift);
-    vertex_group_advance_fixed_vl(_frontier.vertex_groups[2], vertex_pointers, adjacent_ids, edge_op, vertex_preprocess_op,
-                                  vertex_postprocess_op, process_shift);
-    vertex_group_advance_sparse(_frontier.vertex_groups[3], vertex_pointers, adjacent_ids, edge_op, vertex_preprocess_op,
-                                vertex_postprocess_op, process_shift);
-    vertex_group_advance_sparse(_frontier.vertex_groups[4], vertex_pointers, adjacent_ids, edge_op, vertex_preprocess_op,
-                                vertex_postprocess_op, process_shift);
-    vertex_group_advance_sparse(_frontier.vertex_groups[5], vertex_pointers, adjacent_ids, edge_op, vertex_preprocess_op,
-                                vertex_postprocess_op, process_shift);
+    if(_frontier.sparsity_type == ALL_ACTIVE_FRONTIER)
+    {
+        for(int i = 0; i < _graph.get_cell_c_vertex_groups_num(); i++)
+        {
+            vertex_group_cell_c_advance(_graph.get_cell_c_vertex_group(i), vertex_pointers, collective_edge_op,
+                                        collective_vertex_preprocess_op, collective_vertex_postprocess_op, process_shift);
+        }
+    }
+    else
+    {
+        vertex_group_advance_fixed_vl(_frontier.vertex_groups[1], vertex_pointers, adjacent_ids, edge_op, vertex_preprocess_op,
+                                      vertex_postprocess_op, process_shift);
+        vertex_group_advance_fixed_vl(_frontier.vertex_groups[2], vertex_pointers, adjacent_ids, edge_op, vertex_preprocess_op,
+                                      vertex_postprocess_op, process_shift);
+        vertex_group_advance_sparse(_frontier.vertex_groups[3], vertex_pointers, adjacent_ids,
+                                    collective_edge_op, collective_vertex_preprocess_op,
+                                    collective_vertex_postprocess_op, process_shift);
+        vertex_group_advance_sparse(_frontier.vertex_groups[4], vertex_pointers, adjacent_ids, collective_edge_op,
+                                    collective_vertex_preprocess_op, collective_vertex_postprocess_op, process_shift);
+        vertex_group_advance_sparse(_frontier.vertex_groups[5], vertex_pointers, adjacent_ids, collective_edge_op,
+                                    collective_vertex_preprocess_op, collective_vertex_postprocess_op, process_shift);
+    }
     tm.end();
 
     long long work = _frontier.get_neighbours_count();
