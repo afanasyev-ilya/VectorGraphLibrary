@@ -3,7 +3,8 @@ import optparse
 import scripts.settings
 from scripts.benchmarking_api import *
 from scripts.verification_api import *
-from scripts.export_to_xls import BenchmarkingResults
+from scripts.export import BenchmarkingResults
+from scripts.helpers import get_list_of_formats
 
 
 def run_compile(options, arch):
@@ -65,6 +66,7 @@ def benchmark_and_verify(options, arch, benchmarking_results):
     print("\n\nEVALUATED PERFORMANCE OF " + str(benchmarked_num) + " GRAPH ALGORITHMS\n")
     print("VERIFIED " + str(verified_num) + " GRAPH ALGORITHMS\n\n")
 
+
 def run(options, run_info):
     create_dir("./bin/")
     arch = options.arch
@@ -93,29 +95,26 @@ def run(options, run_info):
             print("graph generation WALL TIME: " + str(end-start) + " seconds")
 
     start = time.time()
-    if options.format == "all":
-        for current_format in available_formats:
-            options.format = current_format
-            benchmark_and_verify(options, arch, benchmarking_results)
-    elif "," in options.format:
-        format_string = options.format
-        format_list = format_string.split(",")
-        for current_format in format_list:
-            options.format = current_format
-            benchmark_and_verify(options, arch, benchmarking_results)
-    else:
+    list_of_formats = get_list_of_formats(options.format)
+    for format_name in list_of_formats:
+        options.format = format_name
         benchmark_and_verify(options, arch, benchmarking_results)
-        if run_info != {}:
-            run_info["format"] = options.format
-            if benchmarking_results.submit(run_info):
-                print("Results sent to server!")
-                benchmarking_results.offline_submit(run_info, options.name)
-            else:
-                print("Can not send results, saving to file...")
-                benchmarking_results.offline_submit(run_info, options.name)
+
+    if run_info != {} and len(list_of_formats) == 1:
+        run_info["format"] = options.format
+        if benchmarking_results.submit(run_info):
+            print("Results sent to server!")
+            benchmarking_results.offline_submit(run_info, options.name)
+        else:
+            print("Can not send results, saving to file...")
+            benchmarking_results.offline_submit(run_info, options.name)
+
     end = time.time()
     if print_timings:
         print("benchmarking WALL TIME: " + str(end-start) + " seconds")
+
+    if options.plot:
+        benchmarking_results.plot()
 
     benchmarking_results.finalize()
 
@@ -125,43 +124,48 @@ def main():
     parser = optparse.OptionParser()
     parser.add_option('-a', '--apps',
                       action="store", dest="apps",
-                      help="specify an application to test (or all for testing all available applications)", default="all")
+                      help="specify an application to test (default all)", default="all")
     parser.add_option('-r', '--arch',
                       action="store", dest="arch",
-                      help="specify evaluated architecture: sx/aurora, mc/multicore, cu/gpu", default=get_arch())
+                      help="specify evaluated architecture: sx/aurora, mc/multicore, cu/gpu (default mc)", default=get_arch())
     parser.add_option('-f', '--formats',
                       action="store", dest="format",
-                      help="specify graph storage format used (all can be specified to test all available formats)", default="vcsr")
+                      help="specify graph storage format used: "
+                           "all, csr, csr_vg, vcsr, el, all are currently available (default vcsr)", default="vcsr")
     parser.add_option('-s', '--sockets',
                       action="store", dest="sockets",
-                      help="set number of sockets used", default=1)
+                      help="set number of sockets used (default 1)", default=1)
     parser.add_option('-v', '--verify',
                       action="store_true", dest="verify",
-                      help="run additional verification tests after benchmarking process", default=False)
+                      help="run verification tests after benchmarking process (default false)", default=False)
     parser.add_option('-c', '--compile',
                       action="store_true", dest="compile",
-                      help="compile all binaries", default=False)
+                      help="preliminary compile all binaries (default false)", default=False)
     parser.add_option('-p', '--prepare',
                       action="store_true", dest="prepare",
-                      help="compile all binaries, download graphs and convert them into VGL format", default=False)
+                      help="preliminary convert graphs into VGL format (default false)", default=False)
     parser.add_option('-b', '--benchmark',
                       action="store_true", dest="benchmark",
-                      help="run all benchmarking tests", default=False)
+                      help="run all benchmarking tests (default false)", default=False)
     parser.add_option('-n', '--name',
                       action="store", dest="name",
-                      help="specify name prefix of output files", default="unknown")
+                      help="specify name prefix of output files (default \"unknown\")", default="unknown")
     parser.add_option('-m', '--mode',
                       action="store", dest="mode",
-                      help="specify testing mode: tiny-only, small-only, medium-only, large-only"
+                      help="specify testing mode: tiny-only, small-only, medium-only, large-only, "
                            "tiny-small, tiny-small-medium (combinations), "
-                           "rating-full, rating-avg, rating-fast (for rating submission)", default="tiny-only")
+                           "rating-full, rating-avg, rating-fast,"
+                           "(tiny-only)", default="tiny-only")
     parser.add_option('-d', '--download',
                       action="store_true", dest="download",
-                      help="download all real-world graphs from internet collections", default=False)
+                      help="download all real-world graphs from internet collections (default false)", default=False)
     parser.add_option('-t', '--timeout',
                       action="store", dest="timeout",
                       help="execution time (in seconds), after which tested app is automatically aborted. "
-                           "Default is 1 hour", default=3600)
+                           "(default is 1 hour)", default=3600)
+    parser.add_option('-i', '--plot',
+                      action="store_true", dest="plot",
+                      help="plot performance data (default false)", default=False)
 
     options, args = parser.parse_args()
 

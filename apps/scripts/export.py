@@ -3,6 +3,8 @@ from .create_graphs_api import *
 from random import randrange
 from .submit_results import submit_to_socket
 import pickle
+import matplotlib.pyplot as plt
+import numpy as np
 
 
 app_name_column_size = 30
@@ -24,6 +26,7 @@ class BenchmarkingResults:
         self.performance_data = []
         self.correctness_data = []
         self.run_speed_mode = run_speed_mode
+        self.current_graph_format = ""
 
         self.workbook = xlsxwriter.Workbook(name + "_benchmarking_results.xlsx")
         self.worksheet = None # these can be later used for xls output
@@ -32,10 +35,11 @@ class BenchmarkingResults:
         self.current_app_name = None # these can be later used for xls output
 
     def add_performance_header_to_xls_table(self, graph_format):
-        self.worksheet = self.workbook.add_worksheet("Performance data " + graph_format)
+        self.worksheet = self.workbook.add_worksheet("Perf " + graph_format)
         self.line_pos = 0
         self.current_format = self.workbook.add_format({})
         self.current_app_name = ""
+        self.current_graph_format = graph_format
 
         # make columns wider
         self.worksheet.set_column(0, 0, app_name_column_size)
@@ -68,7 +72,8 @@ class BenchmarkingResults:
 
         self.worksheet.write(self.line_pos + row, col - 1, graph_name, self.current_format)
         self.worksheet.write(self.line_pos + row, col, perf_value, self.current_format)
-        self.performance_data.append({"graph_name": graph_name, "app_name": app_name, "perf_val": perf_value})
+        self.performance_data.append({"graph_name": graph_name, "app_name": app_name, "perf_val": perf_value,
+                                      "format": self.current_graph_format})
 
     def add_performance_separator_to_xls_table(self):
         self.line_pos += self.lines_in_test() + 1
@@ -96,7 +101,40 @@ class BenchmarkingResults:
 
     def add_correctness_value_to_xls_table(self, value, graph_name, app_name):
         self.worksheet.write(self.line_pos, get_list_of_verification_graphs(self.run_speed_mode).index(graph_name) + 1, value)
-        self.correctness_data.append({"graph_name": graph_name, "app_name": app_name, "correctness_val": value})
+        self.correctness_data.append({"graph_name": graph_name, "app_name": app_name, "correctness_val": value,
+                                      "format": self.current_graph_format})
+
+    def plot(self):
+        tested_apps = []
+        row_data = remove_timed_out(self.performance_data)
+
+        for item in row_data:
+            if item["app_name"] not in tested_apps:
+                tested_apps.append(item["app_name"])
+
+        if not os.path.exists("./plots"):
+            os.makedirs("./plots")
+
+        for app_name in tested_apps:
+            plot_names = []
+            perf_vals = []
+            x_vals = []
+            it = 0
+            for item in row_data:
+                if item["app_name"] == app_name and item["format"] == self.current_graph_format:
+                    plot_names.append(item["graph_name"])
+                    perf_vals.append(item["perf_val"])
+                    x_vals.append(it)
+                    it += 1
+
+            x = np.array(x_vals)
+            y = np.array(perf_vals)
+            xticks = plot_names
+
+            plt.ylabel('Performance (MTEPS)')
+            plt.xticks(x, xticks, rotation=90)
+            plt.plot(x, y)
+            plt.savefig("./plots/" + app_name + "_" + self.current_graph_format + ".png", bbox_inches='tight')
 
     def submit(self, run_info):
         send_dict = {"run_info": run_info, "performance_data": remove_timed_out(self.performance_data), "correctness_data": self.correctness_data}

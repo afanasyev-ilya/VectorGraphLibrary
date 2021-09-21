@@ -170,3 +170,15 @@ def internet_on():
     except Exception as e:
         print(e)
         return False
+
+
+def get_list_of_formats(formats_str):
+    formats_res = []
+    if formats_str == "all":
+        for current_format in available_formats:
+            formats_res.append(current_format)
+    elif "," in formats_str:
+        formats_res = formats_str.split(",")
+    else:
+        formats_res = [formats_str]
+    return formats_res

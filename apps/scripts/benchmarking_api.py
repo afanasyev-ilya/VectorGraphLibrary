@@ -1,9 +1,9 @@
 from .helpers import *
 from .create_graphs_api import *
-from .export_to_xls import *
+from .export import *
 from .settings import *
 import re
-from .export_to_xls import *
+from .export import *
 import time
 from threading import Timer
 

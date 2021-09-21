@@ -27,19 +27,25 @@ def main():
     parser = optparse.OptionParser()
     parser.add_option('-a', '--arch',
                       action="store", dest="arch",
-                      help="specify evaluated architecture: sx/aurora, mc/multicore, cu/gpu", default=get_arch())
+                      help="specify evaluated architecture: sx/aurora, mc/multicore, cu/gpu (default mc)", default="mc")
     parser.add_option('-f', '--format',
                       action="store", dest="format",
-                      help="specify graph storage format used", default="vcsr")
+                      help="specify graph storage format used (default vcsr)", default="vcsr")
     parser.add_option('-p', '--proc-num',
                       action="store", dest="proc_num",
-                      help="set number of sockets / gpu / vector engines used (in testing)", default=1)
+                      help="set number of sockets / gpu / vector engines used (default 1)", default=1)
     parser.add_option('-o', '--offline',
                       action="store", dest="file_name",
-                      help="specify file name for offline submit, other options are ignored this way", default=None)
+                      help="specify file name for offline submit, other options are ignored this way (default false)",
+                      default=None)
     parser.add_option('-n', '--name',
                       action="store", dest="name",
-                      help="specify name of file with submission info", default="arch_info.txt")
+                      help="specify name of file with submission info (default \"arch_info.txt\")",
+                      default="arch_info.txt")
+    parser.add_option('-q', '--fast',
+                      action="store_true", dest="fast",
+                      help="use fast submission mode when only tiny and small rating graphs are used (default false)",
+                      default=False)
 
     options, args = parser.parse_args()
 
@@ -53,9 +59,13 @@ def main():
         options.compile = False  # must be false for NEC benchmarking
         options.prepare = False
         options.download = False
-        options.mode = "rating-full"
+        if options.fast:
+            options.mode = "rating-fast"
+        else:
+            options.mode = "rating-full"
         options.sockets = options.proc_num
         options.timeout = 360
+        options.plot = False
         file_name = arch_info_dict["architecture"] + "_" + arch_info_dict["model"]
         file_name = file_name.replace(" ", "_")
         options.name = file_name
