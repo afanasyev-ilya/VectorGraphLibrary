@@ -155,7 +155,7 @@ def main():
                       help="specify testing mode: tiny-only, small-only, medium-only, large-only, "
                            "tiny-small, tiny-small-medium (combinations), "
                            "rating-full, rating-avg, rating-fast,"
-                           "syn_scaling, fastest "
+                           "scaling, fastest "
                            "(default tiny-only)", default="tiny-only")
     parser.add_option('-d', '--download',
                       action="store_true", dest="download",

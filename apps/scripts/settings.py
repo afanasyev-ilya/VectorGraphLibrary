@@ -144,7 +144,7 @@ syn_rating_full = syn_rating_tiny + syn_rating_small + syn_rating_medium + syn_r
 #####################
 
 syn_scaling = ["syn_rmat_18_32", "syn_rmat_19_32", "syn_rmat_20_32", "syn_rmat_21_32", "syn_rmat_22_32",
-               "syn_rmat_23_32", "syn_rmat_24_32"]
+               "syn_rmat_23_32"]
 konect_scaling = []
 
 #####################

@@ -26,7 +26,7 @@ def get_list_of_synthetic_graphs(run_speed_mode):
         return syn_tiny_small_medium
     elif run_speed_mode == "fastest":
         return syn_fastest
-    elif run_speed_mode == "syn_scaling":
+    elif run_speed_mode == "scaling":
         return syn_scaling
     else:
         raise ValueError("Unsupported run_speed_mode")
@@ -53,7 +53,7 @@ def get_list_of_real_world_graphs(run_speed_mode):
         return konect_tiny_small_medium
     elif run_speed_mode == "fastest":
         return konect_fastest
-    elif run_speed_mode == "syn_scaling":
+    elif run_speed_mode == "scaling":
         return []
     else:
         raise ValueError("Unsupported run_speed_mode")
