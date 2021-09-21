@@ -5,6 +5,7 @@ from .submit_results import submit_to_socket
 import pickle
 import matplotlib.pyplot as plt
 import numpy as np
+import shutil
 
 
 app_name_column_size = 30
@@ -104,7 +105,7 @@ class BenchmarkingResults:
         self.correctness_data.append({"graph_name": graph_name, "app_name": app_name, "correctness_val": value,
                                       "format": self.current_graph_format})
 
-    def plot(self):
+    def plot(self, formats_list):
         tested_apps = []
         row_data = remove_timed_out(self.performance_data)
 
@@ -112,29 +113,32 @@ class BenchmarkingResults:
             if item["app_name"] not in tested_apps:
                 tested_apps.append(item["app_name"])
 
-        if not os.path.exists("./plots"):
-            os.makedirs("./plots")
+        if os.path.exists("./plots"):
+            shutil.rmtree("./plots")
+
+        os.makedirs("./plots")
 
         for app_name in tested_apps:
-            plot_names = []
-            perf_vals = []
-            x_vals = []
-            it = 0
-            for item in row_data:
-                if item["app_name"] == app_name and item["format"] == self.current_graph_format:
-                    plot_names.append(item["graph_name"])
-                    perf_vals.append(item["perf_val"])
-                    x_vals.append(it)
-                    it += 1
+            for format_name in formats_list:
+                plot_names = []
+                perf_vals = []
+                x_vals = []
+                it = 0
+                for item in row_data:
+                    if item["app_name"] == app_name and item["format"] == self.current_graph_format:
+                        plot_names.append(item["graph_name"])
+                        perf_vals.append(item["perf_val"])
+                        x_vals.append(it)
+                        it += 1
 
-            x = np.array(x_vals)
-            y = np.array(perf_vals)
-            xticks = plot_names
+                x = np.array(x_vals)
+                y = np.array(perf_vals)
+                xticks = plot_names
 
-            plt.ylabel('Performance (MTEPS)')
-            plt.xticks(x, xticks, rotation=90)
-            plt.plot(x, y)
-            plt.savefig("./plots/" + app_name + "_" + self.current_graph_format + ".png", bbox_inches='tight')
+                plt.ylabel('Performance (MTEPS)')
+                plt.xticks(x, xticks, rotation=90)
+                plt.plot(x, y, label=format_name)
+            plt.savefig("./plots/" + app_name + ".png", bbox_inches='tight')
 
     def submit(self, run_info):
         send_dict = {"run_info": run_info, "performance_data": remove_timed_out(self.performance_data), "correctness_data": self.correctness_data}

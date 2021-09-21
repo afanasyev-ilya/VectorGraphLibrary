@@ -143,17 +143,16 @@ syn_rating_full = syn_rating_tiny + syn_rating_small + syn_rating_medium + syn_r
 
 #####################
 
-syn_synthetic_only = ["syn_rmat_18_32", "syn_rmat_19_32", "syn_rmat_20_32", "syn_rmat_21_32", "syn_rmat_22_32",
-                         "syn_rmat_23_32"]
-konect_synthetic_only = []
+syn_scaling = ["syn_rmat_18_32", "syn_rmat_19_32", "syn_rmat_20_32", "syn_rmat_21_32", "syn_rmat_22_32",
+               "syn_rmat_23_32", "syn_rmat_24_32"]
+konect_scaling = []
 
 #####################
 
 apps_and_graphs_ingore = {"sssp": [],
                           "bfs": []}
 
-
-konect_one_medium_graph_mode = ["web_wiki_ru", "road_western_us", "soc_orkut", "rating_yahoo_songs"]
-syn_one_medium_graph_mode = ["syn_rmat_23_32", "syn_ru_23_32"]
+konect_fastest = ['soc_catster_dogster', 'road_texas']
+syn_fastest = ["syn_rmat_18_32", "syn_ru_18_32"]
 
 

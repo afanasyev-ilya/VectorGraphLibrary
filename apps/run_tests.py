@@ -114,7 +114,7 @@ def run(options, run_info):
         print("benchmarking WALL TIME: " + str(end-start) + " seconds")
 
     if options.plot:
-        benchmarking_results.plot()
+        benchmarking_results.plot(list_of_formats)
 
     benchmarking_results.finalize()
 
@@ -155,7 +155,8 @@ def main():
                       help="specify testing mode: tiny-only, small-only, medium-only, large-only, "
                            "tiny-small, tiny-small-medium (combinations), "
                            "rating-full, rating-avg, rating-fast,"
-                           "(tiny-only)", default="tiny-only")
+                           "syn_scaling, fastest "
+                           "(default tiny-only)", default="tiny-only")
     parser.add_option('-d', '--download',
                       action="store_true", dest="download",
                       help="download all real-world graphs from internet collections (default false)", default=False)
