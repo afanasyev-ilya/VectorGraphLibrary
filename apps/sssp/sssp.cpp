@@ -36,8 +36,7 @@ int main(int argc, char **argv)
         int source_vertex = 0;
         VerticesArray<float> distances(graph, Parser::convert_traversal_type(parser.get_traversal_direction()));
         EdgesArray<float> weights(graph);
-        //weights.set_all_random(MAX_WEIGHT);
-        weights.set_all_constant(MAX_WEIGHT);
+        weights.set_all_random(MAX_WEIGHT);
 
         // start algorithm
         VGL_RUNTIME::start_measuring_stats();
