@@ -64,7 +64,7 @@ def main():
         else:
             options.mode = "rating-full"
         options.sockets = options.proc_num
-        options.timeout = 360
+        options.timeout = 3600
         options.plot = False
         file_name = arch_info_dict["architecture"] + "_" + arch_info_dict["model"]
         file_name = file_name.replace(" ", "_")
