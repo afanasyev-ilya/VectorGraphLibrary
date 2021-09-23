@@ -74,7 +74,6 @@ add_executable(VectorGraphLibrary
         vgl_runtime/helpers/gpu_API/cuda_error_handling.h
         vgl_runtime/helpers/memory_API/memory_API.h
         vgl_runtime/helpers/memory_API/memory_API.hpp
-        vgl_runtime/helpers/parallel_primitives/copy_if/old_copy_if.h
         vgl_runtime/helpers/parallel_primitives/count_if/count_if.h
         vgl_runtime/helpers/random_generator/asl_generator/asl_generator.h
         vgl_runtime/helpers/random_generator/asl_generator/asl_generator.hpp

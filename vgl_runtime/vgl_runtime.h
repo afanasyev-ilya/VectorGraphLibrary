@@ -31,6 +31,8 @@
 #include "vgl_datastructures/graphs/undirected_containers/csr_vg/csr_vg_graph.h"
 #include "vgl_datastructures/graphs/vgl_graph/vgl_graph.h"
 
+#include "helpers/partitioner/partitioner.h"
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #include "visualization/graphviz/graphviz_export.h"

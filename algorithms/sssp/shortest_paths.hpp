@@ -122,7 +122,7 @@ double SSSP::vgl_dijkstra_all_active_push(VGL_Graph &_graph,
 
         auto edge_op_push = [&_distances, &_weights] __VGL_SCATTER_ARGS__
         {
-            _T weight = _weights[global_edge_pos];
+            _T weight = 1;//_weights[global_edge_pos];
             _T src_weight = _distances[src_id];
             if(_distances[dst_id] > src_weight + weight)
             {

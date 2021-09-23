@@ -350,8 +350,5 @@ public:
 #include "advance_csr.hpp"
 #include "generate_new_frontier.hpp"
 #include "reduce.hpp"
-#ifdef __USE_MPI__
-#include "mpi_exchange.hpp"
-#endif
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

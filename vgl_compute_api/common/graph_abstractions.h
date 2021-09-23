@@ -155,11 +155,11 @@ public:
     void attach_data(VerticesArray<_T> &_array);
 
     #ifdef __USE_MPI__
-    template <typename _TGraph, typename _T>
-    void exchange_vertices_array(DataExchangePolicy _policy, _TGraph &_graph, VerticesArray<_T> &_data);
+    template <typename _T>
+    void exchange_vertices_array(DataExchangePolicy _policy, VGL_Graph &_graph, VerticesArray<_T> &_data);
 
-    template <typename _TGraph, typename _T, typename MergeOp>
-    void exchange_vertices_array(DataExchangePolicy _policy, _TGraph &_graph, VerticesArray<_T> &_data,
+    template <typename _T, typename MergeOp>
+    void exchange_vertices_array(DataExchangePolicy _policy, VGL_Graph &_graph, VerticesArray<_T> &_data,
                                  MergeOp &&_merge_op);
 
     template <typename _TGraph, typename _T, typename MergeOp>
@@ -193,6 +193,8 @@ public:
 #include "vgl_compute_api/multicore/graph_abstractions_multicore.h"
 #endif
 
-// #include "vgl_compute_api/template/graph_abstractions_template.h" // do include here
+#ifdef __USE_MPI__
+#include "mpi_exchange.hpp"
+#endif
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

@@ -20,15 +20,15 @@ inline int prepare_exchange_data(_T *_new, _T *_old, int _size)
     char *recv_buffer = vgl_library_data.get_recv_buffer();
     int *tmp_indexes_buffer = (int*)recv_buffer;
 
-    auto copy_cond = [&_new, &_old](int i)->float
+    auto copy_cond = [&_new, &_old](int i)->int
     {
-        int result = -1;
+        int result = 0;
         if(_new[i] != _old[i])
             result = 1;
         return result;
     };
     //double t1 = omp_get_wtime();
-    int changes_count = generic_dense_copy_if(copy_cond, output_indexes, tmp_indexes_buffer, _size, 0, DONT_SAVE_ORDER);
+    int changes_count = ParallelPrimitives::copy_if_indexes(copy_cond, output_indexes, _size, tmp_indexes_buffer, _size, 0);
     //double t2 = omp_get_wtime();
     //cout << "copy if time: " << (t2 - t1) *1000.0 << " ms " << vgl_library_data.get_mpi_rank() << endl;
     //cout << "copy if BW: " << _size * 2.0 * sizeof(int) / ((t2 - t1)*1e9) << " GB/s " << vgl_library_data.get_mpi_rank() << endl;
@@ -247,41 +247,16 @@ void in_group_exchange(_T *_data, int _begin, int _end)
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-template <typename _T>
-void exchange_data_private(VGL_Graph &_graph, _T *_data, int _size, TraversalDirection _direction)
+template <typename _TGraph, typename _T>
+void exchange_data_private(_TGraph &_graph, _T *_data, int _size)
 {
     MPI_Barrier(MPI_COMM_WORLD);
     Timer tm;
     tm.start();
 
-    pair<int,int> ve_part = _graph.get_direction_graph_ptr(_direction)->get_vector_engine_mpi_thresholds();
-    pair<int,int> vc_part = _graph.get_direction_graph_ptr(_direction)->get_vector_core_mpi_thresholds();
-    pair<int,int> coll_part = _graph.get_direction_graph_ptr(_direction)->get_collective_mpi_thresholds();
-
-    _T *received_data = (_T*) vgl_library_data.get_recv_buffer();
-    MemoryAPI::set(received_data, (_T)0, _size);
-
-    in_group_exchange(_data,  ve_part.first,  ve_part.second);
-    in_group_exchange(_data,  vc_part.first,  vc_part.second);
-    in_group_exchange(_data,  coll_part.first,  coll_part.second);
-
-    MPI_Barrier(MPI_COMM_WORLD);
-    tm.end();
-    performance_stats.update_MPI_time(tm);
-}
-
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-template <typename _T>
-void exchange_data_private(ShardedCSRGraph &_graph, _T *_data, int _size, TraversalDirection _direction)
-{
-    MPI_Barrier(MPI_COMM_WORLD);
-    Timer tm;
-    tm.start();
-
-    pair<int,int> ve_part = _graph.get_shard_ptr(0, _direction)->get_vector_engine_mpi_thresholds();
-    pair<int,int> vc_part = _graph.get_shard_ptr(0, _direction)->get_vector_core_mpi_thresholds();
-    pair<int,int> coll_part = _graph.get_shard_ptr(0, _direction)->get_collective_mpi_thresholds();
+    pair<int,int> ve_part = _graph.get_vector_engine_mpi_thresholds();
+    pair<int,int> vc_part = _graph.get_vector_core_mpi_thresholds();
+    pair<int,int> coll_part = _graph.get_collective_mpi_thresholds();
 
     _T *received_data = (_T*) vgl_library_data.get_recv_buffer();
     MemoryAPI::set(received_data, (_T)0, _size);
@@ -298,11 +273,11 @@ void exchange_data_private(ShardedCSRGraph &_graph, _T *_data, int _size, Traver
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template <typename _TGraph, typename _T, typename MergeOp>
-void GraphAbstractionsNEC::exchange_vertices_array(DataExchangePolicy _policy,
-                                                   _TGraph &_graph,
-                                                   VerticesArray<_T> &_data,
-                                                   VerticesArray<_T> &_old_data,
-                                                   MergeOp &&_merge_op)
+void GraphAbstractions::exchange_vertices_array(DataExchangePolicy _policy,
+                                                _TGraph &_graph,
+                                                VerticesArray<_T> &_data,
+                                                VerticesArray<_T> &_old_data,
+                                                MergeOp &&_merge_op)
 {
     if(vgl_library_data.get_mpi_proc_num() == 1)
         return;
@@ -313,17 +288,17 @@ void GraphAbstractionsNEC::exchange_vertices_array(DataExchangePolicy _policy,
     }
     else
     {
-        throw "Error in GraphAbstractionsNEC::exchange_vertices_array : old data is provided for NON EXCHANGE_RECENTLY_CHANGED";
+        throw "Error in GraphAbstractions::exchange_vertices_array : old data is provided for NON EXCHANGE_RECENTLY_CHANGED";
     }
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-template <typename _TGraph, typename _T, typename MergeOp>
-void GraphAbstractionsNEC::exchange_vertices_array(DataExchangePolicy _policy,
-                                                   _TGraph &_graph,
-                                                   VerticesArray<_T> &_data,
-                                                   MergeOp &&_merge_op)
+template <typename _T, typename MergeOp>
+void GraphAbstractions::exchange_vertices_array(DataExchangePolicy _policy,
+                                                VGL_Graph &_graph,
+                                                VerticesArray<_T> &_data,
+                                                MergeOp &&_merge_op)
 {
     if(vgl_library_data.get_mpi_proc_num() == 1)
         return;
@@ -334,27 +309,35 @@ void GraphAbstractionsNEC::exchange_vertices_array(DataExchangePolicy _policy,
     }
     else
     {
-        throw "Error in GraphAbstractionsNEC::exchange_vertices_array : old data is NOT provided for NON EXCHANGE_RECENTLY_CHANGED";
+        throw "Error in GraphAbstractions::exchange_vertices_array : old data is NOT provided for NON EXCHANGE_RECENTLY_CHANGED";
     }
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-template <typename _TGraph, typename _T>
-void GraphAbstractionsNEC::exchange_vertices_array(DataExchangePolicy _policy,
-                                                   _TGraph &_graph,
-                                                   VerticesArray<_T> &_data)
+template <typename _T>
+void GraphAbstractions::exchange_vertices_array(DataExchangePolicy _policy,
+                                                VGL_Graph &_graph,
+                                                VerticesArray<_T> &_data)
 {
     if(vgl_library_data.get_mpi_proc_num() == 1)
         return;
 
     if(_policy == EXCHANGE_RECENTLY_CHANGED)
     {
-         throw "Error in GraphAbstractionsNEC::exchange_vertices_array : old data must be provided for EXCHANGE_RECENTLY_CHANGED";
+         throw "Error in GraphAbstractions::exchange_vertices_array : old data must be provided for EXCHANGE_RECENTLY_CHANGED";
     }
     else if(_policy == EXCHANGE_PRIVATE_DATA)
     {
-        exchange_data_private(_graph, _data.get_ptr(), _data.size(), current_traversal_direction);
+        if(_graph.get_container_type() == VECTOR_CSR_GRAPH)
+        {
+            VectorCSRGraph *container_graph = (VectorCSRGraph *)_graph.get_direction_data(current_traversal_direction);
+            exchange_data_private(*container_graph, _data.get_ptr(), _data.size());
+        }
+        else
+        {
+            throw "Error in GraphAbstractions::exchange_vertices_array unsupported graph type";
+        }
     }
     else
     {

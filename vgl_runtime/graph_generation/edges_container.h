@@ -51,6 +51,7 @@ public:
 
     ~EdgesContainer()
     {
+        cout << "FREE " << endl;
         MemoryAPI::free_array(src_ids);
         MemoryAPI::free_array(dst_ids);
     }

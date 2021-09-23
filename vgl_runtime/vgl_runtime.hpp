@@ -44,6 +44,11 @@ void VGL_RUNTIME::prepare_graph(VGL_Graph &_graph, Parser &_parser, DirectionTyp
         tm.end();
         tm.print_time_stats("random_shuffle");
 
+        #ifdef __USE_MPI__
+        MPI_partitioner partitioner(4, ROUND_ROBIN_PARTITIONING);
+        partitioner.run(edges_container);
+        #endif
+
         tm.start();
         _graph.import(edges_container);
         tm.end();
@@ -73,6 +78,8 @@ void VGL_RUNTIME::prepare_graph(VGL_Graph &_graph, Parser &_parser, DirectionTyp
         tm.end();
         tm.print_time_stats("graph import");
     }
+
+    cout << "here" << endl;
 
     #ifdef __USE_MPI__
     vgl_library_data.allocate_exchange_buffers(_graph.get_vertices_count(), sizeof(double));

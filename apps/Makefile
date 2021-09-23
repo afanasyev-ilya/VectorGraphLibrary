@@ -14,6 +14,13 @@ ifeq ($(COMPILER),g++)
 	ArchSuffix=_mc
 endif
 
+ifeq ($(COMPILER),mpicxx)
+	Include_Path = -I ../
+	Flags = -D __USE_MULTICORE__ -D __USE_MPI__ $(MPI_Flags) -O3 -fopenmp -ftree-vectorize -std=c++17
+	Libraries = -O3 -fopenmp
+	ArchSuffix=_mc
+endif
+
 ifeq ($(COMPILER),icpc)
 	Include_Path = -I ../
 	Flags = -D __USE_MULTICORE__ $(MPI_Flags) -O1 -fopenmp -std=c++17 #-xCOMMON-AVX512
