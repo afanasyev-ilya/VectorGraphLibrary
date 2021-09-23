@@ -38,6 +38,7 @@ void VGL_RUNTIME::prepare_graph(VGL_Graph &_graph, Parser &_parser, DirectionTyp
             GraphGenerationAPI::random_uniform(edges_container, v, v * _parser.get_avg_degree(), _direction);
         tm.end();
         tm.print_time_stats("graph generation");
+        long long old_edges_count = edges_container.get_edges_count();
 
         tm.start();
         edges_container.random_shuffle_edges();
@@ -45,8 +46,11 @@ void VGL_RUNTIME::prepare_graph(VGL_Graph &_graph, Parser &_parser, DirectionTyp
         tm.print_time_stats("random_shuffle");
 
         #ifdef __USE_MPI__
-        MPI_partitioner partitioner(4, ROUND_ROBIN_PARTITIONING);
+        MPI_partitioner partitioner(vgl_library_data.get_mpi_proc_num(), ROUND_ROBIN_PARTITIONING);
         partitioner.run(edges_container);
+        cout << "Graph is partitioned into " << vgl_library_data.get_mpi_proc_num() << " parts" << endl;
+        cout << "MPI rank " << vgl_library_data.get_mpi_rank() << " part size: " <<
+                edges_container.get_edges_count() << "/" << old_edges_count << endl;
         #endif
 
         tm.start();
@@ -78,8 +82,6 @@ void VGL_RUNTIME::prepare_graph(VGL_Graph &_graph, Parser &_parser, DirectionTyp
         tm.end();
         tm.print_time_stats("graph import");
     }
-
-    cout << "here" << endl;
 
     #ifdef __USE_MPI__
     vgl_library_data.allocate_exchange_buffers(_graph.get_vertices_count(), sizeof(double));
