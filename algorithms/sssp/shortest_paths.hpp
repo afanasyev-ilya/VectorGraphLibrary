@@ -154,8 +154,11 @@ double SSSP::vgl_dijkstra_all_active_push(VGL_Graph &_graph,
     while(changes);
     tm.end();
 
+    cout << "GRAPH edges count: " <<  _graph.get_edges_count() << endl;
+    cout << "iterations: " << iterations_count << endl;
     #ifdef __PRINT_SAMPLES_PERFORMANCE_STATS__
-    performance_stats.print_algorithm_performance_stats("SSSP (Dijkstra, all-active, push)", tm.get_time(), _graph.get_edges_count());
+    performance_stats.print_algorithm_performance_stats("SSSP (Dijkstra, all-active, push)", tm.get_time(),
+                                                        _graph.get_edges_count() * vgl_library_data.get_mpi_proc_num());
     #endif
 
     return performance_stats.get_algorithm_performance(tm.get_time(), _graph.get_edges_count());

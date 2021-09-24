@@ -76,6 +76,15 @@ void VGL_RUNTIME::prepare_graph(VGL_Graph &_graph, Parser &_parser, DirectionTyp
             throw "Error: edges container file not found";
         tm.end();
         tm.print_time_stats("edges container load");
+        long long old_edges_count = edges_container.get_edges_count();
+
+        #ifdef __USE_MPI__
+        MPI_partitioner partitioner(vgl_library_data.get_mpi_proc_num(), ROUND_ROBIN_PARTITIONING);
+        partitioner.run(edges_container);
+        cout << "Graph is partitioned into " << vgl_library_data.get_mpi_proc_num() << " parts" << endl;
+        cout << "MPI rank " << vgl_library_data.get_mpi_rank() << " part size: " <<
+                edges_container.get_edges_count() << "/" << old_edges_count << endl;
+        #endif
 
         tm.start();
         _graph.import(edges_container);
