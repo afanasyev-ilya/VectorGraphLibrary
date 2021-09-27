@@ -32,6 +32,8 @@ Parser::Parser()
 
     convert = false;
     convert_name = "";
+
+    partitioning_mode = VERTICES_1D_PARTITIONING;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -100,6 +102,19 @@ void Parser::parse_args(int _argc, char **_argv)
                 synthetic_graph_type = RMAT;
             if((tmp_type == "random_uniform") || (tmp_type == "ru"))
                 synthetic_graph_type = RANDOM_UNIFORM;
+        }
+
+        if ((option.compare("-partitioning") == 0) || (option.compare("-part") == 0))
+        {
+            string str_mode = _argv[++i];
+            if(str_mode == "ERR")
+                partitioning_mode = EDGES_ROUND_ROBIN_PARTITIONING;
+            else if(str_mode == "ECQ")
+                partitioning_mode = EDGES_CONSEQUENT_PARTITIONING;
+            else if(str_mode == "V1D")
+                partitioning_mode = VERTICES_1D_PARTITIONING;
+            else
+                throw "Error in Parser::parse_args : invalid partitioning mode";
         }
 
         if ((option.compare("-format") == 0))

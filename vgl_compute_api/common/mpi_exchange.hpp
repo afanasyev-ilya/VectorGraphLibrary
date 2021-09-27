@@ -247,8 +247,8 @@ void in_group_exchange(_T *_data, int _begin, int _end)
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-template <typename _TGraph, typename _T>
-void exchange_data_private(_TGraph &_graph, _T *_data, int _size)
+template <typename _T>
+void exchange_data_private(VectorCSRGraph &_graph, _T *_data, int _size)
 {
     MPI_Barrier(MPI_COMM_WORLD);
     Timer tm;
@@ -264,6 +264,25 @@ void exchange_data_private(_TGraph &_graph, _T *_data, int _size)
     in_group_exchange(_data,  ve_part.first,  ve_part.second);
     in_group_exchange(_data,  vc_part.first,  vc_part.second);
     in_group_exchange(_data,  coll_part.first,  coll_part.second);
+
+    MPI_Barrier(MPI_COMM_WORLD);
+    tm.end();
+    performance_stats.update_MPI_time(tm);
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+template <typename _TGraph, typename _T>
+void exchange_data_private(_TGraph &_graph, _T *_data, int _size)
+{
+    MPI_Barrier(MPI_COMM_WORLD);
+    Timer tm;
+    tm.start();
+
+    _T *received_data = (_T*) vgl_library_data.get_recv_buffer();
+    MemoryAPI::set(received_data, (_T)0, _size);
+
+    in_group_exchange(_data, 0, _size);
 
     MPI_Barrier(MPI_COMM_WORLD);
     tm.end();
@@ -332,6 +351,16 @@ void GraphAbstractions::exchange_vertices_array(DataExchangePolicy _policy,
         if(_graph.get_container_type() == VECTOR_CSR_GRAPH)
         {
             VectorCSRGraph *container_graph = (VectorCSRGraph *)_graph.get_direction_data(current_traversal_direction);
+            exchange_data_private(*container_graph, _data.get_ptr(), _data.size());
+        }
+        else if(_graph.get_container_type() == CSR_VG_GRAPH)
+        {
+            CSR_VG_Graph *container_graph = (CSR_VG_Graph *)_graph.get_direction_data(current_traversal_direction);
+            exchange_data_private(*container_graph, _data.get_ptr(), _data.size());
+        }
+        else if(_graph.get_container_type() == CSR_GRAPH)
+        {
+            CSRGraph *container_graph = (CSRGraph *)_graph.get_direction_data(current_traversal_direction);
             exchange_data_private(*container_graph, _data.get_ptr(), _data.size());
         }
         else

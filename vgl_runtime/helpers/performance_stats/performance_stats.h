@@ -33,6 +33,7 @@ private:
     double MPI_time;
     double MPI_functions_time;
     int get_mpi_rank();
+    int get_mpi_proc_num();
     #endif
 
     size_t bytes_requested;

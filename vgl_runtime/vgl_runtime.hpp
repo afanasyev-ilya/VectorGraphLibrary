@@ -24,6 +24,22 @@ void VGL_RUNTIME::info_message(string _algo_name)
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+void test_partitioning(EdgesContainer &_edges_container, Parser &_parser)
+{
+    long long old_edges_count = _edges_container.get_edges_count();
+
+    #ifdef __USE_MPI__
+    MPI_partitioner partitioner(vgl_library_data.get_mpi_proc_num(), _parser.get_partitioning_mode());
+    partitioner.run(_edges_container);
+    cout << "MPI rank " << vgl_library_data.get_mpi_rank() << " part size: " <<
+                100.0*((double)_edges_container.get_edges_count()/old_edges_count) << " %" << endl;
+    MPI_Barrier(MPI_COMM_WORLD);
+    #endif
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
 void VGL_RUNTIME::prepare_graph(VGL_Graph &_graph, Parser &_parser, DirectionType _direction)
 {
     if(_parser.get_compute_mode() == GENERATE_NEW_GRAPH)
@@ -38,20 +54,13 @@ void VGL_RUNTIME::prepare_graph(VGL_Graph &_graph, Parser &_parser, DirectionTyp
             GraphGenerationAPI::random_uniform(edges_container, v, v * _parser.get_avg_degree(), _direction);
         tm.end();
         tm.print_time_stats("graph generation");
-        long long old_edges_count = edges_container.get_edges_count();
 
         tm.start();
         edges_container.random_shuffle_edges();
         tm.end();
         tm.print_time_stats("random_shuffle");
 
-        #ifdef __USE_MPI__
-        MPI_partitioner partitioner(vgl_library_data.get_mpi_proc_num(), ROUND_ROBIN_PARTITIONING);
-        partitioner.run(edges_container);
-        cout << "Graph is partitioned into " << vgl_library_data.get_mpi_proc_num() << " parts" << endl;
-        cout << "MPI rank " << vgl_library_data.get_mpi_rank() << " part size: " <<
-                edges_container.get_edges_count() << "/" << old_edges_count << endl;
-        #endif
+        test_partitioning(edges_container, _parser);
 
         tm.start();
         _graph.import(edges_container);
@@ -76,15 +85,8 @@ void VGL_RUNTIME::prepare_graph(VGL_Graph &_graph, Parser &_parser, DirectionTyp
             throw "Error: edges container file not found";
         tm.end();
         tm.print_time_stats("edges container load");
-        long long old_edges_count = edges_container.get_edges_count();
 
-        #ifdef __USE_MPI__
-        MPI_partitioner partitioner(vgl_library_data.get_mpi_proc_num(), ROUND_ROBIN_PARTITIONING);
-        partitioner.run(edges_container);
-        cout << "Graph is partitioned into " << vgl_library_data.get_mpi_proc_num() << " parts" << endl;
-        cout << "MPI rank " << vgl_library_data.get_mpi_rank() << " part size: " <<
-                edges_container.get_edges_count() << "/" << old_edges_count << endl;
-        #endif
+        test_partitioning(edges_container, _parser);
 
         tm.start();
         _graph.import(edges_container);

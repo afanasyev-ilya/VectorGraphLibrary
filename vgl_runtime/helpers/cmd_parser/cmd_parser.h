@@ -14,6 +14,8 @@ private:
     AlgorithmTraversalType traversal_direction;
     GraphStorageFormat graph_storage_format;
     GraphStorageOptimizations graph_storage_optimizations;
+
+    PartitioningAlgorithm partitioning_mode;
     
     int scale;
     int avg_degree;
@@ -48,6 +50,7 @@ public:
     int get_device_num() { return device_num; };
     GraphStorageFormat get_graph_storage_format() {return graph_storage_format;};
     GraphStorageOptimizations get_graph_storage_optimizations() {return graph_storage_optimizations;};
+    PartitioningAlgorithm get_partitioning_mode() {return partitioning_mode;};
 
     bool get_convert() {return convert;};
     string get_convert_name() {return convert_name;};
