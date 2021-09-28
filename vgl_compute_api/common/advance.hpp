@@ -26,9 +26,6 @@ void GraphAbstractions::common_scatter(VGL_Graph &_graph,
     }
 
     bool inner_mpi_processing = false;
-    #ifdef __USE_MPI__
-    inner_mpi_processing = true;
-    #endif
     if(_graph.get_container_type() == VECTOR_CSR_GRAPH)
     {
         VectorCSRGraph *container_graph = (VectorCSRGraph *)_graph.get_outgoing_data();
@@ -142,9 +139,6 @@ void GraphAbstractions::common_gather(VGL_Graph &_graph,
     }
 
     bool inner_mpi_processing = false;
-    #ifdef __USE_MPI__
-    inner_mpi_processing = true;
-    #endif
 
     if(_graph.get_container_type() == VECTOR_CSR_GRAPH)
     {

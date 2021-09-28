@@ -248,21 +248,21 @@ string get_separators_bottom_string()
 void PerformanceStats::print_algorithm_performance_stats(string _name, double _time, long long _edges_count)
 {
     bool print_condition = true;
-    long long k = 0;
+    long long num_proc_k = 1;
     #ifdef __USE_MPI__
     MPI_Barrier(MPI_COMM_WORLD);
     if(get_mpi_rank() != 0)
     {
         print_condition = false;
-        k = get_mpi_proc_num();
     }
+    num_proc_k = get_mpi_proc_num();
     #endif
 
     if(print_condition)
     {
         cout << get_separators_upper_string(_name) << endl;
         cout << "Wall time: " << _time*1000.0 << " ms" << endl;
-        cout << "Wall (graph500) perf: " << _edges_count*k / (_time * 1e6) << " MTEPS" << endl;
+        cout << "Wall (graph500) perf: " << _edges_count*num_proc_k / (_time * 1e6) << " MTEPS" << endl;
         cout << get_separators_bottom_string() << endl << endl;
     }
 
@@ -275,7 +275,11 @@ void PerformanceStats::print_algorithm_performance_stats(string _name, double _t
 
 double PerformanceStats::get_algorithm_performance(double _time, long long _edges_count)
 {
-    return _edges_count / (_time * 1e6);
+    long long num_proc_k = 1;
+    #ifdef __USE_MPI__
+    num_proc_k = get_mpi_proc_num();
+    #endif
+    return _edges_count*num_proc_k / (_time * 1e6);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

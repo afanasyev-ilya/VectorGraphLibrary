@@ -104,8 +104,6 @@ double PR::vgl_page_rank(VGL_Graph &_graph,
 
         #pragma omp parallel
         {
-            // todo cached loads
-
             auto edge_op = [_page_ranks, old_page_ranks, reversed_degrees, packed_data] __VGL_ADVANCE_ARGS__
             {
                 _T dst_rank = old_page_ranks[dst_id];
