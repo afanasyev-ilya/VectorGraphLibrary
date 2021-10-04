@@ -61,6 +61,24 @@ private:
         }
     }
 
+    void do_vertices_round_robin_partitioning(EdgesContainer &_edges_container,
+                                              vector<int> &_partitioning_data,
+                                              int &_partition_vertices_count,
+                                              long long &_partition_edges_count)
+    {
+        _partition_vertices_count = _edges_container.get_vertices_count();
+        _partition_edges_count = 0;
+
+        for(long long i = 0; i < _edges_container.get_edges_count(); i++)
+        {
+            int src_id = _edges_container.get_src_ids()[i];
+            int dst_id = _edges_container.get_dst_ids()[i];
+            _partitioning_data[i] = src_id % partitions_count;
+            if(_partitioning_data[i] == current_partition)
+                _partition_edges_count++;
+        }
+    }
+
     void do_partitioning(EdgesContainer &_edges_container,
                          vector<int> &_partitioning_data,
                          int &_partition_vertices_count,
@@ -84,8 +102,16 @@ private:
             do_vertices_1D_partitioning(_edges_container, _partitioning_data, _partition_vertices_count,
                                         _partition_edges_count);
         }
+        else if(algorithm == VERTICES_ROUND_ROBIN_PARTITIONING)
+        {
+            cout << "VERTICES_ROUND_ROBIN_PARTITIONING mode is used" << endl;
+            do_vertices_round_robin_partitioning(_edges_container, _partitioning_data, _partition_vertices_count,
+                                                 _partition_edges_count);
+        }
         else
+        {
             throw "Error in MPI_partitioner::do_partitioning : unsupported algorithm";
+        }
     }
 public:
     MPI_partitioner(int _desired_partitions_count, PartitioningAlgorithm _algorithm)

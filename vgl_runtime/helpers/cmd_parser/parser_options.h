@@ -88,7 +88,8 @@ enum PartitioningAlgorithm
 {
     EDGES_ROUND_ROBIN_PARTITIONING = 0,
     EDGES_CONSEQUENT_PARTITIONING = 1,
-    VERTICES_1D_PARTITIONING = 2
+    VERTICES_1D_PARTITIONING = 2,
+    VERTICES_ROUND_ROBIN_PARTITIONING = 3
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

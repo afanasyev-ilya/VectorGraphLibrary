@@ -113,6 +113,8 @@ void Parser::parse_args(int _argc, char **_argv)
                 partitioning_mode = EDGES_CONSEQUENT_PARTITIONING;
             else if(str_mode == "V1D")
                 partitioning_mode = VERTICES_1D_PARTITIONING;
+            else if(str_mode == "VRR")
+                partitioning_mode = VERTICES_ROUND_ROBIN_PARTITIONING;
             else
                 throw "Error in Parser::parse_args : invalid partitioning mode";
         }

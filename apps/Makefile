@@ -114,8 +114,8 @@ print_graph_info: create_folders print_graph_info.o
 create_vgl_graphs: create_folders create_vgl_graphs.o
 	g++ -fopenmp object_files/create_vgl_graphs.o -o ./bin/create_vgl_graphs$(ArchSuffix)$(BinSuffix)
 
-csr_test: create_folders csr_test.o
-	$(ARCH_COMPILER) object_files/csr_test.o $(Library_Path) $(Libraries) -o ./bin/csr_test$(ArchSuffix)$(BinSuffix)
+mpi_graphs: create_folders mpi_graphs.o
+	$(ARCH_COMPILER) object_files/mpi_graphs.o $(Library_Path) $(Libraries) -o ./bin/mpi_graphs$(ArchSuffix)$(BinSuffix)
 
 ##########
 # CPPs
@@ -166,8 +166,9 @@ print_graph_info.o: utilites/print_graph_info.cpp
 create_vgl_graphs.o: utilites/create_vgl_graphs.cpp
 	g++ $(Include_Path) -D __USE_MULTICORE__ -fopenmp -c utilites/create_vgl_graphs.cpp -o object_files/create_vgl_graphs.o
 
-csr_test.o: misc/csr_test.cpp
-	$(ARCH_COMPILER) $(Flags) $(Include_Path)  -c misc/csr_test.cpp -o object_files/csr_test.o
+mpi_graphs.o: misc/mpi_graphs.cpp
+	$(ARCH_COMPILER) $(Flags) $(Include_Path)  -c misc/mpi_graphs.cpp -o object_files/mpi_graphs.o
+
 
 create_folders:
 	-mkdir -p ./bin
