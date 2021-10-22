@@ -284,7 +284,7 @@ inline int ParallelPrimitives::copy_if_indexes(CopyCondition &&_cond,
     int num_elements = 0;
     #ifdef __USE_NEC_SX_AURORA__
     num_elements = vector_copy_if_indexes(_cond, _out_data, _size, _buffer, _buffer_size, _index_offset);
-    #elif __USE_MULTICORE__
+    #elif defined(__USE_MULTICORE__)
     num_elements = omp_copy_if_indexes(_cond, _out_data, _size, _buffer, _buffer_size, _index_offset);
     #else
     /*int *indexes;
@@ -313,9 +313,9 @@ inline int ParallelPrimitives::copy_if_data(CopyCondition &&_cond,
     int num_elements = 0;
     #ifdef __USE_NEC_SX_AURORA__
     num_elements = omp_copy_if_data(_cond, _in_data, _out_data, _size, _buffer, _buffer_size); // TODO vector version
-    #elif __USE_MULTICORE__
+    #elif defined(__USE_MULTICORE__)
     num_elements = omp_copy_if_data(_cond, _in_data, _out_data, _size, _buffer, _buffer_size);
-    #elif __USE_GPU__
+    #elif defined(__USE_GPU__)
     num_elements = thrust::copy_if(thrust::device, _in_data, _in_data + _size, _out_data, _cond) - _out_data;
     #else
     throw "Error in copy_if_indexes : unsupported architecture";
