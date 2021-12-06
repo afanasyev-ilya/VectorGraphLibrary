@@ -28,4 +28,4 @@ export OMP_NUM_THREADS=48
 export OMP_PROC_BIND=close
 export OMP_PLACES=cores
 
-./sssp_mc -s 20 -e 32 -type ru -formal el -check
+./bin/sssp_mc -s 20 -e 32 -type ru -formal el -check
