@@ -501,7 +501,7 @@ void EdgesListGraph::preprocess_into_segmented()
 #ifdef __USE_MULTICORE__
 void EdgesListGraph::preprocess_into_segmented()
 {
-    int segment_size_in_bytes = LLC_CACHE_SIZE/2;
+    int segment_size_in_bytes = 32*1024/sizeof(float)//LLC_CACHE_SIZE/2;
     long long edges_count = this->edges_count;
     int segment_size = segment_size_in_bytes/sizeof(int);
     int segments_count = (this->vertices_count - 1) / segment_size + 1;
