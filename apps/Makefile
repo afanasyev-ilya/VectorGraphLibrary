@@ -9,7 +9,7 @@ COMPILER=$(CXX)
 
 ifeq ($(COMPILER),g++)
 	Include_Path = -I ../
-	Flags = -D __USE_MULTICORE__ $(MPI_Flags) -O3 -fopenmp -ftree-vectorize -std=c++17
+	Flags = -D __USE_MULTICORE__ $(MPI_Flags) -O3 -fopenmp -ftree-vectorize -std=c++17 -mtune=a64fx -fopenmp -msve-vector-bits=512 -march=armv8.2-a+sve -Ofast -funroll-loops -ffast-math
 	Libraries = -O3 -fopenmp
 	ArchSuffix=_mc
 endif
