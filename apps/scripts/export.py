@@ -3,8 +3,8 @@ from .create_graphs_api import *
 from random import randrange
 from .submit_results import submit_to_socket
 import pickle
-import matplotlib.pyplot as plt
-import numpy as np
+#import matplotlib.pyplot as plt
+#import numpy as np
 import shutil
 
 
