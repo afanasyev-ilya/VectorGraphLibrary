@@ -14,6 +14,7 @@
 #include <vector>
 #include <stdio.h>
 #include <stdlib.h>
+
 #ifdef __USE_MPI__
 #include <mpi.h>
 #endif
@@ -21,6 +22,8 @@
 #ifdef __USE_NEC_SX_AURORA__
 #include <ftrace.h>
 #endif
+
+// other targets can be supported here
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 

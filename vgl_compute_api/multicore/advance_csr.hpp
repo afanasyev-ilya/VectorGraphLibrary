@@ -91,7 +91,7 @@ void GraphAbstractionsMulticore::vertex_group_advance_sparse(CSRVertexGroup &_gr
         res_reg[i] = 0;
     }
 
-    #pragma omp for schedule(static, 8)
+    #pragma omp for schedule(static, 16)
     for(int idx = 0; idx < size; idx += VECTOR_LENGTH)
     {
         #pragma simd

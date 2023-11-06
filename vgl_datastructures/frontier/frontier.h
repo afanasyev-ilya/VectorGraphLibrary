@@ -14,7 +14,6 @@ class VGL_Frontier
 {
 protected:
     ObjectType object_type;
-
     BaseFrontier *container;
 public:
     /* constructors and destructors */
