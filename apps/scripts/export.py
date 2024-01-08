@@ -157,6 +157,8 @@ class BenchmarkingResults:
         self.workbook.close()
 
     def lines_in_test(self):
+        if self.run_speed_mode == "great":
+            return len(get_list_of_real_world_graphs(self.run_speed_mode))
         return int(max(len(get_list_of_synthetic_graphs(self.run_speed_mode)), len(get_list_of_real_world_graphs(self.run_speed_mode))))
 
     def get_column_pos(self, graph_name):

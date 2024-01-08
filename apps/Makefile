@@ -14,6 +14,14 @@ ifeq ($(COMPILER),g++)
 	ArchSuffix=_mc
 endif
 
+
+ifeq ($(COMPILER),/opt/software/gcc-9.1/bin/g++)
+	Include_Path = -I ../
+	Flags = -D __USE_MULTICORE__ $(MPI_Flags) -O3 -fopenmp -ftree-vectorize -std=c++17 -fopenmp -mprefer-vector-width=512 -Ofast -funroll-loops -ffast-math
+	Libraries = -O3 -fopenmp
+	ArchSuffix=_mc
+endif
+
 ifeq ($(COMPILER),icpc)
 	Include_Path = -I ../
 	Flags = -D __USE_MULTICORE__ $(MPI_Flags) -O3 -fopenmp -std=c++17 -xMIC-AVX512 -ffreestanding -qopenmp -w0
@@ -30,6 +38,29 @@ ifeq ($(COMPILER),nvcc)
 	Libraries = -lcudart -lcudadevrt -lcudadevrt -Xcompiler -fopenmp
 	ArchSuffix=_cu
 endif
+
+
+ifeq ($(COMPILER),/opt/cuda/cuda-10.1/bin/nvcc)
+	CUDA_DIR = /opt/cuda/cuda-10.1/
+	CUDA_COMPILER = $(CUDA_DIR)/bin/nvcc
+	Include_Path = -I $(CUDA_DIR)/include -I ../external_libraries/cub -I ../
+	Flags = -O2 -D __USE_GPU__ -x cu -w -m64 -std=c++11 -Xptxas -dlcm=ca --expt-extended-lambda -gencode arch=compute_60,code=sm_60 -gencode arch=compute_70,code=sm_70 -Xcompiler -fopenmp
+	Library_Path = -L $(CUDA_DIR)/lib -L $(CUDA_DIR)/lib64
+	Libraries = -lcudart -lcudadevrt -lcudadevrt -Xcompiler -fopenmp
+	ArchSuffix=_cu
+endif
+
+ifeq ($(COMPILER),/opt/cuda/cuda-11.1/bin/nvcc)
+	CUDA_DIR = /opt/cuda/cuda-11.1/
+	CUDA_COMPILER = $(CUDA_DIR)/bin/nvcc
+	Include_Path = -I $(CUDA_DIR)/include -I ../external_libraries/cub -I ../
+	Flags = -O2 -D __USE_GPU__ -x cu -w -m64 -std=c++11 -Xptxas -dlcm=ca --expt-extended-lambda -gencode arch=compute_60,code=sm_60 -gencode arch=compute_70,code=sm_70 -Xcompiler -fopenmp
+	Library_Path = -L $(CUDA_DIR)/lib -L $(CUDA_DIR)/lib64
+	Libraries = -lcudart -lcudadevrt -lcudadevrt -Xcompiler -fopenmp
+	ArchSuffix=_cu
+endif
+
+
 
 ifeq ($(COMPILER),nc++)
 	Include_Path = -I /opt/nec/ve/nlc/2.3.0/include/ -I ../ #2.0.0 was here for lom-2
@@ -52,7 +83,7 @@ install:
                         git clone https://www.github.com/moderngpu/moderngpu ../external_libraries/moderngpu;\
                 fi
 
-all: sssp sswp bfs scc pr cc rw hits coloring tc mf create_vgl_graphs
+all: sssp sswp bfs scc pr cc hits tc create_vgl_graphs
 
 sssp: create_folders sssp.o
 	$(CXX) object_files/sssp.o $(Library_Path) $(Libraries) -o ./bin/sssp$(ArchSuffix)$(BinSuffix)

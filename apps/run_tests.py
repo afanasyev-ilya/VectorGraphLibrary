@@ -96,9 +96,13 @@ def run(options, run_info):
 
     start = time.time()
     list_of_formats = get_list_of_formats(options.format)
-    for format_name in list_of_formats:
-        options.format = format_name
+    if options.ml == True:
+        options.format = "ml"
         benchmark_and_verify(options, arch, benchmarking_results)
+    else:
+        for format_name in list_of_formats:
+            options.format = format_name
+            benchmark_and_verify(options, arch, benchmarking_results)
 
     if run_info != {} and len(list_of_formats) == 1:
         run_info["format"] = options.format
@@ -167,6 +171,10 @@ def main():
     parser.add_option('-i', '--plot',
                       action="store_true", dest="plot",
                       help="plot performance data (default false)", default=False)
+
+    parser.add_option('-l', '--ml_format',
+                      action="store_true", dest="ml",
+                      help="enable ml-featured shoosing of graph formats", default=False)
 
     options, args = parser.parse_args()
 

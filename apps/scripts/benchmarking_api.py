@@ -3,9 +3,12 @@ from .create_graphs_api import *
 from .export import *
 from .settings import *
 import re
-from .export import *
 import time
 from threading import Timer
+import pickle
+import numpy as np
+import sklearn
+#from sklearn.ensemble import RandomForestClassifier
 
 
 def find_perf_line(output):
@@ -35,7 +38,17 @@ def benchmark_app(app_name, arch, benchmarking_results, graph_format, run_speed_
     list_of_graphs = get_list_of_all_graphs(run_speed_mode)
 
     create_graphs_if_required(list_of_graphs, arch, run_speed_mode)
-    common_args = ["-it", str(common_iterations), "-format", graph_format]
+    print(graph_format)
+    loaded_model_filename = str(arch) + "_" + str(app_name) + "_model.sav"
+    features_filename =  str(arch) + "_" + str(app_name) + "_features.pickle"
+    loaded_model = None
+    features_map = None
+    if graph_format == "ml":
+        common_args = ["-it", str(common_iterations)]
+        loaded_model = pickle.load(open(loaded_model_filename, 'rb'))
+        features_map = pickle.load(open(features_filename, 'rb'))
+    else:
+        common_args = ["-it", str(common_iterations), "-format", graph_format]
 
     algorithms_tested = 0
 
@@ -47,7 +60,13 @@ def benchmark_app(app_name, arch, benchmarking_results, graph_format, run_speed_
             if app_name in apps_and_graphs_ingore and current_graph in apps_and_graphs_ingore[app_name]:
                 print("graph " + current_graph + " is set to be ignored for app " + app_name + "!")
                 continue
-
+            
+            if graph_format == "ml":
+                features = features_map[current_graph]
+                pred = loaded_model.predict(np.array(features).reshape(-1,5))[0]
+                common_args.append("-format")
+                common_args.append(gpu_bfs_format_label[pred])
+                
             cmd = [get_binary_path(app_name, arch), "-import", get_path_to_graph(current_graph, "el_container", requires_undir_graphs(app_name))] + current_args + common_args
             print(' '.join(cmd))
             proc = subprocess.Popen(cmd, shell=False, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
@@ -57,6 +76,9 @@ def benchmark_app(app_name, arch, benchmarking_results, graph_format, run_speed_
                 stdout, stderr = proc.communicate()
             finally:
                 timer.cancel()
+
+            if graph_format == "ml":
+                common_args = ["-it", str(common_iterations)]
 
             output = stdout.decode("utf-8")
 
